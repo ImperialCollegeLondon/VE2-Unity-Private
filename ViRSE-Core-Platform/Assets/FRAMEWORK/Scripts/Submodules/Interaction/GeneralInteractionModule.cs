@@ -1,5 +1,6 @@
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,20 +10,13 @@ using UnityEngine;
 //We want each VC to only have one of these, although it may want multiple interaction modules 
 //We may want to have the VC inject this GeneralInteractionConfig into the interaction modules
 //Or the interaction modules may not even need this data! We'll have to see
-[AllowGUIEnabledForReadonly]
-[HideMonoScript]
-public class GeneralInteractionModule : MonoBehaviour
-{
+[Serializable]
+public class GeneralInteractionModule
+{ 
     [VerticalGroup("GeneralInteractionModule_VGroup")]
-    //[FoldoutGroup("GeneralInteractionModule_VGroup/GeneralInteractionModule")]
-    [DisableIf("@isProgrammatic")]
+    [FoldoutGroup("GeneralInteractionModule_VGroup/General Interaction Settings")]
     [SerializeField] protected bool enableControllerVibrations = true;
 
-    [VerticalGroup("GeneralInteractionModule_VGroup")]
+    [FoldoutGroup("GeneralInteractionModule_VGroup/General Interaction Settings")]
     [SerializeField] protected bool showTooltipsAndHighlight = true;
-
-    public void TearDown()
-    {
-        DestroyImmediate(this);
-    }
 }

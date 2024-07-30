@@ -8,12 +8,12 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 
 //Has state history check
-[AllowGUIEnabledForReadonly]
-[HideMonoScript]
-public class WorldStateSyncablePredictiveWrapper : MonoBehaviour
+[Serializable]
+public class WorldStateSyncablePredictiveWrapper
 {
-    [InlineEditor(InlineEditorObjectFieldModes.CompletelyHidden)]
-    [ShowInInspector]
+    private GameObject gameObject;
+
+    [SerializeField, ShowInInspector, HideLabel]
     private WorldstateSyncableModule worldstateSyncableModule; 
 
     private PredictiveWorldStateHistoryQueue historyQueue;
@@ -28,11 +28,9 @@ public class WorldStateSyncablePredictiveWrapper : MonoBehaviour
         get; private set;
     } = new();
 
-    public void InitializeInspector(string syncType)
+    public WorldStateSyncablePredictiveWrapper(GameObject gameObject, string syncType)
     {
-        worldstateSyncableModule = gameObject.AddComponent<WorldstateSyncableModule>();
-        worldstateSyncableModule.InitializeInspector(syncType);
-        worldstateSyncableModule.hideFlags = HideFlags.HideInInspector | HideFlags.NotEditable;
+        worldstateSyncableModule = new(gameObject, syncType);
     }
 
     private void Awake()
@@ -88,14 +86,6 @@ public class WorldStateSyncablePredictiveWrapper : MonoBehaviour
 
 
         ReceivedStateWithNoHistoryMatch?.Invoke(receivedState);
-    }
-
-    public void TearDown()
-    {
-        if (worldstateSyncableModule != null)
-            worldstateSyncableModule.TearDown();
-
-        DestroyImmediate(this);
     }
 }
 

@@ -1,22 +1,26 @@
 using Sirenix.OdinInspector;
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
 //Has ID, frequency, sync offset, decides when to transmit to the syncer 
 //TODO, The ID stuff can be split into a sub component, away from the frequency and sync offset stuff 
-[HideMonoScript]
-public class WorldstateSyncableModule : MonoBehaviour
+[Serializable]
+public class WorldstateSyncableModule
 {
-    [InlineEditor(InlineEditorObjectFieldModes.CompletelyHidden)]
-    [ShowInInspector]
-    private ProtocolModule protocolModule;
-
-    [FoldoutGroup("WorldstateSyncableModuleVGroup")]
-    [PropertyOrder(1000)]
+    [VerticalGroup("NetworkSettings_VGroup")]
+    [FoldoutGroup("NetworkSettings_VGroup/Network Settings")]
+    //[PropertyOrder(1000)]
     [InfoBox("Careful with high sync frequencies, the network load can impact performance!", InfoMessageType.Warning, "@this.syncFrequency > 5")]
     [SuffixLabel("Hz")]
     [Range(0.2f, 50f)][SerializeField] private float syncFrequency = 1;
+
+    [SerializeField, ShowInInspector, HideLabel]
+    [FoldoutGroup("NetworkSettings_VGroup/Network Settings")]
+    private ProtocolModule protocolModule;
+
+    private GameObject gameObject;
     public float GetSyncFrequency() => syncFrequency;
 
     private string syncType;
@@ -25,39 +29,41 @@ public class WorldstateSyncableModule : MonoBehaviour
     private bool CheckForRegistrationError() =>
     worldStateSyncableModulesAgainstIDs.TryGetValue(id, out WorldstateSyncableModule module) && module != this;
 
-    [PropertyOrder(-100000)]
-    //[InfoBox("Error - syncables must have unique GameObject names! Please rename this GameObject", InfoMessageType.Error, "@CheckIfNameClash()")]
-    [Button]
-    [PropertySpace(SpaceBefore = 10, SpaceAfter = 10)]
-    //[ShowIf("@CheckForRegistrationError()")]
-    public void Rename(bool renamedManually = true)
+//    [PropertyOrder(-100000)]
+//    //[InfoBox("Error - syncables must have unique GameObject names! Please rename this GameObject", InfoMessageType.Error, "@CheckIfNameClash()")]
+//    [Button]
+//    [PropertySpace(SpaceBefore = 10, SpaceAfter = 10)]
+//    //[ShowIf("@CheckForRegistrationError()")]
+//    public void Rename(bool renamedManually = true)
+//    {
+//        string newID;
+//        int extraIDNumber = 0;
+
+//        do
+//        {
+//            extraIDNumber++;
+//            newID = syncType + "-" + gameObject.name + extraIDNumber.ToString();
+//        }
+//        while (worldStateSyncableModulesAgainstIDs.ContainsKey(newID));
+
+//        gameObject.name += extraIDNumber;
+//        RefreshID();
+
+//#if UNITY_EDITOR
+//        if (renamedManually)
+//            Undo.RecordObject(gameObject, "Rename Object"); // Record the object for undo
+//#endif
+
+//    }
+
+    public WorldstateSyncableModule(GameObject gameObject, string syncType)
     {
-        string newID;
-        int extraIDNumber = 0;
-
-        do
-        {
-            extraIDNumber++;
-            newID = syncType + "-" + gameObject.name + extraIDNumber.ToString();
-        }
-        while (worldStateSyncableModulesAgainstIDs.ContainsKey(newID));
-
-        gameObject.name += extraIDNumber;
-        RefreshID();
-
-#if UNITY_EDITOR
-        if (renamedManually)
-            Undo.RecordObject(gameObject, "Rename Object"); // Record the object for undo
-#endif
-
-    }
-
-    public void InitializeInspector(string syncType)
-    {
+        this.gameObject = gameObject;
         this.syncType = syncType;
 
-        protocolModule = gameObject.AddComponent<ProtocolModule>();
-        protocolModule.hideFlags = HideFlags.HideInInspector | HideFlags.NotEditable;
+        syncFrequency = 1;
+
+        protocolModule = new();
 
         RefreshID();
     }
@@ -81,7 +87,7 @@ public class WorldstateSyncableModule : MonoBehaviour
                 worldStateSyncableModulesAgainstIDs.Remove(id);
 
         //Creat new ID
-        id = syncType + "-" + gameObject.name;
+        //id = syncType + "-" + gameObject.name;
 
         //Add new ID to dict if not already present
         if (worldStateSyncableModulesAgainstIDs.ContainsKey(id))
@@ -161,7 +167,7 @@ public class WorldstateSyncableModule : MonoBehaviour
     {
         if (newFrequency < 0)
         {
-            V_Logger.Error("Tried to set sync frequency to below zero on the " + GetType() + " on " + gameObject.name + ", this is not allowed!");
+            //V_Logger.Error("Tried to set sync frequency to below zero on the " + GetType() + " on " + gameObject.name + ", this is not allowed!");
             return;
         }
 
@@ -183,12 +189,4 @@ public class WorldstateSyncableModule : MonoBehaviour
         WorldStateSyncService.instance.DeregisterListener(id);
     }
 
-
-    public void TearDown()
-    {
-        if (protocolModule != null)
-            protocolModule.TearDown();
-
-        DestroyImmediate(this);
-    }
 }

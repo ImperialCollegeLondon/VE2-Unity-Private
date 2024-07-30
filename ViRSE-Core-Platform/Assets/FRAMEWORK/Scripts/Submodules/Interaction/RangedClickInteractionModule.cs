@@ -1,15 +1,22 @@
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-[AllowGUIEnabledForReadonly]
-[HideMonoScript]
+[Serializable]
 public class RangedClickInteractionModule : RangedInteractionModule
-{ 
+{
+    public RangedClickInteractionModule(GameObject gameObject) : base(gameObject) { }
+
     public UnityEvent<InteractorID> OnClickDown {get; private set;} = new UnityEvent<InteractorID>();
+
+    //public RangedClickInteractionModule(GameObject gameObject)
+    //{
+
+    //}
 
     public void InvokeOnClickDown(InteractorID interactorID)
     {

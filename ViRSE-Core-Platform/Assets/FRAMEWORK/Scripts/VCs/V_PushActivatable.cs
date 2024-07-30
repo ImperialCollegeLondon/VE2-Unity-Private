@@ -2,15 +2,14 @@ using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UIElements;
 
 namespace VComponents
 {
-    //TODO - rename to V_PushButton
-    [ExecuteAlways]
-    public class V_NewActivatable : MonoBehaviour
+    public class V_PushActivatable : MonoBehaviour
     {
         //[FoldoutGroup("Activatable Settings V Group/Activatable Settings")]
         //[PropertyOrder(-15)]
@@ -20,13 +19,20 @@ namespace VComponents
         //[PropertyOrder(-15)]
         [SerializeField] [ShowInInspector] public UnityEvent OnDeactivate;
 
-        [InlineEditor(InlineEditorObjectFieldModes.CompletelyHidden)]
+        [PropertySpace(SpaceBefore = 10)]
+        [SerializeField, ShowInInspector, HideLabel]
+        public GeneralInteractionModule generalInteractionModule;
+
+        [PropertySpace(SpaceBefore = 10)]
+        [SerializeField, ShowInInspector, HideLabel]
         public RangedClickInteractionModule rangedClickInteractionModule;
 
-        [InlineEditor(InlineEditorObjectFieldModes.CompletelyHidden)]
+        [PropertySpace(SpaceBefore = 10)]
+        [SerializeField, ShowInInspector, HideLabel]
         public ColliderInteractionModule colliderInteractionModule;
 
-        [InlineEditor(InlineEditorObjectFieldModes.CompletelyHidden)]
+        [PropertySpace(SpaceBefore = 10)]
+        [SerializeField, ShowInInspector, HideLabel]
         public WorldStateSyncablePredictiveWrapper predictiveSyncableWrapper;
 
         public PushActivatableState state;
@@ -35,24 +41,17 @@ namespace VComponents
         [OnInspectorInit]
         private void CreateData()
         {
+            if (generalInteractionModule == null)
+                generalInteractionModule = new();
+
             if (rangedClickInteractionModule == null)
-            {
-                rangedClickInteractionModule = gameObject.AddComponent<RangedClickInteractionModule>();
-                rangedClickInteractionModule.hideFlags = HideFlags.HideInInspector | HideFlags.NotEditable;
-            }
+                rangedClickInteractionModule = new(gameObject);
 
             if (colliderInteractionModule == null)
-            {
-                colliderInteractionModule = gameObject.AddComponent<ColliderInteractionModule>();
-                colliderInteractionModule.hideFlags = HideFlags.HideInInspector | HideFlags.NotEditable;
-            }
+                colliderInteractionModule = new();
 
             if (predictiveSyncableWrapper == null)
-            {
-                predictiveSyncableWrapper = gameObject.AddComponent<WorldStateSyncablePredictiveWrapper>();
-                predictiveSyncableWrapper.hideFlags = HideFlags.HideInInspector | HideFlags.NotEditable;
-                predictiveSyncableWrapper.InitializeInspector("Activatable");
-            }
+                predictiveSyncableWrapper = new(gameObject, "Activatable");
         }
 
         private void InitializeRuntime()
@@ -150,18 +149,6 @@ namespace VComponents
         {
             OnDeactivate?.Invoke();
         }
-
-        private void OnDestroy()
-        {
-            if (rangedClickInteractionModule != null)
-                rangedClickInteractionModule.TearDown();
-
-            if (colliderInteractionModule != null)
-                colliderInteractionModule.TearDown();
-
-            if (predictiveSyncableWrapper != null)
-                predictiveSyncableWrapper.TearDown();
-        }
     }
 }
 
@@ -218,3 +205,32 @@ public abstract class NonPhysicsSyncableState : BaseSyncableState
 
 //Something to wire it in to the subservices? Need to consider if its worth not just absorbing them if we're coupling them 
 //to the inheritence heirarchy anyway though...
+
+
+
+
+//Cleaning up 
+/*
+ * Right, we can't use execute always 
+ * But we still need to be able to remove the submodules within the editor 
+ * Option 1: The submodules could have a reference to their parent, if they detect their parent is null, they destroy themselves (when??)
+ * 
+ * Option 2: The parent module sends a "keep alive" message to the submodule, if the submodule doesn't receive this, it destroys itself (also, when??)
+ * 
+ * The problem with the two above is that this also needs to work in play mode, ideally don't want to have multiple different systems for this 
+ * 
+ * Option 3: Maybe there's some custom inspector nonsense we can swing
+ * 
+ * 
+ * Option 4: Maybe these submodules don't actually NEED to be MonoBehaviours??
+ * I mean, we need the mono methods, but the parent can just pass down those invokations can't they, 
+ * This then means the interactor doesn't do GetComponent on the interaction module, it instead does GetComponent on the interface
+ * THIS means we need an interface function for returning a reference to the submodule 
+ * Maybe that even makes more sense? It means that we enter at the root level and search down, we don't ever have to worry about finding our way across branches of the tree (e.g RangedInteractionModule to GrabbableInteractionConfig)
+ * The tradeoff is we have to call Awake/Start/Update manually from the parent 
+ * But the pro, is that we don't need all the teardown stuff we'd need otherwise 
+ * mmm, I think we do, 
+ * 
+ * 
+ * 
+ */

@@ -1,8 +1,10 @@
+using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class StaticData
+public class StaticData : MonoBehaviour
 {
     public static int fixedUpdateFrame = 0;
+
 }

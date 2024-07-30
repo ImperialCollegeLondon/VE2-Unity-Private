@@ -30,7 +30,7 @@ public class WorldStateSyncService : MonoBehaviour
     {
         SyncableStateReceiveEvent syncableStateReceivedEvent = new();
         syncableStateReceivedEvents.Add(id, syncableStateReceivedEvent);
-
+        
         numberOfSyncablesRegisteredDebug++;
 
         return syncableStateReceivedEvent;
