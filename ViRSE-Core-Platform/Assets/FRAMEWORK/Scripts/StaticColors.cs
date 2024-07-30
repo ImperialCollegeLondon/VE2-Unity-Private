@@ -5,10 +5,17 @@ using UnityEngine;
 
 public class StaticColors : MonoBehaviour
 {
-    [ShowInInspector] public static Color lightBlue;
-    [ShowInInspector] public static Color processBlue;
-    [ShowInInspector] public static Color imperialBlue;
-    [ShowInInspector] public static Color navyBlue;
-    [ShowInInspector] public static Color virseGreen;
-    [ShowInInspector] public static Color tangerine;
+    public static StaticColors instance;
+
+    [SerializeField] public Color lightBlue;
+    [SerializeField] public Color processBlue;
+    [SerializeField] public Color imperialBlue;
+    [SerializeField] public Color navyBlue;
+    [SerializeField] public Color virseGreen;
+    [SerializeField] public Color tangerine;
+
+    private void Awake()
+    {
+        instance = this;
+    }
 }

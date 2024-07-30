@@ -14,16 +14,17 @@ public class WorldstateSyncableModule
     //[PropertyOrder(1000)]
     [InfoBox("Careful with high sync frequencies, the network load can impact performance!", InfoMessageType.Warning, "@this.syncFrequency > 5")]
     [SuffixLabel("Hz")]
-    [Range(0.2f, 50f)][SerializeField] private float syncFrequency = 1;
+    [Range(0.2f, 50f)]
+    [SerializeField] private float syncFrequency;
+    [HideInInspector] public float SyncFrequency => syncFrequency;
 
     [SerializeField, ShowInInspector, HideLabel]
     [FoldoutGroup("NetworkSettings_VGroup/Network Settings")]
     private ProtocolModule protocolModule;
 
-    private GameObject gameObject;
-    public float GetSyncFrequency() => syncFrequency;
+    [SerializeField, HideInInspector] private GameObject gameObject;
 
-    private string syncType;
+    [SerializeField, HideInInspector] private string syncType;
     public string id { get; private set; }
     private static Dictionary<string, WorldstateSyncableModule> worldStateSyncableModulesAgainstIDs = new();
     private bool CheckForRegistrationError() =>
@@ -61,7 +62,7 @@ public class WorldstateSyncableModule
         this.gameObject = gameObject;
         this.syncType = syncType;
 
-        syncFrequency = 1;
+        syncFrequency = 1f;
 
         protocolModule = new();
 
@@ -74,7 +75,7 @@ public class WorldstateSyncableModule
         newStateToTransmit = shouldTransmit;
     }
 
-    protected virtual void OnValidate()
+    protected virtual void OnValidate() //TODO - OnVlidate needs to come from VC
     {
         if (syncFrequency > 1)
             syncFrequency = Mathf.RoundToInt(syncFrequency);
@@ -86,8 +87,8 @@ public class WorldstateSyncableModule
         if (id != null && worldStateSyncableModulesAgainstIDs.TryGetValue(id, out WorldstateSyncableModule module) && module != null && module == this)
                 worldStateSyncableModulesAgainstIDs.Remove(id);
 
-        //Creat new ID
-        //id = syncType + "-" + gameObject.name;
+        //Create new ID
+        id = syncType + "-" + gameObject.name;
 
         //Add new ID to dict if not already present
         if (worldStateSyncableModulesAgainstIDs.ContainsKey(id))
@@ -167,7 +168,7 @@ public class WorldstateSyncableModule
     {
         if (newFrequency < 0)
         {
-            //V_Logger.Error("Tried to set sync frequency to below zero on the " + GetType() + " on " + gameObject.name + ", this is not allowed!");
+            V_Logger.Error("Tried to set sync frequency to below zero on the " + GetType() + " on " + gameObject.name + ", this is not allowed!");
             return;
         }
 

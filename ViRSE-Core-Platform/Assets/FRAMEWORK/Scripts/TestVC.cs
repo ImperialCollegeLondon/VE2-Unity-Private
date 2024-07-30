@@ -8,12 +8,13 @@ public class TestVC : MonoBehaviour
     [SerializeField, ShowInInspector, HideLabel]
     private TestSubModule testSubModule;
 
-    [OnInspectorInit]
-    private void CreateData()
+    //[OnInspectorInit]
+    private void Reset()
     {
         if (testSubModule == null)
         {
-            testSubModule = new TestSubModule();
+            Debug.Log("Test sub is null");
+            testSubModule = new TestSubModule("test!!!");
         }
     }
 

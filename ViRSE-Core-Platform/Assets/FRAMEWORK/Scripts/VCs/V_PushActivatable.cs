@@ -5,11 +5,12 @@ using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Scripting;
 using UnityEngine.UIElements;
 
 namespace VComponents
 {
-    public class V_PushActivatable : MonoBehaviour
+    public class V_PushActivatable : MonoBehaviour, IRangedInteractableComponent
     {
         //[FoldoutGroup("Activatable Settings V Group/Activatable Settings")]
         //[PropertyOrder(-15)]
@@ -21,37 +22,30 @@ namespace VComponents
 
         [PropertySpace(SpaceBefore = 10)]
         [SerializeField, ShowInInspector, HideLabel]
-        public GeneralInteractionModule generalInteractionModule;
+        private GeneralInteractionModule generalInteractionModule;
 
         [PropertySpace(SpaceBefore = 10)]
         [SerializeField, ShowInInspector, HideLabel]
-        public RangedClickInteractionModule rangedClickInteractionModule;
+        private RangedClickInteractionModule rangedClickInteractionModule;
 
         [PropertySpace(SpaceBefore = 10)]
         [SerializeField, ShowInInspector, HideLabel]
-        public ColliderInteractionModule colliderInteractionModule;
+        private ColliderInteractionModule colliderInteractionModule;
 
         [PropertySpace(SpaceBefore = 10)]
         [SerializeField, ShowInInspector, HideLabel]
-        public WorldStateSyncablePredictiveWrapper predictiveSyncableWrapper;
+        private WorldStateSyncablePredictiveWrapper predictiveSyncableWrapper;
 
-        public PushActivatableState state;
+        private PushActivatableState state;
 
-        //Hides components in inspector just fine
-        [OnInspectorInit]
-        private void CreateData()
+        public IRangedInteractionModule InteractionModule => rangedClickInteractionModule;
+
+        private void Reset()
         {
-            if (generalInteractionModule == null)
-                generalInteractionModule = new();
-
-            if (rangedClickInteractionModule == null)
-                rangedClickInteractionModule = new(gameObject);
-
-            if (colliderInteractionModule == null)
-                colliderInteractionModule = new();
-
-            if (predictiveSyncableWrapper == null)
-                predictiveSyncableWrapper = new(gameObject, "Activatable");
+            generalInteractionModule = new();
+            rangedClickInteractionModule = new(gameObject);
+            colliderInteractionModule = new();
+            predictiveSyncableWrapper = new(gameObject, "Activatable");
         }
 
         private void InitializeRuntime()

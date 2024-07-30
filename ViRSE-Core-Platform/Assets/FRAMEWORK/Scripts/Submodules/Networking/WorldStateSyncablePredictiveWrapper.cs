@@ -11,7 +11,7 @@ using UnityEngine;
 [Serializable]
 public class WorldStateSyncablePredictiveWrapper
 {
-    private GameObject gameObject;
+    [SerializeField, HideInInspector] private GameObject gameObject;
 
     [SerializeField, ShowInInspector, HideLabel]
     private WorldstateSyncableModule worldstateSyncableModule; 
@@ -49,7 +49,7 @@ public class WorldStateSyncablePredictiveWrapper
         worldstateSyncableModule.UpdateSyncableData(state, true);
     }
 
-    private void FixedUpdate()
+    private void FixedUpdate() //TODO - needs to be called by the VC
     {
         historyQueue.AddStateToQueue((NonPhysicsSyncableState)worldstateSyncableModule.syncableState);
     }

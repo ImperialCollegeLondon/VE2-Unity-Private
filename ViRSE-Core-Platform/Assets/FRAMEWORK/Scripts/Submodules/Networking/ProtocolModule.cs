@@ -10,8 +10,13 @@ public class ProtocolModule
     // [PropertyOrder(1001)]
     //[PropertySpace(SpaceBefore = 5)]
     //[FoldoutGroup("ProtocolModuleVGroup")]
-    //[SerializeField] public TransmissionProtocol transmissionType { get; private set; } = TransmissionProtocol.UDP;
-    [SerializeField] public TransmissionProtocol transmissionType = TransmissionProtocol.UDP;
+    [SerializeField, ShowInInspector] public TransmissionProtocol transmissionType;
+    [HideInInspector] public TransmissionProtocol TransmissionType => transmissionType;
+
+    public ProtocolModule()
+    {
+        transmissionType = TransmissionProtocol.UDP;
+    }
 
 }
 

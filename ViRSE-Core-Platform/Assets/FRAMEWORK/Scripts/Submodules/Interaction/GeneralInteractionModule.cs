@@ -15,8 +15,10 @@ public class GeneralInteractionModule
 { 
     [VerticalGroup("GeneralInteractionModule_VGroup")]
     [FoldoutGroup("GeneralInteractionModule_VGroup/General Interaction Settings")]
-    [SerializeField] protected bool enableControllerVibrations = true;
+    [SerializeField] private bool enableControllerVibrations = true;
+    [HideInInspector] public bool EnableControllerVibrations => enableControllerVibrations;
 
     [FoldoutGroup("GeneralInteractionModule_VGroup/General Interaction Settings")]
-    [SerializeField] protected bool showTooltipsAndHighlight = true;
+    [SerializeField] private bool showTooltipsAndHighlight = true;
+    [HideInInspector] public bool ShowTooltipsAndHighlight => showTooltipsAndHighlight;
 }
