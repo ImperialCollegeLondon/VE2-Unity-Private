@@ -7,21 +7,32 @@ using UnityEngine;
 using UnityEngine.Events;
 
 [Serializable]
-public class RangedClickInteractionModule : RangedInteractionModule
+public class RangedClickInteractionModule : RangedInteractionModule, IRangedClickInteractionModule
 {
-    public RangedClickInteractionModule(GameObject gameObject) : base(gameObject) { }
+    public RangedClickInteractionModule(GameObject gameObject) : base(gameObject) 
+    {
+        Debug.Log("New UnityEvent!");
+    }
 
-    public UnityEvent<InteractorID> OnClickDown {get; private set;} = new UnityEvent<InteractorID>();
+    public UnityEvent<InteractorID> OnClickDown { get; private set; } = new UnityEvent<InteractorID>(); //HELP! How is this null?
 
-    //public RangedClickInteractionModule(GameObject gameObject)
-    //{
+    public void OnComponentAwake()
+    {
+        OnClickDown = new();
+    }
 
-    //}
 
     public void InvokeOnClickDown(InteractorID interactorID)
     {
         //only happens if is valid click
         OnClickDown.Invoke(interactorID);
+
+        /*Do we actually need the interactor ID?
+         * Well, what would we use it for?
+         * Telling the customer who activated the thing?
+         * NOT for syncing, that's done via a separate system
+         * 
+         */
     }
 }
 
@@ -54,11 +65,18 @@ public class InteractorID
 {
     public int ClientID;
     public InteractorType interactorType; //TODO, do we really want this, we don't NEED This for toggle 
+
+    public InteractorID(int clientID, InteractorType interactorType)
+    {
+        ClientID = clientID;
+        this.interactorType = interactorType;
+    }
 }
 
 public enum InteractorType
 {
     TwoD,
     VRRight,
-    VRLeft
+    VRLeft,
+    Feet
 }

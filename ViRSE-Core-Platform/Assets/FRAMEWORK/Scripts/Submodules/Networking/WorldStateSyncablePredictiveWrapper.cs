@@ -23,23 +23,20 @@ public class WorldStateSyncablePredictiveWrapper
     //[HideInInspector]
     //public int stateChangeNumber = 0;
 
-    [HideInInspector]
-    public SyncableStateReceiveEvent ReceivedStateWithNoHistoryMatch {
-        get; private set;
-    } = new();
+    [HideInInspector] public SyncableStateReceiveEvent OnReceivedStateWithNoHistoryMatch {get; private set;}
 
     public WorldStateSyncablePredictiveWrapper(GameObject gameObject, string syncType)
     {
         worldstateSyncableModule = new(gameObject, syncType);
     }
 
-    private void Awake()
+    public void OnComponentAwake()
     {
-        ReceivedStateWithNoHistoryMatch = new();
+        OnReceivedStateWithNoHistoryMatch = new();
         worldstateSyncableModule.RegisterWithSyncerAndGetSyncableStateReceiveEvent().AddListener(OnReceiveSyncData);
     }
 
-    public string Id { get { return worldstateSyncableModule.id; } }
+    public string Id { get { return worldstateSyncableModule.ID; } }
 
 
     //If we're the non-host, the syncable module will have its state updated automatically
@@ -85,7 +82,7 @@ public class WorldStateSyncablePredictiveWrapper
         }
 
 
-        ReceivedStateWithNoHistoryMatch?.Invoke(receivedState);
+        OnReceivedStateWithNoHistoryMatch?.Invoke(receivedState);
     }
 }
 

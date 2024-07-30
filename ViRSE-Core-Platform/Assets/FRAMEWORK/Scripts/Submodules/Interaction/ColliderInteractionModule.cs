@@ -13,7 +13,7 @@ public class ColliderInteractionModule
     [FoldoutGroup("ColliderInteractionModule_VGroup/Collider Interaction Settings")]
     [SerializeField] private bool test;
 
-    public UnityEvent<InteractorID> OnCollideEnter { get; private set; } = new UnityEvent<InteractorID>();
+    public UnityEvent<InteractorID> OnCollideEnter { get; private set; } = new UnityEvent<InteractorID>(); //This is totally fine, how is it any different?
 
 
     public void InvokeOnCollideEnter(InteractorID id)

@@ -48,7 +48,15 @@ namespace VComponents
             predictiveSyncableWrapper = new(gameObject, "Activatable");
         }
 
-        private void InitializeRuntime()
+        private void Awake()
+        {
+            rangedClickInteractionModule.OnComponentAwake();
+            predictiveSyncableWrapper.OnComponentAwake();
+
+            state = new(predictiveSyncableWrapper.Id, 0, false, -1);
+        }
+
+        private void Start()
         {
             //TODO, maybe we don't want to worry about IDs at this level?
             //TODO, we need to wire this starting state into the the actual network module?
@@ -56,10 +64,10 @@ namespace VComponents
             //Unless state in the NM always starts as null? If it's null, just don't transmit
             //state = new(predictiveSyncableWrapper.Id, 0, false, -1);
 
-            rangedClickInteractionModule.OnClickDown.AddListener(OnInteract);
-            colliderInteractionModule.OnCollideEnter.AddListener(OnInteract);
+            colliderInteractionModule.OnCollideEnter.AddListener(OnInteract); //But this is fine 
+            rangedClickInteractionModule.OnClickDown.AddListener(OnInteract); //HELP !!!! Null reference here, but the line above is fine. How has the event not been initialized?
 
-            predictiveSyncableWrapper.ReceivedStateWithNoHistoryMatch.AddListener(OnReceiveRemoteOverrideState);
+            predictiveSyncableWrapper.OnReceivedStateWithNoHistoryMatch.AddListener(OnReceiveRemoteOverrideState);
         }
 
         //private void FixedUpdate()

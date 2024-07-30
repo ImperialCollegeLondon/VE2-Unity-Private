@@ -7,43 +7,38 @@ using UnityEngine.Events;
 
 public class SyncableStateReceiveEvent : UnityEvent<BaseSyncableState> { };
 
-public class WorldStateSyncService : MonoBehaviour
+public static class WorldStateSyncService /*: MonoBehaviour*/
 {
-    public static WorldStateSyncService instance;
+    //public static WorldStateSyncService instance;
 
-    [ReadOnly][SerializeField] private int numberOfSyncablesRegisteredDebug = 0;
+    //[ReadOnly][SerializeField] private int numberOfSyncablesRegisteredDebug = 0;
 
     public delegate void SyncableStateReceiver(BaseSyncableState newState);
-    private Dictionary<string, SyncableStateReceiveEvent> syncableStateReceivedEvents = new();
+    private static Dictionary<string, SyncableStateReceiveEvent> syncableStateReceivedEvents = new();
 
-    private List<BaseSyncableState> outgoingSyncableStateBufferTCP = new();
-    private List<BaseSyncableState> outgoingSyncableStateBufferUDP = new();
+    private static List<BaseSyncableState> outgoingSyncableStateBufferTCP = new();
+    private static List<BaseSyncableState> outgoingSyncableStateBufferUDP = new();
 
-    public List<BaseSyncableState> incommingWorldStateBuffer = new();
+    public static List<BaseSyncableState> incommingWorldStateBuffer = new();
 
-    private void Awake()
-    {
-        instance = this;
-    }
-
-    public SyncableStateReceiveEvent RegisterForSyncDataReceivedEvents(string id)
+    public static SyncableStateReceiveEvent RegisterForSyncDataReceivedEvents(string id)
     {
         SyncableStateReceiveEvent syncableStateReceivedEvent = new();
         syncableStateReceivedEvents.Add(id, syncableStateReceivedEvent);
         
-        numberOfSyncablesRegisteredDebug++;
+        //numberOfSyncablesRegisteredDebug++;
 
         return syncableStateReceivedEvent;
     }
 
-    public void DeregisterListener(string id)
+    public static void DeregisterListener(string id)
     {
-        numberOfSyncablesRegisteredDebug--;
+        //numberOfSyncablesRegisteredDebug--;
 
         syncableStateReceivedEvents.Remove(id);
     }
 
-    public void AddStateToOutgoingBuffer(BaseSyncableState stateToTransmit, TransmissionProtocol protocol)
+    public static void AddStateToOutgoingBuffer(BaseSyncableState stateToTransmit, TransmissionProtocol protocol)
     {
         if (protocol == TransmissionProtocol.TCP)
             outgoingSyncableStateBufferTCP.Add(stateToTransmit);
@@ -51,12 +46,12 @@ public class WorldStateSyncService : MonoBehaviour
             outgoingSyncableStateBufferUDP.Add(stateToTransmit);
     }
 
-    public void ReceiveWorldState(List<BaseSyncableState> syncableStates)
+    public static void ReceiveWorldState(List<BaseSyncableState> syncableStates)
     {
         incommingWorldStateBuffer.AddRange(syncableStates);
     }
 
-    public void UpdateWorldState()
+    public static void UpdateWorldState()
     {
         ProcessReceivedWorldStates();
 
@@ -70,7 +65,7 @@ public class WorldStateSyncService : MonoBehaviour
         outgoingSyncableStateBufferUDP.Clear();
     }
 
-    private void ProcessReceivedWorldStates()
+    private static void ProcessReceivedWorldStates()
     {
         foreach (BaseSyncableState receivedState in incommingWorldStateBuffer)
         {

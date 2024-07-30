@@ -16,7 +16,7 @@ public class WorldstateSyncableModule
     [SuffixLabel("Hz")]
     [Range(0.2f, 50f)]
     [SerializeField] private float syncFrequency;
-    [HideInInspector] public float SyncFrequency => syncFrequency;
+    public float SyncFrequency => syncFrequency;
 
     [SerializeField, ShowInInspector, HideLabel]
     [FoldoutGroup("NetworkSettings_VGroup/Network Settings")]
@@ -25,7 +25,10 @@ public class WorldstateSyncableModule
     [SerializeField, HideInInspector] private GameObject gameObject;
 
     [SerializeField, HideInInspector] private string syncType;
-    public string id { get; private set; }
+
+    [SerializeField, HideInInspector] private string id;
+    public string ID => id;
+
     private static Dictionary<string, WorldstateSyncableModule> worldStateSyncableModulesAgainstIDs = new();
     private bool CheckForRegistrationError() =>
     worldStateSyncableModulesAgainstIDs.TryGetValue(id, out WorldstateSyncableModule module) && module != this;
@@ -67,6 +70,7 @@ public class WorldstateSyncableModule
         protocolModule = new();
 
         RefreshID();
+        Debug.Log("New syncable, ID is " + ID);
     }
 
     public void UpdateSyncableData(BaseSyncableState syncableState, bool shouldTransmit)
@@ -84,15 +88,15 @@ public class WorldstateSyncableModule
     private void RefreshID()
     {
         //Remove old ID from dict
-        if (id != null && worldStateSyncableModulesAgainstIDs.TryGetValue(id, out WorldstateSyncableModule module) && module != null && module == this)
-                worldStateSyncableModulesAgainstIDs.Remove(id);
+        if (ID != null && worldStateSyncableModulesAgainstIDs.TryGetValue(ID, out WorldstateSyncableModule module) && module != null && module == this)
+                worldStateSyncableModulesAgainstIDs.Remove(ID);
 
         //Create new ID
         id = syncType + "-" + gameObject.name;
 
         //Add new ID to dict if not already present
-        if (worldStateSyncableModulesAgainstIDs.ContainsKey(id))
-            worldStateSyncableModulesAgainstIDs.Add(id, this);
+        if (worldStateSyncableModulesAgainstIDs.ContainsKey(ID))
+            worldStateSyncableModulesAgainstIDs.Add(ID, this);
     }
 
     //We don't want host to blast out state for everything every x frames, should instead stagger them to even network load
@@ -105,20 +109,20 @@ public class WorldstateSyncableModule
     protected bool newStateToTransmit { get; private set; }
     public BaseSyncableState syncableState { get; private set; } = null;
 
-    protected virtual void Start()
+    protected virtual void Start() //TODO tie into VC
     {
         SetupHostSyncOffset();
     }
 
-    protected virtual void FixedUpdate()
+    protected virtual void FixedUpdate() //TODO tie into VC
     {
         bool onBroadcastFrame = InstanceSyncService.IsHost && (StaticData.fixedUpdateFrame + hostSyncOffset) % hostSyncInterval == 0;
 
-        if (id != null && (onBroadcastFrame || newStateToTransmit))
+        if (ID != null && (onBroadcastFrame || newStateToTransmit))
         {
             //TODO, below comment, no longer just plugin syncables! Now its all syncables that start will null
             if (syncableState != null) //PluginSyncables that haven't yet received state will be null
-                WorldStateSyncService.instance.AddStateToOutgoingBuffer(syncableState, protocolModule.transmissionType);
+                WorldStateSyncService.AddStateToOutgoingBuffer(syncableState, protocolModule.transmissionType);
         }
 
         newStateToTransmit = false;
@@ -162,7 +166,7 @@ public class WorldstateSyncableModule
     }
 
     public SyncableStateReceiveEvent RegisterWithSyncerAndGetSyncableStateReceiveEvent() =>
-        WorldStateSyncService.instance.RegisterForSyncDataReceivedEvents(id);
+        WorldStateSyncService.RegisterForSyncDataReceivedEvents(ID);
 
     public void SetSyncFrequency(float newFrequency)
     {
@@ -187,7 +191,7 @@ public class WorldstateSyncableModule
         syncOffsetSetup = false;
 
         //Wont do anything if not registered already
-        WorldStateSyncService.instance.DeregisterListener(id);
+        WorldStateSyncService.DeregisterListener(ID);
     }
 
 }

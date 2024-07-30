@@ -6,21 +6,47 @@ public class Interactor2D : MonoBehaviour
 {
     private Transform rayOrigin;
     private float maxRaycastDistance;
+    private InteractorID interactorID;
     [SerializeField] private LayerMask layerMask; // Add a layer mask field
 
     [SerializeField] private Image reticuleImage;
     [SerializeField][ReadOnly] private string raycastHitDebug;
+
+    private IRangedInteractionModule hoveringRangedInteractable = null;
 
     // Setup method to initialize the ray origin and max raycast distance
     public void Setup(Camera camera2d)
     {
         rayOrigin = camera2d.transform;
         maxRaycastDistance = camera2d.farClipPlane;
+        interactorID = new InteractorID(0, InteractorType.TwoD);
+    }
+
+    private void OnEnable()
+    {
+        InputHandler.instance.OnMouseLeftClick.AddListener(HandleLeftClick);
+    }
+
+    private void OnDisable()
+    {
+        InputHandler.instance.OnMouseLeftClick.RemoveListener(HandleLeftClick);
+    }
+
+    private void HandleLeftClick()
+    {
+        if (hoveringRangedInteractable != null)
+        {
+            if (hoveringRangedInteractable is IRangedClickInteractionModule clickInteractionModule)
+            {
+                clickInteractionModule.InvokeOnClickDown(interactorID);
+            }
+        }
     }
 
     void Update()
     {
         bool foundRangedInteractable = false;
+        hoveringRangedInteractable = null;
 
         // Perform the raycast using the layer mask
         if (Physics.Raycast(rayOrigin.position, rayOrigin.transform.forward, out RaycastHit hit, maxRaycastDistance, layerMask))
@@ -32,6 +58,7 @@ public class Interactor2D : MonoBehaviour
                 rangedInteractionComponent.InteractionModule.IsPositionWithinInteractRange(rayOrigin.position))
             {
                 foundRangedInteractable = true;
+                hoveringRangedInteractable = rangedInteractionComponent.InteractionModule;
                 raycastHitDebug = rangedInteractionComponent.InteractionModule.ToString();
             }
             else
@@ -79,3 +106,13 @@ public class Interactor2D : MonoBehaviour
 
 
 //Maybe a tooltip handler script? We pass it the VC that we hit, and the TTHandler works out if it should show tooltips, and which one 
+
+
+
+/*
+ * So before, we were just storing the raycast, and then detecting a click down
+ * Which raises the question, do we want to be using InputHandler for this? 
+ * I guess? 
+ * Ok, so we get a click from input handler, we can then either do a raycast and do the thing, or we can access whatever the current raycast result is? 
+ * Let's go with the second one?
+ */
