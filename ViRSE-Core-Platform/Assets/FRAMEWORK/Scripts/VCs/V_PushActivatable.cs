@@ -1,183 +1,77 @@
 using Sirenix.OdinInspector;
-using Sirenix.OdinInspector.Editor;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Scripting;
-using UnityEngine.UIElements;
 
 namespace VComponents
 {
+    //TODO 
+    //How does the state get into the network module?
+    //Figure out customer interfaces 
+    //Remove ID from state
+    //Figure out MonoBehaviour
+
     public class V_PushActivatable : MonoBehaviour, IRangedInteractableComponent
     {
-        //[FoldoutGroup("Activatable Settings V Group/Activatable Settings")]
-        //[PropertyOrder(-15)]
-        [SerializeField][ShowInInspector] public UnityEvent OnActivate;
+        #region config
+        [SerializeField, HideLabel] private ActivatableStateConfig stateConfig;
+        [PropertySpace(SpaceBefore = 10), SerializeField, HideLabel] private GeneralInteractionModuleConfig generalInteractionConfig;
+        [PropertySpace(SpaceBefore = 10), SerializeField, HideLabel] private RangedInteractionConfig rangedInteractionConfig;
+        [PropertySpace(SpaceBefore = 10), SerializeField, HideLabel] private WorldStateSyncableConfig networkConfig = new("PushButton");
+        #endregion
 
-        //[FoldoutGroup("Activatable Settings V Group/Activatable Settings")]
-        //[PropertyOrder(-15)]
-        [SerializeField] [ShowInInspector] public UnityEvent OnDeactivate;
-
-        [PropertySpace(SpaceBefore = 10)]
-        [SerializeField, ShowInInspector, HideLabel]
-        private GeneralInteractionModule generalInteractionModule;
-
-        [PropertySpace(SpaceBefore = 10)]
-        [SerializeField, ShowInInspector, HideLabel]
+        #region Modules
+        private PushActivatableStateModule stateModule; //TODO should be "ToggleActivatableStateModule"?  Maybe? But then the handheld holds work the same way... maybe SingleInteractActivatable
         private RangedClickInteractionModule rangedClickInteractionModule;
-
-        [PropertySpace(SpaceBefore = 10)]
-        [SerializeField, ShowInInspector, HideLabel]
         private ColliderInteractionModule colliderInteractionModule;
-
-        [PropertySpace(SpaceBefore = 10)]
-        [SerializeField, ShowInInspector, HideLabel]
         private WorldStateSyncablePredictiveWrapper predictiveSyncableWrapper;
-
-        private PushActivatableState state;
+        #endregion
 
         public IRangedInteractionModule InteractionModule => rangedClickInteractionModule;
 
-        private void Reset()
-        {
-            generalInteractionModule = new();
-            rangedClickInteractionModule = new(gameObject);
-            colliderInteractionModule = new();
-            predictiveSyncableWrapper = new(gameObject, "Activatable");
-        }
-
         private void Awake()
         {
-            rangedClickInteractionModule.OnComponentAwake();
-            predictiveSyncableWrapper.OnComponentAwake();
+            stateModule = new(stateConfig);
 
-            state = new(predictiveSyncableWrapper.Id, 0, false, -1);
+            rangedClickInteractionModule = new(rangedInteractionConfig, gameObject);
+            rangedClickInteractionModule.OnComponentAwake();
+
+            colliderInteractionModule = new();
+
+            //TODO - SyncModule shouldn't be able to modify state, we should pass it as an interface, rather than than a reference to the concrete class - syncer only needs to get bytes anyway
+            //PredictiveSyncModule can also probably just inherit from SyncModule
+            predictiveSyncableWrapper = new(networkConfig, stateModule.State, gameObject, "Activatable");
+            predictiveSyncableWrapper.OnComponentAwake();
         }
 
         private void Start()
         {
-            //TODO, maybe we don't want to worry about IDs at this level?
-            //TODO, we need to wire this starting state into the the actual network module?
-            //Maybe it's jank that the VC constantly has to actually send its state to the NM?
-            //Unless state in the NM always starts as null? If it's null, just don't transmit
-            //state = new(predictiveSyncableWrapper.Id, 0, false, -1);
-
-            colliderInteractionModule.OnCollideEnter.AddListener(OnInteract); //But this is fine 
-            rangedClickInteractionModule.OnClickDown.AddListener(OnInteract); //HELP !!!! Null reference here, but the line above is fine. How has the event not been initialized?
-
+            rangedClickInteractionModule.OnClickDown.AddListener(OnInteract); 
+            colliderInteractionModule.OnCollideEnter.AddListener(OnInteract);
             predictiveSyncableWrapper.OnReceivedStateWithNoHistoryMatch.AddListener(OnReceiveRemoteOverrideState);
         }
 
-        //private void FixedUpdate()
-        //{
-        //    predictiveSyncableWrapper.state
-        //}
-
-        //This could be fired off from either the collision interaction module or from the click interaction module
-        //We probably want to route both of those into the same method? 
-
-        //Do we want activatables being told each frame what's colliding with them, or instead just be on click down and on click release? 
-        //Well, for toggle, we want something to fire off every time 
-        //Right, but that could also just be some generic "onInteract" thing, and the IM only fires it off if its hold?
-        //For hold, we want "OnDown" and "OnUp" so we know to add or remove people 
-        //In that case, do we really need "stay?" I don't think so!
-
-        //Ok, without 'stay', how does the host deal with the fact that click releases may have been lost?
-        //Well, maybe that always has to go over TCP?
-        //But, when they drop connection, the host will still think they're holding down
-        //The activatable would have to listen to the connection drop? 
-        //OR, it _is_ just something that happens every frame 
-        //Remote interactors could transmit what they're currently holding down?
-        //
 
         private void OnInteract(InteractorID interactorID)
         {
-            state.isActivated = !state.isActivated;
-
-            if (state.isActivated)
-                InvokeCustomerOnActivateEvent();
-            else
-                InvokeCustomerOnDeactivateEvent();
-
-            state.activatingUserID = state.isActivated? interactorID.ClientID : -1;
-
-            //Regardless of whether we're host, we want to transmit this state
-            //predictiveSyncableWrapper.UpdateAndTransmitState(state);
+            stateModule.InvertState(interactorID);
         }
 
         //TODO, maybe don't need to transmit a bool if we're already transmitting an ID?
-        private void OnReceiveRemoteOverrideState(BaseSyncableState otherBaseSyncable)
+        private void OnReceiveRemoteOverrideState(BaseSyncableState receivedState)
         {
-            PushActivatableState other = otherBaseSyncable as PushActivatableState;
+            stateModule.SetState((PushActivatableState)receivedState);
 
-            bool activationStateHasChanged = false;
-
-            if (!state.isActivated && other.isActivated) //Activating local
-            {
-                activationStateHasChanged = true;
-                state.activatingUserID = other.activatingUserID;
-                state.isActivated = true;
-                InvokeCustomerOnActivateEvent();
-            }
-            else if (state.isActivated && !other.isActivated) //Deactivating local
-            {
-                activationStateHasChanged = true;
-                state.activatingUserID = -1;
-                state.isActivated = false;
-                InvokeCustomerOnDeactivateEvent();
-            }
-
-            //The host should be able to override the non-hosts 
-            //if (StaticData.Networking.IsHost() && activationStateHasChanged)
-            //{
-            //    state.stateChangeNumber++;
-            //    predictiveSyncableWrapper.UpdateAndTransmitState(state);
-            //}
-            //else if (!StaticData.Networking.IsHost())
-            //{
-            //    state.stateChangeNumber = other.stateChangeNumber;
-            //    state.activatingUserID = other.activatingUserID;
-            //}
-        }
-
-        private void InvokeCustomerOnActivateEvent()
-        {
-            OnActivate?.Invoke();
-        }
-
-        private void InvokeCustomerOnDeactivateEvent()
-        {
-            OnDeactivate?.Invoke();
+            //If not coming from host, raise state change flag 
         }
     }
 }
 
-public class PushActivatableState : NonPhysicsSyncableState
-{
-    public bool isActivated;
-    public int activatingUserID;
 
-    public PushActivatableState(string id, int stateChangeNumber, bool isActivated, int activatingUserID) : base(id, stateChangeNumber)
-    {
-        this.isActivated = isActivated;
-        this.activatingUserID = activatingUserID;
-    }
-
-    public override bool CompareState(NonPhysicsSyncableState otherState)
-    {
-        PushActivatableState other = (PushActivatableState)otherState;
-
-        return (isActivated == other.isActivated && activatingUserID == other.activatingUserID);
-    }
-}
-
-public abstract class NonPhysicsSyncableState : BaseSyncableState
+public abstract class PredictiveSyncableState : BaseSyncableState
 {
     public int stateChangeNumber;
 
-    protected NonPhysicsSyncableState(string id, int stateChangeNumber) : base(id)
+    protected PredictiveSyncableState(string id, int stateChangeNumber) : base(id)
     {
         this.stateChangeNumber = stateChangeNumber;
     }
@@ -187,9 +81,9 @@ public abstract class NonPhysicsSyncableState : BaseSyncableState
     //If we receive a new state where the actual state value matches but not the number, we don't want to override
     //But we _do_ still want to override the state change number
 
-    public abstract bool CompareState(NonPhysicsSyncableState otherState);
+    public abstract bool CompareState(PredictiveSyncableState otherState);
 
-    public bool CompareStateChangeNumber(NonPhysicsSyncableState otherState)
+    public bool CompareStateChangeNumber(PredictiveSyncableState otherState)
     {
         return stateChangeNumber == otherState.stateChangeNumber;
     }

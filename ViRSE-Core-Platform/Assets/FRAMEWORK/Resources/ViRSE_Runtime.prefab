@@ -47,6 +47,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cafd0084af7fa614797312835103b1bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  primaryServerServicePrefab: {fileID: 2749322269139243039, guid: 958e46b6602401147b6d5bbf34484511,
+    type: 3}
+  localPlayerRigPrefab: {fileID: 8454638066961242331, guid: 19d3eba3f67050d4d91cbff60369ea9f,
+    type: 3}
 --- !u!1 &4089313923217303528
 GameObject:
   m_ObjectHideFlags: 0

@@ -4,10 +4,8 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-//Has ID, frequency, sync offset, decides when to transmit to the syncer 
-//TODO, The ID stuff can be split into a sub component, away from the frequency and sync offset stuff 
 [Serializable]
-public class WorldstateSyncableModule
+public class WorldStateSyncableConfig
 {
     [VerticalGroup("NetworkSettings_VGroup")]
     [FoldoutGroup("NetworkSettings_VGroup/Network Settings")]
@@ -15,23 +13,36 @@ public class WorldstateSyncableModule
     [InfoBox("Careful with high sync frequencies, the network load can impact performance!", InfoMessageType.Warning, "@this.syncFrequency > 5")]
     [SuffixLabel("Hz")]
     [Range(0.2f, 50f)]
-    [SerializeField] private float syncFrequency;
-    public float SyncFrequency => syncFrequency;
+    [SerializeField] public float syncFrequency = 1;
 
-    [SerializeField, ShowInInspector, HideLabel]
+    [ShowInInspector, HideLabel]
     [FoldoutGroup("NetworkSettings_VGroup/Network Settings")]
-    private ProtocolModule protocolModule;
+    [SerializeField] public ProtocolConfig protocolConfig;
 
-    [SerializeField, HideInInspector] private GameObject gameObject;
+    [SerializeField] public string syncType = "";
 
-    [SerializeField, HideInInspector] private string syncType;
+    public WorldStateSyncableConfig(string syncType)
+    {
+        this.syncType = syncType;
+    }
+}
 
-    [SerializeField, HideInInspector] private string id;
-    public string ID => id;
+//Has ID, frequency, sync offset, decides when to transmit to the syncer 
+//TODO, The ID stuff can be split into a sub component, away from the frequency and sync offset stuff 
+[Serializable]
+public class WorldstateSyncableModule
+{
+    private WorldStateSyncableConfig config;
+    private BaseSyncableState state;
+    private GameObject gameObject;
+
+    private string syncType;
+
+    public string ID { get; private set; }
 
     private static Dictionary<string, WorldstateSyncableModule> worldStateSyncableModulesAgainstIDs = new();
     private bool CheckForRegistrationError() =>
-    worldStateSyncableModulesAgainstIDs.TryGetValue(id, out WorldstateSyncableModule module) && module != this;
+    worldStateSyncableModulesAgainstIDs.TryGetValue(ID, out WorldstateSyncableModule module) && module != this;
 
 //    [PropertyOrder(-100000)]
 //    //[InfoBox("Error - syncables must have unique GameObject names! Please rename this GameObject", InfoMessageType.Error, "@CheckIfNameClash()")]
@@ -60,14 +71,12 @@ public class WorldstateSyncableModule
 
 //    }
 
-    public WorldstateSyncableModule(GameObject gameObject, string syncType)
+    public WorldstateSyncableModule(WorldStateSyncableConfig worldStateSyncableConfig, BaseSyncableState state, GameObject gameObject, string syncType)
     {
+        this.state = state;
+        this.config = worldStateSyncableConfig;
         this.gameObject = gameObject;
         this.syncType = syncType;
-
-        syncFrequency = 1f;
-
-        protocolModule = new();
 
         RefreshID();
         Debug.Log("New syncable, ID is " + ID);
@@ -81,8 +90,8 @@ public class WorldstateSyncableModule
 
     protected virtual void OnValidate() //TODO - OnVlidate needs to come from VC
     {
-        if (syncFrequency > 1)
-            syncFrequency = Mathf.RoundToInt(syncFrequency);
+        if (config.syncFrequency > 1)
+            config.syncFrequency = Mathf.RoundToInt(config.syncFrequency);
     }
 
     private void RefreshID()
@@ -92,7 +101,7 @@ public class WorldstateSyncableModule
                 worldStateSyncableModulesAgainstIDs.Remove(ID);
 
         //Create new ID
-        id = syncType + "-" + gameObject.name;
+        ID = syncType + "-" + gameObject.name;
 
         //Add new ID to dict if not already present
         if (worldStateSyncableModulesAgainstIDs.ContainsKey(ID))
@@ -122,7 +131,7 @@ public class WorldstateSyncableModule
         {
             //TODO, below comment, no longer just plugin syncables! Now its all syncables that start will null
             if (syncableState != null) //PluginSyncables that haven't yet received state will be null
-                WorldStateSyncService.AddStateToOutgoingBuffer(syncableState, protocolModule.transmissionType);
+                WorldStateSyncService.AddStateToOutgoingBuffer(syncableState, config.protocolConfig.transmissionType);
         }
 
         newStateToTransmit = false;
@@ -134,7 +143,7 @@ public class WorldstateSyncableModule
         if (syncOffsetSetup)
             numOfSyncablesPerSyncOffsets[hostSyncOffset]--;
 
-        hostSyncInterval = ((int)(50 / syncFrequency)); //a frequency of 1 should send messages every 50 fixedupdate frames 
+        hostSyncInterval = ((int)(50 / config.syncFrequency)); //a frequency of 1 should send messages every 50 fixedupdate frames 
 
         //To smooth out the transmission load, choose the least used offset
         int leastUsedSyncOffset = 0;
@@ -176,10 +185,10 @@ public class WorldstateSyncableModule
             return;
         }
 
-        if (syncFrequency > 1)
+        if (config.syncFrequency > 1)
             newFrequency = Mathf.RoundToInt(newFrequency);
 
-        syncFrequency = newFrequency;
+        config.syncFrequency = newFrequency;
         SetupHostSyncOffset();
     }
 

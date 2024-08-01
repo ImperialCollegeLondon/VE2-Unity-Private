@@ -6,6 +6,8 @@ public class ViRSEManager : MonoBehaviour
 {
     public static ViRSEManager instance;
 
+    //public bool test; If I uncomment this, it works. If I comment it back out again, the script component gets greyed out in the inspector
+
     [SerializeField] private ServerType serverType;
     public ServerType ServerType => serverType;
 

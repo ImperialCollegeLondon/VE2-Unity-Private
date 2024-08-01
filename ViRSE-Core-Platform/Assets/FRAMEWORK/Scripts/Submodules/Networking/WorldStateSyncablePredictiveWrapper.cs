@@ -8,13 +8,10 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 
 //Has state history check
-[Serializable]
 public class WorldStateSyncablePredictiveWrapper
 {
-    [SerializeField, HideInInspector] private GameObject gameObject;
-
-    [SerializeField, ShowInInspector, HideLabel]
     private WorldstateSyncableModule worldstateSyncableModule; 
+    private GameObject gameObject;
 
     private PredictiveWorldStateHistoryQueue historyQueue;
 
@@ -25,9 +22,10 @@ public class WorldStateSyncablePredictiveWrapper
 
     [HideInInspector] public SyncableStateReceiveEvent OnReceivedStateWithNoHistoryMatch {get; private set;}
 
-    public WorldStateSyncablePredictiveWrapper(GameObject gameObject, string syncType)
+    public WorldStateSyncablePredictiveWrapper(WorldStateSyncableConfig config, PredictiveSyncableState state, GameObject gameObject, string syncType)
     {
-        worldstateSyncableModule = new(gameObject, syncType);
+        worldstateSyncableModule = new(config, state, gameObject, syncType);
+        this.gameObject = gameObject;
     }
 
     public void OnComponentAwake()
@@ -48,13 +46,13 @@ public class WorldStateSyncablePredictiveWrapper
 
     private void FixedUpdate() //TODO - needs to be called by the VC
     {
-        historyQueue.AddStateToQueue((NonPhysicsSyncableState)worldstateSyncableModule.syncableState);
+        historyQueue.AddStateToQueue((PredictiveSyncableState)worldstateSyncableModule.syncableState);
     }
 
     private void OnReceiveSyncData(BaseSyncableState receivedStateBase)
     {
         //Debug.Log("Receive state " + gameObject.name);
-        NonPhysicsSyncableState receivedState = (NonPhysicsSyncableState)receivedStateBase;
+        PredictiveSyncableState receivedState = (PredictiveSyncableState)receivedStateBase;
 
         //Only check history if we're non host
         if (!InstanceSyncService.IsHost && historyQueue.DoesStateAppearInRecentStates(receivedState))
@@ -62,7 +60,7 @@ public class WorldStateSyncablePredictiveWrapper
 
         try
         {
-            NonPhysicsSyncableState currentState = (NonPhysicsSyncableState)worldstateSyncableModule.syncableState;
+            PredictiveSyncableState currentState = (PredictiveSyncableState)worldstateSyncableModule.syncableState;
 
             //Only immediate check if we're non host - non hosts don't broadcast state repeatedly like the host does!
             if (!InstanceSyncService.IsHost && (currentState != null && currentState.CompareState(receivedState)))
@@ -88,7 +86,7 @@ public class WorldStateSyncablePredictiveWrapper
 
 public class PredictiveWorldStateHistoryQueue
 {
-    private FixedSizedQueue<NonPhysicsSyncableState> recentStates;
+    private FixedSizedQueue<PredictiveSyncableState> recentStates;
 
     public PredictiveWorldStateHistoryQueue()
     {
@@ -103,14 +101,14 @@ public class PredictiveWorldStateHistoryQueue
         recentStates.Limit = newSize;   
     }
 
-    public void AddStateToQueue(NonPhysicsSyncableState state)
+    public void AddStateToQueue(PredictiveSyncableState state)
     {
         recentStates.Enqueue(state);    
     }
 
-    public bool DoesStateAppearInRecentStates(NonPhysicsSyncableState receivedState)
+    public bool DoesStateAppearInRecentStates(PredictiveSyncableState receivedState)
     {
-        foreach (NonPhysicsSyncableState syncableState in recentStates.values)
+        foreach (PredictiveSyncableState syncableState in recentStates.values)
         {
             //especially for pluginSyncables that haven't yet received data, their history buffers will be full of nulls!
             //Shouldn't ever actually receive a null state, but lets be safe anyway!

@@ -5,19 +5,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [Serializable]
-public class ProtocolModule
+public class ProtocolConfig
 {
-    // [PropertyOrder(1001)]
-    //[PropertySpace(SpaceBefore = 5)]
-    //[FoldoutGroup("ProtocolModuleVGroup")]
-    [SerializeField, ShowInInspector] public TransmissionProtocol transmissionType;
-    [HideInInspector] public TransmissionProtocol TransmissionType => transmissionType;
-
-    public ProtocolModule()
-    {
-        transmissionType = TransmissionProtocol.UDP;
-    }
-
+    [SerializeField] public TransmissionProtocol transmissionType;
 }
 
 public interface IProtocolModule

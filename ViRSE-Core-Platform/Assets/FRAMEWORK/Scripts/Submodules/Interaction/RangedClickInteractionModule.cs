@@ -1,5 +1,4 @@
-using Sirenix.OdinInspector;
-using Sirenix.OdinInspector.Editor;
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,7 +8,7 @@ using UnityEngine.Events;
 [Serializable]
 public class RangedClickInteractionModule : RangedInteractionModule, IRangedClickInteractionModule
 {
-    public RangedClickInteractionModule(GameObject gameObject) : base(gameObject) 
+    public RangedClickInteractionModule(RangedInteractionConfig rangedInteractionConfig, GameObject gameObject) : base(rangedInteractionConfig, gameObject) 
     {
         Debug.Log("New UnityEvent!");
     }
