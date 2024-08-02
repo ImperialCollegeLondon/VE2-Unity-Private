@@ -2,7 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface IGeneralPlayerInteractable
+namespace ViRSE.VComponents
 {
+    public interface IGeneralPlayerInteractable
+    {
 
+    }
 }

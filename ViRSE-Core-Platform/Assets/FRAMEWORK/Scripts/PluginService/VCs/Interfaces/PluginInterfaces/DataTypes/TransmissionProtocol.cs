@@ -2,8 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum TransmissionProtocol
-{
-    UDP,
-    TCP
+namespace ViRSE
+{ 
+    public enum TransmissionProtocol
+    {
+        UDP,
+        TCP
+    }
 }

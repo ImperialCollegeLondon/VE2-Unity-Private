@@ -2,24 +2,26 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using ViRSE;
+using ViRSE.VComponents;
 
 public class PluginTest : MonoBehaviour
 {
-    [SerializeField] private GameObject pushButtonGO;
-    private IPushActivatable pushActivatable => pushButtonGO.GetComponent<IPushActivatable>();
+    [SerializeField] private GameObject _pushButtonGO;
+    private IPushActivatable _pushActivatable => _pushButtonGO.GetComponent<IPushActivatable>();
 
     // Start is called before the first frame update
     void Start()
     {
-        pushActivatable.OnActivate.AddListener(OnButtonActivate);
-        pushActivatable.OnDeactivate.AddListener(OnButtonDeactivate);
+        _pushActivatable.OnActivate.AddListener(OnButtonActivate);
+        _pushActivatable.OnDeactivate.AddListener(OnButtonDeactivate);
     }
 
     private void OnButtonActivate()
     {
-        InteractorID interactorID = pushActivatable.CurrentInteractor;
+        InteractorID interactorID = _pushActivatable.CurrentInteractor;
         Debug.Log("Button activated! ");
-        Debug.Log($"Button state = {pushActivatable.IsActivated}");
+        Debug.Log($"Button state = {_pushActivatable.IsActivated}");
 
         if (interactorID != null) 
             Debug.Log($"Activate by... {interactorID.ToString()}");
@@ -28,7 +30,7 @@ public class PluginTest : MonoBehaviour
     private void OnButtonDeactivate()
     {
         Debug.Log("Button deactivated! ");
-        Debug.Log($"Button state = {pushActivatable.IsActivated}");
+        Debug.Log($"Button state = {_pushActivatable.IsActivated}");
     }
 
     // Update is called once per frame
@@ -36,11 +38,11 @@ public class PluginTest : MonoBehaviour
     {
         if (Keyboard.current.digit1Key.wasPressedThisFrame)
         {
-            pushActivatable.IsActivated = !pushActivatable.IsActivated;
+            _pushActivatable.IsActivated = !_pushActivatable.IsActivated;
         }
         else if (Keyboard.current.digit2Key.wasPressedThisFrame)
         {
-            pushActivatable.InteractRange = 0;
+            _pushActivatable.InteractRange = 0;
         }
     }
 }

@@ -2,7 +2,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace VComponents
+namespace ViRSE.VComponents
 {
     //TODO 
     //How does the state get into the network module?
@@ -31,8 +31,8 @@ namespace VComponents
 
         #region PluginInterfaces
         ISingleInteractorActivatableStateModule ISingleInteractorActivatableStateModuleImplementor._module => _stateModule;
-        IGeneralInteractionModule IGeneralInteractionModuleImplementor.module => _generalInteractionModule;
-        IRangedInteractionModule IRangedInteractionModuleImplementor.module => _rangedClickInteractionModule;
+        IGeneralInteractionModule IGeneralInteractionModuleImplementor._module => _generalInteractionModule;
+        IRangedInteractionModule IRangedInteractionModuleImplementor._module => _rangedClickInteractionModule;
         #endregion
 
         private void Awake()
@@ -74,22 +74,22 @@ namespace VComponents
                 _predictiveSyncableModule.ForceTransmitNextCycle();
         }
     }
-}
 
 
-public abstract class PredictiveSyncableState : BaseSyncableState
-{
-    public int stateChangeNumber;
-
-    protected PredictiveSyncableState(string id, int stateChangeNumber) : base(id)
+    public abstract class PredictiveSyncableState : BaseSyncableState
     {
-        this.stateChangeNumber = stateChangeNumber;
-    }
+        public int stateChangeNumber;
 
-    public abstract bool CompareState(PredictiveSyncableState otherState);
+        protected PredictiveSyncableState(string id, int stateChangeNumber) : base(id)
+        {
+            this.stateChangeNumber = stateChangeNumber;
+        }
 
-    public bool CompareStateChangeNumber(PredictiveSyncableState otherState)
-    {
-        return stateChangeNumber == otherState.stateChangeNumber;
+        public abstract bool CompareState(PredictiveSyncableState otherState);
+
+        public bool CompareStateChangeNumber(PredictiveSyncableState otherState)
+        {
+            return stateChangeNumber == otherState.stateChangeNumber;
+        }
     }
 }

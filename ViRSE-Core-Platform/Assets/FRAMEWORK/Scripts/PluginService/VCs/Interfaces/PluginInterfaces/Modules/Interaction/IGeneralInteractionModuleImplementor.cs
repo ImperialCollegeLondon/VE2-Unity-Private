@@ -2,21 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface IGeneralInteractionModuleImplementor 
+namespace ViRSE.VComponents
 {
-    protected IGeneralInteractionModule module { get; } //Not visible to customer 
+    public interface IGeneralInteractionModuleImplementor
+    {
+        protected IGeneralInteractionModule _module { get; } //Not visible to customer 
 
-    public bool AdminOnly {
-        get {
-            return module.AdminOnly;
-        }
-        set {
-            module.AdminOnly = value;
+        public bool AdminOnly {
+            get {
+                return _module.AdminOnly;
+            }
+            set {
+                _module.AdminOnly = value;
+            }
         }
     }
-}
 
-public interface IGeneralInteractionModule
-{
-    public bool AdminOnly { get; set; }
+    public interface IGeneralInteractionModule
+    {
+        public bool AdminOnly { get; set; }
+    }
 }

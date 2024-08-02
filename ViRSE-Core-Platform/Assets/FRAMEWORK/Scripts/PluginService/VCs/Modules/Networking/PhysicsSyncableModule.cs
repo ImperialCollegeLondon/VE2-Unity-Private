@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PhysicsSycnableModule : WorldstateSyncableModule
+namespace ViRSE.VComponents
 {
+    public class PhysicsSycnableModule : WorldstateSyncableModule
+    {
+    }
 }

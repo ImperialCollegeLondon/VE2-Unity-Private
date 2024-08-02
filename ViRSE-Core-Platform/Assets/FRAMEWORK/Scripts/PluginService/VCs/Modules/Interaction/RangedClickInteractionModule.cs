@@ -5,13 +5,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class RangedClickInteractionModule : RangedInteractionModule, IRangedClickPlayerInteractable
+namespace ViRSE.VComponents
 {
-    public UnityEvent<InteractorID> OnClickDown { get; private set; } = new UnityEvent<InteractorID>();
-
-    public void InvokeOnClickDown(InteractorID interactorID)
+    public class RangedClickInteractionModule : RangedInteractionModule, IRangedClickPlayerInteractable
     {
-        //only happens if is valid click
-        OnClickDown.Invoke(interactorID);
+        public UnityEvent<InteractorID> OnClickDown { get; private set; } = new UnityEvent<InteractorID>();
+
+        public void InvokeOnClickDown(InteractorID interactorID)
+        {
+            //only happens if is valid click
+            OnClickDown.Invoke(interactorID);
+        }
     }
 }

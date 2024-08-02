@@ -9,12 +9,15 @@ using UnityEngine.Events;
 
 //No config for collider interactions
 
-public class ColliderInteractionModule : MonoBehaviour //Needs to implement player rig interface
+namespace ViRSE.VComponents
 {
-    public UnityEvent<InteractorID> OnCollideEnter { get; private set; } = new UnityEvent<InteractorID>(); //This is totally fine, how is it any different?
-
-    public void InvokeOnCollideEnter(InteractorID id)
+    public class ColliderInteractionModule : MonoBehaviour //Needs to implement player rig interface
     {
-        OnCollideEnter.Invoke(id);
+        public UnityEvent<InteractorID> OnCollideEnter { get; private set; } = new UnityEvent<InteractorID>(); //This is totally fine, how is it any different?
+
+        public void InvokeOnCollideEnter(InteractorID id)
+        {
+            OnCollideEnter.Invoke(id);
+        }
     }
 }

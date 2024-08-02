@@ -4,12 +4,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public interface IPrimaryServiceCommsService 
+namespace ViRSE
 {
-    public void RegisterWithServer(ServerType serverType);
+    public interface IPrimaryServiceCommsService
+    {
+        public void RegisterWithServer(ServerType serverType);
 
-    public UnityEvent<ServerRegistration> OnRegisterWithServer { get;  }
-    public UnityEvent OnDisconnectedFromServer { get;  }
-    public UnityEvent<Version> OnNetcodeVersionMismatch { get; }
+        public UnityEvent<ServerRegistration> OnRegisterWithServer { get; }
+        public UnityEvent OnDisconnectedFromServer { get; }
+        public UnityEvent<Version> OnNetcodeVersionMismatch { get; }
+    }
 }
-

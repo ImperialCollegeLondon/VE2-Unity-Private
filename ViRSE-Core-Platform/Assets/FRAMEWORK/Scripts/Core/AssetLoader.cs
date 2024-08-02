@@ -2,16 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AssetLoader : MonoBehaviour
+namespace ViRSE
 {
-    public static AssetLoader Instance;
-
-    [SerializeField] private GameObject localPlayerRigPrefab; 
-    public GameObject LocalPlayerRigPrefab => localPlayerRigPrefab;
-
-    private void Awake()
+    public class AssetLoader : MonoBehaviour
     {
-        Instance = this;
+        public static AssetLoader Instance;
 
+        [SerializeField] private GameObject localPlayerRigPrefab;
+        public GameObject LocalPlayerRigPrefab => localPlayerRigPrefab;
+
+        private void Awake()
+        {
+            Instance = this;
+
+        }
     }
 }

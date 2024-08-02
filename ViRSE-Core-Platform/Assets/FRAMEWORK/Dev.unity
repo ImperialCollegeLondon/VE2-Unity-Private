@@ -1283,6 +1283,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1067259071}
+  - component: {fileID: 1067259072}
   m_Layer: 0
   m_Name: ViRSEManager
   m_TagString: Untagged
@@ -1306,6 +1307,19 @@ Transform:
   - {fileID: 1005636518}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1067259072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1067259069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abc3bfeb6f05feb4aa8ee1911241fdcc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  serverType: 0
 --- !u!1 &1209297795
 GameObject:
   m_ObjectHideFlags: 0
@@ -1423,7 +1437,7 @@ GameObject:
   - component: {fileID: 1250561192}
   - component: {fileID: 1250561193}
   m_Layer: 0
-  m_Name: HandButton
+  m_Name: PushButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1480,58 +1494,99 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d20af0636babcea4ca3ae53e54f38f78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  OnActivate:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 39926597}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
-  OnDeactivate:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 39926597}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  generalInteractionModule:
-    enableControllerVibrations: 1
-    showTooltipsAndHighlight: 1
-  RangedInteractionConfig:
-    interactionRange: 5
+  _stateConfig:
+    OnActivate:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 39926597}
+          m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_MethodName: SetActive
+          m_Mode: 6
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 1
+          m_CallState: 2
+    OnDeactivate:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 39926597}
+          m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_MethodName: SetActive
+          m_Mode: 6
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  _generalInteractionConfig:
+    AdminOnly: 0
+    EnableControllerVibrations: 1
+    ShowTooltipsAndHighlight: 1
+  _rangedInteractionConfig:
+    InteractionRange: 5
     OnLocalHoverEnter:
       m_PersistentCalls:
         m_Calls: []
     OnLocalHoverExit:
       m_PersistentCalls:
         m_Calls: []
-  colliderInteractionModule:
-    test: 0
-  predictiveSyncableWrapper:
-    gameObject: {fileID: 0}
-    worldstateSyncableModule:
-      syncFrequency: 1
-      protocolModule:
-        transmissionType: 0
-      gameObject: {fileID: 1250561189}
-      syncType: Activatable
-      id: Activatable-HandButton
+  _networkConfig:
+    SyncFrequency: 1
+    protocolConfig:
+      TransmissionType: 0
+    syncType: PushButton
+--- !u!1 &1499303675
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1499303677}
+  - component: {fileID: 1499303676}
+  m_Layer: 0
+  m_Name: PluginTest
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1499303676
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1499303675}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b3edd363d73a2945be8d78cb1d64128, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _pushButtonGO: {fileID: 1250561189}
+--- !u!4 &1499303677
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1499303675}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1755558199
 GameObject:
   m_ObjectHideFlags: 0
@@ -2018,3 +2073,4 @@ SceneRoots:
   - {fileID: 876334165}
   - {fileID: 873851516}
   - {fileID: 1067259071}
+  - {fileID: 1499303677}

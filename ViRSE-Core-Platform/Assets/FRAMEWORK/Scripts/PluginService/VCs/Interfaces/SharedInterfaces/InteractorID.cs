@@ -2,27 +2,30 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class InteractorID //TODO - PlayerRig needs this too, maybe move into some shared assembly, where both PluginAPI and PlayerRigAPI can see it?
+namespace ViRSE
 {
-    public int ClientID { get; }
-    public InteractorType InteractorType { get;}
-
-    public InteractorID(int clientID, InteractorType interactorType)
+    public class InteractorID //TODO - PlayerRig needs this too, maybe move into some shared assembly, where both PluginAPI and PlayerRigAPI can see it?
     {
-        ClientID = clientID;
-        InteractorType = interactorType;
+        public int ClientID { get; }
+        public InteractorType InteractorType { get; }
+
+        public InteractorID(int clientID, InteractorType interactorType)
+        {
+            ClientID = clientID;
+            InteractorType = interactorType;
+        }
+
+        public override string ToString()
+        {
+            return $"Client{ClientID}-{InteractorType}";
+        }
     }
 
-    public override string ToString()
+    public enum InteractorType
     {
-        return $"Client{ClientID}-{InteractorType}";
+        TwoD,
+        VRRight,
+        VRLeft,
+        Feet
     }
-}
-
-public enum InteractorType
-{
-    TwoD,
-    VRRight,
-    VRLeft,
-    Feet
 }

@@ -7,96 +7,99 @@ using System.Collections.Generic;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
-public class PredictiveWorldStateSyncableModule : WorldstateSyncableModule
+namespace ViRSE.VComponents
 {
-    private PredictiveWorldStateHistoryQueue _historyQueue = new();
-    public SyncableStateReceiveEvent OnReceivedStateWithNoHistoryMatch { get; private set; } = new();
-
-    protected override void FixedUpdate() //TODO - needs to be called by the VC
+    public class PredictiveWorldStateSyncableModule : WorldstateSyncableModule
     {
-        base.FixedUpdate();
-        _historyQueue.AddStateToQueue((PredictiveSyncableState)_state);
-    }
+        private PredictiveWorldStateHistoryQueue _historyQueue = new();
+        public SyncableStateReceiveEvent OnReceivedStateWithNoHistoryMatch { get; private set; } = new();
 
-    protected override void OnReceiveStateFromSyncer(BaseSyncableState receivedStateBase)
-    {
-        base.OnReceiveStateFromSyncer(receivedStateBase); //Emits the standard event
-
-        //Debug.Log("Receive state " + gameObject.name);
-        PredictiveSyncableState receivedState = (PredictiveSyncableState)receivedStateBase;
-
-        //Only check history if we're non host
-        if (!InstanceSyncService.IsHost && _historyQueue.DoesStateAppearInRecentStates(receivedState))
-            return;
-
-        try
+        protected override void FixedUpdate() //TODO - needs to be called by the VC
         {
-            PredictiveSyncableState currentState = (PredictiveSyncableState)_state;
+            base.FixedUpdate();
+            _historyQueue.AddStateToQueue((PredictiveSyncableState)_state);
+        }
 
-            //Only immediate check if we're non host - non hosts don't broadcast state repeatedly like the host does!
-            if (!InstanceSyncService.IsHost && (currentState != null && currentState.CompareState(receivedState)))
-            {
-                currentState.stateChangeNumber = receivedState.stateChangeNumber;
+        protected override void OnReceiveStateFromSyncer(BaseSyncableState receivedStateBase)
+        {
+            base.OnReceiveStateFromSyncer(receivedStateBase); //Emits the standard event
+
+            //Debug.Log("Receive state " + gameObject.name);
+            PredictiveSyncableState receivedState = (PredictiveSyncableState)receivedStateBase;
+
+            //Only check history if we're non host
+            if (!InstanceSyncService.IsHost && _historyQueue.DoesStateAppearInRecentStates(receivedState))
                 return;
-            }
-        }
-        catch (Exception e)
-        {
-            V_Logger.Error("Error doing immediate state check for syncable on " + gameObject.name + " - " + e.Message, e.StackTrace);
-        }
 
-        //TODO - the VC should probably do this 
-        //if (!InstanceSyncService.IsHost)
-        //{
-        //    _worldstateSyncableModule.UpdateSyncableData(receivedState, false);
-        //}
-
-
-        OnReceivedStateWithNoHistoryMatch?.Invoke(receivedState); //TODO, inform VC if change comes from host or not
-    }
-}
-
-public class PredictiveWorldStateHistoryQueue
-{
-    private FixedSizedQueue<PredictiveSyncableState> recentStates;
-
-    public PredictiveWorldStateHistoryQueue()
-    {
-        recentStates = new();
-        recentStates.Limit = InstanceSyncService.WorldStateHistoryQueueSize;
-
-        InstanceSyncService.OnWorldStateHistoryQueueSizeChange.AddListener(HandleWorldStateBufferQueueSizeChange);
-    }
-
-    private void HandleWorldStateBufferQueueSizeChange(int newSize)
-    {
-        recentStates.Limit = newSize;   
-    }
-
-    public void AddStateToQueue(PredictiveSyncableState state)
-    {
-        recentStates.Enqueue(state);    
-    }
-
-    public bool DoesStateAppearInRecentStates(PredictiveSyncableState receivedState)
-    {
-        foreach (PredictiveSyncableState syncableState in recentStates.values)
-        {
-            //especially for pluginSyncables that haven't yet received data, their history buffers will be full of nulls!
-            //Shouldn't ever actually receive a null state, but lets be safe anyway!
-            if (receivedState == null || syncableState == null)
+            try
             {
-                if (receivedState == null && syncableState == null)
-                    return true;
-                else
-                    continue;
+                PredictiveSyncableState currentState = (PredictiveSyncableState)_state;
+
+                //Only immediate check if we're non host - non hosts don't broadcast state repeatedly like the host does!
+                if (!InstanceSyncService.IsHost && (currentState != null && currentState.CompareState(receivedState)))
+                {
+                    currentState.stateChangeNumber = receivedState.stateChangeNumber;
+                    return;
+                }
+            }
+            catch (Exception e)
+            {
+                V_Logger.Error("Error doing immediate state check for syncable on " + gameObject.name + " - " + e.Message, e.StackTrace);
             }
 
-            if (syncableState.CompareState(receivedState) && syncableState.CompareStateChangeNumber(receivedState))
-                return true;
+            //TODO - the VC should probably do this 
+            //if (!InstanceSyncService.IsHost)
+            //{
+            //    _worldstateSyncableModule.UpdateSyncableData(receivedState, false);
+            //}
+
+
+            OnReceivedStateWithNoHistoryMatch?.Invoke(receivedState); //TODO, inform VC if change comes from host or not
+        }
+    }
+
+    public class PredictiveWorldStateHistoryQueue
+    {
+        private FixedSizedQueue<PredictiveSyncableState> recentStates;
+
+        public PredictiveWorldStateHistoryQueue()
+        {
+            recentStates = new();
+            recentStates.Limit = InstanceSyncService.WorldStateHistoryQueueSize;
+
+            InstanceSyncService.OnWorldStateHistoryQueueSizeChange.AddListener(HandleWorldStateBufferQueueSizeChange);
         }
 
-        return false;
+        private void HandleWorldStateBufferQueueSizeChange(int newSize)
+        {
+            recentStates.Limit = newSize;
+        }
+
+        public void AddStateToQueue(PredictiveSyncableState state)
+        {
+            recentStates.Enqueue(state);
+        }
+
+        public bool DoesStateAppearInRecentStates(PredictiveSyncableState receivedState)
+        {
+            foreach (PredictiveSyncableState syncableState in recentStates.values)
+            {
+                //especially for pluginSyncables that haven't yet received data, their history buffers will be full of nulls!
+                //Shouldn't ever actually receive a null state, but lets be safe anyway!
+                if (receivedState == null || syncableState == null)
+                {
+                    if (receivedState == null && syncableState == null)
+                        return true;
+                    else
+                        continue;
+                }
+
+                if (syncableState.CompareState(receivedState) && syncableState.CompareStateChangeNumber(receivedState))
+                    return true;
+            }
+
+            return false;
+        }
     }
 }
 

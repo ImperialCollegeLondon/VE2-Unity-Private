@@ -4,22 +4,25 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
-public class InputHandler : MonoBehaviour
+namespace ViRSE.PlayerRig
 {
-    public static InputHandler instance;
-
-    public UnityEvent OnMouseLeftClick { get; private set; } = new();
-
-    private void Awake()
+    public class InputHandler : MonoBehaviour
     {
-        instance = this;
-    }
+        public static InputHandler instance;
 
-    void Update()
-    {
-        if (Mouse.current.leftButton.wasPressedThisFrame)
+        public UnityEvent OnMouseLeftClick { get; private set; } = new();
+
+        private void Awake()
         {
-            OnMouseLeftClick?.Invoke();
+            instance = this;
+        }
+
+        void Update()
+        {
+            if (Mouse.current.leftButton.wasPressedThisFrame)
+            {
+                OnMouseLeftClick?.Invoke();
+            }
         }
     }
 }

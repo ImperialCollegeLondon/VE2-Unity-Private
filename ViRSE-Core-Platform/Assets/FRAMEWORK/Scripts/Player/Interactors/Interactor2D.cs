@@ -1,78 +1,82 @@
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.UI;
+using ViRSE.VComponents;
 
-public class Interactor2D : MonoBehaviour
+namespace ViRSE.PlayerRig
 {
-    private Transform rayOrigin;
-    private float maxRaycastDistance;
-    [SerializeField] private LayerMask layerMask; // Add a layer mask field
-
-    [SerializeField] private Image reticuleImage;
-    [SerializeField][ReadOnly] private string raycastHitDebug;
-
-    private IRangedPlayerInteractable _hoveringRangedInteractable = null;
-
-    private InteractorID _interactorID;
-
-    // Setup method to initialize the ray origin and max raycast distance
-    public void Setup(Camera camera2d)
+    public class Interactor2D : MonoBehaviour
     {
-        rayOrigin = camera2d.transform;
-        maxRaycastDistance = camera2d.farClipPlane;
-        _interactorID = new InteractorID(0, InteractorType.TwoD);
-    }
+        private Transform rayOrigin;
+        private float maxRaycastDistance;
+        [SerializeField] private LayerMask layerMask; // Add a layer mask field
 
-    private void OnEnable()
-    {
-        InputHandler.instance.OnMouseLeftClick.AddListener(HandleLeftClick);
-    }
+        [SerializeField] private Image reticuleImage;
+        [SerializeField][ReadOnly] private string raycastHitDebug;
 
-    private void OnDisable()
-    {
-        InputHandler.instance.OnMouseLeftClick.RemoveListener(HandleLeftClick);
-    }
+        private IRangedPlayerInteractable _hoveringRangedInteractable = null;
 
-    private void HandleLeftClick()
-    {
-        if (_hoveringRangedInteractable != null)
+        private InteractorID _interactorID;
+
+        // Setup method to initialize the ray origin and max raycast distance
+        public void Setup(Camera camera2d)
         {
-            if (_hoveringRangedInteractable is IRangedClickPlayerInteractable rangedClickInteractable)
+            rayOrigin = camera2d.transform;
+            maxRaycastDistance = camera2d.farClipPlane;
+            _interactorID = new InteractorID(0, InteractorType.TwoD);
+        }
+
+        private void OnEnable()
+        {
+            InputHandler.instance.OnMouseLeftClick.AddListener(HandleLeftClick);
+        }
+
+        private void OnDisable()
+        {
+            InputHandler.instance.OnMouseLeftClick.RemoveListener(HandleLeftClick);
+        }
+
+        private void HandleLeftClick()
+        {
+            if (_hoveringRangedInteractable != null)
             {
-                rangedClickInteractable.InvokeOnClickDown(_interactorID);
+                if (_hoveringRangedInteractable is IRangedClickPlayerInteractable rangedClickInteractable)
+                {
+                    rangedClickInteractable.InvokeOnClickDown(_interactorID);
+                }
             }
         }
-    }
 
-    void Update()
-    {
-        bool foundRangedInteractable = false;
-        _hoveringRangedInteractable = null;
-
-        // Perform the raycast using the layer mask
-        if (Physics.Raycast(rayOrigin.position, rayOrigin.transform.forward, out RaycastHit hit, maxRaycastDistance, layerMask))
+        void Update()
         {
-            Vector3 hitPoint = hit.point;
-            Collider hitCollider = hit.collider;
+            bool foundRangedInteractable = false;
+            _hoveringRangedInteractable = null;
 
-            if (hit.collider.TryGetComponent(out IRangedPlayerInteractable rangedInteractable) &&
-                rangedInteractable.IsPositionWithinInteractRange(rayOrigin.position))
+            // Perform the raycast using the layer mask
+            if (Physics.Raycast(rayOrigin.position, rayOrigin.transform.forward, out RaycastHit hit, maxRaycastDistance, layerMask))
             {
-                foundRangedInteractable = true;
-                _hoveringRangedInteractable = rangedInteractable;
-                raycastHitDebug = rangedInteractable.ToString();
+                Vector3 hitPoint = hit.point;
+                Collider hitCollider = hit.collider;
+
+                if (hit.collider.TryGetComponent(out IRangedPlayerInteractable rangedInteractable) &&
+                    rangedInteractable.IsPositionWithinInteractRange(rayOrigin.position))
+                {
+                    foundRangedInteractable = true;
+                    _hoveringRangedInteractable = rangedInteractable;
+                    raycastHitDebug = rangedInteractable.ToString();
+                }
+                else
+                {
+                    raycastHitDebug = hit.collider.gameObject.name;
+                }
             }
             else
             {
-                raycastHitDebug = hit.collider.gameObject.name;
+                raycastHitDebug = "none";
             }
-        }
-        else
-        {
-            raycastHitDebug = "none";
-        }
 
-        reticuleImage.color = foundRangedInteractable ? StaticColors.instance.tangerine : StaticColors.instance.lightBlue;
+            reticuleImage.color = foundRangedInteractable ? StaticColors.instance.tangerine : StaticColors.instance.lightBlue;
+        }
     }
 }
 
