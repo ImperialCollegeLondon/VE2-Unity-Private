@@ -6,20 +6,21 @@ public class Interactor2D : MonoBehaviour
 {
     private Transform rayOrigin;
     private float maxRaycastDistance;
-    private InteractorID interactorID;
     [SerializeField] private LayerMask layerMask; // Add a layer mask field
 
     [SerializeField] private Image reticuleImage;
     [SerializeField][ReadOnly] private string raycastHitDebug;
 
-    private IRangedPlayerInteractable hoveringRangedInteractable = null;
+    private IRangedPlayerInteractable _hoveringRangedInteractable = null;
+
+    private InteractorID _interactorID;
 
     // Setup method to initialize the ray origin and max raycast distance
     public void Setup(Camera camera2d)
     {
         rayOrigin = camera2d.transform;
         maxRaycastDistance = camera2d.farClipPlane;
-        interactorID = new InteractorID(0, InteractorType.TwoD);
+        _interactorID = new InteractorID(0, InteractorType.TwoD);
     }
 
     private void OnEnable()
@@ -34,11 +35,11 @@ public class Interactor2D : MonoBehaviour
 
     private void HandleLeftClick()
     {
-        if (hoveringRangedInteractable != null)
+        if (_hoveringRangedInteractable != null)
         {
-            if (hoveringRangedInteractable is RangedClickInteractionModule rangedClickInteractable)
+            if (_hoveringRangedInteractable is IRangedClickPlayerInteractable rangedClickInteractable)
             {
-                rangedClickInteractable.InvokeOnClickDown(interactorID);
+                rangedClickInteractable.InvokeOnClickDown(_interactorID);
             }
         }
     }
@@ -46,7 +47,7 @@ public class Interactor2D : MonoBehaviour
     void Update()
     {
         bool foundRangedInteractable = false;
-        hoveringRangedInteractable = null;
+        _hoveringRangedInteractable = null;
 
         // Perform the raycast using the layer mask
         if (Physics.Raycast(rayOrigin.position, rayOrigin.transform.forward, out RaycastHit hit, maxRaycastDistance, layerMask))
@@ -54,12 +55,12 @@ public class Interactor2D : MonoBehaviour
             Vector3 hitPoint = hit.point;
             Collider hitCollider = hit.collider;
 
-            if (hit.collider.TryGetComponent(out RangedInteractionModule rangedInteractable) &&
+            if (hit.collider.TryGetComponent(out IRangedPlayerInteractable rangedInteractable) &&
                 rangedInteractable.IsPositionWithinInteractRange(rayOrigin.position))
             {
                 foundRangedInteractable = true;
-                hoveringRangedInteractable = rangedInteractable;
-                raycastHitDebug = rangedInteractable.gameObject.name;
+                _hoveringRangedInteractable = rangedInteractable;
+                raycastHitDebug = rangedInteractable.ToString();
             }
             else
             {

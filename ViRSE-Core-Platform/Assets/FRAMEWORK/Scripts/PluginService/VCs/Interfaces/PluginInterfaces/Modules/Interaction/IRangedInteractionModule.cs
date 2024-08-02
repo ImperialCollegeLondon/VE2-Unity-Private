@@ -6,14 +6,7 @@ public interface IRangedInteractionModuleImplementor
 {
     protected IRangedInteractionModule module { get; } //Not visible to customer 
 
-    public float InteractRange {
-        get {
-            return module.InteractRange;
-        }
-        set {
-            module.InteractRange = value;
-        }
-    }
+    public float InteractRange { get => module.InteractRange; set => module.InteractRange = value; }
 }
 
 public interface IRangedInteractionModule

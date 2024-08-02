@@ -27,6 +27,8 @@ public class GeneralInteractionModule : IGeneralInteractionModule
     public GeneralInteractionConfig Config { get; set; }
     public UnityEvent OnBecomeAdminOnly { get; private set; } = new(); //E.G if grabbable, the VC needs to know to force drop
 
+    public InteractorID CurrentInteractor { get; set; }
+
     public GeneralInteractionModule(GeneralInteractionConfig config)
     {
         Config = config;

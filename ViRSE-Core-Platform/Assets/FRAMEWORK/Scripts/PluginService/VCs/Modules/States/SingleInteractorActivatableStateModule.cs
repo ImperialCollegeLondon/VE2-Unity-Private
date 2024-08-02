@@ -12,7 +12,7 @@ public class ActivatableStateConfig
     [SerializeField] public UnityEvent OnDeactivate;
 }
 
-public class SingleInteractorActivatableStateModule : ISingleInteractorActivatableStateModule
+public class SingleInteractorActivatableStateModule : MonoBehaviour, ISingleInteractorActivatableStateModule
 {
     #region plugin interfaces
     UnityEvent ISingleInteractorActivatableStateModule.OnActivate => _config.OnActivate; 
@@ -22,55 +22,67 @@ public class SingleInteractorActivatableStateModule : ISingleInteractorActivatab
     #endregion
 
     private ActivatableStateConfig _config;
-    public SingleInteractorActivatableState State { get; private set; } = new("test", 0, false, null); //The network module has to see this 
-
+    public SingleInteractorActivatableState State { get; private set; }
     public UnityEvent OnPluginChangedState { get; private set; } = new();
 
-    public SingleInteractorActivatableStateModule(ActivatableStateConfig config)
+    public void Initialize(ActivatableStateConfig config)
     {
         _config = config;
+        State = new(gameObject.name, 0, false, null); //TODO - remove ID from state
     }
 
     private void ReceiveNewActivationStateFromCustomer(bool newIsActivated)
     {
-        SingleInteractorActivatableState newState = new(State.id, State.stateChangeNumber, newIsActivated, null);
-        if (newState.IsActivated != State.IsActivated)
-            OnPluginChangedState?.Invoke(); //Inform the VC the plugin has induced a state change, so that the VC can raise the state change flag 
-
-        SetState(newState);
+        if (newIsActivated != State.IsActivated)
+            InvertState(null);
     }
 
     public void InvertState(InteractorID interactorID)
     {
         State.IsActivated = !State.IsActivated;
+        State.CurrentInteractor = State.IsActivated ? interactorID : null;
 
         if (State.IsActivated)
             InvokeCustomerOnActivateEvent();
         else
             InvokeCustomerOnDeactivateEvent();
-
-        State.CurrentInteractor = State.IsActivated ? interactorID : null;
     }
 
-    public void SetState(SingleInteractorActivatableState newState)
+    public void UpdateToReceivedNetworkState(SingleInteractorActivatableState newState)
     {
-        bool oldIsActivated = State.IsActivated;
+        if (newState.IsActivated == State.IsActivated)
+            return;
+
         State = newState;
 
-        if (!oldIsActivated && newState.IsActivated)
+        if (State.IsActivated)
             InvokeCustomerOnActivateEvent();
-        else if (oldIsActivated && !newState.IsActivated)
+        else 
             InvokeCustomerOnDeactivateEvent();
     }
 
     private void InvokeCustomerOnActivateEvent()
     {
-        _config.OnActivate?.Invoke();
+        try
+        {
+            _config.OnActivate?.Invoke();
+        }
+        catch (Exception e)
+        {
+            Debug.Log($"Error when emitting OnActivate from {gameObject.name} \n{e.Message}\n{e.StackTrace}");
+        }
     }
 
     private void InvokeCustomerOnDeactivateEvent()
     {
-        _config.OnDeactivate.Invoke();
+        try
+        {
+            _config.OnDeactivate?.Invoke();
+        }
+        catch (Exception e)
+        {
+            Debug.Log($"Error when emitting OnDeactivate from {gameObject.name} \n{e.Message}\n{e.StackTrace}");
+        }
     }
 }
 

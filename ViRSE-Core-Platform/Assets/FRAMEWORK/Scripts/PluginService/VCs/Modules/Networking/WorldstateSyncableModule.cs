@@ -12,7 +12,7 @@ public class WorldStateSyncableConfig //: ISerializationCallbackReceiver
 {
     [VerticalGroup("NetworkSettings_VGroup")]
     [FoldoutGroup("NetworkSettings_VGroup/Network Settings")]
-    [InfoBox("Careful with high sync frequencies, the network load can impact performance!", InfoMessageType.Warning, "@this.syncFrequency > 5")]
+    [InfoBox("Careful with high sync frequencies, the network load can impact performance!", InfoMessageType.Warning, "@this.SyncFrequency > 5")]
     [SuffixLabel("Hz")]
     [Range(0.2f, 50f)]
     [SerializeField] public float SyncFrequency = 1;

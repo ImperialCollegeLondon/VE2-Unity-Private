@@ -37,20 +37,26 @@ namespace VComponents
 
         private void Awake()
         {
-            _stateModule = new(_stateConfig);
+            _stateModule = gameObject.AddComponent<SingleInteractorActivatableStateModule>();
+            _stateModule.hideFlags = HideFlags.HideInInspector;
+            _stateModule.Initialize(_stateConfig);
 
             _rangedClickInteractionModule = gameObject.AddComponent<RangedClickInteractionModule>();
+            _rangedClickInteractionModule.hideFlags = HideFlags.HideInInspector;
             _rangedClickInteractionModule.Initialize(_rangedInteractionConfig);
             _rangedClickInteractionModule.OnClickDown.AddListener(HandleOnInteract);
 
             _colliderInteractionModule = gameObject.AddComponent<ColliderInteractionModule>();
+            _colliderInteractionModule.hideFlags = HideFlags.HideInInspector;
             _colliderInteractionModule.OnCollideEnter.AddListener(HandleOnInteract);
 
             //TODO - SyncModule shouldn't be able to modify state, we should pass it as an interface, rather than than a reference to the concrete class - syncer only needs to get bytes anyway
             //TODO, wait until we're redy to register before adding syncable component
+            //If the config says networked is false, we can just not add the module at all?
             _predictiveSyncableModule = gameObject.AddComponent<PredictiveWorldStateSyncableModule>();
+            _predictiveSyncableModule.hideFlags = HideFlags.HideInInspector;
             _predictiveSyncableModule.Initialize(_networkConfig, _stateModule.State);
-            _predictiveSyncableModule.OnReceivedStateWithNoHistoryMatch.AddListener(OnReceiveRemoteOverrideState);
+            _predictiveSyncableModule.OnReceivedStateWithNoHistoryMatch.AddListener(HandleReceiveRemoteOverrideState);
         }
 
         private void HandleOnInteract(InteractorID interactorID)
@@ -60,9 +66,9 @@ namespace VComponents
         }
 
         //TODO, maybe don't need to transmit a bool if we're already transmitting an ID?
-        private void OnReceiveRemoteOverrideState(BaseSyncableState receivedState)
+        private void HandleReceiveRemoteOverrideState(BaseSyncableState receivedState)
         {
-            _stateModule.SetState((SingleInteractorActivatableState)receivedState);
+            _stateModule.UpdateToReceivedNetworkState((SingleInteractorActivatableState)receivedState);
 
             if (InstanceSyncService.IsHost)
                 _predictiveSyncableModule.ForceTransmitNextCycle();
