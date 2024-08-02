@@ -1,0 +1,16 @@
+{
+    "name": "ViRSE_Player_Rig_To_VC_API",
+    "rootNamespace": "",
+    "references": [
+        "GUID:7338b66f386638440b9030cbde0c1b27"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

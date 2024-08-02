@@ -12,7 +12,7 @@ public class Interactor2D : MonoBehaviour
     [SerializeField] private Image reticuleImage;
     [SerializeField][ReadOnly] private string raycastHitDebug;
 
-    private IRangedInteractionModule hoveringRangedInteractable = null;
+    private IRangedPlayerInteractable hoveringRangedInteractable = null;
 
     // Setup method to initialize the ray origin and max raycast distance
     public void Setup(Camera camera2d)
@@ -36,9 +36,9 @@ public class Interactor2D : MonoBehaviour
     {
         if (hoveringRangedInteractable != null)
         {
-            if (hoveringRangedInteractable is IRangedClickInteractionModule clickInteractionModule)
+            if (hoveringRangedInteractable is RangedClickInteractionModule rangedClickInteractable)
             {
-                clickInteractionModule.InvokeOnClickDown(interactorID);
+                rangedClickInteractable.InvokeOnClickDown(interactorID);
             }
         }
     }
@@ -54,12 +54,12 @@ public class Interactor2D : MonoBehaviour
             Vector3 hitPoint = hit.point;
             Collider hitCollider = hit.collider;
 
-            if (hit.collider.TryGetComponent(out IRangedInteractableComponent rangedInteractionComponent) &&
-                rangedInteractionComponent.InteractionModule.IsPositionWithinInteractRange(rayOrigin.position))
+            if (hit.collider.TryGetComponent(out RangedInteractionModule rangedInteractable) &&
+                rangedInteractable.IsPositionWithinInteractRange(rayOrigin.position))
             {
                 foundRangedInteractable = true;
-                hoveringRangedInteractable = rangedInteractionComponent.InteractionModule;
-                raycastHitDebug = rangedInteractionComponent.InteractionModule.ToString();
+                hoveringRangedInteractable = rangedInteractable;
+                raycastHitDebug = rangedInteractable.gameObject.name;
             }
             else
             {

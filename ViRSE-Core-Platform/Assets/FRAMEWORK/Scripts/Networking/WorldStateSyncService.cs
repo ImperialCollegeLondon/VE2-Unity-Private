@@ -95,9 +95,3 @@ public abstract class BaseSyncableState
         this.id = id;
     }
 }
-
-public enum TransmissionProtocol
-{
-    UDP,
-    TCP
-}
