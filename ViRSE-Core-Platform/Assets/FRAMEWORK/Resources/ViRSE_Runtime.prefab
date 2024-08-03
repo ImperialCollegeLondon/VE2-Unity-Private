@@ -49,7 +49,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   primaryServerServicePrefab: {fileID: 2749322269139243039, guid: 958e46b6602401147b6d5bbf34484511,
     type: 3}
-  localPlayerRigPrefab: {fileID: 8454638066961242331, guid: 19d3eba3f67050d4d91cbff60369ea9f,
+  localPlayerRigPrefab: {fileID: 2521578725783442755, guid: 0da2c02b1d284904ca3850d4026e0d43,
     type: 3}
 --- !u!1 &4089313923217303528
 GameObject:

@@ -30,9 +30,9 @@ namespace ViRSE.PluginRuntime
             _primaryServerService = primaryServerService;
 
             _worldStateSyncer = gameObject.AddComponent<WorldStateSyncer>();
+
+            //TODO - 
             _worldStateSyncer.Initialize(_primaryServerService.PluginSyncCommsHandler, _primaryServerService.LocalInstanceInfo.InstanceCode);
-            //TODO - Player Syncer 
-            //TODO - something for instant messages??
         }
 
         public void ReceivePingFromHost()

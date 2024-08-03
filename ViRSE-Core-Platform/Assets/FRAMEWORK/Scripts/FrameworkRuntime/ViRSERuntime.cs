@@ -44,15 +44,20 @@ namespace ViRSE.FrameworkRuntime
             else
             {
                 Debug.Log("Make player");
-                SpawnPlayer();
+                PlayerSettings playerSettings = new(); //TODO read in from PlayerPrefs
+                SpawnPlayer(playerSettings);
                 OnFrameworkReady?.Invoke();
             }
         }
 
-        private void SpawnPlayer() //TODO
+        private void SpawnPlayer(PlayerSettings playerSettings) //TODO
         {
+            Debug.Log("Spawn player");
             GameObject localPlayerRigGO = Instantiate(localPlayerRigPrefab, transform);
             _localPlayerService = localPlayerRigGO.GetComponent<LocalPlayerService>();
+
+            _localPlayerService.Initialize(playerSettings);
+
             //localPlayerRig.Init
 
             //DontDestroyOnLoad(localPlayerRigGO);

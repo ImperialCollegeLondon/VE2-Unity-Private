@@ -53,16 +53,20 @@ namespace ViRSE.PluginRuntime.VComponents
             //TODO - SyncModule shouldn't be able to modify state, we should pass it as an interface, rather than than a reference to the concrete class - syncer only needs to get bytes anyway
             //TODO, wait until we're redy to register before adding syncable component
             //If the config says networked is false, we can just not add the module at all?
-            _predictiveSyncableModule = gameObject.AddComponent<PredictiveWorldStateSyncableModule>();
-            _predictiveSyncableModule.hideFlags = HideFlags.HideInInspector;
-            _predictiveSyncableModule.Initialize(_networkConfig, _stateModule.State);
-            _predictiveSyncableModule.OnReceivedStateWithNoHistoryMatch.AddListener(HandleReceiveRemoteOverrideState);
+
+            if (ViRSEManager.Instance.ServerType != ServerType.Offline)
+            {
+                _predictiveSyncableModule = gameObject.AddComponent<PredictiveWorldStateSyncableModule>();
+                _predictiveSyncableModule.hideFlags = HideFlags.HideInInspector;
+                _predictiveSyncableModule.Initialize(_networkConfig, _stateModule.State);
+                _predictiveSyncableModule.OnReceivedStateWithNoHistoryMatch.AddListener(HandleReceiveRemoteOverrideState);
+            }
         }
 
         private void HandleOnInteract(InteractorID interactorID)
         {
             _stateModule.InvertState(interactorID);
-            _predictiveSyncableModule.ForceTransmitNextCycle();
+            _predictiveSyncableModule?.ForceTransmitNextCycle();
         }
 
         //TODO, maybe don't need to transmit a bool if we're already transmitting an ID?
@@ -71,7 +75,7 @@ namespace ViRSE.PluginRuntime.VComponents
             _stateModule.UpdateToReceivedNetworkState(receivedStateBytes);
 
             if (PluginSyncService.Instance.IsHost)
-                _predictiveSyncableModule.ForceTransmitNextCycle();
+                _predictiveSyncableModule?.ForceTransmitNextCycle();
         }
     }
 }
