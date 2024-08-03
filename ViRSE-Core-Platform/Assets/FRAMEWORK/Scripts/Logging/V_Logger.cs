@@ -9,7 +9,7 @@ using UnityEngine;
 using UnityEditor;
 #endif
 
-namespace ViRSE
+namespace ViRSE.FrameworkRuntime
 {
     public static class V_Logger
     {

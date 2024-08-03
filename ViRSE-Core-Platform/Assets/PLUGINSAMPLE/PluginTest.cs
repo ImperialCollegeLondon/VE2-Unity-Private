@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using ViRSE;
-using ViRSE.VComponents;
+using ViRSE.PluginRuntime.VComponents;
 
 public class PluginTest : MonoBehaviour
 {
