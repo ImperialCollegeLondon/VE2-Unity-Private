@@ -32,7 +32,7 @@ namespace ViRSE.PluginRuntime
             _worldStateSyncer = gameObject.AddComponent<WorldStateSyncer>();
 
             //TODO - 
-            _worldStateSyncer.Initialize(_primaryServerService.PluginSyncCommsHandler, _primaryServerService.LocalInstanceInfo.InstanceCode);
+            _worldStateSyncer.Initialize(_primaryServerService);
         }
 
         public void ReceivePingFromHost()
@@ -41,3 +41,13 @@ namespace ViRSE.PluginRuntime
         }
     }
 }
+
+/*Flow 
+ * PluginRuntime creates a PluginSyncService immediately 
+ * PluginSyncService creates a WorldStateSyncer immediately 
+ * SyncableModules all check if WorldStateSyncer is ready, if not, they listen to the OnReady event
+ * 
+ * 
+ * 
+ * 
+ */

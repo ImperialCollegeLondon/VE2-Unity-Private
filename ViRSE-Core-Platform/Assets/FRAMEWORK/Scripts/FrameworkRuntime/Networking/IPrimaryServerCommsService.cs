@@ -1,19 +1,15 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Events;
 
 namespace ViRSE.FrameworkRuntime
 {
     public interface IPrimaryServerCommsService
     {
-        public void RegisterWithServer(ServerType serverType);
+        public void ConnectToServer(ServerType serverType);
+        public void SendServerRegistrationRequest(ServerRegistrationRequest populationRegistration);
 
-        public UnityEvent<ServerRegistration> OnRegisterWithServer { get; }
-        public UnityEvent OnDisconnectedFromServer { get; }
-        public UnityEvent<Version> OnNetcodeVersionMismatch { get; }
-
+        public event Action<byte[]> OnReceiveNetcodeConfirmation;
+        public event Action<byte[]> OnReceiveServerRegistrationConfirmation;
         public event Action<byte[]> OnReceivePopulationUpdate;
+        public event Action OnDisconnectedFromServer;
     }
 }

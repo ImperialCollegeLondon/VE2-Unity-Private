@@ -10,7 +10,7 @@ namespace ViRSE.FrameworkRuntime.LocalPlayerRig
         public Vector3 Position { get; set; }
         public Quaternion Rotation { get; set; }
 
-        public void Initialize(PlayerSettings playerSettings);
+        public void Initialize(UserSettings playerSettings);
     }
 }
 

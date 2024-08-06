@@ -88,7 +88,7 @@ namespace ViRSE.PluginRuntime.VComponents
         }
     }
 
-    public class SingleInteractorActivatableState : VSerializable
+    public class SingleInteractorActivatableState : ViRSENetworkSerializable
     {
         public ushort StateChangeNumber { get; set; }
         public bool IsActivated { get; set; }

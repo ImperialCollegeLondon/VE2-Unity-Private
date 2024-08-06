@@ -1,16 +1,15 @@
+using Sirenix.OdinInspector;
 using System;
-using System.Collections;
-using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
-using UnityEngine.Events;
-using ViRSE.FrameworkRuntime.LocalPlayerRig;
+using ViRSE;
 
 namespace ViRSE.FrameworkRuntime
 {
     public interface IPrimaryServerService //PluginService-facing interface, the server will get data some other way
     {
-        public bool RegisteredWithServer { get; }
-        public event Action OnServerHandshakeComplete;
+        //public bool RegisteredWithServer { get; }
+        //public event Action OnServerHandshakeComplete;
 
         public ClientInfo LocalClientInfo { get; }
         public event Action OnLocalClientInfoUpdate;
@@ -24,8 +23,8 @@ namespace ViRSE.FrameworkRuntime
     public class PrimaryServerService : MonoBehaviour, IPrimaryServerService
     {
         #region PluginService Interfaces
-        public bool RegisteredWithServer { get; private set; } = false;
-        public event Action OnServerHandshakeComplete;
+        //public bool RegisteredWithServer { get; private set; } = false;
+        //public event Action OnServerHandshakeComplete;
 
         public ClientInfo LocalClientInfo { get; }
         public event Action OnLocalClientInfoUpdate;
@@ -36,18 +35,131 @@ namespace ViRSE.FrameworkRuntime
         public IPluginSyncCommsHandler PluginSyncCommsHandler => (IPluginSyncCommsHandler)_commsService;
         #endregion
 
+        [SerializeField] private bool _spoofUserIdentity = false;
+
+        [ShowIf("@_spoofUserIdentity")]
+        [SerializeField] private UserIdentity _userIdentitySpoof;
+
+        public UserIdentity UserIdentity { get; private set; }
+        public UserSettings PlayerSettings { get; private set; }
+
+        public event Action<UserSettings> OnPlayerSettingsReady;
+
+        private PopulationInfoWrapper _populationInfo;
+
+        #region Plugin Runtime Interfaces
         private IPrimaryServerCommsService _commsService;
-        private PopulationInfo _populationInfo;
+        #endregion
 
         public void Initialize(ServerType serverType)
         {
             _commsService = gameObject.AddComponent<DarkRiftCommsService>();
+
+            _commsService.OnReceiveNetcodeConfirmation += HandleReceiveNetcodeConfirmation;
+            _commsService.OnReceiveServerRegistrationConfirmation += HandleReceiveServerRegistrationConfirmation;
             _commsService.OnReceivePopulationUpdate += HandlePopulationInfoUpdate;
+
+            _commsService.ConnectToServer(serverType);
+        }
+
+        private void HandleReceiveNetcodeConfirmation(byte[] bytes)
+        {
+            NetcodeVersionConfirmation netcodeVersionConfirmation = new(bytes);
+
+            string startingInstance = "Dev-Testing";  //TODO
+            ServerRegistrationRequest serverRegistrationRequest = CreateServerRegistrationRequest(startingInstance);
+            _commsService.SendServerRegistrationRequest(serverRegistrationRequest);
+        }
+
+        private void HandleReceiveServerRegistrationConfirmation(byte[] bytes)
+        {
+            ServerRegistrationConfirmation serverRegistrationConfirmation = new(bytes);
+            _onPlayerSettingsReady?.Invoke(serverRegistrationConfirmation.UserSettings);
         }
 
         public void HandlePopulationInfoUpdate(byte[] populationAsBytes)
         {
+            PopulationInfo populationInfo = new(populationAsBytes);
+            
+        }
 
+        public void HandleServerHandshakeComplete(UserSettings playerSettings) //TODO, take in PlayerSettings
+        {
+            _onPlayerSettingsReady?.Invoke(playerSettings);
+        }
+
+        //TODO, refactor omds
+        private ServerRegistrationRequest CreateServerRegistrationRequest(string startingInstance)
+        {
+            string[] commandLine = System.Environment.GetCommandLineArgs();
+            UserIdentity userIdentity;
+            string machineName;
+
+            if (Application.isEditor && _spoofUserIdentity)
+            {
+                userIdentity = null;
+                machineName = "???";
+            }
+            else if (Application.isEditor || commandLine.Length < 1)
+            {
+                userIdentity = null;
+                machineName = "???";
+            }
+            else
+            {
+                try
+                {
+                    if (commandLine.Length > 0)
+                    {
+                        V_Logger.Dev("GOT CMD ARGS!");
+                        foreach (string line in commandLine)
+                            V_Logger.Dev("CMD ARG " + line);
+
+                        if (commandLine.Length > 2 && !Application.isEditor)
+                        {
+                            userIdentity = new(
+                                commandLine[2],
+                                commandLine[3],
+                                commandLine[4],
+                                commandLine[5],
+                                commandLine[6],
+                                commandLine[7],
+                                commandLine[8]);
+
+                            machineName = commandLine[9]; //TODO, confirm this
+                        }
+                        else
+                        {
+                            userIdentity = null;
+                            machineName = "???";
+                        }
+                    }
+                    else
+                    {
+                        userIdentity = null;
+                        machineName = "???";
+                    }
+                }
+                catch
+                {
+                    V_Logger.Error("Couldn't create UserIdentity from cmd args, creating guest identity");
+                    userIdentity = null;
+                    machineName = "???";
+                };
+            }
+
+            return new ServerRegistrationRequest(startingInstance, machineName, userIdentity);
+        }
+
+        private string GetMachineName()
+        {
+            string machineName = System.Environment.MachineName;
+
+            string machineNameTrimmed = "???";
+            if (machineName.StartsWith("SKRS-"))
+                machineNameTrimmed = machineName.Substring(5);
+
+            return machineNameTrimmed;
         }
 
         //Stuff other components need to know about 
@@ -78,20 +190,11 @@ namespace ViRSE.FrameworkRuntime
          */
     }
 
-    public struct ServerRegistration
-    {
-        public int ClientID;
-        public bool CompletedTutorial;
-        public UserSettings UserSettings;
-    }
+    //TODO move to a different file
 
-    public struct UserSettings
-    {
-        public string displayName;
-
-        //Avatar settings 
-        //Control settings 
-        //All the stuff stored on the server
-    }
-
+    //TODO - Default user settings should DEF come from the buiild 
+    //Or should they, cz the database needs to have default settings anyway
+    //I'd prefer to actually know if the build is receiving DB defaults, because it shouldn't 
+    //In fact, if we're guest, or a new user, we shouldn't even have settings anyway
+    //
 }

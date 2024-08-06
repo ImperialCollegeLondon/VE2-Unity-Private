@@ -17,7 +17,7 @@ namespace ViRSE.FrameworkRuntime.LocalPlayerRig
         private PlayerControllerVR _vrPlayer;
         private PlayerController _activePlayer => _playerMode == LocalPlayerMode.TwoD? _2dPlayer : _vrPlayer;
 
-        public void Initialize(PlayerSettings playerSettings)
+        public void Initialize(UserSettings playerSettings)
         {
             _playerMode = LocalPlayerMode.TwoD;
             _2dPlayer = Instantiate(_playerRig2DPrefab).GetComponent<PlayerController2D>();

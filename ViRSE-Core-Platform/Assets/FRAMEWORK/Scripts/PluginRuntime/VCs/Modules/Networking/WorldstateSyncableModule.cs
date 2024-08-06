@@ -114,7 +114,7 @@ namespace ViRSE.PluginRuntime.VComponents
         #endregion
 
         private WorldStateSyncableConfig _config;
-        protected VSerializable _state;
+        protected ViRSENetworkSerializable _state;
         private ProtocolModule _protocolModule;
 
         public string ID { get; private set; }
@@ -130,7 +130,7 @@ namespace ViRSE.PluginRuntime.VComponents
 
         public UnityEvent<byte[]> OnStateReceive { get; private set; } = new();
 
-        public void Initialize(WorldStateSyncableConfig config, VSerializable state)
+        public void Initialize(WorldStateSyncableConfig config, ViRSENetworkSerializable state)
         {
             _config = config;
             _state = state;
@@ -163,7 +163,7 @@ namespace ViRSE.PluginRuntime.VComponents
         protected void OnCollectSnapshotData()
         {
             if (_state != null)
-                WorldStateSyncer.Instance.AddWorldStateSnapshot(_state.Bytes);
+                WorldStateSyncer.Instance.AddStateToOutgoingSnapshot(ID, _state.Bytes);
         }
 
         protected virtual void FixedUpdate()
@@ -174,7 +174,7 @@ namespace ViRSE.PluginRuntime.VComponents
             {
                 //TODO, below comment, no longer just plugin syncables! Now its all syncables that start will null
                 if (_state != null) //PluginSyncables that haven't yet received state will be null
-                    WorldStateSyncer.Instance.AddStateToOutgoingBuffer(_state.Bytes, _config.protocolConfig.TransmissionType);
+                    WorldStateSyncer.Instance.AddStateToOutgoingBuffer(ID, _state.Bytes, _config.protocolConfig.TransmissionType);
             }
 
             _forceTransmit = false;

@@ -1,35 +1,38 @@
+using DarkRift;
 using DarkRift.Client;
 using DarkRift.Client.Unity;
 using Sirenix.Serialization;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
 using ViRSE.PluginRuntime;
+using DRMessageReader = DarkRift.DarkRiftReader;
 
 namespace ViRSE.FrameworkRuntime
 {
     public class DarkRiftCommsService : MonoBehaviour, IPrimaryServerCommsService, IPluginSyncCommsHandler
     {
-        public bool IsConnectedToServer { get; private set; } = false;
+        public bool IsReadyToTransmit { get; private set; } = false;
 
-        //TODO review
-        public UnityEvent<ServerRegistration> OnRegisterWithServer { get; private set; } = new();
-        public UnityEvent OnDisconnectedFromServer { get; private set; } = new();
-        public UnityEvent<Version> OnNetcodeVersionMismatch { get; private set; } = new();
+        #region PrimaryServerService Interface
+        public event Action<byte[]> OnReceiveNetcodeConfirmation;
+        public event Action<byte[]> OnReceiveServerRegistrationConfirmation;
+        public event Action<byte[]> OnReceivePopulationUpdate;
+        public event Action OnDisconnectedFromServer;
+        #endregion
 
         #region PluginSyncService Interface 
-        //public delegate void BytesEventHandler(byte[] bytes);
-        public event Action<byte[]> OnWorldStateBundleBytesReceived;
-        public event Action<byte[]> OnRemotePlayerStateBytesReceived;
-        public event Action<byte[]> OnInstantMessageBytesReceived;
-        public event Action<byte[]> OnReceivePopulationUpdate;
+        public event Action<byte[]> OnReceiveWorldStateSyncableBundle;
+        public event Action<byte[]> OnReceiveRemotePlayerState;
+        public event Action<byte[]> OnReceiveInstantMessage;
         #endregion
 
         private UnityClient _drClient;
 
-        public void RegisterWithServer(ServerType serverType) //TODO, serverType should be global
+        public void ConnectToServer(ServerType serverType) //TODO, serverType should be global
         {
             _drClient = gameObject.AddComponent<UnityClient>();
 
@@ -41,18 +44,32 @@ namespace ViRSE.FrameworkRuntime
                 _ => throw new ArgumentOutOfRangeException(nameof(serverType), serverType, "Problem when registering with server, check ServerType")
             };
 
+            _drClient.MessageReceived += OnMessageReceived;
             _drClient.Connect(ipAddress, 4296, false);
         }
 
         private void OnMessageReceived(object sender, MessageReceivedEventArgs e)
         {
-            DarkRift.Message messageWrapper = e.GetMessage();
-            MessageCode receivedMessageCode = (MessageCode)messageWrapper.Tag;
+            Message messageWrapper = e.GetMessage();
+            NetworkUtils.MessageCodes receivedMessageCode = (NetworkUtils.MessageCodes)messageWrapper.Tag;
 
-            if (receivedMessageCode == MessageCode.WorldStateBundle)
+            using DRMessageReader reader = e.GetMessage().GetReader();
+            byte[] bytes = reader.ReadBytes();
+
+            switch (receivedMessageCode)
             {
-                byte[] receivedBytes = { }; //TODO extract from message...
-                OnWorldStateBundleBytesReceived?.Invoke(receivedBytes);
+                case NetworkUtils.MessageCodes.NetcodeVersionConfirmation:
+                    OnReceiveNetcodeConfirmation?.Invoke(bytes);
+                    break;
+                case NetworkUtils.MessageCodes.ServerRegistrationConfirmation:
+                    OnReceiveServerRegistrationConfirmation?.Invoke(bytes);
+                    break;
+                case NetworkUtils.MessageCodes.PopulationInfo:
+                    OnReceivePopulationUpdate?.Invoke(bytes);
+                    break;
+                case NetworkUtils.MessageCodes.WorldstateSyncableBundle:
+                    OnReceiveWorldStateSyncableBundle?.Invoke(bytes);
+                    break;
             }
 
 
@@ -86,30 +103,50 @@ namespace ViRSE.FrameworkRuntime
 
         }
 
-        public void SendWorldStateBundleBytes(byte[] bundleAsBytes, TransmissionProtocol transmissionProtocol)
+        public void SendWorldStateBundle(byte[] bundleAsBytes, TransmissionProtocol transmissionProtocol)
         {
 
         }
 
-        public void SendLocalPlayerStateBytes(byte[] bytes)
+        public void SendLocalPlayerState(byte[] bytes)
         {
 
         }
 
-        public void SendInstantMessageBytes(byte[] bytes)
+        public void SendInstantMessage(byte[] bytes)
         {
 
         }
 
-        public void SendTCPWorldStateSnapshotBytes(byte[] bytes)
+        public void SendWorldStateSnapshot(byte[] bytes)
         {
             throw new NotImplementedException();
         }
 
-        private enum MessageCode
+        public void SendServerRegistrationRequest(ServerRegistrationRequest populationRegistration)
         {
-            WorldStateBundle,
-            PlayerState
+            throw new NotImplementedException();
+        }
+
+        private class RawBytesMessage : IDarkRiftSerializable
+        {
+            public byte[] Bytes { get; private set; }
+
+            public RawBytesMessage(byte[] bytes)
+            {
+                Bytes = bytes;
+            }
+
+            public void Serialize(SerializeEvent e)
+            {
+                e.Writer.Write(Bytes);
+            }
+
+            public void Deserialize(DeserializeEvent e)
+            {
+                Bytes = e.Reader.ReadBytes();
+            }
         }
     }
 }
+

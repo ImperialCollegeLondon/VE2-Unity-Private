@@ -31,25 +31,35 @@ namespace ViRSE.PluginRuntime
         public delegate void CollectSnapshotReceiver();
         private Dictionary<string, OnCollectSnapshotEvent> _collectSnapshotEvents = new();
 
-        private List<byte[]> _outgoingSyncableStateBufferTCP = new();
-        private List<byte[]> _outgoingSyncableStateBufferUDP = new();
-        private List<byte[]> _outgoingSyncableStateBufferSnapshot = new();
-        private List<byte[]> _incommingWorldStateBundleBuffer = new(); 
+        private List<WorldStateWrapper> _outgoingSyncableStateBufferTCP = new();
+        private List<WorldStateWrapper> _outgoingSyncableStateBufferUDP = new();
+        private List<WorldStateWrapper> _outgoingSyncableStateBufferSnapshot = new();
+        private List<WorldStateBundle> _incommingWorldStateBundleBuffer = new(); 
 
-        public void Initialize(IPluginSyncCommsHandler commsHandler, string instanceCode)
+        public void Initialize(IPluginSyncCommsHandler commsHandler)
         {
             _commsHandler = commsHandler;
-            _localInstanceCode = instanceCode;
+
+            //I don't think the instance we're in should have to know about the instance code 
+            //It's only for snapshots, right?
+            //Snapshots are fine, we can just add a snapshot along with the InstanceAllocationRequest 
+            //NO WE CAN'T! Because we might be forced to change instance 
+            //A snapshot should just be a bundle, with an instance code added
+            //So the primaryServerService emits a "On
+
+            //We need to know when the PrimaryServerService says we are registered in an instance 
+            //What does this actually mean??
+            //Well, we check if 
         }
 
         private void Start()
         {
-            _commsHandler.OnWorldStateBundleBytesReceived += HandleReceiveWorldStateBundle;
+            _commsHandler.OnReceiveWorldStateSyncableBundle += HandleReceiveWorldStateBundle;
         }
 
         private void OnDestroy()
         {
-            _commsHandler.OnWorldStateBundleBytesReceived -= HandleReceiveWorldStateBundle;
+            _commsHandler.OnReceiveWorldStateSyncableBundle -= HandleReceiveWorldStateBundle;
         }
 
         public NetworkEvents RegisterForNetworkEvents(string id)
@@ -78,41 +88,43 @@ namespace ViRSE.PluginRuntime
             _collectSnapshotEvents.Remove(id);
         }
 
-        public void AddStateToOutgoingBuffer(byte[] byteArray, TransmissionProtocol protocol)
+        public void AddStateToOutgoingBuffer(string id, byte[] stateBytes, TransmissionProtocol protocol)
         {
-            if (_commsHandler.IsConnectedToServer)
+            if (_commsHandler.IsReadyToTransmit)
                 return; //Network isn't ready!
 
+            WorldStateWrapper worldStateWrapper = new(id, stateBytes);
+
             if (protocol == TransmissionProtocol.TCP)
-                _outgoingSyncableStateBufferTCP.Add(byteArray);
+                _outgoingSyncableStateBufferTCP.Add(worldStateWrapper);
             else
-                _outgoingSyncableStateBufferUDP.Add(byteArray);
+                _outgoingSyncableStateBufferUDP.Add(worldStateWrapper);
         }
 
-        public void AddWorldStateSnapshot(byte[] byteArray)
+        public void AddStateToOutgoingSnapshot(string id, byte[] stateBytes)
         {
-            _outgoingSyncableStateBufferSnapshot.Add(byteArray);
+            WorldStateWrapper worldStateWrapper = new(id, stateBytes);
+            _outgoingSyncableStateBufferSnapshot.Add(worldStateWrapper);
         }
 
         private void HandleReceiveWorldStateBundle(byte[] byteData)
         {
-            _incommingWorldStateBundleBuffer.Add(byteData);
+            WorldStateBundle worldStateBundle = new(byteData);
+            _incommingWorldStateBundleBuffer.Add(worldStateBundle);
         }
 
         public void UpdateWorldState()
         {
             ProcessReceivedWorldStates();
 
-            //TODO - shouldn't need instance code here, this was so we could reuse the bundle for snapshot messages 
-            //Snapshot message should be a little different, and should contain the instance code
-            WorldStateBundle TCPBundle = new(_localInstanceCode, _outgoingSyncableStateBufferTCP);
-            WorldStateBundle UDPBundle = new(_localInstanceCode, _outgoingSyncableStateBufferUDP);
+            WorldStateBundle TCPBundle = new(_outgoingSyncableStateBufferTCP);
+            WorldStateBundle UDPBundle = new(_outgoingSyncableStateBufferUDP);
 
             if (_outgoingSyncableStateBufferTCP.Count > 0)
-                _commsHandler.SendWorldStateBundleBytes(TCPBundle.GetWorldStateBundleAsBytes(), TransmissionProtocol.TCP);
+                _commsHandler.SendWorldStateBundle(TCPBundle.Bytes, TransmissionProtocol.TCP);
 
             if (_outgoingSyncableStateBufferUDP.Count > 0)
-                _commsHandler.SendWorldStateBundleBytes(UDPBundle.GetWorldStateBundleAsBytes(), TransmissionProtocol.UDP);
+                _commsHandler.SendWorldStateBundle(UDPBundle.Bytes, TransmissionProtocol.UDP);
 
             _outgoingSyncableStateBufferTCP.Clear();
             _outgoingSyncableStateBufferUDP.Clear();
@@ -120,40 +132,20 @@ namespace ViRSE.PluginRuntime
 
         private void ProcessReceivedWorldStates()
         {
-            foreach (byte[] receivedBundleBytes in _incommingWorldStateBundleBuffer)
+            foreach (WorldStateBundle receivedBundle in _incommingWorldStateBundleBuffer)
             {
-                WorldStateBundle receivedBundle = new WorldStateBundle(receivedBundleBytes);
-
-                if (!receivedBundle.instanceCode.Equals(_localInstanceCode))
+                foreach (WorldStateWrapper worldStateWrapper in receivedBundle.WorldStateWrappers)
                 {
-                    V_Logger.Error("Received a world state bundle for instance " + receivedBundle.instanceCode + " but we are in instance " + _localInstanceCode);
-                    continue;
-                }
-
-                foreach (byte[] stateAsBytes in receivedBundle.statesAsBytes)
-                {
-                    //TODO - Repeated code with BaseWorldStateSyncable
-                    //The ID will get read AGAIN when it hits the syncable, doesn't really need to
-                    //Maybe the BaseWorldStateSyncable SHOULD be a concrete type here?
-                    //Or maybe id just shouldn't live within the state object
-                    using (MemoryStream stream = new MemoryStream(stateAsBytes))
-                    using (BinaryReader reader = new BinaryReader(stream))
+                    if (_syncableStateReceivedEvents.TryGetValue(worldStateWrapper.ID, out SyncableStateReceiveEvent syncableStateReceiveEvent))
                     {
-                        ushort stringLength = reader.ReadUInt16();
-                        byte[] stringBytes = reader.ReadBytes(stringLength);
-                        string id = System.Text.Encoding.UTF8.GetString(stringBytes);
-
-                        if (_syncableStateReceivedEvents.TryGetValue(id, out SyncableStateReceiveEvent syncableStateReceiveEvent))
+                        try
                         {
-                            try
-                            {
-                                //Debug.Log("Emit event");
-                                syncableStateReceiveEvent.Invoke(stateAsBytes);
-                            }
-                            catch (System.Exception ex)
-                            {
-                                V_Logger.Error("Error receiving syncable data - " + ex.StackTrace + " - " + ex.Message);
-                            }
+                            //Debug.Log("Emit event");
+                            syncableStateReceiveEvent.Invoke(worldStateWrapper.StateBytes);
+                        }
+                        catch (System.Exception ex)
+                        {
+                            V_Logger.Error("Error receiving syncable data - " + ex.StackTrace + " - " + ex.Message);
                         }
                     }
                 }
@@ -179,66 +171,13 @@ namespace ViRSE.PluginRuntime
 
             if (_outgoingSyncableStateBufferSnapshot.Count > 0)
             {
-                WorldStateBundle worldStateSnapshotBundle = new(instanceCodeOfSnapshot, _outgoingSyncableStateBufferSnapshot);
+                WorldStateBundle worldStateBundle = new(_outgoingSyncableStateBufferSnapshot);
+                WorldStateSnapshot worldStateSnapshot = new(instanceCodeOfSnapshot, worldStateBundle);
 
-                _commsHandler.SendTCPWorldStateSnapshotBytes(worldStateSnapshotBundle.GetWorldStateBundleAsBytes());
+                _commsHandler.SendWorldStateSnapshot(worldStateSnapshot.Bytes);
                 _outgoingSyncableStateBufferSnapshot.Clear();
             }
 
-        }
-    }
-
-    public class WorldStateBundle
-    {
-        public string instanceCode;
-        public List<byte[]> statesAsBytes { get; private set; } = new();
-
-        public WorldStateBundle(byte[] bundleAsBytes)
-        {
-            PopulateFromByteData(bundleAsBytes);
-        }
-
-        public WorldStateBundle(string instanceCode, List<byte[]> statesAsBytes)
-        {
-            this.instanceCode = instanceCode;
-            this.statesAsBytes = statesAsBytes;
-        }
-
-        public byte[] GetWorldStateBundleAsBytes()
-        {
-            using (MemoryStream stream = new MemoryStream())
-            using (BinaryWriter writer = new BinaryWriter(stream))
-            {
-                byte[] instanceCodeBytes = System.Text.Encoding.UTF8.GetBytes(instanceCode);
-                writer.Write((ushort)instanceCodeBytes.Length);
-                writer.Write(instanceCodeBytes);
-
-                foreach (byte[] stateAsBytes in statesAsBytes)
-                {
-                    writer.Write((ushort)stateAsBytes.Length);
-                    writer.Write(stateAsBytes);
-                }
-
-                return stream.ToArray();
-            }
-        }
-
-        public void PopulateFromByteData(byte[] bundleAsBytes)
-        {
-            using (MemoryStream stream = new MemoryStream(bundleAsBytes))
-            using (BinaryReader reader = new BinaryReader(stream))
-            {
-                int instanceCodeBytesLength = reader.ReadUInt16();
-                byte[] instanceCodeBytes = reader.ReadBytes(instanceCodeBytesLength);
-                instanceCode = System.Text.Encoding.UTF8.GetString(instanceCodeBytes);
-
-                while (reader.BaseStream.Position < reader.BaseStream.Length)
-                {
-                    int stateBytesLength = reader.ReadUInt16();
-                    byte[] stateBytes = reader.ReadBytes(stateBytesLength);
-                    statesAsBytes.Add(stateBytes);
-                }
-            }
         }
     }
 

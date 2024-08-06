@@ -7,6 +7,7 @@ using ViRSE.FrameworkRuntime.LocalPlayerRig;
 namespace ViRSE.PluginRuntime
 {
     //TODO, I do think we should probably split this, so all this script does is create the PluginService, and pass some config
+    [AddComponentMenu("Scripts/V_ViRSE Manager")]
     public class ViRSEManager : MonoBehaviour //Basically, "PluginRuntime"
     {
         public static ViRSEManager Instance;
@@ -15,7 +16,7 @@ namespace ViRSE.PluginRuntime
         public ServerType ServerType => serverType;
 
         //Refences to framework interfaces
-        private IFrameworkRuntime _frameworkService;
+        private IFrameworkRuntime _frameworkRuntime;
 
         //References to the Plugin Subservices
         private PluginSyncService _pluginSyncService;
@@ -30,17 +31,21 @@ namespace ViRSE.PluginRuntime
 
             GameObject frameworkGO = GameObject.Find("ViRSE_Runtime");
 
+            if (serverType != ServerType.Local)
+            {
+                _pluginSyncService = gameObject.AddComponent<PluginSyncService>();
+                _pluginSyncService.Initialize(_frameworkRuntime.PrimaryServerService);
+            }
+
             if (frameworkGO != null)
-            {
-                _frameworkService = frameworkGO.GetComponent<IFrameworkRuntime>();
-                HandleFrameworkReady();
-            }
+                _frameworkRuntime = frameworkGO.GetComponent<IFrameworkRuntime>();
             else
-            {
-                _frameworkService = CreateNewFrameworkRuntime();
-                _frameworkService.OnFrameworkReady += HandleFrameworkReady;
-                _frameworkService.Initialize(serverType);
-            }
+                _frameworkRuntime = CreateNewFrameworkRuntime();
+
+            if (_frameworkRuntime.IsFrameworkReady)
+                HandleFrameworkReady();
+            else
+                _frameworkRuntime.OnFrameworkReady += HandleFrameworkReady;
         }
 
         private IFrameworkRuntime CreateNewFrameworkRuntime()
@@ -55,34 +60,18 @@ namespace ViRSE.PluginRuntime
 
         private void HandleFrameworkReady()
         {
-            ConfigurePlayerForSpawn();
-            SetupPluginSyncService();
+            MovePlayerToPluginStartingPosition();
         }
 
-        private void ConfigurePlayerForSpawn()
+        private void MovePlayerToPluginStartingPosition()
         {
-            Debug.Log("fwork " + _frameworkService.ToString());
-            Debug.Log("LPR " + _frameworkService.LocalPlayerRig.ToString());
-            _frameworkService.LocalPlayerRig.Position = transform.position;
-            _frameworkService.LocalPlayerRig.Rotation = transform.rotation;
-        }
-
-        private void SetupPluginSyncService()
-        {
-            if (serverType == ServerType.Offline)
-            {
-
-            }
-            else
-            {
-                _pluginSyncService = gameObject.AddComponent<PluginSyncService>();
-                _pluginSyncService.Initialize(_frameworkService.PrimaryServerService);
-            }
+            _frameworkRuntime.LocalPlayerRig.Position = transform.position;
+            _frameworkRuntime.LocalPlayerRig.Rotation = transform.rotation;
         }
 
         private void OnDestroy()
         {
-            _frameworkService.OnFrameworkReady -= HandleFrameworkReady;
+            _frameworkRuntime.OnFrameworkReady -= HandleFrameworkReady;
         }
     }
 }
