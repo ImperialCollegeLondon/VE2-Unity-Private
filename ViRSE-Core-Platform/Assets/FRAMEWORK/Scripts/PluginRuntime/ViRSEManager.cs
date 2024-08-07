@@ -30,17 +30,18 @@ namespace ViRSE.PluginRuntime
             Instance = this;
 
             GameObject frameworkGO = GameObject.Find("ViRSE_Runtime");
-
-            if (serverType != ServerType.Local)
-            {
-                _pluginSyncService = gameObject.AddComponent<PluginSyncService>();
-                _pluginSyncService.Initialize(_frameworkRuntime.PrimaryServerService);
-            }
-
             if (frameworkGO != null)
                 _frameworkRuntime = frameworkGO.GetComponent<IFrameworkRuntime>();
             else
                 _frameworkRuntime = CreateNewFrameworkRuntime();
+
+            _frameworkRuntime.Initialize(ServerType);
+
+            if (serverType != ServerType.Offline)
+            {
+                _pluginSyncService = gameObject.AddComponent<PluginSyncService>();
+                _pluginSyncService.Initialize(_frameworkRuntime.PrimaryServerService);
+            }
 
             if (_frameworkRuntime.IsFrameworkReady)
                 HandleFrameworkReady();

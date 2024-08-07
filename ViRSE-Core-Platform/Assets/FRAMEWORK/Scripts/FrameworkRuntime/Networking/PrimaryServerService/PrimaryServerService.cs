@@ -1,3 +1,4 @@
+using DarkRift.Client.Unity;
 using Sirenix.OdinInspector;
 using System;
 using UnityEditor;
@@ -22,6 +23,8 @@ namespace ViRSE.FrameworkRuntime
 
     public class PrimaryServerService : MonoBehaviour, IPrimaryServerService
     {
+        [SerializeField] private UnityClient unityClient;
+
         #region PluginService Interfaces
         //public bool RegisteredWithServer { get; private set; } = false;
         //public event Action OnServerHandshakeComplete;
@@ -59,7 +62,7 @@ namespace ViRSE.FrameworkRuntime
             _commsService.OnReceiveServerRegistrationConfirmation += HandleReceiveServerRegistrationConfirmation;
             _commsService.OnReceivePopulationUpdate += HandlePopulationInfoUpdate;
 
-            _commsService.ConnectToServer(serverType);
+            _commsService.ConnectToServer(serverType, unityClient);
         }
 
         private void HandleReceiveNetcodeConfirmation(byte[] bytes)
@@ -68,24 +71,19 @@ namespace ViRSE.FrameworkRuntime
 
             string startingInstance = "Dev-Testing";  //TODO
             ServerRegistrationRequest serverRegistrationRequest = CreateServerRegistrationRequest(startingInstance);
-            _commsService.SendServerRegistrationRequest(serverRegistrationRequest);
+            _commsService.SendServerRegistrationRequest(serverRegistrationRequest.Bytes);
         }
 
         private void HandleReceiveServerRegistrationConfirmation(byte[] bytes)
         {
             ServerRegistrationConfirmation serverRegistrationConfirmation = new(bytes);
-            _onPlayerSettingsReady?.Invoke(serverRegistrationConfirmation.UserSettings);
+            OnPlayerSettingsReady?.Invoke(serverRegistrationConfirmation.UserSettings);
         }
 
         public void HandlePopulationInfoUpdate(byte[] populationAsBytes)
         {
             PopulationInfo populationInfo = new(populationAsBytes);
             
-        }
-
-        public void HandleServerHandshakeComplete(UserSettings playerSettings) //TODO, take in PlayerSettings
-        {
-            _onPlayerSettingsReady?.Invoke(playerSettings);
         }
 
         //TODO, refactor omds

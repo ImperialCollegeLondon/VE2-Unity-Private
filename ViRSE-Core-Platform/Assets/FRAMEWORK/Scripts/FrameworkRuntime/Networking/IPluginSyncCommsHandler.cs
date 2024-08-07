@@ -10,22 +10,37 @@ namespace ViRSE.FrameworkRuntime
     public interface IPluginSyncCommsHandler
     {
         public bool IsReadyToTransmit { get; }
+    }
 
+    public interface IPluginWorldStateCommsHandler : IPluginSyncCommsHandler
+    {
         public event Action<byte[]> OnReceiveWorldStateSyncableBundle;
-        public event Action<byte[]> OnReceiveRemotePlayerState;
-        public event Action<byte[]> OnReceiveInstantMessage;
 
+        public void SendWorldStateBundle(byte[] bytes, TransmissionProtocol transmissionProtocol);
+        public void SendWorldStateSnapshot(byte[] bytes);
+    }
+
+    public interface IPluginLocalPlayerCommsHandler : IPluginSyncCommsHandler
+    {
+        public void SendLocalPlayerState(byte[] bytes);
+    }
+
+    public interface IPluginRemotePlayerCommsHandler : IPluginSyncCommsHandler
+    {
+        public event Action<byte[]> OnReceiveRemotePlayerState;
+    }
+
+    public interface IPluginInstantMessageCommsHandler : IPluginSyncCommsHandler
+    {
+        public event Action<byte[]> OnReceiveInstantMessage;
+        public void SendInstantMessage(byte[] bytes);
+    }
+
+    public interface IPluginPingCommsHandler : IPluginSyncCommsHandler
+    {
         public void SendPingToHost();
 
         public void SendPingReplyToNonHost();
-
-        public void SendWorldStateBundle(byte[] bytes, TransmissionProtocol transmissionProtocol);
-
-        public void SendWorldStateSnapshot(byte[] bytes);
-
-        public void SendLocalPlayerState(byte[] bytes);
-
-        public void SendInstantMessage(byte[] bytes);
     }
 }
 

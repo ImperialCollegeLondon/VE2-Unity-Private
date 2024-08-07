@@ -1,4 +1,5 @@
 using Sirenix.OdinInspector;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace ViRSE.PluginRuntime
     {
         public static WorldStateSyncer Instance;
 
-        private IPluginSyncCommsHandler _commsHandler;
+        private IPluginWorldStateCommsHandler _commsHandler;
         private string _localInstanceCode;
 
         [ReadOnly][SerializeField] private int _numberOfSyncablesRegisteredDebug = 0;
@@ -34,22 +35,21 @@ namespace ViRSE.PluginRuntime
         private List<WorldStateWrapper> _outgoingSyncableStateBufferTCP = new();
         private List<WorldStateWrapper> _outgoingSyncableStateBufferUDP = new();
         private List<WorldStateWrapper> _outgoingSyncableStateBufferSnapshot = new();
-        private List<WorldStateBundle> _incommingWorldStateBundleBuffer = new(); 
+        private List<WorldStateBundle> _incommingWorldStateBundleBuffer = new();
 
-        public void Initialize(IPluginSyncCommsHandler commsHandler)
+        private event Action<string> _onInstanceCodeChange; //Don't like this
+
+        public void Initialize(IPluginWorldStateCommsHandler commsHandler)
         {
+            Instance = this;
             _commsHandler = commsHandler;
+        }
 
-            //I don't think the instance we're in should have to know about the instance code 
-            //It's only for snapshots, right?
-            //Snapshots are fine, we can just add a snapshot along with the InstanceAllocationRequest 
-            //NO WE CAN'T! Because we might be forced to change instance 
-            //A snapshot should just be a bundle, with an instance code added
-            //So the primaryServerService emits a "On
-
-            //We need to know when the PrimaryServerService says we are registered in an instance 
-            //What does this actually mean??
-            //Well, we check if 
+        //Happens if we move between instances of the same plugin
+        //If changing plugins, this whole syncer will be destroyed and recreated
+        public void ResetForNewInstance()
+        {
+            //May need to tell all the syncables to wipe their data here
         }
 
         private void Start()
@@ -113,7 +113,7 @@ namespace ViRSE.PluginRuntime
             _incommingWorldStateBundleBuffer.Add(worldStateBundle);
         }
 
-        public void UpdateWorldState()
+        public void TickOver()
         {
             ProcessReceivedWorldStates();
 
@@ -128,6 +128,11 @@ namespace ViRSE.PluginRuntime
 
             _outgoingSyncableStateBufferTCP.Clear();
             _outgoingSyncableStateBufferUDP.Clear();
+        }
+
+        public void SetNewBufferLength(int newLength)
+        {
+            //Emit event to syncables?
         }
 
         private void ProcessReceivedWorldStates()

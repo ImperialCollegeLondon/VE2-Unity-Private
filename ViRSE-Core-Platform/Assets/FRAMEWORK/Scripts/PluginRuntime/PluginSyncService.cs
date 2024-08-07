@@ -13,6 +13,8 @@ namespace ViRSE.PluginRuntime
     /// </summary>
     public class PluginSyncService : MonoBehaviour
     {
+        //TODO, should take some config for events like "OnBecomeHost", "OnLoseHost", maybe also sync frequencies
+
         public static PluginSyncService Instance { get; private set; }  // Do we even want a singleton here???
         //Well, we can't wire the PluginSyncService into the VCs... and the VCs are part of the PluginRuntime anyway
 
@@ -23,20 +25,28 @@ namespace ViRSE.PluginRuntime
         private IPrimaryServerService _primaryServerService;
         private WorldStateSyncer _worldStateSyncer;
 
+        //TODO, consider constructing PluginSyncService using factory pattern to inject the WorldStateSyncer
+        //Also consider removing thsi from MonoBehvaiour so we get our constructor back
         public void Initialize(IPrimaryServerService primaryServerService)
         {
             Instance = this;
 
             _primaryServerService = primaryServerService;
+            IPluginSyncCommsHandler pluginSyncCommsHandler = _primaryServerService.PluginSyncCommsHandler;
 
             _worldStateSyncer = gameObject.AddComponent<WorldStateSyncer>();
+            _worldStateSyncer.Initialize((IPluginWorldStateCommsHandler)pluginSyncCommsHandler);
+        }
 
-            //TODO - 
-            _worldStateSyncer.Initialize(_primaryServerService);
+        private void FixedUpdate()
+        {
+            _worldStateSyncer.TickOver();
         }
 
         public void ReceivePingFromHost()
         {
+            //TODO calc buffer size
+            _worldStateSyncer.SetNewBufferLength(1);
             OnWorldStateHistoryQueueSizeChange.Invoke(5);
         }
     }

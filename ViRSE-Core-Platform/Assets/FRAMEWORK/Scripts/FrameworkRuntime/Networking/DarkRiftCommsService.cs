@@ -9,11 +9,13 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
 using ViRSE.PluginRuntime;
+using static ViRSE.NetworkUtils;
 using DRMessageReader = DarkRift.DarkRiftReader;
+using DRMessageWrapper = DarkRift.Message;
 
 namespace ViRSE.FrameworkRuntime
 {
-    public class DarkRiftCommsService : MonoBehaviour, IPrimaryServerCommsService, IPluginSyncCommsHandler
+    public class DarkRiftCommsService : MonoBehaviour, IPrimaryServerCommsService, IPluginWorldStateCommsHandler
     {
         public bool IsReadyToTransmit { get; private set; } = false;
 
@@ -32,9 +34,10 @@ namespace ViRSE.FrameworkRuntime
 
         private UnityClient _drClient;
 
-        public void ConnectToServer(ServerType serverType) //TODO, serverType should be global
+        public void ConnectToServer(ServerType serverType, UnityClient drClient) //TODO, serverType should be global
         {
-            _drClient = gameObject.AddComponent<UnityClient>();
+            _drClient = drClient;
+            //_drClient = gameObject.AddComponent<UnityClient>();
 
             string ipAddress = serverType switch
             {
@@ -43,6 +46,8 @@ namespace ViRSE.FrameworkRuntime
                 ServerType.Prod => "127.0.0.3",
                 _ => throw new ArgumentOutOfRangeException(nameof(serverType), serverType, "Problem when registering with server, check ServerType")
             };
+
+            Debug.Log($"Try connect to {ipAddress}:4296");
 
             _drClient.MessageReceived += OnMessageReceived;
             _drClient.Connect(ipAddress, 4296, false);
@@ -105,7 +110,15 @@ namespace ViRSE.FrameworkRuntime
 
         public void SendWorldStateBundle(byte[] bundleAsBytes, TransmissionProtocol transmissionProtocol)
         {
+            RawBytesMessage message = new(bundleAsBytes);
+            SendMode sendMode = transmissionProtocol == TransmissionProtocol.TCP?
+                SendMode.Reliable : 
+                SendMode.Unreliable;
 
+            using (DRMessageWrapper messageWrapper = DRMessageWrapper.Create((ushort)MessageCodes.WorldstateSyncableBundle, message))
+            {
+                _drClient.SendMessage(messageWrapper, sendMode);
+            }
         }
 
         public void SendLocalPlayerState(byte[] bytes)
@@ -123,9 +136,14 @@ namespace ViRSE.FrameworkRuntime
             throw new NotImplementedException();
         }
 
-        public void SendServerRegistrationRequest(ServerRegistrationRequest populationRegistration)
+        public void SendServerRegistrationRequest(byte[] bytes)
         {
-            throw new NotImplementedException();
+            RawBytesMessage message = new(bytes);
+
+            using (DRMessageWrapper messageWrapper = DRMessageWrapper.Create((ushort)MessageCodes.ServerRegistrationRequest, message))
+            {
+                _drClient.SendMessage(messageWrapper, SendMode.Reliable);
+            }
         }
 
         private class RawBytesMessage : IDarkRiftSerializable

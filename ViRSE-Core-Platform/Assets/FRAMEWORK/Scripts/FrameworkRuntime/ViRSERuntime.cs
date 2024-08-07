@@ -28,7 +28,8 @@ namespace ViRSE.FrameworkRuntime
         public bool IsFrameworkReady { get; private set; }
         public event Action OnFrameworkReady;
 
-        public IPrimaryServerService PrimaryServerService { get; private set; }
+        private PrimaryServerService _primaryServerService;
+        public IPrimaryServerService PrimaryServerService => _primaryServerService;
         public ILocalPlayerRig LocalPlayerRig => _localPlayerService;
         #endregion
 
@@ -47,11 +48,12 @@ namespace ViRSE.FrameworkRuntime
             else
             {
                 Debug.Log("Make server");
-                PrimaryServerService primaryServerService = Instantiate(primaryServerServicePrefab).GetComponent<PrimaryServerService>();
-                DontDestroyOnLoad(primaryServerService);
+                GameObject primaryServerServiceGO = Instantiate(primaryServerServicePrefab);
+                DontDestroyOnLoad(primaryServerServiceGO);
+                _primaryServerService = primaryServerServiceGO.GetComponent<PrimaryServerService>();
 
-                primaryServerService.OnPlayerSettingsReady += HandleUserSettingsReady;
-                primaryServerService.Initialize(serverType);
+                _primaryServerService.OnPlayerSettingsReady += HandleUserSettingsReady;
+                _primaryServerService.Initialize(serverType);
             }
         }
 
