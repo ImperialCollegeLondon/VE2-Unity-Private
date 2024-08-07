@@ -72,6 +72,8 @@ namespace ViRSE.PluginRuntime
             _syncableStateReceivedEvents.Add(id, syncableStateReceivedEvent);
             _collectSnapshotEvents.Add(id, collectSnapshotEvent);
 
+            //Debug.Log("Register " + id);
+
             return new NetworkEvents(syncableStateReceivedEvent, collectSnapshotEvent);
         }
 
@@ -90,7 +92,7 @@ namespace ViRSE.PluginRuntime
 
         public void AddStateToOutgoingBuffer(string id, byte[] stateBytes, TransmissionProtocol protocol)
         {
-            if (_commsHandler.IsReadyToTransmit)
+            if (!_commsHandler.IsReadyToTransmit)
                 return; //Network isn't ready!
 
             WorldStateWrapper worldStateWrapper = new(id, stateBytes);
@@ -109,6 +111,7 @@ namespace ViRSE.PluginRuntime
 
         private void HandleReceiveWorldStateBundle(byte[] byteData)
         {
+            //Debug.Log("REc state in syncer");
             WorldStateBundle worldStateBundle = new(byteData);
             _incommingWorldStateBundleBuffer.Add(worldStateBundle);
         }
@@ -145,7 +148,7 @@ namespace ViRSE.PluginRuntime
                     {
                         try
                         {
-                            //Debug.Log("Emit event");
+                            //Debug.Log("Emit event to " + worldStateWrapper.ID);
                             syncableStateReceiveEvent.Invoke(worldStateWrapper.StateBytes);
                         }
                         catch (System.Exception ex)

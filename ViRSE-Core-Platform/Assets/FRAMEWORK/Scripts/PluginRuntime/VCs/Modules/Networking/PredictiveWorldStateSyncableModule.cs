@@ -30,11 +30,13 @@ namespace ViRSE.PluginRuntime.VComponents
         {
             base.OnReceiveStateFromSyncer(receivedStateBytes); //Emits the standard event
 
+            //Debug.Log("Syncable rec state");
+
             //If our state is null, we already know to override to whatevers coming from the network
             //We only ever SEND if state isn't null, so this must be something new 
             if (_state == null)
             {
-                OnReceivedStateWithNoHistoryMatch?.Invoke(receivedStateBytes);
+                AddReceivedStateToBufferAndInvokeEvent(receivedStateBytes);
             }
             else
             {
@@ -48,9 +50,15 @@ namespace ViRSE.PluginRuntime.VComponents
                 if (!PluginSyncService.Instance.IsHost)
                     statesToCheck.AddRange(_historyQueue.RecentStates.values.ToList());
 
-                if (DoesStateAppearInStateList(receivedStateBytes, statesToCheck))
-                    OnReceivedStateWithNoHistoryMatch?.Invoke(receivedStateBytes);
+                if (!DoesStateAppearInStateList(receivedStateBytes, statesToCheck))
+                    AddReceivedStateToBufferAndInvokeEvent(receivedStateBytes);
             }
+        }
+
+        private void AddReceivedStateToBufferAndInvokeEvent(byte[] stateAsBytes)
+        {
+            _historyQueue.AddStateToQueue(_state.Bytes);
+            OnReceivedStateWithNoHistoryMatch?.Invoke(stateAsBytes);
         }
 
         private bool DoesStateAppearInStateList(byte[] receivedStateAsBytes, List<byte[]> statesToCheckAgainst)
@@ -58,6 +66,7 @@ namespace ViRSE.PluginRuntime.VComponents
             var receivedStateNativeArray = new NativeArray<byte>(receivedStateAsBytes, Allocator.TempJob);
             var jobHandles = new NativeArray<JobHandle>(statesToCheckAgainst.Count(), Allocator.TempJob);
             var results = new NativeArray<NativeArray<bool>>(statesToCheckAgainst.Count(), Allocator.TempJob);
+            var recentStateNativeArrays = new NativeArray<byte>[statesToCheckAgainst.Count()]; // Track the NativeArrays to dispose later
 
             for (int i = 0; i < statesToCheckAgainst.Count(); i++)
             {
@@ -69,6 +78,7 @@ namespace ViRSE.PluginRuntime.VComponents
                 }
 
                 var recentStateNativeArray = new NativeArray<byte>(stateToCheckAgainst, Allocator.TempJob);
+                recentStateNativeArrays[i] = recentStateNativeArray; // Keep a reference to dispose later
                 var result = new NativeArray<bool>(1, Allocator.TempJob);
                 results[i] = result;
 
@@ -99,6 +109,11 @@ namespace ViRSE.PluginRuntime.VComponents
             {
                 if (results[i].IsCreated)
                     results[i].Dispose();
+            }
+            for (int i = 0; i < recentStateNativeArrays.Length; i++)
+            {
+                if (recentStateNativeArrays[i].IsCreated)
+                    recentStateNativeArrays[i].Dispose();
             }
             results.Dispose();
             jobHandles.Dispose();

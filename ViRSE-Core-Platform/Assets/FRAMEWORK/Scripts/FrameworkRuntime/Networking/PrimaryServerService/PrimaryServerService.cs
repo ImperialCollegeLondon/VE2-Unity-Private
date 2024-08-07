@@ -1,6 +1,7 @@
 using DarkRift.Client.Unity;
 using Sirenix.OdinInspector;
 using System;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using ViRSE;
@@ -11,6 +12,11 @@ namespace ViRSE.FrameworkRuntime
     {
         //public bool RegisteredWithServer { get; }
         //public event Action OnServerHandshakeComplete;
+
+        public bool ReadyToSyncPlugin { get; }
+        public event Action OnReadyToSyncPlugin;
+
+        public ushort LocalClientID { get; }
 
         public ClientInfo LocalClientInfo { get; }
         public event Action OnLocalClientInfoUpdate;
@@ -25,18 +31,32 @@ namespace ViRSE.FrameworkRuntime
     {
         [SerializeField] private UnityClient unityClient;
 
-        #region PluginService Interfaces
-        //public bool RegisteredWithServer { get; private set; } = false;
-        //public event Action OnServerHandshakeComplete;
+        public bool ReadyToSyncPlugin => _commsService.IsReadyToTransmit;
+        public event Action OnReadyToSyncPlugin;
 
-        public ClientInfo LocalClientInfo { get; }
+        public PopulationInfo PopulationInfo { get; set; }
+
+        public InstanceInfo LocalInstanceInfo => PopulationInfo.InstanceInfos[LocalClientInstanceCode];
         public event Action OnLocalClientInfoUpdate;
 
-        public InstanceInfo LocalInstanceInfo { get; }
+        public ClientInfo LocalClientInfo => LocalInstanceInfo.ClientInfos[LocalClientID];
         public event Action OnLocalInstanceInfoUpdate;
 
+        public string LocalClientInstanceCode {
+            get {
+                foreach (InstanceInfo instanceInfo in PopulationInfo.InstanceInfos.Values)
+                {
+                    if (instanceInfo.ClientInfos.Keys.Contains(LocalClientID))
+                        return instanceInfo.InstanceCode;
+                }
+                V_Logger.Error("Error finding local client instance code, local client isn't in population!");
+                return null;
+            }
+        }
+        public ushort LocalClientID { get; private set; }
+
+        private IPrimaryServerCommsService _commsService;
         public IPluginSyncCommsHandler PluginSyncCommsHandler => (IPluginSyncCommsHandler)_commsService;
-        #endregion
 
         [SerializeField] private bool _spoofUserIdentity = false;
 
@@ -44,15 +64,8 @@ namespace ViRSE.FrameworkRuntime
         [SerializeField] private UserIdentity _userIdentitySpoof;
 
         public UserIdentity UserIdentity { get; private set; }
-        public UserSettings PlayerSettings { get; private set; }
 
         public event Action<UserSettings> OnPlayerSettingsReady;
-
-        private PopulationInfoWrapper _populationInfo;
-
-        #region Plugin Runtime Interfaces
-        private IPrimaryServerCommsService _commsService;
-        #endregion
 
         public void Initialize(ServerType serverType)
         {
@@ -77,14 +90,42 @@ namespace ViRSE.FrameworkRuntime
         private void HandleReceiveServerRegistrationConfirmation(byte[] bytes)
         {
             ServerRegistrationConfirmation serverRegistrationConfirmation = new(bytes);
+            LocalClientID = serverRegistrationConfirmation.LocalPlayerID;
+            PopulationInfo = serverRegistrationConfirmation.PopulationInfo;
+            Debug.Log("REC LOCAL ID = " + LocalClientID);
             OnPlayerSettingsReady?.Invoke(serverRegistrationConfirmation.UserSettings);
+            OnReadyToSyncPlugin?.Invoke();
         }
 
         public void HandlePopulationInfoUpdate(byte[] populationAsBytes)
         {
             PopulationInfo populationInfo = new(populationAsBytes);
-            
+
+
+            return;
+            InstanceInfo instanceInfo = populationInfo.InstanceInfos["Dev-Testing"];
+            Debug.Log("WE ARE HOST?? " + instanceInfo.HostID + " - " + LocalClientID);
+            Debug.Log("Num in instance " + instanceInfo.ClientInfos.Count);
+
+            return;
+            foreach (var instancePair in populationInfo.InstanceInfos)
+            {
+                string instanceKey = instancePair.Key;
+                InstanceInfo instanceInfoToSearch = instancePair.Value;
+
+                Debug.Log($"Instance Key: {instanceKey}, Instance Code: {instanceInfoToSearch.InstanceCode}, Host ID: {instanceInfoToSearch.HostID}, Muted: {instanceInfoToSearch.InstanceMuted}");
+
+                foreach (var clientPair in instanceInfoToSearch.ClientInfos)
+                {
+                    ushort clientKey = clientPair.Key;
+                    ClientInfo clientInfo = clientPair.Value;
+
+                    Debug.Log($"Client ID: {clientInfo.ClientID}, Display Name: {clientInfo.DisplayName}, Is Admin: {clientInfo.IsAdmin}, Machine Name: {clientInfo.MachineName}");
+                }
+            }
         }
+
+
 
         //TODO, refactor omds
         private ServerRegistrationRequest CreateServerRegistrationRequest(string startingInstance)

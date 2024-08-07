@@ -5,6 +5,8 @@ namespace ViRSE.FrameworkRuntime
 {
     public interface IPrimaryServerCommsService
     {
+        public bool IsReadyToTransmit { get; }
+
         public void ConnectToServer(ServerType serverType, UnityClient unityClient);
         public void SendServerRegistrationRequest(byte[] serverRegistrationByts);
 

@@ -26,7 +26,7 @@ namespace ViRSE.PluginRuntime.VComponents
 
         private ActivatableStateConfig _config;
         public SingleInteractorActivatableState State { get; private set; }
-        public UnityEvent OnPluginChangedState { get; private set; } = new();
+        public event Action OnProgrammaticStateChangeFromPlugin;
 
         public void Initialize(ActivatableStateConfig config)
         {
@@ -38,6 +38,8 @@ namespace ViRSE.PluginRuntime.VComponents
         {
             if (newIsActivated != State.IsActivated)
                 InvertState(null);
+
+            OnProgrammaticStateChangeFromPlugin?.Invoke();
         }
 
         public void InvertState(InteractorID interactorID)

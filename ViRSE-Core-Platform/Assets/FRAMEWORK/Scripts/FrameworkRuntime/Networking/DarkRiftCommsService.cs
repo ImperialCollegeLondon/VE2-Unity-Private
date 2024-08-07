@@ -67,12 +67,14 @@ namespace ViRSE.FrameworkRuntime
                     OnReceiveNetcodeConfirmation?.Invoke(bytes);
                     break;
                 case NetworkUtils.MessageCodes.ServerRegistrationConfirmation:
+                    IsReadyToTransmit = true;
                     OnReceiveServerRegistrationConfirmation?.Invoke(bytes);
                     break;
                 case NetworkUtils.MessageCodes.PopulationInfo:
                     OnReceivePopulationUpdate?.Invoke(bytes);
                     break;
                 case NetworkUtils.MessageCodes.WorldstateSyncableBundle:
+                    //Debug.Log("rec worldstate");
                     OnReceiveWorldStateSyncableBundle?.Invoke(bytes);
                     break;
             }
@@ -110,6 +112,8 @@ namespace ViRSE.FrameworkRuntime
 
         public void SendWorldStateBundle(byte[] bundleAsBytes, TransmissionProtocol transmissionProtocol)
         {
+            //Debug.Log("Send world state");
+
             RawBytesMessage message = new(bundleAsBytes);
             SendMode sendMode = transmissionProtocol == TransmissionProtocol.TCP?
                 SendMode.Reliable : 

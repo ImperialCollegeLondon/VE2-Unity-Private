@@ -81,11 +81,9 @@ namespace ViRSE.PluginRuntime
 
             for (int i = 0; i < worldStateWrappersCount; i++)
             {
-                {
-                    int stateWrapperBytesLength = reader.ReadUInt16();
-                    byte[] stateWrapperBytes = reader.ReadBytes(stateWrapperBytesLength);
-                    WorldStateWrappers.Add(new WorldStateWrapper(stateWrapperBytes));
-                }
+                int stateWrapperBytesLength = reader.ReadUInt16();
+                byte[] stateWrapperBytes = reader.ReadBytes(stateWrapperBytesLength);
+                WorldStateWrappers.Add(new WorldStateWrapper(stateWrapperBytes));
             }
         }
     }

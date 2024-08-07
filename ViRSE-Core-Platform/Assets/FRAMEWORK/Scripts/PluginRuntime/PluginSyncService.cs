@@ -9,7 +9,7 @@ using ViRSE.FrameworkRuntime;
 namespace ViRSE.PluginRuntime
 {
     /// <summary>
-    /// In charge of all sync management for the instance. Orchestrates WorldStateSyncer, PlayerSyncer, and InstantMessages
+    /// In charge of all sync management for the instance. Orchestrates WorldStateSyncer, PlayerSyncers, and InstantMessageRouter 
     /// </summary>
     public class PluginSyncService : MonoBehaviour
     {
@@ -18,7 +18,11 @@ namespace ViRSE.PluginRuntime
         public static PluginSyncService Instance { get; private set; }  // Do we even want a singleton here???
         //Well, we can't wire the PluginSyncService into the VCs... and the VCs are part of the PluginRuntime anyway
 
-        public bool IsHost { get; private set; }
+        public bool ReadyToSync => _primaryServerService.ReadyToSyncPlugin;
+        public event Action OnReadyToSync;
+
+        public bool IsHost => _primaryServerService.LocalInstanceInfo.HostID == _primaryServerService.LocalClientID;
+
         public int WorldStateHistoryQueueSize { get; private set; }
         public UnityEvent<int> OnWorldStateHistoryQueueSizeChange { get; private set; } = new();
 
@@ -31,11 +35,19 @@ namespace ViRSE.PluginRuntime
         {
             Instance = this;
 
+            WorldStateHistoryQueueSize = 10; //TODO, automate this, currently 10 is more than enough though, 200ms
+
             _primaryServerService = primaryServerService;
+            _primaryServerService.OnReadyToSyncPlugin += HandleReadyToSyncPlugin;
             IPluginSyncCommsHandler pluginSyncCommsHandler = _primaryServerService.PluginSyncCommsHandler;
 
             _worldStateSyncer = gameObject.AddComponent<WorldStateSyncer>();
             _worldStateSyncer.Initialize((IPluginWorldStateCommsHandler)pluginSyncCommsHandler);
+        }
+
+        private void HandleReadyToSyncPlugin()
+        {
+            OnReadyToSync?.Invoke();
         }
 
         private void FixedUpdate()
@@ -51,13 +63,3 @@ namespace ViRSE.PluginRuntime
         }
     }
 }
-
-/*Flow 
- * PluginRuntime creates a PluginSyncService immediately 
- * PluginSyncService creates a WorldStateSyncer immediately 
- * SyncableModules all check if WorldStateSyncer is ready, if not, they listen to the OnReady event
- * 
- * 
- * 
- * 
- */

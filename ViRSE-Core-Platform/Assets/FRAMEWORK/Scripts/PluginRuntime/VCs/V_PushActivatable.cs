@@ -40,6 +40,7 @@ namespace ViRSE.PluginRuntime.VComponents
             _stateModule = gameObject.AddComponent<SingleInteractorActivatableStateModule>();
             _stateModule.hideFlags = HideFlags.HideInInspector;
             _stateModule.Initialize(_stateConfig);
+            _stateModule.OnProgrammaticStateChangeFromPlugin += HandleProgrammaticStateChangeFromPlugin;
 
             _rangedClickInteractionModule = gameObject.AddComponent<RangedClickInteractionModule>();
             _rangedClickInteractionModule.hideFlags = HideFlags.HideInInspector;
@@ -56,11 +57,21 @@ namespace ViRSE.PluginRuntime.VComponents
 
             if (ViRSEManager.Instance.ServerType != ServerType.Offline)
             {
-                _predictiveSyncableModule = gameObject.AddComponent<PredictiveWorldStateSyncableModule>();
-                _predictiveSyncableModule.hideFlags = HideFlags.HideInInspector;
-                _predictiveSyncableModule.Initialize(_networkConfig, _stateModule.State);
-                _predictiveSyncableModule.OnReceivedStateWithNoHistoryMatch.AddListener(HandleReceiveRemoteOverrideState);
+                if (PluginSyncService.Instance.ReadyToSync)
+                    CreateSyncModule();
+                else
+                    PluginSyncService.Instance.OnReadyToSync += CreateSyncModule;
             }
+        }
+
+        private void CreateSyncModule()
+        {
+            PluginSyncService.Instance.OnReadyToSync -= CreateSyncModule;
+
+            _predictiveSyncableModule = gameObject.AddComponent<PredictiveWorldStateSyncableModule>();
+            _predictiveSyncableModule.hideFlags = HideFlags.HideInInspector;
+            _predictiveSyncableModule.Initialize(_networkConfig, _stateModule.State);
+            _predictiveSyncableModule.OnReceivedStateWithNoHistoryMatch.AddListener(HandleReceiveRemoteOverrideState);
         }
 
         private void HandleOnInteract(InteractorID interactorID)
@@ -69,11 +80,19 @@ namespace ViRSE.PluginRuntime.VComponents
             _predictiveSyncableModule?.ForceTransmitNextCycle();
         }
 
+        private void HandleProgrammaticStateChangeFromPlugin()
+        {
+            //When the plugin code has updated the state of the button, we need to sync it out!
+            _predictiveSyncableModule?.ForceTransmitNextCycle();
+        }
+
         //TODO, maybe don't need to transmit a bool if we're already transmitting an ID?
         private void HandleReceiveRemoteOverrideState(byte[] receivedStateBytes)
         {
             _stateModule.UpdateToReceivedNetworkState(receivedStateBytes);
 
+            //If we are the host, that means this override state came from the non-host 
+            //THAT means we should broadcast this new state out to the other non-hosts next frame
             if (PluginSyncService.Instance.IsHost)
                 _predictiveSyncableModule?.ForceTransmitNextCycle();
         }
