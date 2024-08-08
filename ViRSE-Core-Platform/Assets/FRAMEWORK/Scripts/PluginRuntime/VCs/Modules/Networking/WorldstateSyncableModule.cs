@@ -99,7 +99,7 @@ namespace ViRSE.PluginRuntime.VComponents
 
     //Has ID, frequency, sync offset, decides when to transmit to the syncer 
     //TODO, The ID stuff can be split into a sub component, away from the frequency and sync offset stuff 
-    public class WorldstateSyncableModule : MonoBehaviour, IWorldStateSyncableModule
+    public class WorldstateSyncableModule : IWorldStateSyncableModule
     {
         #region Plugin Interfaces
         float IWorldStateSyncableModule.SyncFrequency {
@@ -115,6 +115,8 @@ namespace ViRSE.PluginRuntime.VComponents
 
         private WorldStateSyncableConfig _config;
         protected ViRSENetworkSerializable _state;
+        protected string _goName { get; private set; }
+
         private ProtocolModule _protocolModule;
 
         public string ID { get; private set; }
@@ -130,54 +132,63 @@ namespace ViRSE.PluginRuntime.VComponents
 
         public UnityEvent<byte[]> OnStateReceive { get; private set; } = new();
 
-        public void Initialize(WorldStateSyncableConfig config, ViRSENetworkSerializable state)
+        public WorldstateSyncableModule(WorldStateSyncableConfig config, ViRSENetworkSerializable state, WorldStateSyncer worldStateSyncer, string goName)
         {
             _config = config;
             _state = state;
-            _protocolModule = new(_config.protocolConfig);
+            _goName = goName;
+
+            _protocolModule = new(_config.protocolConfig); //TODO - Inject!
+
             SetupHostSyncOffset();
-            StartCoroutine(TriggerRegistrationAtEndOfFrame());
+
+            ID = _config.SyncType + ":" + _goName;
+
+            worldStateSyncer.RegisterWithSyncer(this);
         }
 
-        private IEnumerator TriggerRegistrationAtEndOfFrame()
-        {
-            //Must have a slight wait here, so that the GameObject can be renamed after being instantiated 
-            //The name becomes the ID, so we need the name to be unique BEFORE we register with the syncer
-            yield return new WaitForFixedUpdate();
-
-            ID = _config.SyncType + ":" + gameObject.name;
-
-            NetworkEvents networkEvents = WorldStateSyncer.Instance.RegisterForNetworkEvents(ID);
-            SyncableStateReceiveEvent syncableStateReceiveEvent = networkEvents.SyncableStateReceivedEvent;
-            OnCollectSnapshotEvent collectSnapshotEvent = networkEvents.CollectSnapshotEvent;
-
-            syncableStateReceiveEvent.AddListener(OnReceiveStateFromSyncer);
-            collectSnapshotEvent.AddListener(OnCollectSnapshotData);
-        }
-
-        protected virtual void OnReceiveStateFromSyncer(byte[] stateAsBytes)
+        public virtual void ReceiveStateFromNetwork(byte[] stateAsBytes)
         {
             OnStateReceive?.Invoke(stateAsBytes);
         }
 
-        protected void OnCollectSnapshotData()
+        public bool TryGetStateForSnapshot(out byte[] stateAsBytes)
         {
             if (_state != null)
-                WorldStateSyncer.Instance.AddStateToOutgoingSnapshot(ID, _state.Bytes);
+            {
+                stateAsBytes = _state.Bytes;
+                return true;
+            }
+            else
+            {
+                stateAsBytes = null;
+                return false;
+            }
         }
 
-        protected virtual void FixedUpdate()
+        public virtual void HandleCycleIncrement() { } //Nothing to do here, but can be overriden by child classes
+
+        public bool TryGetStateToTransmit(int cycleNumber, bool isHost, out byte[] state, out TransmissionProtocol protocol)
         {
-            bool onBroadcastFrame = PluginSyncService.Instance.IsHost && (StaticData.fixedUpdateFrame + _hostSyncOffset) % _hostSyncInterval == 0;
+            state = null;
+            protocol = _config.protocolConfig.TransmissionType;
 
-            if (ID != null && (onBroadcastFrame || _forceTransmit))
-            {
-                //TODO, below comment, no longer just plugin syncables! Now its all syncables that start will null
-                if (_state != null) //PluginSyncables that haven't yet received state will be null
-                    WorldStateSyncer.Instance.AddStateToOutgoingBuffer(ID, _state.Bytes, _config.protocolConfig.TransmissionType);
-            }
+            if (_state == null)
+                return false;
 
+            bool onBroadcastFrame = isHost && (cycleNumber + _hostSyncOffset) % _hostSyncInterval == 0;
+            bool shouldForceTransmitThisFrame = _forceTransmit;
             _forceTransmit = false;
+
+            if (onBroadcastFrame || shouldForceTransmitThisFrame)
+            {
+                state = _state.Bytes;
+                return true;
+            } 
+            else
+            {
+                return false;
+            }
         }
 
         public void ForceTransmitNextCycle()
@@ -226,7 +237,7 @@ namespace ViRSE.PluginRuntime.VComponents
         {
             if (newFrequency < 0)
             {
-                V_Logger.Error("Tried to set sync frequency to below zero on the " + GetType() + " on " + gameObject.name + ", this is not allowed!");
+                V_Logger.Error("Tried to set sync frequency to below zero on the " + GetType() + " on " + _goName + ", this is not allowed!");
                 return;
             }
 
@@ -235,17 +246,6 @@ namespace ViRSE.PluginRuntime.VComponents
 
             _config.SyncFrequency = newFrequency;
             SetupHostSyncOffset();
-        }
-
-        protected virtual void OnDestroy()
-        {
-            if (_syncOffsetSetup)
-                _numOfSyncablesPerSyncOffsets[_hostSyncOffset]--;
-
-            _syncOffsetSetup = false;
-
-            //Wont do anything if not registered already
-            WorldStateSyncer.Instance.DeregisterListener(ID);
         }
     }
 }

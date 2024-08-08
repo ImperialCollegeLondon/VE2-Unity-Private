@@ -4,8 +4,15 @@ using UnityEngine;
 
 namespace ViRSE.PluginRuntime.VComponents
 {
+    public interface IRangedPlayerInteractableImplementor
+    {
+        protected IRangedPlayerInteractable RangedPlayerInteractable { get; }
+
+        public float InteractRange => RangedPlayerInteractable.InteractRange;
+    }
+
     public interface IRangedPlayerInteractable
     {
-        public bool IsPositionWithinInteractRange(Vector3 position);
+        public float InteractRange { get; }
     }
 }

@@ -21,20 +21,16 @@ namespace ViRSE.PluginRuntime.VComponents
         [SerializeField] public UnityEvent OnLocalHoverExit;
     }
 
-    public class RangedInteractionModule : MonoBehaviour, IRangedPlayerInteractable, IRangedInteractionModule
+    public class RangedInteractionModule : IRangedPlayerInteractable, IRangedInteractionModule
     {
-        #region Plugin Interfaces
+        #region Plugin and Player Rig Interfaces
         public float InteractRange { get => _config.InteractionRange; set => _config.InteractionRange = value; }
-        #endregion
-
-        #region Player Rig Interfaces 
-        public bool IsPositionWithinInteractRange(Vector3 position) => (Vector3.Distance(position, gameObject.transform.position) < _config.InteractionRange);
         #endregion
 
         private RangedInteractionConfig _config;
         private GeneralInteractionModule generalInteractionModule;
 
-        public void Initialize(RangedInteractionConfig config)
+        public RangedInteractionModule(RangedInteractionConfig config)
         {
             _config = config;
         }

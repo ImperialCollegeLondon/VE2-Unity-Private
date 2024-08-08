@@ -1494,54 +1494,55 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d20af0636babcea4ca3ae53e54f38f78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _stateConfig:
-    OnActivate:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 39926597}
-          m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-          m_MethodName: SetActive
-          m_Mode: 6
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 1
-          m_CallState: 2
-    OnDeactivate:
-      m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 39926597}
-          m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-          m_MethodName: SetActive
-          m_Mode: 6
-          m_Arguments:
-            m_ObjectArgument: {fileID: 0}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
-  _generalInteractionConfig:
-    AdminOnly: 0
-    EnableControllerVibrations: 1
-    ShowTooltipsAndHighlight: 1
-  _rangedInteractionConfig:
-    InteractionRange: 5
-    OnLocalHoverEnter:
-      m_PersistentCalls:
-        m_Calls: []
-    OnLocalHoverExit:
-      m_PersistentCalls:
-        m_Calls: []
-  _networkConfig:
-    SyncFrequency: 1
-    protocolConfig:
-      TransmissionType: 0
-    syncType: PushButton
+  _config:
+    StateConfig:
+      OnActivate:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 39926597}
+            m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+            m_MethodName: SetActive
+            m_Mode: 6
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 1
+            m_CallState: 2
+      OnDeactivate:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 39926597}
+            m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+            m_MethodName: SetActive
+            m_Mode: 6
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
+    GeneralInteractionConfig:
+      AdminOnly: 0
+      EnableControllerVibrations: 1
+      ShowTooltipsAndHighlight: 1
+    RangedInteractionConfig:
+      InteractionRange: 5
+      OnLocalHoverEnter:
+        m_PersistentCalls:
+          m_Calls: []
+      OnLocalHoverExit:
+        m_PersistentCalls:
+          m_Calls: []
+    NetworkConfig:
+      SyncFrequency: 1
+      protocolConfig:
+        TransmissionType: 0
+      syncType: PushButton
 --- !u!1 &1499303675
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,19 +1,13 @@
 using Sirenix.OdinInspector;
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.UIElements;
 using ViRSE.FrameworkRuntime;
+using ViRSE.PluginRuntime.VComponents;
 
 namespace ViRSE.PluginRuntime
 {
     //TODO - are we calling things WorldState or SyncableState???
-
-    public class SyncableStateReceiveEvent : UnityEvent<byte[]> { };
-    public class OnCollectSnapshotEvent : UnityEvent { };
 
     public class WorldStateSyncer : MonoBehaviour
     {
@@ -21,23 +15,15 @@ namespace ViRSE.PluginRuntime
 
         private IPluginWorldStateCommsHandler _commsHandler;
         private string _localInstanceCode;
+        private int _cycleNumber = 0;
 
         [ReadOnly][SerializeField] private int _numberOfSyncablesRegisteredDebug = 0;
         //[SerializeField] private bool printNonHostTransmissionData = false;
 
-        public delegate void SyncableStateReceiver(byte[] newState);
-        private Dictionary<string, SyncableStateReceiveEvent> _syncableStateReceivedEvents = new();
-
-        //A delegate where everybody returns a value would make more sence for snapshots
-        public delegate void CollectSnapshotReceiver();
-        private Dictionary<string, OnCollectSnapshotEvent> _collectSnapshotEvents = new();
-
-        private List<WorldStateWrapper> _outgoingSyncableStateBufferTCP = new();
-        private List<WorldStateWrapper> _outgoingSyncableStateBufferUDP = new();
-        private List<WorldStateWrapper> _outgoingSyncableStateBufferSnapshot = new();
+        private Dictionary<string, WorldstateSyncableModule> syncablesAgainstIDs = new();
         private List<WorldStateBundle> _incommingWorldStateBundleBuffer = new();
 
-        private event Action<string> _onInstanceCodeChange; //Don't like this
+        public bool IsHost => PluginSyncService.Instance.IsHost; //TODO
 
         public void Initialize(IPluginWorldStateCommsHandler commsHandler)
         {
@@ -62,75 +48,76 @@ namespace ViRSE.PluginRuntime
             _commsHandler.OnReceiveWorldStateSyncableBundle -= HandleReceiveWorldStateBundle;
         }
 
-        public NetworkEvents RegisterForNetworkEvents(string id)
+        public void RegisterWithSyncer(WorldstateSyncableModule worldStateSyncableModule)
         {
-            SyncableStateReceiveEvent syncableStateReceivedEvent = new();
-            OnCollectSnapshotEvent collectSnapshotEvent = new();
-
+            syncablesAgainstIDs.Add(worldStateSyncableModule.ID, worldStateSyncableModule);
             _numberOfSyncablesRegisteredDebug++;
-
-            _syncableStateReceivedEvents.Add(id, syncableStateReceivedEvent);
-            _collectSnapshotEvents.Add(id, collectSnapshotEvent);
-
-            //Debug.Log("Register " + id);
-
-            return new NetworkEvents(syncableStateReceivedEvent, collectSnapshotEvent);
         }
 
-        public void RegisterSnapshotEvents(string id, OnCollectSnapshotEvent collectSnapshotEvent)
-        {
-            _collectSnapshotEvents.Add(id, collectSnapshotEvent);
-            Debug.Log($"Added a snapshot event to CollectSnapshot events  and now the count is {_collectSnapshotEvents.Count}");
-        }
-        public void DeregisterListener(string id)
+        public void DerigsterFromSyncer(string id)
         {
             _numberOfSyncablesRegisteredDebug--;
 
-            _syncableStateReceivedEvents.Remove(id);
-            _collectSnapshotEvents.Remove(id);
-        }
-
-        public void AddStateToOutgoingBuffer(string id, byte[] stateBytes, TransmissionProtocol protocol)
-        {
-            if (!_commsHandler.IsReadyToTransmit)
-                return; //Network isn't ready!
-
-            WorldStateWrapper worldStateWrapper = new(id, stateBytes);
-
-            if (protocol == TransmissionProtocol.TCP)
-                _outgoingSyncableStateBufferTCP.Add(worldStateWrapper);
-            else
-                _outgoingSyncableStateBufferUDP.Add(worldStateWrapper);
-        }
-
-        public void AddStateToOutgoingSnapshot(string id, byte[] stateBytes)
-        {
-            WorldStateWrapper worldStateWrapper = new(id, stateBytes);
-            _outgoingSyncableStateBufferSnapshot.Add(worldStateWrapper);
+            syncablesAgainstIDs.Remove(id);
         }
 
         private void HandleReceiveWorldStateBundle(byte[] byteData)
         {
-            //Debug.Log("REc state in syncer");
+            //Debug.Log("Rec state in syncer");
             WorldStateBundle worldStateBundle = new(byteData);
             _incommingWorldStateBundleBuffer.Add(worldStateBundle);
         }
 
         public void TickOver()
         {
+            IncrementCycle();
+            CheckForDestroyedSyncables();
+            CollectAndSendWorldStates();
             ProcessReceivedWorldStates();
+        }
 
-            WorldStateBundle TCPBundle = new(_outgoingSyncableStateBufferTCP);
-            WorldStateBundle UDPBundle = new(_outgoingSyncableStateBufferUDP);
+        private void CheckForDestroyedSyncables()
+        {
+            foreach (string id in syncablesAgainstIDs.Where(pair => pair.Value == null).Select(pair => pair.Key).ToList())
+                syncablesAgainstIDs.Remove(id);
+        }
 
-            if (_outgoingSyncableStateBufferTCP.Count > 0)
+        private void IncrementCycle()
+        {
+            _cycleNumber++;
+            foreach (WorldstateSyncableModule syncable in syncablesAgainstIDs.Values)
+                syncable.HandleCycleIncrement();
+        }
+
+        private void CollectAndSendWorldStates()
+        {
+            List<WorldStateWrapper> outgoingSyncableStateBufferTCP = new();
+            List<WorldStateWrapper> outgoingSyncableStateBufferUDP = new();
+
+            foreach (KeyValuePair<string, WorldstateSyncableModule> pair in syncablesAgainstIDs)
+            {
+                if (pair.Value.TryGetStateToTransmit(_cycleNumber, IsHost, out byte[] state, out TransmissionProtocol protocol))
+                {
+                    WorldStateWrapper worldStateWrapper = new(pair.Key, state);
+
+                    if (protocol == TransmissionProtocol.TCP)
+                        outgoingSyncableStateBufferTCP.Add(worldStateWrapper);
+                    else
+                        outgoingSyncableStateBufferUDP.Add(worldStateWrapper);
+                }
+            }
+
+            if (outgoingSyncableStateBufferTCP.Count > 0)
+            {
+                WorldStateBundle TCPBundle = new(outgoingSyncableStateBufferTCP);
                 _commsHandler.SendWorldStateBundle(TCPBundle.Bytes, TransmissionProtocol.TCP);
+            }
 
-            if (_outgoingSyncableStateBufferUDP.Count > 0)
+            if (outgoingSyncableStateBufferUDP.Count > 0)
+            {
+                WorldStateBundle UDPBundle = new(outgoingSyncableStateBufferUDP);
                 _commsHandler.SendWorldStateBundle(UDPBundle.Bytes, TransmissionProtocol.UDP);
-
-            _outgoingSyncableStateBufferTCP.Clear();
-            _outgoingSyncableStateBufferUDP.Clear();
+            }
         }
 
         public void SetNewBufferLength(int newLength)
@@ -144,12 +131,12 @@ namespace ViRSE.PluginRuntime
             {
                 foreach (WorldStateWrapper worldStateWrapper in receivedBundle.WorldStateWrappers)
                 {
-                    if (_syncableStateReceivedEvents.TryGetValue(worldStateWrapper.ID, out SyncableStateReceiveEvent syncableStateReceiveEvent))
+                    if (syncablesAgainstIDs.TryGetValue(worldStateWrapper.ID, out WorldstateSyncableModule syncable))
                     {
                         try
                         {
                             //Debug.Log("Emit event to " + worldStateWrapper.ID);
-                            syncableStateReceiveEvent.Invoke(worldStateWrapper.StateBytes);
+                            syncable.ReceiveStateFromNetwork(worldStateWrapper.StateBytes);
                         }
                         catch (System.Exception ex)
                         {
@@ -164,40 +151,25 @@ namespace ViRSE.PluginRuntime
 
         public void CollectAndTransmitWorldStateSnapshot(string instanceCodeOfSnapshot)
         {
-            foreach (KeyValuePair<string, OnCollectSnapshotEvent> snapshotEvent in _collectSnapshotEvents)
+            List<WorldStateWrapper> outgoingSyncableStateBufferSnapshot = new();
+
+            foreach (KeyValuePair<string, WorldstateSyncableModule> pair in syncablesAgainstIDs)
             {
-                try
+                if (pair.Value.TryGetStateForSnapshot(out byte[] stateBytes))
                 {
-                    snapshotEvent.Value.Invoke();
-                    //Debug.Log("Got a snapShot from tryGetValue");
-                }
-                catch (System.Exception ex)
-                {
-                    V_Logger.Error("Error getting world state snapshots - " + ex.StackTrace + " - " + ex.Message);
+                    WorldStateWrapper worldStateWrapper = new(pair.Key, stateBytes);
+                    outgoingSyncableStateBufferSnapshot.Add(worldStateWrapper);
                 }
             }
 
-            if (_outgoingSyncableStateBufferSnapshot.Count > 0)
+            if (outgoingSyncableStateBufferSnapshot.Count > 0)
             {
-                WorldStateBundle worldStateBundle = new(_outgoingSyncableStateBufferSnapshot);
+                WorldStateBundle worldStateBundle = new(outgoingSyncableStateBufferSnapshot);
                 WorldStateSnapshot worldStateSnapshot = new(instanceCodeOfSnapshot, worldStateBundle);
 
                 _commsHandler.SendWorldStateSnapshot(worldStateSnapshot.Bytes);
-                _outgoingSyncableStateBufferSnapshot.Clear();
             }
 
-        }
-    }
-
-    public class NetworkEvents
-    {
-        public SyncableStateReceiveEvent SyncableStateReceivedEvent { get; private set; }
-        public OnCollectSnapshotEvent CollectSnapshotEvent { get; private set; }
-
-        public NetworkEvents(SyncableStateReceiveEvent syncableStateReceivedEvent, OnCollectSnapshotEvent collectSnapshotEvent)
-        {
-            SyncableStateReceivedEvent = syncableStateReceivedEvent;
-            CollectSnapshotEvent = collectSnapshotEvent;
         }
     }
 }

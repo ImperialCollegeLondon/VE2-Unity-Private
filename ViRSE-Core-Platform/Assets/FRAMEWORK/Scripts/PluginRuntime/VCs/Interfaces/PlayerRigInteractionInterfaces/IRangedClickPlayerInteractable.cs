@@ -1,10 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace ViRSE.PluginRuntime.VComponents
 {
-    public interface IRangedClickPlayerInteractable
+    public interface IRangedClickPlayerInteractableImplementor : IRangedPlayerInteractableImplementor
+    {
+        public IRangedClickPlayerInteractable RangedClickPlayerInteractable { get; }
+
+        public void InvokeOnClickDown(InteractorID interactorID)
+        {
+            RangedClickPlayerInteractable.InvokeOnClickDown(interactorID);
+        }
+    }
+
+    public interface IRangedClickPlayerInteractable : IRangedPlayerInteractable
     {
         public void InvokeOnClickDown(InteractorID interactorID);
     }

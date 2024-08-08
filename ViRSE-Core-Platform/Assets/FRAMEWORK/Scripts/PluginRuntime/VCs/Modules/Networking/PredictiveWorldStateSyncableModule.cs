@@ -8,9 +8,7 @@ using System.Linq;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
-using UnityEditor.SceneManagement;
 using UnityEngine;
-using ViRSE.FrameworkRuntime;
 
 namespace ViRSE.PluginRuntime.VComponents
 {
@@ -18,19 +16,20 @@ namespace ViRSE.PluginRuntime.VComponents
     public class PredictiveWorldStateSyncableModule : WorldstateSyncableModule
     {
         private PredictiveWorldStateHistoryQueue _historyQueue = new();
-        public SyncableStateReceiveEvent OnReceivedStateWithNoHistoryMatch { get; private set; } = new();
+        public event Action<byte[]> OnReceivedStateWithNoHistoryMatch;
 
-        protected override void FixedUpdate()
+        public PredictiveWorldStateSyncableModule(WorldStateSyncableConfig config, ViRSENetworkSerializable state, WorldStateSyncer worldStateSyncer, string goName) 
+            : base(config, state, worldStateSyncer, goName) { } 
+
+        public override void HandleCycleIncrement()
         {
-            base.FixedUpdate();
+            base.HandleCycleIncrement();
             _historyQueue.AddStateToQueue(_state.Bytes);
         }
 
-        protected override void OnReceiveStateFromSyncer(byte[] receivedStateBytes)
+        public override void ReceiveStateFromNetwork(byte[] receivedStateBytes)
         {
-            base.OnReceiveStateFromSyncer(receivedStateBytes); //Emits the standard event
-
-            //Debug.Log("Syncable rec state");
+            base.ReceiveStateFromNetwork(receivedStateBytes); //Emits the standard event
 
             //If our state is null, we already know to override to whatevers coming from the network
             //We only ever SEND if state isn't null, so this must be something new 
@@ -57,6 +56,7 @@ namespace ViRSE.PluginRuntime.VComponents
 
         private void AddReceivedStateToBufferAndInvokeEvent(byte[] stateAsBytes)
         {
+            //If we have extremely low latency, the next state may arrive before the next cycle, so we add state the to buffer here 
             _historyQueue.AddStateToQueue(_state.Bytes);
             OnReceivedStateWithNoHistoryMatch?.Invoke(stateAsBytes);
         }
@@ -118,6 +118,7 @@ namespace ViRSE.PluginRuntime.VComponents
             results.Dispose();
             jobHandles.Dispose();
 
+            Debug.Log("State appears? " + doesAppear);
             return doesAppear;
         }
 

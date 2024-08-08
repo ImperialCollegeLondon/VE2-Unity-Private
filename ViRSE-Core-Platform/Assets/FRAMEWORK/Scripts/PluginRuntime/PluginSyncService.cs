@@ -52,7 +52,10 @@ namespace ViRSE.PluginRuntime
 
         private void FixedUpdate()
         {
-            _worldStateSyncer.TickOver();
+            if (_primaryServerService.ReadyToSyncPlugin)
+            {
+                _worldStateSyncer.TickOver();
+            }
         }
 
         public void ReceivePingFromHost()

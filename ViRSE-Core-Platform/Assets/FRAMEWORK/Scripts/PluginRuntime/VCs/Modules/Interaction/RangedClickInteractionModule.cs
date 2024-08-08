@@ -9,12 +9,16 @@ namespace ViRSE.PluginRuntime.VComponents
 {
     public class RangedClickInteractionModule : RangedInteractionModule, IRangedClickPlayerInteractable
     {
-        public UnityEvent<InteractorID> OnClickDown { get; private set; } = new UnityEvent<InteractorID>();
-
+        #region Player Rig Interfaces
         public void InvokeOnClickDown(InteractorID interactorID)
         {
             //only happens if is valid click
-            OnClickDown.Invoke(interactorID);
+            OnClickDown?.Invoke(interactorID);
         }
+        #endregion
+
+        public event Action<InteractorID> OnClickDown;
+
+        public RangedClickInteractionModule(RangedInteractionConfig config) : base(config) { }  
     }
 }

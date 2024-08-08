@@ -14,7 +14,7 @@ namespace ViRSE.FrameworkRuntime.LocalPlayerRig
         [SerializeField] private Image reticuleImage;
         [SerializeField][ReadOnly] private string raycastHitDebug;
 
-        private IRangedPlayerInteractable _hoveringRangedInteractable = null;
+        private IRangedPlayerInteractableImplementor _hoveringRangedInteractable = null;
 
         private InteractorID _interactorID;
 
@@ -40,7 +40,7 @@ namespace ViRSE.FrameworkRuntime.LocalPlayerRig
         {
             if (_hoveringRangedInteractable != null)
             {
-                if (_hoveringRangedInteractable is IRangedClickPlayerInteractable rangedClickInteractable)
+                if (_hoveringRangedInteractable is IRangedClickPlayerInteractableImplementor rangedClickInteractable)
                 {
                     rangedClickInteractable.InvokeOnClickDown(_interactorID);
                 }
@@ -58,12 +58,15 @@ namespace ViRSE.FrameworkRuntime.LocalPlayerRig
                 Vector3 hitPoint = hit.point;
                 Collider hitCollider = hit.collider;
 
-                if (hit.collider.TryGetComponent(out IRangedPlayerInteractable rangedInteractable) &&
-                    rangedInteractable.IsPositionWithinInteractRange(rayOrigin.position))
+                if (hit.collider.TryGetComponent(out IRangedPlayerInteractableImplementor rangedInteractable))
                 {
-                    foundRangedInteractable = true;
-                    _hoveringRangedInteractable = rangedInteractable;
-                    raycastHitDebug = rangedInteractable.ToString();
+                    float distance = Vector3.Distance(rayOrigin.transform.position, hit.collider.transform.position);
+                    if (distance <= rangedInteractable.InteractRange)
+                    {
+                        foundRangedInteractable = true;
+                        _hoveringRangedInteractable = rangedInteractable;
+                        raycastHitDebug = rangedInteractable.ToString();
+                    }
                 }
                 else
                 {

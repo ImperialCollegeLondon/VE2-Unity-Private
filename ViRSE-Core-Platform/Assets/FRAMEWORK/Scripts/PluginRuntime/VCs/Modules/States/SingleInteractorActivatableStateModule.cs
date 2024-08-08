@@ -15,7 +15,7 @@ namespace ViRSE.PluginRuntime.VComponents
         [SerializeField] public UnityEvent OnDeactivate;
     }
 
-    public class SingleInteractorActivatableStateModule : MonoBehaviour, ISingleInteractorActivatableStateModule
+    public class SingleInteractorActivatableStateModule : ISingleInteractorActivatableStateModule
     {
         #region plugin interfaces
         UnityEvent ISingleInteractorActivatableStateModule.OnActivate => _config.OnActivate;
@@ -25,12 +25,15 @@ namespace ViRSE.PluginRuntime.VComponents
         #endregion
 
         private ActivatableStateConfig _config;
+        private string _goName;
+
         public SingleInteractorActivatableState State { get; private set; }
         public event Action OnProgrammaticStateChangeFromPlugin;
 
-        public void Initialize(ActivatableStateConfig config)
+        public SingleInteractorActivatableStateModule(ActivatableStateConfig config, string goName)
         {
             _config = config;
+            _goName = goName;
             State = new();
         }
 
@@ -58,6 +61,7 @@ namespace ViRSE.PluginRuntime.VComponents
         {
             bool oldIsActivated = State.IsActivated;
             State.Bytes = receivedStateAsBytes;
+            //State = new(receivedStateAsBytes);
 
             if (State.IsActivated && !oldIsActivated)
                 InvokeCustomerOnActivateEvent();
@@ -73,7 +77,7 @@ namespace ViRSE.PluginRuntime.VComponents
             }
             catch (Exception e)
             {
-                Debug.Log($"Error when emitting OnActivate from {gameObject.name} \n{e.Message}\n{e.StackTrace}");
+                Debug.Log($"Error when emitting OnActivate from {_goName} \n{e.Message}\n{e.StackTrace}");
             }
         }
 
@@ -85,7 +89,7 @@ namespace ViRSE.PluginRuntime.VComponents
             }
             catch (Exception e)
             {
-                Debug.Log($"Error when emitting OnDeactivate from {gameObject.name} \n{e.Message}\n{e.StackTrace}");
+                Debug.Log($"Error when emitting OnDeactivate from {_goName} \n{e.Message}\n{e.StackTrace}");
             }
         }
     }
@@ -102,6 +106,8 @@ namespace ViRSE.PluginRuntime.VComponents
             IsActivated = false;
             CurrentInteractor = null;
         }
+
+        //public SingleInteractorActivatableState(byte[] data) : base(data) { }
 
         protected override byte[] ConvertToBytes()
         {
