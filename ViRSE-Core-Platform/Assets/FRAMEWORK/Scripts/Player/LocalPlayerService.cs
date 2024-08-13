@@ -33,7 +33,6 @@ namespace ViRSE.FrameworkRuntime.LocalPlayerRig
 
         private void SetPlayerPosition(Vector3 position)
         {
-            Debug.Log("here");
             _activePlayer.transform.position = position;
 
             //How do we move back to the start position? 

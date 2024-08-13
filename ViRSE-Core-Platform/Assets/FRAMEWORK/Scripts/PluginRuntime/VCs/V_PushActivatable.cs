@@ -35,9 +35,7 @@ namespace ViRSE.PluginRuntime.VComponents
      */
     public class V_PushActivatable : MonoBehaviour, IPushActivatable, IRangedClickPlayerInteractableImplementor, ICollidePlayerInteratableImplementor
     {
-        [SerializeField, HideLabel] private PushActivatableConfig _config;
-
-        [SerializeField, HideInInspector] private bool _setup = false;
+        [SerializeField, HideLabel] private PushActivatableConfig _config = new();
         [SerializeField, HideInInspector] private SingleInteractorActivatableState _state = new();
 
         private PushActivatable _pushActivatable;
@@ -49,6 +47,7 @@ namespace ViRSE.PluginRuntime.VComponents
         #endregion
 
         #region Player Rig Interfaces
+        IGeneralPlayerInteractable IGeneralPlayerInteractableImplementor.GeneralPlayerInteractable => _pushActivatable.GeneralInteractionModule;
         IRangedPlayerInteractable IRangedPlayerInteractableImplementor.RangedPlayerInteractable => _pushActivatable.RangedClickInteractionModule;
         IRangedClickPlayerInteractable IRangedClickPlayerInteractableImplementor.RangedClickPlayerInteractable => _pushActivatable.RangedClickInteractionModule;
         ICollidePlayerInteratable ICollidePlayerInteratableImplementor.CollidePlayerInteratable => _pushActivatable.ColliderInteractionModule;
@@ -56,9 +55,6 @@ namespace ViRSE.PluginRuntime.VComponents
 
         private void Start()
         {
-            if (!_setup)
-                _state = new(); //persist the state through domain reloads
-
             _pushActivatable = PushActivatableFactory.Create(_config, _state, WorldStateSyncer.Instance, PluginRuntime.Instance.ServerType, gameObject.name);
         }
     }

@@ -20,7 +20,7 @@ namespace ViRSE.PluginRuntime.VComponents
         [SerializeField] public bool ShowTooltipsAndHighlight = true;
     }
 
-    public class GeneralInteractionModule : IGeneralInteractionModule
+    public class GeneralInteractionModule : IGeneralInteractionModule, IGeneralPlayerInteractable
     {
         #region Plugin Interfaces
         public bool AdminOnly { get { return Config.AdminOnly; } set { ReceiveNewAdminOnlyFromPlugin(value); } }
@@ -30,6 +30,12 @@ namespace ViRSE.PluginRuntime.VComponents
         public UnityEvent OnBecomeAdminOnly { get; private set; } = new(); //E.G if grabbable, the VC needs to know to force drop
 
         public InteractorID CurrentInteractor { get; set; }
+
+        #region Player rig-facing Interfaces
+        public bool VibrateControllers => Config.AdminOnly;
+
+        public bool ShowTooltips =>Config.ShowTooltipsAndHighlight;
+        #endregion
 
         public GeneralInteractionModule(GeneralInteractionConfig config)
         {

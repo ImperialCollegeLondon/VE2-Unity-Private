@@ -58,7 +58,7 @@ namespace ViRSE.FrameworkRuntime.LocalPlayerRig
                 Vector3 hitPoint = hit.point;
                 Collider hitCollider = hit.collider;
 
-                if (hit.collider.TryGetComponent(out IRangedPlayerInteractableImplementor rangedInteractable))
+                if (hit.collider.TryGetComponent(out IRangedPlayerInteractableImplementor rangedInteractable) && !rangedInteractable.AdminOnly)
                 {
                     float distance = Vector3.Distance(rayOrigin.transform.position, hit.collider.transform.position);
                     if (distance <= rangedInteractable.InteractRange)

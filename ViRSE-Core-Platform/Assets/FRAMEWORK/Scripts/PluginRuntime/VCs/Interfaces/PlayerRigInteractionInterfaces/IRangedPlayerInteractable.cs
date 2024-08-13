@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace ViRSE.PluginRuntime.VComponents
 {
-    public interface IRangedPlayerInteractableImplementor
+    public interface IRangedPlayerInteractableImplementor : IGeneralPlayerInteractableImplementor
     {
         protected IRangedPlayerInteractable RangedPlayerInteractable { get; }
 
