@@ -118,7 +118,7 @@ namespace ViRSE.PluginRuntime.VComponents
             results.Dispose();
             jobHandles.Dispose();
 
-            Debug.Log("State appears? " + doesAppear);
+            //Debug.Log("State appears? " + doesAppear);
             return doesAppear;
         }
 

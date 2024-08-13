@@ -9,7 +9,7 @@ namespace ViRSE.PluginRuntime
 {
     //TODO - are we calling things WorldState or SyncableState???
 
-    public class WorldStateSyncer : MonoBehaviour
+    public class WorldStateSyncer
     {
         public static WorldStateSyncer Instance;
 
@@ -25,11 +25,16 @@ namespace ViRSE.PluginRuntime
 
         public bool IsHost => PluginSyncService.Instance.IsHost; //TODO
 
-        public void Initialize(IPluginWorldStateCommsHandler commsHandler)
+        public WorldStateSyncer(IPluginWorldStateCommsHandler commsHandler)
         {
             Instance = this;
             _commsHandler = commsHandler;
+
+            //Need to remove this on destroy
+            _commsHandler.OnReceiveWorldStateSyncableBundle += HandleReceiveWorldStateBundle;
         }
+
+        public WorldStateSyncer() { } //For mocking
 
         //Happens if we move between instances of the same plugin
         //If changing plugins, this whole syncer will be destroyed and recreated
@@ -38,18 +43,9 @@ namespace ViRSE.PluginRuntime
             //May need to tell all the syncables to wipe their data here
         }
 
-        private void Start()
-        {
-            _commsHandler.OnReceiveWorldStateSyncableBundle += HandleReceiveWorldStateBundle;
-        }
-
-        private void OnDestroy()
-        {
-            _commsHandler.OnReceiveWorldStateSyncableBundle -= HandleReceiveWorldStateBundle;
-        }
-
         public void RegisterWithSyncer(WorldstateSyncableModule worldStateSyncableModule)
         {
+            Debug.Log("REg with syncer");
             syncablesAgainstIDs.Add(worldStateSyncableModule.ID, worldStateSyncableModule);
             _numberOfSyncablesRegisteredDebug++;
         }
@@ -68,7 +64,7 @@ namespace ViRSE.PluginRuntime
             _incommingWorldStateBundleBuffer.Add(worldStateBundle);
         }
 
-        public void TickOver()
+        public void HandleNetworkUpdate()
         {
             IncrementCycle();
             CheckForDestroyedSyncables();

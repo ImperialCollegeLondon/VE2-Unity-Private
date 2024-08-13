@@ -11,8 +11,8 @@ namespace ViRSE.PluginRuntime.VComponents
     [Serializable]
     public class ActivatableStateConfig
     {
-        [SerializeField] public UnityEvent OnActivate;
-        [SerializeField] public UnityEvent OnDeactivate;
+        [SerializeField] public UnityEvent OnActivate = new();
+        [SerializeField] public UnityEvent OnDeactivate = new();
     }
 
     public class SingleInteractorActivatableStateModule : ISingleInteractorActivatableStateModule
@@ -30,11 +30,11 @@ namespace ViRSE.PluginRuntime.VComponents
         public SingleInteractorActivatableState State { get; private set; }
         public event Action OnProgrammaticStateChangeFromPlugin;
 
-        public SingleInteractorActivatableStateModule(ActivatableStateConfig config, string goName)
+        public SingleInteractorActivatableStateModule(ActivatableStateConfig config, ViRSENetworkSerializable state, string goName)
         {
             _config = config;
             _goName = goName;
-            State = new();
+            State = (SingleInteractorActivatableState)state;
         }
 
         private void ReceiveNewActivationStateFromCustomer(bool newIsActivated)
@@ -94,6 +94,7 @@ namespace ViRSE.PluginRuntime.VComponents
         }
     }
 
+    [Serializable]
     public class SingleInteractorActivatableState : ViRSENetworkSerializable
     {
         public ushort StateChangeNumber { get; set; }
@@ -149,3 +150,11 @@ namespace ViRSE.PluginRuntime.VComponents
         }
     }
 }
+
+/*
+ * TODO - we want both the interaction module and the sync module to be able to change state directly?
+ * mmm, that might violage SR though... maybe having the VC orchestrate is better?
+ * Then again, it's simpler overall if the interaction and network modules DO change state 
+ * Maybe we can just pass the entire StateModule directly??
+ * 
+ */

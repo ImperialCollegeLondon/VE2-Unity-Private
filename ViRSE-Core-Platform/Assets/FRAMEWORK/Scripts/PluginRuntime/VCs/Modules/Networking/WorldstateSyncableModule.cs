@@ -2,7 +2,6 @@ using Sirenix.OdinInspector;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting.FullSerializer;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
@@ -110,7 +109,7 @@ namespace ViRSE.PluginRuntime.VComponents
                     _config.SyncFrequency = Mathf.RoundToInt(_config.SyncFrequency);
             }
         }
-        TransmissionProtocol IWorldStateSyncableModule.TransmissionProtocol { get => _protocolModule.TransmissionProtocol; set => _protocolModule.TransmissionProtocol = value; }
+        //TransmissionProtocol IWorldStateSyncableModule.TransmissionProtocol { get => _protocolModule.TransmissionProtocol; set => _protocolModule.TransmissionProtocol = value; }
         #endregion
 
         private WorldStateSyncableConfig _config;
@@ -168,9 +167,9 @@ namespace ViRSE.PluginRuntime.VComponents
 
         public virtual void HandleCycleIncrement() { } //Nothing to do here, but can be overriden by child classes
 
-        public bool TryGetStateToTransmit(int cycleNumber, bool isHost, out byte[] state, out TransmissionProtocol protocol)
+        public bool TryGetStateToTransmit(int cycleNumber, bool isHost, out byte[] stateToTransmit, out TransmissionProtocol protocol)
         {
-            state = null;
+            stateToTransmit = null;
             protocol = _config.protocolConfig.TransmissionType;
 
             if (_state == null)
@@ -182,7 +181,7 @@ namespace ViRSE.PluginRuntime.VComponents
 
             if (onBroadcastFrame || shouldForceTransmitThisFrame)
             {
-                state = _state.Bytes;
+                stateToTransmit = _state.Bytes;
                 return true;
             } 
             else

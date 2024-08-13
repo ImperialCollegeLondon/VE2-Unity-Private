@@ -19,6 +19,13 @@ namespace ViRSE
         {
             return $"Client{ClientID}-{InteractorType}";
         }
+
+        public override bool Equals(object obj)
+        {
+            return obj is InteractorID iD &&
+                   ClientID == iD.ClientID &&
+                   InteractorType == iD.InteractorType;
+        }
     }
 
     public enum InteractorType

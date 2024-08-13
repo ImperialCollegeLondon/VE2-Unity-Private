@@ -39,7 +39,7 @@ namespace ViRSE.FrameworkRuntime
         public void Initialize(ServerType serverType)
         {
             _serverType = serverType;
-            DontDestroyOnLoad(gameObject);
+            //DontDestroyOnLoad(gameObject);
 
             if (_serverType == ServerType.Offline)
             {
@@ -48,8 +48,7 @@ namespace ViRSE.FrameworkRuntime
             else
             {
                 Debug.Log("Make server");
-                GameObject primaryServerServiceGO = Instantiate(primaryServerServicePrefab);
-                DontDestroyOnLoad(primaryServerServiceGO);
+                GameObject primaryServerServiceGO = GameObject.Instantiate(primaryServerServicePrefab);
                 _primaryServerService = primaryServerServiceGO.GetComponent<PrimaryServerService>();
 
                 _primaryServerService.OnPlayerSettingsReady += HandleUserSettingsReady;
@@ -57,7 +56,8 @@ namespace ViRSE.FrameworkRuntime
             }
         }
 
-        private void HandleUserSettingsReady(UserSettings userSettings)
+        //If we're not on the platform, what are we doing with player settings?
+        private void HandleUserSettingsReady(UserSettings userSettings) //This should maybe be from the platform?
         {
             if (userSettings == null)
                 userSettings = UserSettings.GenerateDefaults();

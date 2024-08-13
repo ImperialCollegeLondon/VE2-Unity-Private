@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Timers;
 using UnityEngine;
 using UnityEngine.Events;
 using ViRSE.FrameworkRuntime;
@@ -11,7 +12,7 @@ namespace ViRSE.PluginRuntime
     /// <summary>
     /// In charge of all sync management for the instance. Orchestrates WorldStateSyncer, PlayerSyncers, and InstantMessageRouter 
     /// </summary>
-    public class PluginSyncService : MonoBehaviour
+    public class PluginSyncService
     {
         //TODO, should take some config for events like "OnBecomeHost", "OnLoseHost", maybe also sync frequencies
 
@@ -29,9 +30,10 @@ namespace ViRSE.PluginRuntime
         private IPrimaryServerService _primaryServerService;
         private WorldStateSyncer _worldStateSyncer;
 
+        private const int WORLD_STATE_SYNC_INTERVAL_MS = 20;
+
         //TODO, consider constructing PluginSyncService using factory pattern to inject the WorldStateSyncer
-        //Also consider removing thsi from MonoBehvaiour so we get our constructor back
-        public void Initialize(IPrimaryServerService primaryServerService)
+        public PluginSyncService(IPrimaryServerService primaryServerService)
         {
             Instance = this;
 
@@ -41,8 +43,7 @@ namespace ViRSE.PluginRuntime
             _primaryServerService.OnReadyToSyncPlugin += HandleReadyToSyncPlugin;
             IPluginSyncCommsHandler pluginSyncCommsHandler = _primaryServerService.PluginSyncCommsHandler;
 
-            _worldStateSyncer = gameObject.AddComponent<WorldStateSyncer>();
-            _worldStateSyncer.Initialize((IPluginWorldStateCommsHandler)pluginSyncCommsHandler);
+            _worldStateSyncer = new WorldStateSyncer((IPluginWorldStateCommsHandler)pluginSyncCommsHandler);
         }
 
         private void HandleReadyToSyncPlugin()
@@ -50,11 +51,11 @@ namespace ViRSE.PluginRuntime
             OnReadyToSync?.Invoke();
         }
 
-        private void FixedUpdate()
+        public void HandleNetworkUpdate()
         {
             if (_primaryServerService.ReadyToSyncPlugin)
             {
-                _worldStateSyncer.TickOver();
+                _worldStateSyncer.HandleNetworkUpdate();
             }
         }
 
@@ -63,6 +64,11 @@ namespace ViRSE.PluginRuntime
             //TODO calc buffer size
             _worldStateSyncer.SetNewBufferLength(1);
             OnWorldStateHistoryQueueSizeChange.Invoke(5);
+        }
+
+        public void TearDown()
+        {
+
         }
     }
 }
