@@ -1316,10 +1316,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1067259069}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: abc3bfeb6f05feb4aa8ee1911241fdcc, type: 3}
+  m_Script: {fileID: 11500000, guid: 477abd8d90eea454ab8c1e135a8bafa1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  serverType: 1
+  serverType: 0
 --- !u!1 &1209297795
 GameObject:
   m_ObjectHideFlags: 0
@@ -1543,6 +1543,7 @@ MonoBehaviour:
       protocolConfig:
         TransmissionType: 0
       syncType: PushButton
+  _setup: 0
 --- !u!1 &1499303675
 GameObject:
   m_ObjectHideFlags: 0
