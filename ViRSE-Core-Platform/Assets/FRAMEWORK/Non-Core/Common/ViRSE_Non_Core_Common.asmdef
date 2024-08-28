@@ -1,0 +1,17 @@
+{
+    "name": "ViRSE_Non_Core_Common",
+    "rootNamespace": "",
+    "references": [
+        "GUID:111c54dcd318c434faa4cad0b1ad6d57",
+        "GUID:093a5ce063ada044381ab013f48a19bb"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

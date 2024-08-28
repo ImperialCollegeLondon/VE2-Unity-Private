@@ -1,0 +1,19 @@
+{
+    "name": "ViRSE_Instance_Networking",
+    "rootNamespace": "",
+    "references": [
+        "GUID:093a5ce063ada044381ab013f48a19bb",
+        "GUID:111c54dcd318c434faa4cad0b1ad6d57",
+        "GUID:2665a8d13d1b3f18800f46e256720795",
+        "GUID:dfea00931ff9cd040aa39c9f5636d898"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

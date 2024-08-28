@@ -1,0 +1,24 @@
+{
+    "name": "ViRSE_Core_VComponents",
+    "rootNamespace": "",
+    "references": [
+        "GUID:f29bb4ce1c4eb6a4e9ce1d6e3ee9f03f",
+        "GUID:27761945d4a599347997de06d94a1ae9",
+        "GUID:7338b66f386638440b9030cbde0c1b27",
+        "GUID:111c54dcd318c434faa4cad0b1ad6d57",
+        "GUID:8d3939df4bb0c024f8f7b005ba38ec2b",
+        "GUID:2665a8d13d1b3f18800f46e256720795",
+        "GUID:093a5ce063ada044381ab013f48a19bb",
+        "GUID:696a0953692949b40bec8730e64e1fdd",
+        "GUID:1b845e2499b39be4aab3e6ac2c8aa02a"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

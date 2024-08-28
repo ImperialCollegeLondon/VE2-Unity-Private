@@ -1,0 +1,30 @@
+{
+    "name": "EditModeTests",
+    "rootNamespace": "",
+    "references": [
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "UnityEngine.UI",
+        "ViRSE_Player_Rig_To_VC_API",
+        "TNRD.NSubstitute",
+        "VIRSE_Plugin_And_Player_Rig_To_VC_API",
+        "VIRSE_Plugin_To_VC_API",
+        "ViRSE_Core_VComponents",
+        "ViRSE_Core_Global"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
