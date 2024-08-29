@@ -7,18 +7,25 @@ namespace ViRSE.PluginRuntime.VComponents
     [System.Serializable]
     public class PushActivatableConfig
     {
-        [SpaceArea(spaceBefore: 10), SerializeField, IgnoreParent] public ActivatableStateConfig StateConfig = new();
-        [SpaceArea(spaceBefore: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
-        [SpaceArea(spaceBefore: 10), SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfig = new();
+        [SpaceArea(spaceAfter: 15), SerializeField, IgnoreParent] public ActivatableStateConfig StateConfig = new();
+        [SpaceArea(spaceAfter: 15), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
+        [SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfig = new();
 
     }
 
-    public class V_PushActivatable : MonoBehaviour, IPushActivatable, IRangedClickPlayerInteractableImplementor, ICollidePlayerInteratableImplementor
+    public abstract class BaseStateHolder : MonoBehaviour
     {
-        [SerializeField, HideLabel, IgnoreParent] private PushActivatableConfig _config = new(); // Use Expandable attribute
+        public abstract BaseStateConfig BaseStateConfig { get; }
+    }
+
+    public class V_PushActivatable : BaseStateHolder, IPushActivatable, IRangedClickPlayerInteractableImplementor, ICollidePlayerInteratableImplementor
+    {
+        [SerializeField, HideLabel, IgnoreParent] private PushActivatableConfig _config = new(); 
         [SerializeField, HideInInspector] private SingleInteractorActivatableState _state = new();
 
         private PushActivatable _pushActivatable;
+
+        public override BaseStateConfig BaseStateConfig => _config.StateConfig;
 
         #region Plugin Interfaces
         ISingleInteractorActivatableStateModule ISingleInteractorActivatableStateModuleImplementor._module => _pushActivatable.StateModule;

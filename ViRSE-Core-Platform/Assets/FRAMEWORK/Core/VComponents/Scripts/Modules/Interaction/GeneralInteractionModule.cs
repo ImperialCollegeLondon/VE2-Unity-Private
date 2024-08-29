@@ -8,7 +8,7 @@ namespace ViRSE.PluginRuntime.VComponents
     [Serializable]
     public class GeneralInteractionConfig
     {
-        [BeginGroup("General Interaction Settings", Style = GroupStyle.Boxed)]
+        [BeginGroup("General Interaction Settings", Style = GroupStyle.Round)]
         [SerializeField] public bool AdminOnly = false;
 
         [SerializeField] public bool EnableControllerVibrations = true;

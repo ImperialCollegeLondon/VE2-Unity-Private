@@ -11,16 +11,24 @@ namespace ViRSE.PluginRuntime.VComponents
     [Serializable]
     public class BaseStateConfig
     {
-        [BeginGroup("Transmission Settings", Style = GroupStyle.Boxed)]
-        //[DisableIf(nameof(NetworkManager), null)] 
+        [BeginGroup("Transmission Settings", Style = GroupStyle.Round, ApplyCondition = true)]
+        [HideIf(nameof(NetworkManagerPresent), false)] 
+        //[DisableIf(nameof(test), false)]
         [SerializeField] public bool IsNetworked;
 
+        //[DisableIf(nameof(IsNetworked), false)]
+        //[DisableIf(nameof(_networkManagerPresent), false)]
+        [HideIf(nameof(NetworkManagerPresent), false)]
         [DisableIf(nameof(IsNetworked), false)]
         //[ShowDisabledIf(nameof(IsNetworked), true)]
         [EndGroup]
         [SerializeField] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new();
 
-        public INetworkManager NetworkManager { get; private set; }
+        //[SerializeField, HideInInspector] public bool test = false;
+
+        [SerializeField, HideInInspector] public bool NetworkManagerPresent => NetworkManager != null;
+
+        public INetworkManager NetworkManager;
 
         public void OnValidate() //TODO - call from VC, need to figure out ID too 
         {
@@ -37,8 +45,8 @@ namespace ViRSE.PluginRuntime.VComponents
     [Serializable]
     public class ActivatableStateConfig : BaseStateConfig
     {
-        [BeginGroup("Activation State Settings", Style = GroupStyle.Boxed)]
-        [SerializeField] public UnityEvent OnActivate = new();
+        [BeginGroup("Activation State Settings", Style = GroupStyle.Round)]
+        [SpaceArea(spaceBefore: 15), SerializeField] public UnityEvent OnActivate = new();
         [EndGroup]
         [SerializeField] public UnityEvent OnDeactivate = new();
     }
@@ -71,12 +79,12 @@ namespace ViRSE.PluginRuntime.VComponents
 
             Config = config;
 
-            if (Config.NetworkManager != null && Config.IsNetworked)
+            if (Config.NetworkManagerPresent && Config.IsNetworked)
             {
                 Config.NetworkManager.RegisterStateModule(this, GetType().Name, goName);
             }
 
-            Debug.Log("VC - " + (Config.NetworkManager == null));
+            Debug.Log("VC registered with syncer? " + (Config.NetworkManagerPresent && Config.IsNetworked));
         }
 
         protected abstract void UpdateBytes(byte[] newBytes);
