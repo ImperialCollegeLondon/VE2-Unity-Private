@@ -24,7 +24,7 @@ namespace ViRSE.PluginRuntime.VComponents
         {
             if (NetworkManager == null)
             {
-                GameObject networkManagerGO = GameObject.Find("NetworkManager");
+                GameObject networkManagerGO = GameObject.Find("PluginSyncer");
 
                 if (networkManagerGO != null)
                     NetworkManager = networkManagerGO.GetComponent<INetworkManager>();
@@ -45,14 +45,17 @@ namespace ViRSE.PluginRuntime.VComponents
     //    public string GOName { get; }
     //}
 
-    public class BaseStateModule : IStateModule
+    public abstract class BaseStateModule : IStateModule
     {
         public ViRSESerializable State { get; private set; }
         public string GOName { get; private set; }
 
         protected BaseStateConfig Config { get; private set; }
 
-        byte[] IStateModule.StateAsBytes { get => State.Bytes; set => State.Bytes = value; }
+        public event Action OnBytesUpdated;
+
+        //TODO - when the state is written to, we need to trigger some event to handle it... i.e, make the light turn on!
+        byte[] IStateModule.StateAsBytes { get => State.Bytes; set => UpdateBytes(value); }
         string IStateModule.GOName => GOName;
         TransmissionProtocol IStateModule.TransmissionProtocol => Config.RepeatedTransmissionConfig.TransmissionType;
         float IStateModule.TransmissionFrequency => Config.RepeatedTransmissionConfig.TransmissionFrequency;
@@ -68,7 +71,11 @@ namespace ViRSE.PluginRuntime.VComponents
             {
                 Config.NetworkManager.RegisterStateModule(this, GetType().Name, goName);
             }
+
+            Debug.Log("VC - " + (Config.NetworkManager == null));
         }
+
+        protected abstract void UpdateBytes(byte[] newBytes);
     }
 
     public class SingleInteractorActivatableStateModule : BaseStateModule, ISingleInteractorActivatableStateModule
@@ -88,14 +95,8 @@ namespace ViRSE.PluginRuntime.VComponents
 
         public event Action OnProgrammaticStateChangeFromPlugin;
 
-        //public SingleInteractorActivatableStateModule(ActivatableStateConfig config, ViRSENetworkSerializable state, string goName) : base(state, goName)
+        //public SingleInteractorActivatableStateModule(ActivatableStateConfig config, ViRSESerializable state, string goName) : base(state, config, goName)
         //{
-        //    _config = config;
-
-        //    if (_config.NetworkManager != null && _config.IsNetworked)
-        //    {
-        //        _config.NetworkManager.RegisterStateModule(this, GetType().Name, goName);
-        //    }
         //}
 
         private void ReceiveNewActivationStateFromCustomer(bool newIsActivated)
@@ -115,18 +116,6 @@ namespace ViRSE.PluginRuntime.VComponents
             if (_state.IsActivated)
                 InvokeCustomerOnActivateEvent();
             else
-                InvokeCustomerOnDeactivateEvent();
-        }
-
-        public void UpdateToReceivedNetworkState(byte[] receivedStateAsBytes) //TODO, put in some interface? or abstract superclass?
-        {
-            bool oldIsActivated = _state.IsActivated;
-            State.Bytes = receivedStateAsBytes;
-            //State = new(receivedStateAsBytes);
-
-            if (_state.IsActivated && !oldIsActivated)
-                InvokeCustomerOnActivateEvent();
-            else if (!_state.IsActivated && oldIsActivated)
                 InvokeCustomerOnDeactivateEvent();
         }
 
@@ -152,6 +141,18 @@ namespace ViRSE.PluginRuntime.VComponents
             {
                 Debug.Log($"Error when emitting OnDeactivate from {GOName} \n{e.Message}\n{e.StackTrace}");
             }
+        }
+
+        protected override void UpdateBytes(byte[] newBytes)
+        {
+            bool oldIsActivated = _state.IsActivated;
+            State.Bytes = newBytes;
+            //State = new(receivedStateAsBytes);
+
+            if (_state.IsActivated && !oldIsActivated)
+                InvokeCustomerOnActivateEvent();
+            else if (!_state.IsActivated && oldIsActivated)
+                InvokeCustomerOnDeactivateEvent();
         }
     }
 

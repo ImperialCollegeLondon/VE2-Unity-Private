@@ -58,7 +58,7 @@ namespace ViRSE.Networking
             
             WorldStateTransmissionCounter transmissionCounter = new(stateModule.TransmissionFrequency);
             PredictiveWorldStateHistoryQueue historyQueue = new(10); //TODO - need to wire this into the ping, we should probably let all these classes see this limit directly... so a static data?
-            SyncInfo syncInfo = new(transmissionCounter, historyQueue, stateModule, null, stateModule.TransmissionProtocol);
+            SyncInfo syncInfo = new(transmissionCounter, historyQueue, stateModule, new byte[] {}, stateModule.TransmissionProtocol);
 
             syncInfosAgainstIDs.Add(id, syncInfo);
             _numberOfSyncablesRegisteredDebug++;
@@ -71,10 +71,10 @@ namespace ViRSE.Networking
             syncInfosAgainstIDs.Remove(id);
         }
 
-        private void HandleReceiveWorldStateBundle(byte[] byteData)
+        public void HandleReceiveWorldStateBundle(byte[] byteData)
         {
-            //Debug.Log("Rec state in syncer");
             WorldStateBundle worldStateBundle = new(byteData);
+            Debug.Log("Rec state in syncer " + worldStateBundle.WorldStateWrappers.Count);
             _incommingWorldStateBundleBuffer.Add(worldStateBundle);
         }
 
@@ -128,13 +128,14 @@ namespace ViRSE.Networking
                 byte[] newState = syncInfo.StateModule.StateAsBytes;
 
                 bool broadcastFromHost = isHost && syncInfo.TransmissionCounter.IsOnBroadcastFrame(_cycleNumber);
-                bool transmitFromLocalStateChange = newState.Equals(syncInfo.PreviousState);
+                bool transmitFromLocalStateChange = !newState.SequenceEqual(syncInfo.PreviousState);
 
                 bool shouldTransmit = broadcastFromHost || transmitFromLocalStateChange;
 
-                if (syncInfo.TransmissionCounter.IsOnBroadcastFrame(_cycleNumber))
+                if (shouldTransmit)
                 {
                     WorldStateWrapper worldStateWrapper = new(pair.Key, newState);
+                    //Debug.Log("Should transmit " + pair.Key + " - " + broadcastFromHost + " - " + transmitFromLocalStateChange);
 
                     if (syncInfo.TransmissionProtocol == TransmissionProtocol.TCP)
                         outgoingSyncableStateBufferTCP.Add(worldStateWrapper);
@@ -148,7 +149,6 @@ namespace ViRSE.Networking
 
             byte[] tcpBytes = null;
             byte[] udpBytes = null;
-
 
             if (outgoingSyncableStateBufferTCP.Count > 0)
             {

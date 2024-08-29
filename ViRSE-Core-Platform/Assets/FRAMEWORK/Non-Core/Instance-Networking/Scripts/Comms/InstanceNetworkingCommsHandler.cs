@@ -109,6 +109,9 @@ namespace ViRSE.FrameworkRuntime
                     //Debug.Log("rec worldstate");
                     OnReceiveWorldStateSyncableBundle?.Invoke(bytes);
                     break;
+                case InstanceSyncNetworkObjects.InstanceNetworkingMessageCodes.InstanceInfo:
+                    OnReceiveInstanceInfoUpdate?.Invoke(bytes);
+                    break;
             }
 
 

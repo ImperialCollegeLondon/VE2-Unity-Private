@@ -32,6 +32,11 @@ namespace ViRSE.PluginRuntime.VComponents
         ICollidePlayerInteratable ICollidePlayerInteratableImplementor.CollidePlayerInteratable => _pushActivatable.ColliderInteractionModule;
         #endregion
 
+        private void OnValidate()
+        {
+            _config.StateConfig.OnValidate();
+        }
+
         private void Start()
         {
             _pushActivatable = PushActivatableFactory.Create(_config, _state, gameObject.name);

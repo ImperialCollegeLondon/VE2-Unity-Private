@@ -48,7 +48,7 @@ namespace ViRSE.PluginRuntime
 
     public class WorldStateBundle : ViRSESerializable
     {
-        public List<WorldStateWrapper> WorldStateWrappers { get; private set; }
+        public List<WorldStateWrapper> WorldStateWrappers { get; private set; } = new();
 
         public WorldStateBundle(byte[] bytes) : base(bytes) { }
 

@@ -1,15 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
-using ViRSE.Core.Player;
 using ViRSE.Core.Shared;
 
 public class CommonNetworkObjects
 {
-
-
-
     public class NetcodeVersionConfirmation : ViRSESerializable
     {
         public int NetcodeVersion { get; private set; }
@@ -108,9 +104,9 @@ public class CommonNetworkObjects
         public bool IsAdmin;
         public string MachineName;
 
-        public AvatarDetails AvatarDetails;
+        public AvatarAppearance AvatarDetails;
 
-        public ClientInfo(ushort clientID, string displayName, bool isAdmin, string machineName, AvatarDetails avatarDetails)
+        public ClientInfo(ushort clientID, string displayName, bool isAdmin, string machineName, AvatarAppearance avatarDetails)
         {
             this.ClientID = clientID;
             this.DisplayName = displayName;
@@ -164,18 +160,28 @@ public class CommonNetworkObjects
         }
     }
 
-
-    public class AvatarDetails : ViRSESerializable
+    public class AvatarAppearance : ViRSESerializable
     {
-        public PlayerPresentationConfig PlayerPresentationConfig;
+        public bool UsingViRSEAvatar;
+        public string PlayerName; //TODO - maybe name shouldn't live here? Still want name, even if not using the default rig?
+        public string AvatarHeadType;
+        public string AvatarBodyType;
+        public float AvatarRed;
+        public float AvatarGreen;
+        public float AvatarBlue;
         public bool showAvatar = true;
 
-        public AvatarDetails(byte[] bytes) : base(bytes) { }
+        public AvatarAppearance(byte[] bytes) : base(bytes) { }
 
-        public AvatarDetails(PlayerPresentationConfig playerPresentationConfig, bool showAvatar)
+        public AvatarAppearance(bool usingViRSEAvatar, string playerName, string avatarHeadType, string avatarBodyType, float avatarRed, float avatarGreen, float avatarBlue)
         {
-            PlayerPresentationConfig = playerPresentationConfig;
-            this.showAvatar = showAvatar;
+            UsingViRSEAvatar = usingViRSEAvatar;
+            PlayerName = playerName;
+            AvatarHeadType = avatarHeadType;
+            AvatarBodyType = avatarBodyType;
+            AvatarRed = avatarRed;
+            AvatarGreen = avatarGreen;
+            AvatarBlue = avatarBlue;
         }
 
         protected override byte[] ConvertToBytes()
@@ -183,12 +189,14 @@ public class CommonNetworkObjects
             using MemoryStream stream = new();
             using BinaryWriter writer = new(stream);
 
-            writer.Write(PlayerPresentationConfig.PlayerName);
-            writer.Write(PlayerPresentationConfig.AvatarHeadType);
-            writer.Write(PlayerPresentationConfig.AvatarBodyType);
-            writer.Write(PlayerPresentationConfig.AvatarColor.r);
-            writer.Write(PlayerPresentationConfig.AvatarColor.g);
-            writer.Write(PlayerPresentationConfig.AvatarColor.b);
+            writer.Write(UsingViRSEAvatar);
+            writer.Write(PlayerName);
+            writer.Write(AvatarHeadType);
+            writer.Write(AvatarBodyType);
+            writer.Write(AvatarRed);
+            writer.Write(AvatarGreen);
+            writer.Write(AvatarBlue);
+            writer.Write(showAvatar);
             writer.Write(showAvatar);
 
             return stream.ToArray();
@@ -199,14 +207,13 @@ public class CommonNetworkObjects
             using MemoryStream stream = new(data);
             using BinaryReader reader = new(stream);
 
-            PlayerPresentationConfig = new PlayerPresentationConfig
-            {
-                PlayerName = reader.ReadString(),
-                AvatarHeadType = reader.ReadString(),
-                AvatarBodyType = reader.ReadString(),
-                AvatarColor = new Color(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle())
-            };
-
+            UsingViRSEAvatar = reader.ReadBoolean();
+            PlayerName = reader.ReadString();
+            AvatarHeadType = reader.ReadString();
+            AvatarBodyType = reader.ReadString();
+            AvatarRed = reader.ReadSingle();
+            AvatarGreen = reader.ReadSingle();
+            AvatarBlue = reader.ReadSingle();
             showAvatar = reader.ReadBoolean();
         }
     }

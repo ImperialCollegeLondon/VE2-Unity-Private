@@ -17,10 +17,10 @@ namespace ViRSE.PluginRuntime
 {
     public static class PluginSyncServiceFactory
     {
-        public static PluginSyncService Create()
+        public static PluginSyncService Create(PlayerPresentationConfig playerPresentationConfig)
         {
             InstanceNetworkingCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
-            return new PluginSyncService(commsHandler);
+            return new PluginSyncService(commsHandler, playerPresentationConfig);
         }
     }
 
@@ -43,23 +43,26 @@ namespace ViRSE.PluginRuntime
         public UnityEvent<int> OnWorldStateHistoryQueueSizeChange { get; private set; } = new();
 
         private IPluginSyncCommsHandler _commsHandler;
+        private PlayerPresentationConfig _playerPresentationConfig;
+
         private WorldStateSyncer _worldStateSyncer;
 
         private const int WORLD_STATE_SYNC_INTERVAL_MS = 20;
 
         #region Core Facing Interfaces
-        void INetworkManager.RegisterStateModule(IStateModule stateModule, string stateType, string goName)
+        public void RegisterStateModule(IStateModule stateModule, string stateType, string goName)
         {
             _worldStateSyncer.RegisterWithSyncer(stateModule, stateType, goName);
         }
         #endregion
 
         //TODO, consider constructing PluginSyncService using factory pattern to inject the WorldStateSyncer
-        public PluginSyncService(IPluginSyncCommsHandler commsHandler)
+        public PluginSyncService(IPluginSyncCommsHandler commsHandler, PlayerPresentationConfig playerPresentationConfig)
         {
             WorldStateHistoryQueueSize = 10; //TODO, automate this, currently 10 is more than enough though, 200ms
 
             _commsHandler = commsHandler;
+            _playerPresentationConfig = playerPresentationConfig;
             //_commsHandler.OnReadyToSyncPlugin += HandleReadyToSyncPlugin;
 
             //TODO - maybe don't give the world state syncer the comms handler, we can just pull straight out of it here and send to comms
@@ -67,6 +70,7 @@ namespace ViRSE.PluginRuntime
 
             commsHandler.OnReceiveNetcodeConfirmation += HandleReceiveNetcodeVersion;
             commsHandler.OnReceiveServerRegistrationConfirmation += HandleReceiveServerRegistrationConfirmation;
+            commsHandler.OnReceiveWorldStateSyncableBundle += _worldStateSyncer.HandleReceiveWorldStateBundle;
         }
 
         public void ConnectToServer(IPAddress ipAddress, int portNumber, string instanceCode)
@@ -86,15 +90,19 @@ namespace ViRSE.PluginRuntime
             } 
             else
             {
-                //TODO, needs to be able to do this without the standard player stuff 
-                /* We don't want to send the PlayerPresentationConfig to the server if we're not syncing the player
-                 *  I guess we just send a flag to say "not using default player, or somthing?"
-                 */
-                PlayerPresentationConfig playerPresentationConfig = null;
-                V_PlayerSpawner playerSpawner = GameObject.FindObjectOfType<V_PlayerSpawner>();
-                playerPresentationConfig = playerSpawner?.PresentationConfig;
+                Debug.Log("Rec nv, sending reg");
 
-                AvatarDetails avatarDetails = new(playerPresentationConfig, true);
+                //TODO, handle non default players
+                //TODO, we might also want to see machine name without being on platform?
+                AvatarAppearance avatarDetails = new(
+                    _playerPresentationConfig == null,
+                    _playerPresentationConfig.PlayerName,
+                    _playerPresentationConfig.AvatarHeadType,
+                    _playerPresentationConfig.AvatarBodyType,
+                    _playerPresentationConfig.AvatarColor.r,
+                    _playerPresentationConfig.AvatarColor.g,
+                    _playerPresentationConfig.AvatarColor.b);
+
                 ServerRegistrationRequest serverRegistrationRequest = new(avatarDetails, _instanceCode);
                 _commsHandler.SendServerRegistrationRequest(serverRegistrationRequest.Bytes);
             }
@@ -103,6 +111,8 @@ namespace ViRSE.PluginRuntime
         private void HandleReceiveServerRegistrationConfirmation(byte[] bytes)
         {
             ServerRegistrationConfirmation serverRegistrationConfirmation = new(bytes);
+
+            Debug.Log("Rec reg conf");
 
             _localClientID = serverRegistrationConfirmation.LocalClientID;
             _instanceInfo = serverRegistrationConfirmation.InstanceInfo;

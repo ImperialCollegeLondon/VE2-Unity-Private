@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Net;
 using UnityEngine;
 using ViRSE;
+using ViRSE.Core.Player;
+using ViRSE.Core.Shared;
 using ViRSE.FrameworkRuntime;
 using ViRSE.PluginRuntime;
 
 namespace ViRSE.InstanceNetworking
 {
-    public class V_SceneSyncer : MonoBehaviour
+    public class V_SceneSyncer : MonoBehaviour, INetworkManager
     {
         //TODO hide this if platform integration isn't present 
         [SerializeField] private bool _isPlatform = false; //If true, will use the platform's server type
@@ -26,11 +28,18 @@ namespace ViRSE.InstanceNetworking
 
         private PluginSyncService _pluginSyncService;
 
-        void Start()
+        void Awake()
         {
             if (_serverType != ServerType.Offline)
             {
-                _pluginSyncService = PluginSyncServiceFactory.Create();
+                PlayerPresentationConfig playerPresentationConfig = null;
+                GameObject playerSpawner = GameObject.Find("PlayerSpawner");
+                if (playerSpawner != null)
+                {
+                    playerPresentationConfig = playerSpawner.GetComponent<V_PlayerSpawner>().PresentationConfig;
+                }
+
+                _pluginSyncService = PluginSyncServiceFactory.Create(playerPresentationConfig);
 
                 if (_serverType == ServerType.Local)
                 {
@@ -55,18 +64,27 @@ namespace ViRSE.InstanceNetworking
             else
                 ipAddressString = ipAddressOverride;
 
+            if (portNumberOverride == -1)
+                portNumberOverride = portNumber;
+
             if (instanceCodeOverride != null)
                 _instanceCode = instanceCodeOverride;
 
             if (IPAddress.TryParse(ipAddressString, out IPAddress ipAddress) == false)
                 throw new System.Exception("Invalid IP address, could not connect to server");
 
-            _pluginSyncService.ConnectToServer(ipAddress, portNumberOverride, _instanceCode);
+            _pluginSyncService.ConnectToServer(ipAddress, portNumber, _instanceCode);
         }
 
         private void FixedUpdate()
         {
             _pluginSyncService.NetworkUpdate();
+        }
+
+        //TODO, bit bodgey
+        public void RegisterStateModule(IStateModule stateModule, string stateType, string goName)
+        {
+            _pluginSyncService.RegisterStateModule(stateModule, stateType, goName);
         }
 
         //TODO, API to change instance code, and to connect/disconnect

@@ -1,115 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <CoverageReport scope="Summary">
   <Summary>
-    <Generatedon>13/08/2024 - 13:23:57</Generatedon>
+    <Generatedon>29/08/2024 - 02:01:35</Generatedon>
     <Parser>MultiReportParser (2x OpenCoverParser)</Parser>
-    <Assemblies>8</Assemblies>
-    <Classes>77</Classes>
-    <Files>52</Files>
-    <Coveredlines>108</Coveredlines>
-    <Uncoveredlines>2071</Uncoveredlines>
-    <Coverablelines>2179</Coverablelines>
-    <Totallines>5371</Totallines>
-    <Linecoverage>4.9</Linecoverage>
+    <Assemblies>5</Assemblies>
+    <Classes>21</Classes>
+    <Files>17</Files>
+    <Coveredlines>16</Coveredlines>
+    <Uncoveredlines>200</Uncoveredlines>
+    <Coverablelines>216</Coverablelines>
+    <Totallines>689</Totallines>
+    <Linecoverage>7.4</Linecoverage>
     <Coveredbranches>0</Coveredbranches>
     <Totalbranches>0</Totalbranches>
-    <Coveredmethods>47</Coveredmethods>
-    <Totalmethods>464</Totalmethods>
-    <Methodcoverage>10.1</Methodcoverage>
+    <Coveredmethods>4</Coveredmethods>
+    <Totalmethods>60</Totalmethods>
+    <Methodcoverage>6.6</Methodcoverage>
   </Summary>
   <Coverage>
-    <Assembly name="ViRSE_Framework_Runtime" classes="14" coverage="0" coveredlines="0" coverablelines="796" totallines="2226" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="149" methodcoverage="0">
-      <Class name="DarkRift.Client.Unity.UnityClient" coverage="0" coveredlines="0" coverablelines="202" totallines="575" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="43" methodcoverage="0" />
-      <Class name="DarkRift.Client.Unity.UnityClientEditor" coverage="0" coveredlines="0" coverablelines="23" totallines="62" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="2" methodcoverage="0" />
-      <Class name="DarkRift.Server.Unity.UnityClientEditor" coverage="0" coveredlines="0" coverablelines="112" totallines="223" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="2" methodcoverage="0" />
-      <Class name="DarkRift.Server.Unity.UnityConsoleWriter" coverage="0" coveredlines="0" coverablelines="15" totallines="39" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="3" methodcoverage="0" />
-      <Class name="DarkRift.Server.Unity.UnityServer" coverage="0" coveredlines="0" coverablelines="127" totallines="408" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="39" methodcoverage="0" />
-      <Class name="DarkRift.Server.Unity.XmlUnityClientEditor" coverage="0" coveredlines="0" coverablelines="36" totallines="79" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="2" methodcoverage="0" />
-      <Class name="DarkRift.Server.Unity.XmlUnityServer" coverage="0" coveredlines="0" coverablelines="40" totallines="110" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="10" methodcoverage="0" />
-      <Class name="SerializableObjectCacheSettings" coverage="0" coveredlines="0" coverablelines="24" totallines="119" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="3" methodcoverage="0" />
-      <Class name="UnityServerHelper" coverage="0" coveredlines="0" coverablelines="19" totallines="45" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="1" methodcoverage="0" />
-      <Class name="ViRSE.FrameworkIgnition" coverage="0" coveredlines="0" coverablelines="14" totallines="37" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="2" methodcoverage="0" />
-      <Class name="ViRSE.FrameworkRuntime.DarkRiftCommsService" coverage="0" coveredlines="0" coverablelines="64" totallines="173" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="17" methodcoverage="0" />
-      <Class name="ViRSE.FrameworkRuntime.Environment" coverage="0" coveredlines="0" coverablelines="1" totallines="42" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="1" methodcoverage="0" />
-      <Class name="ViRSE.FrameworkRuntime.PrimaryServerService" coverage="0" coveredlines="0" coverablelines="92" totallines="239" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="18" methodcoverage="0" />
-      <Class name="ViRSE.FrameworkRuntime.ViRSERuntime" coverage="0" coveredlines="0" coverablelines="27" totallines="75" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="6" methodcoverage="0" />
-    </Assembly>
-    <Assembly name="ViRSE_Internal_Global" classes="15" coverage="0.2" coveredlines="1" coverablelines="499" totallines="8311" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="1" totalmethods="84" methodcoverage="1.1">
-      <Class name="StaticColors" coverage="0" coveredlines="0" coverablelines="3" totallines="21" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="1" methodcoverage="0" />
-      <Class name="ViRSE.AvatarDetails" coverage="0" coveredlines="0" coverablelines="40" totallines="672" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="4" methodcoverage="0" />
-      <Class name="ViRSE.ClientInfo" coverage="0" coveredlines="0" coverablelines="41" totallines="672" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="4" methodcoverage="0" />
-      <Class name="ViRSE.FrameworkRuntime.AssetLoader" coverage="0" coveredlines="0" coverablelines="4" totallines="20" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="2" methodcoverage="0" />
-      <Class name="ViRSE.FrameworkRuntime.V_Logger" coverage="0" coveredlines="0" coverablelines="98" totallines="206" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="16" methodcoverage="0" />
-      <Class name="ViRSE.InstanceAllocationRequest" coverage="0" coveredlines="0" coverablelines="17" totallines="672" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="6" methodcoverage="0" />
-      <Class name="ViRSE.InstanceInfo" coverage="0" coveredlines="0" coverablelines="41" totallines="672" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="4" methodcoverage="0" />
-      <Class name="ViRSE.NetcodeVersionConfirmation" coverage="0" coveredlines="0" coverablelines="17" totallines="672" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="6" methodcoverage="0" />
-      <Class name="ViRSE.NetworkUtils" coverage="0" coveredlines="0" coverablelines="1" totallines="672" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="1" methodcoverage="0" />
-      <Class name="ViRSE.PopulationInfo" coverage="0" coveredlines="0" coverablelines="34" totallines="672" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="5" methodcoverage="0" />
-      <Class name="ViRSE.ServerRegistrationConfirmation" coverage="0" coveredlines="0" coverablelines="45" totallines="672" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="12" methodcoverage="0" />
-      <Class name="ViRSE.ServerRegistrationRequest" coverage="0" coveredlines="0" coverablelines="39" totallines="672" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="10" methodcoverage="0" />
-      <Class name="ViRSE.UserIdentity" coverage="0" coveredlines="0" coverablelines="34" totallines="672" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="4" methodcoverage="0" />
-      <Class name="ViRSE.UserSettings" coverage="0" coveredlines="0" coverablelines="79" totallines="672" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="5" methodcoverage="0" />
-      <Class name="ViRSE.ViRSENetworkSerializable" coverage="16.6" coveredlines="1" coverablelines="6" totallines="672" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="1" totalmethods="4" methodcoverage="25" />
-    </Assembly>
-    <Assembly name="ViRSE_Player_Rig" classes="7" coverage="0" coveredlines="0" coverablelines="137" totallines="359" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="30" methodcoverage="0">
-      <Class name="PlayerControllerVR" coverage="0" coveredlines="0" coverablelines="4" totallines="19" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="2" methodcoverage="0" />
+    <Assembly name="ViRSE_Player_Rig" classes="12" coverage="7" coveredlines="11" coverablelines="156" totallines="777" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="3" totalmethods="35" methodcoverage="8.5">
+      <Class name="ViRSE.Core.Player.Interactor2D" coverage="0" coveredlines="0" coverablelines="47" totallines="126" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="6" methodcoverage="0" />
+      <Class name="ViRSE.Core.Player.Player" coverage="0" coveredlines="0" coverablelines="17" totallines="54" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="9" methodcoverage="0" />
+      <Class name="ViRSE.Core.Player.Player2DControlConfig" coverage="100" coveredlines="2" coverablelines="2" totallines="83" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="1" totalmethods="1" methodcoverage="100" />
+      <Class name="ViRSE.Core.Player.Player2DLocomotor" coverage="0" coveredlines="0" coverablelines="48" totallines="82" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="4" methodcoverage="0" />
+      <Class name="ViRSE.Core.Player.PlayerAvatarConfig" coverage="0" coveredlines="0" coverablelines="1" totallines="83" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="1" methodcoverage="0" />
+      <Class name="ViRSE.Core.Player.PlayerController" coverage="0" coveredlines="0" coverablelines="4" totallines="22" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="2" methodcoverage="0" />
+      <Class name="ViRSE.Core.Player.PlayerController2D" coverage="0" coveredlines="0" coverablelines="5" totallines="25" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="2" methodcoverage="0" />
+      <Class name="ViRSE.Core.Player.PlayerControllerVR" coverage="0" coveredlines="0" coverablelines="4" totallines="25" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="2" methodcoverage="0" />
+      <Class name="ViRSE.Core.Player.PlayerSpawnConfig" coverage="100" coveredlines="1" coverablelines="1" totallines="83" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="1" totalmethods="1" methodcoverage="100" />
+      <Class name="ViRSE.Core.Player.PlayerVRControlConfig" coverage="100" coveredlines="8" coverablelines="8" totallines="83" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="1" totalmethods="1" methodcoverage="100" />
+      <Class name="ViRSE.Core.Player.V_PlayerSpawner" coverage="0" coveredlines="0" coverablelines="9" totallines="83" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="1" methodcoverage="0" />
       <Class name="ViRSE.FrameworkRuntime.LocalPlayerRig.InputHandler" coverage="0" coveredlines="0" coverablelines="10" totallines="28" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="5" methodcoverage="0" />
-      <Class name="ViRSE.FrameworkRuntime.LocalPlayerRig.Interactor2D" coverage="0" coveredlines="0" coverablelines="47" totallines="126" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="6" methodcoverage="0" />
-      <Class name="ViRSE.FrameworkRuntime.LocalPlayerRig.LocalPlayerService" coverage="0" coveredlines="0" coverablelines="19" totallines="57" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="9" methodcoverage="0" />
-      <Class name="ViRSE.FrameworkRuntime.LocalPlayerRig.Player2DLocomotor" coverage="0" coveredlines="0" coverablelines="48" totallines="82" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="4" methodcoverage="0" />
-      <Class name="ViRSE.FrameworkRuntime.LocalPlayerRig.PlayerController" coverage="0" coveredlines="0" coverablelines="4" totallines="22" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="2" methodcoverage="0" />
-      <Class name="ViRSE.FrameworkRuntime.LocalPlayerRig.PlayerController2D" coverage="0" coveredlines="0" coverablelines="5" totallines="25" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="2" methodcoverage="0" />
     </Assembly>
-    <Assembly name="ViRSE_Player_Rig_To_VC_API" classes="3" coverage="0" coveredlines="0" coverablelines="7" totallines="59" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="3" methodcoverage="0">
+    <Assembly name="ViRSE_Player_Rig_To_VC_API" classes="4" coverage="0" coveredlines="0" coverablelines="10" totallines="81" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="6" methodcoverage="0">
       <Class name="ViRSE.PluginRuntime.VComponents.ICollidePlayerInteratableImplementor" coverage="0" coveredlines="0" coverablelines="3" totallines="21" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="1" methodcoverage="0" />
+      <Class name="ViRSE.PluginRuntime.VComponents.IGeneralPlayerInteractableImplementor" coverage="0" coveredlines="0" coverablelines="3" totallines="22" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="3" methodcoverage="0" />
       <Class name="ViRSE.PluginRuntime.VComponents.IRangedClickPlayerInteractableImplementor" coverage="0" coveredlines="0" coverablelines="3" totallines="20" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="1" methodcoverage="0" />
       <Class name="ViRSE.PluginRuntime.VComponents.IRangedPlayerInteractableImplementor" coverage="0" coveredlines="0" coverablelines="1" totallines="18" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="1" methodcoverage="0" />
     </Assembly>
     <Assembly name="VIRSE_Plugin_And_Player_Rig_To_VC_API" classes="1" coverage="38.4" coveredlines="5" coverablelines="13" totallines="38" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="1" totalmethods="5" methodcoverage="20">
       <Class name="ViRSE.InteractorID" coverage="38.4" coveredlines="5" coverablelines="13" totallines="38" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="1" totalmethods="5" methodcoverage="20" />
     </Assembly>
-    <Assembly name="ViRSE_Plugin_Runtime" classes="32" coverage="14.8" coveredlines="102" coverablelines="689" totallines="3606" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="45" totalmethods="177" methodcoverage="25.4">
-      <Class name="FixedSizedQueue[T]" coverage="0" coveredlines="0" coverablelines="19" totallines="208" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="8" methodcoverage="0" />
-      <Class name="PluginRuntime" coverage="0" coveredlines="0" coverablelines="3" totallines="22" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="1" methodcoverage="0" />
-      <Class name="TestSubModule" coverage="0" coveredlines="0" coverablelines="13" totallines="52" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="2" methodcoverage="0" />
-      <Class name="TestSubSubModule" coverage="0" coveredlines="0" coverablelines="7" totallines="52" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="1" methodcoverage="0" />
-      <Class name="TestVC" coverage="0" coveredlines="0" coverablelines="11" totallines="38" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="3" methodcoverage="0" />
-      <Class name="ViRSE.PluginRuntime.PluginRuntime" coverage="0" coveredlines="0" coverablelines="26" totallines="129" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="5" methodcoverage="0" />
-      <Class name="ViRSE.PluginRuntime.PluginSyncService" coverage="0" coveredlines="0" coverablelines="29" totallines="74" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="13" methodcoverage="0" />
-      <Class name="ViRSE.PluginRuntime.V_Ignition" coverage="0" coveredlines="0" coverablelines="22" totallines="129" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="5" methodcoverage="0" />
-      <Class name="ViRSE.PluginRuntime.VComponents.ActivatableStateConfig" coverage="100" coveredlines="2" coverablelines="2" totallines="160" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="1" totalmethods="1" methodcoverage="100" />
-      <Class name="ViRSE.PluginRuntime.VComponents.ColliderInteractionModule" coverage="0" coveredlines="0" coverablelines="3" totallines="19" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="1" methodcoverage="0" />
-      <Class name="ViRSE.PluginRuntime.VComponents.GeneralInteractionConfig" coverage="100" coveredlines="3" coverablelines="3" totallines="50" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="1" totalmethods="1" methodcoverage="100" />
-      <Class name="ViRSE.PluginRuntime.VComponents.GeneralInteractionModule" coverage="37.5" coveredlines="6" coverablelines="16" totallines="50" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="5" totalmethods="10" methodcoverage="50" />
-      <Class name="ViRSE.PluginRuntime.VComponents.PhysicsSycnableModule" coverage="0" coveredlines="0" coverablelines="3" totallines="13" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="1" methodcoverage="0" />
-      <Class name="ViRSE.PluginRuntime.VComponents.PredictiveWorldStateHistoryQueue" coverage="0" coveredlines="0" coverablelines="13" totallines="208" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="5" methodcoverage="0" />
-      <Class name="ViRSE.PluginRuntime.VComponents.PredictiveWorldStateSyncableModule" coverage="0" coveredlines="0" coverablelines="81" totallines="208" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="6" methodcoverage="0" />
-      <Class name="ViRSE.PluginRuntime.VComponents.ProtocolModule" coverage="0" coveredlines="0" coverablelines="5" totallines="28" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="3" methodcoverage="0" />
-      <Class name="ViRSE.PluginRuntime.VComponents.PushActivatable" coverage="70" coveredlines="21" coverablelines="30" totallines="151" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="12" totalmethods="14" methodcoverage="85.7" />
-      <Class name="ViRSE.PluginRuntime.VComponents.PushActivatableConfig" coverage="100" coveredlines="4" coverablelines="4" totallines="151" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="1" totalmethods="1" methodcoverage="100" />
-      <Class name="ViRSE.PluginRuntime.VComponents.PushActivatableFactory" coverage="100" coveredlines="8" coverablelines="8" totallines="151" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="1" totalmethods="1" methodcoverage="100" />
-      <Class name="ViRSE.PluginRuntime.VComponents.RangedClickInteractionModule" coverage="100" coveredlines="4" coverablelines="4" totallines="24" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="2" totalmethods="2" methodcoverage="100" />
-      <Class name="ViRSE.PluginRuntime.VComponents.RangedInteractionConfig" coverage="100" coveredlines="1" coverablelines="1" totallines="48" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="1" totalmethods="1" methodcoverage="100" />
-      <Class name="ViRSE.PluginRuntime.VComponents.RangedInteractionModule" coverage="44.4" coveredlines="4" coverablelines="9" totallines="48" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="1" totalmethods="5" methodcoverage="20" />
-      <Class name="ViRSE.PluginRuntime.VComponents.SingleInteractorActivatableState" coverage="25" coveredlines="9" coverablelines="36" totallines="160" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="7" totalmethods="9" methodcoverage="77.7" />
-      <Class name="ViRSE.PluginRuntime.VComponents.SingleInteractorActivatableStateModule" coverage="56" coveredlines="28" coverablelines="50" totallines="160" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="9" totalmethods="13" methodcoverage="69.2" />
-      <Class name="ViRSE.PluginRuntime.VComponents.V_PushActivatable" coverage="15.3" coveredlines="2" coverablelines="13" totallines="151" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="1" totalmethods="8" methodcoverage="12.5" />
-      <Class name="ViRSE.PluginRuntime.VComponents.WorldStateSyncableConfig" coverage="50" coveredlines="5" coverablelines="10" totallines="250" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="1" totalmethods="3" methodcoverage="33.3" />
-      <Class name="ViRSE.PluginRuntime.VComponents.WorldstateSyncableModule" coverage="0" coveredlines="0" coverablelines="85" totallines="250" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="17" methodcoverage="0" />
-      <Class name="ViRSE.PluginRuntime.WorldStateBundle" coverage="0" coveredlines="0" coverablelines="30" totallines="128" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="6" methodcoverage="0" />
-      <Class name="ViRSE.PluginRuntime.WorldStateSnapshot" coverage="0" coveredlines="0" coverablelines="24" totallines="128" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="8" methodcoverage="0" />
-      <Class name="ViRSE.PluginRuntime.WorldStateSyncer" coverage="4.8" coveredlines="5" coverablelines="104" totallines="209" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="2" totalmethods="14" methodcoverage="14.2" />
-      <Class name="ViRSE.PluginRuntime.WorldStateWrapper" coverage="0" coveredlines="0" coverablelines="23" totallines="128" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="8" methodcoverage="0" />
-      <Class name="ViRSE.VComponents.GrabbableInteractionModule" coverage="0" coveredlines="0" coverablelines="2" totallines="29" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="1" methodcoverage="0" />
-    </Assembly>
     <Assembly name="ViRSE_Plugin_Sample" classes="1" coverage="0" coveredlines="0" coverablelines="26" totallines="48" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="5" methodcoverage="0">
       <Class name="PluginTest" coverage="0" coveredlines="0" coverablelines="26" totallines="48" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="5" methodcoverage="0" />
     </Assembly>
-    <Assembly name="VIRSE_Plugin_To_VC_API" classes="4" coverage="0" coveredlines="0" coverablelines="12" totallines="90" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="11" methodcoverage="0">
+    <Assembly name="VIRSE_Plugin_To_VC_API" classes="3" coverage="0" coveredlines="0" coverablelines="11" totallines="77" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="9" methodcoverage="0">
       <Class name="ViRSE.PluginRuntime.VComponents.IGeneralInteractionModuleImplementor" coverage="0" coveredlines="0" coverablelines="6" totallines="25" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="2" methodcoverage="0" />
       <Class name="ViRSE.PluginRuntime.VComponents.IRangedInteractionModuleImplementor" coverage="0" coveredlines="0" coverablelines="1" totallines="18" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="2" methodcoverage="0" />
-      <Class name="ViRSE.PluginRuntime.VComponents.ISingleInteractorActivatableStateModuleImplementor" coverage="0" coveredlines="0" coverablelines="4" totallines="27" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="5" methodcoverage="0" />
-      <Class name="ViRSE.PluginRuntime.VComponents.IWorldStateSyncableModuleImplementor" coverage="0" coveredlines="0" coverablelines="1" totallines="20" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="2" methodcoverage="0" />
+      <Class name="ViRSE.PluginRuntime.VComponents.ISingleInteractorActivatableStateModuleImplementor" coverage="0" coveredlines="0" coverablelines="4" totallines="34" branchcoverage="" coveredbranches="0" totalbranches="0" coveredmethods="0" totalmethods="5" methodcoverage="0" />
     </Assembly>
   </Coverage>
 </CoverageReport>

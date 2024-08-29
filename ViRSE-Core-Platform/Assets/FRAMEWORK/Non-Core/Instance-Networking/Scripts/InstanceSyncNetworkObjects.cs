@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
 using ViRSE.Core.Shared;
 using static CommonNetworkObjects;
 
@@ -14,8 +13,7 @@ public class InstanceSyncNetworkObjects
         NetcodeVersionConfirmation,
         ServerRegistrationRequest,
         ServerRegistrationConfirmation,
-        PopulationInfo,
-        UpdatePlayerSettingsRequest,
+        InstanceInfo,
         WorldstateSyncableBundle,
     }
 
@@ -26,11 +24,11 @@ public class InstanceSyncNetworkObjects
     public class ServerRegistrationRequest : ViRSESerializable
     {
         public string InstanceCode { get; private set; }
-        public AvatarDetails AvatarDetails { get; private set; }
+        public AvatarAppearance AvatarDetails { get; private set; }
 
         public ServerRegistrationRequest(byte[] bytes) : base(bytes) { }
 
-        public ServerRegistrationRequest(AvatarDetails avatarDetails, string instanceCode)
+        public ServerRegistrationRequest(AvatarAppearance avatarDetails, string instanceCode)
         {
             AvatarDetails = avatarDetails;
             InstanceCode = instanceCode;
@@ -55,7 +53,7 @@ public class InstanceSyncNetworkObjects
 
             InstanceCode = reader.ReadString(); 
             ushort avatarDetailsLength = reader.ReadUInt16();
-            AvatarDetails = new AvatarDetails(reader.ReadBytes(avatarDetailsLength));
+            AvatarDetails = new AvatarAppearance(reader.ReadBytes(avatarDetailsLength));
         }
     }
 
