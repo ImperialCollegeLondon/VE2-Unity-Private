@@ -11,12 +11,14 @@ namespace ViRSE.PluginRuntime.VComponents
     [Serializable]
     public class BaseStateConfig
     {
-        //[DisableIf(nameof(NetworkManager), null)] get these working
+        [BeginGroup("Transmission Settings", Style = GroupStyle.Boxed)]
+        //[DisableIf(nameof(NetworkManager), null)] 
         [SerializeField] public bool IsNetworked;
 
-        //[DisableIf(nameof(NetworkManager), null)]
+        [DisableIf(nameof(IsNetworked), false)]
         //[ShowDisabledIf(nameof(IsNetworked), true)]
-        [SerializeField, HideLabel] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new();
+        [EndGroup]
+        [SerializeField] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new();
 
         public INetworkManager NetworkManager { get; private set; }
 
@@ -35,7 +37,9 @@ namespace ViRSE.PluginRuntime.VComponents
     [Serializable]
     public class ActivatableStateConfig : BaseStateConfig
     {
+        [BeginGroup("Activation State Settings", Style = GroupStyle.Boxed)]
         [SerializeField] public UnityEvent OnActivate = new();
+        [EndGroup]
         [SerializeField] public UnityEvent OnDeactivate = new();
     }
 

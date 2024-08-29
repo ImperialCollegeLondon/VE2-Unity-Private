@@ -10,7 +10,7 @@ namespace ViRSE.PluginRuntime.VComponents
         //[VerticalGroup("RangedInteractionModule_VGroup")]
         //[FoldoutGroup("RangedInteractionModule_VGroup/Ranged Interaction Settings")]
         //[SuffixLabel("metres")]
-        [BeginGroup("General Interaction Settings", Style = GroupStyle.Boxed)]
+        [BeginGroup("Ranged Interaction Settings", Style = GroupStyle.Boxed)]
         [SerializeField] public float InteractionRange = 5;
 
         //[PropertySpace(SpaceBefore = 5)]

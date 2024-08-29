@@ -8,7 +8,6 @@ using ViRSE.Core.Shared;
 [Serializable]
 public class RepeatedTransmissionConfig : TransmissionConfig
 {
-    [BeginGroup("Transmission Settings", Style = GroupStyle.Boxed)]
     [Suffix("Hz")]
     [Range(0.2f, 50f)]
     [SerializeField] public float TransmissionFrequency = 1;

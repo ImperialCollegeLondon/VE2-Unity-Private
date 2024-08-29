@@ -1,9 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ViRSE.PluginRuntime.VComponents;
 
 public class TestVC : MonoBehaviour
 {
+    [SerializeField, HideLabel, IgnoreParent] GeneralInteractionConfig generalInteractionConfig;
+
     //[SerializeField, ShowInInspector, HideLabel]
     private TestSubModule testSubModule;
 

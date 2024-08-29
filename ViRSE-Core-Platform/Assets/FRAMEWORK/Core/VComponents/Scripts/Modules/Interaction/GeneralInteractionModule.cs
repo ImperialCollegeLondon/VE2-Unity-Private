@@ -8,15 +8,11 @@ namespace ViRSE.PluginRuntime.VComponents
     [Serializable]
     public class GeneralInteractionConfig
     {
-        //[FoldoutGroup("GeneralInteractionModule_VGroup/General Interaction Settings")]
         [BeginGroup("General Interaction Settings", Style = GroupStyle.Boxed)]
         [SerializeField] public bool AdminOnly = false;
 
-        //[VerticalGroup("GeneralInteractionModule_VGroup")]
-        //[FoldoutGroup("GeneralInteractionModule_VGroup/General Interaction Settings")]
         [SerializeField] public bool EnableControllerVibrations = true;
 
-        //[FoldoutGroup("GeneralInteractionModule_VGroup/General Interaction Settings")]
         [EndGroup]
         [SerializeField] public bool ShowTooltipsAndHighlight = true;
     }
