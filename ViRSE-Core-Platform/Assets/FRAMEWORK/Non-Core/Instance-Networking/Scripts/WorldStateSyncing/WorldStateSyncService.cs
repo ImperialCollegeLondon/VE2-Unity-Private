@@ -74,7 +74,13 @@ namespace ViRSE.Networking
         public void HandleReceiveWorldStateBundle(byte[] byteData)
         {
             WorldStateBundle worldStateBundle = new(byteData);
-            Debug.Log("Rec state in syncer " + worldStateBundle.WorldStateWrappers.Count);
+            //Debug.Log("Rec state in syncer " + worldStateBundle.WorldStateWrappers.Count);
+
+            if (false)
+            {
+                Debug.Log("");
+            }
+
             _incommingWorldStateBundleBuffer.Add(worldStateBundle);
         }
 
@@ -94,7 +100,10 @@ namespace ViRSE.Networking
 
         private void ProcessReceivedWorldStates(bool isHost)
         {
-            foreach (WorldStateBundle receivedBundle in _incommingWorldStateBundleBuffer)
+            List<WorldStateBundle> worldStateBundlesToProcess = new(_incommingWorldStateBundleBuffer);
+            _incommingWorldStateBundleBuffer.Clear();
+
+            foreach (WorldStateBundle receivedBundle in worldStateBundlesToProcess)
             {
                 foreach (WorldStateWrapper worldStateWrapper in receivedBundle.WorldStateWrappers)
                 {
@@ -113,7 +122,6 @@ namespace ViRSE.Networking
                 }
             }
 
-            _incommingWorldStateBundleBuffer.Clear();
         }
 
         private (byte[], byte[]) CollectWorldStates(bool isHost)

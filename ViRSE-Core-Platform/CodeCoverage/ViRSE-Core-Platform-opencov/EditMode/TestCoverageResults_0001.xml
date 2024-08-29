@@ -3,18 +3,48 @@
   <Summary numSequencePoints="16" visitedSequencePoints="16" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="100.0" branchCoverage="0.0" maxCyclomaticComplexity="0" minCyclomaticComplexity="0" maxCrapScore="0" minCrapScore="0" visitedClasses="4" numClasses="4" visitedMethods="4" numMethods="4" />
   <Modules>
     <Module>
+      <Summary numSequencePoints="5" visitedSequencePoints="5" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="100.0" branchCoverage="0.0" maxCyclomaticComplexity="0" minCyclomaticComplexity="0" maxCrapScore="0" minCrapScore="0" visitedClasses="1" numClasses="1" visitedMethods="1" numMethods="1" />
+      <ModuleTime>0001-01-01T00:00:00</ModuleTime>
+      <ModuleName>VIRSE_Plugin_And_Player_Rig_To_VC_API</ModuleName>
+      <Files>
+        <File uid="5" fullPath="C:/Unity/ViRSE-Core-Platform/ViRSE-Core-Platform/Assets/FRAMEWORK/Core/VComponents/Scripts/Interfaces/SharedInterfaces/InteractorID.cs" />
+      </Files>
+      <Classes>
+        <Class>
+          <Summary numSequencePoints="5" visitedSequencePoints="5" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="100.0" branchCoverage="0.0" maxCyclomaticComplexity="0" minCyclomaticComplexity="0" maxCrapScore="0" minCrapScore="0" visitedClasses="1" numClasses="1" visitedMethods="1" numMethods="1" />
+          <FullName>ViRSE.InteractorID</FullName>
+          <Methods>
+            <Method visited="true" cyclomaticComplexity="0" nPathComplexity="0" sequenceCoverage="100.0" branchCoverage="0" crapScore="0" isConstructor="true" isStatic="false" isGetter="false" isSetter="false">
+              <Summary numSequencePoints="5" visitedSequencePoints="5" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="100.0" branchCoverage="0" maxCyclomaticComplexity="0" minCyclomaticComplexity="0" maxCrapScore="0" minCrapScore="0" visitedClasses="0" numClasses="0" visitedMethods="1" numMethods="1" />
+              <MetadataToken>100663301</MetadataToken>
+              <Name>ViRSE.InteractorID::InteractorID(System.Int32, ViRSE.InteractorType)</Name>
+              <FileRef uid="5" />
+              <SequencePoints>
+                <SequencePoint vc="1" uspid="784" ordinal="0" offset="0" sl="12" sc="9" el="12" ec="9" bec="0" bev="0" fileid="5" />
+                <SequencePoint vc="1" uspid="785" ordinal="0" offset="7" sl="13" sc="9" el="13" ec="9" bec="0" bev="0" fileid="5" />
+                <SequencePoint vc="1" uspid="786" ordinal="0" offset="8" sl="14" sc="13" el="14" ec="13" bec="0" bev="0" fileid="5" />
+                <SequencePoint vc="1" uspid="787" ordinal="0" offset="15" sl="15" sc="13" el="15" ec="13" bec="0" bev="0" fileid="5" />
+                <SequencePoint vc="1" uspid="788" ordinal="0" offset="22" sl="16" sc="9" el="16" ec="9" bec="0" bev="0" fileid="5" />
+              </SequencePoints>
+              <BranchPoints />
+            </Method>
+          </Methods>
+        </Class>
+      </Classes>
+    </Module>
+    <Module>
       <Summary numSequencePoints="11" visitedSequencePoints="11" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="100.0" branchCoverage="0.0" maxCyclomaticComplexity="0" minCyclomaticComplexity="0" maxCrapScore="0" minCrapScore="0" visitedClasses="3" numClasses="3" visitedMethods="3" numMethods="3" />
       <ModuleTime>0001-01-01T00:00:00</ModuleTime>
       <ModuleName>ViRSE_Player_Rig</ModuleName>
       <Files>
-        <File uid="1" fullPath="C:/Unity/ViRSE-Core-Platform/ViRSE-Core-Platform/Assets/FRAMEWORK/Core/Player/Scripts/Interactors/Interactor2D.cs" />
-        <File uid="2" fullPath="C:/Unity/ViRSE-Core-Platform/ViRSE-Core-Platform/Assets/FRAMEWORK/Core/Player/Scripts/LocalPlayerService.cs" />
-        <File uid="3" fullPath="C:/Unity/ViRSE-Core-Platform/ViRSE-Core-Platform/Assets/FRAMEWORK/Core/Player/Scripts/Player2DLocomotor.cs" />
-        <File uid="4" fullPath="C:/Unity/ViRSE-Core-Platform/ViRSE-Core-Platform/Assets/FRAMEWORK/Core/Player/Scripts/PlayerController.cs" />
-        <File uid="5" fullPath="C:/Unity/ViRSE-Core-Platform/ViRSE-Core-Platform/Assets/FRAMEWORK/Core/Player/Scripts/PlayerController2D.cs" />
-        <File uid="6" fullPath="C:/Unity/ViRSE-Core-Platform/ViRSE-Core-Platform/Assets/FRAMEWORK/Core/Player/Scripts/PlayerControllerVR.cs" />
-        <File uid="7" fullPath="C:/Unity/ViRSE-Core-Platform/ViRSE-Core-Platform/Assets/FRAMEWORK/Core/Player/Scripts/V_PlayerSpawner.cs" />
-        <File uid="8" fullPath="C:/Unity/ViRSE-Core-Platform/ViRSE-Core-Platform/Assets/FRAMEWORK/Core/Player/Scripts/InputHandler.cs" />
+        <File uid="6" fullPath="C:/Unity/ViRSE-Core-Platform/ViRSE-Core-Platform/Assets/FRAMEWORK/Core/Player/Scripts/Interactors/Interactor2D.cs" />
+        <File uid="7" fullPath="C:/Unity/ViRSE-Core-Platform/ViRSE-Core-Platform/Assets/FRAMEWORK/Core/Player/Scripts/LocalPlayerService.cs" />
+        <File uid="8" fullPath="C:/Unity/ViRSE-Core-Platform/ViRSE-Core-Platform/Assets/FRAMEWORK/Core/Player/Scripts/Player2DLocomotor.cs" />
+        <File uid="9" fullPath="C:/Unity/ViRSE-Core-Platform/ViRSE-Core-Platform/Assets/FRAMEWORK/Core/Player/Scripts/PlayerController.cs" />
+        <File uid="10" fullPath="C:/Unity/ViRSE-Core-Platform/ViRSE-Core-Platform/Assets/FRAMEWORK/Core/Player/Scripts/PlayerController2D.cs" />
+        <File uid="11" fullPath="C:/Unity/ViRSE-Core-Platform/ViRSE-Core-Platform/Assets/FRAMEWORK/Core/Player/Scripts/PlayerControllerVR.cs" />
+        <File uid="12" fullPath="C:/Unity/ViRSE-Core-Platform/ViRSE-Core-Platform/Assets/FRAMEWORK/Core/Player/Scripts/V_PlayerSpawner.cs" />
+        <File uid="13" fullPath="C:/Unity/ViRSE-Core-Platform/ViRSE-Core-Platform/Assets/FRAMEWORK/Core/Player/Scripts/InputHandler.cs" />
       </Files>
       <Classes>
         <Class>
@@ -25,9 +55,9 @@
               <Summary numSequencePoints="1" visitedSequencePoints="1" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="100.0" branchCoverage="0" maxCyclomaticComplexity="0" minCyclomaticComplexity="0" maxCrapScore="0" minCrapScore="0" visitedClasses="0" numClasses="0" visitedMethods="1" numMethods="1" />
               <MetadataToken>100663332</MetadataToken>
               <Name>ViRSE.Core.Player.PlayerSpawnConfig::PlayerSpawnConfig()</Name>
-              <FileRef uid="7" />
+              <FileRef uid="12" />
               <SequencePoints>
-                <SequencePoint vc="1" uspid="354" ordinal="0" offset="0" sl="14" sc="26" el="14" ec="26" bec="0" bev="0" fileid="7" />
+                <SequencePoint vc="1" uspid="916" ordinal="0" offset="0" sl="14" sc="26" el="14" ec="26" bec="0" bev="0" fileid="12" />
               </SequencePoints>
               <BranchPoints />
             </Method>
@@ -41,10 +71,10 @@
               <Summary numSequencePoints="2" visitedSequencePoints="2" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="100.0" branchCoverage="0" maxCyclomaticComplexity="0" minCyclomaticComplexity="0" maxCrapScore="0" minCrapScore="0" visitedClasses="0" numClasses="0" visitedMethods="1" numMethods="1" />
               <MetadataToken>100663333</MetadataToken>
               <Name>ViRSE.Core.Player.Player2DControlConfig::Player2DControlConfig()</Name>
-              <FileRef uid="7" />
+              <FileRef uid="12" />
               <SequencePoints>
-                <SequencePoint vc="1" uspid="355" ordinal="0" offset="0" sl="24" sc="26" el="24" ec="26" bec="0" bev="0" fileid="7" />
-                <SequencePoint vc="1" uspid="356" ordinal="0" offset="11" sl="25" sc="26" el="25" ec="26" bec="0" bev="0" fileid="7" />
+                <SequencePoint vc="1" uspid="917" ordinal="0" offset="0" sl="24" sc="26" el="24" ec="26" bec="0" bev="0" fileid="12" />
+                <SequencePoint vc="1" uspid="918" ordinal="0" offset="11" sl="25" sc="26" el="25" ec="26" bec="0" bev="0" fileid="12" />
               </SequencePoints>
               <BranchPoints />
             </Method>
@@ -58,46 +88,16 @@
               <Summary numSequencePoints="8" visitedSequencePoints="8" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="100.0" branchCoverage="0" maxCyclomaticComplexity="0" minCyclomaticComplexity="0" maxCrapScore="0" minCrapScore="0" visitedClasses="0" numClasses="0" visitedMethods="1" numMethods="1" />
               <MetadataToken>100663334</MetadataToken>
               <Name>ViRSE.Core.Player.PlayerVRControlConfig::PlayerVRControlConfig()</Name>
-              <FileRef uid="7" />
+              <FileRef uid="12" />
               <SequencePoints>
-                <SequencePoint vc="1" uspid="357" ordinal="0" offset="0" sl="33" sc="26" el="33" ec="26" bec="0" bev="0" fileid="7" />
-                <SequencePoint vc="1" uspid="358" ordinal="0" offset="11" sl="34" sc="26" el="34" ec="26" bec="0" bev="0" fileid="7" />
-                <SequencePoint vc="1" uspid="359" ordinal="0" offset="22" sl="35" sc="26" el="35" ec="26" bec="0" bev="0" fileid="7" />
-                <SequencePoint vc="1" uspid="360" ordinal="0" offset="29" sl="36" sc="26" el="36" ec="26" bec="0" bev="0" fileid="7" />
-                <SequencePoint vc="1" uspid="361" ordinal="0" offset="36" sl="37" sc="26" el="37" ec="26" bec="0" bev="0" fileid="7" />
-                <SequencePoint vc="1" uspid="362" ordinal="0" offset="47" sl="40" sc="26" el="40" ec="26" bec="0" bev="0" fileid="7" />
-                <SequencePoint vc="1" uspid="363" ordinal="0" offset="54" sl="41" sc="26" el="41" ec="26" bec="0" bev="0" fileid="7" />
-                <SequencePoint vc="1" uspid="364" ordinal="0" offset="61" sl="42" sc="26" el="42" ec="26" bec="0" bev="0" fileid="7" />
-              </SequencePoints>
-              <BranchPoints />
-            </Method>
-          </Methods>
-        </Class>
-      </Classes>
-    </Module>
-    <Module>
-      <Summary numSequencePoints="5" visitedSequencePoints="5" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="100.0" branchCoverage="0.0" maxCyclomaticComplexity="0" minCyclomaticComplexity="0" maxCrapScore="0" minCrapScore="0" visitedClasses="1" numClasses="1" visitedMethods="1" numMethods="1" />
-      <ModuleTime>0001-01-01T00:00:00</ModuleTime>
-      <ModuleName>VIRSE_Plugin_And_Player_Rig_To_VC_API</ModuleName>
-      <Files>
-        <File uid="17" fullPath="C:/Unity/ViRSE-Core-Platform/ViRSE-Core-Platform/Assets/FRAMEWORK/Core/VComponents/Scripts/Interfaces/SharedInterfaces/InteractorID.cs" />
-      </Files>
-      <Classes>
-        <Class>
-          <Summary numSequencePoints="5" visitedSequencePoints="5" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="100.0" branchCoverage="0.0" maxCyclomaticComplexity="0" minCyclomaticComplexity="0" maxCrapScore="0" minCrapScore="0" visitedClasses="1" numClasses="1" visitedMethods="1" numMethods="1" />
-          <FullName>ViRSE.InteractorID</FullName>
-          <Methods>
-            <Method visited="true" cyclomaticComplexity="0" nPathComplexity="0" sequenceCoverage="100.0" branchCoverage="0" crapScore="0" isConstructor="true" isStatic="false" isGetter="false" isSetter="false">
-              <Summary numSequencePoints="5" visitedSequencePoints="5" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="100.0" branchCoverage="0" maxCyclomaticComplexity="0" minCyclomaticComplexity="0" maxCrapScore="0" minCrapScore="0" visitedClasses="0" numClasses="0" visitedMethods="1" numMethods="1" />
-              <MetadataToken>100663301</MetadataToken>
-              <Name>ViRSE.InteractorID::InteractorID(System.Int32, ViRSE.InteractorType)</Name>
-              <FileRef uid="17" />
-              <SequencePoints>
-                <SequencePoint vc="1" uspid="448" ordinal="0" offset="0" sl="12" sc="9" el="12" ec="9" bec="0" bev="0" fileid="17" />
-                <SequencePoint vc="1" uspid="449" ordinal="0" offset="7" sl="13" sc="9" el="13" ec="9" bec="0" bev="0" fileid="17" />
-                <SequencePoint vc="1" uspid="450" ordinal="0" offset="8" sl="14" sc="13" el="14" ec="13" bec="0" bev="0" fileid="17" />
-                <SequencePoint vc="1" uspid="451" ordinal="0" offset="15" sl="15" sc="13" el="15" ec="13" bec="0" bev="0" fileid="17" />
-                <SequencePoint vc="1" uspid="452" ordinal="0" offset="22" sl="16" sc="9" el="16" ec="9" bec="0" bev="0" fileid="17" />
+                <SequencePoint vc="1" uspid="919" ordinal="0" offset="0" sl="33" sc="26" el="33" ec="26" bec="0" bev="0" fileid="12" />
+                <SequencePoint vc="1" uspid="920" ordinal="0" offset="11" sl="34" sc="26" el="34" ec="26" bec="0" bev="0" fileid="12" />
+                <SequencePoint vc="1" uspid="921" ordinal="0" offset="22" sl="35" sc="26" el="35" ec="26" bec="0" bev="0" fileid="12" />
+                <SequencePoint vc="1" uspid="922" ordinal="0" offset="29" sl="36" sc="26" el="36" ec="26" bec="0" bev="0" fileid="12" />
+                <SequencePoint vc="1" uspid="923" ordinal="0" offset="36" sl="37" sc="26" el="37" ec="26" bec="0" bev="0" fileid="12" />
+                <SequencePoint vc="1" uspid="924" ordinal="0" offset="47" sl="40" sc="26" el="40" ec="26" bec="0" bev="0" fileid="12" />
+                <SequencePoint vc="1" uspid="925" ordinal="0" offset="54" sl="41" sc="26" el="41" ec="26" bec="0" bev="0" fileid="12" />
+                <SequencePoint vc="1" uspid="926" ordinal="0" offset="61" sl="42" sc="26" el="42" ec="26" bec="0" bev="0" fileid="12" />
               </SequencePoints>
               <BranchPoints />
             </Method>

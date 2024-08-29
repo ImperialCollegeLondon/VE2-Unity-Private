@@ -4,7 +4,18 @@ using UnityEngine;
 
 public class StaticColors : MonoBehaviour
 {
-    public static StaticColors instance;
+    private static StaticColors _instance = null;
+    public static StaticColors Instance {
+        get {
+            if (_instance == null)
+                _instance = FindObjectOfType<StaticColors>();
+
+            return _instance;
+        }
+        private set {
+            _instance = value;
+        }
+    }
 
     [SerializeField] public Color lightBlue;
     [SerializeField] public Color processBlue;
@@ -15,6 +26,6 @@ public class StaticColors : MonoBehaviour
 
     private void Awake()
     {
-        instance = this;
+        Instance = this;
     }
 }

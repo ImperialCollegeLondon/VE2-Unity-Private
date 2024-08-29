@@ -28,19 +28,14 @@ namespace ViRSE.InstanceNetworking
 
         //Should just take an IP address
 
-        private PluginSyncService _pluginSyncService;
+        private static PluginSyncService _pluginSyncService;
 
-        void Awake()
+        private void Awake()
         {
-            if (!Application.isPlaying)
-            {
-                BaseStateHolder[] baseStateConfigs = GameObject.FindObjectsOfType<BaseStateHolder>();
-
-                foreach (BaseStateHolder baseStateConfig in baseStateConfigs)
-                    baseStateConfig.BaseStateConfig.NetworkManager = this;
-
+            if (_pluginSyncService != null)
                 return;
-            }
+
+            Debug.Log("SCENE SYNCER AWAKE 2!");
 
             if (_serverType != ServerType.Offline)
             {
@@ -102,7 +97,20 @@ namespace ViRSE.InstanceNetworking
         //TODO, API to change instance code, and to connect/disconnect
         //API for connect, disconnect, change instance code 
 
-        private void OnDestroy()
+        private void OnEnable()
+        {
+            if (!Application.isPlaying)
+            {
+                BaseStateHolder[] baseStateConfigs = GameObject.FindObjectsOfType<BaseStateHolder>();
+
+                foreach (BaseStateHolder baseStateConfig in baseStateConfigs)
+                    baseStateConfig.BaseStateConfig.NetworkManager = this;
+
+                return;
+            }
+        }
+
+        private void OnDisable()
         {
             if (!Application.isPlaying)
             {
@@ -112,5 +120,41 @@ namespace ViRSE.InstanceNetworking
                     baseStateConfig.BaseStateConfig.NetworkManager = null;
             }
         }
+
+
+        private static void HandleReload()
+        {
+            if (!Application.isPlaying)
+            {
+                Debug.Log("Not playing, return syncer.");
+                return;
+            }
+
+            if (_pluginSyncService == null)
+            {
+                Debug.Log("Try recreate scene syncer");
+                // Attempt to find the existing instance in the scene
+                V_SceneSyncer instance = FindObjectOfType<V_SceneSyncer>();
+
+                if (instance != null)
+                {
+                    instance.Awake();
+
+                    Debug.Log("V_SceneSyncer singleton reinitialized after domain reload");
+                }
+                else
+                {
+                    Debug.Log("No scene syncer found in scene...");
+                }
+            }
+        }
+
+        #if UNITY_EDITOR
+        [UnityEditor.InitializeOnLoadMethod]
+        private static void RegisterDomainReloadCallback()
+        {
+            UnityEditor.AssemblyReloadEvents.afterAssemblyReload += HandleReload;
+        }
+        #endif
     }
 }

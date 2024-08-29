@@ -1,25 +1,25 @@
 ﻿# Summary
 |||
 |:---|:---|
-| Generated on: | 29/08/2024 - 02:01:35 |
+| Generated on: | 29/08/2024 - 16:33:11 |
 | Parser: | MultiReportParser (2x OpenCoverParser) |
 | Assemblies: | 5 |
 | Classes: | 21 |
 | Files: | 17 |
 | Covered lines: | 16 |
-| Uncovered lines: | 200 |
-| Coverable lines: | 216 |
-| Total lines: | 689 |
-| Line coverage: | 7.4% (16 of 216) |
+| Uncovered lines: | 218 |
+| Coverable lines: | 234 |
+| Total lines: | 730 |
+| Line coverage: | 6.8% (16 of 234) |
 | Covered branches: | 0 |
 | Total branches: | 0 |
 | Covered methods: | 4 |
-| Total methods: | 60 |
-| Method coverage: | 6.6% (4 of 60) |
+| Total methods: | 62 |
+| Method coverage: | 6.4% (4 of 62) |
 
 |**Name**|**Covered**|**Uncovered**|**Coverable**|**Total**|**Line coverage**|**Covered**|**Total**|**Branch coverage**|**Covered**|**Total**|**Method coverage**|
 |:---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-|**ViRSE_Player_Rig**|**11**|**145**|**156**|**777**|**7%**|**0**|**0**|****|**3**|**35**|**8.5%**|
+|**ViRSE_Player_Rig**|**11**|**163**|**174**|**818**|**6.3%**|**0**|**0**|****|**3**|**37**|**8.1%**|
 |ViRSE.Core.Player.Interactor2D|0|47|47|126|0%|0|0||0|6|0%|
 |ViRSE.Core.Player.Player|0|17|17|54|0%|0|0||0|9|0%|
 |ViRSE.Core.Player.Player2DControlConfig|2|0|2|83|100%|0|0||1|1|100%|
@@ -31,7 +31,7 @@
 |ViRSE.Core.Player.PlayerSpawnConfig|1|0|1|83|100%|0|0||1|1|100%|
 |ViRSE.Core.Player.PlayerVRControlConfig|8|0|8|83|100%|0|0||1|1|100%|
 |ViRSE.Core.Player.V_PlayerSpawner|0|9|9|83|0%|0|0||0|1|0%|
-|ViRSE.FrameworkRuntime.LocalPlayerRig.InputHandler|0|10|10|28|0%|0|0||0|5|0%|
+|ViRSE.FrameworkRuntime.LocalPlayerRig.InputHandler|0|28|28|69|0%|0|0||0|7|0%|
 |**ViRSE_Player_Rig_To_VC_API**|**0**|**10**|**10**|**81**|**0%**|**0**|**0**|****|**0**|**6**|**0%**|
 |ViRSE.PluginRuntime.VComponents.ICollidePlayerInteratableImplementor|0|3|3|21|0%|0|0||0|1|0%|
 |ViRSE.PluginRuntime.VComponents.IGeneralPlayerInteractableImplementor|0|3|3|22|0%|0|0||0|3|0%|

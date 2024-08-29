@@ -13,18 +13,12 @@ namespace ViRSE.PluginRuntime.VComponents
     {
         [BeginGroup("Transmission Settings", Style = GroupStyle.Round, ApplyCondition = true)]
         [HideIf(nameof(NetworkManagerPresent), false)] 
-        //[DisableIf(nameof(test), false)]
-        [SerializeField] public bool IsNetworked;
+        [SerializeField] public bool IsNetworked = true;
 
-        //[DisableIf(nameof(IsNetworked), false)]
-        //[DisableIf(nameof(_networkManagerPresent), false)]
         [HideIf(nameof(NetworkManagerPresent), false)]
         [DisableIf(nameof(IsNetworked), false)]
-        //[ShowDisabledIf(nameof(IsNetworked), true)]
         [EndGroup]
         [SerializeField] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new();
-
-        //[SerializeField, HideInInspector] public bool test = false;
 
         [SerializeField, HideInInspector] public bool NetworkManagerPresent => NetworkManager != null;
 
@@ -34,11 +28,15 @@ namespace ViRSE.PluginRuntime.VComponents
         {
             if (NetworkManager == null)
             {
-                GameObject networkManagerGO = GameObject.Find("PluginSyncer");
-
-                if (networkManagerGO != null)
-                    NetworkManager = networkManagerGO.GetComponent<INetworkManager>();
+                SearchForAndAssignNetworkManager();
             }
+        }
+        public void SearchForAndAssignNetworkManager()
+        {
+            GameObject networkManagerGO = GameObject.Find("PluginSyncer");
+
+            if (networkManagerGO != null && networkManagerGO.activeInHierarchy)
+                NetworkManager = networkManagerGO.GetComponent<INetworkManager>();
         }
     }
 
@@ -47,6 +45,7 @@ namespace ViRSE.PluginRuntime.VComponents
     {
         [BeginGroup("Activation State Settings", Style = GroupStyle.Round)]
         [SpaceArea(spaceBefore: 15), SerializeField] public UnityEvent OnActivate = new();
+
         [EndGroup]
         [SerializeField] public UnityEvent OnDeactivate = new();
     }
@@ -81,10 +80,19 @@ namespace ViRSE.PluginRuntime.VComponents
 
             if (Config.NetworkManagerPresent && Config.IsNetworked)
             {
-                Config.NetworkManager.RegisterStateModule(this, GetType().Name, goName);
-            }
+                if (Config.NetworkManager == null)
+                    Config.SearchForAndAssignNetworkManager(); //Handles domain reload
 
-            Debug.Log("VC registered with syncer? " + (Config.NetworkManagerPresent && Config.IsNetworked));
+                Config.NetworkManager.RegisterStateModule(this, GetType().Name, goName);
+                Debug.Log("VC registered with syncer");
+            }
+            else
+            {
+                if (!Config.NetworkManagerPresent)
+                {
+                    Debug.Log("VC has not registered with syncer, no network manager");
+                }
+            }
         }
 
         protected abstract void UpdateBytes(byte[] newBytes);

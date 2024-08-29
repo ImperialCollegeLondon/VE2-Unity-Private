@@ -8,13 +8,24 @@ namespace ViRSE.FrameworkRuntime.LocalPlayerRig
 {
     public class InputHandler : MonoBehaviour
     {
-        public static InputHandler instance;
+        private static InputHandler _instance = null;
+        public static InputHandler Instance { 
+            get {
+                if (_instance == null)
+                    _instance = FindObjectOfType<InputHandler>();
+                
+                return _instance;
+            }
+            private set {  
+                _instance = value; 
+            }
+        }
 
         public UnityEvent OnMouseLeftClick { get; private set; } = new();
 
         private void Awake()
         {
-            instance = this;
+            Instance = this;
         }
 
         void Update()

@@ -26,14 +26,16 @@ namespace ViRSE.Core.Player
             _interactorID = new InteractorID(0, InteractorType.TwoD);
         }
 
+        //TODO - these need to be re-wired on domain reloadasd
+
         private void OnEnable()
         {
-            InputHandler.instance.OnMouseLeftClick.AddListener(HandleLeftClick);
+            InputHandler.Instance.OnMouseLeftClick.AddListener(HandleLeftClick);
         }
 
         private void OnDisable()
         {
-            InputHandler.instance.OnMouseLeftClick.RemoveListener(HandleLeftClick);
+            InputHandler.Instance.OnMouseLeftClick.RemoveListener(HandleLeftClick);
         }
 
         private void HandleLeftClick()
@@ -78,7 +80,7 @@ namespace ViRSE.Core.Player
                 raycastHitDebug = "none";
             }
 
-            reticuleImage.color = foundRangedInteractable ? StaticColors.instance.tangerine : StaticColors.instance.lightBlue;
+            reticuleImage.color = foundRangedInteractable ? StaticColors.Instance.tangerine : StaticColors.Instance.lightBlue;
         }
     }
 }

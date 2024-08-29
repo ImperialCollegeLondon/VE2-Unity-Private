@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEngine;
 using ViRSE.Core.Shared;
 
@@ -10,7 +11,6 @@ namespace ViRSE.PluginRuntime.VComponents
         [SpaceArea(spaceAfter: 15), SerializeField, IgnoreParent] public ActivatableStateConfig StateConfig = new();
         [SpaceArea(spaceAfter: 15), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
         [SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfig = new();
-
     }
 
     public abstract class BaseStateHolder : MonoBehaviour
@@ -23,7 +23,7 @@ namespace ViRSE.PluginRuntime.VComponents
         [SerializeField, HideLabel, IgnoreParent] private PushActivatableConfig _config = new(); 
         [SerializeField, HideInInspector] private SingleInteractorActivatableState _state = new();
 
-        private PushActivatable _pushActivatable;
+        private PushActivatable _pushActivatable = null;
 
         public override BaseStateConfig BaseStateConfig => _config.StateConfig;
 
@@ -52,8 +52,40 @@ namespace ViRSE.PluginRuntime.VComponents
 
         private void Start()
         {
+            Debug.Log("Activ start - " + (_pushActivatable == null));
+
+            //if (_pushActivatable == null)
             _pushActivatable = PushActivatableFactory.Create(_config, _state, gameObject.name);
         }
+
+        private static void HandleReload()
+        {
+            if (!Application.isPlaying)
+            {
+                Debug.Log("Not playing - return");
+                return;
+            }
+
+            // Attempt to find the existing instance in the scene
+            V_PushActivatable[] v_PushActivatables = GameObject.FindObjectsOfType<V_PushActivatable>();
+
+            Debug.Log("Try recreate Push Activatable " + v_PushActivatables.Count() + "----------------------");
+            foreach (V_PushActivatable v_PushActivatable in v_PushActivatables)
+            {
+                Debug.Log("pushactive null? " + (v_PushActivatable._pushActivatable == null));
+                //if (v_PushActivatable._pushActivatable == null)
+                v_PushActivatable.Start();
+            }
+        }
+
+#if UNITY_EDITOR
+        [UnityEditor.InitializeOnLoadMethod]
+        private static void RegisterDomainReloadCallback()
+        {
+            UnityEditor.AssemblyReloadEvents.afterAssemblyReload += HandleReload;
+        }
+#endif
+
     }
 
     public static class PushActivatableFactory
