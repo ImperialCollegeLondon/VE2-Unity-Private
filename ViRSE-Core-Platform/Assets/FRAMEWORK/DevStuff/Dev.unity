@@ -141,7 +141,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &39926598
 Transform:
   m_ObjectHideFlags: 0
@@ -187,7 +187,7 @@ Light:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 39926597}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 10
   m_Type: 0
   m_Shape: 0
@@ -1084,7 +1084,7 @@ GameObject:
   - component: {fileID: 835746393}
   - component: {fileID: 835746392}
   m_Layer: 0
-  m_Name: PluginSpawner
+  m_Name: PluginSyncer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1514,10 +1514,10 @@ MonoBehaviour:
       OnActivate:
         m_PersistentCalls:
           m_Calls:
-          - m_Target: {fileID: 39926597}
-            m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-            m_MethodName: SetActive
-            m_Mode: 6
+          - m_Target: {fileID: 1499303676}
+            m_TargetAssemblyTypeName: PluginTest, ViRSE_Plugin_Sample
+            m_MethodName: OnButtonActivate
+            m_Mode: 1
             m_Arguments:
               m_ObjectArgument: {fileID: 0}
               m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -1529,10 +1529,10 @@ MonoBehaviour:
       OnDeactivate:
         m_PersistentCalls:
           m_Calls:
-          - m_Target: {fileID: 39926597}
-            m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-            m_MethodName: SetActive
-            m_Mode: 6
+          - m_Target: {fileID: 1499303676}
+            m_TargetAssemblyTypeName: PluginTest, ViRSE_Plugin_Sample
+            m_MethodName: OnButtonDeactivate
+            m_Mode: 1
             m_Arguments:
               m_ObjectArgument: {fileID: 0}
               m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -1582,6 +1582,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b3edd363d73a2945be8d78cb1d64128, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _light: {fileID: 39926600}
   _pushButtonGO: {fileID: 1250561189}
 --- !u!4 &1499303677
 Transform:

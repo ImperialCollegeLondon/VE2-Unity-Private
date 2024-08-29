@@ -24,18 +24,28 @@ namespace ViRSE.InstanceNetworking
         [SerializeField] private ServerType _serverType = ServerType.Local;
         [SerializeField] private string _localServerIP = "127.0.0.1";
         [SerializeField] private string _remoteServerIP = "";
-        [SerializeField] private int portNumber = 4296;
+        [SerializeField] private int portNumber = 4297;
 
-        //Should just take an IP address
+        private PluginSyncService _pluginSyncService;
+        private PluginSyncService PluginSyncService 
+        {
+            get {
+                if (_pluginSyncService == null)
+                    Awake();
 
-        private static PluginSyncService _pluginSyncService;
+                return _pluginSyncService;
+            }
+            set {
+                _pluginSyncService = value;
+            }
+        }
 
         private void Awake()
         {
             if (_pluginSyncService != null)
                 return;
 
-            Debug.Log("SCENE SYNCER AWAKE 2!");
+            Debug.Log("SCENE SYNCER AWAKE a!");
 
             if (_serverType != ServerType.Offline)
             {
@@ -47,12 +57,6 @@ namespace ViRSE.InstanceNetworking
                 }
 
                 _pluginSyncService = PluginSyncServiceFactory.Create(playerPresentationConfig);
-
-                if (_serverType == ServerType.Local)
-                {
-                    //TODO - start local server
-                }
-
             }
 
             if (_connectAutomatically && !_isPlatform)
@@ -80,18 +84,17 @@ namespace ViRSE.InstanceNetworking
             if (IPAddress.TryParse(ipAddressString, out IPAddress ipAddress) == false)
                 throw new System.Exception("Invalid IP address, could not connect to server");
 
-            _pluginSyncService.ConnectToServer(ipAddress, portNumber, _instanceCode);
+            PluginSyncService.ConnectToServer(ipAddress, portNumber, _instanceCode);
         }
 
         private void FixedUpdate()
         {
-            _pluginSyncService.NetworkUpdate();
+            PluginSyncService.NetworkUpdate();
         }
 
-        //TODO, bit bodgey
         public void RegisterStateModule(IStateModule stateModule, string stateType, string goName)
         {
-            _pluginSyncService.RegisterStateModule(stateModule, stateType, goName);
+            PluginSyncService.RegisterStateModule(stateModule, stateType, goName);
         }
 
         //TODO, API to change instance code, and to connect/disconnect
@@ -122,39 +125,13 @@ namespace ViRSE.InstanceNetworking
         }
 
 
-        private static void HandleReload()
-        {
-            if (!Application.isPlaying)
-            {
-                Debug.Log("Not playing, return syncer.");
-                return;
-            }
-
-            if (_pluginSyncService == null)
-            {
-                Debug.Log("Try recreate scene syncer");
-                // Attempt to find the existing instance in the scene
-                V_SceneSyncer instance = FindObjectOfType<V_SceneSyncer>();
-
-                if (instance != null)
-                {
-                    instance.Awake();
-
-                    Debug.Log("V_SceneSyncer singleton reinitialized after domain reload");
-                }
-                else
-                {
-                    Debug.Log("No scene syncer found in scene...");
-                }
-            }
-        }
-
-        #if UNITY_EDITOR
-        [UnityEditor.InitializeOnLoadMethod]
-        private static void RegisterDomainReloadCallback()
-        {
-            UnityEditor.AssemblyReloadEvents.afterAssemblyReload += HandleReload;
-        }
-        #endif
+//#if UNITY_EDITOR
+//            [UnityEditor.InitializeOnLoadMethod]
+//        private static void RegisterDomainReloadCallback()
+//        {
+//            UnityEditor.AssemblyReloadEvents.afterAssemblyReload += HandleReload;
+//            UnityEditor.AssemblyReloadEvents.beforeAssemblyReload += HandlePreReload;
+//        }
+//#endif
     }
 }

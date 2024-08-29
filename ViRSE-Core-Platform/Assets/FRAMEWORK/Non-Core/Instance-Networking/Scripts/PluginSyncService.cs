@@ -12,6 +12,7 @@ using System.Net;
 using static CommonNetworkObjects;
 using ViRSE.Core.Player;
 using static InstanceSyncNetworkObjects;
+using static DarkRift.Server.DarkRiftInfo;
 
 namespace ViRSE.PluginRuntime
 {
@@ -71,6 +72,11 @@ namespace ViRSE.PluginRuntime
             commsHandler.OnReceiveNetcodeConfirmation += HandleReceiveNetcodeVersion;
             commsHandler.OnReceiveServerRegistrationConfirmation += HandleReceiveServerRegistrationConfirmation;
             commsHandler.OnReceiveWorldStateSyncableBundle += _worldStateSyncer.HandleReceiveWorldStateBundle;
+
+            //if (_serverType == ServerType.Local)
+            //{
+            //    //TODO - start local server
+            //}
         }
 
         public void ConnectToServer(IPAddress ipAddress, int portNumber, string instanceCode)

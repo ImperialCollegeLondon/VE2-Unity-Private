@@ -19,7 +19,7 @@ public class TestSubModule
 
     public TestSubModule()
     {
-        Debug.Log("Test sub mod");
+        //Debug.Log("Test sub mod");
         testInt = 3;
         testInt2 = 4;
 
@@ -28,7 +28,7 @@ public class TestSubModule
 
     public TestSubModule(string testString)
     {
-        Debug.Log("Made module - " + testString);
+        //Debug.Log("Made module - " + testString);
     }
 }
 
@@ -44,7 +44,7 @@ public class TestSubSubModule
 
     public TestSubSubModule()
     {
-        Debug.Log("Test sub SUB mod");
+        //Debug.Log("Test sub SUB mod");
         testSubInt = 3;
         testSubInt2 = 4;
     }

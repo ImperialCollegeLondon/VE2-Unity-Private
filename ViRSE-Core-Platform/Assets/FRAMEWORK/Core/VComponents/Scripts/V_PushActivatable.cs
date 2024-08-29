@@ -52,7 +52,7 @@ namespace ViRSE.PluginRuntime.VComponents
 
         private void Start()
         {
-            Debug.Log("Activ start - " + (_pushActivatable == null));
+            //Debug.Log("Activ start - " + (_pushActivatable == null));
 
             //if (_pushActivatable == null)
             _pushActivatable = PushActivatableFactory.Create(_config, _state, gameObject.name);
@@ -62,17 +62,17 @@ namespace ViRSE.PluginRuntime.VComponents
         {
             if (!Application.isPlaying)
             {
-                Debug.Log("Not playing - return");
+                Debug.Log("Not playing: return");
                 return;
             }
 
             // Attempt to find the existing instance in the scene
             V_PushActivatable[] v_PushActivatables = GameObject.FindObjectsOfType<V_PushActivatable>();
 
-            Debug.Log("Try recreate Push Activatable " + v_PushActivatables.Count() + "----------------------");
+            //Debug.Log("Try recreate Push Activatable " + v_PushActivatables.Count() + "----------------------");
             foreach (V_PushActivatable v_PushActivatable in v_PushActivatables)
             {
-                Debug.Log("pushactive null? " + (v_PushActivatable._pushActivatable == null));
+                //Debug.Log("pushactive null? " + (v_PushActivatable._pushActivatable == null));
                 //if (v_PushActivatable._pushActivatable == null)
                 v_PushActivatable.Start();
             }
