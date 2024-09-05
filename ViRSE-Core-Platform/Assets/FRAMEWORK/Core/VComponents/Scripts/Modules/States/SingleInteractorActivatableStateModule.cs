@@ -11,14 +11,17 @@ namespace ViRSE.PluginRuntime.VComponents
     [Serializable]
     public class BaseStateConfig
     {
-        [BeginGroup("Transmission Settings", Style = GroupStyle.Round, ApplyCondition = true)]
-        [HideIf(nameof(NetworkManagerPresent), false)] 
+        [BeginGroup(Style = GroupStyle.Round, ApplyCondition = true)]
+        [Title("Transmission Settings", ApplyCondition = true)]
+        [HideIf(nameof(NetworkManagerPresent), false)]
         [SerializeField] public bool IsNetworked = true;
 
         [HideIf(nameof(NetworkManagerPresent), false)]
         [DisableIf(nameof(IsNetworked), false)]
         [EndGroup]
-        [SerializeField] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new();
+        [Space(5)]
+        [SerializeField, IgnoreParent] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new();
+
 
         [SerializeField, HideInInspector] public bool NetworkManagerPresent => NetworkManager != null;
 
@@ -43,8 +46,10 @@ namespace ViRSE.PluginRuntime.VComponents
     [Serializable]
     public class ActivatableStateConfig : BaseStateConfig
     {
-        [BeginGroup("Activation State Settings", Style = GroupStyle.Round)]
-        [SpaceArea(spaceBefore: 15), SerializeField] public UnityEvent OnActivate = new();
+        [BeginGroup(Style = GroupStyle.Round)]
+        [Space(5)]
+        [Title("Activation Settings", ApplyCondition = true)]
+        [SerializeField] public UnityEvent OnActivate = new();
 
         [EndGroup]
         [SerializeField] public UnityEvent OnDeactivate = new();

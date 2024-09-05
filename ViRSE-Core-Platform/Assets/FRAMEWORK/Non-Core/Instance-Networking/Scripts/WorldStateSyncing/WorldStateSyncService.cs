@@ -76,11 +76,6 @@ namespace ViRSE.Networking
             WorldStateBundle worldStateBundle = new(byteData);
             //Debug.Log("Rec state in syncer " + worldStateBundle.WorldStateWrappers.Count);
 
-            if (false)
-            {
-                Debug.Log("");
-            }
-
             _incommingWorldStateBundleBuffer.Add(worldStateBundle);
         }
 

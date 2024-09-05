@@ -36,6 +36,7 @@ public class CommonNetworkObjects
         }
     }
 
+
     public class InstanceInfo : ViRSESerializable
     {
         public string InstanceCode;
@@ -160,6 +161,7 @@ public class CommonNetworkObjects
         }
     }
 
+
     public class AvatarAppearance : ViRSESerializable
     {
         public bool UsingViRSEAvatar;
@@ -218,73 +220,4 @@ public class CommonNetworkObjects
         }
     }
 
-    //public class AvatarDetails : ViRSENetworkSerializable
-    //{
-    //    public ushort headFrameworkAvatarType;
-    //    public ushort torsoFrameworkAvatarType;
-    //    public float frameworkColourRed;
-    //    public float frameworkColourGreen;
-    //    public float frameworkColourBlue;
-
-    //    //TODO, might want to rethink this 
-    //    /*The plugin overrides are really part of the instance, so it should be handled by PlayerSyncer... should be part of PlayerState!!!!
-    //     * Then, we can put the AvatarDetails within the UserSettings object 
-    //     * Nobody outside the instance (i.e, not being sycned by player syncer) needs avatar overrides anwyay
-    //     */
-
-    //    public ushort headPluginAvatarType;
-    //    public ushort torsoPluginAvatarType;
-    //    public ushort handsPluginAvatarType;
-
-    //    public bool showAvatar;
-
-    //    public AvatarDetails(byte[] bytes) : base(bytes) { }
-
-    //    public AvatarDetails()
-    //    {
-    //        headFrameworkAvatarType = 0;
-    //        torsoFrameworkAvatarType = 0;
-    //        headPluginAvatarType = 0;
-    //        torsoPluginAvatarType = 0;
-    //        handsPluginAvatarType = 0;
-    //        frameworkColourRed = 0.5f;
-    //        frameworkColourGreen = 0.5f;
-    //        frameworkColourBlue = 0.5f;
-    //        showAvatar = true;
-    //    }
-
-    //    protected override byte[] ConvertToBytes()
-    //    {
-    //        using MemoryStream stream = new();
-    //        using BinaryWriter writer = new(stream);
-
-    //        writer.Write(headFrameworkAvatarType);
-    //        writer.Write(torsoFrameworkAvatarType);
-    //        writer.Write(frameworkColourRed);
-    //        writer.Write(frameworkColourGreen);
-    //        writer.Write(frameworkColourBlue);
-    //        writer.Write(headPluginAvatarType);
-    //        writer.Write(torsoPluginAvatarType);
-    //        writer.Write(handsPluginAvatarType);
-    //        writer.Write(showAvatar);
-
-    //        return stream.ToArray();
-    //    }
-
-    //    protected override void PopulateFromBytes(byte[] data)
-    //    {
-    //        using MemoryStream stream = new(data);
-    //        using BinaryReader reader = new(stream);
-
-    //        headFrameworkAvatarType = reader.ReadUInt16();
-    //        torsoFrameworkAvatarType = reader.ReadUInt16();
-    //        frameworkColourRed = reader.ReadSingle();
-    //        frameworkColourGreen = reader.ReadSingle();
-    //        frameworkColourBlue = reader.ReadSingle();
-    //        headPluginAvatarType = reader.ReadUInt16();
-    //        torsoPluginAvatarType = reader.ReadUInt16();
-    //        handsPluginAvatarType = reader.ReadUInt16();
-    //        showAvatar = reader.ReadBoolean();
-    //    }
-    //}
 }

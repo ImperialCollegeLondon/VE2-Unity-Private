@@ -1,8 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Timers;
 using UnityEngine;
 using UnityEngine.Events;
 using ViRSE.FrameworkRuntime;
@@ -12,7 +7,6 @@ using System.Net;
 using static CommonNetworkObjects;
 using ViRSE.Core.Player;
 using static InstanceSyncNetworkObjects;
-using static DarkRift.Server.DarkRiftInfo;
 
 namespace ViRSE.PluginRuntime
 {

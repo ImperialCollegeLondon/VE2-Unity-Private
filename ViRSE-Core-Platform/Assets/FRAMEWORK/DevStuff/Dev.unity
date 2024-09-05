@@ -1511,6 +1511,8 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      test1: 0
+      test2: 0
       OnActivate:
         m_PersistentCalls:
           m_Calls:

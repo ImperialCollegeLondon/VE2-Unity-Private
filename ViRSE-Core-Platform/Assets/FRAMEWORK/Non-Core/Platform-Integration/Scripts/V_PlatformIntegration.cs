@@ -1,71 +1,75 @@
+using System.Collections;
+using System.Collections.Generic;
 using System.Net;
+using UnityEditor;
 using UnityEngine;
-using ViRSE.Core.Player;
+using UnityEngine.SceneManagement;
 using ViRSE.Core.Shared;
 using ViRSE.PluginRuntime;
-using ViRSE.PluginRuntime.VComponents;
-
-//TODO, we'll need to follow a same approach to core <-> instance
-//We'll need some interface for the platform integration, this script should look for that, if there is one 
-//We'll need to disable "ConnectAutomatically"
+using static PlatformNetworkObjects;
 
 namespace ViRSE.InstanceNetworking
 {
     [ExecuteInEditMode]
-    public class V_SceneSyncer : MonoBehaviour, INetworkManager
+    public class V_PlatformIntegration : MonoBehaviour //will need some customer-facing interfacing 
     {
-        //TODO hide this if platform integration isn't present 
-        [SerializeField] public bool ConnectAutomatically = true; //If false, connection must be programmatic 
+        [SerializeField] private bool _connectAutomatically = true; //If false, connection must be programmatic 
 
-        [SerializeField] private string _instanceCode = "dev"; //Can be changed by the customer code(?) 
+        [SerializeField] private string _startingInstanceSuffix = "dev"; //Can be changed by the customer code(?) 
 
         //If isPlatform, these settings will be overriden by whatever the platform says
         [SerializeField] private ServerType _serverType = ServerType.Local;
         [SerializeField] private string _localServerIP = "127.0.0.1";
         [SerializeField] private string _remoteServerIP = "";
-        [SerializeField] private int portNumber = 4297;
+        [SerializeField] private int portNumber = 4296;
 
-        private PluginSyncService _pluginSyncService;
-        private PluginSyncService PluginSyncService 
+        [SerializeField] private bool UseSpoofUserIdentity = false;
+        [SerializeField] string spoofDomain;
+        [SerializeField] string spoofAccountID;
+
+        private PlatformService _platformService;
+        private PlatformService PlatformServuce  //We'll add platform components to the scene on start (e.g global info UI), this will let those components access the platform after domain reload
         {
-            get {
-                if (_pluginSyncService == null)
+            get  {
+                if (_platformService == null)
                     Awake();
 
-                return _pluginSyncService;
+                return _platformService;
             }
             set {
-                _pluginSyncService = value;
+                _platformService = value;
             }
         }
 
         private void Awake()
         {
-            if (_pluginSyncService != null)
+            if (_platformService != null)
                 return;
 
-            Debug.Log("SCENE SYNCER AWAKE a!");
+            Debug.Log("Platform syncer awake!");
 
             if (_serverType != ServerType.Offline)
             {
-                PlayerPresentationConfig playerPresentationConfig = null;
-                GameObject playerSpawner = GameObject.Find("PlayerSpawner");
-                if (playerSpawner != null)
-                {
-                    playerPresentationConfig = playerSpawner.GetComponent<V_PlayerSpawner>().PresentationConfig;
-                }
-
-                _pluginSyncService = PluginSyncServiceFactory.Create(playerPresentationConfig);
-            }
-
-            if (ConnectAutomatically) //And we're not on the platform!
-            {
+                _platformService = PlatformServiceFactory.Create(GetUserIdentity());
                 ConnectToServer();
             }
         }
 
-        //The platform will call this with overrides
-        public void ConnectToServer(string ipAddressOverride = null, int portNumberOverride = -1, string instanceCodeOverride = null)
+        private UserIdentity GetUserIdentity()
+        {
+            if (UseSpoofUserIdentity && Application.isEditor)
+            {
+                return new UserIdentity(spoofDomain, spoofAccountID);
+            }
+            else
+            {
+                //Read user ident from command line if there's stuff to read
+                return new UserIdentity("test", "guest");
+            }
+        }
+
+        //The overrides here will come from cmd args from the launcher
+        public void ConnectToServer(string ipAddressOverride = null, int portNumberOverride = -1)
         {
             string ipAddressString;
             
@@ -77,23 +81,17 @@ namespace ViRSE.InstanceNetworking
             if (portNumberOverride == -1)
                 portNumberOverride = portNumber;
 
-            if (instanceCodeOverride != null)
-                _instanceCode = instanceCodeOverride;
-
             if (IPAddress.TryParse(ipAddressString, out IPAddress ipAddress) == false)
                 throw new System.Exception("Invalid IP address, could not connect to server");
 
-            PluginSyncService.ConnectToServer(ipAddress, portNumber, _instanceCode);
+            string instanceCodeFull = SceneManager.GetActiveScene().name + "-" + _startingInstanceSuffix;
+
+            PlatformServuce.ConnectToServer(ipAddress, portNumber, instanceCodeFull);
         }
 
         private void FixedUpdate()
         {
-            PluginSyncService.NetworkUpdate();
-        }
-
-        public void RegisterStateModule(IStateModule stateModule, string stateType, string goName)
-        {
-            PluginSyncService.RegisterStateModule(stateModule, stateType, goName);
+            //PlatformServuce.NetworkUpdate();
         }
 
         //TODO, API to change instance code, and to connect/disconnect
@@ -103,12 +101,7 @@ namespace ViRSE.InstanceNetworking
         {
             if (!Application.isPlaying)
             {
-                BaseStateHolder[] baseStateConfigs = GameObject.FindObjectsOfType<BaseStateHolder>();
-
-                foreach (BaseStateHolder baseStateConfig in baseStateConfigs)
-                    baseStateConfig.BaseStateConfig.NetworkManager = this;
-
-                return;
+                //Disable the player config settings on the spawner??
             }
         }
 
@@ -116,13 +109,9 @@ namespace ViRSE.InstanceNetworking
         {
             if (!Application.isPlaying)
             {
-                BaseStateHolder[] baseStateConfigs = GameObject.FindObjectsOfType<BaseStateHolder>();
 
-                foreach (BaseStateHolder baseStateConfig in baseStateConfigs)
-                    baseStateConfig.BaseStateConfig.NetworkManager = null;
             }
         }
-
 
 
 //#if UNITY_EDITOR
