@@ -31,7 +31,7 @@ namespace ViRSE.FrameworkRuntime
         {
             RawBytesMessage message = new(bytes);
 
-            using (DRMessageWrapper messageWrapper = DRMessageWrapper.Create((ushort)PlatformNetworkObjects.PlatformNetworkingMessageCodes.ServerRegistrationRequest, message))
+            using (DRMessageWrapper messageWrapper = DRMessageWrapper.Create((ushort)PlatformSerializables.PlatformNetworkingMessageCodes.ServerRegistrationRequest, message))
             {
                 _drClient.SendMessage(messageWrapper, SendMode.Reliable);
             }
@@ -41,10 +41,15 @@ namespace ViRSE.FrameworkRuntime
         {
             RawBytesMessage message = new(bytes);
 
-            using (DRMessageWrapper messageWrapper = DRMessageWrapper.Create((ushort)PlatformNetworkObjects.PlatformNetworkingMessageCodes.InstanceAllocationRequest, message))
+            using (DRMessageWrapper messageWrapper = DRMessageWrapper.Create((ushort)PlatformSerializables.PlatformNetworkingMessageCodes.InstanceAllocationRequest, message))
             {
                 _drClient.SendMessage(messageWrapper, SendMode.Reliable);
             }
+        }
+
+        public void DisconnectFromServer()
+        {
+            _drClient.Disconnect();
         }
 
         #endregion
@@ -58,21 +63,23 @@ namespace ViRSE.FrameworkRuntime
         private void OnMessageReceived(object sender, MessageReceivedEventArgs e)
         {
             Message messageWrapper = e.GetMessage();
-            PlatformNetworkObjects.PlatformNetworkingMessageCodes receivedMessageCode = (PlatformNetworkObjects.PlatformNetworkingMessageCodes)messageWrapper.Tag;
+            PlatformSerializables.PlatformNetworkingMessageCodes receivedMessageCode = (PlatformSerializables.PlatformNetworkingMessageCodes)messageWrapper.Tag;
 
             using DRMessageReader reader = e.GetMessage().GetReader();
             byte[] bytes = reader.ReadBytes();
 
+            //Debug.Log("Rec platform code " + receivedMessageCode.ToString());
+
             switch (receivedMessageCode)
             {
-                case PlatformNetworkObjects.PlatformNetworkingMessageCodes.NetcodeVersionConfirmation:
+                case PlatformSerializables.PlatformNetworkingMessageCodes.NetcodeVersionConfirmation:
                     OnReceiveNetcodeConfirmation?.Invoke(bytes);
                     break;
-                case PlatformNetworkObjects.PlatformNetworkingMessageCodes.ServerRegistrationConfirmation:
+                case PlatformSerializables.PlatformNetworkingMessageCodes.ServerRegistrationConfirmation:
                     IsReadyToTransmit = true;
                     OnReceiveServerRegistrationConfirmation?.Invoke(bytes);
                     break;
-                case PlatformNetworkObjects.PlatformNetworkingMessageCodes.GlobalInfo:
+                case PlatformSerializables.PlatformNetworkingMessageCodes.GlobalInfo:
                     OnReceiveGlobalInfoUpdate?.Invoke(bytes);
                     break;
             }

@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 using ViRSE.Core.Player;
+using ViRSE.Core.Shared;
+using static ViRSE.Core.Shared.CoreCommonSerializables;
 
 namespace ViRSE.Core.Player
 {
@@ -19,6 +21,8 @@ namespace ViRSE.Core.Player
         public void Initialize(PlayerSpawnConfig playerSpawnConfig, PlayerPresentationConfig PresentationConfig)
         {
             _playerMode = LocalPlayerMode.TwoD;
+
+            //TODO, process configs 
         }
 
         private void Update()

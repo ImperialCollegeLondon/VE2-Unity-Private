@@ -16,6 +16,7 @@ namespace ViRSE.FrameworkRuntime
         public void ConnectToServer(IPAddress ipAddress, int portNumber);
         public void SendServerRegistrationRequest(byte[] serverRegistrationBytes);
         public void SendInstanceAllocationRequest(byte[] instanceAllocationBytes);
+        public void DisconnectFromServer();
 
         public event Action<byte[]> OnReceiveNetcodeConfirmation;
         public event Action<byte[]> OnReceiveServerRegistrationConfirmation;

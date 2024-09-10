@@ -8,6 +8,7 @@ using ViRSE;
 using ViRSE.Core.Shared;
 using ViRSE.PluginRuntime;
 using ViRSE.PluginRuntime.VComponents;
+using static ViRSE.Core.Shared.CoreCommonSerializables;
 
 
 namespace ViRSE.Tests

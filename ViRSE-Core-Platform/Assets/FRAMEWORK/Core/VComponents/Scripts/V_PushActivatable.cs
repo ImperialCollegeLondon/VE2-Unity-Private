@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using UnityEngine;
 using ViRSE.Core.Shared;
+using static ViRSE.Core.Shared.CoreCommonSerializables;
 
 namespace ViRSE.PluginRuntime.VComponents
 {

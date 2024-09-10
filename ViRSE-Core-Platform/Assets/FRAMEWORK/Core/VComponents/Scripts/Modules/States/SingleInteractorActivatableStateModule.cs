@@ -5,6 +5,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
 using ViRSE.Core.Shared;
+using static ViRSE.Core.Shared.CoreCommonSerializables;
 
 namespace ViRSE.PluginRuntime.VComponents
 {

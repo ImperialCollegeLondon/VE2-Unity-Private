@@ -5,6 +5,7 @@ using ViRSE.FrameworkRuntime;
 using ViRSE.Core.Shared;
 using ViRSE.PluginRuntime.VComponents;
 using ViRSE.PluginRuntime;
+using static InstanceSyncSerializables;
 
 namespace ViRSE.Networking
 {

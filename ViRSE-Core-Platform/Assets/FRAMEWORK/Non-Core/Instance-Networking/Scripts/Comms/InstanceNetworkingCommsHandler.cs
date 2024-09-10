@@ -35,7 +35,7 @@ namespace ViRSE.FrameworkRuntime
         {
             RawBytesMessage message = new(bytes);
 
-            using (DRMessageWrapper messageWrapper = DRMessageWrapper.Create((ushort)InstanceSyncNetworkObjects.InstanceNetworkingMessageCodes.ServerRegistrationRequest, message))
+            using (DRMessageWrapper messageWrapper = DRMessageWrapper.Create((ushort)InstanceSyncSerializables.InstanceNetworkingMessageCodes.ServerRegistrationRequest, message))
             {
                 _drClient.SendMessage(messageWrapper, SendMode.Reliable);
             }
@@ -50,7 +50,7 @@ namespace ViRSE.FrameworkRuntime
                 SendMode.Reliable :
                 SendMode.Unreliable;
 
-            using (DRMessageWrapper messageWrapper = DRMessageWrapper.Create((ushort)InstanceSyncNetworkObjects.InstanceNetworkingMessageCodes.WorldstateSyncableBundle, message))
+            using (DRMessageWrapper messageWrapper = DRMessageWrapper.Create((ushort)InstanceSyncSerializables.InstanceNetworkingMessageCodes.WorldstateSyncableBundle, message))
             {
                 _drClient.SendMessage(messageWrapper, sendMode);
             }
@@ -91,25 +91,25 @@ namespace ViRSE.FrameworkRuntime
         private void OnMessageReceived(object sender, MessageReceivedEventArgs e)
         {
             Message messageWrapper = e.GetMessage();
-            InstanceSyncNetworkObjects.InstanceNetworkingMessageCodes receivedMessageCode = (InstanceSyncNetworkObjects.InstanceNetworkingMessageCodes)messageWrapper.Tag;
+            InstanceSyncSerializables.InstanceNetworkingMessageCodes receivedMessageCode = (InstanceSyncSerializables.InstanceNetworkingMessageCodes)messageWrapper.Tag;
 
             using DRMessageReader reader = e.GetMessage().GetReader();
             byte[] bytes = reader.ReadBytes();
 
             switch (receivedMessageCode)
             {
-                case InstanceSyncNetworkObjects.InstanceNetworkingMessageCodes.NetcodeVersionConfirmation:
+                case InstanceSyncSerializables.InstanceNetworkingMessageCodes.NetcodeVersionConfirmation:
                     OnReceiveNetcodeConfirmation?.Invoke(bytes);
                     break;
-                case InstanceSyncNetworkObjects.InstanceNetworkingMessageCodes.ServerRegistrationConfirmation:
+                case InstanceSyncSerializables.InstanceNetworkingMessageCodes.ServerRegistrationConfirmation:
                     IsReadyToTransmit = true;
                     OnReceiveServerRegistrationConfirmation?.Invoke(bytes);
                     break;
-                case InstanceSyncNetworkObjects.InstanceNetworkingMessageCodes.WorldstateSyncableBundle:
+                case InstanceSyncSerializables.InstanceNetworkingMessageCodes.WorldstateSyncableBundle:
                     //Debug.Log("rec worldstate");
                     OnReceiveWorldStateSyncableBundle?.Invoke(bytes);
                     break;
-                case InstanceSyncNetworkObjects.InstanceNetworkingMessageCodes.InstanceInfo:
+                case InstanceSyncSerializables.InstanceNetworkingMessageCodes.InstanceInfo:
                     OnReceiveInstanceInfoUpdate?.Invoke(bytes);
                     break;
             }

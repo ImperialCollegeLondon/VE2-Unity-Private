@@ -1,34 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Net;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using ViRSE.Core.Shared;
 using ViRSE.PluginRuntime;
-using static PlatformNetworkObjects;
+using static PlatformSerializables;
 
 namespace ViRSE.InstanceNetworking
 {
-    [ExecuteInEditMode]
     public class V_PlatformIntegration : MonoBehaviour //will need some customer-facing interfacing 
     {
-        [SerializeField] private bool _connectAutomatically = true; //If false, connection must be programmatic 
-
-        [SerializeField] private string _startingInstanceSuffix = "dev"; //Can be changed by the customer code(?) 
-
         //If isPlatform, these settings will be overriden by whatever the platform says
         [SerializeField] private ServerType _serverType = ServerType.Local;
         [SerializeField] private string _localServerIP = "127.0.0.1";
         [SerializeField] private string _remoteServerIP = "";
-        [SerializeField] private int portNumber = 4296;
+        [SerializeField] private ushort portNumber = 4296;
 
         [SerializeField] private bool UseSpoofUserIdentity = false;
-        [SerializeField] string spoofDomain;
-        [SerializeField] string spoofAccountID;
+        [SerializeField] UserIdentity spoofUserIdentity;
 
         private PlatformService _platformService;
-        private PlatformService PlatformServuce  //We'll add platform components to the scene on start (e.g global info UI), this will let those components access the platform after domain reload
+        private PlatformService PlatformService  //We'll add platform components to the scene on start (e.g global info UI), this will let those components access the platform after domain reload
         {
             get  {
                 if (_platformService == null)
@@ -46,12 +41,17 @@ namespace ViRSE.InstanceNetworking
             if (_platformService != null)
                 return;
 
-            Debug.Log("Platform syncer awake!");
+            Debug.Log("Platform integration mono awake!");
 
-            if (_serverType != ServerType.Offline)
+            if (_serverType != ServerType.Offline) //TODO, does offline even make sense here?
             {
-                _platformService = PlatformServiceFactory.Create(GetUserIdentity());
-                ConnectToServer();
+                string ipAddressString;
+                ipAddressString = _serverType == ServerType.Local ? _localServerIP : _remoteServerIP;
+
+                if (IPAddress.TryParse(ipAddressString, out IPAddress ipAddress) == false)
+                    throw new System.Exception("Invalid IP address, could not connect to server");
+
+                _platformService = PlatformServiceFactory.Create(GetUserIdentity(), ipAddress, portNumber);
             }
         }
 
@@ -59,34 +59,33 @@ namespace ViRSE.InstanceNetworking
         {
             if (UseSpoofUserIdentity && Application.isEditor)
             {
-                return new UserIdentity(spoofDomain, spoofAccountID);
+                return spoofUserIdentity;
             }
             else
             {
-                //Read user ident from command line if there's stuff to read
-                return new UserIdentity("test", "guest");
+                UserIdentity userIdentity = null;
+
+                try
+                {
+                    string[] commandLine = System.Environment.GetCommandLineArgs();
+
+                    if (commandLine.Length >= 7)
+                    {
+                        userIdentity = new(
+                            commandLine[2],
+                            commandLine[3],
+                            commandLine[4],
+                            commandLine[5],
+                            commandLine[6]);
+                    }
+                }
+                catch { }
+
+                if (userIdentity == null)
+                    userIdentity = new UserIdentity("test", "guest", "first", "last", "machine");
+
+                return userIdentity;
             }
-        }
-
-        //The overrides here will come from cmd args from the launcher
-        public void ConnectToServer(string ipAddressOverride = null, int portNumberOverride = -1)
-        {
-            string ipAddressString;
-            
-            if (ipAddressOverride == null)
-                ipAddressString = _serverType == ServerType.Local ? _localServerIP : _remoteServerIP;
-            else
-                ipAddressString = ipAddressOverride;
-
-            if (portNumberOverride == -1)
-                portNumberOverride = portNumber;
-
-            if (IPAddress.TryParse(ipAddressString, out IPAddress ipAddress) == false)
-                throw new System.Exception("Invalid IP address, could not connect to server");
-
-            string instanceCodeFull = SceneManager.GetActiveScene().name + "-" + _startingInstanceSuffix;
-
-            PlatformServuce.ConnectToServer(ipAddress, portNumber, instanceCodeFull);
         }
 
         private void FixedUpdate()
@@ -110,6 +109,10 @@ namespace ViRSE.InstanceNetworking
             if (!Application.isPlaying)
             {
 
+            }
+            else
+            {
+                _platformService.TearDown();
             }
         }
 

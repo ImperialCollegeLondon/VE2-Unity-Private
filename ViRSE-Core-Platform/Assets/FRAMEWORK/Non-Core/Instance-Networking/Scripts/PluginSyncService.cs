@@ -4,14 +4,20 @@ using ViRSE.FrameworkRuntime;
 using ViRSE.Core.Shared;
 using ViRSE.Networking;
 using System.Net;
-using static CommonNetworkObjects;
+using static NonCoreCommonSerializables;
 using ViRSE.Core.Player;
-using static InstanceSyncNetworkObjects;
+using static InstanceSyncSerializables;
+using static ViRSE.Core.Shared.CoreCommonSerializables;
 
 namespace ViRSE.PluginRuntime
 {
     public static class PluginSyncServiceFactory
     {
+        /// <summary>
+        /// Pass a null config if the virse avatar isn't being used 
+        /// </summary>
+        /// <param name="playerPresentationConfig"></param>
+        /// <returns></returns>
         public static PluginSyncService Create(PlayerPresentationConfig playerPresentationConfig)
         {
             InstanceNetworkingCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
@@ -30,7 +36,7 @@ namespace ViRSE.PluginRuntime
 
         private string _instanceCode;
         private ushort _localClientID;
-        private InstanceInfo _instanceInfo;
+        private InstancedInstanceInfo _instanceInfo;
 
         public bool IsHost => _instanceInfo.HostID == _localClientID;
 
@@ -83,27 +89,46 @@ namespace ViRSE.PluginRuntime
         {
             NetcodeVersionConfirmation netcodeVersionConfirmation = new(bytes);
 
-            if (netcodeVersionConfirmation.NetcodeVersion != InstanceSyncNetworkObjects.InstanceNetcodeVersion)
+            if (netcodeVersionConfirmation.NetcodeVersion != InstanceNetcodeVersion)
             {
                 //TODO - handle bad netcode version
-                Debug.LogError($"Bad netcode version, received version {netcodeVersionConfirmation.NetcodeVersion} but we are on {InstanceSyncNetworkObjects.InstanceNetcodeVersion}");
+                Debug.LogError($"Bad netcode version, received version {netcodeVersionConfirmation.NetcodeVersion} but we are on {InstanceNetcodeVersion}");
             } 
             else
             {
                 Debug.Log("Rec nv, sending reg");
 
-                //TODO, handle non default players
-                //TODO, we might also want to see machine name without being on platform?
-                AvatarAppearance avatarDetails = new(
-                    _playerPresentationConfig == null,
-                    _playerPresentationConfig.PlayerName,
-                    _playerPresentationConfig.AvatarHeadType,
-                    _playerPresentationConfig.AvatarBodyType,
-                    _playerPresentationConfig.AvatarColor.r,
-                    _playerPresentationConfig.AvatarColor.g,
-                    _playerPresentationConfig.AvatarColor.b);
+                InstancedAvatarAppearance instancedAvatarAppearance;
+                if (_playerPresentationConfig != null)
+                {
+                    instancedAvatarAppearance = new(
+                        _playerPresentationConfig.PlayerName,
+                        _playerPresentationConfig.AvatarHeadType,
+                        _playerPresentationConfig.AvatarBodyType,
+                        _playerPresentationConfig.AvatarRed,
+                        _playerPresentationConfig.AvatarGreen,
+                        _playerPresentationConfig.AvatarBlue,
+                        true,
+                        "",
+                        "",
+                        false);
+                }
+                else
+                {
+                    instancedAvatarAppearance = new(
+                        "N/A",
+                        "N/A",
+                        "N/A",
+                        0,
+                        0,
+                        0,
+                        false, //NOT using ViRSE avatar
+                        "N/A",
+                        "N/A",
+                        false);
+                }
 
-                ServerRegistrationRequest serverRegistrationRequest = new(avatarDetails, _instanceCode);
+                ServerRegistrationRequest serverRegistrationRequest = new(instancedAvatarAppearance, _instanceCode);
                 _commsHandler.SendServerRegistrationRequest(serverRegistrationRequest.Bytes);
             }
         }

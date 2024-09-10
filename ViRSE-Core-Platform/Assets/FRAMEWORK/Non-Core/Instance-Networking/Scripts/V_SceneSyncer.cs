@@ -4,6 +4,7 @@ using ViRSE.Core.Player;
 using ViRSE.Core.Shared;
 using ViRSE.PluginRuntime;
 using ViRSE.PluginRuntime.VComponents;
+using static ViRSE.Core.Shared.CoreCommonSerializables;
 
 //TODO, we'll need to follow a same approach to core <-> instance
 //We'll need some interface for the platform integration, this script should look for that, if there is one 
