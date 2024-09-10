@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -11,7 +12,7 @@ using static PlatformSerializables;
 
 namespace ViRSE.InstanceNetworking
 {
-    public class V_PlatformIntegration : MonoBehaviour //will need some customer-facing interfacing 
+    public class V_PlatformIntegration : MonoBehaviour, IPlatformService //will need some customer-facing interfacing 
     {
         //If isPlatform, these settings will be overriden by whatever the platform says
         [SerializeField] private ServerType _serverType = ServerType.Local;
@@ -35,6 +36,42 @@ namespace ViRSE.InstanceNetworking
                 _platformService = value;
             }
         }
+
+        #region Instance-Sync-Facing Interfaces
+        public bool IsConnectedToServer => _platformService.IsConnectedToServer;
+        public event Action OnConnectedToServer { add => _platformService.OnConnectedToServer += value; remove => _platformService.OnConnectedToServer -= value; }
+        //Connect to server 
+        #endregion
+
+        //Instance allocation request is going to have to be in a private interface
+        //No, NONE of this platform stuff is going to be accessible to the customer. 
+        //True, they'll have the actual interface definition, but none of the concretes 
+        //Right, but that means they'll be able to then search for that interface at runtime, and call it 
+        //So we need an interface that's literally just "ConnectionDetailsProvider" then?
+
+        /*   REQS
+         *   We want the customer to be able to change the IP address for the INSTANCE syncer, and trigger the instance syncer connection
+         *        -If we have that API, why not just have the platform do it that way?
+         *        -Because it's not the platform's job, the instance-sync-facing platform API is ONLY meant for retrieving the connection details, and that's it
+         *        -If the customer gets those details... then... it's fine? 
+         *   
+         *   The instance syncer should use the CDs from the platform, if present, otherwise use the customers
+         *   
+         *   We don't want the customer changing the instance sync CDs if on platform, or if the connection has been made already
+         *   
+         *   
+         *   So surely we're fine 
+         *   
+         *   
+         *   What we DO need, is an interface for instance allocation, getting the global info, etc. But that interface can be marked internal, so other namespaces can't see it!
+         *   
+         *   
+         *   Anything that talks to the platform, should do it through this MonoBehaviour. They'll all have to find a reference to this Mono through FindObject, but that's fine, not too many objects needing to do that
+         * 
+         * 
+         * 
+         */
+
 
         private void Awake()
         {
@@ -116,61 +153,11 @@ namespace ViRSE.InstanceNetworking
             }
         }
 
-
-//#if UNITY_EDITOR
-//            [UnityEditor.InitializeOnLoadMethod]
-//        private static void RegisterDomainReloadCallback()
-//        {
-//            UnityEditor.AssemblyReloadEvents.afterAssemblyReload += HandleReload;
-//            UnityEditor.AssemblyReloadEvents.beforeAssemblyReload += HandlePreReload;
-//        }
-//#endif
+        public InstanceConnectionDetails GetInstanceConnectionDetails()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
 
-//How should this work here
-/*  If we're on the platform, we need the relay IP address to come from the platform (or from a launch argument)
- *  We NEED some don't destroy on load object that holds the IP address to the platform?
- *  Or do we? If it's inside a launch argument... in that case it'd have to go somewhere else 
- *  Anyway, we don't want to drop platform connection every time we change scene 
- *  
- *  Yeah, we'll need some DontDestroyOnLoad platform connection thing, this just needs to keep all its data serialized so that it can continue to connect to the platform
- *  
- *  Now, "platform integration"....... this has the API for file storage.. so it's going to need thingies beyond just the "I am for the platform flag!"
- *  Question is then, how much of the platform stuff is going to function in the editor?
- *  
- *  Platform build only 
- *  Instance switching 
- *  
- *  Build and editor 
- *  FTP services 
- *  Voice chat?
- * 
- * Ok, so, we need an IP address that points towards an FTP server, and maybe some Vivox server, but that gets overriden by the platform
- * So, if in editor, use IP addresses from inspector. If in standalone launcher build, comes from launch args, if in platform plugin build, comes from platform integration thing 
- * Right, so there's some persistent platform integration object that reads CMD arguments, that comes from the launcher. 
- * That platform integration object then survives into other scenes. It looks for other platform integration objects, if it finds one, it destroys it. 
- * 
- * 
- */
-
-//using UnityEngine;
-
-//#if UNITY_EDITOR
-//using UnityEditor;
-//#endif
-
-//public class SimulateLaunchArguments : MonoBehaviour
-//{
-//    [SerializeField] private string[] simulatedArgs;
-
-//    private void Awake()
-//    {
-//#if UNITY_EDITOR
-//        // Simulate command-line arguments in the Editor
-//        System.Environment.SetEnvironmentVariable("UNITY_SIMULATED_ARGS", string.Join(" ", simulatedArgs));
-//        EditorPrefs.SetString("UNITY_SIMULATED_ARGS", string.Join(" ", simulatedArgs));
-//#endif
-//    }
-//}
 

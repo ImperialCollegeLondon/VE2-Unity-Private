@@ -18,10 +18,41 @@ namespace ViRSE.PluginRuntime
         /// </summary>
         /// <param name="playerPresentationConfig"></param>
         /// <returns></returns>
-        public static PluginSyncService Create(PlayerPresentationConfig playerPresentationConfig)
+        public static PluginSyncService Create(InstanceConnectionDetails instanceConnectionDetails, PlayerPresentationConfig playerPresentationConfig)
         {
             InstanceNetworkingCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
-            return new PluginSyncService(commsHandler, playerPresentationConfig);
+
+            InstancedAvatarAppearance instancedAvatarAppearance; //TODO, maybe this should be a wrapper instead of a child class?
+            if (playerPresentationConfig != null)
+            {
+                instancedAvatarAppearance = new(
+                    playerPresentationConfig.PlayerName,
+                    playerPresentationConfig.AvatarHeadType,
+                    playerPresentationConfig.AvatarBodyType,
+                    playerPresentationConfig.AvatarRed,
+                    playerPresentationConfig.AvatarGreen,
+                    playerPresentationConfig.AvatarBlue,
+                    true,
+                    "",
+                    "",
+                    false);
+            }
+            else
+            {
+                instancedAvatarAppearance = new(
+                    "N/A",
+                    "N/A",
+                    "N/A",
+                    0,
+                    0,
+                    0,
+                    false, //NOT using ViRSE avatar
+                    "N/A",
+                    "N/A",
+                    false);
+            }
+
+            return new PluginSyncService(commsHandler, instanceConnectionDetails, instancedAvatarAppearance);
         }
     }
 
@@ -34,7 +65,7 @@ namespace ViRSE.PluginRuntime
 
         private bool _readyToSync = false;
 
-        private string _instanceCode;
+        private InstanceConnectionDetails _instanceConnectionDetails;
         private ushort _localClientID;
         private InstancedInstanceInfo _instanceInfo;
 
@@ -44,7 +75,7 @@ namespace ViRSE.PluginRuntime
         public UnityEvent<int> OnWorldStateHistoryQueueSizeChange { get; private set; } = new();
 
         private IPluginSyncCommsHandler _commsHandler;
-        private PlayerPresentationConfig _playerPresentationConfig;
+        private InstancedAvatarAppearance _instancedAvatarAppearance;
 
         private WorldStateSyncer _worldStateSyncer;
 
@@ -58,12 +89,13 @@ namespace ViRSE.PluginRuntime
         #endregion
 
         //TODO, consider constructing PluginSyncService using factory pattern to inject the WorldStateSyncer
-        public PluginSyncService(IPluginSyncCommsHandler commsHandler, PlayerPresentationConfig playerPresentationConfig)
+        public PluginSyncService(IPluginSyncCommsHandler commsHandler, InstanceConnectionDetails instanceConnectionDetails, InstancedAvatarAppearance instancedAvatarAppearance)
         {
             WorldStateHistoryQueueSize = 10; //TODO, automate this, currently 10 is more than enough though, 200ms
 
             _commsHandler = commsHandler;
-            _playerPresentationConfig = playerPresentationConfig;
+            _instanceConnectionDetails = instanceConnectionDetails;
+            _instancedAvatarAppearance = instancedAvatarAppearance;
             //_commsHandler.OnReadyToSyncPlugin += HandleReadyToSyncPlugin;
 
             //TODO - maybe don't give the world state syncer the comms handler, we can just pull straight out of it here and send to comms
@@ -72,17 +104,14 @@ namespace ViRSE.PluginRuntime
             commsHandler.OnReceiveNetcodeConfirmation += HandleReceiveNetcodeVersion;
             commsHandler.OnReceiveServerRegistrationConfirmation += HandleReceiveServerRegistrationConfirmation;
             commsHandler.OnReceiveWorldStateSyncableBundle += _worldStateSyncer.HandleReceiveWorldStateBundle;
-
-            //if (_serverType == ServerType.Local)
-            //{
-            //    //TODO - start local server
-            //}
         }
 
-        public void ConnectToServer(IPAddress ipAddress, int portNumber, string instanceCode)
+        public void ConnectToServer()
         {
-            _instanceCode = instanceCode;
-            _commsHandler.ConnectToServer(ipAddress, portNumber);
+            if (IPAddress.TryParse(_instanceConnectionDetails.IP, out IPAddress ipAddress))
+                _commsHandler.ConnectToServer(ipAddress, _instanceConnectionDetails.Port);
+            else
+                Debug.LogError("Could not connect to server, invalid IP address");
         }
 
         private void HandleReceiveNetcodeVersion(byte[] bytes)
@@ -98,16 +127,16 @@ namespace ViRSE.PluginRuntime
             {
                 Debug.Log("Rec nv, sending reg");
 
-                InstancedAvatarAppearance instancedAvatarAppearance;
-                if (_playerPresentationConfig != null)
+                InstancedAvatarAppearance instancedAvatarAppearance; //TODO, this dependency should come from the factory?
+                if (_instancedAvatarAppearance != null)
                 {
                     instancedAvatarAppearance = new(
-                        _playerPresentationConfig.PlayerName,
-                        _playerPresentationConfig.AvatarHeadType,
-                        _playerPresentationConfig.AvatarBodyType,
-                        _playerPresentationConfig.AvatarRed,
-                        _playerPresentationConfig.AvatarGreen,
-                        _playerPresentationConfig.AvatarBlue,
+                        _instancedAvatarAppearance.PlayerName,
+                        _instancedAvatarAppearance.AvatarHeadType,
+                        _instancedAvatarAppearance.AvatarBodyType,
+                        _instancedAvatarAppearance.AvatarRed,
+                        _instancedAvatarAppearance.AvatarGreen,
+                        _instancedAvatarAppearance.AvatarBlue,
                         true,
                         "",
                         "",
@@ -128,7 +157,7 @@ namespace ViRSE.PluginRuntime
                         false);
                 }
 
-                ServerRegistrationRequest serverRegistrationRequest = new(instancedAvatarAppearance, _instanceCode);
+                ServerRegistrationRequest serverRegistrationRequest = new(instancedAvatarAppearance, _instanceConnectionDetails.InstanceCode);
                 _commsHandler.SendServerRegistrationRequest(serverRegistrationRequest.Bytes);
             }
         }
@@ -144,7 +173,7 @@ namespace ViRSE.PluginRuntime
             _readyToSync = true;
         }
 
-        public void NetworkUpdate()
+        public void NetworkUpdate() //TODO, not a fan of this anymore. This is just a service, only meant for sending and receiving data. Think the actual syncers themselves should be the ones pushing data, and listening to received messages
         {
             if (_readyToSync)
             {

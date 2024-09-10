@@ -10,11 +10,6 @@ using ViRSE.Core.Shared;
 using System.Net;
 using static NonCoreCommonSerializables;
 using static PlatformSerializables;
-using static DarkRift.Server.DarkRiftInfo;
-using ViRSE.InstanceNetworking;
-using UnityEngine.UIElements;
-using UnityEngine.SceneManagement;
-
 namespace ViRSE.PluginRuntime
 {
     public static class PlatformServiceFactory
@@ -26,10 +21,27 @@ namespace ViRSE.PluginRuntime
         }
     }
 
+    /*
+     *   This needs to persist between scenes, but, since we need it to function after domain reload, we also need it to function in the scene with the syncer immediately, and across multiple syncers 
+     *   We need some mono to detect when we enter a new scene. PlatformService then needs to forward to IP/port to the instance sync service 
+     *   mmmm, maybe this aint actually right 
+     *   "PlatformService" should maybe just be used for fetching data from the platform, and making requests to the platform 
+     *   It should probably be some other component that is in charge of orchestrating the instance stuff and the platform stuff
+     *   
+     *   Tbf... maybe the instance sync service should be responsible for fetching the IP and port from the platform service?
+     *   Ok, so how would this work
+     *   InstanceSync service starts, when it starts, it gets passed a reference to the PlatformService, which then let's us get the IP/port
+     *   If there IS no platform service, then the scene syncer uses its regular IP and port 
+     *   If there is a platform service that hasn't yet been initialized, we do a lazy operation. We wait for the platform service to be initialized, and then we get the IP/port once we get some "ConnectedToServer" event
+     * 
+     * 
+     */
+
     //TODO, we might want to consider cutting down the duplicate code with the instance sync stuff
     public class PlatformService : IPlatformService
     {
-        private bool _connectedToServer = false;
+        public bool IsConnectedToServer { get; private set; }
+        public event Action OnConnectedToServer;
 
         private UserIdentity _userIdentity;
 
@@ -40,10 +52,11 @@ namespace ViRSE.PluginRuntime
 
         private IPlatformCommsHandler _commsHandler;
 
+
         #region Platform-Private Interfaces
         public void RequestInstanceAllocation(string worldName, string instanceSuffix)
         {
-            if (_connectedToServer)
+            if (IsConnectedToServer)
             {
                 if (_availableWorlds.ContainsKey(worldName))
                 {
@@ -81,13 +94,6 @@ namespace ViRSE.PluginRuntime
             commsHandler.OnReceiveNetcodeConfirmation += HandleReceiveNetcodeVersion;
             commsHandler.OnReceiveServerRegistrationConfirmation += HandleReceiveServerRegistrationConfirmation;
 
-            V_SceneSyncer sceneSyncer = GameObject.FindObjectOfType<V_SceneSyncer>();
-            if (sceneSyncer != null)
-            {
-                //Disable the scene syncer until we have the IP address to point it towards
-                sceneSyncer.ConnectAutomatically = false;
-            }
-
             //if (_serverType == ServerType.Local)
             //{
             //    //TODO - start local server
@@ -124,27 +130,12 @@ namespace ViRSE.PluginRuntime
             _GlobalInfo = serverRegistrationConfirmation.GlobalInfo;
             _availableWorlds = serverRegistrationConfirmation.AvailableWorlds;
 
-            _connectedToServer = true;
+            IsConnectedToServer = true;
 
-            Debug.Log("2..");
+            Debug.Log("2");
 
-            V_SceneSyncer sceneSyncer = null;
-            Debug.Log("3");
-            sceneSyncer = GameObject.FindObjectOfType<V_SceneSyncer>();
-            Debug.Log("4");
-
-            if (sceneSyncer != null)
-            {
-                if (_availableWorlds.TryGetValue(SceneManager.GetActiveScene().name, out WorldDetails worldDetails))
-                {
-                    sceneSyncer.ConnectToServer(worldDetails.IPAddress, worldDetails.PortNumber, _instanceCode);
-                }
-                else
-                {
-                    Debug.LogError("Could not find world details for current scene, connecting to local instance relay");
-                    sceneSyncer.ConnectToServer(worldDetails.IPAddress, worldDetails.PortNumber, _instanceCode);
-                }
-            }
+            //TODO try catch
+            OnConnectedToServer?.Invoke(); //TODO, this is crapping out
 
             Debug.Log("Local client platform ID = " + _localClientID);
         }
@@ -158,10 +149,10 @@ namespace ViRSE.PluginRuntime
 
         public void NetworkUpdate()
         {
-            if (_connectedToServer)
-            {
+            //if (ConnectedToServer)
+            //{
 
-            }
+            //}
         }
 
         public void ReceivePingFromHost()
@@ -171,11 +162,21 @@ namespace ViRSE.PluginRuntime
 
         public void TearDown()
         {
-            if (_connectedToServer)
+            if (IsConnectedToServer)
             {
                 _commsHandler.DisconnectFromServer();
             }
             //Probably destroy remote players?
+        }
+
+        public InstanceConnectionDetails GetInstanceConnectionDetails(string worldName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public InstanceConnectionDetails GetInstanceConnectionDetails()
+        {
+            throw new NotImplementedException();
         }
     }
 }

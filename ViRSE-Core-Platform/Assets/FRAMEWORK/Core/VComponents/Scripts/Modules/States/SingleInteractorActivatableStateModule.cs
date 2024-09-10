@@ -35,6 +35,7 @@ namespace ViRSE.PluginRuntime.VComponents
                 SearchForAndAssignNetworkManager();
             }
         }
+
         public void SearchForAndAssignNetworkManager()
         {
             GameObject networkManagerGO = GameObject.Find("PluginSyncer");
