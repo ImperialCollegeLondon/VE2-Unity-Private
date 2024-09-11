@@ -74,6 +74,8 @@ namespace ViRSE.PluginRuntime
         public int WorldStateHistoryQueueSize { get; private set; }
         public UnityEvent<int> OnWorldStateHistoryQueueSizeChange { get; private set; } = new();
 
+        public bool IsEnabled => true; //Bodge, the mono proxy for this needs this, and both currently use the same interface... maybe consider using different interfaces?
+
         private IPluginSyncCommsHandler _commsHandler;
         private InstancedAvatarAppearance _instancedAvatarAppearance;
 

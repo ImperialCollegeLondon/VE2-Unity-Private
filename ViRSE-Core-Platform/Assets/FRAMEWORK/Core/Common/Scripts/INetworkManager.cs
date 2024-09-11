@@ -7,6 +7,7 @@ namespace ViRSE.Core.Shared
     public interface INetworkManager
     {
         public void RegisterStateModule(IStateModule stateModule, string stateType, string goName);
+        public bool IsEnabled { get; }
     }
 
     public interface IStateModule

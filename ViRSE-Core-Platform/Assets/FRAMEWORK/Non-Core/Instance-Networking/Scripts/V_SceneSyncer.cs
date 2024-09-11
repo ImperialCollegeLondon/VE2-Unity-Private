@@ -31,11 +31,13 @@ namespace ViRSE.InstanceNetworking
             }
         }
 
+
         #region Core-Facing Interfaces 
         public void RegisterStateModule(IStateModule stateModule, string stateType, string goName)
         {
             PluginSyncService.RegisterStateModule(stateModule, stateType, goName);
         }
+        public bool IsEnabled => enabled;
         #endregion
 
         //TODO, functions for letting the customer change the connection details 
@@ -55,22 +57,26 @@ namespace ViRSE.InstanceNetworking
             if (!Application.isPlaying)
                 return;
 
-            Debug.Log("SCENE SYNCER AWAKE a!");
+            Debug.Log("SCENE SYNCER AWAKE! enabled? " + enabled);
 
             GameObject playerSpawner = GameObject.Find("PlayerSpawner");
             PlayerPresentationConfig playerPresentationConfig = playerSpawner ? playerSpawner.GetComponent<V_PlayerSpawner>().PresentationConfig : null;
 
+            //We pass these dependencies now, but they may change before the actual connection happens 
+            //TODO - maybe that means it makes more sense to pass these on connect, rather than on create?
+            _pluginSyncService = PluginSyncServiceFactory.Create(_connectionDetails, playerPresentationConfig);
+
             SearchForAndAssignPlatformIntegration();
             bool platformNotReady = _platformService != null && !_platformService.IsConnectedToServer;
 
-            if (platformNotReady)
-                _platformService.OnConnectedToServer += HandlePlatformReady;
-            else
-                HandlePlatformReady();
-
-            _pluginSyncService = PluginSyncServiceFactory.Create(_connectionDetails, playerPresentationConfig);
-
-            if (_connectAutomatically && !platformNotReady)
+            if (_platformService != null)
+            {
+                if (_platformService.IsConnectedToServer)
+                    HandlePlatformReady();
+                else
+                    _platformService.OnConnectedToServer += HandlePlatformReady;
+            }
+            else if (_connectAutomatically)
                 ConnectToServer();
         }
 

@@ -952,7 +952,9 @@ MonoBehaviour:
     PlayerName: Fred
     AvatarHeadType: default
     AvatarBodyType: default
-    AvatarColor: {r: 0.81761, g: 0.053993, b: 0.053993, a: 1}
+    AvatarRed: 255
+    AvatarGreen: 60
+    AvatarBlue: 60
 --- !u!4 &798246511
 Transform:
   m_ObjectHideFlags: 0
@@ -1097,18 +1099,16 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 835746391}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a8995ff54d324b04ea0f50966b2be213, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isPlatform: 0
   _connectAutomatically: 1
-  _instanceCode: dev
-  _serverType: 1
-  _localServerIP: 127.0.0.1
-  _remoteServerIP: 
-  portNumber: 4297
+  _connectionDetails:
+    IP: 127.0.0.1
+    Port: 4297
+    InstanceCode: test
 --- !u!4 &835746393
 Transform:
   m_ObjectHideFlags: 0
@@ -1511,8 +1511,6 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
-      test1: 0
-      test2: 0
       OnActivate:
         m_PersistentCalls:
           m_Calls:

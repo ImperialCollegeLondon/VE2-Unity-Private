@@ -66,6 +66,8 @@ namespace ViRSE.PluginRuntime.VComponents
                 Debug.Log("Not playing: return");
                 return;
             }
+            
+            Debug.Log("Make push activtable");
 
             // Attempt to find the existing instance in the scene
             V_PushActivatable[] v_PushActivatables = GameObject.FindObjectsOfType<V_PushActivatable>();

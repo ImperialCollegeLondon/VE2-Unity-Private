@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
@@ -19,10 +17,9 @@ namespace ViRSE.PluginRuntime.VComponents
 
         [HideIf(nameof(NetworkManagerPresent), false)]
         [DisableIf(nameof(IsNetworked), false)]
-        [EndGroup]
+        [EndGroup(ApplyCondition = true)]
         [Space(5)]
         [SerializeField, IgnoreParent] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new();
-
 
         [SerializeField, HideInInspector] public bool NetworkManagerPresent => NetworkManager != null;
 
@@ -41,7 +38,11 @@ namespace ViRSE.PluginRuntime.VComponents
             GameObject networkManagerGO = GameObject.Find("PluginSyncer");
 
             if (networkManagerGO != null && networkManagerGO.activeInHierarchy)
-                NetworkManager = networkManagerGO.GetComponent<INetworkManager>();
+            {
+                INetworkManager networkManager = networkManagerGO.GetComponent<INetworkManager>();
+                if (networkManager.IsEnabled)
+                    NetworkManager = networkManager;
+            }
         }
     }
 

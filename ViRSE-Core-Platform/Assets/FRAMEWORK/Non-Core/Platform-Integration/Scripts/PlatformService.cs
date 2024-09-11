@@ -10,6 +10,7 @@ using ViRSE.Core.Shared;
 using System.Net;
 using static NonCoreCommonSerializables;
 using static PlatformSerializables;
+using UnityEngine.SceneManagement;
 namespace ViRSE.PluginRuntime
 {
     public static class PlatformServiceFactory
@@ -40,17 +41,32 @@ namespace ViRSE.PluginRuntime
     //TODO, we might want to consider cutting down the duplicate code with the instance sync stuff
     public class PlatformService : IPlatformService
     {
-        public bool IsConnectedToServer { get; private set; }
-        public event Action OnConnectedToServer;
-
         private UserIdentity _userIdentity;
 
-        private string _instanceCode;
         private ushort _localClientID;
+        private string _currentInstanceCode;
         private GlobalInfo _GlobalInfo;
         private Dictionary<string, WorldDetails> _availableWorlds;
 
         private IPlatformCommsHandler _commsHandler;
+
+        #region Instance-Sync-Facing Interfaces
+        public bool IsConnectedToServer { get; private set; }
+        public event Action OnConnectedToServer;
+        public InstanceConnectionDetails GetInstanceConnectionDetails()
+        {
+            string currentSceneName = SceneManager.GetActiveScene().name;
+            if (!_availableWorlds.TryGetValue(currentSceneName, out WorldDetails worldDetails))
+            {
+                Debug.LogError($"Could not find connection world details for world {currentSceneName}");
+                return null;
+            }
+            else
+            {
+                return new InstanceConnectionDetails(worldDetails.IPAddress, worldDetails.PortNumber, _currentInstanceCode);
+            }
+        }
+        #endregion
 
 
         #region Platform-Private Interfaces
@@ -72,17 +88,6 @@ namespace ViRSE.PluginRuntime
             {
                 Debug.LogError("Not yet connected to server");
             }
-
-            /*
-             *   So when we connect to the server for the first time, it gives us a bunch of worlds 
-             *   We then request that world, and we go there. 
-             *   These worlds all come from a DB
-             *   But what about when the platform is running locally?
-             *   Also, how do we update the DB while it is running?
-             *   Yeah
-             *   
-             *   Ok, so I guess we just read in some text file? And use that as worlds?
-             */
         }
         #endregion
 
@@ -167,16 +172,6 @@ namespace ViRSE.PluginRuntime
                 _commsHandler.DisconnectFromServer();
             }
             //Probably destroy remote players?
-        }
-
-        public InstanceConnectionDetails GetInstanceConnectionDetails(string worldName)
-        {
-            throw new NotImplementedException();
-        }
-
-        public InstanceConnectionDetails GetInstanceConnectionDetails()
-        {
-            throw new NotImplementedException();
         }
     }
 }

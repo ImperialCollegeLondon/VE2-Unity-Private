@@ -16,4 +16,11 @@ public class InstanceConnectionDetails
     public string IP;
     public ushort Port;
     public string InstanceCode;
+
+    public InstanceConnectionDetails(string iP, ushort port, string instanceCode)
+    {
+        IP = iP;
+        Port = port;
+        InstanceCode = instanceCode;
+    }
 }
