@@ -1,0 +1,19 @@
+{
+    "name": "ViRSE_Platform_Integration",
+    "rootNamespace": "",
+    "references": [
+        "GUID:111c54dcd318c434faa4cad0b1ad6d57",
+        "GUID:dfea00931ff9cd040aa39c9f5636d898",
+        "GUID:5a764335b389f0b4a988a40fcdc4c461",
+        "GUID:8d2e05375753d0f4b95f2552fddd124d"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

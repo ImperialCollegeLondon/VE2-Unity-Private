@@ -18,7 +18,7 @@ namespace ViRSE.PluginRuntime
         /// </summary>
         /// <param name="playerPresentationConfig"></param>
         /// <returns></returns>
-        public static PluginSyncService Create(InstanceConnectionDetails instanceConnectionDetails, PlayerPresentationConfig playerPresentationConfig)
+        public static PluginSyncService Create(InstanceNetworkSettings instanceConnectionDetails, PlayerPresentationConfig playerPresentationConfig)
         {
             InstanceNetworkingCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
 
@@ -65,7 +65,7 @@ namespace ViRSE.PluginRuntime
 
         private bool _readyToSync = false;
 
-        private InstanceConnectionDetails _instanceConnectionDetails;
+        private InstanceNetworkSettings _instanceConnectionDetails;
         private ushort _localClientID;
         private InstancedInstanceInfo _instanceInfo;
 
@@ -91,7 +91,7 @@ namespace ViRSE.PluginRuntime
         #endregion
 
         //TODO, consider constructing PluginSyncService using factory pattern to inject the WorldStateSyncer
-        public PluginSyncService(IPluginSyncCommsHandler commsHandler, InstanceConnectionDetails instanceConnectionDetails, InstancedAvatarAppearance instancedAvatarAppearance)
+        public PluginSyncService(IPluginSyncCommsHandler commsHandler, InstanceNetworkSettings instanceConnectionDetails, InstancedAvatarAppearance instancedAvatarAppearance)
         {
             WorldStateHistoryQueueSize = 10; //TODO, automate this, currently 10 is more than enough though, 200ms
 

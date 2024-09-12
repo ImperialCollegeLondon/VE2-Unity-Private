@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using static NonCoreCommonSerializables;
@@ -27,12 +28,12 @@ public class PlatformSerializables
     public class ServerRegistrationRequest : ViRSESerializable
     {
         public UserIdentity UserIdentity { get; private set; }
-        //public string StartingInstanceCode { get; private set; }
+        public string StartingInstanceCode { get; private set; }
 
-        public ServerRegistrationRequest(UserIdentity userIdentity /*, string startingInstanceCode */)
+        public ServerRegistrationRequest(UserIdentity userIdentity, string startingInstanceCode)
         {
             UserIdentity = userIdentity;
-            //StartingInstanceCode = startingInstanceCode;
+            StartingInstanceCode = startingInstanceCode;
         }
 
         public ServerRegistrationRequest(byte[] bytes) : base(bytes) { }
@@ -45,7 +46,7 @@ public class PlatformSerializables
             byte[] userIdentityBytes = UserIdentity.Bytes;
             writer.Write((ushort)userIdentityBytes.Length);
             writer.Write(userIdentityBytes);
-            //writer.Write(StartingInstanceCode);
+            writer.Write(StartingInstanceCode);
 
             return stream.ToArray();
         }
@@ -58,7 +59,7 @@ public class PlatformSerializables
             byte[] userIdentityBytes = reader.ReadBytes(userIdentityLength);
             UserIdentity = new UserIdentity(userIdentityBytes);
 
-            //StartingInstanceCode = reader.ReadString();
+            StartingInstanceCode = reader.ReadString();
         }
     }
 
@@ -134,6 +135,11 @@ public class PlatformSerializables
             this.firstName = reader.ReadString();
             this.lastName = reader.ReadString();
             this.machineName = reader.ReadString();
+        }
+
+        public override string ToString()
+        {
+            return $"Domain: {domain}, AccountID: {accountID}, FirstName: {firstName}, LastName: {lastName} MachineName: {machineName})";
         }
     }
 

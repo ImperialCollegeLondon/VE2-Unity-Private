@@ -59,6 +59,7 @@ namespace ViRSE.PluginRuntime.VComponents
             _pushActivatable = PushActivatableFactory.Create(_config, _state, gameObject.name);
         }
 
+#if UNITY_EDITOR
         private static void HandleReload()
         {
             if (!Application.isPlaying)
@@ -81,7 +82,6 @@ namespace ViRSE.PluginRuntime.VComponents
             }
         }
 
-#if UNITY_EDITOR
         [UnityEditor.InitializeOnLoadMethod]
         private static void RegisterDomainReloadCallback()
         {

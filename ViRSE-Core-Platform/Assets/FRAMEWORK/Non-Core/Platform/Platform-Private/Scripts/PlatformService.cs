@@ -15,28 +15,12 @@ namespace ViRSE.PluginRuntime
 {
     public static class PlatformServiceFactory
     {
-        public static PlatformService Create(UserIdentity userIdentity, IPAddress ipAddress, ushort portNumber)
+        public static IPlatformService Create(UserIdentity userIdentity, IPAddress ipAddress, ushort portNumber, string startingInstanceCode)
         {
             PlatformCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
-            return new PlatformService(commsHandler, userIdentity, ipAddress, portNumber);
+            return new PlatformService(commsHandler, userIdentity, ipAddress, portNumber, startingInstanceCode);
         }
     }
-
-    /*
-     *   This needs to persist between scenes, but, since we need it to function after domain reload, we also need it to function in the scene with the syncer immediately, and across multiple syncers 
-     *   We need some mono to detect when we enter a new scene. PlatformService then needs to forward to IP/port to the instance sync service 
-     *   mmmm, maybe this aint actually right 
-     *   "PlatformService" should maybe just be used for fetching data from the platform, and making requests to the platform 
-     *   It should probably be some other component that is in charge of orchestrating the instance stuff and the platform stuff
-     *   
-     *   Tbf... maybe the instance sync service should be responsible for fetching the IP and port from the platform service?
-     *   Ok, so how would this work
-     *   InstanceSync service starts, when it starts, it gets passed a reference to the PlatformService, which then let's us get the IP/port
-     *   If there IS no platform service, then the scene syncer uses its regular IP and port 
-     *   If there is a platform service that hasn't yet been initialized, we do a lazy operation. We wait for the platform service to be initialized, and then we get the IP/port once we get some "ConnectedToServer" event
-     * 
-     * 
-     */
 
     //TODO, we might want to consider cutting down the duplicate code with the instance sync stuff
     public class PlatformService : IPlatformService
@@ -50,24 +34,32 @@ namespace ViRSE.PluginRuntime
 
         private IPlatformCommsHandler _commsHandler;
 
-        #region Instance-Sync-Facing Interfaces
+        #region Common-Interfaces
         public bool IsConnectedToServer { get; private set; }
         public event Action OnConnectedToServer;
-        public InstanceConnectionDetails GetInstanceConnectionDetails()
-        {
-            string currentSceneName = SceneManager.GetActiveScene().name;
-            if (!_availableWorlds.TryGetValue(currentSceneName, out WorldDetails worldDetails))
-            {
-                Debug.LogError($"Could not find connection world details for world {currentSceneName}");
-                return null;
-            }
-            else
-            {
-                return new InstanceConnectionDetails(worldDetails.IPAddress, worldDetails.PortNumber, _currentInstanceCode);
+        #endregion
+
+        #region Instance-Sync-Facing Interfaces
+        private InstanceNetworkSettings _instanceNetworkSettings;
+        public InstanceNetworkSettings InstanceNetworkSettings {
+            get {
+
+                if (_instanceNetworkSettings == null)
+                {
+                    string currentSceneName = SceneManager.GetActiveScene().name;
+                    if (!_availableWorlds.TryGetValue(currentSceneName, out WorldDetails worldDetails))
+                        Debug.LogError($"Could not find connection world details for world {currentSceneName}");
+                    else
+                        _instanceNetworkSettings = new InstanceNetworkSettings(worldDetails.IPAddress, worldDetails.PortNumber, _currentInstanceCode);
+                }
+                return _instanceNetworkSettings;
             }
         }
         #endregion
 
+        #region Player-Rig-Facing Interfaces
+        public UserSettings UserSettings { get; private set; }
+        #endregion
 
         #region Platform-Private Interfaces
         public void RequestInstanceAllocation(string worldName, string instanceSuffix)
@@ -91,10 +83,11 @@ namespace ViRSE.PluginRuntime
         }
         #endregion
 
-        public PlatformService(IPlatformCommsHandler commsHandler, UserIdentity userIdentity, IPAddress ipAddress, ushort portNumber)
+        public PlatformService(IPlatformCommsHandler commsHandler, UserIdentity userIdentity, IPAddress ipAddress, ushort portNumber, string startingInstanceCode)
         {
             _userIdentity = userIdentity;
             _commsHandler = commsHandler;
+            _currentInstanceCode = startingInstanceCode;
 
             commsHandler.OnReceiveNetcodeConfirmation += HandleReceiveNetcodeVersion;
             commsHandler.OnReceiveServerRegistrationConfirmation += HandleReceiveServerRegistrationConfirmation;
@@ -118,9 +111,9 @@ namespace ViRSE.PluginRuntime
             } 
             else
             {
-                Debug.Log("Rec platform nv, sending reg");
+                Debug.Log("Rec platform nv, sending reg, instance code. " + _currentInstanceCode);
 
-                ServerRegistrationRequest serverRegistrationRequest = new(_userIdentity);
+                ServerRegistrationRequest serverRegistrationRequest = new(_userIdentity, _currentInstanceCode);
                 _commsHandler.SendServerRegistrationRequest(serverRegistrationRequest.Bytes);
             }
         }
@@ -134,6 +127,7 @@ namespace ViRSE.PluginRuntime
             _localClientID = serverRegistrationConfirmation.LocalClientID;
             _GlobalInfo = serverRegistrationConfirmation.GlobalInfo;
             _availableWorlds = serverRegistrationConfirmation.AvailableWorlds;
+            UserSettings = new(serverRegistrationConfirmation.PlayerPresentationConfig, serverRegistrationConfirmation.PlayerVRControlConfig, serverRegistrationConfirmation.Player2DControlConfig);
 
             IsConnectedToServer = true;
 
@@ -165,12 +159,18 @@ namespace ViRSE.PluginRuntime
             //TODO calc buffer size
         }
 
+        //TODO, create platform UI, although maybe this shouldn't be here?
+        /*  Maybe the main UI should search for "UIProviders"?
+         *  Idk, doesn't really feel like it should be the UIs job to search for and obtain all its sub-UI panels,
+         *  equally doesn't really feel like it should be the platform service's job to detect scene load and create UIs too though...
+         *  Maybe this should be V_PlatformIntegration's job?
+         * 
+         * 
+         */
+
         public void TearDown()
         {
-            if (IsConnectedToServer)
-            {
-                _commsHandler.DisconnectFromServer();
-            }
+            _commsHandler?.DisconnectFromServer();
             //Probably destroy remote players?
         }
     }

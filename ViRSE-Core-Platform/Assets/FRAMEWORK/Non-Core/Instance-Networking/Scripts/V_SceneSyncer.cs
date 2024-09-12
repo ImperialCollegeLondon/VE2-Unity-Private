@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Net;
 using UnityEditorInternal;
 using UnityEngine;
@@ -13,9 +14,9 @@ namespace ViRSE.InstanceNetworking
     public class V_SceneSyncer : MonoBehaviour, INetworkManager
     {
         [SerializeField] private bool _connectAutomatically = true;
-        [SerializeField] private InstanceConnectionDetails _connectionDetails;
+        [SerializeField] private InstanceNetworkSettings _connectionDetails;
 
-        private IPlatformService _platformService;
+        private IInstanceNetworkSettingsProvider _instanceNetworkSettingsProvider;
 
         private PluginSyncService _pluginSyncService;
         private PluginSyncService PluginSyncService 
@@ -66,25 +67,24 @@ namespace ViRSE.InstanceNetworking
             //TODO - maybe that means it makes more sense to pass these on connect, rather than on create?
             _pluginSyncService = PluginSyncServiceFactory.Create(_connectionDetails, playerPresentationConfig);
 
-            SearchForAndAssignPlatformIntegration();
-            bool platformNotReady = _platformService != null && !_platformService.IsConnectedToServer;
+            SearchForAndAssignSettingsProvider();
 
-            if (_platformService != null)
+            if (_instanceNetworkSettingsProvider != null)
             {
-                if (_platformService.IsConnectedToServer)
-                    HandlePlatformReady();
+                if (_instanceNetworkSettingsProvider.AreInstanceNetworkingSettingsReady)
+                    HandleSettingsReady();
                 else
-                    _platformService.OnConnectedToServer += HandlePlatformReady;
+                    _instanceNetworkSettingsProvider.OnInstanceNetworkSettingsReady += HandleSettingsReady;
             }
             else if (_connectAutomatically)
                 ConnectToServer();
         }
 
-        private void HandlePlatformReady()
+        private void HandleSettingsReady()
         {
-            _platformService.OnConnectedToServer -= HandlePlatformReady;
+            _instanceNetworkSettingsProvider.OnInstanceNetworkSettingsReady -= HandleSettingsReady;
 
-            _connectionDetails = _platformService.GetInstanceConnectionDetails();
+            _connectionDetails = _instanceNetworkSettingsProvider.InstanceNetworkSettings;
 
             if (_connectionDetails == null)
             {
@@ -96,12 +96,13 @@ namespace ViRSE.InstanceNetworking
                 ConnectToServer();
         }
 
-        public void SearchForAndAssignPlatformIntegration()
+        public void SearchForAndAssignSettingsProvider() //TODO, mmm, maybe we just assign this in the inspector??
         {
-            GameObject platformIntegrationGO = GameObject.Find("PlatformIntegration");
+            MonoBehaviour[] monos = FindObjectsOfType<MonoBehaviour>();
+            IInstanceNetworkSettingsProvider instanceNetworkSettingsProvider = monos.OfType<IInstanceNetworkSettingsProvider>().FirstOrDefault();
 
-            if (platformIntegrationGO != null && platformIntegrationGO.activeInHierarchy)
-                _platformService = platformIntegrationGO.GetComponent<IPlatformService>();
+            if (instanceNetworkSettingsProvider != null && ((MonoBehaviour)instanceNetworkSettingsProvider).isActiveAndEnabled)
+                _instanceNetworkSettingsProvider = instanceNetworkSettingsProvider;
         }
 
         public void ConnectToServer() //TODO - expose to plugin

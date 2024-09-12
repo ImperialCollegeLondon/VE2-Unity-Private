@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using ViRSE;
@@ -46,6 +47,9 @@ public class PluginTest : MonoBehaviour
             _pushActivatable.IsActivated = !_pushActivatable.IsActivated;
         else if (Keyboard.current.digit2Key.wasPressedThisFrame)
             _pushActivatable.InteractRange = 0;
+
+        if (Keyboard.current.rKey.wasPressedThisFrame)
+            EditorUtility.RequestScriptReload();
     }
 
     private void HandleNewColor()
