@@ -27,7 +27,7 @@ namespace ViRSE.FrameworkRuntime
 
         public void ConnectToServer(IPAddress ipAddress, int port)
         {
-            Debug.Log($"Try connect to {ipAddress}:{port}");
+            //Debug.Log($"Try connect to {ipAddress}:{port}");
             _drClient.Connect(ipAddress, port, false);
         }
 
@@ -133,6 +133,11 @@ namespace ViRSE.FrameworkRuntime
             //        RouteMessage(messageWrapper, receivedMessageCode);
             //    }
             //}
+        }
+
+        public void DisconnectFromServer()
+        {
+            _drClient.Disconnect();
         }
 
         private class RawBytesMessage : IDarkRiftSerializable

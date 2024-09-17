@@ -111,7 +111,7 @@ namespace ViRSE.PluginRuntime
             } 
             else
             {
-                Debug.Log("Rec platform nv, sending reg, instance code. " + _currentInstanceCode);
+                //Debug.Log("Rec platform nv, sending reg, instance code. " + _currentInstanceCode);
 
                 ServerRegistrationRequest serverRegistrationRequest = new(_userIdentity, _currentInstanceCode);
                 _commsHandler.SendServerRegistrationRequest(serverRegistrationRequest.Bytes);
@@ -132,7 +132,7 @@ namespace ViRSE.PluginRuntime
             //TODO try catch
             OnConnectedToServer?.Invoke(); //TODO, this is crapping out
 
-            Debug.Log("Local client platform ID = " + _localClientID);
+            //Debug.Log("Local client platform ID = " + _localClientID);
             foreach (WorldDetails worldDetails in _availableWorlds.Values)
             {
                 Debug.Log($"World {worldDetails.Name} at {worldDetails.IPAddress}:{worldDetails.PortNumber}");

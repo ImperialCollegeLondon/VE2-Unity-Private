@@ -11,7 +11,7 @@ namespace ViRSE.Networking
 {
     //TODO - are we calling things WorldState or SyncableState???
 
-    public class WorldStateSyncer
+    public class WorldStateSyncer //TODO, not sure if "Service" is the right term here
     {
         public static WorldStateSyncer Instance;
 
@@ -53,13 +53,13 @@ namespace ViRSE.Networking
 
         public void RegisterWithSyncer(IStateModule stateModule, string goName, string syncType)
         {
-            Debug.Log("Reg with syncer");
+            //Debug.Log("Reg with syncer - " + goName);
 
             string id = syncType + ":" + goName;
             
             WorldStateTransmissionCounter transmissionCounter = new(stateModule.TransmissionFrequency);
             PredictiveWorldStateHistoryQueue historyQueue = new(10); //TODO - need to wire this into the ping, we should probably let all these classes see this limit directly... so a static data?
-            SyncInfo syncInfo = new(transmissionCounter, historyQueue, stateModule, new byte[] {}, stateModule.TransmissionProtocol);
+            SyncInfo syncInfo = new(transmissionCounter, historyQueue, stateModule, null, stateModule.TransmissionProtocol);
 
             syncInfosAgainstIDs.Add(id, syncInfo);
             _numberOfSyncablesRegisteredDebug++;
@@ -82,6 +82,7 @@ namespace ViRSE.Networking
 
         public (byte[], byte[]) HandleNetworkUpdate(bool isHost)
         {
+            _cycleNumber++;
             CheckForDestroyedSyncables();
             ProcessReceivedWorldStates(isHost);
             return CollectWorldStates(isHost);
@@ -96,28 +97,42 @@ namespace ViRSE.Networking
 
         private void ProcessReceivedWorldStates(bool isHost)
         {
-            List<WorldStateBundle> worldStateBundlesToProcess = new(_incommingWorldStateBundleBuffer);
-            _incommingWorldStateBundleBuffer.Clear();
-
-            foreach (WorldStateBundle receivedBundle in worldStateBundlesToProcess)
+            try
             {
-                foreach (WorldStateWrapper worldStateWrapper in receivedBundle.WorldStateWrappers)
-                {
-                    if (syncInfosAgainstIDs.TryGetValue(worldStateWrapper.ID, out SyncInfo syncInfo))
-                    {
-                        //We only do the hitory check if we're not the host
-                        if (isHost || !syncInfo.HistoryQueue.DoesStateAppearInStateList(worldStateWrapper.StateBytes))
-                        {
-                            syncInfo.StateModule.StateAsBytes = worldStateWrapper.StateBytes;
+                List<WorldStateBundle> worldStateBundlesToProcess = new(_incommingWorldStateBundleBuffer);
 
-                            //If we're not the host, we want to make sure this state doesn't get broadcasted back out
-                            if (!isHost)
-                                syncInfo.PreviousState = worldStateWrapper.StateBytes;  
+                _incommingWorldStateBundleBuffer.Clear();
+
+                foreach (WorldStateBundle receivedBundle in worldStateBundlesToProcess)
+                {
+                    Debug.Log("<color=blue>receive world state " + receivedBundle.WorldStateWrappers.Count + "</color>");
+
+                    foreach (WorldStateWrapper worldStateWrapper in receivedBundle.WorldStateWrappers)
+                    {
+                        if (syncInfosAgainstIDs.TryGetValue(worldStateWrapper.ID, out SyncInfo syncInfo))
+                        {
+                            //We only do the hitory check if we're not the host
+                            if (isHost || !syncInfo.HistoryQueue.DoesStateAppearInStateList(worldStateWrapper.StateBytes))
+                            {
+                                syncInfo.StateModule.StateAsBytes = worldStateWrapper.StateBytes;
+
+                                //If we're not the host, we want to make sure this state doesn't get broadcasted back out
+                                if (!isHost)
+                                    syncInfo.PreviousState = worldStateWrapper.StateBytes;
+                            }
                         }
                     }
                 }
             }
+            catch (System.Exception e)
+            {
+                Debug.Log(e.Message + "\n bundles: " + _incommingWorldStateBundleBuffer.Count);
+                foreach (var bundle in _incommingWorldStateBundleBuffer)
+                {
+                    Debug.Log("<color=blue>incomming bundle num states = " + bundle.WorldStateWrappers.Count + "</color>");
+                }
 
+            }
         }
 
         private (byte[], byte[]) CollectWorldStates(bool isHost)
@@ -132,7 +147,11 @@ namespace ViRSE.Networking
                 byte[] newState = syncInfo.StateModule.StateAsBytes;
 
                 bool broadcastFromHost = isHost && syncInfo.TransmissionCounter.IsOnBroadcastFrame(_cycleNumber);
-                bool transmitFromLocalStateChange = !newState.SequenceEqual(syncInfo.PreviousState);
+
+                //if (isHost)
+                //    Debug.Log("We host, broadcast frame? " + syncInfo.TransmissionCounter.IsOnBroadcastFrame(_cycleNumber));
+
+                bool transmitFromLocalStateChange = syncInfo.PreviousState != null && !newState.SequenceEqual(syncInfo.PreviousState);
 
                 bool shouldTransmit = broadcastFromHost || transmitFromLocalStateChange;
 
@@ -151,6 +170,7 @@ namespace ViRSE.Networking
                 syncInfo.HistoryQueue.AddStateToQueue(newState);
             }
 
+            //Debug.Log("<color=green>Transmit world state " + outgoingSyncableStateBufferTCP.Count + " - " + outgoingSyncableStateBufferUDP.Count + " host: " + isHost + " regs: " + syncInfosAgainstIDs.Count + "</color>");
             byte[] tcpBytes = null;
             byte[] udpBytes = null;
 

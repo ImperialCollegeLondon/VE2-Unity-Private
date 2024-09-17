@@ -58,12 +58,6 @@ namespace ViRSE.PluginRuntime.VComponents
         [SerializeField] public UnityEvent OnDeactivate = new();
     }
 
-    //public interface IStateModule
-    //{
-    //    public ViRSENetworkSerializable State { get; }
-    //    public string GOName { get; }
-    //}
-
     public abstract class BaseStateModule : IStateModule
     {
         public ViRSESerializable State { get; private set; }
@@ -92,14 +86,14 @@ namespace ViRSE.PluginRuntime.VComponents
                     Config.SearchForAndAssignNetworkManager(); //Handles domain reload
 
                 Config.NetworkManager.RegisterStateModule(this, GetType().Name, goName);
-                Debug.Log("VC registered with syncer");
+                //Debug.Log("VC registered with syncer");
             }
             else
             {
-                if (!Config.NetworkManagerPresent)
-                {
-                    Debug.Log("VC has not registered with syncer, no network manager");
-                }
+                //if (!Config.NetworkManagerPresent)
+                //{
+                //    Debug.Log("VC has not registered with syncer, no network manager");
+                //}
             }
         }
 

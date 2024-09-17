@@ -33,6 +33,8 @@ namespace ViRSE.FrameworkRuntime
         public void SendPingToHost();
 
         public void SendPingReplyToNonHost();
+
+        public void DisconnectFromServer();
     }
 
     //public interface IPluginWorldStateCommsHandler

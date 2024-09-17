@@ -46,7 +46,7 @@ namespace ViRSE.InstanceNetworking
 
             DontDestroyOnLoad(gameObject);
 
-            Debug.Log("Platform integration mono awake!");
+            //Debug.Log("Platform integration mono awake!");
 
             if (string.IsNullOrEmpty(_instanceCode)) //Otherwise, the instance code will be carried over from its serialized state pre domain reload
                 _instanceCode = PlatformInstanceInfo.GetInstanceCode(SceneManager.GetActiveScene().name, startingInstanceSuffix);

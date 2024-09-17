@@ -58,7 +58,7 @@ namespace ViRSE.InstanceNetworking
             if (!Application.isPlaying)
                 return;
 
-            Debug.Log("SCENE SYNCER AWAKE! enabled? " + enabled);
+            //Debug.Log("SCENE SYNCER AWAKE! enabled? " + enabled);
 
             GameObject playerSpawner = GameObject.Find("PlayerSpawner");
             PlayerPresentationConfig playerPresentationConfig = playerSpawner ? playerSpawner.GetComponent<V_PlayerSpawner>().PresentationConfig : null;
@@ -89,7 +89,7 @@ namespace ViRSE.InstanceNetworking
             _connectionDetails.Port = _instanceNetworkSettingsProvider.InstanceNetworkSettings.Port;
             _connectionDetails.InstanceCode = _instanceNetworkSettingsProvider.InstanceNetworkSettings.InstanceCode;
 
-            Debug.Log("Settings ready! Code: " + _connectionDetails.InstanceCode);
+            //Debug.Log("Settings ready! Code: " + _connectionDetails.InstanceCode);
 
             if (_connectionDetails == null)
             {
@@ -152,6 +152,10 @@ namespace ViRSE.InstanceNetworking
 
                 foreach (BaseStateHolder baseStateConfig in baseStateConfigs)
                     baseStateConfig.BaseStateConfig.NetworkManager = null;
+            }
+            else
+            {
+                PluginSyncService.TearDown();
             }
         }
     }

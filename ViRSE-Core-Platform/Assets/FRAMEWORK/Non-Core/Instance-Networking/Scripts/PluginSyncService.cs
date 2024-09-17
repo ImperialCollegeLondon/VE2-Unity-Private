@@ -105,6 +105,7 @@ namespace ViRSE.PluginRuntime
 
             commsHandler.OnReceiveNetcodeConfirmation += HandleReceiveNetcodeVersion;
             commsHandler.OnReceiveServerRegistrationConfirmation += HandleReceiveServerRegistrationConfirmation;
+            commsHandler.OnReceiveInstanceInfoUpdate += HandleReceiveInstanceInfoUpdate;
             commsHandler.OnReceiveWorldStateSyncableBundle += _worldStateSyncer.HandleReceiveWorldStateBundle;
         }
 
@@ -127,7 +128,7 @@ namespace ViRSE.PluginRuntime
             } 
             else
             {
-                Debug.Log("Rec nv, sending reg");
+                //Debug.Log("Rec instance server nv, sending reg");
 
                 InstancedAvatarAppearance instancedAvatarAppearance; //TODO, this dependency should come from the factory?
                 if (_instancedAvatarAppearance != null)
@@ -159,7 +160,7 @@ namespace ViRSE.PluginRuntime
                         false);
                 }
 
-                Debug.Log("Try connect to server with instance code - " + _instanceConnectionDetails.InstanceCode);
+                //Debug.Log("Try connect to server with instance code - " + _instanceConnectionDetails.InstanceCode);
                 ServerRegistrationRequest serverRegistrationRequest = new(instancedAvatarAppearance, _instanceConnectionDetails.InstanceCode);
                 _commsHandler.SendServerRegistrationRequest(serverRegistrationRequest.Bytes);
             }
@@ -169,13 +170,23 @@ namespace ViRSE.PluginRuntime
         {
             ServerRegistrationConfirmation serverRegistrationConfirmation = new(bytes);
 
-            Debug.Log("Rec reg conf");
+           // Debug.Log("Rec instanceserver reg conf");
 
             _localClientID = serverRegistrationConfirmation.LocalClientID;
             _instanceInfo = serverRegistrationConfirmation.InstanceInfo;
             _readyToSync = true;
         }
 
+        private void HandleReceiveInstanceInfoUpdate(byte[] bytes)
+        {
+            InstancedInstanceInfo newInstanceInfo = new(bytes);
+
+            //TODO - check against _instanceInfo, detect clients that have joined, and clients that have left 
+            //TODO - also check for hostship changes, emit events if we gain or lose hostship 
+
+            _instanceInfo = newInstanceInfo;
+            //Debug.Log("Rec inst info update - " + IsHost);
+        }
 
         //TODO, not a fan of this anymore. This is just a service, only meant for sending and receiving data. Think the actual syncers themselves should be the ones pushing data, and listening to received messages
         //The worldstate syncer shouldn't be a dependency of the SyncService, that should be the other way around!
@@ -206,7 +217,7 @@ namespace ViRSE.PluginRuntime
 
         public void TearDown()
         {
-            //Probably destroy remote players?
+            _commsHandler.DisconnectFromServer();
         }
     }
 }
