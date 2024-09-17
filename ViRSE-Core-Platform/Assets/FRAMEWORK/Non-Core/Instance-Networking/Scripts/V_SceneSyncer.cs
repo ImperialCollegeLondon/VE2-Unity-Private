@@ -84,7 +84,12 @@ namespace ViRSE.InstanceNetworking
         {
             _instanceNetworkSettingsProvider.OnInstanceNetworkSettingsReady -= HandleSettingsReady;
 
-            _connectionDetails = _instanceNetworkSettingsProvider.InstanceNetworkSettings;
+            //Bit of a bodge, we want to preserve the actual object, because the SyncService is using it
+            _connectionDetails.IP = _instanceNetworkSettingsProvider.InstanceNetworkSettings.IP;
+            _connectionDetails.Port = _instanceNetworkSettingsProvider.InstanceNetworkSettings.Port;
+            _connectionDetails.InstanceCode = _instanceNetworkSettingsProvider.InstanceNetworkSettings.InstanceCode;
+
+            Debug.Log("Settings ready! Code: " + _connectionDetails.InstanceCode);
 
             if (_connectionDetails == null)
             {

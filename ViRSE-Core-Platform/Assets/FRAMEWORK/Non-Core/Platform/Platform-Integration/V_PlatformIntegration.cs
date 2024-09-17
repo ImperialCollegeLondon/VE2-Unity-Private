@@ -46,7 +46,7 @@ public class V_PlatformIntegration : MonoBehaviour, IInstanceNetworkSettingsProv
 
     private void Awake()
     {
-        Debug.Log("Platform integration awake - " + (_platformServiceProvider != null));
+        //Debug.Log("Platform integration awake - " + (_platformServiceProvider != null));
 
         if (_platformServiceProvider != null)
         {

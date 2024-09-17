@@ -159,6 +159,7 @@ namespace ViRSE.PluginRuntime
                         false);
                 }
 
+                Debug.Log("Try connect to server with instance code - " + _instanceConnectionDetails.InstanceCode);
                 ServerRegistrationRequest serverRegistrationRequest = new(instancedAvatarAppearance, _instanceConnectionDetails.InstanceCode);
                 _commsHandler.SendServerRegistrationRequest(serverRegistrationRequest.Bytes);
             }
@@ -175,7 +176,13 @@ namespace ViRSE.PluginRuntime
             _readyToSync = true;
         }
 
-        public void NetworkUpdate() //TODO, not a fan of this anymore. This is just a service, only meant for sending and receiving data. Think the actual syncers themselves should be the ones pushing data, and listening to received messages
+
+        //TODO, not a fan of this anymore. This is just a service, only meant for sending and receiving data. Think the actual syncers themselves should be the ones pushing data, and listening to received messages
+        //The worldstate syncer shouldn't be a dependency of the SyncService, that should be the other way around!
+        //The question the becomes, "where does the syncer get made"?
+        //Maybe by the mono? And maybe the mono should be called V_InstanceIntegration
+        //Whenever a syncmodule (player sync module, 
+        public void NetworkUpdate() 
         {
             if (_readyToSync)
             {

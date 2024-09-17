@@ -120,9 +120,7 @@ namespace ViRSE.PluginRuntime
 
         private void HandleReceiveServerRegistrationConfirmation(byte[] bytes)
         {
-            Debug.Log("Rec platform reg conf");
             ServerRegistrationConfirmation serverRegistrationConfirmation = new(bytes);
-            Debug.Log("1");
 
             _localClientID = serverRegistrationConfirmation.LocalClientID;
             _GlobalInfo = serverRegistrationConfirmation.GlobalInfo;
@@ -131,12 +129,14 @@ namespace ViRSE.PluginRuntime
 
             IsConnectedToServer = true;
 
-            Debug.Log("2");
-
             //TODO try catch
             OnConnectedToServer?.Invoke(); //TODO, this is crapping out
 
             Debug.Log("Local client platform ID = " + _localClientID);
+            foreach (WorldDetails worldDetails in _availableWorlds.Values)
+            {
+                Debug.Log($"World {worldDetails.Name} at {worldDetails.IPAddress}:{worldDetails.PortNumber}");
+            }
         }
 
         private void HandleReceiveGlobalInfoUpdate(byte[] bytes)

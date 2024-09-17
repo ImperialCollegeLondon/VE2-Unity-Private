@@ -12,7 +12,7 @@ using static PlatformSerializables;
 
 namespace ViRSE.InstanceNetworking
 {
-    public class PlatformServiceProvider : MonoBehaviour, IPlatformServiceProvider 
+    public class PlatformServiceProvider : MonoBehaviour, IPlatformServiceProvider
     {
         //If isPlatform, these settings will be overriden by whatever the platform says
         [SerializeField] private ServerType _serverType = ServerType.Local;
@@ -22,31 +22,33 @@ namespace ViRSE.InstanceNetworking
 
         [Space(10)]
         [SerializeField] private string startingInstanceSuffix = "dev";
-        [SerializeField] private string _instanceCode = null;
+        [SerializeField, HideInInspector] private string _instanceCode = null;
 
+        [Space(10)]
         [SerializeField] private bool UseSpoofUserIdentity = false;
         [SerializeField] UserIdentity spoofUserIdentity;
 
         private IPlatformService _platformService;
         public IPlatformService PlatformService  //We'll add platform components to the scene on start (e.g global info UI), this will let those components access the platform after domain reload
         {
-            get  
-                {
+            get {
                 if (_platformService == null)
-                    Awake();
+                    OnEnable();
 
                 return _platformService;
             }
         }
 
-        private void Awake()
+        private void OnEnable()
         {
             if (_platformService != null || !Application.isPlaying)
                 return;
 
+            DontDestroyOnLoad(gameObject);
+
             Debug.Log("Platform integration mono awake!");
 
-            if (_instanceCode == null || _instanceCode == "") //Otherwise, the instance code will be carried over from its serialized state pre domain reload
+            if (string.IsNullOrEmpty(_instanceCode)) //Otherwise, the instance code will be carried over from its serialized state pre domain reload
                 _instanceCode = PlatformInstanceInfo.GetInstanceCode(SceneManager.GetActiveScene().name, startingInstanceSuffix);
 
             if (_serverType != ServerType.Offline) //TODO, does offline even make sense here?
@@ -105,23 +107,24 @@ namespace ViRSE.InstanceNetworking
                 _platformService?.TearDown();
         }
 
-#if UNITY_EDITOR
-        [UnityEditor.InitializeOnLoadMethod]
-        private static void RegisterDomainReloadCallback()
-        {
-            UnityEditor.AssemblyReloadEvents.afterAssemblyReload += HandleReload;
-        }
+        //#if UNITY_EDITOR
+        //        [UnityEditor.InitializeOnLoadMethod]
+        //        private static void RegisterDomainReloadCallback()
+        //        {
+        //            UnityEditor.AssemblyReloadEvents.afterAssemblyReload += HandleReload;
+        //        }
 
-        private static void HandleReload()
-        {
-            if (!Application.isPlaying)
-                return;
+        //        private static void HandleReload()
+        //        {
+        //            if (!Application.isPlaying)
+        //                return;
 
-            PlatformServiceProvider platformServiceProvider = FindObjectOfType<PlatformServiceProvider>();
-            Debug.Log("Platform provider found? " + (platformServiceProvider != null));
-            platformServiceProvider?.Awake();
-        }
-#endif
+        //            PlatformServiceProvider platformServiceProvider = FindObjectOfType<PlatformServiceProvider>();
+        //            Debug.Log("Platform provider found? " + (platformServiceProvider != null));
+        //            platformServiceProvider?.Awake();
+        //        }
+        //#endif
+        //    }
     }
 }
 

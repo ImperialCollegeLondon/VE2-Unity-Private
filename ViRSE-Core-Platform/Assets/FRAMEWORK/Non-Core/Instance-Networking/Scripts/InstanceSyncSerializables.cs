@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using ViRSE.Core.Shared;
 using static NonCoreCommonSerializables;
 using static ViRSE.Core.Shared.CoreCommonSerializables;
 
@@ -105,7 +104,7 @@ public class InstanceSyncSerializables
 
         public InstancedAvatarAppearance(byte[] bytes) : base(bytes) { }
 
-        public InstancedAvatarAppearance(string playerName, string avatarHeadType, string avatarBodyType, ushort avatarRed, ushort avatarGreen, ushort avatarBlue, bool usingViRSEAvatar, string avatarHeadTypeOverride, string avatarBodyTypeOverride, bool avatarTransparancy) 
+        public InstancedAvatarAppearance(string playerName, string avatarHeadType, string avatarBodyType, ushort avatarRed, ushort avatarGreen, ushort avatarBlue, bool usingViRSEAvatar, string avatarHeadTypeOverride, string avatarBodyTypeOverride, bool avatarTransparancy)
             : base(playerName, avatarHeadType, avatarBodyType, avatarRed, avatarGreen, avatarBlue)
         {
             UsingViRSEAvatar = usingViRSEAvatar;
@@ -119,10 +118,10 @@ public class InstanceSyncSerializables
             using MemoryStream stream = new();
             using BinaryWriter writer = new(stream);
 
-            // Call base class method to serialize base class fields
-            writer.Write(base.ConvertToBytes());
+            byte[] baseBytes = base.ConvertToBytes();
+            writer.Write((ushort)baseBytes.Length);
+            writer.Write(baseBytes);    
 
-            // Serialize derived class fields
             writer.Write(UsingViRSEAvatar);
             writer.Write(AvatarHeadTypeOverride);
             writer.Write(AvatarBodyTypeOverride);
@@ -136,11 +135,10 @@ public class InstanceSyncSerializables
             using MemoryStream stream = new(data);
             using BinaryReader reader = new(stream);
 
-            // Deserialize base class fields
-            byte[] baseData = reader.ReadBytes((int)(stream.Length - stream.Position));
+            ushort baseBytesLength = reader.ReadUInt16();
+            byte[] baseData = reader.ReadBytes(baseBytesLength);
             base.PopulateFromBytes(baseData);
 
-            // Deserialize derived class fields
             UsingViRSEAvatar = reader.ReadBoolean();
             AvatarHeadTypeOverride = reader.ReadString();
             AvatarBodyTypeOverride = reader.ReadString();
@@ -175,7 +173,10 @@ public class InstanceSyncSerializables
         {
             using MemoryStream stream = new();
             using BinaryWriter writer = new(stream);
-            writer.Write(base.ConvertToBytes());
+
+            byte[] baseBytes = base.ConvertToBytes();
+            writer.Write((ushort)baseBytes.Length); 
+            writer.Write(baseBytes);
 
             writer.Write(HostID);
             writer.Write(InstanceMuted);
@@ -196,7 +197,8 @@ public class InstanceSyncSerializables
             using MemoryStream stream = new(bytes);
             using BinaryReader reader = new(stream);
 
-            byte[] baseData = reader.ReadBytes((int)(stream.Length - stream.Position));
+            ushort baseBytesLength = reader.ReadUInt16();
+            byte[] baseData = reader.ReadBytes(baseBytesLength);
             base.PopulateFromBytes(baseData);
 
             HostID = reader.ReadUInt16();
@@ -222,12 +224,8 @@ public class InstanceSyncSerializables
 
         public InstancedClientInfo(byte[] bytes) : base(bytes) { }
 
-        public InstancedClientInfo(ushort clientID, /*string displayName,*/ bool isAdmin, string machineName, InstancedAvatarAppearance instancedAvatarAppearance)
+        public InstancedClientInfo(ushort clientID, bool isAdmin, InstancedAvatarAppearance instancedAvatarAppearance) : base(clientID, isAdmin, "unknown") //TODO, machine name should maybe be platform-specific?
         {
-            ClientID = clientID;
-            //DisplayName = displayName;
-            IsAdmin = isAdmin;
-            MachineName = machineName;
             InstancedAvatarAppearance = instancedAvatarAppearance;
         }
 
@@ -236,10 +234,10 @@ public class InstanceSyncSerializables
             using MemoryStream stream = new();
             using BinaryWriter writer = new(stream);
 
-            // Serialize base class fields
-            writer.Write(base.ConvertToBytes());
+            byte[] baseBytes = base.ConvertToBytes();
+            writer.Write((ushort)baseBytes.Length);
+            writer.Write(baseBytes);
 
-            // Serialize derived class fields
             writer.Write((ushort)InstancedAvatarAppearance.Bytes.Length);
             writer.Write(InstancedAvatarAppearance.Bytes);
 
@@ -251,8 +249,8 @@ public class InstanceSyncSerializables
             using MemoryStream stream = new(bytes);
             using BinaryReader reader = new(stream);
 
-            // Deserialize base class fields
-            byte[] baseData = reader.ReadBytes((int)(stream.Length - stream.Position));
+            ushort baseBytesLength = reader.ReadUInt16();
+            byte[] baseData = reader.ReadBytes(baseBytesLength);
             base.PopulateFromBytes(baseData);
 
             // Deserialize derived class fields

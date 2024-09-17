@@ -1,6 +1,9 @@
 using System;
 using System.IO;
+
+#if UNITY_EDITOR
 using UnityEngine;
+#endif
 
 namespace ViRSE.Core.Shared
 {
