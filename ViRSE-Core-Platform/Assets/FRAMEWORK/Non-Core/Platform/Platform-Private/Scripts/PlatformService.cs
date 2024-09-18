@@ -11,6 +11,7 @@ using System.Net;
 using static NonCoreCommonSerializables;
 using static PlatformSerializables;
 using UnityEngine.SceneManagement;
+
 namespace ViRSE.PluginRuntime
 {
     public static class PlatformServiceFactory
@@ -23,14 +24,15 @@ namespace ViRSE.PluginRuntime
     }
 
     //TODO, we might want to consider cutting down the duplicate code with the instance sync stuff
+    //Ehhh.. there's really not much duplicate code here, not sure we it's worth coupling these two things together
     public class PlatformService : IPlatformService
     {
         private UserIdentity _userIdentity;
 
         private ushort _localClientID;
-        private string _currentInstanceCode;
-        private GlobalInfo _GlobalInfo;
-        private Dictionary<string, WorldDetails> _availableWorlds;
+        public string CurrentInstanceCode { get; private set; }
+        public GlobalInfo GlobalInfo { get; private set; }
+        public Dictionary<string, WorldDetails> AvailableWorlds { get; private set; }
 
         private IPlatformCommsHandler _commsHandler;
 
@@ -47,10 +49,10 @@ namespace ViRSE.PluginRuntime
                 if (_instanceNetworkSettings == null)
                 {
                     string currentSceneName = SceneManager.GetActiveScene().name;
-                    if (!_availableWorlds.TryGetValue(currentSceneName, out WorldDetails worldDetails))
+                    if (!AvailableWorlds.TryGetValue(currentSceneName, out WorldDetails worldDetails))
                         Debug.LogError($"Could not find connection world details for world {currentSceneName}");
                     else
-                        _instanceNetworkSettings = new InstanceNetworkSettings(worldDetails.IPAddress, worldDetails.PortNumber, _currentInstanceCode);
+                        _instanceNetworkSettings = new InstanceNetworkSettings(worldDetails.IPAddress, worldDetails.PortNumber, CurrentInstanceCode);
                 }
                 return _instanceNetworkSettings;
             }
@@ -66,7 +68,7 @@ namespace ViRSE.PluginRuntime
         {
             if (IsConnectedToServer)
             {
-                if (_availableWorlds.ContainsKey(worldName))
+                if (AvailableWorlds.ContainsKey(worldName))
                 {
                     InstanceAllocationRequest instanceAllocationRequest = new(worldName, instanceSuffix);
                     _commsHandler.SendInstanceAllocationRequest(instanceAllocationRequest.Bytes);
@@ -87,10 +89,11 @@ namespace ViRSE.PluginRuntime
         {
             _userIdentity = userIdentity;
             _commsHandler = commsHandler;
-            _currentInstanceCode = startingInstanceCode;
+            CurrentInstanceCode = startingInstanceCode;
 
             commsHandler.OnReceiveNetcodeConfirmation += HandleReceiveNetcodeVersion;
             commsHandler.OnReceiveServerRegistrationConfirmation += HandleReceiveServerRegistrationConfirmation;
+            commsHandler.OnReceiveGlobalInfoUpdate += HandleReceiveGlobalInfoUpdate;
 
             //if (_serverType == ServerType.Local)
             //{
@@ -113,7 +116,7 @@ namespace ViRSE.PluginRuntime
             {
                 //Debug.Log("Rec platform nv, sending reg, instance code. " + _currentInstanceCode);
 
-                ServerRegistrationRequest serverRegistrationRequest = new(_userIdentity, _currentInstanceCode);
+                ServerRegistrationRequest serverRegistrationRequest = new(_userIdentity, CurrentInstanceCode);
                 _commsHandler.SendServerRegistrationRequest(serverRegistrationRequest.Bytes);
             }
         }
@@ -123,8 +126,8 @@ namespace ViRSE.PluginRuntime
             ServerRegistrationConfirmation serverRegistrationConfirmation = new(bytes);
 
             _localClientID = serverRegistrationConfirmation.LocalClientID;
-            _GlobalInfo = serverRegistrationConfirmation.GlobalInfo;
-            _availableWorlds = serverRegistrationConfirmation.AvailableWorlds;
+            GlobalInfo = serverRegistrationConfirmation.GlobalInfo;
+            AvailableWorlds = serverRegistrationConfirmation.AvailableWorlds;
             UserSettings = new(serverRegistrationConfirmation.PlayerPresentationConfig, serverRegistrationConfirmation.PlayerVRControlConfig, serverRegistrationConfirmation.Player2DControlConfig);
 
             IsConnectedToServer = true;
@@ -133,7 +136,7 @@ namespace ViRSE.PluginRuntime
             OnConnectedToServer?.Invoke(); //TODO, this is crapping out
 
             //Debug.Log("Local client platform ID = " + _localClientID);
-            foreach (WorldDetails worldDetails in _availableWorlds.Values)
+            foreach (WorldDetails worldDetails in AvailableWorlds.Values)
             {
                 Debug.Log($"World {worldDetails.Name} at {worldDetails.IPAddress}:{worldDetails.PortNumber}");
             }
@@ -143,7 +146,31 @@ namespace ViRSE.PluginRuntime
         {
             GlobalInfo newGlobalInfo = new(bytes);
 
-            //Handle all the things! Mainly, instance allocations
+            //TODO - might be better to have the instance allocation be a specific message, rather than being encded implicitely in the global info update?
+            //Are we then worried about missing the message?
+            PlatformInstanceInfo newLocalInstanceInfo = newGlobalInfo.InstanceInfoForClient(_localClientID);
+            if (newLocalInstanceInfo.InstanceCode != CurrentInstanceCode) 
+            {
+                HandleInstanceAllocation(newLocalInstanceInfo);
+            }
+        }
+
+        private void HandleInstanceAllocation(PlatformInstanceInfo newInstanceInfo)
+        {
+            Debug.Log($"Detected allocation to new instance, going from instance {CurrentInstanceCode} to {newInstanceInfo.InstanceCode}");
+            if (newInstanceInfo.InstanceCode.StartsWith("Hub"))
+            {
+                SceneManager.LoadScene("Hub");
+            }
+            //TODO, should be talking to the plugin loader instead here 
+            else if (newInstanceInfo.InstanceCode.StartsWith("Dev"))
+            {
+                SceneManager.LoadScene("Dev");
+            }
+            else
+            {
+                Debug.LogError("Couldn't go to scene");
+            }
         }
 
         public void NetworkUpdate()
@@ -154,7 +181,7 @@ namespace ViRSE.PluginRuntime
             //}
         }
 
-        public void ReceivePingFromHost()
+        private void ReceivePingFromHost()
         {
             //TODO calc buffer size
         }
@@ -171,7 +198,21 @@ namespace ViRSE.PluginRuntime
         public void TearDown()
         {
             _commsHandler?.DisconnectFromServer();
-            //Probably destroy remote players?
+            //Probably destroy remote players, so we can create them from fresh after domain reload 
+        }
+    }
+
+    public static class GlobalInfoExtensions
+    {
+        public static PlatformInstanceInfo InstanceInfoForClient(this GlobalInfo globalInfo, ushort localClientID)
+        {
+            foreach (PlatformInstanceInfo platformInstanceInfo in globalInfo.InstanceInfos.Values)
+            {
+                if (platformInstanceInfo.ClientInfos.ContainsKey(localClientID))
+                    return platformInstanceInfo;
+            }
+
+            return null;
         }
     }
 }

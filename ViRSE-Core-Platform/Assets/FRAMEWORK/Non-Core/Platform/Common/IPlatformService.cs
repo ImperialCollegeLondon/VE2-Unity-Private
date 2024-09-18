@@ -11,7 +11,11 @@ public interface IPlatformService //TODO, maybe not all of these should live in 
     public UserSettings UserSettings { get; }
     public InstanceNetworkSettings InstanceNetworkSettings { get; }
 
-    public void RequestInstanceAllocation(string worldName, string instanceSuffix);
-
     public void TearDown();
 }
+
+/*
+ *  One interface that faces the platform integration package that gets imported by customers 
+ *  Another interface that faces the private platform stuff, the same package that the PlatformService lives in, is meant to provide available worlds, and global info 
+ * 
+ */
