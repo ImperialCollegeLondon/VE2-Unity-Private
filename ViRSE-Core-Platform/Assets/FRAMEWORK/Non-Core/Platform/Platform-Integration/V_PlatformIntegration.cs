@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class V_PlatformIntegration : MonoBehaviour, IInstanceNetworkSettingsProvider, IPlayerSettingsProvider
 {
@@ -54,7 +55,7 @@ public class V_PlatformIntegration : MonoBehaviour, IInstanceNetworkSettingsProv
         }
         else
         {
-            _platformService = new DebugPlatformService();
+            _platformService = new DebugPlatformService(SceneManager.GetActiveScene().name + "-debug");
             InstanceNetworkSettings debugNetworkSettings = _platformService.InstanceNetworkSettings;
             Debug.LogWarning($"No platform service provider found, using debug platform service. " +
                 $"This will return default user settings, and the following instance networking settings" +
@@ -69,9 +70,14 @@ public class DebugPlatformService : IPlatformService
 
     public UserSettings UserSettings => new();
 
-    public InstanceNetworkSettings InstanceNetworkSettings => new InstanceNetworkSettings("127.0.0.1", 4296, "debug");
+    public InstanceNetworkSettings InstanceNetworkSettings { get; private set; }
 
     public event Action OnConnectedToServer;
+
+    public DebugPlatformService(string instanceCode)
+    {
+        InstanceNetworkSettings = new InstanceNetworkSettings("127.0.0.1", 4297, instanceCode);
+    }
 
     public void RequestInstanceAllocation(string worldName, string instanceSuffix)
     {

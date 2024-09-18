@@ -60,11 +60,10 @@ namespace ViRSE.PluginRuntime.VComponents
         }
 
 #if UNITY_EDITOR
-        private static void HandleReload()
+        private static void HandleReload() //TODO - make use of OnEnable here instead
         {
             if (!Application.isPlaying)
             {
-                Debug.Log("Not playing: return");
                 return;
             }
             

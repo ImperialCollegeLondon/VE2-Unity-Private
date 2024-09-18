@@ -160,7 +160,7 @@ namespace ViRSE.PluginRuntime
                         false);
                 }
 
-                //Debug.Log("Try connect to server with instance code - " + _instanceConnectionDetails.InstanceCode);
+                Debug.Log("<color=green> Try connect to server with instance code - " + _instanceConnectionDetails.InstanceCode + "</color>");
                 ServerRegistrationRequest serverRegistrationRequest = new(instancedAvatarAppearance, _instanceConnectionDetails.InstanceCode);
                 _commsHandler.SendServerRegistrationRequest(serverRegistrationRequest.Bytes);
             }

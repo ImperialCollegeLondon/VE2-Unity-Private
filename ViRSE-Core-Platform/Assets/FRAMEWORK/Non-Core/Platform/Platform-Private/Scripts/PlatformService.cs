@@ -11,6 +11,8 @@ using System.Net;
 using static NonCoreCommonSerializables;
 using static PlatformSerializables;
 using UnityEngine.SceneManagement;
+using UnityEditor;
+using System.Threading;
 
 namespace ViRSE.PluginRuntime
 {
@@ -33,6 +35,7 @@ namespace ViRSE.PluginRuntime
         public string CurrentInstanceCode { get; private set; }
         public GlobalInfo GlobalInfo { get; private set; }
         public Dictionary<string, WorldDetails> AvailableWorlds { get; private set; }
+        public event Action<string> OnInstanceCodeChange;
 
         private IPlatformCommsHandler _commsHandler;
 
@@ -49,6 +52,7 @@ namespace ViRSE.PluginRuntime
                 if (_instanceNetworkSettings == null)
                 {
                     string currentSceneName = SceneManager.GetActiveScene().name;
+                    Debug.Log("Looking for instance network settings - current scene is " + currentSceneName);
                     if (!AvailableWorlds.TryGetValue(currentSceneName, out WorldDetails worldDetails))
                         Debug.LogError($"Could not find connection world details for world {currentSceneName}");
                     else
@@ -146,18 +150,25 @@ namespace ViRSE.PluginRuntime
         {
             GlobalInfo newGlobalInfo = new(bytes);
 
-            //TODO - might be better to have the instance allocation be a specific message, rather than being encded implicitely in the global info update?
+            //TODO - might be better to have the instance allocation be a specific message, rather than being ended implicitely in the global info update?
             //Are we then worried about missing the message?
             PlatformInstanceInfo newLocalInstanceInfo = newGlobalInfo.InstanceInfoForClient(_localClientID);
             if (newLocalInstanceInfo.InstanceCode != CurrentInstanceCode) 
             {
                 HandleInstanceAllocation(newLocalInstanceInfo);
+                CurrentInstanceCode = newLocalInstanceInfo.InstanceCode;
             }
+
+            GlobalInfo = newGlobalInfo;
         }
 
         private void HandleInstanceAllocation(PlatformInstanceInfo newInstanceInfo)
         {
-            Debug.Log($"Detected allocation to new instance, going from instance {CurrentInstanceCode} to {newInstanceInfo.InstanceCode}");
+            Debug.Log($"Detected allocation to new instance, going to {newInstanceInfo.InstanceCode}");
+            Debug.Log($"Running on Thread ID {Thread.CurrentThread.ManagedThreadId}");
+
+            OnInstanceCodeChange?.Invoke(newInstanceInfo.InstanceCode);
+
             if (newInstanceInfo.InstanceCode.StartsWith("Hub"))
             {
                 SceneManager.LoadScene("Hub");
@@ -165,12 +176,18 @@ namespace ViRSE.PluginRuntime
             //TODO, should be talking to the plugin loader instead here 
             else if (newInstanceInfo.InstanceCode.StartsWith("Dev"))
             {
+                Debug.Log("Going to dev scene"); //Logs out fine 
                 SceneManager.LoadScene("Dev");
             }
             else
             {
                 Debug.LogError("Couldn't go to scene");
             }
+        }
+
+        public void MainThreadUpdate()
+        {
+            _commsHandler.MainThreadUpdate();
         }
 
         public void NetworkUpdate()

@@ -1,6 +1,7 @@
 using DarkRift;
 using DarkRift.Client;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using UnityEngine;
 using UnityEngine.XR;
@@ -13,6 +14,7 @@ namespace ViRSE.FrameworkRuntime
     public class PlatformCommsHandler : IPlatformCommsHandler
     {
         private DarkRiftClient _drClient;
+        private readonly Queue<Action> executionQueue = new();
 
         #region PlatformService interface
         public bool IsReadyToTransmit { get; private set; }
@@ -52,6 +54,18 @@ namespace ViRSE.FrameworkRuntime
             _drClient.Disconnect();
         }
 
+        public void MainThreadUpdate()
+        {
+            while (executionQueue.Count > 0)
+            {
+                Action action;
+                lock (executionQueue)
+                    action = executionQueue.Dequeue();
+
+                action?.Invoke();
+            }
+        }
+
         #endregion
 
         public PlatformCommsHandler(DarkRiftClient drClient)
@@ -66,43 +80,30 @@ namespace ViRSE.FrameworkRuntime
             PlatformSerializables.PlatformNetworkingMessageCodes receivedMessageCode = (PlatformSerializables.PlatformNetworkingMessageCodes)messageWrapper.Tag;
 
             using DRMessageReader reader = e.GetMessage().GetReader();
-            byte[] bytes = reader.ReadBytes();
+            byte[] bytes = reader.ReadBytes(); //Null ref exception here
 
             //Debug.Log("Rec platform code " + receivedMessageCode.ToString());
 
-            switch (receivedMessageCode)
+            lock (executionQueue)
             {
-                case PlatformSerializables.PlatformNetworkingMessageCodes.NetcodeVersionConfirmation:
-                    OnReceiveNetcodeConfirmation?.Invoke(bytes);
-                    break;
-                case PlatformSerializables.PlatformNetworkingMessageCodes.ServerRegistrationConfirmation:
-                    IsReadyToTransmit = true;
-                    OnReceiveServerRegistrationConfirmation?.Invoke(bytes);
-                    break;
-                case PlatformSerializables.PlatformNetworkingMessageCodes.GlobalInfo:
-                    OnReceiveGlobalInfoUpdate?.Invoke(bytes);
-                    break;
+                executionQueue.Enqueue(() =>
+                {
+                    switch (receivedMessageCode)
+                    {
+                        case PlatformSerializables.PlatformNetworkingMessageCodes.NetcodeVersionConfirmation:
+                            OnReceiveNetcodeConfirmation?.Invoke(bytes);
+                            break;
+                        case PlatformSerializables.PlatformNetworkingMessageCodes.ServerRegistrationConfirmation:
+                            IsReadyToTransmit = true;
+                            OnReceiveServerRegistrationConfirmation?.Invoke(bytes);
+                            break;
+                        case PlatformSerializables.PlatformNetworkingMessageCodes.GlobalInfo:
+                            OnReceiveGlobalInfoUpdate?.Invoke(bytes);
+                            break;
+                    }
+
+                });
             }
-
-
-            //if (receivedMessageCode == MessageCode.HealthCheck)
-            //{
-            //    Receive.HealthCheck(messageWrapper);
-            //}
-            //else if (gameObject.activeSelf) //Lets us test connection drops by turning off this GameObject
-            //{
-            //    if (Application.isEditor && simLatencyMS > Mathf.Epsilon)
-            //    {
-            //        DOVirtual.DelayedCall(simLatencyMS / 1000f, () =>
-            //        {
-            //            RouteMessage(messageWrapper, receivedMessageCode);
-            //        });
-            //    }
-            //    else
-            //    {
-            //        RouteMessage(messageWrapper, receivedMessageCode);
-            //    }
-            //}
         }
 
         private class RawBytesMessage : IDarkRiftSerializable

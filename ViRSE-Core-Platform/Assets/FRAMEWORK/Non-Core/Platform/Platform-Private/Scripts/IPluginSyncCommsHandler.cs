@@ -17,6 +17,7 @@ namespace ViRSE.FrameworkRuntime
         public void SendServerRegistrationRequest(byte[] serverRegistrationBytes);
         public void SendInstanceAllocationRequest(byte[] instanceAllocationBytes);
         public void DisconnectFromServer();
+        public void MainThreadUpdate();
 
         public event Action<byte[]> OnReceiveNetcodeConfirmation;
         public event Action<byte[]> OnReceiveServerRegistrationConfirmation;

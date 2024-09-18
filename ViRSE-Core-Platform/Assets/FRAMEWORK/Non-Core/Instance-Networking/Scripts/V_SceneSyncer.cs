@@ -107,7 +107,10 @@ namespace ViRSE.InstanceNetworking
             IInstanceNetworkSettingsProvider instanceNetworkSettingsProvider = monos.OfType<IInstanceNetworkSettingsProvider>().FirstOrDefault();
 
             if (instanceNetworkSettingsProvider != null && ((MonoBehaviour)instanceNetworkSettingsProvider).isActiveAndEnabled)
+            {
                 _instanceNetworkSettingsProvider = instanceNetworkSettingsProvider;
+                Debug.Log($"Found instance network settings provider: {((MonoBehaviour)instanceNetworkSettingsProvider).gameObject.name}"); 
+            }
         }
 
         public void ConnectToServer() //TODO - expose to plugin

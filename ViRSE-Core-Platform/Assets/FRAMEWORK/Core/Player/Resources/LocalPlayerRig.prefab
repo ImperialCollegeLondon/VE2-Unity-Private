@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1081831365799702478}
   - component: {fileID: -8844450188980658436}
   - component: {fileID: -7406007042416789351}
+  - component: {fileID: -5116762227620005562}
   m_Layer: 0
   m_Name: LocalPlayerRig
   m_TagString: Untagged
@@ -80,6 +81,18 @@ MonoBehaviour:
   navyBlue: {r: 0.08472758, g: 0.20260045, b: 0.5283019, a: 1}
   virseGreen: {r: 0.21063234, g: 0.8930817, b: 0.7069592, a: 1}
   tangerine: {r: 0.8679245, g: 0.5069058, b: 0.040939726, a: 1}
+--- !u!114 &-5116762227620005562
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2521578725783442755}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76c4eee62774ae645bc49283a83bc93d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &3355449491367115990
 PrefabInstance:
   m_ObjectHideFlags: 0

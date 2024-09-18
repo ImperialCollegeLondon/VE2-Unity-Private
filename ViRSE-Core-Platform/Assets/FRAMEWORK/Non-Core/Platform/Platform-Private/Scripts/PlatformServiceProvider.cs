@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Net;
+using System.Threading;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using ViRSE.Core.Shared;
 using ViRSE.PluginRuntime;
@@ -28,7 +30,7 @@ namespace ViRSE.InstanceNetworking
         [SerializeField] private bool UseSpoofUserIdentity = false;
         [SerializeField] UserIdentity spoofUserIdentity;
 
-        private IPlatformService _platformService;
+        private PlatformService _platformService;
         public IPlatformService PlatformService  //We'll add platform components to the scene on start (e.g global info UI), this will let those components access the platform after domain reload
         {
             get {
@@ -59,8 +61,14 @@ namespace ViRSE.InstanceNetworking
                 if (IPAddress.TryParse(ipAddressString, out IPAddress ipAddress) == false)
                     throw new System.Exception("Invalid IP address, could not connect to server");
 
-                _platformService = PlatformServiceFactory.Create(GetUserIdentity(), ipAddress, _portNumber, _instanceCode);
+                _platformService = (PlatformService)PlatformServiceFactory.Create(GetUserIdentity(), ipAddress, _portNumber, _instanceCode);
+                _platformService.OnInstanceCodeChange += (newInstanceCode) => _instanceCode = newInstanceCode;  //To preserve our instance code should the domain reload
             }
+        }
+
+        private void FixedUpdate()
+        {
+            _platformService?.MainThreadUpdate();
         }
 
         private UserIdentity GetUserIdentity()
