@@ -31,7 +31,7 @@ public class DebugInstanceInfoUI : MonoBehaviour
 
     private void HandleInstanceInfoChanged(InstancedInstanceInfo instanceInfo)
     {
-        string instanceInfoString = $"<b>INSTANCE</b> {instanceInfo.InstanceCode} - Local ID = <color=green>{_instanceService.LocalClientID}</color>\n";
+        string instanceInfoString = $"<b>INSTANCE</b> {instanceInfo.InstanceCode} \nLocal ID = <color=green>{_instanceService.LocalClientID}</color>\n";
 
         Debug.Log("NUM PLAYERS IN ISNTANCE = " + instanceInfo.ClientInfos.Values.Count + "=============");
         foreach (InstancedClientInfo clientInfo in instanceInfo.ClientInfos.Values)

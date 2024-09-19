@@ -23,7 +23,6 @@ namespace ViRSE.InstanceNetworking
         [SerializeField] private ushort _portNumber = 4296;
 
         [Space(10)]
-        [SerializeField] private string startingInstanceSuffix = "dev";
         [SerializeField, HideInInspector] private string _instanceCode = null;
 
         [Space(10)]
@@ -50,8 +49,29 @@ namespace ViRSE.InstanceNetworking
 
             //Debug.Log("Platform integration mono awake!");
 
-            if (string.IsNullOrEmpty(_instanceCode)) //Otherwise, the instance code will be carried over from its serialized state pre domain reload
-                _instanceCode = PlatformInstanceInfo.GetInstanceCode(SceneManager.GetActiveScene().name, startingInstanceSuffix);
+            bool firstLoad = string.IsNullOrEmpty(_instanceCode);
+            if (firstLoad) //Otherwise, the instance code will be carried over from its serialized state pre domain reload
+            {
+                if (FindObjectsByType<PlatformServiceProvider>(FindObjectsSortMode.None).Length > 1)
+                {
+                    //When returning to the hub, there may be two of these in the scene. If this is doing its first load, then this isn't the one we want to keep!
+                    //On domain reload, there should only be one in the scene
+                    Destroy(gameObject);
+                    return;
+                }
+
+                string sceneName = SceneManager.GetActiveScene().name;
+
+                if (sceneName.ToUpper().Equals("HUB"))
+                {
+                    _instanceCode = PlatformInstanceInfo.GetInstanceCode(sceneName, "Solo");
+                }
+                else
+                {
+                    //TODO - read command line args. This is the flow case where we've gone straight into a scene from the launcher, rather than going through the hub
+                    throw new NotImplementedException();
+                }
+            }
 
             if (_serverType != ServerType.Offline) //TODO, does offline even make sense here?
             {

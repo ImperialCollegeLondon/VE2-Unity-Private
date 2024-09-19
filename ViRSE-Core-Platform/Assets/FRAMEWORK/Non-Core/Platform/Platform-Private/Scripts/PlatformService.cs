@@ -91,7 +91,7 @@ namespace ViRSE.PluginRuntime
         }
         public void RequestHubAllocation()
         {
-            RequestInstanceAllocation("Hub", LocalClientID.ToString());
+            RequestInstanceAllocation("Hub", "Solo");
         }   
         #endregion
 
@@ -244,3 +244,4 @@ namespace ViRSE.PluginRuntime
         }
     }
 }
+

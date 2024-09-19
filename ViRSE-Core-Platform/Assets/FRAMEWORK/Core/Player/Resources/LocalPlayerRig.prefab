@@ -104,12 +104,12 @@ PrefabInstance:
     - target: {fileID: 1131924739771116574, guid: 19d3eba3f67050d4d91cbff60369ea9f,
         type: 3}
       propertyPath: m_fontSize
-      value: 20
+      value: 14
       objectReference: {fileID: 0}
     - target: {fileID: 1131924739771116574, guid: 19d3eba3f67050d4d91cbff60369ea9f,
         type: 3}
       propertyPath: m_fontSizeBase
-      value: 20
+      value: 14
       objectReference: {fileID: 0}
     - target: {fileID: 1782269232077625576, guid: 19d3eba3f67050d4d91cbff60369ea9f,
         type: 3}
@@ -165,6 +165,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: 2dPlayer
+      objectReference: {fileID: 0}
+    - target: {fileID: 9080715956953868109, guid: 19d3eba3f67050d4d91cbff60369ea9f,
+        type: 3}
+      propertyPath: m_fontSize
+      value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: 9080715956953868109, guid: 19d3eba3f67050d4d91cbff60369ea9f,
+        type: 3}
+      propertyPath: m_fontSizeBase
+      value: 14
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

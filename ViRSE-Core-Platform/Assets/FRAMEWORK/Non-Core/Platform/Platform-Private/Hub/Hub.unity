@@ -1072,7 +1072,6 @@ MonoBehaviour:
   _localServerIP: 127.0.0.1
   _remoteServerIP: 
   _portNumber: 4296
-  startingInstanceSuffix: dev
   _instanceCode: 
   UseSpoofUserIdentity: 1
   spoofUserIdentity:
@@ -1504,8 +1503,8 @@ MonoBehaviour:
         m_PersistentCalls:
           m_Calls:
           - m_Target: {fileID: 1588732453}
-            m_TargetAssemblyTypeName: DebugHubUI, ViRSE_Platform_Integration
-            m_MethodName: OnGoToDevButtonPressed
+            m_TargetAssemblyTypeName: DebugHubUI, ViRSE_Platform_Private
+            m_MethodName: OnGoToDev2ButtonPressed
             m_Mode: 1
             m_Arguments:
               m_ObjectArgument: {fileID: 0}

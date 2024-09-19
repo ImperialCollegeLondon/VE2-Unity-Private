@@ -31,7 +31,7 @@ public class DebugGlobalInfoUI : MonoBehaviour
 
     private void HandleGlobalInfoChanged(GlobalInfo globalInfo)
     {
-        string globalInfoString = $"<b>PLATFORM</b> - Local ID = {_platformService.LocalClientID}\n";
+        string globalInfoString = $"<b>PLATFORM</b> \nLocal ID = {_platformService.LocalClientID}\n";
 
         foreach (PlatformInstanceInfo platformInstanceInfo in globalInfo.InstanceInfos.Values)
         {
