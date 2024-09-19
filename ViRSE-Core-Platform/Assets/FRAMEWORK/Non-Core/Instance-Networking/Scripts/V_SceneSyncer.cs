@@ -89,7 +89,7 @@ namespace ViRSE.InstanceNetworking
             _connectionDetails.Port = _instanceNetworkSettingsProvider.InstanceNetworkSettings.Port;
             _connectionDetails.InstanceCode = _instanceNetworkSettingsProvider.InstanceNetworkSettings.InstanceCode;
 
-            //Debug.Log("Settings ready! Code: " + _connectionDetails.InstanceCode);
+            Debug.Log("<color=red>Settings ready! Code: " + _connectionDetails.InstanceCode + "</color>");
 
             if (_connectionDetails == null)
             {

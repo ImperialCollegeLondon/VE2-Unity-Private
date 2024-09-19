@@ -47,20 +47,19 @@ namespace ViRSE.PluginRuntime
         #endregion
 
         #region Instance-Sync-Facing Interfaces
-        private InstanceNetworkSettings _instanceNetworkSettings;
         public InstanceNetworkSettings InstanceNetworkSettings {
             get {
-
-                if (_instanceNetworkSettings == null)
+                string currentWorldName = PlatformInstanceInfo.SplitInstanceCode(CurrentInstanceCode).Item1;
+                Debug.Log("Looking for instance network settings - current scene is " + currentWorldName);
+                if (!AvailableWorlds.TryGetValue(currentWorldName, out WorldDetails worldDetails))
                 {
-                    string currentSceneName = SceneManager.GetActiveScene().name;
-                    Debug.Log("Looking for instance network settings - current scene is " + currentSceneName);
-                    if (!AvailableWorlds.TryGetValue(currentSceneName, out WorldDetails worldDetails))
-                        Debug.LogError($"Could not find connection world details for world {currentSceneName}");
-                    else
-                        _instanceNetworkSettings = new InstanceNetworkSettings(worldDetails.IPAddress, worldDetails.PortNumber, CurrentInstanceCode);
+                    Debug.LogError($"Could not find connection world details for world {currentWorldName}");
+                    return null;
                 }
-                return _instanceNetworkSettings;
+                else
+                {
+                    return new InstanceNetworkSettings(worldDetails.IPAddress, worldDetails.PortNumber, CurrentInstanceCode);
+                }
             }
         }
         #endregion
@@ -167,7 +166,6 @@ namespace ViRSE.PluginRuntime
             if (newLocalInstanceInfo.InstanceCode != CurrentInstanceCode) 
             {
                 HandleInstanceAllocation(newLocalInstanceInfo);
-                CurrentInstanceCode = newLocalInstanceInfo.InstanceCode;
             }
 
             GlobalInfo = newGlobalInfo;
@@ -176,8 +174,9 @@ namespace ViRSE.PluginRuntime
 
         private void HandleInstanceAllocation(PlatformInstanceInfo newInstanceInfo)
         {
-            Debug.Log($"Detected allocation to new instance, going to {newInstanceInfo.InstanceCode}");
+            Debug.Log($"<color=green>Detected allocation to new instance, going to {newInstanceInfo.InstanceCode}</color>");
 
+            CurrentInstanceCode = newInstanceInfo.InstanceCode;
             OnInstanceCodeChange?.Invoke(newInstanceInfo.InstanceCode);
 
             if (newInstanceInfo.InstanceCode.StartsWith("Hub"))
