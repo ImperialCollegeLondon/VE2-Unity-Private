@@ -66,6 +66,14 @@ namespace ViRSE.InstanceNetworking
             }
         }
 
+        private void Update()
+        {
+            if (Keyboard.current.hKey.wasPressedThisFrame)
+            {
+                _platformService.RequestHubAllocation();
+            }
+        }
+
         private void FixedUpdate()
         {
             _platformService?.MainThreadUpdate();

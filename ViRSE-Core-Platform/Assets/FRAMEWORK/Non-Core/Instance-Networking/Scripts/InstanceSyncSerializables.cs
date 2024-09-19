@@ -123,7 +123,7 @@ public class InstanceSyncSerializables
             writer.Write(baseBytes);    
 
             writer.Write(UsingViRSEAvatar);
-            writer.Write(AvatarHeadTypeOverride);
+            writer.Write(AvatarHeadTypeOverride);       
             writer.Write(AvatarBodyTypeOverride);
             writer.Write(AvatarTransparancy);
 
@@ -157,10 +157,7 @@ public class InstanceSyncSerializables
             ClientInfos = new Dictionary<ushort, InstancedClientInfo>();
         }
 
-        public InstancedInstanceInfo(byte[] bytes) : base(bytes)
-        {
-            ClientInfos = new Dictionary<ushort, InstancedClientInfo>();
-        }
+        public InstancedInstanceInfo(byte[] bytes) : base(bytes) { }
 
         public InstancedInstanceInfo(string worldName, string instanceSuffix, ushort hostID, bool instanceMuted, Dictionary<ushort, InstancedClientInfo> clientInfos) : base(worldName, instanceSuffix)
         {

@@ -105,7 +105,7 @@ namespace ViRSE.Networking
 
                 foreach (WorldStateBundle receivedBundle in worldStateBundlesToProcess)
                 {
-                    Debug.Log("<color=blue>receive world state " + receivedBundle.WorldStateWrappers.Count + "</color>");
+                    //Debug.Log("<color=blue>receive world state " + receivedBundle.WorldStateWrappers.Count + "</color>");
 
                     foreach (WorldStateWrapper worldStateWrapper in receivedBundle.WorldStateWrappers)
                     {

@@ -8,6 +8,9 @@ using static NonCoreCommonSerializables;
 using ViRSE.Core.Player;
 using static InstanceSyncSerializables;
 using static ViRSE.Core.Shared.CoreCommonSerializables;
+using System;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace ViRSE.PluginRuntime
 {
@@ -63,13 +66,14 @@ namespace ViRSE.PluginRuntime
     {
         //TODO, should take some config for events like "OnBecomeHost", "OnLoseHost", maybe also sync frequencies
 
-        private bool _readyToSync = false;
+        public bool IsConnectedToServer = false;
 
         private InstanceNetworkSettings _instanceConnectionDetails;
-        private ushort _localClientID;
-        private InstancedInstanceInfo _instanceInfo;
+        public ushort LocalClientID { get; private set; }
+        public InstancedInstanceInfo InstanceInfo;
+        public event Action<InstancedInstanceInfo> OnInstanceInfoChanged;
 
-        public bool IsHost => _instanceInfo.HostID == _localClientID;
+        public bool IsHost => InstanceInfo.HostID == LocalClientID;
 
         public int WorldStateHistoryQueueSize { get; private set; }
         public UnityEvent<int> OnWorldStateHistoryQueueSizeChange { get; private set; } = new();
@@ -172,9 +176,11 @@ namespace ViRSE.PluginRuntime
 
            // Debug.Log("Rec instanceserver reg conf");
 
-            _localClientID = serverRegistrationConfirmation.LocalClientID;
-            _instanceInfo = serverRegistrationConfirmation.InstanceInfo;
-            _readyToSync = true;
+            LocalClientID = serverRegistrationConfirmation.LocalClientID;
+            InstanceInfo = serverRegistrationConfirmation.InstanceInfo;
+            IsConnectedToServer = true;
+
+            OnInstanceInfoChanged?.Invoke(InstanceInfo);
         }
 
         private void HandleReceiveInstanceInfoUpdate(byte[] bytes)
@@ -183,8 +189,12 @@ namespace ViRSE.PluginRuntime
 
             //TODO - check against _instanceInfo, detect clients that have joined, and clients that have left 
             //TODO - also check for hostship changes, emit events if we gain or lose hostship 
+            if (newInstanceInfo.Bytes.SequenceEqual(InstanceInfo.Bytes))
+                return;
 
-            _instanceInfo = newInstanceInfo;
+
+            InstanceInfo = newInstanceInfo;
+            OnInstanceInfoChanged?.Invoke(InstanceInfo);
             //Debug.Log("Rec inst info update - " + IsHost);
         }
 
@@ -195,7 +205,9 @@ namespace ViRSE.PluginRuntime
         //Whenever a syncmodule (player sync module, 
         public void NetworkUpdate() 
         {
-            if (_readyToSync)
+            _commsHandler.MainThreadUpdate();
+
+            if (IsConnectedToServer)
             {
                 (byte[], byte[]) worldStateBundlesToTransmit = _worldStateSyncer.HandleNetworkUpdate(IsHost);
 

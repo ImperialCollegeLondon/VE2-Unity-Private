@@ -101,7 +101,6 @@ namespace ViRSE.FrameworkRuntime
                             OnReceiveGlobalInfoUpdate?.Invoke(bytes);
                             break;
                     }
-
                 });
             }
         }

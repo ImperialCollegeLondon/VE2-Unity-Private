@@ -13,6 +13,7 @@ using static PlatformSerializables;
 using UnityEngine.SceneManagement;
 using UnityEditor;
 using System.Threading;
+using System.Linq;
 
 namespace ViRSE.PluginRuntime
 {
@@ -31,9 +32,10 @@ namespace ViRSE.PluginRuntime
     {
         private UserIdentity _userIdentity;
 
-        private ushort _localClientID;
+        public ushort LocalClientID { get; private set; }
         public string CurrentInstanceCode { get; private set; }
         public GlobalInfo GlobalInfo { get; private set; }
+        public event Action<GlobalInfo> OnGlobalInfoChanged;
         public Dictionary<string, WorldDetails> AvailableWorlds { get; private set; }
         public event Action<string> OnInstanceCodeChange;
 
@@ -72,7 +74,7 @@ namespace ViRSE.PluginRuntime
         {
             if (IsConnectedToServer)
             {
-                if (AvailableWorlds.ContainsKey(worldName))
+                if (worldName.ToUpper().Equals("HUB") || AvailableWorlds.ContainsKey(worldName))
                 {
                     InstanceAllocationRequest instanceAllocationRequest = new(worldName, instanceSuffix);
                     _commsHandler.SendInstanceAllocationRequest(instanceAllocationRequest.Bytes);
@@ -87,6 +89,10 @@ namespace ViRSE.PluginRuntime
                 Debug.LogError("Not yet connected to server");
             }
         }
+        public void RequestHubAllocation()
+        {
+            RequestInstanceAllocation("Hub", LocalClientID.ToString());
+        }   
         #endregion
 
         public PlatformService(IPlatformCommsHandler commsHandler, UserIdentity userIdentity, IPAddress ipAddress, ushort portNumber, string startingInstanceCode)
@@ -129,7 +135,7 @@ namespace ViRSE.PluginRuntime
         {
             ServerRegistrationConfirmation serverRegistrationConfirmation = new(bytes);
 
-            _localClientID = serverRegistrationConfirmation.LocalClientID;
+            LocalClientID = serverRegistrationConfirmation.LocalClientID;
             GlobalInfo = serverRegistrationConfirmation.GlobalInfo;
             AvailableWorlds = serverRegistrationConfirmation.AvailableWorlds;
             UserSettings = new(serverRegistrationConfirmation.PlayerPresentationConfig, serverRegistrationConfirmation.PlayerVRControlConfig, serverRegistrationConfirmation.Player2DControlConfig);
@@ -137,7 +143,9 @@ namespace ViRSE.PluginRuntime
             IsConnectedToServer = true;
 
             //TODO try catch
-            OnConnectedToServer?.Invoke(); //TODO, this is crapping out
+            OnConnectedToServer?.Invoke();
+
+            OnGlobalInfoChanged?.Invoke(GlobalInfo);
 
             //Debug.Log("Local client platform ID = " + _localClientID);
             foreach (WorldDetails worldDetails in AvailableWorlds.Values)
@@ -150,9 +158,12 @@ namespace ViRSE.PluginRuntime
         {
             GlobalInfo newGlobalInfo = new(bytes);
 
+            if (newGlobalInfo.Bytes.SequenceEqual(GlobalInfo.Bytes)) 
+                return;
+
             //TODO - might be better to have the instance allocation be a specific message, rather than being ended implicitely in the global info update?
             //Are we then worried about missing the message?
-            PlatformInstanceInfo newLocalInstanceInfo = newGlobalInfo.InstanceInfoForClient(_localClientID);
+            PlatformInstanceInfo newLocalInstanceInfo = newGlobalInfo.InstanceInfoForClient(LocalClientID);
             if (newLocalInstanceInfo.InstanceCode != CurrentInstanceCode) 
             {
                 HandleInstanceAllocation(newLocalInstanceInfo);
@@ -160,12 +171,12 @@ namespace ViRSE.PluginRuntime
             }
 
             GlobalInfo = newGlobalInfo;
+            OnGlobalInfoChanged?.Invoke(GlobalInfo);
         }
 
         private void HandleInstanceAllocation(PlatformInstanceInfo newInstanceInfo)
         {
             Debug.Log($"Detected allocation to new instance, going to {newInstanceInfo.InstanceCode}");
-            Debug.Log($"Running on Thread ID {Thread.CurrentThread.ManagedThreadId}");
 
             OnInstanceCodeChange?.Invoke(newInstanceInfo.InstanceCode);
 

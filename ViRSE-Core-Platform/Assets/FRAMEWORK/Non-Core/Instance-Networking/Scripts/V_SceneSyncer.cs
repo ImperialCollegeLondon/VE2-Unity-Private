@@ -19,7 +19,7 @@ namespace ViRSE.InstanceNetworking
         private IInstanceNetworkSettingsProvider _instanceNetworkSettingsProvider;
 
         private PluginSyncService _pluginSyncService;
-        private PluginSyncService PluginSyncService 
+        public PluginSyncService PluginSyncService 
         {
             get {
                 if (_pluginSyncService == null)

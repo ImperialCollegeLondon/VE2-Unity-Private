@@ -8,12 +8,14 @@ using ViRSE;
 using DRMessageReader = DarkRift.DarkRiftReader;
 using DRMessageWrapper = DarkRift.Message;
 using UnityEditor.Experimental.GraphView;
+using System.Collections.Generic;
 
 namespace ViRSE.FrameworkRuntime
 {
     public class InstanceNetworkingCommsHandler : IPluginSyncCommsHandler
     {
         private DarkRiftClient _drClient;
+        private readonly Queue<Action> executionQueue = new();
 
         #region PluginSyncService interface
         public bool IsReadyToTransmit { get; private set; }
@@ -80,6 +82,18 @@ namespace ViRSE.FrameworkRuntime
         {
 
         }
+
+        public void MainThreadUpdate()
+        {
+            while (executionQueue.Count > 0)
+            {
+                Action action;
+                lock (executionQueue)
+                    action = executionQueue.Dequeue();
+
+                action?.Invoke();
+            }
+        }
         #endregion
 
         public InstanceNetworkingCommsHandler(DarkRiftClient drClient)
@@ -96,24 +110,29 @@ namespace ViRSE.FrameworkRuntime
             using DRMessageReader reader = e.GetMessage().GetReader();
             byte[] bytes = reader.ReadBytes();
 
-            switch (receivedMessageCode)
+            lock (executionQueue)
             {
-                case InstanceSyncSerializables.InstanceNetworkingMessageCodes.NetcodeVersionConfirmation:
-                    OnReceiveNetcodeConfirmation?.Invoke(bytes);
-                    break;
-                case InstanceSyncSerializables.InstanceNetworkingMessageCodes.ServerRegistrationConfirmation:
-                    IsReadyToTransmit = true;
-                    OnReceiveServerRegistrationConfirmation?.Invoke(bytes);
-                    break;
-                case InstanceSyncSerializables.InstanceNetworkingMessageCodes.WorldstateSyncableBundle:
-                    //Debug.Log("rec worldstate");
-                    OnReceiveWorldStateSyncableBundle?.Invoke(bytes);
-                    break;
-                case InstanceSyncSerializables.InstanceNetworkingMessageCodes.InstanceInfo:
-                    OnReceiveInstanceInfoUpdate?.Invoke(bytes);
-                    break;
+                executionQueue.Enqueue(() =>
+                {
+                    switch (receivedMessageCode)
+                    {
+                        case InstanceSyncSerializables.InstanceNetworkingMessageCodes.NetcodeVersionConfirmation:
+                            OnReceiveNetcodeConfirmation?.Invoke(bytes);
+                            break;
+                        case InstanceSyncSerializables.InstanceNetworkingMessageCodes.ServerRegistrationConfirmation:
+                            IsReadyToTransmit = true;
+                            OnReceiveServerRegistrationConfirmation?.Invoke(bytes);
+                            break;
+                        case InstanceSyncSerializables.InstanceNetworkingMessageCodes.WorldstateSyncableBundle:
+                            //Debug.Log("rec worldstate");
+                            OnReceiveWorldStateSyncableBundle?.Invoke(bytes);
+                            break;
+                        case InstanceSyncSerializables.InstanceNetworkingMessageCodes.InstanceInfo:
+                            OnReceiveInstanceInfoUpdate?.Invoke(bytes);
+                            break;
+                    }
+                });
             }
-
 
             //if (receivedMessageCode == MessageCode.HealthCheck)
             //{
