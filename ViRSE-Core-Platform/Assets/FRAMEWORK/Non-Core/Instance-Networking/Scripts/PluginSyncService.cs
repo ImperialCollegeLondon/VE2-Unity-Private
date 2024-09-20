@@ -62,7 +62,7 @@ namespace ViRSE.PluginRuntime
     /// <summary>
     /// In charge of all sync management for the instance. Orchestrates WorldStateSyncer, PlayerSyncers, and InstantMessageRouter 
     /// </summary>
-    public class PluginSyncService : INetworkManager
+    public class PluginSyncService //: IInstanceService
     {
         //TODO, should take some config for events like "OnBecomeHost", "OnLoseHost", maybe also sync frequencies
 

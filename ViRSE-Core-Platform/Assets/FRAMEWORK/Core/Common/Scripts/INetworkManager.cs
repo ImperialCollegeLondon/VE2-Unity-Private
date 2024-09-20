@@ -4,10 +4,11 @@ using UnityEngine;
 
 namespace ViRSE.Core.Shared
 {
-    public interface INetworkManager
+    public interface IMultiplayerSupport
     {
         public void RegisterStateModule(IStateModule stateModule, string stateType, string goName);
         public bool IsEnabled { get; }
+        public string MultiplayerSupportGameObjectName { get; }
     }
 
     public interface IStateModule

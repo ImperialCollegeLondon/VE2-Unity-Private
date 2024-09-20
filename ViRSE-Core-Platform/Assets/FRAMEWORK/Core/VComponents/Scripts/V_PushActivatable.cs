@@ -45,10 +45,6 @@ namespace ViRSE.PluginRuntime.VComponents
         {
             if (_config == null)
                 _config = new();
-
-            //TODO - want something better than OnValidate here really
-            //What if we plonk a syncer in the scene, we don't want to have to get each VC to validate to pick it up
-            _config.StateConfig.OnValidate();
         }
 
         private void Start()

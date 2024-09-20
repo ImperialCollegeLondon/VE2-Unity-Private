@@ -12,38 +12,17 @@ namespace ViRSE.PluginRuntime.VComponents
     {
         [BeginGroup(Style = GroupStyle.Round, ApplyCondition = true)]
         [Title("Transmission Settings", ApplyCondition = true)]
-        [HideIf(nameof(NetworkManagerPresent), false)]
+        [HideIf(nameof(MultiplayerSupportPresent), false)]
         [SerializeField] public bool IsNetworked = true;
 
-        [HideIf(nameof(NetworkManagerPresent), false)]
+        [HideIf(nameof(MultiplayerSupportPresent), false)]
         [DisableIf(nameof(IsNetworked), false)]
         [EndGroup(ApplyCondition = true)]
         [Space(5)]
         [SerializeField, IgnoreParent] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new();
 
-        [SerializeField, HideInInspector] public bool NetworkManagerPresent => NetworkManager != null;
-
-        public INetworkManager NetworkManager;
-
-        public void OnValidate() //TODO - call from VC, need to figure out ID too 
-        {
-            if (NetworkManager == null)
-            {
-                SearchForAndAssignNetworkManager();
-            }
-        }
-
-        public void SearchForAndAssignNetworkManager()
-        {
-            GameObject networkManagerGO = GameObject.Find("PluginSyncer");
-
-            if (networkManagerGO != null && networkManagerGO.activeInHierarchy)
-            {
-                INetworkManager networkManager = networkManagerGO.GetComponent<INetworkManager>();
-                if (networkManager.IsEnabled)
-                    NetworkManager = networkManager;
-            }
-        }
+        [SerializeField, HideInInspector] public bool MultiplayerSupportPresent => MultiplayerSupport != null;
+        public IMultiplayerSupport MultiplayerSupport => ViRSEServiceLocator.Instance.MultiplayerSupport;
     }
 
     [Serializable]
@@ -80,12 +59,9 @@ namespace ViRSE.PluginRuntime.VComponents
 
             Config = config;
 
-            if (Config.NetworkManagerPresent && Config.IsNetworked)
+            if (Config.MultiplayerSupportPresent && Config.IsNetworked)
             {
-                if (Config.NetworkManager == null)
-                    Config.SearchForAndAssignNetworkManager(); //Handles domain reload
-
-                Config.NetworkManager.RegisterStateModule(this, GetType().Name, goName);
+                Config.MultiplayerSupport.RegisterStateModule(this, GetType().Name, goName);
                 //Debug.Log("VC registered with syncer");
             }
             else
