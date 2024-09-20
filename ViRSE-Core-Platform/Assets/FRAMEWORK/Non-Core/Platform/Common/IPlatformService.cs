@@ -10,8 +10,6 @@ public interface IPlatformService //TODO, maybe not all of these should live in 
 
     public UserSettings UserSettings { get; }
     public InstanceNetworkSettings InstanceNetworkSettings { get; }
-
-    public void TearDown();
 }
 
 /*

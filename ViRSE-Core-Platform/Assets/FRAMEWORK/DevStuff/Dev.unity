@@ -526,6 +526,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4832776686e2e1f40b2d0ae7e7ddcc58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  DebugInstanceNetworkSettings:
+    IP: 127.0.0.1
+    Port: 4297
+    InstanceCode: dev
 --- !u!1 &563324677
 GameObject:
   m_ObjectHideFlags: 0
@@ -1121,8 +1125,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _connectAutomatically: 1
   _connectionDetails:
-    IP: 127.0.0.1
-    Port: 4297
+    IP: 127.0.0.1.wrong
+    Port: 42970
     InstanceCode: test
 --- !u!4 &835746393
 Transform:
@@ -1848,7 +1852,6 @@ MonoBehaviour:
   _localServerIP: 127.0.0.1
   _remoteServerIP: 
   _portNumber: 4296
-  startingInstanceSuffix: dev
   _instanceCode: 
   UseSpoofUserIdentity: 1
   spoofUserIdentity:

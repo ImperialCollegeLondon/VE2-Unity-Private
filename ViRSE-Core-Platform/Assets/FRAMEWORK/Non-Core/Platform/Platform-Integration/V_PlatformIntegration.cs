@@ -4,54 +4,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class V_PlatformIntegration : MonoBehaviour, IInstanceNetworkSettingsProvider, IPlayerSettingsProvider
+public class V_PlatformIntegration : MonoBehaviour
 {
-    #region Instance-Networking-Facing Interfaces
-    public bool AreInstanceNetworkingSettingsReady => PlatformService.IsConnectedToServer;
-    public event Action OnInstanceNetworkSettingsReady { add { PlatformService.OnConnectedToServer += value; } remove { PlatformService.OnConnectedToServer -= value; } }
-    public InstanceNetworkSettings InstanceNetworkSettings => PlatformService.InstanceNetworkSettings;
-    #endregion
-
-    #region Player-Rig-Facing Interfaces
-    public bool ArePlayerSettingsReady => PlatformService.IsConnectedToServer;
-    public event Action OnPlayerSettingsReady { add { PlatformService.OnConnectedToServer += value; } remove { PlatformService.OnConnectedToServer -= value; } }
-    public UserSettings UserSettings => PlatformService.UserSettings;
-    #endregion
-
+    [Help("These settings allow you to test in the editor, when you export your world to the platform, the platform will override these settings.")]
+    [SerializeField] private InstanceNetworkSettings DebugInstanceNetworkSettings = new("127.0.0.1", 4297, "dev");
 
     private IPlatformService _platformService;
-    private IPlatformService PlatformService
+
+    private void OnEnable()
     {
-        get
+        GameObject plataformProviderGO = GameObject.Find("PlatformServiceProvider");
+
+        if (plataformProviderGO != null)
         {
-            if (_platformService != null)
-                return _platformService;
-            else
-                Awake();
-
-            return _platformService;
-        }
-    }
-
-    private IPlatformServiceProvider _platformServiceProvider 
-    { 
-        get 
-        {
-            GameObject plataformProviderGO = GameObject.Find("PlatformServiceProvider");
-            if (plataformProviderGO == null)
-                return null;
-
-            return plataformProviderGO.GetComponent<IPlatformServiceProvider>();
-        } 
-    }
-
-    private void Awake()
-    {
-        //Debug.Log("Platform integration awake - " + (_platformServiceProvider != null));
-
-        if (_platformServiceProvider != null)
-        {
-            _platformService = _platformServiceProvider.PlatformService;
+            _platformService = plataformProviderGO.GetComponent<IPlatformServiceProvider>().PlatformService;
         }
         else
         {
@@ -61,6 +27,32 @@ public class V_PlatformIntegration : MonoBehaviour, IInstanceNetworkSettingsProv
                 $"This will return default user settings, and the following instance networking settings" +
                 $"IP: {debugNetworkSettings.IP}, Port: {debugNetworkSettings.Port} Instance code: {debugNetworkSettings.InstanceCode}");
         }
+
+        if (_platformService.IsConnectedToServer)
+            HandlePlatformServiceReady();
+        else
+            _platformService.OnConnectedToServer += HandlePlatformServiceReady;
+    }
+
+    private void HandlePlatformServiceReady()
+    {
+        //GameObject playerSpawnerGO = GameObject.Find("VirsePlayer"); TODO player stuff 
+
+        GameObject instanceIntegrationGO = GameObject.Find("PluginSyncer");
+        if (instanceIntegrationGO != null)
+        {
+            IInstanceNetworkSettingsReceiver instanceSettingsReceiver = instanceIntegrationGO.GetComponent<IInstanceNetworkSettingsReceiver>();
+            if (instanceSettingsReceiver != null)
+            {
+                instanceSettingsReceiver.SetInstanceNetworkSettings(_platformService.InstanceNetworkSettings);
+            }
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (_platformService != null)
+            _platformService.OnConnectedToServer -= HandlePlatformServiceReady;
     }
 }
 

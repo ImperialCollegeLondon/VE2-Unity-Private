@@ -15,7 +15,7 @@ public class DebugInstanceInfoUI : MonoBehaviour
         V_SceneSyncer provider = FindFirstObjectByType<V_SceneSyncer>();
         if (provider != null)
         {
-            _instanceService = provider.PluginSyncService;
+            _instanceService = (PluginSyncService)provider.PluginSyncService;
 
             //If we're already connected to the server, display initial global info rather than waiting for an update
             if (_instanceService.IsConnectedToServer)

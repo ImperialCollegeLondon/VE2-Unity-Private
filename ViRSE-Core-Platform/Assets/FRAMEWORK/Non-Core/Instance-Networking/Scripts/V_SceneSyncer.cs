@@ -11,24 +11,23 @@ using static ViRSE.Core.Shared.CoreCommonSerializables;
 namespace ViRSE.InstanceNetworking
 {
     [ExecuteInEditMode]
-    public class V_SceneSyncer : MonoBehaviour, INetworkManager
+    public class V_SceneSyncer : MonoBehaviour, INetworkManager, IInstanceNetworkSettingsReceiver
     {
         [SerializeField] private bool _connectAutomatically = true;
+
+        [Help("If you have a V_PlatformIntegration in your scene, these settings will come from that component instead")]
         [SerializeField] private InstanceNetworkSettings _connectionDetails;
 
-        private IInstanceNetworkSettingsProvider _instanceNetworkSettingsProvider;
-
         private PluginSyncService _pluginSyncService;
-        public PluginSyncService PluginSyncService 
-        {
+        public INetworkManager PluginSyncService {
             get {
                 if (_pluginSyncService == null)
-                    Awake();
+                    OnEnable();
 
                 return _pluginSyncService;
             }
             set {
-                _pluginSyncService = value;
+                _pluginSyncService = (PluginSyncService)value;
             }
         }
 
@@ -41,21 +40,32 @@ namespace ViRSE.InstanceNetworking
         public bool IsEnabled => enabled;
         #endregion
 
-        //TODO, functions for letting the customer change the connection details 
-        public void SetIPAddress()
-        {
-            //If on platform, don't allow
-            //TODO, same deal for port number, and instance code 
 
-            //TODO, public facing function for connect, disconnect.
+        #region Platform-Facing Interfaces
+        public void SetInstanceNetworkSettings(InstanceNetworkSettings instanceNetworkSettings)         //TODO - need a customer facing version of this too
+        {
+            _connectionDetails = instanceNetworkSettings;
+
+            if (_pluginSyncService != null)
+            {
+                ConnectToServer();
+            }
+            #endregion
         }
 
-        private void Awake()
+        private void OnEnable()
         {
-            if (_pluginSyncService != null)
-                return;
-
             if (!Application.isPlaying)
+            {
+                BaseStateHolder[] baseStateConfigs = GameObject.FindObjectsOfType<BaseStateHolder>(); //TODO, this shouldn't be able to see the state holder
+
+                foreach (BaseStateHolder baseStateConfig in baseStateConfigs)
+                    baseStateConfig.BaseStateConfig.NetworkManager = this; //Not even really sure this should be the responsibility of the instance networking stuff 
+
+                return;
+            }
+
+            if (_pluginSyncService != null)
                 return;
 
             //Debug.Log("SCENE SYNCER AWAKE! enabled? " + enabled);
@@ -67,61 +77,22 @@ namespace ViRSE.InstanceNetworking
             //TODO - maybe that means it makes more sense to pass these on connect, rather than on create?
             _pluginSyncService = PluginSyncServiceFactory.Create(_connectionDetails, playerPresentationConfig);
 
-            SearchForAndAssignSettingsProvider();
+            GameObject platformIntegrationGO = GameObject.Find("V_PlatformIntegration");    
 
-            if (_instanceNetworkSettingsProvider != null)
-            {
-                if (_instanceNetworkSettingsProvider.AreInstanceNetworkingSettingsReady)
-                    HandleSettingsReady();
-                else
-                    _instanceNetworkSettingsProvider.OnInstanceNetworkSettingsReady += HandleSettingsReady;
-            }
-            else if (_connectAutomatically)
+            if (platformIntegrationGO == null && _connectAutomatically)
                 ConnectToServer();
         }
 
-        private void HandleSettingsReady()
-        {
-            _instanceNetworkSettingsProvider.OnInstanceNetworkSettingsReady -= HandleSettingsReady;
-
-            //Bit of a bodge, we want to preserve the actual object, because the SyncService is using it
-            _connectionDetails.IP = _instanceNetworkSettingsProvider.InstanceNetworkSettings.IP;
-            _connectionDetails.Port = _instanceNetworkSettingsProvider.InstanceNetworkSettings.Port;
-            _connectionDetails.InstanceCode = _instanceNetworkSettingsProvider.InstanceNetworkSettings.InstanceCode;
-
-            Debug.Log("<color=red>Settings ready! Code: " + _connectionDetails.InstanceCode + "</color>");
-
-            if (_connectionDetails == null)
-            {
-                Debug.LogError("Error getting connection details from platform");
-                return;
-            }
-
-            if (_connectAutomatically)
-                ConnectToServer();
-        }
-
-        public void SearchForAndAssignSettingsProvider() //TODO, mmm, maybe we just assign this in the inspector??
-        {
-            MonoBehaviour[] monos = FindObjectsOfType<MonoBehaviour>();
-            IInstanceNetworkSettingsProvider instanceNetworkSettingsProvider = monos.OfType<IInstanceNetworkSettingsProvider>().FirstOrDefault();
-
-            if (instanceNetworkSettingsProvider != null && ((MonoBehaviour)instanceNetworkSettingsProvider).isActiveAndEnabled)
-            {
-                _instanceNetworkSettingsProvider = instanceNetworkSettingsProvider;
-                Debug.Log($"Found instance network settings provider: {((MonoBehaviour)instanceNetworkSettingsProvider).gameObject.name}"); 
-            }
-        }
 
         public void ConnectToServer() //TODO - expose to plugin
         {
-            PluginSyncService.ConnectToServer();
+            _pluginSyncService.ConnectToServer();
         }
 
         private void FixedUpdate()
         {
-            PluginSyncService.NetworkUpdate(); //TODO, think about this... perhaps the syncers should be in charge of calling themselves?
-            
+            _pluginSyncService.NetworkUpdate(); //TODO, think about this... perhaps the syncers should be in charge of calling themselves?
+
             //Player will instantiate a player sync module 
             //That sync module will look for the network manager, calling the "register player" API will cause the Mono to create a new service, and give that service the player
             //The sync module will then need to create a new player syncer. 
@@ -134,19 +105,6 @@ namespace ViRSE.InstanceNetworking
         }
 
 
-        private void OnEnable()
-        {
-            if (!Application.isPlaying)
-            {
-                BaseStateHolder[] baseStateConfigs = GameObject.FindObjectsOfType<BaseStateHolder>();
-
-                foreach (BaseStateHolder baseStateConfig in baseStateConfigs)
-                    baseStateConfig.BaseStateConfig.NetworkManager = this;
-
-                return;
-            }
-        }
-
         private void OnDisable()
         {
             if (!Application.isPlaying)
@@ -158,7 +116,7 @@ namespace ViRSE.InstanceNetworking
             }
             else
             {
-                PluginSyncService.TearDown();
+                _pluginSyncService.TearDown();
             }
         }
     }
