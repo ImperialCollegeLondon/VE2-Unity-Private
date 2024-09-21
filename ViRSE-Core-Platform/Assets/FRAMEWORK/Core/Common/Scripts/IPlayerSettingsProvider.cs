@@ -9,6 +9,8 @@ public interface IPlayerSettingsProvider
     public bool ArePlayerSettingsReady { get; }
     public event Action OnPlayerSettingsReady;
     public UserSettings UserSettings { get; }
+    public string GameObjectName { get; }   
+    public bool IsEnabled { get; }
 }
 
 public class UserSettings

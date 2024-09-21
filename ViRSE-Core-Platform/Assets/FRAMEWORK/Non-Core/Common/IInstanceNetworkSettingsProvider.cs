@@ -3,11 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface IInstanceNetworkSettingsProvider
+public interface IInstanceNetworkSettingsProvider //TODO - should also be exposed to the customer??
 {
     public bool AreInstanceNetworkingSettingsReady { get; }
     public event Action OnInstanceNetworkSettingsReady;
     public InstanceNetworkSettings InstanceNetworkSettings { get; }
+    public string GameObjectName { get; }
+    public bool IsEnabled { get; }
 }
 
 [Serializable]

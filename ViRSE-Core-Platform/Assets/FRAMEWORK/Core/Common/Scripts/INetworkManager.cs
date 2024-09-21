@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ViRSE.Core.Shared
+namespace ViRSE.Core.Shared //TODO break into different files
 {
     public interface IMultiplayerSupport
     {

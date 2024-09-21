@@ -115,6 +115,7 @@ namespace ViRSE.PluginRuntime
 
         public void ConnectToServer()
         {
+            Debug.Log("Try connect... " + _instanceConnectionDetails.IP);
             if (IPAddress.TryParse(_instanceConnectionDetails.IP, out IPAddress ipAddress))
                 _commsHandler.ConnectToServer(ipAddress, _instanceConnectionDetails.Port);
             else

@@ -22,7 +22,7 @@ namespace ViRSE.PluginRuntime.VComponents
         [SerializeField, IgnoreParent] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new();
 
         [SerializeField, HideInInspector] public bool MultiplayerSupportPresent => MultiplayerSupport != null;
-        public IMultiplayerSupport MultiplayerSupport => ViRSEServiceLocator.Instance.MultiplayerSupport;
+        public IMultiplayerSupport MultiplayerSupport => ViRSECoreServiceLocator.Instance.MultiplayerSupport;
     }
 
     [Serializable]
