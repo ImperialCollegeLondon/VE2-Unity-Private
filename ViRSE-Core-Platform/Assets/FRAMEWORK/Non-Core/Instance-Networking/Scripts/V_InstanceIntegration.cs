@@ -46,8 +46,13 @@ namespace ViRSE.InstanceNetworking
         {
             InstanceService.RegisterStateModule(stateModule, stateType, goName);
         }
-        public bool IsEnabled => enabled && gameObject.activeInHierarchy;
 
+        public void RegisterLocalPlayer(ILocalPlayerRig localPlayerRig)
+        {
+            InstanceService.RegisterLocalPlayer(localPlayerRig);
+        }
+
+        public bool IsEnabled => enabled && gameObject.activeInHierarchy;
         public string MultiplayerSupportGameObjectName => gameObject.name;
         #endregion
 

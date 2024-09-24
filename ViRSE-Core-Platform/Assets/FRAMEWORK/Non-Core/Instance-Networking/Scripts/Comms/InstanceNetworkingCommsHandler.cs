@@ -43,6 +43,8 @@ namespace ViRSE.FrameworkRuntime
             }
         }
 
+        //TODO - Consider passing in the message tag, and then just having a simple "SendBytes" method
+
         public void SendWorldStateBundle(byte[] bundleAsBytes, TransmissionProtocol transmissionProtocol)
         {
             //Debug.Log("Send world state");
@@ -63,9 +65,15 @@ namespace ViRSE.FrameworkRuntime
             throw new NotImplementedException();
         }
 
-        public void SendLocalPlayerState(byte[] bytes)
+        public void SendLocalPlayerState(byte[] playerStateAsBytes)
         {
+            RawBytesMessage message = new(playerStateAsBytes);
+            SendMode sendMode = SendMode.Unreliable;
 
+            using (DRMessageWrapper messageWrapper = DRMessageWrapper.Create((ushort)InstanceSyncSerializables.InstanceNetworkingMessageCodes.PlayerState, message))
+            {
+                _drClient.SendMessage(messageWrapper, sendMode);
+            }
         }
 
         public void SendInstantMessage(byte[] bytes)
@@ -129,6 +137,9 @@ namespace ViRSE.FrameworkRuntime
                             break;
                         case InstanceSyncSerializables.InstanceNetworkingMessageCodes.InstanceInfo:
                             OnReceiveInstanceInfoUpdate?.Invoke(bytes);
+                            break;
+                        case InstanceSyncSerializables.InstanceNetworkingMessageCodes.PlayerState:
+                            OnReceiveRemotePlayerState?.Invoke(bytes);
                             break;
                     }
                 });

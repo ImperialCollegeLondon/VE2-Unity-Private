@@ -9,8 +9,12 @@ namespace ViRSE.Core.Player
     public class Player : MonoBehaviour, ILocalPlayerRig
     {
         #region Plugin Runtime interfaces
-        public Vector3 Position { get => _activePlayer.transform.position; set => SetPlayerPosition(value); }
-        public Quaternion Rotation { get => _activePlayer.transform.rotation; set => SetPlayerRotation(value); }
+        public Vector3 RootPosition { get => _activePlayer.transform.position; set => SetPlayerPosition(value); }
+        public Quaternion RootRotation { get => _activePlayer.transform.rotation; set => SetPlayerRotation(value); }
+        public Vector3 HeadPosition => Camera.main.transform.position;
+        public Quaternion HeadRotation => Camera.main.transform.rotation;
+        public TransmissionProtocol TransmissionProtocol => _stateConfig.RepeatedTransmissionConfig.TransmissionType;
+        public float TransmissionFrequency => _stateConfig.RepeatedTransmissionConfig.TransmissionFrequency;
         #endregion
 
         [SerializeField, HideInInspector] private LocalPlayerMode _playerMode;
@@ -18,11 +22,34 @@ namespace ViRSE.Core.Player
         [SerializeField] private PlayerControllerVR _vrPlayer;
         private PlayerController _activePlayer => _playerMode == LocalPlayerMode.TwoD? _2dPlayer : _vrPlayer;
 
-        public void Initialize(PlayerSpawnConfig playerSpawnConfig, PlayerPresentationConfig PresentationConfig)
+        [SerializeField, HideInInspector] PlayerStateConfig _stateConfig;
+
+        public void Initialize(PlayerSpawnConfig playerSpawnConfig, PlayerPresentationConfig PresentationConfig, PlayerStateConfig playerStateConfig)
         {
             _playerMode = LocalPlayerMode.TwoD;
 
+            _stateConfig = playerStateConfig;
+
             //TODO, process configs 
+
+            /*
+             *  The whole point of separating the state into its own module is so it can be re-used 
+             *  Does this apply for the player? Maybe if the customer wants a non-standard player?
+             * 
+             */
+        }
+
+        private void OnEnable() 
+        {
+            if (_stateConfig.IsNetworked && _stateConfig.MultiplayerSupportPresent)
+            {
+                _stateConfig.MultiplayerSupport.RegisterLocalPlayer(this);
+            }
+        }
+
+        public PlayerState GetPlayerState()
+        {
+            return new PlayerState(transform.position, transform.rotation, Camera.main.transform.position, Camera.main.transform.rotation);
         }
 
         private void Update()
@@ -55,4 +82,15 @@ namespace ViRSE.Core.Player
         TwoD, 
         VR
     }
+
+    /*
+     * 
+     *  For the VCs, we have a state module regardless of whether we're networked 
+     *  We probably want that too for the player? Although, the state is tied to the transform
+     *  The state module registers itself with the syncer 
+     *  
+     *  I'm not sure there's a reason to inject the state into the player?
+     *  If networked, register with the syncer
+     * 
+     */
 }

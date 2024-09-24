@@ -6,6 +6,8 @@ using ViRSE.Core.Shared;
 using ViRSE.PluginRuntime.VComponents;
 using ViRSE.PluginRuntime;
 using static InstanceSyncSerializables;
+using static ViRSE.Core.Shared.CoreCommonSerializables;
+using System.IO;
 
 namespace ViRSE.Networking
 {
@@ -80,7 +82,8 @@ namespace ViRSE.Networking
             _incommingWorldStateBundleBuffer.Add(worldStateBundle);
         }
 
-        public (byte[], byte[]) HandleNetworkUpdate(bool isHost)
+        //TODO - think we should just process incomming messages when we receive them, don't see a need for a buffer
+        public (byte[], byte[]) HandleNetworkUpdate(bool isHost) 
         {
             _cycleNumber++;
             CheckForDestroyedSyncables();
@@ -215,6 +218,43 @@ namespace ViRSE.Networking
             }
 
             return null;
+        }
+    }
+
+    public class WorldStateWrapper : ViRSESerializable
+    {
+        public string ID { get; private set; }
+        public byte[] StateBytes { get; private set; }
+
+        public WorldStateWrapper(byte[] bytes) : base(bytes) { }
+
+        public WorldStateWrapper(string id, byte[] state)
+        {
+            ID = id;
+            StateBytes = state;
+        }
+
+        protected override byte[] ConvertToBytes()
+        {
+            using MemoryStream stream = new MemoryStream();
+            using BinaryWriter writer = new BinaryWriter(stream);
+
+            writer.Write(ID);
+            writer.Write((ushort)StateBytes.Length);
+            writer.Write(StateBytes);
+
+            return stream.ToArray();
+        }
+
+        protected override void PopulateFromBytes(byte[] bytes)
+        {
+            using MemoryStream stream = new(bytes);
+            using BinaryReader reader = new(stream);
+
+            ID = reader.ReadString();
+
+            int stateBytesLength = reader.ReadUInt16();
+            StateBytes = reader.ReadBytes(stateBytesLength);
         }
     }
 }

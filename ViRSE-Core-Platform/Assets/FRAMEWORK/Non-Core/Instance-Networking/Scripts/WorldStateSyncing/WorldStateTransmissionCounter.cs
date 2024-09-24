@@ -44,7 +44,7 @@ namespace ViRSE.PluginRuntime.VComponents
             if (_syncOffsetSetup)
                 _numOfSyncablesPerSyncOffsets[_hostSyncOffset]--;
 
-            _hostSyncInterval = ((int)(50 / _transmissionFrequency)); //a frequency of 1 should send messages every 50 fixedupdate frames 
+            _hostSyncInterval = (int)(50 / _transmissionFrequency); //a frequency of 1 should send messages every 50 fixedupdate frames 
 
             //To smooth out the transmission load, choose the least used offset
             int leastUsedSyncOffset = 0;

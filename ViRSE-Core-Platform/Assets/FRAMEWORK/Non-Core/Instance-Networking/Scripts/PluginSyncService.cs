@@ -84,6 +84,7 @@ namespace ViRSE.PluginRuntime
         private InstancedAvatarAppearance _instancedAvatarAppearance;
 
         private WorldStateSyncer _worldStateSyncer;
+        private PlayerSyncer _playerSyncer;
 
         private const int WORLD_STATE_SYNC_INTERVAL_MS = 20;
 
@@ -91,6 +92,11 @@ namespace ViRSE.PluginRuntime
         public void RegisterStateModule(IStateModule stateModule, string stateType, string goName)
         {
             _worldStateSyncer.RegisterWithSyncer(stateModule, stateType, goName);
+        }
+
+        public void RegisterLocalPlayer(ILocalPlayerRig localPlayerRig)
+        {
+            _playerSyncer.RegisterLocalPlayer(localPlayerRig);
         }
         #endregion
 
@@ -105,12 +111,14 @@ namespace ViRSE.PluginRuntime
             //_commsHandler.OnReadyToSyncPlugin += HandleReadyToSyncPlugin;
 
             //TODO - maybe don't give the world state syncer the comms handler, we can just pull straight out of it here and send to comms
-            _worldStateSyncer = new WorldStateSyncer();
+            _worldStateSyncer = new WorldStateSyncer(); //TODO DI 
+            _playerSyncer = new PlayerSyncer(); //TODO DI
 
             commsHandler.OnReceiveNetcodeConfirmation += HandleReceiveNetcodeVersion;
             commsHandler.OnReceiveServerRegistrationConfirmation += HandleReceiveServerRegistrationConfirmation;
             commsHandler.OnReceiveInstanceInfoUpdate += HandleReceiveInstanceInfoUpdate;
             commsHandler.OnReceiveWorldStateSyncableBundle += _worldStateSyncer.HandleReceiveWorldStateBundle;
+            commsHandler.OnReceiveRemotePlayerState += _playerSyncer.HandleReceiveRemotePlayerState;
         }
 
         public void ConnectToServer()
@@ -181,18 +189,38 @@ namespace ViRSE.PluginRuntime
             InstanceInfo = serverRegistrationConfirmation.InstanceInfo;
             IsConnectedToServer = true;
 
-            OnInstanceInfoChanged?.Invoke(InstanceInfo);
+            foreach (ushort clientID in InstanceInfo.ClientInfos.Keys)
+                _playerSyncer.SpawnNewRemotePlayer(clientID);
+
+            HandleReceiveInstanceInfoUpdate(serverRegistrationConfirmation.InstanceInfo.Bytes); //TODO, converting to bytes and back again, big jank
         }
 
         private void HandleReceiveInstanceInfoUpdate(byte[] bytes)
         {
+            Debug.Log("PRE inst info update - ");
             InstancedInstanceInfo newInstanceInfo = new(bytes);
 
-            //TODO - check against _instanceInfo, detect clients that have joined, and clients that have left 
-            //TODO - also check for hostship changes, emit events if we gain or lose hostship 
+            //TODO - also check for hostship changes, emit events if we gain or lose hostship, AND events for players joining and leaving 
             if (newInstanceInfo.Bytes.SequenceEqual(InstanceInfo.Bytes))
                 return;
 
+                Debug.Log("Rec inst info update - ");
+
+            foreach (ushort clientID in newInstanceInfo.ClientInfos.Keys)
+            {
+                if (!InstanceInfo.ClientInfos.ContainsKey(clientID))
+                {
+                    _playerSyncer.SpawnNewRemotePlayer(clientID);
+                }
+            }
+
+            foreach (ushort clientID in InstanceInfo.ClientInfos.Keys)
+            {
+                if (!newInstanceInfo.ClientInfos.ContainsKey(clientID))
+                {
+                    _playerSyncer.DespawnRemotePlayer(clientID);
+                }
+            }
 
             InstanceInfo = newInstanceInfo;
             OnInstanceInfoChanged?.Invoke(InstanceInfo);
@@ -211,13 +239,17 @@ namespace ViRSE.PluginRuntime
             if (IsConnectedToServer)
             {
                 (byte[], byte[]) worldStateBundlesToTransmit = _worldStateSyncer.HandleNetworkUpdate(IsHost);
-
                 if (worldStateBundlesToTransmit.Item1 != null)
                     _commsHandler.SendWorldStateBundle(worldStateBundlesToTransmit.Item1, TransmissionProtocol.TCP);
                 if (worldStateBundlesToTransmit.Item2 != null)
                     _commsHandler.SendWorldStateBundle(worldStateBundlesToTransmit.Item2, TransmissionProtocol.UDP);
 
-                //TODO transmit local player, handle remote players?
+                byte[] playerState = _playerSyncer.GetPlayerState();
+                if (playerState != null)
+                {
+                    PlayerStateWrapper playerStateWrapper = new(LocalClientID, playerState);
+                    _commsHandler.SendLocalPlayerState(playerStateWrapper.Bytes); //TODO - handle protocol
+                }
             }
         }
 
@@ -230,7 +262,14 @@ namespace ViRSE.PluginRuntime
 
         public void TearDown()
         {
+        _playerSyncer.TearDown();
+
             _commsHandler.DisconnectFromServer();
+            _commsHandler.OnReceiveNetcodeConfirmation -= HandleReceiveNetcodeVersion;
+            _commsHandler.OnReceiveServerRegistrationConfirmation -= HandleReceiveServerRegistrationConfirmation;
+            _commsHandler.OnReceiveInstanceInfoUpdate -= HandleReceiveInstanceInfoUpdate;
+            _commsHandler.OnReceiveWorldStateSyncableBundle -= _worldStateSyncer.HandleReceiveWorldStateBundle;
+            _commsHandler.OnReceiveRemotePlayerState -= _playerSyncer.HandleReceiveRemotePlayerState;
         }
     }
 }

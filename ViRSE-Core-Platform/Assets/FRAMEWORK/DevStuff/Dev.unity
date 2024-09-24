@@ -971,6 +971,11 @@ MonoBehaviour:
     AvatarRed: 255
     AvatarGreen: 60
     AvatarBlue: 60
+  playerStateConfig:
+    IsNetworked: 1
+    RepeatedTransmissionConfig:
+      TransmissionType: 0
+      TransmissionFrequency: 50
 --- !u!4 &798246511
 Transform:
   m_ObjectHideFlags: 0
