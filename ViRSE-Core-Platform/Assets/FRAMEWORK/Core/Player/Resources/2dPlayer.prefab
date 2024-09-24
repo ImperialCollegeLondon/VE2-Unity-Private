@@ -123,7 +123,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   layerMask:
     serializedVersion: 2
-    m_Bits: 55
+    m_Bits: 823
   reticuleImage: {fileID: 7207473826304763245}
   raycastHitDebug: 
 --- !u!1 &1991808422919182909
@@ -496,7 +496,7 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0

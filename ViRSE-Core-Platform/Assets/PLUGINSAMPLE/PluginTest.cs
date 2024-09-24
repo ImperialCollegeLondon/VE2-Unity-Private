@@ -8,7 +8,8 @@ using ViRSE.PluginRuntime.VComponents;
 
 public class PluginTest : MonoBehaviour
 {
-    [SerializeField] private Light _light;
+    [SerializeField] private GameObject _lightOn;
+    [SerializeField] private GameObject _lightOff;
     [SerializeField] private GameObject _pushButtonGO;
     private IPushActivatable _pushActivatable => _pushButtonGO.GetComponent<IPushActivatable>();
 
@@ -28,8 +29,9 @@ public class PluginTest : MonoBehaviour
         if (interactorID != null) 
             Debug.Log($"Activate by... {interactorID.ToString()}");
 
-        _light.enabled = true;
-        HandleNewColor();
+        _lightOn.SetActive(true);
+        _lightOff.SetActive(false);
+        //HandleNewColor();
     }
 
     public void OnButtonDeactivate()
@@ -37,7 +39,8 @@ public class PluginTest : MonoBehaviour
         Debug.Log("Button deactivated! ");
         Debug.Log($"Button state = {_pushActivatable.IsActivated}");
 
-        _light.enabled = false;
+        _lightOn.SetActive(false);
+        _lightOff.SetActive(true);
     }
 
     // Update is called once per frame
@@ -49,28 +52,28 @@ public class PluginTest : MonoBehaviour
             _pushActivatable.InteractRange = 0;
     }
 
-    private void HandleNewColor()
-    {
-        if (lightColor == LightColours.Bue)
-            lightColor = LightColours.White;
-        else
-            lightColor++;
+    // private void HandleNewColor()
+    // {
+    //     if (lightColor == LightColours.Bue)
+    //         lightColor = LightColours.White;
+    //     else
+    //         lightColor++;
 
-        _light.color = lightColor switch
-        {
-            LightColours.Red => Color.red,
-            LightColours.Green => Color.green,
-            LightColours.Bue => Color.blue,
-            _ => Color.white,
-        };
-    }
+    //     _light.color = lightColor switch
+    //     {
+    //         LightColours.Red => Color.red,
+    //         LightColours.Green => Color.green,
+    //         LightColours.Bue => Color.blue,
+    //         _ => Color.white,
+    //     };
+    // }
 
-    private LightColours lightColor = LightColours.White;
-    private enum LightColours
-    {
-        White, 
-        Red, 
-        Green,
-        Bue,
-    }
+    // private LightColours lightColor = LightColours.White;
+    // private enum LightColours
+    // {
+    //     White, 
+    //     Red, 
+    //     Green,
+    //     Bue,
+    // }
 }

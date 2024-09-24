@@ -78,8 +78,8 @@ public class ViRSECoreServiceLocator : MonoBehaviour
     {
         //Debug.Log("awake core");
         _instance = this;
-        //gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
-        gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
+        gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
+        //gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
     }
 
     private void OnDisable()

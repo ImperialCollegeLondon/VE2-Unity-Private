@@ -189,10 +189,11 @@ namespace ViRSE.PluginRuntime
             InstanceInfo = serverRegistrationConfirmation.InstanceInfo;
             IsConnectedToServer = true;
 
-            foreach (ushort clientID in InstanceInfo.ClientInfos.Keys)
-                _playerSyncer.SpawnNewRemotePlayer(clientID);
-
-            HandleReceiveInstanceInfoUpdate(serverRegistrationConfirmation.InstanceInfo.Bytes); //TODO, converting to bytes and back again, big jank
+            foreach (ushort clientID in InstanceInfo.ClientInfos.Keys) 
+            {
+                if (clientID != LocalClientID)
+                    _playerSyncer.SpawnNewRemotePlayer(clientID);
+            }
         }
 
         private void HandleReceiveInstanceInfoUpdate(byte[] bytes)
