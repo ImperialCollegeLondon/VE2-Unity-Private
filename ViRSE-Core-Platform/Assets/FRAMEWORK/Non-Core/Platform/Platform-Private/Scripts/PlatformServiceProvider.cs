@@ -146,21 +146,3 @@ namespace ViRSE.InstanceNetworking
     }
 }
 
-
-/*
- * We need to figure out going to the hub and back 
- * Also need to figure out how the UI is going to tie in with the player 
- * 
- * When we're in the hub, we have some controller specific to the hub that talks to the platform service (via some internal interface) to request instance allocation to the given instance code 
- * When we request hub allocation through the hub UI... this "back to hub" button is probably also part of some platform-private component... although how this gets added back to the UI is still up in the air 
- * 
- * When we receive the instance allocation... what component is responsible for processing this, and moving us to the appropriate scene? 
- * Maybe this SHOULD just be the PlatformService... having this restriction of "a service should just be a comms point and shouldn't actually do anything" maybe doesn't really make sense... that's what the commshandler does?
- * the service is already making decisions during the handshake flow 
- * 
- * When we leave an instance, we'll also need to emit an event???
- * Why? Everything that needs to get teared down is referenced in the scene anyway
- * 
- * 
- * 
- */

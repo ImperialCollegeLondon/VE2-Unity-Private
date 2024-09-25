@@ -64,18 +64,4 @@ public class DebugHubUI : MonoBehaviour
     {
         _platformService.OnConnectedToServer -= HandlePlatformReady;
     }
-
-    /*
-     *   How would this work for the main UI?
-     *   mm, this is the trade off to not persisting things between scene
-     *   We'll NEED to create this UI within the scene, and attach it 
-     *   So, where does that UI come from? What instantiated it?
-     *   It has to be something with in platform integration, really. 
-     *   V_PlatformIntegration will have to instantiate it, either when 
-     *   
-     *   
-     *   Where does the actual code for this UI live?
-     *   If it lives in PlatformIntegration, then it gets shipped out to customers... that's not really what we want 
-     *   But, if it lives directly in 
-     */
 }
