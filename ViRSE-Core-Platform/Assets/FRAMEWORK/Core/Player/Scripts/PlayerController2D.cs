@@ -9,6 +9,10 @@ namespace ViRSE.Core.Player
         [SerializeField] private Camera camera2D;
         [SerializeField] private Player2DLocomotor playerLocomotor2D;
         [SerializeField] private Interactor2D interactor2D;
+        [SerializeField] private CharacterController characterController;
+
+        public override Vector3 RootPosition { get => transform.position + (Vector3.down * characterController.height / 2); set => transform.position = value + (Vector3.up * characterController.height / 2); }
+        public override Quaternion RootRotation { get => transform.rotation; set => transform.rotation = value; }
 
         // Start is called before the first frame update
         void Start()

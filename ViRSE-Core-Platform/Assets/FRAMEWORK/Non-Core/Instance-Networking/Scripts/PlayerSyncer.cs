@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using ViRSE.Core.Player;
 using ViRSE.Core.Shared;
+using static InstanceSyncSerializables;
 
 public class PlayerSyncer 
 {
@@ -30,6 +31,30 @@ public class PlayerSyncer
             return null;
     }
 
+    public void HandleReceiveRemoteClientInfos(Dictionary<ushort, InstancedClientInfo> receivedRemoteClientInfos) 
+    {
+        foreach (InstancedClientInfo receivedRemoteClientInfo in receivedRemoteClientInfos.Values) 
+        {
+            if (!_remotePlayers.ContainsKey(receivedRemoteClientInfo.ClientID)) 
+            {
+                GameObject remotePlayerPrefab = Resources.Load<GameObject>("RemoteAvatar");
+                GameObject remotePlayerGO = GameObject.Instantiate(remotePlayerPrefab);
+                _remotePlayers.Add(receivedRemoteClientInfo.ClientID, remotePlayerGO.GetComponent<RemotePlayerController>());
+            }
+
+            _remotePlayers[receivedRemoteClientInfo.ClientID].HandleReceiveAvatarAppearance(receivedRemoteClientInfo.InstancedAvatarAppearance);
+        }
+
+        List<ushort> remoteClientIDsToDespawn = new(_remotePlayers.Keys);
+        remoteClientIDsToDespawn.RemoveAll(id => receivedRemoteClientInfos.ContainsKey(id));
+
+        foreach (ushort idToDespawn in remoteClientIDsToDespawn)
+        {
+            GameObject.Destroy(_remotePlayers[idToDespawn].gameObject);
+            _remotePlayers.Remove(idToDespawn);
+        }
+    }
+
     public void HandleReceiveRemotePlayerState(byte[] stateAsBytes)
     {
         PlayerStateWrapper stateWrapper = new(stateAsBytes);
@@ -39,31 +64,31 @@ public class PlayerSyncer
             remotePlayerController.HandleReceiveRemotePlayerState(playerState);
     }
 
-    public void SpawnNewRemotePlayer(ushort id)
-    {
-        GameObject remotePlayerPrefab = Resources.Load<GameObject>("RemoteAvatar");
-        GameObject remotePlayerGO = GameObject.Instantiate(remotePlayerPrefab);
-        _remotePlayers.Add(id, remotePlayerGO.GetComponent<RemotePlayerController>());
-    }
+    // private void SpawnNewRemotePlayer(ushort id)
+    // {
+    //     GameObject remotePlayerPrefab = Resources.Load<GameObject>("RemoteAvatar");
+    //     GameObject remotePlayerGO = GameObject.Instantiate(remotePlayerPrefab);
+    //     _remotePlayers.Add(id, remotePlayerGO.GetComponent<RemotePlayerController>());
+    // }
 
-    public void DespawnRemotePlayer(ushort id)
-    {
-        if (!_remotePlayers.TryGetValue(id, out RemotePlayerController remotePlayer))
-        {
-            Debug.LogError($"No remote player with id {id} found to despawn");
-            return;
-        }
+    // private void DespawnRemotePlayer(ushort id)
+    // {
+    //     if (!_remotePlayers.TryGetValue(id, out RemotePlayerController remotePlayer))
+    //     {
+    //         Debug.LogError($"No remote player with id {id} found to despawn");
+    //         return;
+    //     }
 
-        GameObject.Destroy(remotePlayer.gameObject);
-        _remotePlayers.Remove(id);
-    }
+    //     GameObject.Destroy(remotePlayer.gameObject);
+    //     _remotePlayers.Remove(id);
+    // }
 
     public void TearDown() 
     {
-        foreach (RemotePlayerController remotePlayerController in _remotePlayers.Values)
-            if (remotePlayerController != null && remotePlayerController.gameObject != null)
-                GameObject.Destroy(remotePlayerController.gameObject);
+        // foreach (RemotePlayerController remotePlayerController in _remotePlayers.Values)
+        //     if (remotePlayerController != null && remotePlayerController.gameObject != null)
+        //         GameObject.Destroy(remotePlayerController.gameObject);
 
-        _remotePlayers.Clear();
+        // _remotePlayers.Clear();
     }
 }

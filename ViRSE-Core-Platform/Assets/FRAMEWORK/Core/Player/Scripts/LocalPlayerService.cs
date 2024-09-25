@@ -6,11 +6,12 @@ using static ViRSE.Core.Shared.CoreCommonSerializables;
 
 namespace ViRSE.Core.Player
 {
+    //TODO, don't think this should be a mono, should just be a service, that we inject with the 2d and vr players
     public class Player : MonoBehaviour, ILocalPlayerRig
     {
         #region Plugin Runtime interfaces
-        public Vector3 RootPosition { get => _activePlayer.transform.position; set => SetPlayerPosition(value); }
-        public Quaternion RootRotation { get => _activePlayer.transform.rotation; set => SetPlayerRotation(value); }
+        public Vector3 RootPosition { get => _activePlayer.RootPosition; set => _activePlayer.RootPosition = value; }
+        public Quaternion RootRotation { get => _activePlayer.RootRotation; set => _activePlayer.RootRotation = value; }
         public Vector3 HeadPosition => Camera.main.transform.position;
         public Quaternion HeadRotation => Camera.main.transform.rotation;
         public TransmissionProtocol TransmissionProtocol => _stateConfig.RepeatedTransmissionConfig.TransmissionType;

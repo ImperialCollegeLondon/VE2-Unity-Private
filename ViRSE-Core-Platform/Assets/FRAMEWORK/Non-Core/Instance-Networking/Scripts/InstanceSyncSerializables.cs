@@ -146,6 +146,19 @@ public class InstanceSyncSerializables
             AvatarBodyTypeOverride = reader.ReadString();
             AvatarTransparancy = reader.ReadBoolean();
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null) return false;
+
+            InstancedAvatarAppearance other = obj as InstancedAvatarAppearance;
+
+            return UsingViRSEAvatar == other.UsingViRSEAvatar &&
+                   AvatarHeadTypeOverride == other.AvatarHeadTypeOverride &&
+                   AvatarBodyTypeOverride == other.AvatarBodyTypeOverride &&
+                   AvatarTransparancy == other.AvatarTransparancy &&
+                   base.Equals(other);
+        }
     }
 
     public class InstancedInstanceInfo : InstanceInfoBase

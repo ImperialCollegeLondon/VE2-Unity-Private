@@ -33,7 +33,7 @@ public class DebugInstanceInfoUI : MonoBehaviour
     {
         string instanceInfoString = $"<b>INSTANCE</b> {instanceInfo.InstanceCode} \nLocal ID = <color=green>{_instanceService.LocalClientID}</color>\n";
 
-        Debug.Log("NUM PLAYERS IN ISNTANCE = " + instanceInfo.ClientInfos.Values.Count + "=============");
+        //Debug.Log("NUM PLAYERS IN ISNTANCE = " + instanceInfo.ClientInfos.Values.Count + "=============");
         foreach (InstancedClientInfo clientInfo in instanceInfo.ClientInfos.Values)
         {
             if (clientInfo.ClientID.Equals(_instanceService.LocalClientID))

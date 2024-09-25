@@ -186,46 +186,30 @@ namespace ViRSE.PluginRuntime
            // Debug.Log("Rec instanceserver reg conf");
 
             LocalClientID = serverRegistrationConfirmation.LocalClientID;
-            InstanceInfo = serverRegistrationConfirmation.InstanceInfo;
             IsConnectedToServer = true;
 
-            foreach (ushort clientID in InstanceInfo.ClientInfos.Keys) 
-            {
-                if (clientID != LocalClientID)
-                    _playerSyncer.SpawnNewRemotePlayer(clientID);
-            }
+            HandleReceiveInstanceInfoUpdate(serverRegistrationConfirmation.InstanceInfo);
         }
 
         private void HandleReceiveInstanceInfoUpdate(byte[] bytes)
         {
-            Debug.Log("PRE inst info update - ");
-            InstancedInstanceInfo newInstanceInfo = new(bytes);
-
-            //TODO - also check for hostship changes, emit events if we gain or lose hostship, AND events for players joining and leaving 
-            if (newInstanceInfo.Bytes.SequenceEqual(InstanceInfo.Bytes))
+            if (bytes.SequenceEqual(InstanceInfo.Bytes))
                 return;
 
-                Debug.Log("Rec inst info update - ");
+            HandleReceiveInstanceInfoUpdate(new InstancedInstanceInfo(bytes));
+        }
 
-            foreach (ushort clientID in newInstanceInfo.ClientInfos.Keys)
-            {
-                if (!InstanceInfo.ClientInfos.ContainsKey(clientID))
-                {
-                    _playerSyncer.SpawnNewRemotePlayer(clientID);
-                }
-            }
+        private void HandleReceiveInstanceInfoUpdate(InstancedInstanceInfo newInstanceInfo)
+        {
+            //TODO - also check for hostship changes, emit events if we gain or lose hostship, AND events for players joining and leaving 
 
-            foreach (ushort clientID in InstanceInfo.ClientInfos.Keys)
-            {
-                if (!newInstanceInfo.ClientInfos.ContainsKey(clientID))
-                {
-                    _playerSyncer.DespawnRemotePlayer(clientID);
-                }
-            }
+            Dictionary<ushort, InstancedClientInfo> remoteClientInfos = new(newInstanceInfo.ClientInfos);
+            remoteClientInfos.Remove(LocalClientID);
+
+            _playerSyncer.HandleReceiveRemoteClientInfos(remoteClientInfos);
 
             InstanceInfo = newInstanceInfo;
-            OnInstanceInfoChanged?.Invoke(InstanceInfo);
-            //Debug.Log("Rec inst info update - " + IsHost);
+            OnInstanceInfoChanged.Invoke(InstanceInfo);
         }
 
         //TODO, not a fan of this anymore. This is just a service, only meant for sending and receiving data. Think the actual syncers themselves should be the ones pushing data, and listening to received messages

@@ -1150,6 +1150,7 @@ MonoBehaviour:
   camera2D: {fileID: 8825103087020027289}
   playerLocomotor2D: {fileID: 5964026973069096774}
   interactor2D: {fileID: 5747917256425990879}
+  characterController: {fileID: 1655137531710687974}
 --- !u!114 &5964026973069096774
 MonoBehaviour:
   m_ObjectHideFlags: 0
