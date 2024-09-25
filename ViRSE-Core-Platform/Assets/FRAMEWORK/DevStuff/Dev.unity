@@ -669,7 +669,7 @@ Light:
   serializedVersion: 11
   m_Type: 3
   m_Color: {r: 0, g: 1, b: 0.02951169, a: 1}
-  m_Intensity: 75
+  m_Intensity: 150
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -1034,7 +1034,7 @@ Light:
   serializedVersion: 11
   m_Type: 3
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 10
+  m_Intensity: 15
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -1155,7 +1155,7 @@ Light:
   serializedVersion: 11
   m_Type: 3
   m_Color: {r: 1, g: 0, b: 0, a: 1}
-  m_Intensity: 75
+  m_Intensity: 150
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -1276,7 +1276,7 @@ Light:
   serializedVersion: 11
   m_Type: 3
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 10
+  m_Intensity: 15
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -2605,7 +2605,7 @@ Light:
   serializedVersion: 11
   m_Type: 3
   m_Color: {r: 0, g: 0.43849897, b: 1, a: 1}
-  m_Intensity: 75
+  m_Intensity: 150
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -3096,7 +3096,6 @@ GameObject:
   - component: {fileID: 806422112}
   - component: {fileID: 806422115}
   - component: {fileID: 806422114}
-  - component: {fileID: 806422113}
   m_Layer: 0
   m_Name: Corner1 (1)
   m_TagString: Untagged
@@ -3119,27 +3118,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1908506397}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -90}
---- !u!65 &806422113
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 806422111}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &806422114
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -3895,7 +3873,7 @@ Light:
   serializedVersion: 11
   m_Type: 3
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 10
+  m_Intensity: 15
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -4052,7 +4030,7 @@ Light:
   serializedVersion: 11
   m_Type: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 1362.26
+  m_Intensity: 3000
   m_Range: 14.636511
   m_SpotAngle: 40.732666
   m_InnerSpotAngle: 35.460167
@@ -4173,7 +4151,7 @@ Light:
   serializedVersion: 11
   m_Type: 3
   m_Color: {r: 0, g: 1, b: 0.02951169, a: 1}
-  m_Intensity: 75
+  m_Intensity: 150
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -4605,7 +4583,6 @@ GameObject:
   - component: {fileID: 1216663736}
   - component: {fileID: 1216663739}
   - component: {fileID: 1216663738}
-  - component: {fileID: 1216663737}
   m_Layer: 0
   m_Name: Corner1
   m_TagString: Untagged
@@ -4628,27 +4605,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 859823983}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -90}
---- !u!65 &1216663737
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1216663735}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1216663738
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -6022,7 +5978,7 @@ Light:
   serializedVersion: 11
   m_Type: 3
   m_Color: {r: 0, g: 0.43849897, b: 1, a: 1}
-  m_Intensity: 75
+  m_Intensity: 150
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -8020,7 +7976,7 @@ Light:
   serializedVersion: 11
   m_Type: 3
   m_Color: {r: 1, g: 0, b: 0, a: 1}
-  m_Intensity: 75
+  m_Intensity: 150
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -8371,7 +8327,6 @@ GameObject:
   - component: {fileID: 2033696693}
   - component: {fileID: 2033696692}
   - component: {fileID: 2033696691}
-  - component: {fileID: 2033696690}
   m_Layer: 0
   m_Name: ViRSELOGO
   m_TagString: Untagged
@@ -8379,27 +8334,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!65 &2033696690
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2033696689}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &2033696691
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -8792,7 +8726,7 @@ Light:
   serializedVersion: 11
   m_Type: 3
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 10
+  m_Intensity: 15
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208

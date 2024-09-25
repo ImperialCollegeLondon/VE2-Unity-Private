@@ -25,12 +25,15 @@ public class DebugHubUI : MonoBehaviour
 
     private void HandlePlatformReady()
     {
-        string availableWorldList = "<b>AVAILABLE WORLDS</b>\n";
+        string availableWorldList = "";
 
         foreach (WorldDetails worldDetails in _platformService.AvailableWorlds.Values)
         {
-            availableWorldList += $"{worldDetails.Name} - {worldDetails.IPAddress}:{worldDetails.PortNumber}\n";
+            availableWorldList += $"{worldDetails.Name} - <i><color=yellow>{worldDetails.IPAddress}:{worldDetails.PortNumber}</color></i>\n";
         }
+
+        Debug.Log("TRY GET TEXT - " + (instancesListText == null));
+        Debug.Log(instancesListText.gameObject.name);
 
         instancesListText.text = availableWorldList;
     }

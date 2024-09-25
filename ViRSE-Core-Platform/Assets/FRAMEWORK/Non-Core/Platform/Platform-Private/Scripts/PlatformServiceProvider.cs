@@ -45,6 +45,7 @@ namespace ViRSE.InstanceNetworking
             if (_platformService != null || !Application.isPlaying)
                 return;
 
+            transform.parent = null;
             DontDestroyOnLoad(gameObject);
 
             //Debug.Log("Platform integration mono awake!");
