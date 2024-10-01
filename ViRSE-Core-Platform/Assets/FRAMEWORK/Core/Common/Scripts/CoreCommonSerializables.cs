@@ -204,5 +204,56 @@ namespace ViRSE.Core.Shared
                 AvatarBlue = reader.ReadUInt16();
             }
         }
+
+        [Serializable]
+        public class PlayerPresentationOverrides : ViRSESerializable
+        {
+#if UNITY_EDITOR
+            [HideInInspector]
+#endif
+            public bool UsingViRSEAvatar = true; //TODO remove? 
+
+            public string AvatarHeadTypeOverride = string.Empty;
+
+            public string AvatarBodyTypeOverride = string.Empty;
+
+            public bool AvatarTransparancy = false;
+
+            public PlayerPresentationOverrides() { }
+
+            public PlayerPresentationOverrides(byte[] bytes) : base(bytes) { }
+
+            public PlayerPresentationOverrides(bool usingViRSEAvatar, string avatarHeadTypeOverride, string avatarBodyTypeOverride, bool avatarTransparancy)
+            {
+                UsingViRSEAvatar = usingViRSEAvatar;
+                AvatarHeadTypeOverride = avatarHeadTypeOverride;
+                AvatarBodyTypeOverride = avatarBodyTypeOverride;
+                AvatarTransparancy = avatarTransparancy;
+            }
+
+            protected override byte[] ConvertToBytes()
+            {
+                using MemoryStream stream = new();
+                using BinaryWriter writer = new(stream);
+
+                writer.Write(UsingViRSEAvatar);
+                writer.Write(AvatarHeadTypeOverride);
+                writer.Write(AvatarBodyTypeOverride);
+                writer.Write(AvatarTransparancy);
+
+                return stream.ToArray();
+            }
+
+            protected override void PopulateFromBytes(byte[] bytes)
+            {
+                using MemoryStream stream = new(bytes);
+                using BinaryReader reader = new(stream);
+
+                UsingViRSEAvatar = reader.ReadBoolean();
+                AvatarHeadTypeOverride = reader.ReadString();
+                AvatarBodyTypeOverride = reader.ReadString();
+                AvatarTransparancy = reader.ReadBoolean();
+            }
+        }
     }
 }

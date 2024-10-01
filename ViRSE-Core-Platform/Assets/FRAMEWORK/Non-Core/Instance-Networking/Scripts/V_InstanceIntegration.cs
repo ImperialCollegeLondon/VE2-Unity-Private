@@ -2,6 +2,7 @@ using System.Linq;
 using System.Net;
 using UnityEditorInternal;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using ViRSE.Core.Player;
 using ViRSE.Core.Shared;
 using ViRSE.PluginRuntime;
@@ -82,12 +83,14 @@ namespace ViRSE.InstanceNetworking
 
             //Debug.Log("SCENE SYNCER AWAKE! enabled? " + enabled);
 
-            GameObject playerSpawner = GameObject.Find("PlayerSpawner");
-            PlayerPresentationConfig playerPresentationConfig = playerSpawner ? playerSpawner.GetComponent<V_PlayerSpawner>().PresentationConfig : null;
+            GameObject playerSpawner = GameObject.Find("PlayerSpawner"); //TODO - use service locator
+            Debug.Log("<color=cyan>SPAWNER null? " + (playerSpawner == null).ToString() + " SCENE = " + SceneManager.GetActiveScene().name + "</color>");
+            Debug.Log("<color=cyan>Config null??? " + (playerSpawner.GetComponent<V_PlayerSpawner>().SpawnConfig.PlayerPresentationConfigWrapper.PresentationConfig == null).ToString() + "</color>");
+            PlayerPresentationConfigWrapper playerPresentationConfigWrapper = playerSpawner ? playerSpawner.GetComponent<V_PlayerSpawner>().SpawnConfig.PlayerPresentationConfigWrapper : null;
 
             //We pass these dependencies now, but they may change before the actual connection happens 
             //TODO - maybe that means it makes more sense to pass these on connect, rather than on create?
-            _instanceService = PluginSyncServiceFactory.Create(_networkSettings, playerPresentationConfig);
+            _instanceService = PluginSyncServiceFactory.Create(_networkSettings, playerPresentationConfigWrapper);
 
             if (_instanceNetworkSettingsProviderPresent)
             {

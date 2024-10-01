@@ -71,6 +71,7 @@ namespace ViRSE.InstanceNetworking
                 {
                     //TODO - read command line args. This is the flow case where we've gone straight into a scene from the launcher, rather than going through the hub
                     throw new NotImplementedException();
+                    //_instanceCode = PlatformInstanceInfo.GetInstanceCode(sceneName, "Solo");
                 }
             }
 

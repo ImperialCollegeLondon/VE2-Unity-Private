@@ -27,68 +27,19 @@ namespace ViRSE.FrameworkRuntime
         public event Action<byte[]> OnReceiveRemotePlayerState;
         public event Action<byte[]> OnReceiveInstantMessage;
 
-        public void ConnectToServer(IPAddress ipAddress, int port)
+        public void ConnectToServer(IPAddress ipAddress, int port) => _drClient.Connect(ipAddress, port, false);
+
+        public void SendMessage(byte[] messageAsBytes, InstanceSyncSerializables.InstanceNetworkingMessageCodes messageCode, TransmissionProtocol transmissionProtocol)
         {
-            //Debug.Log($"Try connect to {ipAddress}:{port}");
-            _drClient.Connect(ipAddress, port, false);
-        }
-
-        public void SendServerRegistrationRequest(byte[] bytes)
-        {
-            RawBytesMessage message = new(bytes);
-
-            using (DRMessageWrapper messageWrapper = DRMessageWrapper.Create((ushort)InstanceSyncSerializables.InstanceNetworkingMessageCodes.ServerRegistrationRequest, message))
-            {
-                _drClient.SendMessage(messageWrapper, SendMode.Reliable);
-            }
-        }
-
-        //TODO - Consider passing in the message tag, and then just having a simple "SendBytes" method
-
-        public void SendWorldStateBundle(byte[] bundleAsBytes, TransmissionProtocol transmissionProtocol)
-        {
-            //Debug.Log("Send world state");
-
-            RawBytesMessage message = new(bundleAsBytes);
+            RawBytesMessage message = new(messageAsBytes);
             SendMode sendMode = transmissionProtocol == TransmissionProtocol.TCP ?
                 SendMode.Reliable :
                 SendMode.Unreliable;
 
-            using (DRMessageWrapper messageWrapper = DRMessageWrapper.Create((ushort)InstanceSyncSerializables.InstanceNetworkingMessageCodes.WorldstateSyncableBundle, message))
+            using (DRMessageWrapper messageWrapper = DRMessageWrapper.Create((ushort)messageCode, message))
             {
                 _drClient.SendMessage(messageWrapper, sendMode);
             }
-        }
-
-        public void SendWorldStateSnapshot(byte[] bytes)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SendLocalPlayerState(byte[] playerStateAsBytes)
-        {
-            RawBytesMessage message = new(playerStateAsBytes);
-            SendMode sendMode = SendMode.Unreliable;
-
-            using (DRMessageWrapper messageWrapper = DRMessageWrapper.Create((ushort)InstanceSyncSerializables.InstanceNetworkingMessageCodes.PlayerState, message))
-            {
-                _drClient.SendMessage(messageWrapper, sendMode);
-            }
-        }
-
-        public void SendInstantMessage(byte[] bytes)
-        {
-
-        }
-
-        public void SendPingToHost()
-        {
-
-        }
-
-        public void SendPingReplyToNonHost()
-        {
-
         }
 
         public void MainThreadUpdate()
@@ -102,6 +53,8 @@ namespace ViRSE.FrameworkRuntime
                 action?.Invoke();
             }
         }
+
+        public void DisconnectFromServer() => _drClient.Disconnect();
         #endregion
 
         public InstanceNetworkingCommsHandler(DarkRiftClient drClient)
@@ -163,11 +116,6 @@ namespace ViRSE.FrameworkRuntime
             //        RouteMessage(messageWrapper, receivedMessageCode);
             //    }
             //}
-        }
-
-        public void DisconnectFromServer()
-        {
-            _drClient.Disconnect();
         }
 
         private class RawBytesMessage : IDarkRiftSerializable

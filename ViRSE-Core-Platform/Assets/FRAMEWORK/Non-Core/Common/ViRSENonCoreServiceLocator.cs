@@ -71,8 +71,8 @@ public class ViRSENonCoreServiceLocator : MonoBehaviour
     {
         //Debug.Log("awake non core");
         _instance = this;
-        gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
-        //gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
+        //gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
+        gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
 
 //#if UNITY_EDITOR
 //        EditorApplication.hierarchyChanged += OnHierarchyChanged;

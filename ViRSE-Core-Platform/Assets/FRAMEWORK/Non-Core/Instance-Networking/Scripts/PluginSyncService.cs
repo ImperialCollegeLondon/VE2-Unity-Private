@@ -14,6 +14,41 @@ using System.Collections.Generic;
 
 namespace ViRSE.PluginRuntime
 {
+
+/*
+Why don't we just have the Instanced version live on the player?
+The instanced version has "using virse avatar", overrides, and transparancy 
+
+Yeah, I think let's make the Instanced version just a wrapper of the platform version 
+That way we can still extract the platform-only one to send to the platform... composition over inheritence!
+
+
+The thing is, the player spawner doesn't want knowledge of any of the instance networking stuff
+So, the instance service should be the thing to convert it to the isntance version?
+What happens when those settings are changed, though? HOW are they changed? Surely it should be through the player?
+
+What will change at runtime? 
+The avatar overrides - that would suggest that should be on the player then? There should be an API on the player itself to change these settings 
+Yeah, changing override, should be on the player itself. 
+So, we need the instance player config, AND the platform version that fits into it, to be in the common serializables 
+
+unless we just have one set of player settings in the base, and then some mirror object in the platform version, that isn't coupled to the player at all
+If we have this split out version of 
+
+
+Ok, hold on. Currently, We're saying the platform server is different from the instancing server 
+Is this really a requirement we want to hold on to?
+We want everyone to be able to have their own on-prem platform server, but this should be separate, surely? 
+We keep talking about wanting another level of separation above the current platform server... maybe that just means we're doing this separation in the wrong place?? 
+We'd be giving both the platform server and the instance relay to the customer institution anyway... so why not just have them be the same thing?
+That way, we don't have to send data to two separate servers. 
+Right, but we would still have this problem of "people in the same instance as you should get one set of data, people in a different instance should get another"
+So we DO still need a version of this data structure that cuts out the instance-specific stuff 
+What's a sensible way to deliniate between instance specific and non-instance specific data, in a way that makes sense in the domain of core, off-platform single player? 
+There kind of isn't one? That's why I think the platform should just have its own version that isn't coupled to the rest of it 
+
+*/
+
     public static class PluginSyncServiceFactory
     {
         /// <summary>
@@ -21,41 +56,11 @@ namespace ViRSE.PluginRuntime
         /// </summary>
         /// <param name="playerPresentationConfig"></param>
         /// <returns></returns>
-        public static PluginSyncService Create(InstanceNetworkSettings instanceConnectionDetails, PlayerPresentationConfig playerPresentationConfig)
+        public static PluginSyncService Create(InstanceNetworkSettings instanceConnectionDetails, PlayerPresentationConfigWrapper playerPresentationConfigWrapper)
         {
             InstanceNetworkingCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
 
-            InstancedAvatarAppearance instancedAvatarAppearance; //TODO, maybe this should be a wrapper instead of a child class?
-            if (playerPresentationConfig != null)
-            {
-                instancedAvatarAppearance = new(
-                    playerPresentationConfig.PlayerName,
-                    playerPresentationConfig.AvatarHeadType,
-                    playerPresentationConfig.AvatarBodyType,
-                    playerPresentationConfig.AvatarRed,
-                    playerPresentationConfig.AvatarGreen,
-                    playerPresentationConfig.AvatarBlue,
-                    true,
-                    "",
-                    "",
-                    false);
-            }
-            else
-            {
-                instancedAvatarAppearance = new(
-                    "N/A",
-                    "N/A",
-                    "N/A",
-                    0,
-                    0,
-                    0,
-                    false, //NOT using ViRSE avatar
-                    "N/A",
-                    "N/A",
-                    false);
-            }
-
-            return new PluginSyncService(commsHandler, instanceConnectionDetails, instancedAvatarAppearance);
+            return new PluginSyncService(commsHandler, instanceConnectionDetails, playerPresentationConfigWrapper);
         }
     }
 
@@ -81,7 +86,8 @@ namespace ViRSE.PluginRuntime
         public bool IsEnabled => true; //Bodge, the mono proxy for this needs this, and both currently use the same interface... maybe consider using different interfaces?
 
         private IPluginSyncCommsHandler _commsHandler;
-        private InstancedAvatarAppearance _instancedAvatarAppearance;
+        private PlayerPresentationConfigWrapper _playerPresentationConfigWrapper;
+        private InstancedPlayerPresentation _instancedPlayerPresentation => new(_playerPresentationConfigWrapper.PresentationConfig, _playerPresentationConfigWrapper.PresentationOverrides);
 
         private WorldStateSyncer _worldStateSyncer;
         private PlayerSyncer _playerSyncer;
@@ -101,17 +107,22 @@ namespace ViRSE.PluginRuntime
         #endregion
 
         //TODO, consider constructing PluginSyncService using factory pattern to inject the WorldStateSyncer
-        public PluginSyncService(IPluginSyncCommsHandler commsHandler, InstanceNetworkSettings instanceConnectionDetails, InstancedAvatarAppearance instancedAvatarAppearance)
+        public PluginSyncService(IPluginSyncCommsHandler commsHandler, InstanceNetworkSettings instanceConnectionDetails, PlayerPresentationConfigWrapper playerPresentationConfigWrapper)
         {
             WorldStateHistoryQueueSize = 10; //TODO, automate this, currently 10 is more than enough though, 200ms
 
             _commsHandler = commsHandler;
+
             _instanceConnectionDetails = instanceConnectionDetails;
-            _instancedAvatarAppearance = instancedAvatarAppearance;
+            _playerPresentationConfigWrapper = playerPresentationConfigWrapper;
             //_commsHandler.OnReadyToSyncPlugin += HandleReadyToSyncPlugin;
 
+            Debug.Log("<color=cyan>PRESENTATION NULL?? " + (_playerPresentationConfigWrapper.PresentationConfig == null).ToString() + "</color>");
+
+            playerPresentationConfigWrapper.OnLocalChangeToPlayerPresentation += () => _commsHandler.SendMessage(_instancedPlayerPresentation.Bytes, InstanceNetworkingMessageCodes.UpdateAvatarPresentation, TransmissionProtocol.TCP);
+
             //TODO - maybe don't give the world state syncer the comms handler, we can just pull straight out of it here and send to comms
-            _worldStateSyncer = new WorldStateSyncer(); //TODO DI 
+            _worldStateSyncer = new WorldStateSyncer(); //TODO DI (if this service references these at all, or if should be the other way around)
             _playerSyncer = new PlayerSyncer(); //TODO DI
 
             commsHandler.OnReceiveNetcodeConfirmation += HandleReceiveNetcodeVersion;
@@ -143,39 +154,9 @@ namespace ViRSE.PluginRuntime
             {
                 //Debug.Log("Rec instance server nv, sending reg");
 
-                InstancedAvatarAppearance instancedAvatarAppearance; //TODO, this dependency should come from the factory?
-                if (_instancedAvatarAppearance != null)
-                {
-                    instancedAvatarAppearance = new(
-                        _instancedAvatarAppearance.PlayerName,
-                        _instancedAvatarAppearance.AvatarHeadType,
-                        _instancedAvatarAppearance.AvatarBodyType,
-                        _instancedAvatarAppearance.AvatarRed,
-                        _instancedAvatarAppearance.AvatarGreen,
-                        _instancedAvatarAppearance.AvatarBlue,
-                        true,
-                        "",
-                        "",
-                        false);
-                }
-                else
-                {
-                    instancedAvatarAppearance = new(
-                        "N/A",
-                        "N/A",
-                        "N/A",
-                        0,
-                        0,
-                        0,
-                        false, //NOT using ViRSE avatar
-                        "N/A",
-                        "N/A",
-                        false);
-                }
-
                 Debug.Log("<color=green> Try connect to server with instance code - " + _instanceConnectionDetails.InstanceCode + "</color>");
-                ServerRegistrationRequest serverRegistrationRequest = new(instancedAvatarAppearance, _instanceConnectionDetails.InstanceCode);
-                _commsHandler.SendServerRegistrationRequest(serverRegistrationRequest.Bytes);
+                ServerRegistrationRequest serverRegistrationRequest = new(_instancedPlayerPresentation, _instanceConnectionDetails.InstanceCode);
+                _commsHandler.SendMessage(serverRegistrationRequest.Bytes, InstanceNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
             }
         }
 
@@ -225,17 +206,21 @@ namespace ViRSE.PluginRuntime
             {
                 (byte[], byte[]) worldStateBundlesToTransmit = _worldStateSyncer.HandleNetworkUpdate(IsHost);
                 if (worldStateBundlesToTransmit.Item1 != null)
-                    _commsHandler.SendWorldStateBundle(worldStateBundlesToTransmit.Item1, TransmissionProtocol.TCP);
+                    _commsHandler.SendMessage(worldStateBundlesToTransmit.Item1, InstanceNetworkingMessageCodes.WorldstateSyncableBundle, TransmissionProtocol.TCP);
                 if (worldStateBundlesToTransmit.Item2 != null)
-                    _commsHandler.SendWorldStateBundle(worldStateBundlesToTransmit.Item2, TransmissionProtocol.UDP);
+                    _commsHandler.SendMessage(worldStateBundlesToTransmit.Item2, InstanceNetworkingMessageCodes.WorldstateSyncableBundle, TransmissionProtocol.UDP);
 
                 byte[] playerState = _playerSyncer.GetPlayerState();
                 if (playerState != null)
                 {
                     PlayerStateWrapper playerStateWrapper = new(LocalClientID, playerState);
-                    _commsHandler.SendLocalPlayerState(playerStateWrapper.Bytes); //TODO - handle protocol
+                    _commsHandler.SendMessage(playerStateWrapper.Bytes, InstanceNetworkingMessageCodes.PlayerState, TransmissionProtocol.UDP); //TODO handle protocol
                 }
             }
+        }
+
+        private void HandleLocalChangeToPlayerPresentation() 
+        {
         }
 
         public void ReceivePingFromHost()

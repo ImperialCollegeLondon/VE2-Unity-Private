@@ -1,9 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using ViRSE.Networking;
+using ViRSE.Core.Shared;
 using static NonCoreCommonSerializables;
 using static ViRSE.Core.Shared.CoreCommonSerializables;
+
+#if UNITY_EDITOR
+using UnityEngine;
+#endif
 
 public class InstanceSyncSerializables
 {
@@ -17,6 +21,7 @@ public class InstanceSyncSerializables
         InstanceInfo,
         WorldstateSyncableBundle,
         PlayerState,
+        UpdateAvatarPresentation,
     }
 
     //So what actually is this registration request?
@@ -26,11 +31,11 @@ public class InstanceSyncSerializables
     public class ServerRegistrationRequest : ViRSESerializable
     {
         public string InstanceCode { get; private set; }
-        public InstancedAvatarAppearance AvatarDetails { get; private set; }
+        public InstancedPlayerPresentation AvatarDetails { get; private set; }
 
         public ServerRegistrationRequest(byte[] bytes) : base(bytes) { }
 
-        public ServerRegistrationRequest(InstancedAvatarAppearance avatarDetails, string instanceCode)
+        public ServerRegistrationRequest(InstancedPlayerPresentation avatarDetails, string instanceCode)
         {
             AvatarDetails = avatarDetails;
             InstanceCode = instanceCode;
@@ -55,7 +60,7 @@ public class InstanceSyncSerializables
 
             InstanceCode = reader.ReadString();
             ushort avatarDetailsLength = reader.ReadUInt16();
-            AvatarDetails = new InstancedAvatarAppearance(reader.ReadBytes(avatarDetailsLength));
+            AvatarDetails = new InstancedPlayerPresentation(reader.ReadBytes(avatarDetailsLength));
         }
     }
 
@@ -95,72 +100,6 @@ public class InstanceSyncSerializables
         }
     }
 
-    public class InstancedAvatarAppearance : PlayerPresentationConfig
-    {
-        public bool UsingViRSEAvatar = true;
-        public string AvatarHeadTypeOverride;
-        public string AvatarBodyTypeOverride;
-        public bool AvatarTransparancy = true;
-
-        public InstancedAvatarAppearance() { }
-
-        public InstancedAvatarAppearance(byte[] bytes) : base(bytes) { }
-
-        public InstancedAvatarAppearance(string playerName, string avatarHeadType, string avatarBodyType, ushort avatarRed, ushort avatarGreen, ushort avatarBlue, bool usingViRSEAvatar, string avatarHeadTypeOverride, string avatarBodyTypeOverride, bool avatarTransparancy)
-            : base(playerName, avatarHeadType, avatarBodyType, avatarRed, avatarGreen, avatarBlue)
-        {
-            UsingViRSEAvatar = usingViRSEAvatar;
-            AvatarHeadTypeOverride = avatarHeadTypeOverride;
-            AvatarBodyTypeOverride = avatarBodyTypeOverride;
-            AvatarTransparancy = avatarTransparancy;
-        }
-
-        protected override byte[] ConvertToBytes()
-        {
-            using MemoryStream stream = new();
-            using BinaryWriter writer = new(stream);
-
-            byte[] baseBytes = base.ConvertToBytes();
-            writer.Write((ushort)baseBytes.Length);
-            writer.Write(baseBytes);    
-
-            writer.Write(UsingViRSEAvatar);
-            writer.Write(AvatarHeadTypeOverride);       
-            writer.Write(AvatarBodyTypeOverride);
-            writer.Write(AvatarTransparancy);
-
-            return stream.ToArray();
-        }
-
-        protected override void PopulateFromBytes(byte[] data)
-        {
-            using MemoryStream stream = new(data);
-            using BinaryReader reader = new(stream);
-
-            ushort baseBytesLength = reader.ReadUInt16();
-            byte[] baseData = reader.ReadBytes(baseBytesLength);
-            base.PopulateFromBytes(baseData);
-
-            UsingViRSEAvatar = reader.ReadBoolean();
-            AvatarHeadTypeOverride = reader.ReadString();
-            AvatarBodyTypeOverride = reader.ReadString();
-            AvatarTransparancy = reader.ReadBoolean();
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (obj == null) return false;
-
-            InstancedAvatarAppearance other = obj as InstancedAvatarAppearance;
-
-            return UsingViRSEAvatar == other.UsingViRSEAvatar &&
-                   AvatarHeadTypeOverride == other.AvatarHeadTypeOverride &&
-                   AvatarBodyTypeOverride == other.AvatarBodyTypeOverride &&
-                   AvatarTransparancy == other.AvatarTransparancy &&
-                   base.Equals(other);
-        }
-    }
-
     public class InstancedInstanceInfo : InstanceInfoBase
     {
         public ushort HostID;
@@ -187,7 +126,7 @@ public class InstanceSyncSerializables
             using BinaryWriter writer = new(stream);
 
             byte[] baseBytes = base.ConvertToBytes();
-            writer.Write((ushort)baseBytes.Length); 
+            writer.Write((ushort)baseBytes.Length);
             writer.Write(baseBytes);
 
             writer.Write(HostID);
@@ -230,13 +169,13 @@ public class InstanceSyncSerializables
 
     public class InstancedClientInfo : ClientInfoBase
     {
-        public InstancedAvatarAppearance InstancedAvatarAppearance { get; private set; }
+        public InstancedPlayerPresentation InstancedAvatarAppearance;
 
         public InstancedClientInfo() { }
 
         public InstancedClientInfo(byte[] bytes) : base(bytes) { }
 
-        public InstancedClientInfo(ushort clientID, bool isAdmin, InstancedAvatarAppearance instancedAvatarAppearance) : base(clientID, isAdmin, "unknown") //TODO, machine name should maybe be platform-specific?
+        public InstancedClientInfo(ushort clientID, bool isAdmin, InstancedPlayerPresentation instancedAvatarAppearance) : base(clientID, isAdmin, "unknown") //TODO, machine name should maybe be platform-specific?
         {
             InstancedAvatarAppearance = instancedAvatarAppearance;
         }
@@ -265,9 +204,54 @@ public class InstanceSyncSerializables
             byte[] baseData = reader.ReadBytes(baseBytesLength);
             base.PopulateFromBytes(baseData);
 
-            // Deserialize derived class fields
             ushort avatarAppearanceLength = reader.ReadUInt16();
-            InstancedAvatarAppearance = new InstancedAvatarAppearance(reader.ReadBytes(avatarAppearanceLength));
+            InstancedAvatarAppearance = new InstancedPlayerPresentation(reader.ReadBytes(avatarAppearanceLength));
+        }
+    }
+
+    public class InstancedPlayerPresentation : ViRSESerializable
+    {
+        public PlayerPresentationConfig PlayerPresentationConfig;
+        public PlayerPresentationOverrides PlayerPresentationOverrides;
+
+        public InstancedPlayerPresentation() { }
+
+        public InstancedPlayerPresentation(byte[] bytes) : base(bytes) { }
+
+        public InstancedPlayerPresentation(PlayerPresentationConfig instancedAvatarAppearance, PlayerPresentationOverrides playerPresentationOverrides)
+        {
+            PlayerPresentationConfig = instancedAvatarAppearance;
+            PlayerPresentationOverrides = playerPresentationOverrides;
+        }
+
+        protected override byte[] ConvertToBytes()
+        {
+            using MemoryStream stream = new();
+            using BinaryWriter writer = new(stream);
+
+            byte[] presentationBytes = PlayerPresentationConfig.Bytes;
+            writer.Write((ushort)presentationBytes.Length);
+            writer.Write(presentationBytes);
+
+            byte[] overrideBytes = PlayerPresentationOverrides.Bytes;
+            writer.Write((ushort)overrideBytes.Length);
+            writer.Write(overrideBytes);
+
+            return stream.ToArray();
+        }
+
+        protected override void PopulateFromBytes(byte[] bytes)
+        {
+            using MemoryStream stream = new(bytes);
+            using BinaryReader reader = new(stream);
+
+            ushort presentationBytesLength = reader.ReadUInt16();
+            byte[] presentationBytes = reader.ReadBytes(presentationBytesLength);
+            PlayerPresentationConfig = new(presentationBytes);
+
+            ushort overridesBytesLength = reader.ReadUInt16();
+            byte[] overrideBytes = reader.ReadBytes(overridesBytesLength);
+            PlayerPresentationOverrides = new(overrideBytes);
         }
     }
 
@@ -352,6 +336,43 @@ public class InstanceSyncSerializables
                 byte[] stateWrapperBytes = reader.ReadBytes(stateWrapperBytesLength);
                 WorldStateWrappers.Add(new WorldStateWrapper(stateWrapperBytes));
             }
+        }
+    }
+
+    public class WorldStateWrapper : ViRSESerializable
+    {
+        public string ID { get; private set; }
+        public byte[] StateBytes { get; private set; }
+
+        public WorldStateWrapper(byte[] bytes) : base(bytes) { }
+
+        public WorldStateWrapper(string id, byte[] state)
+        {
+            ID = id;
+            StateBytes = state;
+        }
+
+        protected override byte[] ConvertToBytes()
+        {
+            using MemoryStream stream = new MemoryStream();
+            using BinaryWriter writer = new BinaryWriter(stream);
+
+            writer.Write(ID);
+            writer.Write((ushort)StateBytes.Length);
+            writer.Write(StateBytes);
+
+            return stream.ToArray();
+        }
+
+        protected override void PopulateFromBytes(byte[] bytes)
+        {
+            using MemoryStream stream = new(bytes);
+            using BinaryReader reader = new(stream);
+
+            ID = reader.ReadString();
+
+            int stateBytesLength = reader.ReadUInt16();
+            StateBytes = reader.ReadBytes(stateBytesLength);
         }
     }
 }

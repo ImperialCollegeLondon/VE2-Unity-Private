@@ -2708,9 +2708,9 @@ MonoBehaviour:
     PlayerName: Fred
     AvatarHeadType: default
     AvatarBodyType: default
-    AvatarRed: 255
-    AvatarGreen: 60
-    AvatarBlue: 60
+    AvatarRed: 0
+    AvatarGreen: 0
+    AvatarBlue: 255
   playerStateConfig:
     IsNetworked: 1
     RepeatedTransmissionConfig:

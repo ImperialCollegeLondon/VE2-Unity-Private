@@ -25,7 +25,7 @@ namespace ViRSE.Core.Player
 
         [SerializeField, HideInInspector] PlayerStateConfig _stateConfig;
 
-        public void Initialize(PlayerSpawnConfig playerSpawnConfig, PlayerPresentationConfig PresentationConfig, PlayerStateConfig playerStateConfig)
+        public void Initialize(PlayerSpawnConfig playerSpawnConfig, PlayerPresentationConfigWrapper PresentationConfigWrapper, PlayerStateConfig playerStateConfig)
         {
             _playerMode = LocalPlayerMode.TwoD;
 

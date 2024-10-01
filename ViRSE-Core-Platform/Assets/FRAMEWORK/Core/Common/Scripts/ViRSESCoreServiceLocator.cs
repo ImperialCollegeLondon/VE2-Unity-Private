@@ -17,13 +17,7 @@ public class ViRSECoreServiceLocator : MonoBehaviour
 
             if (_instance == null)
             {
-                    _instance = new GameObject($"ViRSECoreServiceLocator{SceneManager.GetActiveScene().name}").AddComponent<ViRSECoreServiceLocator>();
-                //if (!Application.isPlaying)
-                //{
-                //    Debug.Log("<color=yellow>MADE NEW CORE LOCATOR</color> " + SceneManager.GetActiveScene().name);
-                //}
-                //else
-                //    Debug.Log("<color=red>TRIED TO CREATE A NEW CORE LOCATOR AT RUNTIME</color>");
+                _instance = new GameObject($"ViRSECoreServiceLocator{SceneManager.GetActiveScene().name}").AddComponent<ViRSECoreServiceLocator>();
             }
 
             return _instance;
@@ -78,8 +72,8 @@ public class ViRSECoreServiceLocator : MonoBehaviour
     {
         //Debug.Log("awake core");
         _instance = this;
-        gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
-        //gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
+        //gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
+        gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
     }
 
     private void OnDisable()

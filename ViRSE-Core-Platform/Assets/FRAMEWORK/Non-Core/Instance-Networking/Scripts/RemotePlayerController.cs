@@ -14,7 +14,7 @@ public class RemotePlayerController : MonoBehaviour
 
     private List<Material> _colorMaterials = new();
 
-    private InstancedAvatarAppearance _avatarAppearance;
+    private InstancedPlayerPresentation _avatarAppearance;
 
     private void Awake() 
     {
@@ -43,17 +43,17 @@ public class RemotePlayerController : MonoBehaviour
         _torsoHolder.position = playerState.HeadPosition + (_torsoOffsetFromHead * Vector3.up);
     }
 
-    public void HandleReceiveAvatarAppearance(InstancedAvatarAppearance newAvatarAppearance)
+    public void HandleReceiveAvatarAppearance(InstancedPlayerPresentation newAvatarAppearance)
     {
         if (_avatarAppearance != null && _avatarAppearance.Equals(newAvatarAppearance))
             return;
 
         _avatarAppearance = newAvatarAppearance;
 
-        _playerNameText.text = newAvatarAppearance.PlayerName;
+        _playerNameText.text = newAvatarAppearance.PlayerPresentationConfig.PlayerName;
 
         foreach (Material material in _colorMaterials)
-            material.color = new Color(newAvatarAppearance.AvatarRed, newAvatarAppearance.AvatarGreen, newAvatarAppearance.AvatarBlue) / 255f; 
+            material.color = new Color(newAvatarAppearance.PlayerPresentationConfig.AvatarRed, newAvatarAppearance.PlayerPresentationConfig.AvatarGreen, newAvatarAppearance.PlayerPresentationConfig.AvatarBlue) / 255f; 
 
         //TODO, handle avatar types
     }

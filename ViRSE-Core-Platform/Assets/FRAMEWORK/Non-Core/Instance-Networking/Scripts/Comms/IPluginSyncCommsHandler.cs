@@ -13,62 +13,19 @@ namespace ViRSE.FrameworkRuntime
     {
         public bool IsReadyToTransmit { get; }
 
-        public void ConnectToServer(IPAddress ipAddress, int portNumber);
-        public void SendServerRegistrationRequest(byte[] serverRegistrationBytes);
         public event Action<byte[]> OnReceiveNetcodeConfirmation;
         public event Action<byte[]> OnReceiveServerRegistrationConfirmation;
         public event Action<byte[]> OnReceiveInstanceInfoUpdate;
         public event Action OnDisconnectedFromServer;
-
-        public void SendWorldStateBundle(byte[] bytes, TransmissionProtocol transmissionProtocol);
-        public void SendWorldStateSnapshot(byte[] bytes);
         public event Action<byte[]> OnReceiveWorldStateSyncableBundle;
-
-        public void SendLocalPlayerState(byte[] bytes);
         public event Action<byte[]> OnReceiveRemotePlayerState;
-
-        public void SendInstantMessage(byte[] bytes);
         public event Action<byte[]> OnReceiveInstantMessage;
 
-        public void SendPingToHost();
-
-        public void SendPingReplyToNonHost();
-
-        public void DisconnectFromServer();
-
+        public void ConnectToServer(IPAddress ipAddress, int portNumber);
+        public void SendMessage(byte[] messageAsBytes, InstanceSyncSerializables.InstanceNetworkingMessageCodes messageCode, TransmissionProtocol transmissionProtocol);
         public void MainThreadUpdate();
+        public void DisconnectFromServer();
     }
-
-    //public interface IPluginWorldStateCommsHandler
-    //{
-    //    public event Action<byte[]> OnReceiveWorldStateSyncableBundle;
-
-    //    public void SendWorldStateBundle(byte[] bytes, TransmissionProtocol transmissionProtocol);
-    //    public void SendWorldStateSnapshot(byte[] bytes);
-    //}
-
-    //public interface IPluginLocalPlayerCommsHandler
-    //{
-    //    public void SendLocalPlayerState(byte[] bytes);
-    //}
-
-    //public interface IPluginRemotePlayerCommsHandler
-    //{
-    //    public event Action<byte[]> OnReceiveRemotePlayerState;
-    //}
-
-    //public interface IPluginInstantMessageCommsHandler
-    //{
-    //    public event Action<byte[]> OnReceiveInstantMessage;
-    //    public void SendInstantMessage(byte[] bytes);
-    //}
-
-    //public interface IPluginPingCommsHandler
-    //{
-    //    public void SendPingToHost();
-
-    //    public void SendPingReplyToNonHost();
-    //}
 }
 
 /*

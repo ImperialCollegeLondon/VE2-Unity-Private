@@ -221,42 +221,42 @@ namespace ViRSE.Networking
         }
     }
 
-    public class WorldStateWrapper : ViRSESerializable
-    {
-        public string ID { get; private set; }
-        public byte[] StateBytes { get; private set; }
+    // public class WorldStateWrapper : ViRSESerializable
+    // {
+    //     public string ID { get; private set; }
+    //     public byte[] StateBytes { get; private set; }
 
-        public WorldStateWrapper(byte[] bytes) : base(bytes) { }
+    //     public WorldStateWrapper(byte[] bytes) : base(bytes) { }
 
-        public WorldStateWrapper(string id, byte[] state)
-        {
-            ID = id;
-            StateBytes = state;
-        }
+    //     public WorldStateWrapper(string id, byte[] state)
+    //     {
+    //         ID = id;
+    //         StateBytes = state;
+    //     }
 
-        protected override byte[] ConvertToBytes()
-        {
-            using MemoryStream stream = new MemoryStream();
-            using BinaryWriter writer = new BinaryWriter(stream);
+    //     protected override byte[] ConvertToBytes()
+    //     {
+    //         using MemoryStream stream = new MemoryStream();
+    //         using BinaryWriter writer = new BinaryWriter(stream);
 
-            writer.Write(ID);
-            writer.Write((ushort)StateBytes.Length);
-            writer.Write(StateBytes);
+    //         writer.Write(ID);
+    //         writer.Write((ushort)StateBytes.Length);
+    //         writer.Write(StateBytes);
 
-            return stream.ToArray();
-        }
+    //         return stream.ToArray();
+    //     }
 
-        protected override void PopulateFromBytes(byte[] bytes)
-        {
-            using MemoryStream stream = new(bytes);
-            using BinaryReader reader = new(stream);
+    //     protected override void PopulateFromBytes(byte[] bytes)
+    //     {
+    //         using MemoryStream stream = new(bytes);
+    //         using BinaryReader reader = new(stream);
 
-            ID = reader.ReadString();
+    //         ID = reader.ReadString();
 
-            int stateBytesLength = reader.ReadUInt16();
-            StateBytes = reader.ReadBytes(stateBytesLength);
-        }
-    }
+    //         int stateBytesLength = reader.ReadUInt16();
+    //         StateBytes = reader.ReadBytes(stateBytesLength);
+    //     }
+    // }
 }
 
 
