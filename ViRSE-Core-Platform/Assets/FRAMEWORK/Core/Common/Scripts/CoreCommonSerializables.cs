@@ -33,7 +33,7 @@ namespace ViRSE.Core.Shared
         public class PlayerVRControlConfig : ViRSESerializable
         {
 #if UNITY_EDITOR
-            [SerializeField, Range(0.1f, 3f)]
+            [SerializeField, Range(0.1f, 3f), BeginGroup(Style = GroupStyle.Round)]
 #endif
             public float DragSpeed = 1;
 
@@ -69,7 +69,7 @@ namespace ViRSE.Core.Shared
             public bool TeleportBlink = false;
 
 #if UNITY_EDITOR
-            [SerializeField]
+            [SerializeField, EndGroup]
 #endif
             public bool SnapTurnBlink = false;
 
@@ -116,12 +116,12 @@ namespace ViRSE.Core.Shared
         public class Player2DControlConfig : ViRSESerializable
         {
 #if UNITY_EDITOR
-            [SerializeField, Range(0.2f, 3f)]
+            [SerializeField, Range(0.2f, 3f), BeginGroup(Style = GroupStyle.Round)]
 #endif
             public float MouseSensitivity = 1;
 
 #if UNITY_EDITOR
-            [SerializeField]
+            [SerializeField, EndGroup]
 #endif
             public bool CrouchHold = true;
 
@@ -155,11 +155,34 @@ namespace ViRSE.Core.Shared
         [Serializable]
         public class PlayerPresentationConfig : ViRSESerializable
         {
+#if UNITY_EDITOR
+            [SerializeField, BeginGroup(Style = GroupStyle.Round)]
+#endif
             public string PlayerName = "Unknown";
+
+#if UNITY_EDITOR
+            [SerializeField]
+#endif
             public string AvatarHeadType = "ViRSE-0";
+
+#if UNITY_EDITOR
+            [SerializeField]
+#endif
             public string AvatarBodyType = "ViRSE-0";
+
+#if UNITY_EDITOR
+            [SerializeField]
+#endif
             public ushort AvatarRed = 255;
+
+#if UNITY_EDITOR
+            [SerializeField]
+#endif
             public ushort AvatarGreen = 60;
+
+#if UNITY_EDITOR
+            [SerializeField, EndGroup]
+#endif
             public ushort AvatarBlue = 60;
 
             public PlayerPresentationConfig() { }
@@ -209,14 +232,23 @@ namespace ViRSE.Core.Shared
         public class PlayerPresentationOverrides : ViRSESerializable
         {
 #if UNITY_EDITOR
-            [HideInInspector]
+            [SerializeField, HideInInspector]
 #endif
             public bool UsingViRSEAvatar = true; //TODO remove? 
 
+#if UNITY_EDITOR
+            [SerializeField, BeginGroup(Style = GroupStyle.Round)]
+#endif
             public string AvatarHeadTypeOverride = string.Empty;
 
+#if UNITY_EDITOR
+            [SerializeField]
+#endif
             public string AvatarBodyTypeOverride = string.Empty;
 
+#if UNITY_EDITOR
+            [SerializeField, EndGroup]
+#endif
             public bool AvatarTransparancy = false;
 
             public PlayerPresentationOverrides() { }

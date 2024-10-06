@@ -85,10 +85,10 @@ public class PlayerSyncer
 
     public void TearDown() 
     {
-        // foreach (RemotePlayerController remotePlayerController in _remotePlayers.Values)
-        //     if (remotePlayerController != null && remotePlayerController.gameObject != null)
-        //         GameObject.Destroy(remotePlayerController.gameObject);
+        foreach (RemotePlayerController remotePlayerController in _remotePlayers.Values)
+            if (remotePlayerController != null && remotePlayerController.gameObject != null)
+                GameObject.Destroy(remotePlayerController.gameObject);
 
-        // _remotePlayers.Clear();
+        _remotePlayers.Clear();
     }
 }

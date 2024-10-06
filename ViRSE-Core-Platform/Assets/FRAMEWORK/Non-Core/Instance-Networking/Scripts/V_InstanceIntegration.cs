@@ -1,5 +1,7 @@
+using System.ComponentModel;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -11,18 +13,23 @@ using static ViRSE.Core.Shared.CoreCommonSerializables;
 
 namespace ViRSE.InstanceNetworking
 {
-    //TODO - Enforce GO name
     [ExecuteInEditMode]
     public class V_InstanceIntegration : MonoBehaviour, IMultiplayerSupport //, IInstanceNetworkSettingsReceiver
     {
         #region Inspector Fields
         [DynamicHelp(nameof(_settingsMessage))]
-        [SerializeField, HideIf(nameof(_instanceNetworkSettingsProviderPresent), true)] private bool _connectAutomatically = true;
+        [SerializeField, HideIf(nameof(_instanceNetworkSettingsProviderPresent), true)] private bool _connectOnStart = true;
         [SerializeField, HideIf(nameof(_usingNetworkSettingsFromInspector), true)] private InstanceNetworkSettings _networkSettings;
-        private bool _usingNetworkSettingsFromInspector => _instanceNetworkSettingsProviderPresent || !_connectAutomatically;
+        private bool _usingNetworkSettingsFromInspector => _instanceNetworkSettingsProviderPresent || !_connectOnStart;
         private string _settingsMessage => _instanceNetworkSettingsProviderPresent ?
-            "Debug network settings can be found on " + _instanceNetworkSettingsProvider.GameObjectName :
+            $"Debug network settings can be found on the {_instanceNetworkSettingsProvider.GameObjectName} gameobject" :
             "If not connecting automatically, details should be passed via the API";
+        #endregion
+
+        #region ConnectionDebug
+
+        [SerializeField, Disable] private ConnectionState _connectionState = ConnectionState.Disconnected;
+        private enum ConnectionState { Disconnected, FetchingConnectionSettings, Connecting, Connected }
         #endregion
 
         private PluginSyncService _instanceService;
@@ -78,50 +85,61 @@ namespace ViRSE.InstanceNetworking
                 return;
             }
 
-            if (_instanceService != null)
-                return;
-
-            //Debug.Log("SCENE SYNCER AWAKE! enabled? " + enabled);
-
-            GameObject playerSpawner = GameObject.Find("PlayerSpawner"); //TODO - use service locator
-            Debug.Log("<color=cyan>SPAWNER null? " + (playerSpawner == null).ToString() + " SCENE = " + SceneManager.GetActiveScene().name + "</color>");
-            Debug.Log("<color=cyan>Config null??? " + (playerSpawner.GetComponent<V_PlayerSpawner>().SpawnConfig.PlayerPresentationConfigWrapper.PresentationConfig == null).ToString() + "</color>");
-            PlayerPresentationConfigWrapper playerPresentationConfigWrapper = playerSpawner ? playerSpawner.GetComponent<V_PlayerSpawner>().SpawnConfig.PlayerPresentationConfigWrapper : null;
-
-            //We pass these dependencies now, but they may change before the actual connection happens 
-            //TODO - maybe that means it makes more sense to pass these on connect, rather than on create?
-            _instanceService = PluginSyncServiceFactory.Create(_networkSettings, playerPresentationConfigWrapper);
-
-            if (_instanceNetworkSettingsProviderPresent)
+            if (_instanceService == null)
             {
-                if (_instanceNetworkSettingsProvider.AreInstanceNetworkingSettingsReady)
-                    HandleSettingsProviderReady();
-                else
-                    _instanceNetworkSettingsProvider.OnInstanceNetworkSettingsReady += HandleSettingsProviderReady;
+                GameObject playerSpawner = GameObject.Find("PlayerSpawner"); //TODO - use service locator
+                //Debug.Log("<color=cyan>SPAWNER null? " + (playerSpawner == null).ToString() + " SCENE = " + SceneManager.GetActiveScene().name + "</color>");
+                //Debug.Log("<color=cyan>Config null??? " + (playerSpawner.GetComponent<V_PlayerSpawner>().SpawnConfig.playerSettings.PresentationConfig == null).ToString() + "</color>");
+                PlayerConfig playerConfig = playerSpawner ? playerSpawner.GetComponent<V_PlayerSpawner>().SpawnConfig : null;
+                //We pass these dependencies now, but they may change before the actual connection happens 
+                //TODO - maybe that means it makes more sense to pass these on connect, rather than on create?
+                _instanceService = PluginSyncServiceFactory.Create(playerConfig);
+                _instanceService.OnConnectedToServer += () => _connectionState = ConnectionState.Connected;
+                _instanceService.OnDisconnectedFromServer += () => _connectionState = ConnectionState.Disconnected;
             }
-            else if (_connectAutomatically)
+
+            if (_connectionState == ConnectionState.Disconnected)
             {
-                ConnectToServer();
+                if (_instanceNetworkSettingsProviderPresent)
+                {
+                    ConnectToServerOnceDetailsReady();
+                }
+                else if (_connectOnStart)
+                {
+                    ConnectToServer();
+                }
             }
+        }
+
+        private void ConnectToServerOnceDetailsReady() 
+        {
+            _connectionState = ConnectionState.FetchingConnectionSettings;
+
+            //On boot, we want to just connect if _connectOnStart is true
+            if (_instanceNetworkSettingsProvider.AreInstanceNetworkingSettingsReady)
+                HandleSettingsProviderReady();
+            else
+                _instanceNetworkSettingsProvider.OnInstanceNetworkSettingsReady += HandleSettingsProviderReady;
         }
 
         private void HandleSettingsProviderReady()
         {
             _instanceNetworkSettingsProvider.OnInstanceNetworkSettingsReady -= HandleSettingsProviderReady;
 
+            _networkSettings = _instanceNetworkSettingsProvider.InstanceNetworkSettings;
             //Bit of a bodge, we want to preserve the actual object, because the SyncService is using it
-            _networkSettings.IP = _instanceNetworkSettingsProvider.InstanceNetworkSettings.IP;
-            _networkSettings.Port = _instanceNetworkSettingsProvider.InstanceNetworkSettings.Port;
-            _networkSettings.InstanceCode = _instanceNetworkSettingsProvider.InstanceNetworkSettings.InstanceCode;
+            // _networkSettings.IP = _instanceNetworkSettingsProvider.InstanceNetworkSettings.IP;
+            // _networkSettings.Port = _instanceNetworkSettingsProvider.InstanceNetworkSettings.Port;
+            // _networkSettings.InstanceCode = _instanceNetworkSettingsProvider.InstanceNetworkSettings.InstanceCode;
 
-            Debug.Log("<color=green>Network settings set " + _networkSettings.IP + "</color>"); 
+            Debug.Log("<color=green>Network settings set " + _networkSettings.IP + "</color>");
             ConnectToServer();
         }
 
-
-        public void ConnectToServer() //TODO - expose to plugin
+        private void ConnectToServer() 
         {
-            _instanceService.ConnectToServer(); //TODO, should be passing network settings here instead 
+            _connectionState = ConnectionState.Connecting;
+            _instanceService.ConnectToServer(_networkSettings); 
         }
 
         private void FixedUpdate()
@@ -137,6 +155,9 @@ namespace ViRSE.InstanceNetworking
 
             //Maybe the SceneSyncer should actually create the WorldStateSyncer and PlayerSyncer, and pass them both a reference to the PluginSyncService... that way, the service doesn't have to actually do anything!
             //Feels like that's probably the cleanest pattern to use here...
+
+            //Ok, so how should programmatic connection work?
+            //Disabled if "connect automatically" is up, 
         }
 
 
@@ -148,7 +169,27 @@ namespace ViRSE.InstanceNetworking
                 return;
             }
 
+            _instanceService.DisconnectFromServer();
+            //_instanceService.TearDown();
+            // _instanceService = null;
+        }
+
+        private void OnDestroy() 
+        {
+            if (!Application.isPlaying)
+            {
+                return;
+            }
+
             _instanceService.TearDown();
+            _instanceService.OnConnectedToServer -= () => _connectionState = ConnectionState.Connected;
+            _instanceService.OnDisconnectedFromServer -= () => _connectionState = ConnectionState.Disconnected;
+            _instanceService = null;
+
+            _connectionState = ConnectionState.Disconnected;
         }
     }
 }
+
+
+

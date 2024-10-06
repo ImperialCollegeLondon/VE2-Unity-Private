@@ -570,7 +570,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &269500766
 Transform:
   m_ObjectHideFlags: 0
@@ -2691,26 +2691,31 @@ MonoBehaviour:
   SpawnConfig:
     enableVR: 1
     enable2D: 1
-    LoadControlConfigFromPlayerPrefs: 0
-    Player2DControlConfig:
-      MouseSensitivity: 1
-      CrouchHold: 1
-    PlayerVRControlConfig:
-      DragSpeed: 1
-      TurnAmount: 1
-      ControllerVibration: 1
-      ControllerLabels: 1
-      WristLookPrecision: 1
-      DragDarkening: 0
-      TeleportBlink: 0
-      SnapTurnBlink: 0
-  PresentationConfig:
-    PlayerName: Fred
-    AvatarHeadType: default
-    AvatarBodyType: default
-    AvatarRed: 0
-    AvatarGreen: 0
-    AvatarBlue: 255
+    playerSettings:
+      Player2DControlConfig:
+        MouseSensitivity: 1
+        CrouchHold: 1
+      PlayerVRControlConfig:
+        DragSpeed: 1
+        TurnAmount: 45
+        ControllerVibration: 1
+        ControllerLabels: 1
+        WristLookPrecision: 1
+        DragDarkening: 0
+        TeleportBlink: 0
+        SnapTurnBlink: 0
+      PresentationConfig:
+        PlayerName: Unknown
+        AvatarHeadType: ViRSE-0
+        AvatarBodyType: ViRSE-0
+        AvatarRed: 255
+        AvatarGreen: 60
+        AvatarBlue: 60
+    PresentationOverrides:
+      UsingViRSEAvatar: 1
+      AvatarHeadTypeOverride: 
+      AvatarBodyTypeOverride: 
+      AvatarTransparancy: 0
   playerStateConfig:
     IsNetworked: 1
     RepeatedTransmissionConfig:
@@ -6551,7 +6556,7 @@ MonoBehaviour:
   m_SelectedVertices: 
 --- !u!1 &1550410137
 GameObject:
-  m_ObjectHideFlags: 1
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -6568,7 +6573,7 @@ GameObject:
   m_IsActive: 1
 --- !u!114 &1550410138
 MonoBehaviour:
-  m_ObjectHideFlags: 1
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -6581,7 +6586,7 @@ MonoBehaviour:
   _multiplayerSupportGOName: PluginSyncer
 --- !u!4 &1550410139
 Transform:
-  m_ObjectHideFlags: 1
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -7866,7 +7871,7 @@ MeshFilter:
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &1910504562
 GameObject:
-  m_ObjectHideFlags: 1
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -7883,7 +7888,7 @@ GameObject:
   m_IsActive: 1
 --- !u!114 &1910504563
 MonoBehaviour:
-  m_ObjectHideFlags: 1
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -7896,7 +7901,7 @@ MonoBehaviour:
   _instanceNetworkSettingsGOName: PlatformIntegration
 --- !u!4 &1910504564
 Transform:
-  m_ObjectHideFlags: 1
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}

@@ -5,6 +5,7 @@ using ViRSE.Core.Shared;
 using static NonCoreCommonSerializables;
 using static ViRSE.Core.Shared.CoreCommonSerializables;
 
+
 #if UNITY_EDITOR
 using UnityEngine;
 #endif
@@ -32,13 +33,15 @@ public class InstanceSyncSerializables
     {
         public string InstanceCode { get; private set; }
         public InstancedPlayerPresentation AvatarDetails { get; private set; }
+        public ushort IDToRestore { get; private set; }
 
         public ServerRegistrationRequest(byte[] bytes) : base(bytes) { }
 
-        public ServerRegistrationRequest(InstancedPlayerPresentation avatarDetails, string instanceCode)
+        public ServerRegistrationRequest(InstancedPlayerPresentation avatarDetails, string instanceCode, ushort idToRestore = ushort.MaxValue)
         {
             AvatarDetails = avatarDetails;
             InstanceCode = instanceCode;
+            IDToRestore = idToRestore;
         }
 
         protected override byte[] ConvertToBytes()
@@ -49,6 +52,8 @@ public class InstanceSyncSerializables
             writer.Write(InstanceCode);
             writer.Write((ushort)AvatarDetails.Bytes.Length);
             writer.Write(AvatarDetails.Bytes);
+
+            writer.Write(IDToRestore);
 
             return stream.ToArray();
         }
@@ -61,6 +66,8 @@ public class InstanceSyncSerializables
             InstanceCode = reader.ReadString();
             ushort avatarDetailsLength = reader.ReadUInt16();
             AvatarDetails = new InstancedPlayerPresentation(reader.ReadBytes(avatarDetailsLength));
+
+            IDToRestore = reader.ReadUInt16();
         }
     }
 

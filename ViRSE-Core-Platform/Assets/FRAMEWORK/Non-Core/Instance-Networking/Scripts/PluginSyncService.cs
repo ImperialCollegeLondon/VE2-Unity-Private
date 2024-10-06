@@ -56,11 +56,11 @@ There kind of isn't one? That's why I think the platform should just have its ow
         /// </summary>
         /// <param name="playerPresentationConfig"></param>
         /// <returns></returns>
-        public static PluginSyncService Create(InstanceNetworkSettings instanceConnectionDetails, PlayerPresentationConfigWrapper playerPresentationConfigWrapper)
+        public static PluginSyncService Create(PlayerConfig playerSpawnConfig) //Pass a reference to the player??
         {
             InstanceNetworkingCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
 
-            return new PluginSyncService(commsHandler, instanceConnectionDetails, playerPresentationConfigWrapper);
+            return new PluginSyncService(commsHandler, playerSpawnConfig);
         }
     }
 
@@ -72,9 +72,11 @@ There kind of isn't one? That's why I think the platform should just have its ow
         //TODO, should take some config for events like "OnBecomeHost", "OnLoseHost", maybe also sync frequencies
 
         public bool IsConnectedToServer = false;
+        public event Action OnConnectedToServer;
+        public event Action OnDisconnectedFromServer;
 
         private InstanceNetworkSettings _instanceConnectionDetails;
-        public ushort LocalClientID { get; private set; }
+        public ushort LocalClientID { get; private set; } = ushort.MaxValue;
         public InstancedInstanceInfo InstanceInfo;
         public event Action<InstancedInstanceInfo> OnInstanceInfoChanged;
 
@@ -86,8 +88,8 @@ There kind of isn't one? That's why I think the platform should just have its ow
         public bool IsEnabled => true; //Bodge, the mono proxy for this needs this, and both currently use the same interface... maybe consider using different interfaces?
 
         private IPluginSyncCommsHandler _commsHandler;
-        private PlayerPresentationConfigWrapper _playerPresentationConfigWrapper;
-        private InstancedPlayerPresentation _instancedPlayerPresentation => new(_playerPresentationConfigWrapper.PresentationConfig, _playerPresentationConfigWrapper.PresentationOverrides);
+        private PlayerConfig _playerSpawnConfig; //TODO, not sure I like this... we shouldn't have access to control settings... the player should probs have an interface on it
+        private InstancedPlayerPresentation _instancedPlayerPresentation => new(_playerSpawnConfig.playerSettings.PresentationConfig, _playerSpawnConfig.PresentationOverrides);
 
         private WorldStateSyncer _worldStateSyncer;
         private PlayerSyncer _playerSyncer;
@@ -107,19 +109,16 @@ There kind of isn't one? That's why I think the platform should just have its ow
         #endregion
 
         //TODO, consider constructing PluginSyncService using factory pattern to inject the WorldStateSyncer
-        public PluginSyncService(IPluginSyncCommsHandler commsHandler, InstanceNetworkSettings instanceConnectionDetails, PlayerPresentationConfigWrapper playerPresentationConfigWrapper)
+        public PluginSyncService(IPluginSyncCommsHandler commsHandler, PlayerConfig playerSpawnConfig)
         {
             WorldStateHistoryQueueSize = 10; //TODO, automate this, currently 10 is more than enough though, 200ms
 
             _commsHandler = commsHandler;
-
-            _instanceConnectionDetails = instanceConnectionDetails;
-            _playerPresentationConfigWrapper = playerPresentationConfigWrapper;
+            _playerSpawnConfig = playerSpawnConfig;
             //_commsHandler.OnReadyToSyncPlugin += HandleReadyToSyncPlugin;
 
-            Debug.Log("<color=cyan>PRESENTATION NULL?? " + (_playerPresentationConfigWrapper.PresentationConfig == null).ToString() + "</color>");
-
-            playerPresentationConfigWrapper.OnLocalChangeToPlayerPresentation += () => _commsHandler.SendMessage(_instancedPlayerPresentation.Bytes, InstanceNetworkingMessageCodes.UpdateAvatarPresentation, TransmissionProtocol.TCP);
+            _playerSpawnConfig.OnLocalChangeToPlayerSettings += () => _commsHandler.SendMessage(_instancedPlayerPresentation.Bytes, InstanceNetworkingMessageCodes.UpdateAvatarPresentation, TransmissionProtocol.TCP);
+            _playerSpawnConfig.OnLocalChangeToAvatarOverrides += () => _commsHandler.SendMessage(_instancedPlayerPresentation.Bytes, InstanceNetworkingMessageCodes.UpdateAvatarPresentation, TransmissionProtocol.TCP);
 
             //TODO - maybe don't give the world state syncer the comms handler, we can just pull straight out of it here and send to comms
             _worldStateSyncer = new WorldStateSyncer(); //TODO DI (if this service references these at all, or if should be the other way around)
@@ -130,10 +129,12 @@ There kind of isn't one? That's why I think the platform should just have its ow
             commsHandler.OnReceiveInstanceInfoUpdate += HandleReceiveInstanceInfoUpdate;
             commsHandler.OnReceiveWorldStateSyncableBundle += _worldStateSyncer.HandleReceiveWorldStateBundle;
             commsHandler.OnReceiveRemotePlayerState += _playerSyncer.HandleReceiveRemotePlayerState;
+            _commsHandler.OnDisconnectedFromServer += HandleDisconnectFromServer;
         }
 
-        public void ConnectToServer()
+        public void ConnectToServer(InstanceNetworkSettings instanceConnectionDetails)
         {
+            _instanceConnectionDetails = instanceConnectionDetails;
             Debug.Log("Try connect... " + _instanceConnectionDetails.IP);
             if (IPAddress.TryParse(_instanceConnectionDetails.IP, out IPAddress ipAddress))
                 _commsHandler.ConnectToServer(ipAddress, _instanceConnectionDetails.Port);
@@ -152,12 +153,17 @@ There kind of isn't one? That's why I think the platform should just have its ow
             } 
             else
             {
-                //Debug.Log("Rec instance server nv, sending reg");
-
-                Debug.Log("<color=green> Try connect to server with instance code - " + _instanceConnectionDetails.InstanceCode + "</color>");
-                ServerRegistrationRequest serverRegistrationRequest = new(_instancedPlayerPresentation, _instanceConnectionDetails.InstanceCode);
-                _commsHandler.SendMessage(serverRegistrationRequest.Bytes, InstanceNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
+                SendServerRegistration();
             }
+        }
+
+        private void SendServerRegistration() 
+        {
+            Debug.Log("<color=green> Try connect to server with instance code - " + _instanceConnectionDetails.InstanceCode + "</color>");
+            //We also send the LocalClientID here, this will either be maxvalue (if this is our first time connecting, the server will give us a new ID)..
+            //..or it'll be the ID we we're given by the server (if we're reconnecting, the server will use the ID we provide)
+            ServerRegistrationRequest serverRegistrationRequest = new(_instancedPlayerPresentation, _instanceConnectionDetails.InstanceCode, LocalClientID);
+            _commsHandler.SendMessage(serverRegistrationRequest.Bytes, InstanceNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
         }
 
         private void HandleReceiveServerRegistrationConfirmation(byte[] bytes)
@@ -170,6 +176,8 @@ There kind of isn't one? That's why I think the platform should just have its ow
             IsConnectedToServer = true;
 
             HandleReceiveInstanceInfoUpdate(serverRegistrationConfirmation.InstanceInfo);
+
+            OnConnectedToServer?.Invoke();
         }
 
         private void HandleReceiveInstanceInfoUpdate(byte[] bytes)
@@ -230,9 +238,22 @@ There kind of isn't one? That's why I think the platform should just have its ow
             OnWorldStateHistoryQueueSizeChange.Invoke(5);
         }
 
+        public void DisconnectFromServer() => _commsHandler.DisconnectFromServer();
+
+        private void HandleDisconnectFromServer() 
+        {
+            _playerSyncer.TearDown();
+            OnDisconnectedFromServer?.Invoke();
+            
+        }
+
+        //But we want to keep the worldstate syncer active...
+        //Think we need to separate "HandleDisconnect" 
+        //And "stop playing"
+        //Disconnecting should 
         public void TearDown()
         {
-        _playerSyncer.TearDown();
+            _playerSyncer.TearDown();
 
             _commsHandler.DisconnectFromServer();
             _commsHandler.OnReceiveNetcodeConfirmation -= HandleReceiveNetcodeVersion;
@@ -240,6 +261,7 @@ There kind of isn't one? That's why I think the platform should just have its ow
             _commsHandler.OnReceiveInstanceInfoUpdate -= HandleReceiveInstanceInfoUpdate;
             _commsHandler.OnReceiveWorldStateSyncableBundle -= _worldStateSyncer.HandleReceiveWorldStateBundle;
             _commsHandler.OnReceiveRemotePlayerState -= _playerSyncer.HandleReceiveRemotePlayerState;
+            _commsHandler.OnDisconnectedFromServer -= HandleDisconnectFromServer;
         }
     }
 }

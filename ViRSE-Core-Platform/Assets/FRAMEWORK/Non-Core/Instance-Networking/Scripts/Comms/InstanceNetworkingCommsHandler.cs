@@ -7,7 +7,6 @@ using ViRSE.Core.Shared;
 using ViRSE;
 using DRMessageReader = DarkRift.DarkRiftReader;
 using DRMessageWrapper = DarkRift.Message;
-using UnityEditor.Experimental.GraphView;
 using System.Collections.Generic;
 
 namespace ViRSE.FrameworkRuntime
@@ -60,10 +59,11 @@ namespace ViRSE.FrameworkRuntime
         public InstanceNetworkingCommsHandler(DarkRiftClient drClient)
         {
             _drClient = drClient;
-            _drClient.MessageReceived += OnMessageReceived;
+            _drClient.MessageReceived += HandleMessageReceived;
+            _drClient.Disconnected += HandleDisconnected;
         }
 
-        private void OnMessageReceived(object sender, MessageReceivedEventArgs e)
+        private void HandleMessageReceived(object sender, MessageReceivedEventArgs e)
         {
             Message messageWrapper = e.GetMessage();
             InstanceSyncSerializables.InstanceNetworkingMessageCodes receivedMessageCode = (InstanceSyncSerializables.InstanceNetworkingMessageCodes)messageWrapper.Tag;
@@ -85,7 +85,6 @@ namespace ViRSE.FrameworkRuntime
                             OnReceiveServerRegistrationConfirmation?.Invoke(bytes);
                             break;
                         case InstanceSyncSerializables.InstanceNetworkingMessageCodes.WorldstateSyncableBundle:
-                            //Debug.Log("rec worldstate");
                             OnReceiveWorldStateSyncableBundle?.Invoke(bytes);
                             break;
                         case InstanceSyncSerializables.InstanceNetworkingMessageCodes.InstanceInfo:
@@ -97,45 +96,17 @@ namespace ViRSE.FrameworkRuntime
                     }
                 });
             }
-
-            //if (receivedMessageCode == MessageCode.HealthCheck)
-            //{
-            //    Receive.HealthCheck(messageWrapper);
-            //}
-            //else if (gameObject.activeSelf) //Lets us test connection drops by turning off this GameObject
-            //{
-            //    if (Application.isEditor && simLatencyMS > Mathf.Epsilon)
-            //    {
-            //        DOVirtual.DelayedCall(simLatencyMS / 1000f, () =>
-            //        {
-            //            RouteMessage(messageWrapper, receivedMessageCode);
-            //        });
-            //    }
-            //    else
-            //    {
-            //        RouteMessage(messageWrapper, receivedMessageCode);
-            //    }
-            //}
         }
+
+        private void HandleDisconnected(object sender, DisconnectedEventArgs e) => OnDisconnectedFromServer?.Invoke();
+
 
         private class RawBytesMessage : IDarkRiftSerializable
         {
             public byte[] Bytes { get; private set; }
-
-            public RawBytesMessage(byte[] bytes)
-            {
-                Bytes = bytes;
-            }
-
-            public void Serialize(SerializeEvent e)
-            {
-                e.Writer.Write(Bytes);
-            }
-
-            public void Deserialize(DeserializeEvent e)
-            {
-                Bytes = e.Reader.ReadBytes();
-            }
+            public RawBytesMessage(byte[] bytes) => Bytes = bytes;
+            public void Serialize(SerializeEvent e) => e.Writer.Write(Bytes);
+            public void Deserialize(DeserializeEvent e) => Bytes = e.Reader.ReadBytes();
         }
     }
 }

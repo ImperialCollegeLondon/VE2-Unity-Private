@@ -22,6 +22,7 @@ public class DebugInstanceInfoUI : MonoBehaviour
                 HandleInstanceInfoChanged(_instanceService.InstanceInfo);
 
             _instanceService.OnInstanceInfoChanged += HandleInstanceInfoChanged;
+            _instanceService.OnDisconnectedFromServer += HandleDisconnectFromServer;
         }
         else
         {
@@ -48,9 +49,20 @@ public class DebugInstanceInfoUI : MonoBehaviour
         globalInfoText.text = instanceInfoString;
     }   
 
+    private void HandleDisconnectFromServer()
+    {
+        globalInfoText.text = "Disconnected";
+    }
+
     private void OnDisable()
     {
         if (_instanceService != null)
-            _instanceService.OnInstanceInfoChanged -= HandleInstanceInfoChanged;
+        {
+            if (_instanceService.IsConnectedToServer)
+            {
+                _instanceService.OnInstanceInfoChanged -= HandleInstanceInfoChanged;
+                _instanceService.OnDisconnectedFromServer -= HandleDisconnectFromServer;
+            }
+        }
     }
 }

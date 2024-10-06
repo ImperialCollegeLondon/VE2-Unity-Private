@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -43,11 +44,12 @@ public class V_PlatformIntegration : MonoBehaviour, IInstanceNetworkSettingsProv
     #endregion
 
 
-    private void OnEnable()
+    private void OnEnable() //Called on reconnection
     {
         if (!Application.isPlaying)
         {
             ViRSENonCoreServiceLocator.Instance.InstanceNetworkSettingsProvider = this;
+            ViRSECoreServiceLocator.Instance.PlayerSettingsProvider = this;
             return;
         }
 
@@ -71,6 +73,8 @@ public class V_PlatformIntegration : MonoBehaviour, IInstanceNetworkSettingsProv
         //else
         //    _platformService.OnConnectedToServer += HandlePlatformServiceReady;
     }
+
+    //private void 
 
     //private void HandlePlatformServiceReady()
     //{
@@ -125,3 +129,8 @@ public class DebugPlatformService : IPlatformService
         Debug.Log("Tear down debug platform service");
     }
 }
+
+/*
+
+
+*/
