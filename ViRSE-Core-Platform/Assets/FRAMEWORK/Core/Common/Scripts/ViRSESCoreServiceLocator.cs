@@ -18,6 +18,7 @@ public class ViRSECoreServiceLocator : MonoBehaviour
 
             if (_instance == null)
             {
+                Debug.Log("MADE NEW CORE LOCATOR");
                 _instance = new GameObject($"ViRSECoreServiceLocator{SceneManager.GetActiveScene().name}").AddComponent<ViRSECoreServiceLocator>();
             }
 
@@ -33,7 +34,7 @@ public class ViRSECoreServiceLocator : MonoBehaviour
             if (_multiPlayerSupport == null && !string.IsNullOrEmpty(_multiplayerSupportGOName))
                 _multiPlayerSupport = GameObject.Find(_multiplayerSupportGOName)?.GetComponent<IMultiplayerSupport>();
 
-            if (_multiPlayerSupport != null && !_multiPlayerSupport.IsEnabled)
+            if (_multiPlayerSupport == null || !_multiPlayerSupport.IsEnabled)
                 return null;
             else
                 return _multiPlayerSupport;
@@ -48,14 +49,20 @@ public class ViRSECoreServiceLocator : MonoBehaviour
     }
 
     //Record the gameobject name so we can re-locate multiplayer support after a domain reload
-    [SerializeField, HideInInspector] public string PlayerSettingsProviderGOName { get; private set; }
+    //[SerializeField] public string testString;
+    [SerializeField] public string PlayerSettingsProviderGOName; //{ get; private set; }
     private IPlayerSettingsProvider _playerSettingsProvider;
     public IPlayerSettingsProvider PlayerSettingsProvider {
         get {
+
+            Debug.Log("GET IPSP : " + PlayerSettingsProviderGOName + " GOName  this go name: " + gameObject.name);
+            //Debug.Log("GET IPSP : " + testString + " - " + PlayerSettingsProviderGOName + " GOName  this go name: " + gameObject.name);
+
+
             if (_playerSettingsProvider == null && !string.IsNullOrEmpty(PlayerSettingsProviderGOName))
                 _playerSettingsProvider = GameObject.Find(PlayerSettingsProviderGOName)?.GetComponent<IPlayerSettingsProvider>();
 
-            if (_playerSettingsProvider != null && !_playerSettingsProvider.IsEnabled)
+            if (_playerSettingsProvider == null || !_playerSettingsProvider.IsEnabled)
                 return null;
             else 
                 return _playerSettingsProvider;
@@ -65,11 +72,15 @@ public class ViRSECoreServiceLocator : MonoBehaviour
             _playerSettingsProvider = value;
 
             if (value != null)
+            {
                 PlayerSettingsProviderGOName = value.GameObjectName;
+                Debug.Log("SET NAME : " + value.GameObjectName);
+            }
         }
     }
 
-    [SerializeField, HideInInspector] public string PlayerOverridesProviderGOName { get; private set; }
+    //[SerializeField] private string testString;
+    [SerializeField] public string PlayerOverridesProviderGOName; // { get; private set; }
     private IPlayerAppearanceOverridesProvider _playerOverridesProvider;
     public IPlayerAppearanceOverridesProvider PlayerAppearanceOverridesProvider
     {
@@ -78,7 +89,7 @@ public class ViRSECoreServiceLocator : MonoBehaviour
             if (_playerOverridesProvider == null && !string.IsNullOrEmpty(PlayerOverridesProviderGOName))
                 _playerOverridesProvider = GameObject.Find(PlayerOverridesProviderGOName)?.GetComponent<IPlayerAppearanceOverridesProvider>();
 
-            if (_playerOverridesProvider != null && !_playerOverridesProvider.IsEnabled)
+            if (_playerOverridesProvider == null || !_playerOverridesProvider.IsEnabled)
                 return null;
             else
                 return _playerOverridesProvider;
@@ -127,7 +138,7 @@ public class ViRSECoreServiceLocator : MonoBehaviour
 
     private void OnDisable()
     {
-        //Debug.Log("SCENE CHANGE core");
+        Debug.Log("SCENE CHANGE core");
         _instance = null;
     }
 
@@ -138,4 +149,7 @@ public interface IPlayerAppearanceOverridesProvider
     public PlayerPresentationOverrides PlayerPresentationOverrides { get; }
     public bool IsEnabled { get; }
     public string GameObjectName { get; }
+
+    public void NotifyProviderOfChangeAppearanceOverrides();
+    public event Action OnAppearanceOverridesChanged;
 }

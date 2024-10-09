@@ -10,15 +10,30 @@ using static ViRSE.Core.Shared.CoreCommonSerializables;
 [ExecuteInEditMode]
 public class V_PlatformIntegration : MonoBehaviour, IInstanceNetworkSettingsProvider, IPlayerSettingsProvider
 {
+    #region Utlity
+    // public bool PlayerSettingsProviderPresent => PlayerSettingsProvider != null;
+    // public IPlayerSettingsProvider PlayerSettingsProvider => ViRSECoreServiceLocator.Instance.PlayerSettingsProvider;
+    // [SerializeField, HideInInspector] public bool SettingsProviderPresent => PlayerSettingsProvider != null;
+    #endregion
+
+    [Title("Debug User Settings")]
+    [Help("For mocking the user settings that will be sent to V_PlayerSpawner in the editor. When you export your built world to the platform, the platform will override these settings.")]
+    [BeginGroup(Style = GroupStyle.Round)]
+    [SerializeField] private bool _exchangeDebugUserSettingsWithPlayerPrefs = true;
+
+    [SpaceArea(spaceAfter: 10, Order = 0)]
+    [EndGroup(Order = 1)]
+    [EditorButton(nameof(NotifyProviderOfChangeToUserSettings), "Update user settings", activityType: ButtonActivityType.OnPlayMode)]
+    [SerializeField, IgnoreParent, DisableIf(nameof(_shouldShowUserSettings), false)] private UserSettingsPersistable _debugUserSettings = new();
+    private bool _shouldShowUserSettings => Application.isPlaying || !_exchangeDebugUserSettingsWithPlayerPrefs;
+
     //TODO, only show these if there actually is a player, and if these things are actually in the scene
+    [Title("Debug Connection Settings")]
     [Help("For mocking the network settings that will be sent to V_InstanceIntegration in the editor. When you export your built world to the platform, the platform will override these settings.")]
     [SerializeField, IgnoreParent] private InstanceNetworkSettings DebugInstanceNetworkSettings = new("127.0.0.1", 4297, "dev");
 
-    //[SerializeField] public PlayerPresentationConfig PlayerPresentationConfig;
-    //[SerializeField] public PlayerVRControlConfig PlayerVRControlConfig;
-    //[SerializeField] public Player2DControlConfig Player2DControlConfig;
-
     private IPlatformService _platformService;
+
     public IPlatformService PlatformService {
         get {
             if (_platformService == null)
@@ -28,25 +43,34 @@ public class V_PlatformIntegration : MonoBehaviour, IInstanceNetworkSettingsProv
         }
     }
 
-    #region Instance-Networking-Facing Interfaces
+    #region Instance-Networking Interfaces
     public bool AreInstanceNetworkingSettingsReady => PlatformService.IsConnectedToServer;
     public event Action OnInstanceNetworkSettingsReady { add { PlatformService.OnConnectedToServer += value; } remove { PlatformService.OnConnectedToServer -= value; } }
     public InstanceNetworkSettings InstanceNetworkSettings => PlatformService.InstanceNetworkSettings;
     #endregion
 
-    #region Player-Rig-Facing Interfaces
+    #region Player Settings Interfaces
     public bool ArePlayerSettingsReady => PlatformService.IsConnectedToServer;
     public event Action OnPlayerSettingsReady { add { PlatformService.OnConnectedToServer += value; } remove { PlatformService.OnConnectedToServer -= value; } }
     public UserSettingsPersistable UserSettings => PlatformService.UserSettings;
+    public void NotifyProviderOfChangeToUserSettings() => OnPlayerSettingsChanged?.Invoke(); 
+    public event Action OnPlayerSettingsChanged; //The instance relay needs this
     #endregion
 
-    #region Shared interfaces 
+    /*
+        The settings provider needs an event that can be listened to by the instance relay, and the platform service, to know when the settings have been changed 
+        The settings provider also needs a method that can be called by anything modifying the settings, to trigger this event 
+        So I guess that means, since the V_PlatformIntegration IS the PlayerSettingsProvider... we wire that into the service?
+        Is it weird that the platform provides the settings, but it has to listen to its own event???
+    */
+
+    #region Shared Interfaces 
     public string GameObjectName => gameObject.name;
     public bool IsEnabled => enabled && gameObject.activeInHierarchy;
     #endregion
 
 
-    private void OnEnable() //Called on reconnection
+    private void OnEnable() //TODO - handle reconnect
     {
         if (!Application.isPlaying)
         {
@@ -58,17 +82,11 @@ public class V_PlatformIntegration : MonoBehaviour, IInstanceNetworkSettingsProv
         GameObject platformProviderGO = GameObject.Find("PlatformServiceProvider");
 
         if (platformProviderGO != null)
-        {
             _platformService = platformProviderGO.GetComponent<IPlatformServiceProvider>().PlatformService;
-        }
         else
-        {
-            _platformService = new DebugPlatformService(SceneManager.GetActiveScene().name + "-debug");
-            InstanceNetworkSettings debugNetworkSettings = _platformService.InstanceNetworkSettings;
-            Debug.LogWarning($"No platform service provider found, using debug platform service. " +
-                $"This will return default user settings, and the following instance networking settings" +
-                $"IP: {debugNetworkSettings.IP}, Port: {debugNetworkSettings.Port} Instance code: {debugNetworkSettings.InstanceCode}");
-        }
+            _platformService = new DebugPlatformService(SceneManager.GetActiveScene().name + "-debug", DebugInstanceNetworkSettings, _debugUserSettings, _exchangeDebugUserSettingsWithPlayerPrefs);
+
+        _platformService.SetupForNewInstance(this);
 
         //if (_platformService.IsConnectedToServer)
         //    HandlePlatformServiceReady();
@@ -111,15 +129,21 @@ public class DebugPlatformService : IPlatformService
     public bool IsConnectedToServer => true;
 
     //TODO, when the user changes their settings, save to player prefs, also, LOAD from player prefs!
-    public UserSettingsPersistable UserSettings => new();
-
     public InstanceNetworkSettings InstanceNetworkSettings { get; private set; }
+    public UserSettingsPersistable UserSettings { get; private set; }
+    private IPlayerSettingsProvider _playerSettingsProvider;
+
+    private bool _exchangeDebugUserSettingsWithPlayerPrefs;
 
     public event Action OnConnectedToServer;
 
-    public DebugPlatformService(string instanceCode)
+    public DebugPlatformService(string instanceCodeDebug, InstanceNetworkSettings networkSettingsDebug, UserSettingsPersistable userSettingsDebug, bool exchangeDebugUserSettingsWithPlayerPrefs)
     {
-        InstanceNetworkSettings = new InstanceNetworkSettings("127.0.0.1", 4297, instanceCode);
+        Debug.LogWarning($"No platform service provider found, using debug platform service. ");
+        InstanceNetworkSettings = new InstanceNetworkSettings("127.0.0.1", 4297, instanceCodeDebug);
+        InstanceNetworkSettings = networkSettingsDebug;
+        UserSettings = userSettingsDebug;
+        _exchangeDebugUserSettingsWithPlayerPrefs = exchangeDebugUserSettingsWithPlayerPrefs;
     }
 
     public void RequestInstanceAllocation(string worldName, string instanceSuffix)
@@ -131,9 +155,22 @@ public class DebugPlatformService : IPlatformService
     {
         Debug.Log("Tear down debug platform service");
     }
+
+    public void SetupForNewInstance(IPlayerSettingsProvider playerSettingsProvider)
+    {
+        if (_playerSettingsProvider != null)
+            _playerSettingsProvider.OnPlayerSettingsChanged -= HandleUserSettingsChanged;
+
+        _playerSettingsProvider = playerSettingsProvider;
+        _playerSettingsProvider.OnPlayerSettingsChanged += HandleUserSettingsChanged;
+    }
+
+    public void HandleUserSettingsChanged()
+    {
+        Debug.Log("Debug PlatformService detected change to user settings");
+        if (_exchangeDebugUserSettingsWithPlayerPrefs)
+        {
+            //TODO, save to player prefs
+        }
+    }
 }
-
-/*
-
-
-*/

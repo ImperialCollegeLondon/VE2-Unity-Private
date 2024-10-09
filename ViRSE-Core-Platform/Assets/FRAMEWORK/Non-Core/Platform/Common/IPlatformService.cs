@@ -10,7 +10,11 @@ public interface IPlatformService //TODO, maybe not all of these should live in 
     public event Action OnConnectedToServer;
 
     public UserSettingsPersistable UserSettings { get; }
+    //public void NotifyPlatformOfChangeToUserSettings();
+
     public InstanceNetworkSettings InstanceNetworkSettings { get; }
+
+    public void SetupForNewInstance(IPlayerSettingsProvider playerSettingsProvider);
 }
 
 /*

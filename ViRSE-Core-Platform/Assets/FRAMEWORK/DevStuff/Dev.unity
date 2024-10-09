@@ -598,6 +598,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4832776686e2e1f40b2d0ae7e7ddcc58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _exchangeDebugUserSettingsWithPlayerPrefs: 1
+  _debugUserSettings:
+    Player2DControlConfig:
+      MouseSensitivity: 1
+      CrouchHold: 1
+    PlayerVRControlConfig:
+      DragSpeed: 1
+      TurnAmount: 45
+      ControllerVibration: 1
+      ControllerLabels: 1
+      WristLookPrecision: 1
+      DragDarkening: 0
+      TeleportBlink: 0
+      SnapTurnBlink: 0
+    PresentationConfig:
+      PlayerName: Unknown
+      AvatarHeadType: ViRSE-0
+      AvatarBodyType: ViRSE-0
+      AvatarRed: 255
+      AvatarGreen: 60
+      AvatarBlue: 60
   DebugInstanceNetworkSettings:
     IP: 127.0.0.1
     Port: 4297
@@ -2690,7 +2711,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enableVR: 0
   enable2D: 0
-  exchangeSettingsWithPlayerPrefs: 1
   PresentationOverrides:
     UsingViRSEAvatar: 1
     AvatarHeadTypeOverride: 
@@ -2701,6 +2721,7 @@ MonoBehaviour:
     RepeatedTransmissionConfig:
       TransmissionType: 0
       TransmissionFrequency: 50
+  playerSpawned: 0
 --- !u!4 &798246511
 Transform:
   m_ObjectHideFlags: 0
@@ -6561,6 +6582,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _multiplayerSupportGOName: PluginSyncer
+  PlayerSettingsProviderGOName: PlatformIntegration
+  testString: devtest123
+  PlayerOverridesProviderGOName: PlayerSpawner
 --- !u!4 &1550410139
 Transform:
   m_ObjectHideFlags: 0

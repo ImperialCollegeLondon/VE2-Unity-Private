@@ -4,13 +4,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using static ViRSE.Core.Shared.CoreCommonSerializables;
 
-public interface IPlayerSettingsProvider
+public interface IPlayerSettingsProvider //TODO - separate out control settings from appearance settings
 {
     public bool ArePlayerSettingsReady { get; }
     public event Action OnPlayerSettingsReady;
     public UserSettingsPersistable UserSettings { get; }
     public string GameObjectName { get; }   
     public bool IsEnabled { get; }
+
+    public void NotifyProviderOfChangeToUserSettings();
+    public event Action OnPlayerSettingsChanged;
 }
 
 /*

@@ -31,8 +31,8 @@ namespace ViRSE.Core.Shared //TODO - Need to expose to customer
                 public class UserSettingsPersistable : ViRSESerializable //TODO, probably add audio config 
                 {
 #if UNITY_EDITOR
-                        [Title("User Settings", Order = 0)]
-                        [BeginGroup(Style = GroupStyle.Round, Order = 1)]
+                        //[Title("User Settings", Order = 0)]
+                        //[BeginGroup(Style = GroupStyle.Round, Order = 1)]
                         [Title("2D Control Settings", Order = 2)]
 
                         [SerializeField, IgnoreParent]
@@ -49,7 +49,7 @@ namespace ViRSE.Core.Shared //TODO - Need to expose to customer
 #if UNITY_EDITOR
                         [Space(5)]
                         [Title("Avatar Presentation Settings")]
-                        [EndGroup]
+                        //[EndGroup]
                         [SerializeField, IgnoreParent]
 #endif
                         public PlayerPresentationConfig PresentationConfig = new();

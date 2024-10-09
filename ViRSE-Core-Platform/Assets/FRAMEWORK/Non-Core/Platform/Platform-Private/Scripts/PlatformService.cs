@@ -65,9 +65,11 @@ namespace ViRSE.PluginRuntime
         }
         #endregion
 
-        #region Player-Rig-Facing Interfaces
+        #region Player Settings Interfaces
         public UserSettingsPersistable UserSettings { get; private set; }
         #endregion
+
+        private IPlayerSettingsProvider _playerSettingsProvider;
 
         #region Platform-Private Interfaces
         public void RequestInstanceAllocation(string worldName, string instanceSuffix)
@@ -111,6 +113,15 @@ namespace ViRSE.PluginRuntime
             //}
 
             _commsHandler.ConnectToServer(ipAddress, portNumber);
+        }
+
+        public void SetupForNewInstance(IPlayerSettingsProvider playerSettingsProvider)
+        {
+            if (_playerSettingsProvider != null)
+                _playerSettingsProvider.OnPlayerSettingsChanged -= HandleUserSettingsChanged;
+
+            _playerSettingsProvider = playerSettingsProvider;
+            _playerSettingsProvider.OnPlayerSettingsChanged += HandleUserSettingsChanged;
         }
 
         private void HandleReceiveNetcodeVersion(byte[] bytes)
@@ -222,6 +233,12 @@ namespace ViRSE.PluginRuntime
          * 
          * 
          */
+
+         private void HandleUserSettingsChanged()
+         {
+            Debug.Log("Platform detected user settings changed");
+             //_commsHandler.SendUserSettingsUpdate(UserSettings.Bytes);
+         }
 
         public void TearDown()
         {

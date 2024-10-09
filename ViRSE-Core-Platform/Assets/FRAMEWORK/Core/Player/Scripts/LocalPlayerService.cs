@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 using ViRSE.Core.Player;
@@ -23,14 +24,21 @@ namespace ViRSE.Core.Player
         [SerializeField] private PlayerControllerVR _vrPlayer;
         private PlayerController _activePlayer => _playerMode == LocalPlayerMode.TwoD? _2dPlayer : _vrPlayer;
 
-        [SerializeField, HideInInspector] PlayerStateConfig _stateConfig;
-        [SerializeField, HideInInspector] UserSettingsPersistable _userSettings;
+        private PlayerStateConfig _stateConfig;
+        private IPlayerSettingsProvider _playerSettingsProvider;
+        private IPlayerAppearanceOverridesProvider _appearanceOverridesProvider;
 
-        public void Initialize(PlayerStateConfig playerStateConfig, UserSettingsPersistable userSettings)
+        public void Initialize(PlayerStateConfig playerStateConfig, IPlayerSettingsProvider playerSettingsProvider, IPlayerAppearanceOverridesProvider appearanceOverridesProvider)
         {
-            _playerMode = LocalPlayerMode.TwoD;
+            _playerMode = LocalPlayerMode.TwoD; //TODO - support other modes 
+
             _stateConfig = playerStateConfig;
-            _userSettings = userSettings;
+            _playerSettingsProvider = playerSettingsProvider;
+            _appearanceOverridesProvider = appearanceOverridesProvider;
+
+            _playerSettingsProvider.OnPlayerSettingsChanged += HandleSettingsChanged;
+            _appearanceOverridesProvider.OnAppearanceOverridesChanged += HandleOverridesChanged;
+            Debug.Log("Player rig initialized");
 
             //TODO, process configs 
 
@@ -41,8 +49,20 @@ namespace ViRSE.Core.Player
              */
         }
 
-        private void OnEnable() 
+        private void HandleSettingsChanged() 
         {
+            Debug.Log("Player rig detected settings changed");
+        }
+
+        private void HandleOverridesChanged() 
+        {
+            Debug.Log("Player rig detected avatar overrides changed");
+        }
+
+
+        private void Start() //TODO, need to destroy player on domain reload
+        {
+            Debug.Log("Player rig enabled, config null? " + (_stateConfig == null));
             if (_stateConfig.IsNetworked && _stateConfig.MultiplayerSupportPresent)
             {
                 _stateConfig.MultiplayerSupport.RegisterLocalPlayer(this);

@@ -75,7 +75,7 @@ There kind of isn't one? That's why I think the platform should just have its ow
         public event Action OnConnectedToServer;
         public event Action OnDisconnectedFromServer;
 
-        private InstanceNetworkSettings _instanceConnectionDetails;
+
         public ushort LocalClientID { get; private set; } = ushort.MaxValue;
         public InstancedInstanceInfo InstanceInfo;
         public event Action<InstancedInstanceInfo> OnInstanceInfoChanged;
@@ -88,7 +88,10 @@ There kind of isn't one? That's why I think the platform should just have its ow
         public bool IsEnabled => true; //Bodge, the mono proxy for this needs this, and both currently use the same interface... maybe consider using different interfaces?
 
         private IPluginSyncCommsHandler _commsHandler;
-        private InstancedPlayerPresentation _instancedPlayerPresentation;
+
+        private IInstanceNetworkSettingsProvider _networkSettingsProvider;
+        private IPlayerSettingsProvider _playerSettingsProvider; 
+        private IPlayerAppearanceOverridesProvider _playerAppearanceOverridesProvider;
 
         /*
             Right, the instance integration needs to be able to see what the player settings are 
@@ -135,19 +138,32 @@ There kind of isn't one? That's why I think the platform should just have its ow
             _commsHandler.OnDisconnectedFromServer += HandleDisconnectFromServer;
         }
 
-        public void ConnectToServer(InstanceNetworkSettings instanceConnectionDetails, InstancedPlayerPresentation instancedPlayerPresentation)
+        public void ConnectToServer(IInstanceNetworkSettingsProvider networkSettingsProvider, IPlayerSettingsProvider playerSettingsProvider, IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider)
         {
-            _instanceConnectionDetails = instanceConnectionDetails;
-            _instancedPlayerPresentation = instancedPlayerPresentation;
+            _networkSettingsProvider = networkSettingsProvider;
+            _playerSettingsProvider = playerSettingsProvider;
+            _playerAppearanceOverridesProvider = playerAppearanceOverridesProvider;
+
+            //if (_playerSettingsProvider != null)
+                _playerSettingsProvider.OnPlayerSettingsChanged += OnPlayerAppearanceChanged;
+
+            //if (_playerAppearanceOverridesProvider != null)
+                _playerAppearanceOverridesProvider.OnAppearanceOverridesChanged += OnPlayerAppearanceChanged;
 
             // _playerSpawnConfig.OnLocalChangeToPlayerSettings += () => _commsHandler.SendMessage(_instancedPlayerPresentation.Bytes, InstanceNetworkingMessageCodes.UpdateAvatarPresentation, TransmissionProtocol.TCP);
             // _playerSpawnConfig.OnLocalChangeToAvatarOverrides += () => _commsHandler.SendMessage(_instancedPlayerPresentation.Bytes, InstanceNetworkingMessageCodes.UpdateAvatarPresentation, TransmissionProtocol.TCP);
-
-            Debug.Log("Try connect... " + _instanceConnectionDetails.IP);
-            if (IPAddress.TryParse(_instanceConnectionDetails.IP, out IPAddress ipAddress))
-                _commsHandler.ConnectToServer(ipAddress, _instanceConnectionDetails.Port);
+            InstanceNetworkSettings instanceConnectionDetails = _networkSettingsProvider.InstanceNetworkSettings;
+            Debug.Log("Try connect... " + instanceConnectionDetails.IP);
+            if (IPAddress.TryParse(instanceConnectionDetails.IP, out IPAddress ipAddress))
+                _commsHandler.ConnectToServer(ipAddress, instanceConnectionDetails.Port);
             else
                 Debug.LogError("Could not connect to server, invalid IP address");
+        }
+
+        private void OnPlayerAppearanceChanged() 
+        {
+            //_commsHandler.
+            Debug.Log("InstanceService detected change to player settings"); //TODO!
         }
 
         private void HandleReceiveNetcodeVersion(byte[] bytes)
@@ -167,10 +183,17 @@ There kind of isn't one? That's why I think the platform should just have its ow
 
         private void SendServerRegistration() 
         {
-            Debug.Log("<color=green> Try connect to server with instance code - " + _instanceConnectionDetails.InstanceCode);
+            Debug.Log("<color=green> Try connect to server with instance code - " + _networkSettingsProvider.InstanceNetworkSettings.InstanceCode);
             //We also send the LocalClientID here, this will either be maxvalue (if this is our first time connecting, the server will give us a new ID)..
             //..or it'll be the ID we we're given by the server (if we're reconnecting, the server will use the ID we provide)
-            ServerRegistrationRequest serverRegistrationRequest = new(_instancedPlayerPresentation, _instanceConnectionDetails.InstanceCode, LocalClientID);
+
+            InstancedPlayerPresentation instancedPlayerPresentation;
+            if (_playerSettingsProvider == null || _playerAppearanceOverridesProvider == null)
+                instancedPlayerPresentation = new(false, null, null);
+            else
+                instancedPlayerPresentation = new(true, _playerSettingsProvider.UserSettings.PresentationConfig, _playerAppearanceOverridesProvider.PlayerPresentationOverrides);
+
+            ServerRegistrationRequest serverRegistrationRequest = new(instancedPlayerPresentation, _networkSettingsProvider.InstanceNetworkSettings.InstanceCode, LocalClientID);
             _commsHandler.SendMessage(serverRegistrationRequest.Bytes, InstanceNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
 
         }

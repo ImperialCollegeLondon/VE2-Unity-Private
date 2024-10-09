@@ -146,32 +146,16 @@ namespace ViRSE.InstanceNetworking
 
             Debug.Log($"All settings ready, player settings null? {ViRSECoreServiceLocator.Instance.PlayerSettingsProvider == null} overrides null? {ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider == null}");
 
-            InstancedPlayerPresentation instancedPlayerPresentation;
-            if (ViRSECoreServiceLocator.Instance.PlayerSettingsProvider == null || ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider == null)
-                instancedPlayerPresentation = new(false, null, null);
-            else
-                instancedPlayerPresentation = new(true, ViRSECoreServiceLocator.Instance.PlayerSettingsProvider.UserSettings.PresentationConfig, ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider.PlayerPresentationOverrides);
-
             _connectionState = ConnectionState.Connecting;
-            _instanceService.ConnectToServer(ViRSENonCoreServiceLocator.Instance.InstanceNetworkSettingsProvider.InstanceNetworkSettings, instancedPlayerPresentation);
+            _instanceService.ConnectToServer( //TODO, DI through constructor? Maybe move all the waiting there too...
+                ViRSENonCoreServiceLocator.Instance.InstanceNetworkSettingsProvider, 
+                ViRSECoreServiceLocator.Instance.PlayerSettingsProvider, 
+                ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider);
         }
 
         private void FixedUpdate()
         {
             _instanceService.NetworkUpdate(); //TODO, think about this... perhaps the syncers should be in charge of calling themselves?
-
-            //Player will instantiate a player sync module 
-            //That sync module will look for the network manager, calling the "register player" API will cause the Mono to create a new service, and give that service the player
-            //The sync module will then need to create a new player syncer. 
-            //So, does it make more sense for the newly created player syncer to handle its update, or should this be the service?
-            //Kinda feel like that's the syncer's job? The service should just just be a comms layer, basically 
-            //In that case though, it's jank to have the service be the thing that creates the syncers, no?
-
-            //Maybe the SceneSyncer should actually create the WorldStateSyncer and PlayerSyncer, and pass them both a reference to the PluginSyncService... that way, the service doesn't have to actually do anything!
-            //Feels like that's probably the cleanest pattern to use here...
-
-            //Ok, so how should programmatic connection work?
-            //Disabled if "connect automatically" is up, 
         }
 
 

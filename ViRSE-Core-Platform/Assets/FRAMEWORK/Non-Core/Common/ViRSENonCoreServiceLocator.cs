@@ -44,7 +44,7 @@ public class ViRSENonCoreServiceLocator : MonoBehaviour
             if (_instanceNetworkSettingsProvider == null && !string.IsNullOrEmpty(_instanceNetworkSettingsGOName))
                 _instanceNetworkSettingsProvider = GameObject.Find(_instanceNetworkSettingsGOName)?.GetComponent<IInstanceNetworkSettingsProvider>();
 
-            if (_instanceNetworkSettingsProvider != null && !_instanceNetworkSettingsProvider.IsEnabled)
+            if (_instanceNetworkSettingsProvider == null || !_instanceNetworkSettingsProvider.IsEnabled)
                 return null;
             else
                 return _instanceNetworkSettingsProvider;
