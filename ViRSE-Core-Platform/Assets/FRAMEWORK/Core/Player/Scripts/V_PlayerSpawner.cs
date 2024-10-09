@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
 using 
@@ -20,54 +21,6 @@ namespace ViRSE.Core.Player
     E.G a button to "invoke" an invokable
     That wouldn't need to go into the state module though...
     */
-
-    [Serializable]
-    public class PlayerConfig
-    {
-        #region Utlity
-        public bool PlayerSettingsProviderPresent => PlayerSettingsProvider != null;
-        public IPlayerSettingsProvider PlayerSettingsProvider => ViRSECoreServiceLocator.Instance.PlayerSettingsProvider;
-        [SerializeField, HideInInspector] public bool SettingsProviderPresent => PlayerSettingsProvider != null;
-        #endregion
-
-
-        [SerializeField] public bool enableVR;
-        [SerializeField] public bool enable2D;
-        [SpaceArea(spaceAfter: 5)]
-
-
-        [DynamicHelp("_settingsMessage")] //TODO below button should be removed when the UI is in 
-        [EditorButton(nameof(UpdatePlayerSettings), "Update player settings", activityType: ButtonActivityType.OnPlayMode, ApplyCondition = true)]
-        [SerializeField, IgnoreParent, HideIf(nameof(PlayerSettingsProviderPresent), true)] public UserSettings playerSettings;
-
-        [HideInInspector] public event Action OnLocalChangeToPlayerSettings;
-        public void UpdatePlayerSettings() => OnLocalChangeToPlayerSettings?.Invoke();
-
-
-        [Space(5)]
-        [Title("Avatar Presentation Overrides" /*, ApplyCondition = true */)]
-        [EditorButton(nameof(UpdateAvatarOverrides), "Update overrides", activityType: ButtonActivityType.OnPlayMode, ApplyCondition = true)]
-        [SerializeField, IgnoreParent] public PlayerPresentationOverrides PresentationOverrides = new();
-
-        [HideInInspector] public event Action OnLocalChangeToAvatarOverrides;
-        public void UpdateAvatarOverrides() => OnLocalChangeToAvatarOverrides?.Invoke();
-    }
-
-    [Serializable]
-    public class UserSettings 
-    {
-        [Space(5)]
-        [Title("2D Control Settings")]
-        [SerializeField, IgnoreParent] public Player2DControlConfig Player2DControlConfig;
-
-        [Space(5)]
-        [Title("VR Control Settings")]
-        [SerializeField, IgnoreParent] public PlayerVRControlConfig PlayerVRControlConfig;
-
-        [Space(5)]
-        [Title("Avatar Presentation Settings")]
-        [SerializeField, IgnoreParent] public PlayerPresentationConfig PresentationConfig = new();
-    }
 
     // [Serializable]
     // public class PlayerPresentationConfigWrapper
@@ -92,31 +45,96 @@ namespace ViRSE.Core.Player
 
     //TODO, consolidate all this into one config class?
 
-    public class V_PlayerSpawner : MonoBehaviour //Should this be called "PlayerIntegration"?
+    [ExecuteInEditMode]
+    public class V_PlayerSpawner : MonoBehaviour, IPlayerAppearanceOverridesProvider //Should this be called "PlayerIntegration"?
     {
-        [SerializeField, IgnoreParent] public PlayerConfig SpawnConfig;
+        #region Utlity
+        public bool PlayerSettingsProviderPresent => PlayerSettingsProvider != null;
+        public IPlayerSettingsProvider PlayerSettingsProvider => ViRSECoreServiceLocator.Instance.PlayerSettingsProvider;
+        [SerializeField, HideInInspector] public bool SettingsProviderPresent => PlayerSettingsProvider != null;
+        #endregion
+
+        [SerializeField] public bool enableVR;
+        [SerializeField] public bool enable2D;
+
+        [SerializeField, HideIf(nameof(PlayerSettingsProvider), true)] public bool exchangeSettingsWithPlayerPrefs = true;
+
+        private UserSettingsPersistable _userSettings = null;
+        public UserSettingsPersistable UserSettings
+        {
+            get
+            {
+                if (_userSettings == null)
+                {
+                    if (PlayerSettingsProviderPresent)
+                        _userSettings = PlayerSettingsProvider.UserSettings;
+                    else if (exchangeSettingsWithPlayerPrefs)
+                        _userSettings = new(); //TODO - load from player prefs
+                    else
+                        _userSettings = new();
+                }
+                return _userSettings;
+            }
+            set
+            {
+                if (PlayerSettingsProviderPresent)
+                    Debug.LogError($"Error, can't override user settings, user settings come from {PlayerSettingsProvider.GameObjectName}");
+                else if (exchangeSettingsWithPlayerPrefs)
+                    _userSettings = value; //TODO - save to player prefs
+                else
+                    _userSettings = value;
+            }
+        }
+
+        public event Action OnLocalChangeToUserSettings;
+
+        [Space(5)]
+        [Title("Avatar Presentation Overrides" /*, ApplyCondition = true */)]
+        [EditorButton(nameof(UpdateAvatarOverrides), "Update overrides", activityType: ButtonActivityType.OnPlayMode, ApplyCondition = true)]
+        [SerializeField, IgnoreParent] public PlayerPresentationOverrides PresentationOverrides = new();
+        private void UpdateAvatarOverrides() => OnLocalChangeToPresentationOverrides?.Invoke();
+        public event Action OnLocalChangeToPresentationOverrides;
+
         [SerializeField, IgnoreParent] public PlayerStateConfig playerStateConfig;
 
         private const string LOCAL_PLAYER_RIG_PREFAB_PATH = "LocalPlayerRig";
 
-# region proxies to nested class
-        private void UpdatePlayerSettings() => SpawnConfig.UpdatePlayerSettings();
-        private void UpdateAvatarOverrides() => SpawnConfig.UpdateAvatarOverrides();
-        private string _settingsMessage => SpawnConfig.PlayerSettingsProviderPresent ?
-    $"Debug control and appearance settings can modified on the {SpawnConfig.PlayerSettingsProvider.GameObjectName} gameobject" :
-    "Create a V_PlayerPrefsInterface to save/load control and appearance settings to player prefs, or a V_PlatformIntegration to ";
-    #endregion
+        #region Interfaces 
+        public PlayerPresentationOverrides PlayerPresentationOverrides { get => PresentationOverrides; }
+        public bool IsEnabled => enabled;
+        public string GameObjectName => gameObject.name;
+        #endregion
 
-        public 
+        //TODO - probably need some api to set the user settings so the customer can override them when off-platform
 
-        void Awake()
+        /*
+            Instance sync needs the avatar appearance 
+            If we're not on platform, that comes from the player directly 
+            If we ARE on platform, that comes from the platform integration... which takes time 
+            Ok, so, if we're on platform, delay boot until platform is ready
+
+        */
+
+        void OnEnable() //TODO, should be awake, but then doesn't get called when ExecuteInEditMode
         {
+            /*
+                 The player rig needs its user settings 
+                 So, these either come from the 
+            */
+            Debug.Log("1");
+            if (!Application.isPlaying)
+            {
+                ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider = this;
+                return;
+            }
+            Debug.Log("2");
             GameObject localPlayerRigGO = GameObject.Find(LOCAL_PLAYER_RIG_PREFAB_PATH);
             if (localPlayerRigGO == null)
             {
                 GameObject localPlayerRigPrefab = Resources.Load("LocalPlayerRig") as GameObject;
                 GameObject localPlayerRig = Instantiate(localPlayerRigPrefab, transform.position, transform.rotation);
-                localPlayerRig.GetComponent<Player>().Initialize(SpawnConfig, playerStateConfig);
+
+                localPlayerRig.GetComponent<Player>().Initialize(playerStateConfig, UserSettings);
                 //TODO, also need to wire in some VR dependency, so that the sync module can track the VR position, head, hands, etc
             }
         }

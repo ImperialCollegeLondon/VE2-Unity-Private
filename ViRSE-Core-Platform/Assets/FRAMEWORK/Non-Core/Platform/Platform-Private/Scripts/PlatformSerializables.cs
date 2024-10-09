@@ -147,9 +147,7 @@ public class PlatformSerializables
     public class ServerRegistrationConfirmation : ViRSESerializable
     {
         public ushort LocalClientID { get; private set; }
-        public PlayerPresentationConfig PlayerPresentationConfig { get; private set; }
-        public PlayerVRControlConfig PlayerVRControlConfig { get; private set; }
-        public Player2DControlConfig Player2DControlConfig { get; private set; }
+        public UserSettingsPersistable UserSettings { get; private set; }
         public GlobalInfo GlobalInfo { get; private set; }
         public Dictionary<string, WorldDetails> AvailableWorlds { get; private set; }
         public bool CompletedTutorial { get; private set; }
@@ -158,12 +156,10 @@ public class PlatformSerializables
 
         public ServerRegistrationConfirmation(byte[] bytes) : base(bytes) { }
 
-        public ServerRegistrationConfirmation(ushort localClientID, PlayerPresentationConfig playerPresentationConfig, PlayerVRControlConfig playerVRControlConfig, Player2DControlConfig player2DControlConfig, GlobalInfo globalInfo, Dictionary<string, WorldDetails> availableWorlds, bool completedTutporial)
+        public ServerRegistrationConfirmation(ushort localClientID, UserSettingsPersistable userSettings, GlobalInfo globalInfo, Dictionary<string, WorldDetails> availableWorlds, bool completedTutporial)
         {
             LocalClientID = localClientID;
-            PlayerPresentationConfig = playerPresentationConfig;
-            PlayerVRControlConfig = playerVRControlConfig;
-            Player2DControlConfig = player2DControlConfig;
+            UserSettings = userSettings;
             GlobalInfo = globalInfo;
             AvailableWorlds = availableWorlds;
             CompletedTutorial = completedTutporial;
@@ -177,19 +173,9 @@ public class PlatformSerializables
             writer.Write(LocalClientID);
 
             // Serialize PlayerPresentationConfig
-            byte[] playerPresentationConfigBytes = PlayerPresentationConfig.Bytes;
-            writer.Write((ushort)playerPresentationConfigBytes.Length);
-            writer.Write(playerPresentationConfigBytes);
-
-            // Serialize PlayerVRControlConfig
-            byte[] playerVRControlConfigBytes = PlayerVRControlConfig.Bytes;
-            writer.Write((ushort)playerVRControlConfigBytes.Length);
-            writer.Write(playerVRControlConfigBytes);
-
-            // Serialize Player2DControlConfig
-            byte[] player2DControlConfigBytes = Player2DControlConfig.Bytes;
-            writer.Write((ushort)player2DControlConfigBytes.Length);
-            writer.Write(player2DControlConfigBytes);
+            byte[] userSettingsBytes = UserSettings.Bytes;
+            writer.Write((ushort)userSettingsBytes.Length);
+            writer.Write(userSettingsBytes);
 
             // Serialize GlobalInfo
             byte[] globalInfoBytes = GlobalInfo.Bytes;
@@ -220,19 +206,9 @@ public class PlatformSerializables
             LocalClientID = reader.ReadUInt16();
 
             // Deserialize PlayerPresentationConfig
-            int playerPresentationConfigLength = reader.ReadUInt16();
-            byte[] playerPresentationConfigBytes = reader.ReadBytes(playerPresentationConfigLength);
-            PlayerPresentationConfig = new PlayerPresentationConfig(playerPresentationConfigBytes);
-
-            // Deserialize PlayerVRControlConfig
-            int playerVRControlConfigLength = reader.ReadUInt16();
-            byte[] playerVRControlConfigBytes = reader.ReadBytes(playerVRControlConfigLength);
-            PlayerVRControlConfig = new PlayerVRControlConfig(playerVRControlConfigBytes);
-
-            // Deserialize Player2DControlConfig
-            int player2DControlConfigLength = reader.ReadUInt16();
-            byte[] player2DControlConfigBytes = reader.ReadBytes(player2DControlConfigLength);
-            Player2DControlConfig = new Player2DControlConfig(player2DControlConfigBytes);
+            int userSettingsBytesLength = reader.ReadUInt16();
+            byte[] userSettingsBytes = reader.ReadBytes(userSettingsBytesLength);
+            UserSettings = new UserSettingsPersistable(userSettingsBytes);
 
             // Deserialize GlobalInfo
             int globalInfoLength = reader.ReadUInt16();

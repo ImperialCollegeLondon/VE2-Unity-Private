@@ -14,6 +14,7 @@ using UnityEngine.SceneManagement;
 using UnityEditor;
 using System.Threading;
 using System.Linq;
+using static ViRSE.Core.Shared.CoreCommonSerializables;
 
 namespace ViRSE.PluginRuntime
 {
@@ -65,7 +66,7 @@ namespace ViRSE.PluginRuntime
         #endregion
 
         #region Player-Rig-Facing Interfaces
-        public UserSettings UserSettings { get; private set; }
+        public UserSettingsPersistable UserSettings { get; private set; }
         #endregion
 
         #region Platform-Private Interfaces
@@ -137,7 +138,7 @@ namespace ViRSE.PluginRuntime
             LocalClientID = serverRegistrationConfirmation.LocalClientID;
             GlobalInfo = serverRegistrationConfirmation.GlobalInfo;
             AvailableWorlds = serverRegistrationConfirmation.AvailableWorlds;
-            UserSettings = new(serverRegistrationConfirmation.PlayerPresentationConfig, serverRegistrationConfirmation.PlayerVRControlConfig, serverRegistrationConfirmation.Player2DControlConfig);
+            UserSettings = serverRegistrationConfirmation.UserSettings;
 
             IsConnectedToServer = true;
 

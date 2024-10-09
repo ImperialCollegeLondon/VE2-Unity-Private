@@ -5,16 +5,18 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static ViRSE.Core.Shared.CoreCommonSerializables;
 
 [ExecuteInEditMode]
 public class V_PlatformIntegration : MonoBehaviour, IInstanceNetworkSettingsProvider, IPlayerSettingsProvider
 {
     //TODO, only show these if there actually is a player, and if these things are actually in the scene
     [Help("For mocking the network settings that will be sent to V_InstanceIntegration in the editor. When you export your built world to the platform, the platform will override these settings.")]
-    [SerializeField] private InstanceNetworkSettings DebugInstanceNetworkSettings = new("127.0.0.1", 4297, "dev");
+    [SerializeField, IgnoreParent] private InstanceNetworkSettings DebugInstanceNetworkSettings = new("127.0.0.1", 4297, "dev");
 
-    [Help("For mocking the player settings that will be sent to V_PlayerSpawner in the editor. When you export your built world to the platform, the platform will override these settings.")]
-    [SerializeField] private UserSettings DebugPlayerSettings = new();
+    //[SerializeField] public PlayerPresentationConfig PlayerPresentationConfig;
+    //[SerializeField] public PlayerVRControlConfig PlayerVRControlConfig;
+    //[SerializeField] public Player2DControlConfig Player2DControlConfig;
 
     private IPlatformService _platformService;
     public IPlatformService PlatformService {
@@ -35,7 +37,7 @@ public class V_PlatformIntegration : MonoBehaviour, IInstanceNetworkSettingsProv
     #region Player-Rig-Facing Interfaces
     public bool ArePlayerSettingsReady => PlatformService.IsConnectedToServer;
     public event Action OnPlayerSettingsReady { add { PlatformService.OnConnectedToServer += value; } remove { PlatformService.OnConnectedToServer -= value; } }
-    public UserSettings UserSettings => PlatformService.UserSettings;
+    public UserSettingsPersistable UserSettings => PlatformService.UserSettings;
     #endregion
 
     #region Shared interfaces 
@@ -108,7 +110,8 @@ public class DebugPlatformService : IPlatformService
 {
     public bool IsConnectedToServer => true;
 
-    public UserSettings UserSettings => new();
+    //TODO, when the user changes their settings, save to player prefs, also, LOAD from player prefs!
+    public UserSettingsPersistable UserSettings => new();
 
     public InstanceNetworkSettings InstanceNetworkSettings { get; private set; }
 

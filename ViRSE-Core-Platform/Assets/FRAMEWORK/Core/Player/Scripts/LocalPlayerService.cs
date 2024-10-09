@@ -24,12 +24,13 @@ namespace ViRSE.Core.Player
         private PlayerController _activePlayer => _playerMode == LocalPlayerMode.TwoD? _2dPlayer : _vrPlayer;
 
         [SerializeField, HideInInspector] PlayerStateConfig _stateConfig;
+        [SerializeField, HideInInspector] UserSettingsPersistable _userSettings;
 
-        public void Initialize(PlayerConfig playerSpawnConfig, PlayerStateConfig playerStateConfig)
+        public void Initialize(PlayerStateConfig playerStateConfig, UserSettingsPersistable userSettings)
         {
             _playerMode = LocalPlayerMode.TwoD;
-
             _stateConfig = playerStateConfig;
+            _userSettings = userSettings;
 
             //TODO, process configs 
 

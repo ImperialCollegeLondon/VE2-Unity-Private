@@ -50,8 +50,10 @@ public class InstanceSyncSerializables
             using BinaryWriter writer = new(stream);
 
             writer.Write(InstanceCode);
-            writer.Write((ushort)AvatarDetails.Bytes.Length);
-            writer.Write(AvatarDetails.Bytes);
+
+            byte[] avatarDetailsBytes = AvatarDetails.Bytes;
+            writer.Write((ushort)avatarDetailsBytes.Length);
+            writer.Write(avatarDetailsBytes);
 
             writer.Write(IDToRestore);
 
@@ -90,8 +92,10 @@ public class InstanceSyncSerializables
             using BinaryWriter writer = new(stream);
 
             writer.Write(LocalClientID);
-            writer.Write((ushort)InstanceInfo.Bytes.Length);
-            writer.Write(InstanceInfo.Bytes);
+
+            byte[] bytes = InstanceInfo.Bytes;
+            writer.Write((ushort)bytes.Length);
+            writer.Write(bytes);
 
             return stream.ToArray();
         }
@@ -143,8 +147,9 @@ public class InstanceSyncSerializables
             foreach (var kvp in ClientInfos)
             {
                 writer.Write(kvp.Key);
-                writer.Write((ushort)kvp.Value.Bytes.Length);
-                writer.Write(kvp.Value.Bytes);
+                byte[] clientInfoBytes = kvp.Value.Bytes;
+                writer.Write((ushort)clientInfoBytes.Length);
+                writer.Write(clientInfoBytes);
             }
 
             return stream.ToArray();
@@ -196,8 +201,9 @@ public class InstanceSyncSerializables
             writer.Write((ushort)baseBytes.Length);
             writer.Write(baseBytes);
 
-            writer.Write((ushort)InstancedAvatarAppearance.Bytes.Length);
-            writer.Write(InstancedAvatarAppearance.Bytes);
+            byte[] avatarAppearanceBytes = InstancedAvatarAppearance.Bytes;
+            writer.Write((ushort)avatarAppearanceBytes.Length);
+            writer.Write(avatarAppearanceBytes);
 
             return stream.ToArray();
         }
@@ -218,6 +224,7 @@ public class InstanceSyncSerializables
 
     public class InstancedPlayerPresentation : ViRSESerializable
     {
+        public bool HasAppearance {get; private set;}
         public PlayerPresentationConfig PlayerPresentationConfig;
         public PlayerPresentationOverrides PlayerPresentationOverrides;
 
@@ -225,8 +232,9 @@ public class InstanceSyncSerializables
 
         public InstancedPlayerPresentation(byte[] bytes) : base(bytes) { }
 
-        public InstancedPlayerPresentation(PlayerPresentationConfig instancedAvatarAppearance, PlayerPresentationOverrides playerPresentationOverrides)
+        public InstancedPlayerPresentation(bool hasAppearance, PlayerPresentationConfig instancedAvatarAppearance, PlayerPresentationOverrides playerPresentationOverrides)
         {
+            HasAppearance = hasAppearance;
             PlayerPresentationConfig = instancedAvatarAppearance;
             PlayerPresentationOverrides = playerPresentationOverrides;
         }
@@ -236,13 +244,18 @@ public class InstanceSyncSerializables
             using MemoryStream stream = new();
             using BinaryWriter writer = new(stream);
 
-            byte[] presentationBytes = PlayerPresentationConfig.Bytes;
-            writer.Write((ushort)presentationBytes.Length);
-            writer.Write(presentationBytes);
+            writer.Write(HasAppearance);
 
-            byte[] overrideBytes = PlayerPresentationOverrides.Bytes;
-            writer.Write((ushort)overrideBytes.Length);
-            writer.Write(overrideBytes);
+            if (HasAppearance)
+            {
+                byte[] presentationBytes = PlayerPresentationConfig.Bytes;
+                writer.Write((ushort)presentationBytes.Length);
+                writer.Write(presentationBytes);
+
+                byte[] overrideBytes = PlayerPresentationOverrides.Bytes;
+                writer.Write((ushort)overrideBytes.Length);
+                writer.Write(overrideBytes);
+            }
 
             return stream.ToArray();
         }
@@ -252,13 +265,18 @@ public class InstanceSyncSerializables
             using MemoryStream stream = new(bytes);
             using BinaryReader reader = new(stream);
 
-            ushort presentationBytesLength = reader.ReadUInt16();
-            byte[] presentationBytes = reader.ReadBytes(presentationBytesLength);
-            PlayerPresentationConfig = new(presentationBytes);
+            HasAppearance = reader.ReadBoolean();
+            
+            if (HasAppearance)
+            {
+                ushort presentationBytesLength = reader.ReadUInt16();
+                byte[] presentationBytes = reader.ReadBytes(presentationBytesLength);
+                PlayerPresentationConfig = new(presentationBytes);
 
-            ushort overridesBytesLength = reader.ReadUInt16();
-            byte[] overrideBytes = reader.ReadBytes(overridesBytesLength);
-            PlayerPresentationOverrides = new(overrideBytes);
+                ushort overridesBytesLength = reader.ReadUInt16();
+                byte[] overrideBytes = reader.ReadBytes(overridesBytesLength);
+                PlayerPresentationOverrides = new(overrideBytes);
+            }
         }
     }
 

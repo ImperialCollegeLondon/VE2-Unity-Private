@@ -570,7 +570,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &269500766
 Transform:
   m_ObjectHideFlags: 0
@@ -2688,34 +2688,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea5830b1d78a6804c9c44ba68f3bacd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SpawnConfig:
-    enableVR: 1
-    enable2D: 1
-    playerSettings:
-      Player2DControlConfig:
-        MouseSensitivity: 1
-        CrouchHold: 1
-      PlayerVRControlConfig:
-        DragSpeed: 1
-        TurnAmount: 45
-        ControllerVibration: 1
-        ControllerLabels: 1
-        WristLookPrecision: 1
-        DragDarkening: 0
-        TeleportBlink: 0
-        SnapTurnBlink: 0
-      PresentationConfig:
-        PlayerName: Unknown
-        AvatarHeadType: ViRSE-0
-        AvatarBodyType: ViRSE-0
-        AvatarRed: 255
-        AvatarGreen: 60
-        AvatarBlue: 60
-    PresentationOverrides:
-      UsingViRSEAvatar: 1
-      AvatarHeadTypeOverride: 
-      AvatarBodyTypeOverride: 
-      AvatarTransparancy: 0
+  enableVR: 0
+  enable2D: 0
+  exchangeSettingsWithPlayerPrefs: 1
+  PresentationOverrides:
+    UsingViRSEAvatar: 1
+    AvatarHeadTypeOverride: 
+    AvatarBodyTypeOverride: 
+    AvatarTransparancy: 0
   playerStateConfig:
     IsNetworked: 1
     RepeatedTransmissionConfig:
@@ -3313,11 +3293,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8995ff54d324b04ea0f50966b2be213, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _connectAutomatically: 1
-  _networkSettings:
-    IP: 
-    Port: 0
-    InstanceCode: 
+  _connectOnStart: 1
+  _connectionState: 0
 --- !u!4 &835746393
 Transform:
   m_ObjectHideFlags: 0

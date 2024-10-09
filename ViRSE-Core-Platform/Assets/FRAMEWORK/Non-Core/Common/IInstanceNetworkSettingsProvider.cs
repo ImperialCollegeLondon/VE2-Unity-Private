@@ -15,9 +15,12 @@ public interface IInstanceNetworkSettingsProvider //TODO - should also be expose
 [Serializable]
 public class InstanceNetworkSettings
 {
-    public string IP;
-    public ushort Port;
-    public string InstanceCode;
+    [Title("Connection Settings")]
+    [BeginGroup(Style = GroupStyle.Round)]
+    [SerializeField] public string IP;
+    [SerializeField] public ushort Port;
+    [EndGroup]
+    [SerializeField] public string InstanceCode;
 
     public InstanceNetworkSettings(string iP, ushort port, string instanceCode)
     {

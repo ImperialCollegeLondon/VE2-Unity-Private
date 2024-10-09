@@ -56,11 +56,11 @@ There kind of isn't one? That's why I think the platform should just have its ow
         /// </summary>
         /// <param name="playerPresentationConfig"></param>
         /// <returns></returns>
-        public static PluginSyncService Create(PlayerConfig playerSpawnConfig) //Pass a reference to the player??
+        public static PluginSyncService Create() //Pass a reference to the player??
         {
             InstanceNetworkingCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
 
-            return new PluginSyncService(commsHandler, playerSpawnConfig);
+            return new PluginSyncService(commsHandler);
         }
     }
 
@@ -88,8 +88,15 @@ There kind of isn't one? That's why I think the platform should just have its ow
         public bool IsEnabled => true; //Bodge, the mono proxy for this needs this, and both currently use the same interface... maybe consider using different interfaces?
 
         private IPluginSyncCommsHandler _commsHandler;
-        private PlayerConfig _playerSpawnConfig; //TODO, not sure I like this... we shouldn't have access to control settings... the player should probs have an interface on it
-        private InstancedPlayerPresentation _instancedPlayerPresentation => new(_playerSpawnConfig.playerSettings.PresentationConfig, _playerSpawnConfig.PresentationOverrides);
+        private InstancedPlayerPresentation _instancedPlayerPresentation;
+
+        /*
+            Right, the instance integration needs to be able to see what the player settings are 
+            This might be off-platform, so the instance syncer shouldn't care if its platform or non-platform 
+            The player spawner SHOULD have its own copy of UserSettings, this is what instance syncer queries 
+            Player spawner is then in charge of either routing that from the provider, or from player prefs....
+
+        */
 
         private WorldStateSyncer _worldStateSyncer;
         private PlayerSyncer _playerSyncer;
@@ -109,16 +116,12 @@ There kind of isn't one? That's why I think the platform should just have its ow
         #endregion
 
         //TODO, consider constructing PluginSyncService using factory pattern to inject the WorldStateSyncer
-        public PluginSyncService(IPluginSyncCommsHandler commsHandler, PlayerConfig playerSpawnConfig)
+        public PluginSyncService(IPluginSyncCommsHandler commsHandler)
         {
             WorldStateHistoryQueueSize = 10; //TODO, automate this, currently 10 is more than enough though, 200ms
 
             _commsHandler = commsHandler;
-            _playerSpawnConfig = playerSpawnConfig;
             //_commsHandler.OnReadyToSyncPlugin += HandleReadyToSyncPlugin;
-
-            _playerSpawnConfig.OnLocalChangeToPlayerSettings += () => _commsHandler.SendMessage(_instancedPlayerPresentation.Bytes, InstanceNetworkingMessageCodes.UpdateAvatarPresentation, TransmissionProtocol.TCP);
-            _playerSpawnConfig.OnLocalChangeToAvatarOverrides += () => _commsHandler.SendMessage(_instancedPlayerPresentation.Bytes, InstanceNetworkingMessageCodes.UpdateAvatarPresentation, TransmissionProtocol.TCP);
 
             //TODO - maybe don't give the world state syncer the comms handler, we can just pull straight out of it here and send to comms
             _worldStateSyncer = new WorldStateSyncer(); //TODO DI (if this service references these at all, or if should be the other way around)
@@ -132,9 +135,14 @@ There kind of isn't one? That's why I think the platform should just have its ow
             _commsHandler.OnDisconnectedFromServer += HandleDisconnectFromServer;
         }
 
-        public void ConnectToServer(InstanceNetworkSettings instanceConnectionDetails)
+        public void ConnectToServer(InstanceNetworkSettings instanceConnectionDetails, InstancedPlayerPresentation instancedPlayerPresentation)
         {
             _instanceConnectionDetails = instanceConnectionDetails;
+            _instancedPlayerPresentation = instancedPlayerPresentation;
+
+            // _playerSpawnConfig.OnLocalChangeToPlayerSettings += () => _commsHandler.SendMessage(_instancedPlayerPresentation.Bytes, InstanceNetworkingMessageCodes.UpdateAvatarPresentation, TransmissionProtocol.TCP);
+            // _playerSpawnConfig.OnLocalChangeToAvatarOverrides += () => _commsHandler.SendMessage(_instancedPlayerPresentation.Bytes, InstanceNetworkingMessageCodes.UpdateAvatarPresentation, TransmissionProtocol.TCP);
+
             Debug.Log("Try connect... " + _instanceConnectionDetails.IP);
             if (IPAddress.TryParse(_instanceConnectionDetails.IP, out IPAddress ipAddress))
                 _commsHandler.ConnectToServer(ipAddress, _instanceConnectionDetails.Port);
@@ -159,18 +167,18 @@ There kind of isn't one? That's why I think the platform should just have its ow
 
         private void SendServerRegistration() 
         {
-            Debug.Log("<color=green> Try connect to server with instance code - " + _instanceConnectionDetails.InstanceCode + "</color>");
+            Debug.Log("<color=green> Try connect to server with instance code - " + _instanceConnectionDetails.InstanceCode);
             //We also send the LocalClientID here, this will either be maxvalue (if this is our first time connecting, the server will give us a new ID)..
             //..or it'll be the ID we we're given by the server (if we're reconnecting, the server will use the ID we provide)
             ServerRegistrationRequest serverRegistrationRequest = new(_instancedPlayerPresentation, _instanceConnectionDetails.InstanceCode, LocalClientID);
             _commsHandler.SendMessage(serverRegistrationRequest.Bytes, InstanceNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
+
         }
 
         private void HandleReceiveServerRegistrationConfirmation(byte[] bytes)
         {
+            //Debug.Log("ABOUT TO READ reg=================================================");
             ServerRegistrationConfirmation serverRegistrationConfirmation = new(bytes);
-
-           // Debug.Log("Rec instanceserver reg conf");
 
             LocalClientID = serverRegistrationConfirmation.LocalClientID;
             IsConnectedToServer = true;
@@ -191,14 +199,14 @@ There kind of isn't one? That's why I think the platform should just have its ow
         private void HandleReceiveInstanceInfoUpdate(InstancedInstanceInfo newInstanceInfo)
         {
             //TODO - also check for hostship changes, emit events if we gain or lose hostship, AND events for players joining and leaving 
-
+            Debug.Log("Handle rec instane info");
             Dictionary<ushort, InstancedClientInfo> remoteClientInfos = new(newInstanceInfo.ClientInfos);
             remoteClientInfos.Remove(LocalClientID);
 
             _playerSyncer.HandleReceiveRemoteClientInfos(remoteClientInfos);
 
             InstanceInfo = newInstanceInfo;
-            OnInstanceInfoChanged.Invoke(InstanceInfo);
+            OnInstanceInfoChanged?.Invoke(InstanceInfo);
         }
 
         //TODO, not a fan of this anymore. This is just a service, only meant for sending and receiving data. Think the actual syncers themselves should be the ones pushing data, and listening to received messages

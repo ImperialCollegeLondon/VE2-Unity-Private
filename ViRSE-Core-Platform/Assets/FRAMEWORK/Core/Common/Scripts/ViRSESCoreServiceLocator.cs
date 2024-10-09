@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using ViRSE.Core.Shared;
+using static ViRSE.Core.Shared.CoreCommonSerializables;
 
 [ExecuteInEditMode]
 public class ViRSECoreServiceLocator : MonoBehaviour
@@ -47,12 +48,12 @@ public class ViRSECoreServiceLocator : MonoBehaviour
     }
 
     //Record the gameobject name so we can re-locate multiplayer support after a domain reload
-    [SerializeField, HideInInspector] public string PlayerSettingsproviderGOName { get; private set; }
+    [SerializeField, HideInInspector] public string PlayerSettingsProviderGOName { get; private set; }
     private IPlayerSettingsProvider _playerSettingsProvider;
     public IPlayerSettingsProvider PlayerSettingsProvider {
         get {
-            if (_playerSettingsProvider == null && !string.IsNullOrEmpty(PlayerSettingsproviderGOName))
-                _playerSettingsProvider = GameObject.Find(PlayerSettingsproviderGOName)?.GetComponent<IPlayerSettingsProvider>();
+            if (_playerSettingsProvider == null && !string.IsNullOrEmpty(PlayerSettingsProviderGOName))
+                _playerSettingsProvider = GameObject.Find(PlayerSettingsProviderGOName)?.GetComponent<IPlayerSettingsProvider>();
 
             if (_playerSettingsProvider != null && !_playerSettingsProvider.IsEnabled)
                 return null;
@@ -64,9 +65,57 @@ public class ViRSECoreServiceLocator : MonoBehaviour
             _playerSettingsProvider = value;
 
             if (value != null)
-                PlayerSettingsproviderGOName = value.GameObjectName;
+                PlayerSettingsProviderGOName = value.GameObjectName;
         }
     }
+
+    [SerializeField, HideInInspector] public string PlayerOverridesProviderGOName { get; private set; }
+    private IPlayerAppearanceOverridesProvider _playerOverridesProvider;
+    public IPlayerAppearanceOverridesProvider PlayerAppearanceOverridesProvider
+    {
+        get
+        {
+            if (_playerOverridesProvider == null && !string.IsNullOrEmpty(PlayerOverridesProviderGOName))
+                _playerOverridesProvider = GameObject.Find(PlayerOverridesProviderGOName)?.GetComponent<IPlayerAppearanceOverridesProvider>();
+
+            if (_playerOverridesProvider != null && !_playerOverridesProvider.IsEnabled)
+                return null;
+            else
+                return _playerOverridesProvider;
+        }
+        set //Will need to be called externally
+        {
+            _playerOverridesProvider = value;
+
+            if (value != null)
+                PlayerOverridesProviderGOName = value.GameObjectName;
+        }
+    }
+
+
+    //Record the gameobject name so we can re-locate multiplayer support after a domain reload
+    // [SerializeField, HideInInspector] public string PlayerSpawnerGOName { get; private set; }
+    // private V_PlayerSpawner _playerSettingsProvider;
+    // public IPlayerSettingsProvider PlayerSettingsProvider
+    // {
+    //     get
+    //     {
+    //         if (_playerSettingsProvider == null && !string.IsNullOrEmpty(PlayerSettingsproviderGOName))
+    //             _playerSettingsProvider = GameObject.Find(PlayerSettingsproviderGOName)?.GetComponent<IPlayerSettingsProvider>();
+
+    //         if (_playerSettingsProvider != null && !_playerSettingsProvider.IsEnabled)
+    //             return null;
+    //         else
+    //             return _playerSettingsProvider;
+    //     }
+    //     set //Will need to be called externally
+    //     {
+    //         _playerSettingsProvider = value;
+
+    //         if (value != null)
+    //             PlayerSettingsproviderGOName = value.GameObjectName;
+    //     }
+    // }
 
     private void Awake()
     {
@@ -82,4 +131,11 @@ public class ViRSECoreServiceLocator : MonoBehaviour
         _instance = null;
     }
 
+}
+
+public interface IPlayerAppearanceOverridesProvider
+{
+    public PlayerPresentationOverrides PlayerPresentationOverrides { get; }
+    public bool IsEnabled { get; }
+    public string GameObjectName { get; }
 }
