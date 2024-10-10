@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Net;
@@ -28,10 +29,12 @@ namespace ViRSE.InstanceNetworking
         #endregion
 
         #region ConnectionDebug
-
         [SerializeField, Disable] private ConnectionState _connectionState = ConnectionState.NotYetConnected;
         private enum ConnectionState { NotYetConnected, FetchingConnectionSettings, Connecting, Connected, LostConnection }
         #endregion
+
+        [SerializeField, HideInInspector] private LocalClientIdWrapper LocalClientIDWrapper = new();
+        [Serializable] public class LocalClientIdWrapper { public ushort LocalClientID = ushort.MaxValue; }
 
         private PluginSyncService _instanceService;
         public PluginSyncService InstanceService {
@@ -101,7 +104,7 @@ namespace ViRSE.InstanceNetworking
 
             if (_instanceService == null)
             {
-                _instanceService = PluginSyncServiceFactory.Create();
+                _instanceService = PluginSyncServiceFactory.Create(LocalClientIDWrapper);
                 _instanceService.OnConnectedToServer += () => _connectionState = ConnectionState.Connected;
                 _instanceService.OnDisconnectedFromServer += () => _connectionState = ConnectionState.LostConnection;
             }

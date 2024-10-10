@@ -11,6 +11,7 @@ using static ViRSE.Core.Shared.CoreCommonSerializables;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using static ViRSE.InstanceNetworking.V_InstanceIntegration;
 
 namespace ViRSE.PluginRuntime
 {
@@ -56,11 +57,11 @@ There kind of isn't one? That's why I think the platform should just have its ow
         /// </summary>
         /// <param name="playerPresentationConfig"></param>
         /// <returns></returns>
-        public static PluginSyncService Create() //Pass a reference to the player??
+        public static PluginSyncService Create(LocalClientIdWrapper localClientIDWrapper) //Pass a reference to the player??
         {
             InstanceNetworkingCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
 
-            return new PluginSyncService(commsHandler);
+            return new PluginSyncService(commsHandler, localClientIDWrapper);
         }
     }
 
@@ -76,7 +77,8 @@ There kind of isn't one? That's why I think the platform should just have its ow
         public event Action OnDisconnectedFromServer;
 
 
-        public ushort LocalClientID { get; private set; } = ushort.MaxValue;
+        public ushort LocalClientID => _localClientIdWrapper.LocalClientID;
+        private LocalClientIdWrapper _localClientIdWrapper;
         public InstancedInstanceInfo InstanceInfo;
         public event Action<InstancedInstanceInfo> OnInstanceInfoChanged;
 
@@ -132,11 +134,12 @@ There kind of isn't one? That's why I think the platform should just have its ow
         #endregion
 
         //TODO, consider constructing PluginSyncService using factory pattern to inject the WorldStateSyncer
-        public PluginSyncService(IPluginSyncCommsHandler commsHandler)
+        public PluginSyncService(IPluginSyncCommsHandler commsHandler, LocalClientIdWrapper localClientIDWrapper)
         {
             WorldStateHistoryQueueSize = 10; //TODO, automate this, currently 10 is more than enough though, 200ms
 
             _commsHandler = commsHandler;
+            _localClientIdWrapper = localClientIDWrapper;
             //_commsHandler.OnReadyToSyncPlugin += HandleReadyToSyncPlugin;
 
             //TODO - maybe don't give the world state syncer the comms handler, we can just pull straight out of it here and send to comms
@@ -209,7 +212,7 @@ There kind of isn't one? That's why I think the platform should just have its ow
             //Debug.Log("ABOUT TO READ reg=================================================");
             ServerRegistrationConfirmation serverRegistrationConfirmation = new(bytes);
 
-            LocalClientID = serverRegistrationConfirmation.LocalClientID;
+            _localClientIdWrapper.LocalClientID = serverRegistrationConfirmation.LocalClientID;
             IsConnectedToServer = true;
 
             HandleReceiveInstanceInfoUpdate(serverRegistrationConfirmation.InstanceInfo);
