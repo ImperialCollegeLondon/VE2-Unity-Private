@@ -39,20 +39,27 @@ public class PlayerSyncer
 
     public void HandleReceiveRemoteClientInfos(Dictionary<ushort, InstancedClientInfo> receivedRemoteClientInfos) 
     {
-        foreach (InstancedClientInfo receivedRemoteClientInfo in receivedRemoteClientInfos.Values) 
+        Dictionary<ushort, InstancedClientInfo> receivedRemoteClientInfosWithAppearance = new();
+        foreach (KeyValuePair<ushort, InstancedClientInfo> kvp in receivedRemoteClientInfos)
         {
-            if (!_remotePlayers.ContainsKey(receivedRemoteClientInfo.ClientID)) 
+            if (kvp.Value.InstancedAvatarAppearance.HasAppearance)
+                receivedRemoteClientInfosWithAppearance.Add(kvp.Key, kvp.Value);
+        }
+
+        foreach (InstancedClientInfo receivedRemoteClientInfoWithAppearance in receivedRemoteClientInfosWithAppearance.Values) 
+        {
+            if (!_remotePlayers.ContainsKey(receivedRemoteClientInfoWithAppearance.ClientID)) 
             {
                 GameObject remotePlayerPrefab = Resources.Load<GameObject>("RemoteAvatar");
                 GameObject remotePlayerGO = GameObject.Instantiate(remotePlayerPrefab);
-                _remotePlayers.Add(receivedRemoteClientInfo.ClientID, remotePlayerGO.GetComponent<RemotePlayerController>());
+                _remotePlayers.Add(receivedRemoteClientInfoWithAppearance.ClientID, remotePlayerGO.GetComponent<RemotePlayerController>());
             }
 
-            _remotePlayers[receivedRemoteClientInfo.ClientID].HandleReceiveAvatarAppearance(receivedRemoteClientInfo.InstancedAvatarAppearance);
+            _remotePlayers[receivedRemoteClientInfoWithAppearance.ClientID].HandleReceiveAvatarAppearance(receivedRemoteClientInfoWithAppearance.InstancedAvatarAppearance);
         }
 
         List<ushort> remoteClientIDsToDespawn = new(_remotePlayers.Keys);
-        remoteClientIDsToDespawn.RemoveAll(id => receivedRemoteClientInfos.ContainsKey(id));
+        remoteClientIDsToDespawn.RemoveAll(id => receivedRemoteClientInfosWithAppearance.ContainsKey(id));
 
         foreach (ushort idToDespawn in remoteClientIDsToDespawn)
         {

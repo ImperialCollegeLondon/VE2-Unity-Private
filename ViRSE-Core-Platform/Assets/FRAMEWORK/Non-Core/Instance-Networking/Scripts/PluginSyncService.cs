@@ -166,8 +166,6 @@ There kind of isn't one? That's why I think the platform should just have its ow
             if (_playerAppearanceOverridesProvider != null)
                 _playerAppearanceOverridesProvider.OnAppearanceOverridesChanged += OnPlayerAppearanceChanged;
 
-            // _playerSpawnConfig.OnLocalChangeToPlayerSettings += () => _commsHandler.SendMessage(_instancedPlayerPresentation.Bytes, InstanceNetworkingMessageCodes.UpdateAvatarPresentation, TransmissionProtocol.TCP);
-            // _playerSpawnConfig.OnLocalChangeToAvatarOverrides += () => _commsHandler.SendMessage(_instancedPlayerPresentation.Bytes, InstanceNetworkingMessageCodes.UpdateAvatarPresentation, TransmissionProtocol.TCP);
             InstanceNetworkSettings instanceConnectionDetails = _networkSettingsProvider.InstanceNetworkSettings;
             Debug.Log("Try connect... " + instanceConnectionDetails.IP);
             if (IPAddress.TryParse(instanceConnectionDetails.IP, out IPAddress ipAddress))
