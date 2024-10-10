@@ -30,7 +30,7 @@ public class V_PlatformIntegration : MonoBehaviour, IInstanceNetworkSettingsProv
     //TODO, only show these if there actually is a player, and if these things are actually in the scene
     [Title("Debug Connection Settings")]
     [Help("For mocking the network settings that will be sent to V_InstanceIntegration in the editor. When you export your built world to the platform, the platform will override these settings.")]
-    [SerializeField, IgnoreParent] private InstanceNetworkSettings DebugInstanceNetworkSettings = new("127.0.0.1", 4297, "dev");
+    [SerializeField, IgnoreParent] private InstanceNetworkSettings DebugInstanceNetworkSettings = new("127.0.0.1", 4297, "dev-0");
 
     private IPlatformService _platformService;
 

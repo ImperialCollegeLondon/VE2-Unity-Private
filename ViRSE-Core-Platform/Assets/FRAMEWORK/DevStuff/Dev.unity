@@ -42,7 +42,8 @@ RenderSettings:
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 12
+  serializedVersion: 13
+  m_BakeOnSceneLoad: 0
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -622,7 +623,7 @@ MonoBehaviour:
   DebugInstanceNetworkSettings:
     IP: 127.0.0.1
     Port: 4297
-    InstanceCode: dev
+    InstanceCode: dev-0
 --- !u!1 &336387348
 GameObject:
   m_ObjectHideFlags: 0
@@ -2721,7 +2722,9 @@ MonoBehaviour:
     RepeatedTransmissionConfig:
       TransmissionType: 0
       TransmissionFrequency: 50
-  playerSpawned: 0
+  startingPositionSet: 0
+  playerStartPosition: {x: 0, y: 0, z: 0}
+  playerStartRotation: {x: 0, y: 0, z: 0, w: 0}
 --- !u!4 &798246511
 Transform:
   m_ObjectHideFlags: 0
@@ -6583,7 +6586,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _multiplayerSupportGOName: PluginSyncer
   PlayerSettingsProviderGOName: PlatformIntegration
-  testString: devtest123
   PlayerOverridesProviderGOName: PlayerSpawner
 --- !u!4 &1550410139
 Transform:

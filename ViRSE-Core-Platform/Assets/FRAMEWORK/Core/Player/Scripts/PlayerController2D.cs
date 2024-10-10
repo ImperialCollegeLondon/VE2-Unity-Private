@@ -11,7 +11,14 @@ namespace ViRSE.Core.Player
         [SerializeField] private Interactor2D interactor2D;
         [SerializeField] private CharacterController characterController;
 
-        public override Vector3 RootPosition { get => transform.position + (Vector3.down * characterController.height / 2); set => transform.position = value + (Vector3.up * characterController.height / 2); }
+        public override Vector3 RootPosition { 
+            get => transform.position + (Vector3.down * characterController.height / 2); 
+            set {
+            characterController.enabled = false;
+            transform.position = value + (Vector3.up * characterController.height / 2);
+            characterController.enabled = true;
+            }
+        }    
         public override Quaternion RootRotation { get => transform.rotation; set => transform.rotation = value; }
 
         // Start is called before the first frame update

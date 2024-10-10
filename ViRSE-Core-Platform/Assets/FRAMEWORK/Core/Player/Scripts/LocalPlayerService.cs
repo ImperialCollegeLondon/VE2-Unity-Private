@@ -38,7 +38,7 @@ namespace ViRSE.Core.Player
 
             _playerSettingsProvider.OnPlayerSettingsChanged += HandleSettingsChanged;
             _appearanceOverridesProvider.OnAppearanceOverridesChanged += HandleOverridesChanged;
-            Debug.Log("Player rig initialized");
+            //Debug.Log("Player rig initialized");
 
             //TODO, process configs 
 
@@ -62,10 +62,18 @@ namespace ViRSE.Core.Player
 
         private void Start() //TODO, need to destroy player on domain reload
         {
-            Debug.Log("Player rig enabled, config null? " + (_stateConfig == null));
+            //Debug.Log("Player rig enabled, config null? " + (_stateConfig == null));
             if (_stateConfig.IsNetworked && _stateConfig.MultiplayerSupportPresent)
             {
                 _stateConfig.MultiplayerSupport.RegisterLocalPlayer(this);
+            }
+        }
+
+        private void OnDestroy() 
+        {
+            if (_stateConfig.IsNetworked && _stateConfig.MultiplayerSupportPresent)
+            {
+                _stateConfig.MultiplayerSupport.DeregisterLocalPlayer();
             }
         }
 

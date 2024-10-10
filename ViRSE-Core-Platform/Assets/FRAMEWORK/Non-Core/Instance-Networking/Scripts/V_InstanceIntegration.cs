@@ -61,6 +61,11 @@ namespace ViRSE.InstanceNetworking
             InstanceService.RegisterLocalPlayer(localPlayerRig);
         }
 
+        public void DeregisterLocalPlayer()
+        {
+            InstanceService.DeregisterLocalPlayer();
+        }
+
         public bool IsEnabled => enabled && gameObject.activeInHierarchy;
         public string MultiplayerSupportGameObjectName => gameObject.name;
         #endregion

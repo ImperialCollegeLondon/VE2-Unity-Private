@@ -60,6 +60,9 @@ public class RemotePlayerController : MonoBehaviour
 
     private void Update() 
     {
+        if (Camera.main == null)
+            return;
+
         Vector3 dirToCamera = Camera.main.transform.position - _namePlateTransform.position;
         Vector3 lookPosition = _namePlateTransform.position - dirToCamera;
         _namePlateTransform.LookAt(lookPosition);

@@ -92,6 +92,14 @@ There kind of isn't one? That's why I think the platform should just have its ow
         private IInstanceNetworkSettingsProvider _networkSettingsProvider;
         private IPlayerSettingsProvider _playerSettingsProvider; 
         private IPlayerAppearanceOverridesProvider _playerAppearanceOverridesProvider;
+        private InstancedPlayerPresentation _instancedPlayerPresentation { 
+            get {
+                if (_playerSettingsProvider == null || _playerAppearanceOverridesProvider == null)
+                    return new(false, null, null);
+                else
+                    return new(true, _playerSettingsProvider.UserSettings.PresentationConfig, _playerAppearanceOverridesProvider.PlayerPresentationOverrides);
+            }
+        }
 
         /*
             Right, the instance integration needs to be able to see what the player settings are 
@@ -115,6 +123,11 @@ There kind of isn't one? That's why I think the platform should just have its ow
         public void RegisterLocalPlayer(ILocalPlayerRig localPlayerRig)
         {
             _playerSyncer.RegisterLocalPlayer(localPlayerRig);
+        }
+
+        public void DeregisterLocalPlayer()
+        {
+            _playerSyncer.DeregisterLocalPlayer();
         }
         #endregion
 
@@ -144,10 +157,10 @@ There kind of isn't one? That's why I think the platform should just have its ow
             _playerSettingsProvider = playerSettingsProvider;
             _playerAppearanceOverridesProvider = playerAppearanceOverridesProvider;
 
-            //if (_playerSettingsProvider != null)
+            if (_playerSettingsProvider != null)
                 _playerSettingsProvider.OnPlayerSettingsChanged += OnPlayerAppearanceChanged;
 
-            //if (_playerAppearanceOverridesProvider != null)
+            if (_playerAppearanceOverridesProvider != null)
                 _playerAppearanceOverridesProvider.OnAppearanceOverridesChanged += OnPlayerAppearanceChanged;
 
             // _playerSpawnConfig.OnLocalChangeToPlayerSettings += () => _commsHandler.SendMessage(_instancedPlayerPresentation.Bytes, InstanceNetworkingMessageCodes.UpdateAvatarPresentation, TransmissionProtocol.TCP);
@@ -162,8 +175,8 @@ There kind of isn't one? That's why I think the platform should just have its ow
 
         private void OnPlayerAppearanceChanged() 
         {
-            //_commsHandler.
-            Debug.Log("InstanceService detected change to player settings"); //TODO!
+            _commsHandler.SendMessage(_instancedPlayerPresentation.Bytes, InstanceNetworkingMessageCodes.UpdateAvatarPresentation, TransmissionProtocol.TCP);
+            Debug.Log("InstanceService detected change to player settings"); 
         }
 
         private void HandleReceiveNetcodeVersion(byte[] bytes)
@@ -187,15 +200,8 @@ There kind of isn't one? That's why I think the platform should just have its ow
             //We also send the LocalClientID here, this will either be maxvalue (if this is our first time connecting, the server will give us a new ID)..
             //..or it'll be the ID we we're given by the server (if we're reconnecting, the server will use the ID we provide)
 
-            InstancedPlayerPresentation instancedPlayerPresentation;
-            if (_playerSettingsProvider == null || _playerAppearanceOverridesProvider == null)
-                instancedPlayerPresentation = new(false, null, null);
-            else
-                instancedPlayerPresentation = new(true, _playerSettingsProvider.UserSettings.PresentationConfig, _playerAppearanceOverridesProvider.PlayerPresentationOverrides);
-
-            ServerRegistrationRequest serverRegistrationRequest = new(instancedPlayerPresentation, _networkSettingsProvider.InstanceNetworkSettings.InstanceCode, LocalClientID);
+            ServerRegistrationRequest serverRegistrationRequest = new(_instancedPlayerPresentation, _networkSettingsProvider.InstanceNetworkSettings.InstanceCode, LocalClientID);
             _commsHandler.SendMessage(serverRegistrationRequest.Bytes, InstanceNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
-
         }
 
         private void HandleReceiveServerRegistrationConfirmation(byte[] bytes)
@@ -249,11 +255,14 @@ There kind of isn't one? That's why I think the platform should just have its ow
                 if (worldStateBundlesToTransmit.Item2 != null)
                     _commsHandler.SendMessage(worldStateBundlesToTransmit.Item2, InstanceNetworkingMessageCodes.WorldstateSyncableBundle, TransmissionProtocol.UDP);
 
-                byte[] playerState = _playerSyncer.GetPlayerState();
-                if (playerState != null)
+                if (_playerSyncer.IsPlayerRegistered) 
                 {
-                    PlayerStateWrapper playerStateWrapper = new(LocalClientID, playerState);
-                    _commsHandler.SendMessage(playerStateWrapper.Bytes, InstanceNetworkingMessageCodes.PlayerState, TransmissionProtocol.UDP); //TODO handle protocol
+                    byte[] playerState = _playerSyncer.GetPlayerState();
+                    if (playerState != null)
+                    {
+                        PlayerStateWrapper playerStateWrapper = new(LocalClientID, playerState);
+                        _commsHandler.SendMessage(playerStateWrapper.Bytes, InstanceNetworkingMessageCodes.PlayerState, TransmissionProtocol.UDP); //TODO handle protocol
+                    }
                 }
             }
         }

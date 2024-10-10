@@ -62,7 +62,8 @@ namespace ViRSE.Core.Player
         private const string LOCAL_PLAYER_RIG_PREFAB_PATH = "LocalPlayerRig";
         private GameObject _localPlayerRig;
         private Player _player;
-        [SerializeField] private Vector3 playerStartPosition;
+        [SerializeField, HideInInspector] private bool startingPositionSet = false;
+        [SerializeField, HideInInspector] private Vector3 playerStartPosition;
         [SerializeField] private Quaternion playerStartRotation;
 
         #region Appearance Overrides Interfaces 
@@ -76,15 +77,6 @@ namespace ViRSE.Core.Player
 
         //TODO - need an API for changing overrrides 
 
-        private void Awake() 
-        {
-            if (!Application.isPlaying)
-                return;
-
-            playerStartPosition = transform.position;
-            playerStartRotation = transform.rotation;
-        }
-
         void OnEnable() 
         {
             if (!Application.isPlaying)
@@ -93,12 +85,18 @@ namespace ViRSE.Core.Player
                 return;
             }
 
+            if (!startingPositionSet)
+            {
+                playerStartPosition = transform.position;
+                playerStartRotation = transform.rotation;
+                startingPositionSet = true;
+            }
+
             if (ViRSECoreServiceLocator.Instance.PlayerSettingsProvider == null) 
             {
                 Debug.LogError("Error, V_PlayerSpawner cannot spawn player, no player settings provider found");
                 return;
             }
-
 
             if (ViRSECoreServiceLocator.Instance.PlayerSettingsProvider.ArePlayerSettingsReady)
                 HandlePlayerSettingsReady();
@@ -122,9 +120,6 @@ namespace ViRSE.Core.Player
             _player.RootRotation = playerStartRotation;
             //TODO, also need to wire in some VR dependency, so that the sync module can track the VR position, head, hands, etc
         }
-
-        //TODO, OnDisable, tear down the player?
-        //That ruins the state though!
 
         private void OnDisable() 
         {

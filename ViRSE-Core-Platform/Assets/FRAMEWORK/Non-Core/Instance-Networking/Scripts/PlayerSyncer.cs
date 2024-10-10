@@ -7,6 +7,7 @@ using static InstanceSyncSerializables;
 public class PlayerSyncer 
 {
     private ILocalPlayerRig _localPlayerRig;
+    public bool IsPlayerRegistered => _localPlayerRig != null;
 
     private Dictionary<ushort, RemotePlayerController> _remotePlayers = new();
     private int _cycleNumber = 0;
@@ -14,6 +15,11 @@ public class PlayerSyncer
     public void RegisterLocalPlayer(ILocalPlayerRig localPlayerRig)
     {
         _localPlayerRig = localPlayerRig;
+    }
+
+    public void DeregisterLocalPlayer()
+    {
+        _localPlayerRig = null;
     }
 
     public byte[] GetPlayerState() 

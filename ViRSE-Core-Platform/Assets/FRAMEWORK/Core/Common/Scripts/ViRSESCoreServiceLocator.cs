@@ -55,10 +55,6 @@ public class ViRSECoreServiceLocator : MonoBehaviour
     public IPlayerSettingsProvider PlayerSettingsProvider {
         get {
 
-            Debug.Log("GET IPSP : " + PlayerSettingsProviderGOName + " GOName  this go name: " + gameObject.name);
-            //Debug.Log("GET IPSP : " + testString + " - " + PlayerSettingsProviderGOName + " GOName  this go name: " + gameObject.name);
-
-
             if (_playerSettingsProvider == null && !string.IsNullOrEmpty(PlayerSettingsProviderGOName))
                 _playerSettingsProvider = GameObject.Find(PlayerSettingsProviderGOName)?.GetComponent<IPlayerSettingsProvider>();
 
@@ -74,7 +70,6 @@ public class ViRSECoreServiceLocator : MonoBehaviour
             if (value != null)
             {
                 PlayerSettingsProviderGOName = value.GameObjectName;
-                Debug.Log("SET NAME : " + value.GameObjectName);
             }
         }
     }
@@ -138,7 +133,7 @@ public class ViRSECoreServiceLocator : MonoBehaviour
 
     private void OnDisable()
     {
-        Debug.Log("SCENE CHANGE core");
+        //Debug.Log("SCENE CHANGE core");
         _instance = null;
     }
 
