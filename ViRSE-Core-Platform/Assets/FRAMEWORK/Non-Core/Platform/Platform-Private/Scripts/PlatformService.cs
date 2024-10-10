@@ -40,6 +40,12 @@ namespace ViRSE.PluginRuntime
         public Dictionary<string, WorldDetails> AvailableWorlds { get; private set; }
         public event Action<string> OnInstanceCodeChange;
 
+        /*
+                We should probably just be hiding UserSettingsDebug when there IS a platform service?
+                Instead, maybe we can just show the platform's user settings directly into the debug thing?
+
+        */
+
         private IPlatformCommsHandler _commsHandler;
 
         #region Common-Interfaces
@@ -79,7 +85,7 @@ namespace ViRSE.PluginRuntime
                 if (worldName.ToUpper().Equals("HUB") || AvailableWorlds.ContainsKey(worldName))
                 {
                     InstanceAllocationRequest instanceAllocationRequest = new(worldName, instanceSuffix);
-                    _commsHandler.SendInstanceAllocationRequest(instanceAllocationRequest.Bytes);
+                    _commsHandler.SendMessage(instanceAllocationRequest.Bytes, PlatformNetworkingMessageCodes.InstanceAllocationRequest, TransmissionProtocol.TCP);
                 }
                 else
                 {
@@ -138,7 +144,7 @@ namespace ViRSE.PluginRuntime
                 //Debug.Log("Rec platform nv, sending reg, instance code. " + _currentInstanceCode);
 
                 ServerRegistrationRequest serverRegistrationRequest = new(_userIdentity, CurrentInstanceCode);
-                _commsHandler.SendServerRegistrationRequest(serverRegistrationRequest.Bytes);
+                _commsHandler.SendMessage(serverRegistrationRequest.Bytes, PlatformNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
             }
         }
 
@@ -236,8 +242,8 @@ namespace ViRSE.PluginRuntime
 
          private void HandleUserSettingsChanged()
          {
-            Debug.Log("Platform detected user settings changed");
-             //_commsHandler.SendUserSettingsUpdate(UserSettings.Bytes);
+            Debug.Log("Platform detected user settings changed - name = " + UserSettings.PresentationConfig.PlayerName);
+             _commsHandler.SendMessage(UserSettings.Bytes, PlatformNetworkingMessageCodes.UpdateUserSettings, TransmissionProtocol.TCP);
          }
 
         public void TearDown()

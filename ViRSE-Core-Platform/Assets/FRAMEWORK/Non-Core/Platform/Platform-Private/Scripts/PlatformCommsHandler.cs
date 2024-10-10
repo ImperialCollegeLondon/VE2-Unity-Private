@@ -29,23 +29,16 @@ namespace ViRSE.FrameworkRuntime
             _drClient.Connect(ipAddress, port, false);
         }
 
-        public void SendServerRegistrationRequest(byte[] bytes)
+        public void SendMessage(byte[] messageAsBytes, PlatformSerializables.PlatformNetworkingMessageCodes messageCode, TransmissionProtocol transmissionProtocol)
         {
-            RawBytesMessage message = new(bytes);
+            RawBytesMessage message = new(messageAsBytes);
+            SendMode sendMode = transmissionProtocol == TransmissionProtocol.TCP ?
+                SendMode.Reliable :
+                SendMode.Unreliable;
 
-            using (DRMessageWrapper messageWrapper = DRMessageWrapper.Create((ushort)PlatformSerializables.PlatformNetworkingMessageCodes.ServerRegistrationRequest, message))
+            using (DRMessageWrapper messageWrapper = DRMessageWrapper.Create((ushort)messageCode, message))
             {
-                _drClient.SendMessage(messageWrapper, SendMode.Reliable);
-            }
-        }
-
-        public void SendInstanceAllocationRequest(byte[] bytes)
-        {
-            RawBytesMessage message = new(bytes);
-
-            using (DRMessageWrapper messageWrapper = DRMessageWrapper.Create((ushort)PlatformSerializables.PlatformNetworkingMessageCodes.InstanceAllocationRequest, message))
-            {
-                _drClient.SendMessage(messageWrapper, SendMode.Reliable);
+                _drClient.SendMessage(messageWrapper, sendMode);
             }
         }
 
@@ -109,20 +102,11 @@ namespace ViRSE.FrameworkRuntime
         {
             public byte[] Bytes { get; private set; }
 
-            public RawBytesMessage(byte[] bytes)
-            {
-                Bytes = bytes;
-            }
+            public RawBytesMessage(byte[] bytes) =>  Bytes = bytes;
 
-            public void Serialize(SerializeEvent e)
-            {
-                e.Writer.Write(Bytes);
-            }
+            public void Serialize(SerializeEvent e) => e.Writer.Write(Bytes);
 
-            public void Deserialize(DeserializeEvent e)
-            {
-                Bytes = e.Reader.ReadBytes();
-            }
+            public void Deserialize(DeserializeEvent e) => Bytes = e.Reader.ReadBytes();
         }
     }
 }

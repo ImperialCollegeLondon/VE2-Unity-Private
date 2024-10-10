@@ -21,7 +21,8 @@ public class PlatformSerializables
         ServerRegistrationRequest,
         ServerRegistrationConfirmation,
         GlobalInfo,
-        InstanceAllocationRequest
+        InstanceAllocationRequest,
+        UpdateUserSettings,
     }
 
 
@@ -427,7 +428,7 @@ public class PlatformSerializables
 
     public class PlatformClientInfo : ClientInfoBase
     {
-        public PlayerPresentationConfig PlayerPresentationConfig { get; private set; }
+        public PlayerPresentationConfig PlayerPresentationConfig;
 
         public PlatformClientInfo() { }
 

@@ -88,28 +88,20 @@ public class V_PlatformIntegration : MonoBehaviour, IInstanceNetworkSettingsProv
 
         _platformService.SetupForNewInstance(this);
 
-        //if (_platformService.IsConnectedToServer)
-        //    HandlePlatformServiceReady();
-        //else
-        //    _platformService.OnConnectedToServer += HandlePlatformServiceReady;
+        if (_platformService.IsConnectedToServer)
+           HandlePlatformServiceReady();
+        else
+           _platformService.OnConnectedToServer += HandlePlatformServiceReady;
     }
 
-    //private void 
 
-    //private void HandlePlatformServiceReady()
-    //{
-    //    GameObject playerSpawnerGO = GameObject.Find("VirsePlayer"); TODO player stuff
-
-    //    GameObject instanceIntegrationGO = GameObject.Find("PluginSyncer");
-    //    if (instanceIntegrationGO != null)
-    //    {
-    //        IInstanceNetworkSettingsReceiver instanceSettingsReceiver = instanceIntegrationGO.GetComponent<IInstanceNetworkSettingsReceiver>();
-    //        if (instanceSettingsReceiver != null)
-    //        {
-    //            instanceSettingsReceiver.SetInstanceNetworkSettings(_platformService.InstanceNetworkSettings);
-    //        }
-    //    }
-    //}
+    private void HandlePlatformServiceReady()
+    {
+        //Allows us to fake the UI in the inspector
+        //We need to be sure to set the inspector's version of UserSettings to point towards the PlatformService's version
+        //Otherwise, changing the settings in the inspector wont change the settings in the platform
+        _debugUserSettings = _platformService.UserSettings;
+    }
 
     private void OnDisable()
     {

@@ -14,10 +14,9 @@ namespace ViRSE.FrameworkRuntime
         public bool IsReadyToTransmit { get; }
 
         public void ConnectToServer(IPAddress ipAddress, int portNumber);
-        public void SendServerRegistrationRequest(byte[] serverRegistrationBytes);
-        public void SendInstanceAllocationRequest(byte[] instanceAllocationBytes);
-        public void DisconnectFromServer();
+        public void SendMessage(byte[] messageAsBytes, PlatformSerializables.PlatformNetworkingMessageCodes messageCode, TransmissionProtocol transmissionProtocol);
         public void MainThreadUpdate();
+        public void DisconnectFromServer();
 
         public event Action<byte[]> OnReceiveNetcodeConfirmation;
         public event Action<byte[]> OnReceiveServerRegistrationConfirmation;

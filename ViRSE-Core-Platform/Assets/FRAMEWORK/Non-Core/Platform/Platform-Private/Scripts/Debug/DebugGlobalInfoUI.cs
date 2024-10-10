@@ -35,7 +35,19 @@ public class DebugGlobalInfoUI : MonoBehaviour
 
         foreach (PlatformInstanceInfo platformInstanceInfo in globalInfo.InstanceInfos.Values)
         {
-            globalInfoString += $"{platformInstanceInfo.InstanceCode}: pop'n = {platformInstanceInfo.ClientInfos.Values.Count}\n";
+            globalInfoString += $"{platformInstanceInfo.InstanceCode}_____";
+            foreach (PlatformClientInfo clientInfo in platformInstanceInfo.ClientInfos.Values)
+            {
+                if (clientInfo.ClientID.Equals(_platformService.LocalClientID))
+                    globalInfoString += $"<color=green>";
+
+                globalInfoString += $"\n   {clientInfo.ClientID}";
+                globalInfoString += $"({clientInfo.PlayerPresentationConfig.PlayerName}): ";
+
+                if (clientInfo.ClientID.Equals(_platformService.LocalClientID))
+                    globalInfoString += $"</color>";
+            }
+            globalInfoString += "\n";
         }
 
         globalInfoText.text = globalInfoString;

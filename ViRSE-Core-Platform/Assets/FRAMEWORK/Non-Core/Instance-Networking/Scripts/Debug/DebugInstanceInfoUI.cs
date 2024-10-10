@@ -42,7 +42,7 @@ public class DebugInstanceInfoUI : MonoBehaviour
 
             instanceInfoString += $"{clientInfo.ClientID}";
             instanceInfoString += $"({ clientInfo.InstancedAvatarAppearance.PlayerPresentationConfig.PlayerName}): ";
-            instanceInfoString += $"(Host = { clientInfo.ClientID.Equals(instanceInfo.HostID).ToString()}\n";
+            instanceInfoString += $"Host = { clientInfo.ClientID.Equals(instanceInfo.HostID).ToString()}\n";
 
 
             if (clientInfo.ClientID.Equals(_instanceService.LocalClientID))
