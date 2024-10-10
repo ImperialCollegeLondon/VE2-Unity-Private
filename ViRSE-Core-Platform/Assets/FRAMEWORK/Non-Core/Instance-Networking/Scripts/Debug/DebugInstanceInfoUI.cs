@@ -41,7 +41,7 @@ public class DebugInstanceInfoUI : MonoBehaviour
                 instanceInfoString += $"<color=green>";
 
             instanceInfoString += $"{clientInfo.ClientID}";
-            if (clientInfo.InstancedAvatarAppearance.HasAppearance)
+            if (clientInfo.InstancedAvatarAppearance.UsingViRSEAvatar)
                 instanceInfoString += $"({ clientInfo.InstancedAvatarAppearance.PlayerPresentationConfig.PlayerName}): ";
             else
                 instanceInfoString += $"(Name N/A): "; 
@@ -72,3 +72,19 @@ public class DebugInstanceInfoUI : MonoBehaviour
         }
     }
 }
+
+/*
+
+    Name is currently part of the appearance, that means if there IS no appearance, there is no name 
+    The player spawner should really just show the overrides, right?
+    Maybe "overrides" is the wrong term to use here 
+    It's something that's needed alongside the user settings
+    What does it actually DO?
+    It bolts on to the UserSettings to provide the additional settings needed for appearance 
+    They're the Scene-Specific appearance settings
+    The DynamicAppearanceSettings? 
+
+    If we're on platform, there will ALWAYS be a UserSettingsProvider, so there will always be a name 
+    We only hide the player in the instance if the ""overrides"" are null 
+
+*/

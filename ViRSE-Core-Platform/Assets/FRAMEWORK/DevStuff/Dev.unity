@@ -2712,11 +2712,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enableVR: 0
   enable2D: 0
-  PresentationOverrides:
-    UsingViRSEAvatar: 1
-    AvatarHeadTypeOverride: 
-    AvatarBodyTypeOverride: 
-    AvatarTransparancy: 0
   playerStateConfig:
     IsNetworked: 1
     RepeatedTransmissionConfig:
@@ -3319,6 +3314,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _connectOnStart: 1
   _connectionState: 0
+  LocalClientIDWrapper:
+    LocalClientID: 65535
 --- !u!4 &835746393
 Transform:
   m_ObjectHideFlags: 0
@@ -6586,7 +6583,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _multiplayerSupportGOName: PluginSyncer
   PlayerSettingsProviderGOName: PlatformIntegration
-  PlayerOverridesProviderGOName: PlayerSpawner
+  PlayerOverridesProviderGOName: 
+  PlayerSpawnerGOName: PlayerSpawner
 --- !u!4 &1550410139
 Transform:
   m_ObjectHideFlags: 0

@@ -15,41 +15,6 @@ using static ViRSE.InstanceNetworking.V_InstanceIntegration;
 
 namespace ViRSE.PluginRuntime
 {
-
-/*
-Why don't we just have the Instanced version live on the player?
-The instanced version has "using virse avatar", overrides, and transparancy 
-
-Yeah, I think let's make the Instanced version just a wrapper of the platform version 
-That way we can still extract the platform-only one to send to the platform... composition over inheritence!
-
-
-The thing is, the player spawner doesn't want knowledge of any of the instance networking stuff
-So, the instance service should be the thing to convert it to the isntance version?
-What happens when those settings are changed, though? HOW are they changed? Surely it should be through the player?
-
-What will change at runtime? 
-The avatar overrides - that would suggest that should be on the player then? There should be an API on the player itself to change these settings 
-Yeah, changing override, should be on the player itself. 
-So, we need the instance player config, AND the platform version that fits into it, to be in the common serializables 
-
-unless we just have one set of player settings in the base, and then some mirror object in the platform version, that isn't coupled to the player at all
-If we have this split out version of 
-
-
-Ok, hold on. Currently, We're saying the platform server is different from the instancing server 
-Is this really a requirement we want to hold on to?
-We want everyone to be able to have their own on-prem platform server, but this should be separate, surely? 
-We keep talking about wanting another level of separation above the current platform server... maybe that just means we're doing this separation in the wrong place?? 
-We'd be giving both the platform server and the instance relay to the customer institution anyway... so why not just have them be the same thing?
-That way, we don't have to send data to two separate servers. 
-Right, but we would still have this problem of "people in the same instance as you should get one set of data, people in a different instance should get another"
-So we DO still need a version of this data structure that cuts out the instance-specific stuff 
-What's a sensible way to deliniate between instance specific and non-instance specific data, in a way that makes sense in the domain of core, off-platform single player? 
-There kind of isn't one? That's why I think the platform should just have its own version that isn't coupled to the rest of it 
-
-*/
-
     public static class PluginSyncServiceFactory
     {
         /// <summary>
@@ -92,14 +57,21 @@ There kind of isn't one? That's why I think the platform should just have its ow
         private IPluginSyncCommsHandler _commsHandler;
 
         private IInstanceNetworkSettingsProvider _networkSettingsProvider;
+        private IPlayerSpawner _playerSpawner;
         private IPlayerSettingsProvider _playerSettingsProvider; 
         private IPlayerAppearanceOverridesProvider _playerAppearanceOverridesProvider;
         private InstancedPlayerPresentation _instancedPlayerPresentation { 
             get {
-                if (_playerSettingsProvider == null || _playerAppearanceOverridesProvider == null)
-                    return new(false, null, null);
-                else
-                    return new(true, _playerSettingsProvider.UserSettings.PresentationConfig, _playerAppearanceOverridesProvider.PlayerPresentationOverrides);
+                bool usingViRSEAvatar = _playerSpawner != null && _playerSpawner.IsEnabled;
+                PlayerPresentationConfig playerPresentationConfig = _playerSettingsProvider == null ? null : _playerSettingsProvider.UserSettings.PresentationConfig;
+                bool applyOverrides = _playerAppearanceOverridesProvider != null;
+                PlayerPresentationOverrides playerPresentationOverrides = _playerAppearanceOverridesProvider == null ? null : _playerAppearanceOverridesProvider.PlayerPresentationOverrides;
+                
+                return new(usingViRSEAvatar, playerPresentationConfig, applyOverrides, playerPresentationOverrides);
+                // if (_playerSettingsProvider == null || _playerAppearanceOverridesProvider == null)
+                //     return new(false, null, null);
+                // else
+                //     return new(true, _playerSettingsProvider.UserSettings.PresentationConfig, _playerAppearanceOverridesProvider.PlayerPresentationOverrides);
             }
         }
 
@@ -117,20 +89,15 @@ There kind of isn't one? That's why I think the platform should just have its ow
         private const int WORLD_STATE_SYNC_INTERVAL_MS = 20;
 
         #region Core Facing Interfaces
-        public void RegisterStateModule(IStateModule stateModule, string stateType, string goName)
-        {
+        public void RegisterStateModule(IStateModule stateModule, string stateType, string goName) =>
             _worldStateSyncer.RegisterWithSyncer(stateModule, stateType, goName);
-        }
+        
 
-        public void RegisterLocalPlayer(ILocalPlayerRig localPlayerRig)
-        {
+        public void RegisterLocalPlayer(ILocalPlayerRig localPlayerRig) =>
             _playerSyncer.RegisterLocalPlayer(localPlayerRig);
-        }
 
-        public void DeregisterLocalPlayer()
-        {
+        public void DeregisterLocalPlayer() =>
             _playerSyncer.DeregisterLocalPlayer();
-        }
         #endregion
 
         //TODO, consider constructing PluginSyncService using factory pattern to inject the WorldStateSyncer
@@ -143,7 +110,7 @@ There kind of isn't one? That's why I think the platform should just have its ow
             //_commsHandler.OnReadyToSyncPlugin += HandleReadyToSyncPlugin;
 
             //TODO - maybe don't give the world state syncer the comms handler, we can just pull straight out of it here and send to comms
-            _worldStateSyncer = new WorldStateSyncer(); //TODO DI (if this service references these at all, or if should be the other way around)
+            _worldStateSyncer = new WorldStateSyncer(); //TODO DI (if this service references these at all, maybe it should be the other way around)
             _playerSyncer = new PlayerSyncer(); //TODO DI
 
             commsHandler.OnReceiveNetcodeConfirmation += HandleReceiveNetcodeVersion;
@@ -154,11 +121,17 @@ There kind of isn't one? That's why I think the platform should just have its ow
             _commsHandler.OnDisconnectedFromServer += HandleDisconnectFromServer;
         }
 
-        public void ConnectToServer(IInstanceNetworkSettingsProvider networkSettingsProvider, IPlayerSettingsProvider playerSettingsProvider, IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider)
+        public void ConnectToServer(IInstanceNetworkSettingsProvider networkSettingsProvider, IPlayerSpawner playerSpawner, IPlayerSettingsProvider playerSettingsProvider, IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider)
         {
             _networkSettingsProvider = networkSettingsProvider;
+            _playerSpawner = playerSpawner;
             _playerSettingsProvider = playerSettingsProvider;
             _playerAppearanceOverridesProvider = playerAppearanceOverridesProvider;
+
+            //TODO, maybe this should move to the PlayerSyncer? It's all about player appearance
+            //Then again, we do need to send the player appearance to the server during registration...
+            if (_playerSpawner != null) 
+                _playerSpawner.OnEnabledStateChanged += OnPlayerAppearanceChanged;
 
             if (_playerSettingsProvider != null)
                 _playerSettingsProvider.OnPlayerSettingsChanged += OnPlayerAppearanceChanged;
@@ -176,8 +149,8 @@ There kind of isn't one? That's why I think the platform should just have its ow
 
         private void OnPlayerAppearanceChanged() 
         {
+            Debug.Log($"InstanceService detected change to player settings using VAvatar? {_instancedPlayerPresentation.UsingViRSEAvatar}"); 
             _commsHandler.SendMessage(_instancedPlayerPresentation.Bytes, InstanceNetworkingMessageCodes.UpdateAvatarPresentation, TransmissionProtocol.TCP);
-            Debug.Log("InstanceService detected change to player settings"); 
         }
 
         private void HandleReceiveNetcodeVersion(byte[] bytes)
@@ -202,6 +175,9 @@ There kind of isn't one? That's why I think the platform should just have its ow
             //..or it'll be the ID we we're given by the server (if we're reconnecting, the server will use the ID we provide)
 
             ServerRegistrationRequest serverRegistrationRequest = new(_instancedPlayerPresentation, _networkSettingsProvider.InstanceNetworkSettings.InstanceCode, LocalClientID);
+
+            Debug.Log($"Send server reg, using VAvatar? {_instancedPlayerPresentation.UsingViRSEAvatar}");
+
             _commsHandler.SendMessage(serverRegistrationRequest.Bytes, InstanceNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
         }
 
@@ -229,7 +205,7 @@ There kind of isn't one? That's why I think the platform should just have its ow
         private void HandleReceiveInstanceInfoUpdate(InstancedInstanceInfo newInstanceInfo)
         {
             //TODO - also check for hostship changes, emit events if we gain or lose hostship, AND events for players joining and leaving 
-            Debug.Log("Handle rec instane info");
+            //Debug.Log("Handle rec instane info");
             Dictionary<ushort, InstancedClientInfo> remoteClientInfos = new(newInstanceInfo.ClientInfos);
             remoteClientInfos.Remove(LocalClientID);
 
@@ -266,10 +242,6 @@ There kind of isn't one? That's why I think the platform should just have its ow
                     }
                 }
             }
-        }
-
-        private void HandleLocalChangeToPlayerPresentation() 
-        {
         }
 
         public void ReceivePingFromHost()

@@ -98,6 +98,29 @@ public class ViRSECoreServiceLocator : MonoBehaviour
         }
     }
 
+    [SerializeField] public string PlayerSpawnerGOName; // { get; private set; }
+    private IPlayerSpawner _playerSpawner;
+    public IPlayerSpawner PlayerSpawner
+    {
+        get
+        {
+            if (_playerSpawner == null && !string.IsNullOrEmpty(PlayerSpawnerGOName))
+                _playerSpawner = GameObject.Find(PlayerOverridesProviderGOName)?.GetComponent<IPlayerSpawner>();
+
+            if (_playerSpawner == null || !_playerSpawner.IsEnabled)
+                return null;
+            else
+                return _playerSpawner;
+        }
+        set //Will need to be called externally
+        {
+            _playerSpawner = value;
+
+            if (value != null)
+                PlayerSpawnerGOName = value.GameObjectName;
+        }
+    }
+
 
     //Record the gameobject name so we can re-locate multiplayer support after a domain reload
     // [SerializeField, HideInInspector] public string PlayerSpawnerGOName { get; private set; }
@@ -148,3 +171,25 @@ public interface IPlayerAppearanceOverridesProvider
     public void NotifyProviderOfChangeAppearanceOverrides();
     public event Action OnAppearanceOverridesChanged;
 }
+
+public interface IPlayerSpawner //TODO, maybe this is where the instance service gets the player data from?
+{
+    public bool IsEnabled { get; }
+    public string GameObjectName { get; }
+
+    //Unlike the other components, the player spawner should be able to 
+    //Activate and deactivate at runtime
+    public event Action OnEnabledStateChanged;
+}
+
+/*
+    As the player turns on and off, we need to notify the InstanceService so we change the InstancedAppearance 
+
+
+    Someone might use the playersettingsprovider outside of the player rig 
+    Anyway, we need to talk to the player spawner because the player spawner should turn on and off 
+
+    The spawner being enabled tells us whether UsingViRSEAvatar is true 
+    Then we pull from player settings provider, 
+    if there's an override thing present, that tells us to use the override settings
+*/

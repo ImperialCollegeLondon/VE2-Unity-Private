@@ -152,11 +152,12 @@ namespace ViRSE.InstanceNetworking
             ViRSENonCoreServiceLocator.Instance.InstanceNetworkSettingsProvider.OnInstanceNetworkSettingsReady -= HandleNetworkSettingsProviderReady;
             ViRSECoreServiceLocator.Instance.PlayerSettingsProvider.OnPlayerSettingsReady -= HandlePlayerSettingsReady;
 
-            Debug.Log($"All settings ready, player settings null? {ViRSECoreServiceLocator.Instance.PlayerSettingsProvider == null} overrides null? {ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider == null}");
+            Debug.Log($"All settings ready, player spawner null? {ViRSECoreServiceLocator.Instance.PlayerSpawner == null} player settings null? {ViRSECoreServiceLocator.Instance.PlayerSettingsProvider == null} overrides null? {ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider == null}");
 
             _connectionState = ConnectionState.Connecting;
             _instanceService.ConnectToServer( //TODO, DI through constructor? Maybe move all the waiting there too...
                 ViRSENonCoreServiceLocator.Instance.InstanceNetworkSettingsProvider, 
+                ViRSECoreServiceLocator.Instance.PlayerSpawner,
                 ViRSECoreServiceLocator.Instance.PlayerSettingsProvider, 
                 ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider);
         }

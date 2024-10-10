@@ -42,7 +42,7 @@ public class PlayerSyncer
         Dictionary<ushort, InstancedClientInfo> receivedRemoteClientInfosWithAppearance = new();
         foreach (KeyValuePair<ushort, InstancedClientInfo> kvp in receivedRemoteClientInfos)
         {
-            if (kvp.Value.InstancedAvatarAppearance.HasAppearance)
+            if (kvp.Value.InstancedAvatarAppearance.UsingViRSEAvatar)
                 receivedRemoteClientInfosWithAppearance.Add(kvp.Key, kvp.Value);
         }
 

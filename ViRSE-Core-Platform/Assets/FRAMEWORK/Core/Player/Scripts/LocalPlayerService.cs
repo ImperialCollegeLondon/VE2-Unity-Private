@@ -36,8 +36,12 @@ namespace ViRSE.Core.Player
             _playerSettingsProvider = playerSettingsProvider;
             _appearanceOverridesProvider = appearanceOverridesProvider;
 
+            //There MUST be a PlayerSettingsProvider to spawn the player rig 
             _playerSettingsProvider.OnPlayerSettingsChanged += HandleSettingsChanged;
-            _appearanceOverridesProvider.OnAppearanceOverridesChanged += HandleOverridesChanged;
+
+            //There doesn't need to be an overrides provider to spawn the player rig 
+            if (_appearanceOverridesProvider != null)
+                _appearanceOverridesProvider.OnAppearanceOverridesChanged += HandleOverridesChanged;
             //Debug.Log("Player rig initialized");
 
             //TODO, process configs 

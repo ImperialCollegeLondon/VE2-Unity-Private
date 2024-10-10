@@ -45,17 +45,17 @@ namespace ViRSE.Core.Player
     //TODO, consolidate all this into one config class?
 
     [ExecuteInEditMode]
-    public class V_PlayerSpawner : MonoBehaviour, IPlayerAppearanceOverridesProvider //Should this be called "PlayerIntegration"?
+    public class V_PlayerSpawner : MonoBehaviour, IPlayerSpawner //Should this be called "PlayerIntegration"?
     {
         [SerializeField] public bool enableVR;
         [SerializeField] public bool enable2D;
 
-        public event Action OnLocalChangeToUserSettings;
+        // public event Action OnLocalChangeToUserSettings;
 
-        [Space(5)]
-        [Title("Avatar Presentation Overrides")]
-        [EditorButton(nameof(NotifyProviderOfChangeAppearanceOverrides), "Update overrides", activityType: ButtonActivityType.OnPlayMode)]
-        [SerializeField, IgnoreParent] public PlayerPresentationOverrides PresentationOverrides = new();
+        // [Space(5)]
+        // [Title("Avatar Presentation Overrides")]
+        // [EditorButton(nameof(NotifyProviderOfChangeAppearanceOverrides), "Update overrides", activityType: ButtonActivityType.OnPlayMode)]
+        // [SerializeField, IgnoreParent] public PlayerPresentationOverrides PresentationOverrides = new();
 
         [SerializeField, IgnoreParent] public PlayerStateConfig playerStateConfig = new();
 
@@ -64,16 +64,21 @@ namespace ViRSE.Core.Player
         private Player _player;
         [SerializeField, HideInInspector] private bool startingPositionSet = false;
         [SerializeField, HideInInspector] private Vector3 playerStartPosition;
-        [SerializeField] private Quaternion playerStartRotation;
+        [SerializeField, HideInInspector] private Quaternion playerStartRotation;
 
-        #region Appearance Overrides Interfaces 
-        public PlayerPresentationOverrides PlayerPresentationOverrides { get => PresentationOverrides; }
-        public void NotifyProviderOfChangeAppearanceOverrides() => OnAppearanceOverridesChanged?.Invoke();
-        public event Action OnAppearanceOverridesChanged;
-
-        public bool IsEnabled => enabled;
+        #region Player Spawner Interfaces
+        public bool IsEnabled {get; private set;} = false;
         public string GameObjectName => gameObject.name;
+        public event Action OnEnabledStateChanged;
         #endregion
+
+        // #region Appearance Overrides Interfaces 
+        // public PlayerPresentationOverrides PlayerPresentationOverrides { get => PresentationOverrides; }
+        // public void NotifyProviderOfChangeAppearanceOverrides() => OnAppearanceOverridesChanged?.Invoke();
+        // public event Action OnAppearanceOverridesChanged;
+        // public bool IsEnabled => enabled;
+        // public string GameObjectName => gameObject.name;
+        // #endregion
 
         //TODO - need an API for changing overrrides 
 
@@ -81,9 +86,12 @@ namespace ViRSE.Core.Player
         {
             if (!Application.isPlaying)
             {
-                ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider = this;
+                ViRSECoreServiceLocator.Instance.PlayerSpawner = this;
                 return;
             }
+
+            IsEnabled = true;
+            OnEnabledStateChanged?.Invoke();
 
             if (!startingPositionSet)
             {
@@ -114,7 +122,7 @@ namespace ViRSE.Core.Player
             _localPlayerRig = Instantiate(localPlayerRigPrefab, transform.position, transform.rotation);
 
             _player = _localPlayerRig.GetComponent<Player>();
-            _player.Initialize(playerStateConfig, ViRSECoreServiceLocator.Instance.PlayerSettingsProvider, this);
+            _player.Initialize(playerStateConfig, ViRSECoreServiceLocator.Instance.PlayerSettingsProvider, ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider);
 
             _player.RootPosition = playerStartPosition;
             _player.RootRotation = playerStartRotation;
@@ -123,9 +131,15 @@ namespace ViRSE.Core.Player
 
         private void OnDisable() 
         {
-            if (Application.isPlaying && _localPlayerRig != null) 
+            if (!Application.isPlaying)
+                return;
+
+            IsEnabled = false;
+            OnEnabledStateChanged?.Invoke();
+
+            if (_localPlayerRig != null) 
             {
-                Debug.Log("Destyoing player");
+                Debug.Log("Destyoing player - enabled? " + IsEnabled);
 
                 playerStartPosition = _player.RootPosition;
                 playerStartRotation = _player.RootRotation;
