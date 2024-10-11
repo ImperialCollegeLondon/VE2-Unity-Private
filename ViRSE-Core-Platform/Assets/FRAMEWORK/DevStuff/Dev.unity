@@ -615,8 +615,8 @@ MonoBehaviour:
       SnapTurnBlink: 0
     PresentationConfig:
       PlayerName: Unknown
-      AvatarHeadType: ViRSE-0
-      AvatarBodyType: ViRSE-0
+      AvatarHeadType: 0
+      AvatarTorsoType: 0
       AvatarRed: 255
       AvatarGreen: 60
       AvatarBlue: 60
@@ -900,6 +900,7 @@ Transform:
   - {fileID: 269500766}
   - {fileID: 876334165}
   - {fileID: 1439712009}
+  - {fileID: 910236586}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &408937460
@@ -3667,6 +3668,64 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 889208497}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &910236585
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 910236586}
+  - component: {fileID: 910236587}
+  m_Layer: 0
+  m_Name: AvatarOverrider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &910236586
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 910236585}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 351135655}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &910236587
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 910236585}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2987c1512b4806f4f8f9a6cd67219335, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _playerPresentationOverrides:
+    AvatarHeadOverride: 0
+    AvatarTorsoOverride: 0
+  HeadOverrideOne: {fileID: 3315378029801808097, guid: abb9ef859fc647f45ac915aa768d474d,
+    type: 3}
+  HeadOverrideTwo: {fileID: 0}
+  HeadOverrideThree: {fileID: 0}
+  HeadOverrideFour: {fileID: 0}
+  HeadOverrideFive: {fileID: 0}
+  TorsoOverrideOne: {fileID: 0}
+  TorsoOverrideTwo: {fileID: 0}
+  TorsoOverrideThree: {fileID: 0}
+  TorsoOverrideFour: {fileID: 0}
+  TorsoOverrideFive: {fileID: 0}
 --- !u!1 &950575022
 GameObject:
   m_ObjectHideFlags: 0
@@ -6583,7 +6642,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _multiplayerSupportGOName: PluginSyncer
   PlayerSettingsProviderGOName: PlatformIntegration
-  PlayerOverridesProviderGOName: 
+  PlayerOverridesProviderGOName: AvatarOverrider
   PlayerSpawnerGOName: PlayerSpawner
 --- !u!4 &1550410139
 Transform:

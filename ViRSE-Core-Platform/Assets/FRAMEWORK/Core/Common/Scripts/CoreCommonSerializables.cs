@@ -235,12 +235,12 @@ namespace ViRSE.Core.Shared //TODO - Need to expose to customer
 #if UNITY_EDITOR
                         [SerializeField]
 #endif
-                        public string AvatarHeadType = "ViRSE-0";
+                        public ViRSEAvatarHeadAppearanceType AvatarHeadType;
 
 #if UNITY_EDITOR
                         [SerializeField]
 #endif
-                        public string AvatarBodyType = "ViRSE-0";
+                        public ViRSEAvatarTorsoAppearanceType AvatarTorsoType;
 
 #if UNITY_EDITOR
                         [SerializeField]
@@ -262,11 +262,11 @@ namespace ViRSE.Core.Shared //TODO - Need to expose to customer
 
                         public PlayerPresentationConfig(byte[] bytes) : base(bytes) { }
 
-                        public PlayerPresentationConfig(string playerName, string avatarHeadType, string avatarBodyType, ushort avatarRed, ushort avatarGreen, ushort avatarBlue)
+                        public PlayerPresentationConfig(string playerName, ViRSEAvatarHeadAppearanceType avatarHeadType, ViRSEAvatarTorsoAppearanceType avatarBodyType, ushort avatarRed, ushort avatarGreen, ushort avatarBlue)
                         {
                                 PlayerName = playerName;
                                 AvatarHeadType = avatarHeadType;
-                                AvatarBodyType = avatarBodyType;
+                                AvatarTorsoType = avatarBodyType;
                                 AvatarRed = avatarRed;
                                 AvatarGreen = avatarGreen;
                                 AvatarBlue = avatarBlue;
@@ -278,8 +278,8 @@ namespace ViRSE.Core.Shared //TODO - Need to expose to customer
                                 using BinaryWriter writer = new(stream);
 
                                 writer.Write(PlayerName);
-                                writer.Write(AvatarHeadType);
-                                writer.Write(AvatarBodyType);
+                                writer.Write((ushort)AvatarHeadType);
+                                writer.Write((ushort)AvatarTorsoType);
                                 writer.Write(AvatarRed);
                                 writer.Write(AvatarGreen);
                                 writer.Write(AvatarBlue);
@@ -293,8 +293,8 @@ namespace ViRSE.Core.Shared //TODO - Need to expose to customer
                                 using BinaryReader reader = new(stream);
 
                                 PlayerName = reader.ReadString();
-                                AvatarHeadType = reader.ReadString();
-                                AvatarBodyType = reader.ReadString();
+                                AvatarHeadType = (ViRSEAvatarHeadAppearanceType)reader.ReadUInt16();
+                                AvatarTorsoType = (ViRSEAvatarTorsoAppearanceType)reader.ReadUInt16();
                                 AvatarRed = reader.ReadUInt16();
                                 AvatarGreen = reader.ReadUInt16();
                                 AvatarBlue = reader.ReadUInt16();
@@ -305,37 +305,23 @@ namespace ViRSE.Core.Shared //TODO - Need to expose to customer
                 public class PlayerPresentationOverrides : ViRSESerializable
                 {
 #if UNITY_EDITOR
-                        [SerializeField, HideInInspector]
-#endif
-                        public bool UsingViRSEAvatar = true; //TODO remove? 
-
-#if UNITY_EDITOR
-                        [BeginGroup(Style = GroupStyle.Round)]
                         [SerializeField]
 #endif
-                        public string AvatarHeadTypeOverride = string.Empty;
+                        public AvatarAppearanceOverrideType AvatarHeadOverride = AvatarAppearanceOverrideType.None;
 
 #if UNITY_EDITOR
                         [SerializeField]
 #endif
-                        public string AvatarBodyTypeOverride = string.Empty;
-
-#if UNITY_EDITOR
-                        [EndGroup]
-                        [SerializeField]
-#endif
-                        public bool AvatarTransparancy = false;
+                        public AvatarAppearanceOverrideType AvatarTorsoOverride = AvatarAppearanceOverrideType.None;
 
                         public PlayerPresentationOverrides() { }
 
                         public PlayerPresentationOverrides(byte[] bytes) : base(bytes) { }
 
-                        public PlayerPresentationOverrides(bool usingViRSEAvatar, string avatarHeadTypeOverride, string avatarBodyTypeOverride, bool avatarTransparancy)
+                        public PlayerPresentationOverrides(AvatarAppearanceOverrideType avatarHeadOverride, AvatarAppearanceOverrideType avatarTorsoOverride)
                         {
-                                UsingViRSEAvatar = usingViRSEAvatar;
-                                AvatarHeadTypeOverride = avatarHeadTypeOverride;
-                                AvatarBodyTypeOverride = avatarBodyTypeOverride;
-                                AvatarTransparancy = avatarTransparancy;
+                                AvatarHeadOverride = avatarHeadOverride;
+                                AvatarTorsoOverride = avatarTorsoOverride;
                         }
 
                         protected override byte[] ConvertToBytes()
@@ -343,10 +329,8 @@ namespace ViRSE.Core.Shared //TODO - Need to expose to customer
                                 using MemoryStream stream = new();
                                 using BinaryWriter writer = new(stream);
 
-                                writer.Write(UsingViRSEAvatar);
-                                writer.Write(AvatarHeadTypeOverride);
-                                writer.Write(AvatarBodyTypeOverride);
-                                writer.Write(AvatarTransparancy);
+                                writer.Write((ushort)AvatarHeadOverride);
+                                writer.Write((ushort)AvatarTorsoOverride);
 
                                 return stream.ToArray();
                         }
@@ -356,11 +340,32 @@ namespace ViRSE.Core.Shared //TODO - Need to expose to customer
                                 using MemoryStream stream = new(bytes);
                                 using BinaryReader reader = new(stream);
 
-                                UsingViRSEAvatar = reader.ReadBoolean();
-                                AvatarHeadTypeOverride = reader.ReadString();
-                                AvatarBodyTypeOverride = reader.ReadString();
-                                AvatarTransparancy = reader.ReadBoolean();
+                                AvatarHeadOverride = (AvatarAppearanceOverrideType)reader.ReadUInt16();
+                                AvatarTorsoOverride = (AvatarAppearanceOverrideType)reader.ReadUInt16();
                         }
+                }
+
+                public enum AvatarAppearanceOverrideType
+                {
+                        None,
+                        OverideOne,
+                        OverrideTwo,
+                        OverrideThree,
+                        OverrideFour,
+                        OverrideFive,
+                }
+
+                public enum ViRSEAvatarHeadAppearanceType
+                {
+                        One, 
+                        Two,
+                        Three
+                }
+                public enum ViRSEAvatarTorsoAppearanceType
+                {
+                        One,
+                        Two,
+                        Three
                 }
         }
 }

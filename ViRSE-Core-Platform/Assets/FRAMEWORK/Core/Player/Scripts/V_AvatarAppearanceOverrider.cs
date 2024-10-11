@@ -1,0 +1,80 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using ViRSE.Core.Shared;
+using static ViRSE.Core.Shared.CoreCommonSerializables;
+
+[ExecuteInEditMode]
+public class V_AvatarAppearanceOverrider : MonoBehaviour, IPlayerAppearanceOverridesProvider
+{
+    [Title("Avatar Presentation Override Selection")]
+    [EditorButton(nameof(NotifyProviderOfChangeAppearanceOverrides), "Update overrides", activityType: ButtonActivityType.OnPlayMode)]
+    [BeginGroup(Style = GroupStyle.Round), EndGroup, SerializeField, IgnoreParent] private PlayerPresentationOverrides _playerPresentationOverrides = new();
+
+    [Title("Head Overrides")]
+    [BeginGroup(Style = GroupStyle.Round), SerializeField, AssetPreview] private GameObject HeadOverrideOne;
+    [SerializeField, AssetPreview] private GameObject HeadOverrideTwo;
+    [SerializeField, AssetPreview] private GameObject HeadOverrideThree;
+    [SerializeField, AssetPreview] private GameObject HeadOverrideFour;
+    [EndGroup, SerializeField, AssetPreview] private GameObject HeadOverrideFive;
+
+    [Title("Torso Overrides")]
+    [BeginGroup(Style = GroupStyle.Round), SerializeField, AssetPreview] private GameObject TorsoOverrideOne;
+    [SerializeField, AssetPreview] private GameObject TorsoOverrideTwo;
+    [SerializeField, AssetPreview] private GameObject TorsoOverrideThree;
+    [SerializeField, AssetPreview] private GameObject TorsoOverrideFour;
+    [EndGroup, SerializeField, AssetPreview] private GameObject TorsoOverrideFive;
+
+    #region Appearance Overrides Interfaces 
+    PlayerPresentationOverrides IPlayerAppearanceOverridesProvider.PlayerPresentationOverrides => _playerPresentationOverrides;
+    public void NotifyProviderOfChangeAppearanceOverrides() => OnAppearanceOverridesChanged?.Invoke();
+    public event Action OnAppearanceOverridesChanged;
+    public bool IsEnabled => enabled;
+    public string GameObjectName => gameObject.name;
+    public GameObject GetHeadOverrideGO(AvatarAppearanceOverrideType overrideType)
+    {
+        return overrideType switch
+        {
+            AvatarAppearanceOverrideType.None => null,
+            AvatarAppearanceOverrideType.OverideOne => HeadOverrideOne,
+            AvatarAppearanceOverrideType.OverrideTwo => HeadOverrideTwo,
+            AvatarAppearanceOverrideType.OverrideThree => HeadOverrideThree,
+            AvatarAppearanceOverrideType.OverrideFour => HeadOverrideFour,
+            AvatarAppearanceOverrideType.OverrideFive => HeadOverrideFive,
+            _ => null,
+        };
+    }
+
+    public GameObject GetTorsoOverrideGO(AvatarAppearanceOverrideType overrideType)
+    {
+        return overrideType switch
+        {
+            AvatarAppearanceOverrideType.None => null,
+            AvatarAppearanceOverrideType.OverideOne => TorsoOverrideOne,
+            AvatarAppearanceOverrideType.OverrideTwo => TorsoOverrideTwo,
+            AvatarAppearanceOverrideType.OverrideThree => TorsoOverrideThree,
+            AvatarAppearanceOverrideType.OverrideFour => TorsoOverrideFour,
+            AvatarAppearanceOverrideType.OverrideFive => TorsoOverrideFive,
+            _ => null,
+        };
+    }
+    #endregion
+
+    //TODO - need an API for changing overrrides 
+
+    private void OnEnable()
+    {
+        if (!Application.isPlaying)
+        {
+            ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider = this;
+            return;
+        }
+    }
+}
+
+/*
+    Maybe instead the override should just be a bool?
+    mm, may want multiple options though 
+    Ok, let's say, an enum?
+
+*/

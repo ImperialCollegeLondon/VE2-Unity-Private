@@ -14,73 +14,30 @@ namespace ViRSE.Core.Player
         //events for state change (2d/vr), teleport?
     }
 
-    /*
-    We need to move some of this config stuff to the actual mono 
-    ah, idk, we want to be able to HAVE buttons in the nested inspectors, surely? 
-    E.G a button to "invoke" an invokable
-    That wouldn't need to go into the state module though...
-    */
-
-    // [Serializable]
-    // public class PlayerPresentationConfigWrapper
-    // {
-    //     [EditorButton(nameof(UpdateAvatar), "Update avatar", activityType: ButtonActivityType.OnPlayMode)]
-    //     [SerializeField, IgnoreParent] public PlayerPresentationConfig PresentationConfig = new(); //TODO - Hide when a provider is present 
-    //     [SerializeField, IgnoreParent] public PlayerPresentationOverrides PresentationOverrides = new();
-
-    //     [HideInInspector] public event Action OnLocalChangeToPlayerPresentation;
-
-    //     public void UpdateAvatar() => OnLocalChangeToPlayerPresentation?.Invoke();
-    // }
-
-    [Serializable]
-    public class PlayerAvatarConfig
-    {
-        [SerializeField] public bool LoadAvatarConfigFromPlayerPrefs = true;
-
-        [SerializeField] public List<GameObject> avatarHeads;
-        [SerializeField] public List<GameObject> avatarBodies;
-    }
-
     //TODO, consolidate all this into one config class?
 
     [ExecuteInEditMode]
     public class V_PlayerSpawner : MonoBehaviour, IPlayerSpawner //Should this be called "PlayerIntegration"?
     {
+        #region domain-reload-tolerant data
         [SerializeField] public bool enableVR;
         [SerializeField] public bool enable2D;
-
-        // public event Action OnLocalChangeToUserSettings;
-
-        // [Space(5)]
-        // [Title("Avatar Presentation Overrides")]
-        // [EditorButton(nameof(NotifyProviderOfChangeAppearanceOverrides), "Update overrides", activityType: ButtonActivityType.OnPlayMode)]
-        // [SerializeField, IgnoreParent] public PlayerPresentationOverrides PresentationOverrides = new();
-
         [SerializeField, IgnoreParent] public PlayerStateConfig playerStateConfig = new();
+
+        [SerializeField, HideInInspector] private bool startingPositionSet = false;
+        [SerializeField, HideInInspector] private Vector3 playerStartPosition;
+        [SerializeField, HideInInspector] private Quaternion playerStartRotation;
+        #endregion
 
         private const string LOCAL_PLAYER_RIG_PREFAB_PATH = "LocalPlayerRig";
         private GameObject _localPlayerRig;
         private Player _player;
-        [SerializeField, HideInInspector] private bool startingPositionSet = false;
-        [SerializeField, HideInInspector] private Vector3 playerStartPosition;
-        [SerializeField, HideInInspector] private Quaternion playerStartRotation;
 
         #region Player Spawner Interfaces
         public bool IsEnabled {get; private set;} = false;
         public string GameObjectName => gameObject.name;
         public event Action OnEnabledStateChanged;
         #endregion
-
-        // #region Appearance Overrides Interfaces 
-        // public PlayerPresentationOverrides PlayerPresentationOverrides { get => PresentationOverrides; }
-        // public void NotifyProviderOfChangeAppearanceOverrides() => OnAppearanceOverridesChanged?.Invoke();
-        // public event Action OnAppearanceOverridesChanged;
-        // public bool IsEnabled => enabled;
-        // public string GameObjectName => gameObject.name;
-        // #endregion
-
-        //TODO - need an API for changing overrrides 
 
         void OnEnable() 
         {
@@ -149,14 +106,3 @@ namespace ViRSE.Core.Player
         }
     }
 }
-
-// public class UserSettingsPersistableWrapper
-// {
-//     public UserSettingsPersistable UserSettings { get; private set; }
-//     public event Action OnUserSettingsChanged;
-
-//     public void UpdateUserSettings(UserSettingsPersistable userSettings)
-//     {
-//         UserSettings = userSettings;
-//     }
-// }

@@ -111,7 +111,7 @@ namespace ViRSE.PluginRuntime
 
             //TODO - maybe don't give the world state syncer the comms handler, we can just pull straight out of it here and send to comms
             _worldStateSyncer = new WorldStateSyncer(); //TODO DI (if this service references these at all, maybe it should be the other way around)
-            _playerSyncer = new PlayerSyncer(); //TODO DI
+            _playerSyncer = PlayerSyncerFactory.Create();
 
             commsHandler.OnReceiveNetcodeConfirmation += HandleReceiveNetcodeVersion;
             commsHandler.OnReceiveServerRegistrationConfirmation += HandleReceiveServerRegistrationConfirmation;
@@ -149,7 +149,7 @@ namespace ViRSE.PluginRuntime
 
         private void OnPlayerAppearanceChanged() 
         {
-            Debug.Log($"InstanceService detected change to player settings using VAvatar? {_instancedPlayerPresentation.UsingViRSEAvatar}"); 
+            Debug.Log($"InstanceService detected change to player settings using VAvatar? {_instancedPlayerPresentation.UsingViRSEPlayer}"); 
             _commsHandler.SendMessage(_instancedPlayerPresentation.Bytes, InstanceNetworkingMessageCodes.UpdateAvatarPresentation, TransmissionProtocol.TCP);
         }
 
@@ -176,7 +176,7 @@ namespace ViRSE.PluginRuntime
 
             ServerRegistrationRequest serverRegistrationRequest = new(_instancedPlayerPresentation, _networkSettingsProvider.InstanceNetworkSettings.InstanceCode, LocalClientID);
 
-            Debug.Log($"Send server reg, using VAvatar? {_instancedPlayerPresentation.UsingViRSEAvatar}");
+            Debug.Log($"Send server reg, using VAvatar? {_instancedPlayerPresentation.UsingViRSEPlayer}");
 
             _commsHandler.SendMessage(serverRegistrationRequest.Bytes, InstanceNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
         }

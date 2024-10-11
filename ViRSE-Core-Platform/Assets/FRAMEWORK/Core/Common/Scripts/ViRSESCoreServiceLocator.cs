@@ -170,6 +170,9 @@ public interface IPlayerAppearanceOverridesProvider
 
     public void NotifyProviderOfChangeAppearanceOverrides();
     public event Action OnAppearanceOverridesChanged;
+
+    public GameObject GetHeadOverrideGO(AvatarAppearanceOverrideType overrideType);
+    public GameObject GetTorsoOverrideGO(AvatarAppearanceOverrideType overrideType);
 }
 
 public interface IPlayerSpawner //TODO, maybe this is where the instance service gets the player data from?

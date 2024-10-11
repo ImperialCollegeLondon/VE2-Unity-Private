@@ -224,7 +224,7 @@ public class InstanceSyncSerializables
 
     public class InstancedPlayerPresentation : ViRSESerializable
     {
-        public bool UsingViRSEAvatar;
+        public bool UsingViRSEPlayer;
         public PlayerPresentationConfig PlayerPresentationConfig;
 
         public bool UsingOverrides;
@@ -236,7 +236,7 @@ public class InstanceSyncSerializables
 
         public InstancedPlayerPresentation(bool usingViRSEAvatar, PlayerPresentationConfig instancedAvatarAppearance, bool usingOverrides, PlayerPresentationOverrides playerPresentationOverrides)
         {
-            UsingViRSEAvatar = usingViRSEAvatar;
+            UsingViRSEPlayer = usingViRSEAvatar;
             PlayerPresentationConfig = instancedAvatarAppearance;
             UsingOverrides = usingOverrides;
             PlayerPresentationOverrides = playerPresentationOverrides;
@@ -247,9 +247,9 @@ public class InstanceSyncSerializables
             using MemoryStream stream = new();
             using BinaryWriter writer = new(stream);
 
-            writer.Write(UsingViRSEAvatar);
+            writer.Write(UsingViRSEPlayer);
 
-            if (UsingViRSEAvatar)
+            if (UsingViRSEPlayer)
             {
                 byte[] presentationBytes = PlayerPresentationConfig.Bytes;
                 writer.Write((ushort)presentationBytes.Length);
@@ -273,9 +273,9 @@ public class InstanceSyncSerializables
             using MemoryStream stream = new(bytes);
             using BinaryReader reader = new(stream);
 
-            UsingViRSEAvatar = reader.ReadBoolean();
+            UsingViRSEPlayer = reader.ReadBoolean();
             
-            if (UsingViRSEAvatar)
+            if (UsingViRSEPlayer)
             {
                 ushort presentationBytesLength = reader.ReadUInt16();
                 byte[] presentationBytes = reader.ReadBytes(presentationBytesLength);
