@@ -105,7 +105,7 @@ public class ViRSECoreServiceLocator : MonoBehaviour
         get
         {
             if (_playerSpawner == null && !string.IsNullOrEmpty(PlayerSpawnerGOName))
-                _playerSpawner = GameObject.Find(PlayerOverridesProviderGOName)?.GetComponent<IPlayerSpawner>();
+                _playerSpawner = GameObject.Find(PlayerSpawnerGOName)?.GetComponent<IPlayerSpawner>();
 
             if (_playerSpawner == null || !_playerSpawner.IsEnabled)
                 return null;

@@ -25,7 +25,6 @@ namespace ViRSE.PluginRuntime
         public static PluginSyncService Create(LocalClientIdWrapper localClientIDWrapper) //Pass a reference to the player??
         {
             InstanceNetworkingCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
-
             return new PluginSyncService(commsHandler, localClientIDWrapper);
         }
     }
@@ -64,14 +63,11 @@ namespace ViRSE.PluginRuntime
             get {
                 bool usingViRSEAvatar = _playerSpawner != null && _playerSpawner.IsEnabled;
                 PlayerPresentationConfig playerPresentationConfig = _playerSettingsProvider == null ? null : _playerSettingsProvider.UserSettings.PresentationConfig;
+
                 bool applyOverrides = _playerAppearanceOverridesProvider != null;
                 PlayerPresentationOverrides playerPresentationOverrides = _playerAppearanceOverridesProvider == null ? null : _playerAppearanceOverridesProvider.PlayerPresentationOverrides;
                 
                 return new(usingViRSEAvatar, playerPresentationConfig, applyOverrides, playerPresentationOverrides);
-                // if (_playerSettingsProvider == null || _playerAppearanceOverridesProvider == null)
-                //     return new(false, null, null);
-                // else
-                //     return new(true, _playerSettingsProvider.UserSettings.PresentationConfig, _playerAppearanceOverridesProvider.PlayerPresentationOverrides);
             }
         }
 

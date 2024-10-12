@@ -67,7 +67,6 @@ namespace ViRSE.Core.Player
                 HandlePlayerSettingsReady();
             else
                 ViRSECoreServiceLocator.Instance.PlayerSettingsProvider.OnPlayerSettingsReady += HandlePlayerSettingsReady;
-            
         }
 
         private void HandlePlayerSettingsReady()
@@ -96,8 +95,6 @@ namespace ViRSE.Core.Player
 
             if (_localPlayerRig != null) 
             {
-                Debug.Log("Destyoing player - enabled? " + IsEnabled);
-
                 playerStartPosition = _player.RootPosition;
                 playerStartRotation = _player.RootRotation;
                 

@@ -27,7 +27,6 @@ public class RemotePlayerController : MonoBehaviour
         _torsoOffsetFromHead = _torsoHolder.position.y - _headHolder.position.y;
         _activeHead = _headHolder.transform.GetChild(0).gameObject;
         _activeTorso = _torsoHolder.transform.GetChild(0).gameObject;   
-        Debug.Log("Setup current head " + _activeHead.name + " _ " + _activeTorso.name);
 
         RefreshMaterials();
     }
@@ -71,10 +70,6 @@ public class RemotePlayerController : MonoBehaviour
 
         _playerNameText.text = newAvatarAppearance.PlayerPresentationConfig.PlayerName;
 
-        Debug.Log($"Head override... using override? {newAvatarAppearance.UsingOverrides}");
-        if (newAvatarAppearance.UsingOverrides)
-            Debug.Log("Head override... using override? " + _playerAppearanceOverridesProvider.PlayerPresentationOverrides.AvatarHeadOverride);
-
         GameObject avatarHead = null;
         if (newAvatarAppearance.UsingOverrides) 
             avatarHead = _playerAppearanceOverridesProvider.GetHeadOverrideGO(newAvatarAppearance.PlayerPresentationOverrides.AvatarHeadOverride);
@@ -87,7 +82,6 @@ public class RemotePlayerController : MonoBehaviour
             avatarTorso = _playerAppearanceOverridesProvider.GetTorsoOverrideGO(newAvatarAppearance.PlayerPresentationOverrides.AvatarTorsoOverride);
         if (avatarTorso == null) //No override, or gameobject not found
             avatarTorso = _virseAvatarTorsoGameObjects[(int)newAvatarAppearance.PlayerPresentationConfig.AvatarTorsoType];
-            Debug.Log("Torso config - " + newAvatarAppearance.PlayerPresentationConfig.AvatarTorsoType);
         bool torsoChanged = SetTorsoGameObject(avatarTorso);
 
         if (headChanged || torsoChanged)
