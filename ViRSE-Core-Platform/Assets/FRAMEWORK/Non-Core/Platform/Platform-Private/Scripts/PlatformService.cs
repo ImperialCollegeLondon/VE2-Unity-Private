@@ -127,7 +127,9 @@ namespace ViRSE.PluginRuntime
                 _playerSettingsProvider.OnPlayerSettingsChanged -= HandleUserSettingsChanged;
 
             _playerSettingsProvider = playerSettingsProvider;
-            _playerSettingsProvider.OnPlayerSettingsChanged += HandleUserSettingsChanged;
+
+            if (_playerSettingsProvider != null)
+                _playerSettingsProvider.OnPlayerSettingsChanged += HandleUserSettingsChanged;
         }
 
         private void HandleReceiveNetcodeVersion(byte[] bytes)
@@ -204,7 +206,6 @@ namespace ViRSE.PluginRuntime
             //TODO, should be talking to the plugin loader instead here 
             else if (newInstanceInfo.InstanceCode.StartsWith("Dev"))
             {
-                Debug.Log("Going to dev scene"); //Logs out fine 
                 SceneManager.LoadScene("Dev");
             }
             else

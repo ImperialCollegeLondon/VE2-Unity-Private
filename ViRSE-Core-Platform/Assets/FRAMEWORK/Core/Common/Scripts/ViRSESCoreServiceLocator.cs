@@ -98,6 +98,9 @@ public class ViRSECoreServiceLocator : MonoBehaviour
         }
     }
 
+    //TODO - Unlike the other components, the PlayerSpawner can be turned on and off at runtime 
+    //So we should still return it if it is disabled, the consumer can just listen to the OnEnabled event 
+    //TODO - think if this should apply to the other components too 
     [SerializeField] public string PlayerSpawnerGOName; // { get; private set; }
     private IPlayerSpawner _playerSpawner;
     public IPlayerSpawner PlayerSpawner
