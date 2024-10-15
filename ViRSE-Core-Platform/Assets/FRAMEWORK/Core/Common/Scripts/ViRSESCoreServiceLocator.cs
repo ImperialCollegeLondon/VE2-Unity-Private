@@ -44,7 +44,7 @@ public class ViRSECoreServiceLocator : MonoBehaviour
             _multiPlayerSupport = value;
 
             if (value != null)
-                _multiplayerSupportGOName = value.MultiplayerSupportGameObjectName;
+                _multiplayerSupportGOName = value.GameObjectName;
         }
     }
 

@@ -32,14 +32,12 @@ public class InstanceSyncSerializables
     public class ServerRegistrationRequest : ViRSESerializable
     {
         public string InstanceCode { get; private set; }
-        public InstancedPlayerPresentation AvatarDetails { get; private set; }
         public ushort IDToRestore { get; private set; }
 
         public ServerRegistrationRequest(byte[] bytes) : base(bytes) { }
 
-        public ServerRegistrationRequest(InstancedPlayerPresentation avatarDetails, string instanceCode, ushort idToRestore = ushort.MaxValue)
+        public ServerRegistrationRequest(string instanceCode, ushort idToRestore = ushort.MaxValue)
         {
-            AvatarDetails = avatarDetails;
             InstanceCode = instanceCode;
             IDToRestore = idToRestore;
         }
@@ -50,11 +48,6 @@ public class InstanceSyncSerializables
             using BinaryWriter writer = new(stream);
 
             writer.Write(InstanceCode);
-
-            byte[] avatarDetailsBytes = AvatarDetails.Bytes;
-            writer.Write((ushort)avatarDetailsBytes.Length);
-            writer.Write(avatarDetailsBytes);
-
             writer.Write(IDToRestore);
 
             return stream.ToArray();
@@ -66,9 +59,6 @@ public class InstanceSyncSerializables
             using BinaryReader reader = new(stream);
 
             InstanceCode = reader.ReadString();
-            ushort avatarDetailsLength = reader.ReadUInt16();
-            AvatarDetails = new InstancedPlayerPresentation(reader.ReadBytes(avatarDetailsLength));
-
             IDToRestore = reader.ReadUInt16();
         }
     }

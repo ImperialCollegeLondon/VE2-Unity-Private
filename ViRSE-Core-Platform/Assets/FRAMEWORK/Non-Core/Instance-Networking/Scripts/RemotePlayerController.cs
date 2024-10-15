@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using static InstanceSyncSerializables;
 
-public class RemotePlayerController : MonoBehaviour
+public class RemoteAvatarController : MonoBehaviour
 {
     [SerializeField] private Transform _headHolder;
     [SerializeField] private Transform _torsoHolder;

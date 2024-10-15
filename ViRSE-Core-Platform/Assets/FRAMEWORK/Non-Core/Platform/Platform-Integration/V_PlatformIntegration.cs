@@ -53,8 +53,8 @@ public class V_PlatformIntegration : MonoBehaviour, IInstanceNetworkSettingsProv
     public bool ArePlayerSettingsReady => PlatformService.IsConnectedToServer;
     public event Action OnPlayerSettingsReady { add { PlatformService.OnConnectedToServer += value; } remove { PlatformService.OnConnectedToServer -= value; } }
     public UserSettingsPersistable UserSettings => PlatformService.UserSettings;
-    public void NotifyProviderOfChangeToUserSettings() => OnPlayerSettingsChanged?.Invoke(); 
-    public event Action OnPlayerSettingsChanged; //The instance relay needs this
+    public void NotifyProviderOfChangeToUserSettings() => OnLocalChangeToPlayerSettings?.Invoke(); 
+    public event Action OnLocalChangeToPlayerSettings; //The instance relay needs this
     #endregion
 
     /*
@@ -151,10 +151,10 @@ public class DebugPlatformService : IPlatformService
     public void SetupForNewInstance(IPlayerSettingsProvider playerSettingsProvider)
     {
         if (_playerSettingsProvider != null)
-            _playerSettingsProvider.OnPlayerSettingsChanged -= HandleUserSettingsChanged;
+            _playerSettingsProvider.OnLocalChangeToPlayerSettings -= HandleUserSettingsChanged;
 
         _playerSettingsProvider = playerSettingsProvider;
-        _playerSettingsProvider.OnPlayerSettingsChanged += HandleUserSettingsChanged;
+        _playerSettingsProvider.OnLocalChangeToPlayerSettings += HandleUserSettingsChanged;
     }
 
     public void HandleUserSettingsChanged()

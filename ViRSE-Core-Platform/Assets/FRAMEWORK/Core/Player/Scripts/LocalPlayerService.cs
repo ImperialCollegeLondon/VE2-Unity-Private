@@ -37,7 +37,7 @@ namespace ViRSE.Core.Player
             _appearanceOverridesProvider = appearanceOverridesProvider;
 
             //There MUST be a PlayerSettingsProvider to spawn the player rig 
-            _playerSettingsProvider.OnPlayerSettingsChanged += HandleSettingsChanged;
+            _playerSettingsProvider.OnLocalChangeToPlayerSettings += HandleSettingsChanged;
 
             //There doesn't need to be an overrides provider to spawn the player rig 
             if (_appearanceOverridesProvider != null)

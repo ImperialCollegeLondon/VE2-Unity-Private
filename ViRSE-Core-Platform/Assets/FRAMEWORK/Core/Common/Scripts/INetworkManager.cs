@@ -11,13 +11,7 @@ namespace ViRSE.Core.Shared //TODO break into different files
         public void RegisterLocalPlayer(ILocalPlayerRig localPlayerRig);
         public void DeregisterLocalPlayer();
         public bool IsEnabled { get; }
-        public string MultiplayerSupportGameObjectName { get; }
-
-        /*
-         Should the player rig use one interface for networking and for the customer?
-         The networking shouldn't be able to override player position? (Or should it? Eventually, we probably DO want a "summon" feature)
-
-        */
+        public string GameObjectName { get; }
     }
 
     public interface IStateModule

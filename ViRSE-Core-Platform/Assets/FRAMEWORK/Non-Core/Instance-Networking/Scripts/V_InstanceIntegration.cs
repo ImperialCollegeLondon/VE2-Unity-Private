@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using ViRSE.Core.Player;
 using ViRSE.Core.Shared;
+using ViRSE.Networking;
 using ViRSE.PluginRuntime;
 using ViRSE.PluginRuntime.VComponents;
 using static InstanceSyncSerializables;
@@ -28,63 +29,57 @@ namespace ViRSE.InstanceNetworking
         //     "If not connecting automatically, details should be passed via the API";
         #endregion
 
-        #region ConnectionDebug
-        [SerializeField, Disable] private ConnectionState _connectionState = ConnectionState.NotYetConnected;
-        private enum ConnectionState { NotYetConnected, FetchingConnectionSettings, Connecting, Connected, LostConnection }
-        #endregion
+        [SerializeField, Disable, HideLabel, IgnoreParent] private ConnectionStateDebugWrapper _connectionStateDebug;
 
         [SerializeField, HideInInspector] private LocalClientIdWrapper LocalClientIDWrapper = new();
         [Serializable] public class LocalClientIdWrapper { public ushort LocalClientID = ushort.MaxValue; }
 
-        private PluginSyncService _instanceService;
-        public PluginSyncService InstanceService {
-            get {
-                if (_instanceService == null)
-                    OnEnable();
-
-                return _instanceService;
-            }
-            set {
-                _instanceService = (PluginSyncService)value;
-            }
-        }
+        private InstanceService _instanceService;
+        private WorldStateSyncer _worldStateSyncer;
+        private PlayerSyncer _playerSyncer;
 
         // private bool _instanceNetworkSettingsProviderPresent => _instanceNetworkSettingsProvider != null;
         // private IInstanceNetworkSettingsProvider _instanceNetworkSettingsProvider => ViRSENonCoreServiceLocator.Instance.InstanceNetworkSettingsProvider;
 
 
-        #region Core-Facing Interfaces 
+        #region Core-Facing Interfaces
+        //TODO - Could we follow the pattern set out by the VCs? Can we just stick this wiring in an interface?
         public void RegisterStateModule(IStateModule stateModule, string stateType, string goName)
         {
-            InstanceService.RegisterStateModule(stateModule, stateType, goName);
-        }
+            if (_worldStateSyncer == null)
+                OnEnable();
 
+            _worldStateSyncer.RegisterStateModule(stateModule, stateType, goName);
+        }
+        
         public void RegisterLocalPlayer(ILocalPlayerRig localPlayerRig)
         {
-            InstanceService.RegisterLocalPlayer(localPlayerRig);
-        }
+            if (_playerSyncer == null)
+                OnEnable();
 
-        public void DeregisterLocalPlayer()
+            _playerSyncer.RegisterLocalPlayer(localPlayerRig);
+        }
+        
+        public void DeregisterLocalPlayer() 
         {
-            InstanceService.DeregisterLocalPlayer();
+            if (_playerSyncer == null)
+                OnEnable();
+            
+            _playerSyncer.DeregisterLocalPlayer();
         }
 
         public bool IsEnabled => enabled && gameObject.activeInHierarchy;
-        public string MultiplayerSupportGameObjectName => gameObject.name;
+        public string GameObjectName => gameObject.name;
         #endregion
 
-
-        //#region Platform-Facing Interfaces
-        //public void SetInstanceNetworkSettings(InstanceNetworkSettings instanceNetworkSettings)         //TODO - need a customer facing version of this too
-        //{
-        //    _connectionDetails = instanceNetworkSettings;
-
-        //    if (_instanceService != null)
-        //    {
-        //        ConnectToServer(); //ConnectToServerOnceDetailsReady
-        //    }
-        //}
-        // #endregion
+        #region Debug Interfaces 
+        //TODO, think about exactly we want to serve to the customer... OnRemotePlayerConnectd? GetRemotePlayers?
+        public bool IsConnectedToServer => _connectionStateDebug.ConnectionState == ConnectionState.Connected;
+        public ushort LocalClientID => LocalClientIDWrapper.LocalClientID;
+        public InstancedInstanceInfo InstanceInfo => _instanceService.InstanceInfo; //TODO, don't want to expose this
+        public event Action<InstancedInstanceInfo> OnInstanceInfoChanged;
+        public event Action OnDisconnectedFromServer;
+        #endregion
 
         private void OnEnable()
         {
@@ -104,98 +99,77 @@ namespace ViRSE.InstanceNetworking
 
             if (_instanceService == null)
             {
-                _instanceService = PluginSyncServiceFactory.Create(LocalClientIDWrapper);
-                _instanceService.OnConnectedToServer += () => _connectionState = ConnectionState.Connected;
-                _instanceService.OnDisconnectedFromServer += () => _connectionState = ConnectionState.LostConnection;
+                _instanceService = InstanceServiceFactory.Create(LocalClientIDWrapper, _connectOnStart, _connectionStateDebug);
+                    _instanceService.OnConnectedToServer += HandleConnectToServer; //TODO, maybe these events can go into the connection debug wrapper thing?
+                    _instanceService.OnInstanceInfoChanged += HandleReceiveInstanceInfo;
             }
 
-            if ((_connectionState == ConnectionState.NotYetConnected && _connectOnStart) || _connectionState == ConnectionState.LostConnection)
-                ConnectToServerOnceDetailsReady();
-        }
+            // _instanceService ??= InstanceServiceFactory.Create(LocalClientIDWrapper, _connectOnStart, _connectionStateDebug); 
+            _worldStateSyncer ??= new WorldStateSyncer(_instanceService);
+            _playerSyncer ??= PlayerSyncerFactory.Create(_instanceService);
 
-        private void ConnectToServerOnceDetailsReady() 
-        {
-            _connectionState = ConnectionState.FetchingConnectionSettings;
-
-            if (ViRSENonCoreServiceLocator.Instance.InstanceNetworkSettingsProvider.AreInstanceNetworkingSettingsReady)
-                HandleNetworkSettingsProviderReady();
-            else 
-                ViRSENonCoreServiceLocator.Instance.InstanceNetworkSettingsProvider.OnInstanceNetworkSettingsReady += HandleNetworkSettingsProviderReady;
-
-            if (_connectionState != ConnectionState.FetchingConnectionSettings)
-                return;
-
-            if (ViRSECoreServiceLocator.Instance.PlayerSettingsProvider == null || ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider == null || ViRSECoreServiceLocator.Instance.PlayerSettingsProvider.ArePlayerSettingsReady)
-                HandlePlayerSettingsReady();
-            else 
-                ViRSECoreServiceLocator.Instance.PlayerSettingsProvider.OnPlayerSettingsReady += HandlePlayerSettingsReady;
-        }
-
-        private void HandleNetworkSettingsProviderReady()
-        {
-            ViRSENonCoreServiceLocator.Instance.InstanceNetworkSettingsProvider.OnInstanceNetworkSettingsReady -= HandleNetworkSettingsProviderReady;
-
-            if (ViRSECoreServiceLocator.Instance.PlayerSettingsProvider == null || ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider == null || ViRSECoreServiceLocator.Instance.PlayerSettingsProvider.ArePlayerSettingsReady)
-                HandleAllSettingsReady();
-        }
-
-        private void HandlePlayerSettingsReady() 
-        {
-            ViRSECoreServiceLocator.Instance.PlayerSettingsProvider.OnPlayerSettingsReady -= HandlePlayerSettingsReady;
-            
-            if (ViRSENonCoreServiceLocator.Instance.InstanceNetworkSettingsProvider.AreInstanceNetworkingSettingsReady)
-                HandleAllSettingsReady();
-        }
-
-        private void HandleAllSettingsReady() 
-        {
-            ViRSENonCoreServiceLocator.Instance.InstanceNetworkSettingsProvider.OnInstanceNetworkSettingsReady -= HandleNetworkSettingsProviderReady;
-            ViRSECoreServiceLocator.Instance.PlayerSettingsProvider.OnPlayerSettingsReady -= HandlePlayerSettingsReady;
-
-            Debug.Log($"All settings ready, player spawner null? {ViRSECoreServiceLocator.Instance.PlayerSpawner == null} player settings null? {ViRSECoreServiceLocator.Instance.PlayerSettingsProvider == null} overrides null? {ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider == null}");
-
-            _connectionState = ConnectionState.Connecting;
-            _instanceService.ConnectToServer( //TODO, DI through constructor? Maybe move all the waiting there too...
-                ViRSENonCoreServiceLocator.Instance.InstanceNetworkSettingsProvider, 
-                ViRSECoreServiceLocator.Instance.PlayerSpawner,
-                ViRSECoreServiceLocator.Instance.PlayerSettingsProvider, 
-                ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider);
+            // if ((_connectionStateDebug.ConnectionState == ConnectionState.NotYetConnected && _connectOnStart) || _connectionStateDebug.ConnectionState == ConnectionState.LostConnection)
+            // {
+            //     _instanceService.OnConnectedToServer += HandleConnectToServer; //TODO, maybe these events can go into the connection debug wrapper thing?
+            //     _instanceService.OnInstanceInfoChanged += HandleReceiveInstanceInfo;
+            // }
         }
 
         private void FixedUpdate()
         {
-            _instanceService.NetworkUpdate(); //TODO, think about this... perhaps the syncers should be in charge of calling themselves?
+            _instanceService.NetworkUpdate(); 
+
+            //TODO - maybe the service should emit an update event that the others listen to?
+            _worldStateSyncer.NetworkUpdate();
+            _playerSyncer.NetworkUpdate();
         }
 
+        private void HandleConnectToServer() 
+        {
+            _instanceService.OnConnectedToServer -= HandleConnectToServer;
+            _instanceService.OnDisconnectedFromServer += HandleDisconnectFromServer; //TODO, maybe these events can go into the connection debug wrapper thing?
+
+        }
+
+        private void HandleReceiveInstanceInfo(InstancedInstanceInfo instanceInfo) 
+        {
+            OnInstanceInfoChanged?.Invoke(instanceInfo);
+        }
+
+        private void HandleDisconnectFromServer()
+        {
+            _instanceService.OnDisconnectedFromServer -= HandleDisconnectFromServer;
+            OnDisconnectedFromServer?.Invoke();
+        }
 
         private void OnDisable()
         {
             if (!Application.isPlaying)
-            {
-                //ViRSECoreServiceLocator.Instance.MultiplayerSupport = null;
                 return;
-            }
 
             _instanceService.DisconnectFromServer();
-            //_instanceService.TearDown();
-            // _instanceService = null;
         }
 
         private void OnDestroy() 
         {
             if (!Application.isPlaying)
-            {
                 return;
-            }
 
             _instanceService.TearDown();
-            _instanceService.OnConnectedToServer -= () => _connectionState = ConnectionState.Connected;
-            _instanceService.OnDisconnectedFromServer -= () => _connectionState = ConnectionState.NotYetConnected;
             _instanceService = null;
 
-            _connectionState = ConnectionState.NotYetConnected;
+            _connectionStateDebug.ConnectionState = ConnectionState.NotYetConnected;
         }
     }
+
+    [Serializable]
+    public class ConnectionStateDebugWrapper
+    {
+        [SerializeField, Disable, IgnoreParent] public ConnectionState ConnectionState = ConnectionState.NotYetConnected;
+    }
+
+    public enum ConnectionState { NotYetConnected, FetchingConnectionSettings, Connecting, Connected, LostConnection }
+
 }
 
 

@@ -124,12 +124,12 @@ namespace ViRSE.PluginRuntime
         public void SetupForNewInstance(IPlayerSettingsProvider playerSettingsProvider)
         {
             if (_playerSettingsProvider != null)
-                _playerSettingsProvider.OnPlayerSettingsChanged -= HandleUserSettingsChanged;
+                _playerSettingsProvider.OnLocalChangeToPlayerSettings -= HandleUserSettingsChanged;
 
             _playerSettingsProvider = playerSettingsProvider;
 
             if (_playerSettingsProvider != null)
-                _playerSettingsProvider.OnPlayerSettingsChanged += HandleUserSettingsChanged;
+                _playerSettingsProvider.OnLocalChangeToPlayerSettings += HandleUserSettingsChanged;
         }
 
         private void HandleReceiveNetcodeVersion(byte[] bytes)

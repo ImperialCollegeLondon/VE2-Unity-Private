@@ -13,7 +13,7 @@ public interface IPlayerSettingsProvider //TODO - separate out control settings 
     public bool IsEnabled { get; }
 
     public void NotifyProviderOfChangeToUserSettings();
-    public event Action OnPlayerSettingsChanged;
+    public event Action OnLocalChangeToPlayerSettings;
 }
 
 /*

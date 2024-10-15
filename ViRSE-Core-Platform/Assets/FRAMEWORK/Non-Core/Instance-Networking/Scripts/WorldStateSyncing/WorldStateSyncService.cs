@@ -20,8 +20,9 @@ namespace ViRSE.Networking
         private string _localInstanceCode;
         private int _cycleNumber = 0;
 
-        /*[ReadOnly]*/[SerializeField] private int _numberOfSyncablesRegisteredDebug = 0;
-        //[SerializeField] private bool printNonHostTransmissionData = false;
+        private const int WORLD_STATE_SYNC_INTERVAL_MS = 20;
+        public int WorldStateHistoryQueueSize { get; private set; } = 20; //TODO
+        //public UnityEvent<int> OnWorldStateHistoryQueueSizeChange { get; private set; } = new();
 
         private class SyncInfo
         {
@@ -44,7 +45,19 @@ namespace ViRSE.Networking
         private Dictionary<string, SyncInfo> syncInfosAgainstIDs = new();
         private List<WorldStateBundle> _incommingWorldStateBundleBuffer = new();
 
-        public WorldStateSyncer() { } //For mocking
+        private InstanceService _instanceService;
+
+        public WorldStateSyncer(InstanceService instanceService) 
+        {
+            _instanceService = instanceService;
+            _instanceService.OnReceiveWorldStateSyncableBundle += HandleReceiveWorldStateBundle;
+
+        } 
+
+        public void TearDown() 
+        {
+            _instanceService.OnReceiveWorldStateSyncableBundle -= HandleReceiveWorldStateBundle;
+        }
 
         //Happens if we move between instances of the same plugin
         //If changing plugins, this whole syncer will be destroyed and recreated
@@ -53,7 +66,7 @@ namespace ViRSE.Networking
             //May need to tell all the syncables to wipe their data here
         }
 
-        public void RegisterWithSyncer(IStateModule stateModule, string goName, string syncType)
+        public void RegisterStateModule(IStateModule stateModule, string goName, string syncType)
         {
             //Debug.Log("Reg with syncer - " + goName);
 
@@ -64,13 +77,10 @@ namespace ViRSE.Networking
             SyncInfo syncInfo = new(transmissionCounter, historyQueue, stateModule, null, stateModule.TransmissionProtocol);
 
             syncInfosAgainstIDs.Add(id, syncInfo);
-            _numberOfSyncablesRegisteredDebug++;
         }
 
         public void DerigsterFromSyncer(string id)
         {
-            _numberOfSyncablesRegisteredDebug--;
-
             syncInfosAgainstIDs.Remove(id);
         }
 
@@ -82,13 +92,21 @@ namespace ViRSE.Networking
             _incommingWorldStateBundleBuffer.Add(worldStateBundle);
         }
 
-        //TODO - think we should just process incomming messages when we receive them, don't see a need for a buffer
-        public (byte[], byte[]) HandleNetworkUpdate(bool isHost) 
+        public void NetworkUpdate() //TODO, manage buffer size 
         {
+            if (!_instanceService.IsConnectedToServer)
+                return;
+
             _cycleNumber++;
+
             CheckForDestroyedSyncables();
-            ProcessReceivedWorldStates(isHost);
-            return CollectWorldStates(isHost);
+            ProcessReceivedWorldStates(_instanceService.IsHost);
+
+            (byte[], byte[]) worldStateBundlesToTransmit = CollectWorldStates(_instanceService.IsHost);
+                if (worldStateBundlesToTransmit.Item1 != null)
+                    _instanceService.SendWorldStateBundle(worldStateBundlesToTransmit.Item1, TransmissionProtocol.TCP);
+                if (worldStateBundlesToTransmit.Item2 != null)
+                _instanceService.SendWorldStateBundle(worldStateBundlesToTransmit.Item2, TransmissionProtocol.UDP);
         }
 
         private void CheckForDestroyedSyncables()

@@ -8,21 +8,19 @@ public class DebugInstanceInfoUI : MonoBehaviour
 {
     [SerializeField] private TMP_Text globalInfoText;
 
-    private PluginSyncService _instanceService;
+    private V_InstanceIntegration instanceIntegration;
 
     void OnEnable()
     {
-        V_InstanceIntegration provider = FindFirstObjectByType<V_InstanceIntegration>();
-        if (provider != null)
+        instanceIntegration = FindFirstObjectByType<V_InstanceIntegration>();
+        if (instanceIntegration != null)
         {
-            _instanceService = (PluginSyncService)provider.InstanceService;
-
             //If we're already connected to the server, display initial global info rather than waiting for an update
-            if (_instanceService.IsConnectedToServer)
-                HandleInstanceInfoChanged(_instanceService.InstanceInfo);
+            if (instanceIntegration.IsConnectedToServer)
+                HandleInstanceInfoChanged(instanceIntegration.InstanceInfo);
 
-            _instanceService.OnInstanceInfoChanged += HandleInstanceInfoChanged;
-            _instanceService.OnDisconnectedFromServer += HandleDisconnectFromServer;
+            instanceIntegration.OnInstanceInfoChanged += HandleInstanceInfoChanged;
+            instanceIntegration.OnDisconnectedFromServer += HandleDisconnectFromServer;
         }
         else
         {
@@ -32,12 +30,12 @@ public class DebugInstanceInfoUI : MonoBehaviour
 
     private void HandleInstanceInfoChanged(InstancedInstanceInfo instanceInfo)
     {
-        string instanceInfoString = $"<b>INSTANCE</b> {instanceInfo.InstanceCode} \nLocal ID = <color=green>{_instanceService.LocalClientID}</color>\n";
+        string instanceInfoString = $"<b>INSTANCE</b> {instanceInfo.InstanceCode} \nLocal ID = <color=green>{instanceIntegration.LocalClientID}</color>\n";
 
         //Debug.Log("NUM PLAYERS IN ISNTANCE = " + instanceInfo.ClientInfos.Values.Count + "=============");
         foreach (InstancedClientInfo clientInfo in instanceInfo.ClientInfos.Values)
         {
-            if (clientInfo.ClientID.Equals(_instanceService.LocalClientID))
+            if (clientInfo.ClientID.Equals(instanceIntegration.LocalClientID))
                 instanceInfoString += $"<color=green>";
 
             instanceInfoString += $"{clientInfo.ClientID}";
@@ -48,7 +46,7 @@ public class DebugInstanceInfoUI : MonoBehaviour
             instanceInfoString += $"Host = { clientInfo.ClientID.Equals(instanceInfo.HostID).ToString()}\n";
 
 
-            if (clientInfo.ClientID.Equals(_instanceService.LocalClientID))
+            if (clientInfo.ClientID.Equals(instanceIntegration.LocalClientID))
                 instanceInfoString += $"</color>";
         }
 
@@ -62,12 +60,12 @@ public class DebugInstanceInfoUI : MonoBehaviour
 
     private void OnDisable()
     {
-        if (_instanceService != null)
+        if (instanceIntegration != null)
         {
-            if (_instanceService.IsConnectedToServer)
+            if (instanceIntegration.IsConnectedToServer)
             {
-                _instanceService.OnInstanceInfoChanged -= HandleInstanceInfoChanged;
-                _instanceService.OnDisconnectedFromServer -= HandleDisconnectFromServer;
+                instanceIntegration.OnInstanceInfoChanged -= HandleInstanceInfoChanged;
+                instanceIntegration.OnDisconnectedFromServer -= HandleDisconnectFromServer;
             }
         }
     }
