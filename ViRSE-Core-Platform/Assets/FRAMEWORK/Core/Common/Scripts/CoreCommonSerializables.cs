@@ -224,7 +224,7 @@ namespace ViRSE.Core.Shared //TODO - Need to expose to customer
                 }
 
                 [Serializable]
-                public class PlayerPresentationConfig : ViRSESerializable
+                public class PlayerPresentationConfig : ViRSESerializable //TODO - this should just be a wrapper, don't like these attributes in here
                 {
 #if UNITY_EDITOR
                         [BeginGroup(Style = GroupStyle.Round)]
@@ -301,47 +301,17 @@ namespace ViRSE.Core.Shared //TODO - Need to expose to customer
                         }
                 }
 
-                [Serializable]
-                public class PlayerPresentationOverrides : ViRSESerializable
+                public class ViRSEAvatarAppearance
                 {
-#if UNITY_EDITOR
-                        [SerializeField]
-#endif
-                        public AvatarAppearanceOverrideType AvatarHeadOverride = AvatarAppearanceOverrideType.None;
+                        public PlayerPresentationConfig PresentationConfig { get; }
+                        public AvatarAppearanceOverrideType HeadOverrideType { get; }
+                        public AvatarAppearanceOverrideType TorsoOverrideType { get; }
 
-#if UNITY_EDITOR
-                        [SerializeField]
-#endif
-                        public AvatarAppearanceOverrideType AvatarTorsoOverride = AvatarAppearanceOverrideType.None;
-
-                        public PlayerPresentationOverrides() { }
-
-                        public PlayerPresentationOverrides(byte[] bytes) : base(bytes) { }
-
-                        public PlayerPresentationOverrides(AvatarAppearanceOverrideType avatarHeadOverride, AvatarAppearanceOverrideType avatarTorsoOverride)
+                        public ViRSEAvatarAppearance(PlayerPresentationConfig presentationConfig, AvatarAppearanceOverrideType headOverrideType, AvatarAppearanceOverrideType torsoOverrideType)
                         {
-                                AvatarHeadOverride = avatarHeadOverride;
-                                AvatarTorsoOverride = avatarTorsoOverride;
-                        }
-
-                        protected override byte[] ConvertToBytes()
-                        {
-                                using MemoryStream stream = new();
-                                using BinaryWriter writer = new(stream);
-
-                                writer.Write((ushort)AvatarHeadOverride);
-                                writer.Write((ushort)AvatarTorsoOverride);
-
-                                return stream.ToArray();
-                        }
-
-                        protected override void PopulateFromBytes(byte[] bytes)
-                        {
-                                using MemoryStream stream = new(bytes);
-                                using BinaryReader reader = new(stream);
-
-                                AvatarHeadOverride = (AvatarAppearanceOverrideType)reader.ReadUInt16();
-                                AvatarTorsoOverride = (AvatarAppearanceOverrideType)reader.ReadUInt16();
+                                PresentationConfig = presentationConfig;
+                                HeadOverrideType = headOverrideType;
+                                TorsoOverrideType = torsoOverrideType;
                         }
                 }
 

@@ -23,12 +23,8 @@ namespace ViRSE.InstanceNetworking
                 Resources.Load<GameObject>("Avatars/Torsos/ViRSE_Torso_Default_1"),
             };
 
-            Debug.Log("Create PlayerSyncer, spawner null? " + (ViRSECoreServiceLocator.Instance.PlayerSpawner == null));
-
             return new PlayerSyncer(
                 instanceService,
-                ViRSECoreServiceLocator.Instance.PlayerSpawner,
-                ViRSECoreServiceLocator.Instance.PlayerSettingsProvider,
                 ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider,
                 virseAvatarHeadGameObjects,
                 virseAvatarTorsoGameObjects);
@@ -46,29 +42,24 @@ namespace ViRSE.InstanceNetworking
         private List<GameObject> _virseAvatarTorsoGameObjects;
 
         private InstanceService _instanceService;
-        private IPlayerSpawner _playerSpawner;
-        private IPlayerSettingsProvider _playerSettingsProvider;
         private IPlayerAppearanceOverridesProvider _playerAppearanceOverridesProvider;
-        private InstancedPlayerPresentation _instancedPlayerPresentation
+        private ViRSEAvatarAppearanceWrapper _instancedPlayerPresentation
         {
             get
             {
-                bool usingViRSEAvatar = _playerSpawner != null && _playerSpawner.IsEnabled;
-                PlayerPresentationConfig playerPresentationConfig = _playerSettingsProvider == null ? null : _playerSettingsProvider.UserSettings.PresentationConfig;
-
-                bool applyOverrides = _playerAppearanceOverridesProvider != null;
-                PlayerPresentationOverrides playerPresentationOverrides = _playerAppearanceOverridesProvider == null ? null : _playerAppearanceOverridesProvider.PlayerPresentationOverrides;
-
-                return new(usingViRSEAvatar, playerPresentationConfig, applyOverrides, playerPresentationOverrides);
+                bool usingViRSEAvatar = ViRSECoreServiceLocator.Instance.LocalPlayerRig != null && ViRSECoreServiceLocator.Instance.LocalPlayerRig.IsNetworked;
+                if (usingViRSEAvatar)
+                    return new ViRSEAvatarAppearanceWrapper(true, ViRSECoreServiceLocator.Instance.LocalPlayerRig.AvatarAppearance);
+                else 
+                    return new ViRSEAvatarAppearanceWrapper(false, null);
             }
         }
 
-        public PlayerSyncer(InstanceService instanceSevice, IPlayerSpawner playerSpawner, IPlayerSettingsProvider playerSettingsProvider, IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider, List<GameObject> virseAvatarHeadGameObjects, List<GameObject> virseAvatarTorsoGameObjects)
+        //TODO - wire in lists for avatar override GOs rather than needing them here
+        public PlayerSyncer(InstanceService instanceSevice, IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider, List<GameObject> virseAvatarHeadGameObjects, List<GameObject> virseAvatarTorsoGameObjects)
         {
             _instanceService = instanceSevice;
 
-            _playerSpawner = playerSpawner;
-            _playerSettingsProvider = playerSettingsProvider;
             _playerAppearanceOverridesProvider = playerAppearanceOverridesProvider;
 
             _virseAvatarHeadGameObjects = virseAvatarHeadGameObjects;
@@ -77,13 +68,11 @@ namespace ViRSE.InstanceNetworking
             _instanceService.OnReceiveRemotePlayerState += HandleReceiveRemotePlayerState;
             _instanceService.OnInstanceInfoChanged += HandleInstanceInfoChanged;
 
-            if (_playerSettingsProvider != null) //Send an avatar update once the settings are initially ready 
-            {
-                if (_playerSettingsProvider.ArePlayerSettingsReady)
-                    HandleInitialAppearanceReady();
-                else
-                    _playerSettingsProvider.OnPlayerSettingsReady += HandleInitialAppearanceReady;
-            }
+            ViRSECoreServiceLocator.Instance.OnLocalPlayerRigRegistered += RegisterLocalPlayer;
+            ViRSECoreServiceLocator.Instance.OnLocalPlayerRigDeregistered += DeregisterLocalPlayer;
+
+            if (ViRSECoreServiceLocator.Instance.LocalPlayerRig != null)
+                RegisterLocalPlayer(ViRSECoreServiceLocator.Instance.LocalPlayerRig);
         }
 
         private void HandleInstanceInfoChanged(InstancedInstanceInfo newInstanceInfo)
@@ -118,46 +107,24 @@ namespace ViRSE.InstanceNetworking
             }
         }
 
-        private void HandleInitialAppearanceReady() //TODO - we could just not even make the PlayerSyncer until we're connected... and tear it down when disconnected
-        {
-            _playerSettingsProvider.OnPlayerSettingsReady -= HandleInitialAppearanceReady;
-
-            if (_instanceService.IsConnectedToServer)
-                HandleInitialAppearanceReadyAndConnectedToServer();
-            else 
-                _instanceService.OnConnectedToServer += HandleInitialAppearanceReadyAndConnectedToServer;
-        }
-
-        private void HandleInitialAppearanceReadyAndConnectedToServer() 
-        {
-            _instanceService.OnConnectedToServer -= HandleInitialAppearanceReadyAndConnectedToServer;
-
-            if (_playerSpawner != null)
-                _playerSpawner.OnEnabledStateChanged += HandleLocalAppearanceChanged;
-
-            if (_playerSettingsProvider != null)
-                _playerSettingsProvider.OnLocalChangeToPlayerSettings += HandleLocalAppearanceChanged;
-
-            if (_playerAppearanceOverridesProvider != null)
-                _playerAppearanceOverridesProvider.OnAppearanceOverridesChanged += HandleLocalAppearanceChanged;
-
-            HandleLocalAppearanceChanged();
-        }
-
         private void HandleLocalAppearanceChanged()
         {
-            Debug.Log($"InstanceService detected change to player settings using VAvatar? {_instancedPlayerPresentation.UsingViRSEPlayer} Spanwer null? {_playerSpawner == null} Spawner enabled? {_playerSpawner != null && _playerSpawner.IsEnabled}");
+            Debug.Log($"InstanceService detected change to player settings using VAvatar? {_instancedPlayerPresentation.UsingViRSEPlayer}");
             _instanceService.SendAvatarAppearanceUpdate(_instancedPlayerPresentation.Bytes);
         }
 
         public void RegisterLocalPlayer(ILocalPlayerRig localPlayerRig)
         {
+            _localPlayerRig.OnAppearanceChanged += HandleLocalAppearanceChanged;
             _localPlayerRig = localPlayerRig;
+            HandleLocalAppearanceChanged();
         }
 
-        public void DeregisterLocalPlayer()
+        public void DeregisterLocalPlayer(ILocalPlayerRig localPlayerRig)
         {
+            _localPlayerRig.OnAppearanceChanged -= HandleLocalAppearanceChanged;
             _localPlayerRig = null;
+            HandleLocalAppearanceChanged();
         }
 
         public void HandleReceiveRemotePlayerState(byte[] stateAsBytes)

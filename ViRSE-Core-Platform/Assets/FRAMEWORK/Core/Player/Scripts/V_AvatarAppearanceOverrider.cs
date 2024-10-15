@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using NUnit.Framework;
 using UnityEngine;
 using ViRSE.Core.Shared;
 using static ViRSE.Core.Shared.CoreCommonSerializables;
@@ -10,8 +11,9 @@ namespace ViRSE.Core.Player
     public class V_AvatarAppearanceOverrider : MonoBehaviour, IPlayerAppearanceOverridesProvider
     {
         [Title("Avatar Presentation Override Selection")]
+        [BeginGroup(Style = GroupStyle.Round), SerializeField] public AvatarAppearanceOverrideType HeadOverrideType = AvatarAppearanceOverrideType.None;
         [EditorButton(nameof(NotifyProviderOfChangeAppearanceOverrides), "Update overrides", activityType: ButtonActivityType.OnPlayMode)]
-        [BeginGroup(Style = GroupStyle.Round), EndGroup, SerializeField, IgnoreParent] private PlayerPresentationOverrides _playerPresentationOverrides = new();
+        [EndGroup, SerializeField] public AvatarAppearanceOverrideType TorsoOverrideType = AvatarAppearanceOverrideType.None;
 
         [Title("Head Overrides")]
         [BeginGroup(Style = GroupStyle.Round), SerializeField, AssetPreview] private GameObject HeadOverrideOne;
@@ -28,11 +30,15 @@ namespace ViRSE.Core.Player
         [EndGroup, SerializeField, AssetPreview] private GameObject TorsoOverrideFive;
 
         #region Appearance Overrides Interfaces 
-        PlayerPresentationOverrides IPlayerAppearanceOverridesProvider.PlayerPresentationOverrides => _playerPresentationOverrides;
+
         public void NotifyProviderOfChangeAppearanceOverrides() => OnAppearanceOverridesChanged?.Invoke();
         public event Action OnAppearanceOverridesChanged;
         public bool IsEnabled => enabled;
         public string GameObjectName => gameObject.name;
+
+        AvatarAppearanceOverrideType IPlayerAppearanceOverridesProvider.HeadOverrideType => HeadOverrideType;
+        AvatarAppearanceOverrideType IPlayerAppearanceOverridesProvider.TorsoOverrideType => TorsoOverrideType;
+
         public GameObject GetHeadOverrideGO(AvatarAppearanceOverrideType overrideType)
         {
             return overrideType switch

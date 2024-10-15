@@ -30,15 +30,13 @@ namespace ViRSE.Networking
             public PredictiveWorldStateHistoryQueue HistoryQueue;
             public IStateModule StateModule;
             public byte[] PreviousState;
-            public TransmissionProtocol TransmissionProtocol;
 
-            public SyncInfo(WorldStateTransmissionCounter transmissionCounter, PredictiveWorldStateHistoryQueue historyQueue, IStateModule stateModule, byte[] previousState, TransmissionProtocol transmissionProtocol)
+            public SyncInfo(WorldStateTransmissionCounter transmissionCounter, PredictiveWorldStateHistoryQueue historyQueue, IStateModule stateModule)
             {
                 TransmissionCounter = transmissionCounter;
                 HistoryQueue = historyQueue;
                 StateModule = stateModule;
-                PreviousState = previousState;
-                TransmissionProtocol = transmissionProtocol;
+                PreviousState = null;
             }
         }
 
@@ -52,6 +50,11 @@ namespace ViRSE.Networking
             _instanceService = instanceService;
             _instanceService.OnReceiveWorldStateSyncableBundle += HandleReceiveWorldStateBundle;
 
+            foreach (IStateModule stateModule in ViRSECoreServiceLocator.Instance.WorldstateSyncableModules)
+                RegisterStateModule(stateModule);
+
+            ViRSECoreServiceLocator.Instance.OnStateModuleRegistered += RegisterStateModule;
+            ViRSECoreServiceLocator.Instance.OnStateModuleDeregistered += DerigsterFromSyncer;
         } 
 
         public void TearDown() 
@@ -66,22 +69,19 @@ namespace ViRSE.Networking
             //May need to tell all the syncables to wipe their data here
         }
 
-        public void RegisterStateModule(IStateModule stateModule, string goName, string syncType)
+        public void RegisterStateModule(IStateModule stateModule)
         {
-            //Debug.Log("Reg with syncer - " + goName);
 
-            string id = syncType + ":" + goName;
-            
             WorldStateTransmissionCounter transmissionCounter = new(stateModule.TransmissionFrequency);
             PredictiveWorldStateHistoryQueue historyQueue = new(10); //TODO - need to wire this into the ping, we should probably let all these classes see this limit directly... so a static data?
-            SyncInfo syncInfo = new(transmissionCounter, historyQueue, stateModule, null, stateModule.TransmissionProtocol);
+            SyncInfo syncInfo = new(transmissionCounter, historyQueue, stateModule);
 
-            syncInfosAgainstIDs.Add(id, syncInfo);
+            syncInfosAgainstIDs.Add(stateModule.ID, syncInfo);
         }
 
-        public void DerigsterFromSyncer(string id)
+        public void DerigsterFromSyncer(IStateModule stateModule)
         {
-            syncInfosAgainstIDs.Remove(id);
+            syncInfosAgainstIDs.Remove(stateModule.ID);
         }
 
         public void HandleReceiveWorldStateBundle(byte[] byteData)
@@ -100,13 +100,8 @@ namespace ViRSE.Networking
             _cycleNumber++;
 
             CheckForDestroyedSyncables();
-            ProcessReceivedWorldStates(_instanceService.IsHost);
-
-            (byte[], byte[]) worldStateBundlesToTransmit = CollectWorldStates(_instanceService.IsHost);
-                if (worldStateBundlesToTransmit.Item1 != null)
-                    _instanceService.SendWorldStateBundle(worldStateBundlesToTransmit.Item1, TransmissionProtocol.TCP);
-                if (worldStateBundlesToTransmit.Item2 != null)
-                _instanceService.SendWorldStateBundle(worldStateBundlesToTransmit.Item2, TransmissionProtocol.UDP);
+            ProcessReceivedWorldStates();
+            TransmitLocalWorldStates();
         }
 
         private void CheckForDestroyedSyncables()
@@ -116,7 +111,7 @@ namespace ViRSE.Networking
                 syncInfosAgainstIDs.Remove(id);
         }
 
-        private void ProcessReceivedWorldStates(bool isHost)
+        private void ProcessReceivedWorldStates()
         {
             try
             {
@@ -133,12 +128,12 @@ namespace ViRSE.Networking
                         if (syncInfosAgainstIDs.TryGetValue(worldStateWrapper.ID, out SyncInfo syncInfo))
                         {
                             //We only do the hitory check if we're not the host
-                            if (isHost || !syncInfo.HistoryQueue.DoesStateAppearInStateList(worldStateWrapper.StateBytes))
+                            if (_instanceService.IsHost || !syncInfo.HistoryQueue.DoesStateAppearInStateList(worldStateWrapper.StateBytes))
                             {
                                 syncInfo.StateModule.StateAsBytes = worldStateWrapper.StateBytes;
 
                                 //If we're not the host, we want to make sure this state doesn't get broadcasted back out
-                                if (!isHost)
+                                if (!_instanceService.IsHost)
                                     syncInfo.PreviousState = worldStateWrapper.StateBytes;
                             }
                         }
@@ -156,7 +151,7 @@ namespace ViRSE.Networking
             }
         }
 
-        private (byte[], byte[]) CollectWorldStates(bool isHost)
+        private void TransmitLocalWorldStates()
         {
             List<WorldStateWrapper> outgoingSyncableStateBufferTCP = new();
             List<WorldStateWrapper> outgoingSyncableStateBufferUDP = new();
@@ -167,21 +162,15 @@ namespace ViRSE.Networking
 
                 byte[] newState = syncInfo.StateModule.StateAsBytes;
 
-                bool broadcastFromHost = isHost && syncInfo.TransmissionCounter.IsOnBroadcastFrame(_cycleNumber);
-
-                //if (isHost)
-                //    Debug.Log("We host, broadcast frame? " + syncInfo.TransmissionCounter.IsOnBroadcastFrame(_cycleNumber));
-
+                bool broadcastFromHost = _instanceService.IsHost && syncInfo.TransmissionCounter.IsOnBroadcastFrame(_cycleNumber);
                 bool transmitFromLocalStateChange = syncInfo.PreviousState != null && !newState.SequenceEqual(syncInfo.PreviousState);
-
                 bool shouldTransmit = broadcastFromHost || transmitFromLocalStateChange;
 
                 if (shouldTransmit)
                 {
                     WorldStateWrapper worldStateWrapper = new(pair.Key, newState);
-                    //Debug.Log("Should transmit " + pair.Key + " - " + broadcastFromHost + " - " + transmitFromLocalStateChange);
 
-                    if (syncInfo.TransmissionProtocol == TransmissionProtocol.TCP)
+                    if (syncInfo.StateModule.TransmissionProtocol == TransmissionProtocol.TCP)
                         outgoingSyncableStateBufferTCP.Add(worldStateWrapper);
                     else
                         outgoingSyncableStateBufferUDP.Add(worldStateWrapper);
@@ -191,23 +180,17 @@ namespace ViRSE.Networking
                 syncInfo.HistoryQueue.AddStateToQueue(newState);
             }
 
-            //Debug.Log("<color=green>Transmit world state " + outgoingSyncableStateBufferTCP.Count + " - " + outgoingSyncableStateBufferUDP.Count + " host: " + isHost + " regs: " + syncInfosAgainstIDs.Count + "</color>");
-            byte[] tcpBytes = null;
-            byte[] udpBytes = null;
-
             if (outgoingSyncableStateBufferTCP.Count > 0)
             {
                 WorldStateBundle TCPBundle = new(outgoingSyncableStateBufferTCP);
-                tcpBytes = TCPBundle.Bytes;
+                _instanceService.SendWorldStateBundle(TCPBundle.Bytes, TransmissionProtocol.TCP);
             }
 
             if (outgoingSyncableStateBufferUDP.Count > 0)
             {
                 WorldStateBundle UDPBundle = new(outgoingSyncableStateBufferUDP);
-                udpBytes = UDPBundle.Bytes;
+                _instanceService.SendWorldStateBundle(UDPBundle.Bytes, TransmissionProtocol.UDP);
             }
-
-            return (tcpBytes, udpBytes);    
         }
 
         public void SetNewBufferLength(int newLength)
@@ -238,79 +221,4 @@ namespace ViRSE.Networking
             return null;
         }
     }
-
-    // public class WorldStateWrapper : ViRSESerializable
-    // {
-    //     public string ID { get; private set; }
-    //     public byte[] StateBytes { get; private set; }
-
-    //     public WorldStateWrapper(byte[] bytes) : base(bytes) { }
-
-    //     public WorldStateWrapper(string id, byte[] state)
-    //     {
-    //         ID = id;
-    //         StateBytes = state;
-    //     }
-
-    //     protected override byte[] ConvertToBytes()
-    //     {
-    //         using MemoryStream stream = new MemoryStream();
-    //         using BinaryWriter writer = new BinaryWriter(stream);
-
-    //         writer.Write(ID);
-    //         writer.Write((ushort)StateBytes.Length);
-    //         writer.Write(StateBytes);
-
-    //         return stream.ToArray();
-    //     }
-
-    //     protected override void PopulateFromBytes(byte[] bytes)
-    //     {
-    //         using MemoryStream stream = new(bytes);
-    //         using BinaryReader reader = new(stream);
-
-    //         ID = reader.ReadString();
-
-    //         int stateBytesLength = reader.ReadUInt16();
-    //         StateBytes = reader.ReadBytes(stateBytesLength);
-    //     }
-    // }
 }
-
-
-/*
- *TODO - snapshopts be handled like this
-public class DataCollector : MonoBehaviour
-{
-    public delegate string NeedListHandler();
-    public event NeedListHandler OnNeedList;
-
-    private List<string> collectedData = new List<string>();
-
-    private void Start()
-    {
-        // Optionally, you can trigger the collection at the start or any other time
-        CollectData();
-    }
-
-    public void CollectData()
-    {
-        collectedData.Clear(); // Clear previous data
-
-        if (OnNeedList != null)
-        {
-            foreach (NeedListHandler handler in OnNeedList.GetInvocationList())
-            {
-                string data = handler.Invoke();
-                collectedData.Add(data);
-            }
-        }
-
-        // Process collected data
-        foreach (var data in collectedData)
-        {
-            Debug.Log("Collected Data: " + data);
-        }
-    }
-}
-*/

@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using ViRSE.Core;
 using static InstanceSyncSerializables;
+using static ViRSE.Core.Shared.CoreCommonSerializables;
 
 namespace ViRSE.InstanceNetworking
 {
@@ -20,7 +21,7 @@ namespace ViRSE.InstanceNetworking
         private GameObject _activeHead;
         private GameObject _activeTorso;
 
-        private InstancedPlayerPresentation _avatarAppearance;
+        private ViRSEAvatarAppearanceWrapper _avatarAppearance;
         private IPlayerAppearanceOverridesProvider _playerAppearanceOverridesProvider;
         private List<GameObject> _virseAvatarHeadGameObjects;
         private List<GameObject> _virseAvatarTorsoGameObjects;
@@ -66,35 +67,35 @@ namespace ViRSE.InstanceNetworking
             _torsoHolder.position = playerState.HeadPosition + (_torsoOffsetFromHead * Vector3.up);
         }
 
-        public void HandleReceiveAvatarAppearance(InstancedPlayerPresentation newAvatarAppearance)
+        public void HandleReceiveAvatarAppearance(ViRSEAvatarAppearanceWrapper newAvatarAppearance)
         {
             if (_avatarAppearance != null && _avatarAppearance.Equals(newAvatarAppearance))
                 return;
 
-            _playerNameText.text = newAvatarAppearance.PlayerPresentationConfig.PlayerName;
+            _playerNameText.text = newAvatarAppearance.ViRSEAvatarAppearance.PresentationConfig.PlayerName;
 
             GameObject avatarHead = null;
-            if (newAvatarAppearance.UsingOverrides) 
-                avatarHead = _playerAppearanceOverridesProvider.GetHeadOverrideGO(newAvatarAppearance.PlayerPresentationOverrides.AvatarHeadOverride);
+            if (newAvatarAppearance.ViRSEAvatarAppearance.HeadOverrideType != AvatarAppearanceOverrideType.None) 
+                avatarHead = _playerAppearanceOverridesProvider.GetHeadOverrideGO(newAvatarAppearance.ViRSEAvatarAppearance.HeadOverrideType);
             if (avatarHead == null) //No override, or gameobject not found
             {
-                Debug.Log($"Avatar head type: {newAvatarAppearance.PlayerPresentationConfig.AvatarHeadType} heads found? {_virseAvatarHeadGameObjects.Count}");
-                avatarHead = _virseAvatarHeadGameObjects[(int)newAvatarAppearance.PlayerPresentationConfig.AvatarHeadType];
+                Debug.Log($"Avatar head type: {newAvatarAppearance.ViRSEAvatarAppearance.PresentationConfig.AvatarHeadType} heads found? {_virseAvatarHeadGameObjects.Count}");
+                avatarHead = _virseAvatarHeadGameObjects[(int)newAvatarAppearance.ViRSEAvatarAppearance.PresentationConfig.AvatarHeadType];
             }
             bool headChanged = SetHeadGameObject(avatarHead);
 
             GameObject avatarTorso = null;
-            if (newAvatarAppearance.UsingOverrides)
-                avatarTorso = _playerAppearanceOverridesProvider.GetTorsoOverrideGO(newAvatarAppearance.PlayerPresentationOverrides.AvatarTorsoOverride);
+            if (newAvatarAppearance.ViRSEAvatarAppearance.TorsoOverrideType != AvatarAppearanceOverrideType.None)
+                avatarTorso = _playerAppearanceOverridesProvider.GetTorsoOverrideGO(newAvatarAppearance.ViRSEAvatarAppearance.TorsoOverrideType);
             if (avatarTorso == null) //No override, or gameobject not found
-                avatarTorso = _virseAvatarTorsoGameObjects[(int)newAvatarAppearance.PlayerPresentationConfig.AvatarTorsoType];
+                avatarTorso = _virseAvatarTorsoGameObjects[(int)newAvatarAppearance.ViRSEAvatarAppearance.PresentationConfig.AvatarTorsoType];
             bool torsoChanged = SetTorsoGameObject(avatarTorso);
 
             if (headChanged || torsoChanged)
                 RefreshMaterials();
 
             foreach (Material material in _colorMaterials)
-                material.color = new Color(newAvatarAppearance.PlayerPresentationConfig.AvatarRed, newAvatarAppearance.PlayerPresentationConfig.AvatarGreen, newAvatarAppearance.PlayerPresentationConfig.AvatarBlue) / 255f;
+                material.color = new Color(newAvatarAppearance.ViRSEAvatarAppearance.PresentationConfig.AvatarRed, newAvatarAppearance.ViRSEAvatarAppearance.PresentationConfig.AvatarGreen, newAvatarAppearance.ViRSEAvatarAppearance.PresentationConfig.AvatarBlue) / 255f;
 
             _avatarAppearance = newAvatarAppearance;
         }

@@ -43,7 +43,7 @@ namespace ViRSE.Core.Player
         {
             if (!Application.isPlaying)
             {
-                ViRSECoreServiceLocator.Instance.PlayerSpawner = this;
+                //ViRSECoreServiceLocator.Instance.PlayerSpawner = this;
                 return;
             }
 
@@ -78,7 +78,7 @@ namespace ViRSE.Core.Player
             _localPlayerRig = Instantiate(localPlayerRigPrefab, transform.position, transform.rotation);
 
             _player = _localPlayerRig.GetComponent<Player>();
-            _player.Initialize(playerStateConfig, ViRSECoreServiceLocator.Instance.PlayerSettingsProvider, ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider);
+            _player.Initialize(playerStateConfig, ViRSECoreServiceLocator.Instance.PlayerSettingsProvider, ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider); //TODO, maybe just inject the locator?
 
             _player.RootPosition = playerStartPosition;
             _player.RootRotation = playerStartRotation;

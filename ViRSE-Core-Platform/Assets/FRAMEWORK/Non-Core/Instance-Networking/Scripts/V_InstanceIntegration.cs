@@ -40,34 +40,6 @@ namespace ViRSE.InstanceNetworking
 
         #region Core-Facing Interfaces
         //TODO - Could we follow the pattern set out by the VCs? Can we just stick this wiring in an interface?
-        public void RegisterStateModule(IStateModule stateModule, string stateType, string goName)
-        {
-            if (_worldStateSyncer == null)
-                OnEnable();
-
-            _worldStateSyncer.RegisterStateModule(stateModule, stateType, goName);
-        }
-        
-        public void RegisterLocalPlayer(ILocalPlayerRig localPlayerRig)
-        {
-            if (_playerSyncer == null)
-                OnEnable();
-
-            _playerSyncer.RegisterLocalPlayer(localPlayerRig);
-        }
-        
-        public void DeregisterLocalPlayer() 
-        {
-            //If there is no player syncer, no need to deregister - TODO, Not sure if the player should even be in charge of registering and derigstering 
-            //TODO, the player is trying to follow the same pattern as syncables, but it doesn't seem needed 
-            //Syncables could also just emit a "Destroy" event that the syncer listens to 
-            //TODO, maybe there's some way to use the service locator to store the syncables?
-            //Syncables could register themselves with the service locator, then they wouldn't need to call register/derigster themselves 
-            //More wiring, but looser coupling
-            if (_playerSyncer != null) 
-                _playerSyncer.DeregisterLocalPlayer();
-        }
-
         public bool IsEnabled => enabled && gameObject.activeInHierarchy;
         public string GameObjectName => gameObject.name;
         #endregion
@@ -101,14 +73,9 @@ namespace ViRSE.InstanceNetworking
             {
                 _instanceService = InstanceServiceFactory.Create(LocalClientIDWrapper, _connectOnStart, _connectionStateDebug);
                 _instanceService.OnConnectedToServer += HandleConnectToServer; //TODO, maybe these events can go into the connection debug wrapper thing?
+                _instanceService.OnDisconnectedFromServer += HandleDisconnectFromServer; //TODO, maybe these events can go into the connection debug wrapper thing?
                 _instanceService.OnInstanceInfoChanged += HandleReceiveInstanceInfo;
             }
-
-            if (_worldStateSyncer == null)
-                _worldStateSyncer = new WorldStateSyncer(_instanceService);
-
-            if (_playerSyncer == null)
-                _playerSyncer = PlayerSyncerFactory.Create(_instanceService);
         }
 
         private void FixedUpdate()
@@ -116,15 +83,14 @@ namespace ViRSE.InstanceNetworking
             _instanceService.NetworkUpdate(); 
 
             //TODO - maybe the service should emit an update event that the others listen to?
-            _worldStateSyncer.NetworkUpdate();
-            _playerSyncer.NetworkUpdate();
+            _worldStateSyncer?.NetworkUpdate();
+            _playerSyncer?.NetworkUpdate();
         }
 
         private void HandleConnectToServer() 
         {
-            _instanceService.OnConnectedToServer -= HandleConnectToServer;
-            _instanceService.OnDisconnectedFromServer += HandleDisconnectFromServer; //TODO, maybe these events can go into the connection debug wrapper thing?
-
+            _worldStateSyncer = new WorldStateSyncer(_instanceService);
+            _playerSyncer = PlayerSyncerFactory.Create(_instanceService);
         }
 
         private void HandleReceiveInstanceInfo(InstancedInstanceInfo instanceInfo) 
@@ -134,8 +100,11 @@ namespace ViRSE.InstanceNetworking
 
         private void HandleDisconnectFromServer()
         {
-            _instanceService.OnDisconnectedFromServer -= HandleDisconnectFromServer;
-            OnDisconnectedFromServer?.Invoke();
+            if (_connectionStateDebug.ConnectionState == ConnectionState.Connected)
+            {
+                _connectionStateDebug.ConnectionState = ConnectionState.LostConnection;
+                OnDisconnectedFromServer?.Invoke();
+            }
         }
 
         private void OnDisable()
@@ -144,10 +113,13 @@ namespace ViRSE.InstanceNetworking
                 return;
 
             Debug.Log($"<color=red>Instance Integration disabled</color>");
-            _connectionStateDebug.ConnectionState = ConnectionState.LostConnection;
+
             _instanceService.DisconnectFromServer();
+
             _playerSyncer.TearDown();
+            _worldStateSyncer.TearDown();
             _playerSyncer = null;
+            _worldStateSyncer = null;
         }
 
         private void OnDestroy() 

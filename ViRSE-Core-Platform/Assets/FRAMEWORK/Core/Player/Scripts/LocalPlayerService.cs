@@ -7,8 +7,10 @@ using static ViRSE.Core.Shared.CoreCommonSerializables;
 
 namespace ViRSE.Core.Player
 {
+
+
     //TODO, don't think this should be a mono, should just be a service, that we inject with the 2d and vr players
-    public class Player : MonoBehaviour, ILocalPlayerRig
+    public class Player : MonoBehaviour, ILocalPlayerRig //TODO - maybe should be PlayerService? Also, does this actually need to be a monobehaviour?
     {
         #region Plugin Runtime interfaces
         public Vector3 RootPosition { get => _activePlayer.RootPosition; set => _activePlayer.RootPosition = value; }
@@ -24,10 +26,24 @@ namespace ViRSE.Core.Player
         [SerializeField] private PlayerControllerVR _vrPlayer;
         private PlayerController _activePlayer => _playerMode == LocalPlayerMode.TwoD? _2dPlayer : _vrPlayer;
 
+        public bool IsNetworked => true; //TODO!
+
+        public ViRSEAvatarAppearance AvatarAppearance {
+            get {
+                if (_appearanceOverridesProvider != null)
+                    return new ViRSEAvatarAppearance(_playerSettingsProvider.UserSettings.PresentationConfig, _appearanceOverridesProvider.HeadOverrideType, _appearanceOverridesProvider.TorsoOverrideType);
+                else
+                    return new ViRSEAvatarAppearance(_playerSettingsProvider.UserSettings.PresentationConfig, AvatarAppearanceOverrideType.None, AvatarAppearanceOverrideType.None);
+            }
+        }
+        public event Action OnAppearanceChanged;
+
         private PlayerStateConfig _stateConfig;
         private IPlayerSettingsProvider _playerSettingsProvider;
         private IPlayerAppearanceOverridesProvider _appearanceOverridesProvider;
 
+
+        //TODO - wire in the state 
         public void Initialize(PlayerStateConfig playerStateConfig, IPlayerSettingsProvider playerSettingsProvider, IPlayerAppearanceOverridesProvider appearanceOverridesProvider)
         {
             _playerMode = LocalPlayerMode.TwoD; //TODO - support other modes 
@@ -46,28 +62,24 @@ namespace ViRSE.Core.Player
         private void HandleSettingsChanged() 
         {
             Debug.Log("Player rig detected settings changed"); //TODO, change local avatar
+            OnAppearanceChanged?.Invoke();
         }
 
         private void HandleOverridesChanged() 
         {
             Debug.Log("Player rig detected avatar overrides changed"); //TODO, change local avatar
+            OnAppearanceChanged?.Invoke();
         }
 
 
         private void Start()
         {
-            if (_stateConfig.IsNetworked && _stateConfig.MultiplayerSupportPresent)
-            {
-                _stateConfig.MultiplayerSupport.RegisterLocalPlayer(this);
-            }
+            ViRSECoreServiceLocator.Instance.LocalPlayerRig = this;
         }
 
-        private void OnDestroy() 
+        private void OnDisable() 
         {
-            if (_stateConfig.IsNetworked && _stateConfig.MultiplayerSupportPresent)
-            {
-                _stateConfig.MultiplayerSupport.DeregisterLocalPlayer();
-            }
+            ViRSECoreServiceLocator.Instance.LocalPlayerRig = null;
         }
 
         public PlayerState GetPlayerState()

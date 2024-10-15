@@ -3,10 +3,11 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using ViRSE.Core.Player;
 using ViRSE.Core.Shared;
 using static ViRSE.Core.Shared.CoreCommonSerializables;
 
-namespace ViRSE.Core
+namespace ViRSE.Core //TODO workout namespace... Core.Common? Or just ViRSE.Common?
 {
     [ExecuteInEditMode]
     public class ViRSECoreServiceLocator : MonoBehaviour
@@ -100,23 +101,57 @@ namespace ViRSE.Core
 
         [SerializeField] public string PlayerSpawnerGOName; // { get; private set; }
         private IPlayerSpawner _playerSpawner;
-        public IPlayerSpawner PlayerSpawner
-        {
-            get
-            {
-                if (_playerSpawner == null && !string.IsNullOrEmpty(PlayerSpawnerGOName))
-                    _playerSpawner = GameObject.Find(PlayerSpawnerGOName)?.GetComponent<IPlayerSpawner>();
+        // public IPlayerSpawner PlayerSpawner
+        // {
+        //     get
+        //     {
+        //         if (_playerSpawner == null && !string.IsNullOrEmpty(PlayerSpawnerGOName))
+        //             _playerSpawner = GameObject.Find(PlayerSpawnerGOName)?.GetComponent<IPlayerSpawner>();
 
-                return _playerSpawner; //Return even if disabled
-            }
-            set //Will need to be called externally
-            {
-                _playerSpawner = value;
+        //         return _playerSpawner; //Return even if disabled
+        //     }
+        //     set //Will need to be called externally
+        //     {
+        //         _playerSpawner = value;
+
+        //         if (value != null)
+        //             PlayerSpawnerGOName = value.GameObjectName;
+        //     }
+        // }
+
+        //TODO - all of this is runtime stuff, maybe shouldn't live here?
+
+        private List<IStateModule> _worldstateSyncableModules = new();
+        public IReadOnlyList<IStateModule> WorldstateSyncableModules => _worldstateSyncableModules.AsReadOnly();
+        public event Action<IStateModule> OnStateModuleRegistered;
+        public event Action<IStateModule> OnStateModuleDeregistered;
+        public void RegisterStateModule(IStateModule module)
+        {
+            _worldstateSyncableModules.Add(module);
+            OnStateModuleRegistered?.Invoke(module);
+        }
+
+        public void DeregisterStateModule(IStateModule module)
+        {
+            _worldstateSyncableModules.Remove(module);
+            OnStateModuleDeregistered?.Invoke(module);  
+        }
+
+        private ILocalPlayerRig _localPlayerRig;
+        public ILocalPlayerRig LocalPlayerRig {
+            get => _localPlayerRig;
+            set {
+                _localPlayerRig = value;
 
                 if (value != null)
-                    PlayerSpawnerGOName = value.GameObjectName;
+                    OnLocalPlayerRigRegistered?.Invoke(value);
+                else 
+                    OnLocalPlayerRigDeregistered?.Invoke(value);
             }
         }
+        public event Action<ILocalPlayerRig> OnLocalPlayerRigRegistered;
+        public event Action<ILocalPlayerRig> OnLocalPlayerRigDeregistered;
+
 
         private void Awake()
         {
@@ -134,7 +169,8 @@ namespace ViRSE.Core
 
     public interface IPlayerAppearanceOverridesProvider
     {
-        public PlayerPresentationOverrides PlayerPresentationOverrides { get; }
+        public AvatarAppearanceOverrideType HeadOverrideType { get; }
+        public AvatarAppearanceOverrideType TorsoOverrideType { get; }
         public bool IsEnabled { get; }
         public string GameObjectName { get; }
 
