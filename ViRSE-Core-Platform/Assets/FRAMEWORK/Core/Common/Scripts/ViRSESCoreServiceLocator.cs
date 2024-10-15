@@ -110,10 +110,7 @@ public class ViRSECoreServiceLocator : MonoBehaviour
             if (_playerSpawner == null && !string.IsNullOrEmpty(PlayerSpawnerGOName))
                 _playerSpawner = GameObject.Find(PlayerSpawnerGOName)?.GetComponent<IPlayerSpawner>();
 
-            if (_playerSpawner == null || !_playerSpawner.IsEnabled)
-                return null;
-            else
-                return _playerSpawner;
+            return _playerSpawner; //Return even if disabled
         }
         set //Will need to be called externally
         {

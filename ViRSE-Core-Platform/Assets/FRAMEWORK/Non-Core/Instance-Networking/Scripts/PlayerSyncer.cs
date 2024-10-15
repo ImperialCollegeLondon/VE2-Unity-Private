@@ -21,6 +21,8 @@ public static class PlayerSyncerFactory
             Resources.Load<GameObject>("Avatars/Torsos/ViRSE_Torso_Default_1"),
         };
 
+        Debug.Log("Create PlayerSyncer, spawner null? " + (ViRSECoreServiceLocator.Instance.PlayerSpawner == null));
+
         return new PlayerSyncer(
             instanceService,
             ViRSECoreServiceLocator.Instance.PlayerSpawner,
@@ -73,22 +75,13 @@ public class PlayerSyncer
         _instanceService.OnReceiveRemotePlayerState += HandleReceiveRemotePlayerState;
         _instanceService.OnInstanceInfoChanged += HandleInstanceInfoChanged;
 
-        if (_playerSpawner != null)
-            _playerSpawner.OnEnabledStateChanged += HandleLocalAppearanceChanged;
-
-        if (_playerSettingsProvider != null)
+        if (_playerSettingsProvider != null) //Send an avatar update once the settings are initially ready 
         {
-            _playerSettingsProvider.OnLocalChangeToPlayerSettings += HandleLocalAppearanceChanged;
-
-            //Send an avatar update once the settings are initially ready 
             if (_playerSettingsProvider.ArePlayerSettingsReady)
                 HandleInitialAppearanceReady();
-            else 
+            else
                 _playerSettingsProvider.OnPlayerSettingsReady += HandleInitialAppearanceReady;
         }
-
-        if (_playerAppearanceOverridesProvider != null)
-            _playerAppearanceOverridesProvider.OnAppearanceOverridesChanged += HandleLocalAppearanceChanged;
     }
 
     private void HandleInstanceInfoChanged(InstancedInstanceInfo newInstanceInfo)
@@ -123,19 +116,35 @@ public class PlayerSyncer
         }
     }
 
-    private void HandleInitialAppearanceReady()
+    private void HandleInitialAppearanceReady() //TODO - we could just not even make the PlayerSyncer until we're connected... that's tricky with discons though?
     {
         _playerSettingsProvider.OnPlayerSettingsReady -= HandleInitialAppearanceReady;
 
         if (_instanceService.IsConnectedToServer)
-            HandleLocalAppearanceChanged();
+            HandleInitialAppearanceReadyAndConnectedToServer();
         else 
-            _instanceService.OnConnectedToServer += HandleLocalAppearanceChanged;
+            _instanceService.OnConnectedToServer += HandleInitialAppearanceReadyAndConnectedToServer;
+    }
+
+    private void HandleInitialAppearanceReadyAndConnectedToServer() 
+    {
+        _instanceService.OnConnectedToServer -= HandleInitialAppearanceReadyAndConnectedToServer;
+
+        if (_playerSpawner != null)
+            _playerSpawner.OnEnabledStateChanged += HandleLocalAppearanceChanged;
+
+        if (_playerSettingsProvider != null)
+            _playerSettingsProvider.OnLocalChangeToPlayerSettings += HandleLocalAppearanceChanged;
+
+        if (_playerAppearanceOverridesProvider != null)
+            _playerAppearanceOverridesProvider.OnAppearanceOverridesChanged += HandleLocalAppearanceChanged;
+
+        HandleLocalAppearanceChanged();
     }
 
     private void HandleLocalAppearanceChanged()
     {
-        Debug.Log($"InstanceService detected change to player settings using VAvatar? {_instancedPlayerPresentation.UsingViRSEPlayer}");
+        Debug.Log($"InstanceService detected change to player settings using VAvatar? {_instancedPlayerPresentation.UsingViRSEPlayer} Spanwer null? {_playerSpawner == null} Spawner enabled? {_playerSpawner != null && _playerSpawner.IsEnabled}");
         _instanceService.SendAvatarAppearanceUpdate(_instancedPlayerPresentation.Bytes);
     }
 
