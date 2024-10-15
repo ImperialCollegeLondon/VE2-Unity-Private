@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
 
-namespace ViRSE.PluginRuntime.VComponents
+namespace ViRSE.Core.VComponents
 {
     public interface IWorldStateSyncableModuleImplementor
     {

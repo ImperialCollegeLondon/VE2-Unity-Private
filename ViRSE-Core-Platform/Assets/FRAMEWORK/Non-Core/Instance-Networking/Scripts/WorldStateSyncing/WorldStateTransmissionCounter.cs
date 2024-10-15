@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using ViRSE.FrameworkRuntime;
 
-namespace ViRSE.PluginRuntime.VComponents
+namespace ViRSE.Core.VComponents
 {
     //TODO - rename to something else, this isn't really a "module" anymore... maybe "TransmissionCounter"?
     public class WorldStateTransmissionCounter 

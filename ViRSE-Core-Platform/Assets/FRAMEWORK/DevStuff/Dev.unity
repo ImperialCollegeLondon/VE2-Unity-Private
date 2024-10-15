@@ -898,9 +898,9 @@ Transform:
   - {fileID: 798246511}
   - {fileID: 835746393}
   - {fileID: 269500766}
+  - {fileID: 910236586}
   - {fileID: 876334165}
   - {fileID: 1439712009}
-  - {fileID: 910236586}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &408937460
@@ -3295,7 +3295,7 @@ GameObject:
   - component: {fileID: 835746393}
   - component: {fileID: 835746392}
   m_Layer: 0
-  m_Name: PluginSyncer
+  m_Name: InstanceService
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3314,7 +3314,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _connectOnStart: 1
-  _connectionState: 0
+  _connectionStateDebug:
+    ConnectionState: 0
   LocalClientIDWrapper:
     LocalClientID: 65535
 --- !u!4 &835746393
@@ -6640,7 +6641,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4608a478f79362c46832323ea318f4a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _multiplayerSupportGOName: PluginSyncer
+  _multiplayerSupportGOName: InstanceService
   PlayerSettingsProviderGOName: PlatformIntegration
   PlayerOverridesProviderGOName: AvatarOverrider
   PlayerSpawnerGOName: PlayerSpawner

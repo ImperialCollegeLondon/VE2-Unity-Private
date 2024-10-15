@@ -39,34 +39,23 @@ namespace ViRSE.Core.Player
             //There MUST be a PlayerSettingsProvider to spawn the player rig 
             _playerSettingsProvider.OnLocalChangeToPlayerSettings += HandleSettingsChanged;
 
-            //There doesn't need to be an overrides provider to spawn the player rig 
             if (_appearanceOverridesProvider != null)
                 _appearanceOverridesProvider.OnAppearanceOverridesChanged += HandleOverridesChanged;
-            //Debug.Log("Player rig initialized");
-
-            //TODO, process configs 
-
-            /*
-             *  The whole point of separating the state into its own module is so it can be re-used 
-             *  Does this apply for the player? Maybe if the customer wants a non-standard player?
-             * 
-             */
         }
 
         private void HandleSettingsChanged() 
         {
-            Debug.Log("Player rig detected settings changed");
+            Debug.Log("Player rig detected settings changed"); //TODO, change local avatar
         }
 
         private void HandleOverridesChanged() 
         {
-            Debug.Log("Player rig detected avatar overrides changed");
+            Debug.Log("Player rig detected avatar overrides changed"); //TODO, change local avatar
         }
 
 
-        private void Start() //TODO, need to destroy player on domain reload
+        private void Start()
         {
-            //Debug.Log("Player rig enabled, config null? " + (_stateConfig == null));
             if (_stateConfig.IsNetworked && _stateConfig.MultiplayerSupportPresent)
             {
                 _stateConfig.MultiplayerSupport.RegisterLocalPlayer(this);

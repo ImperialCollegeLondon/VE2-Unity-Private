@@ -1,134 +1,141 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using ViRSE.Core;
 using static InstanceSyncSerializables;
 
-public class RemoteAvatarController : MonoBehaviour
+namespace ViRSE.InstanceNetworking
 {
-    [SerializeField] private Transform _headHolder;
-    [SerializeField] private Transform _torsoHolder;
-    private float _torsoOffsetFromHead;
-
-    [SerializeField] private TMP_Text _playerNameText;
-    [SerializeField] private Transform _namePlateTransform;
-
-    private List<Material> _colorMaterials = new();
-
-    private GameObject _activeHead;
-    private GameObject _activeTorso;
-
-    private InstancedPlayerPresentation _avatarAppearance;
-    private IPlayerAppearanceOverridesProvider _playerAppearanceOverridesProvider;
-    private List<GameObject> _virseAvatarHeadGameObjects;
-    private List<GameObject> _virseAvatarTorsoGameObjects;
-
-    private void Awake() 
+    public class RemoteAvatarController : MonoBehaviour
     {
-        _torsoOffsetFromHead = _torsoHolder.position.y - _headHolder.position.y;
-        _activeHead = _headHolder.transform.GetChild(0).gameObject;
-        _activeTorso = _torsoHolder.transform.GetChild(0).gameObject;   
+        [SerializeField] private Transform _headHolder;
+        [SerializeField] private Transform _torsoHolder;
+        private float _torsoOffsetFromHead;
 
-        RefreshMaterials();
-    }
+        [SerializeField] private TMP_Text _playerNameText;
+        [SerializeField] private Transform _namePlateTransform;
 
-    private void RefreshMaterials() 
-    {
-        _colorMaterials.Clear();
+        private List<Material> _colorMaterials = new();
 
-        foreach (Renderer renderer in GetComponentsInChildren<Renderer>())
+        private GameObject _activeHead;
+        private GameObject _activeTorso;
+
+        private InstancedPlayerPresentation _avatarAppearance;
+        private IPlayerAppearanceOverridesProvider _playerAppearanceOverridesProvider;
+        private List<GameObject> _virseAvatarHeadGameObjects;
+        private List<GameObject> _virseAvatarTorsoGameObjects;
+
+        private void Awake() 
         {
-            for (int i = 0; i < renderer.materials.Length; i++)
+            _torsoOffsetFromHead = _torsoHolder.position.y - _headHolder.position.y;
+            _activeHead = _headHolder.transform.GetChild(0).gameObject;
+            _activeTorso = _torsoHolder.transform.GetChild(0).gameObject;   
+
+            RefreshMaterials();
+        }
+
+        private void RefreshMaterials() 
+        {
+            _colorMaterials.Clear();
+
+            foreach (Renderer renderer in GetComponentsInChildren<Renderer>())
             {
-                if (renderer.materials[i].name.Contains("V_AvatarPrimary"))
-                    _colorMaterials.Add(renderer.materials[i]);
+                for (int i = 0; i < renderer.materials.Length; i++)
+                {
+                    if (renderer.materials[i].name.Contains("V_AvatarPrimary"))
+                        _colorMaterials.Add(renderer.materials[i]);
+                }
             }
         }
-    }
 
-    public void Initialize(IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider, List<GameObject> virseAvatarHeadGameObjects, List<GameObject> virseAvatarTorsoGameObjects)
-    {
-        _playerAppearanceOverridesProvider = playerAppearanceOverridesProvider;
-        _virseAvatarHeadGameObjects = virseAvatarHeadGameObjects;
-        _virseAvatarTorsoGameObjects = virseAvatarTorsoGameObjects;
-    }
+        public void Initialize(IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider, List<GameObject> virseAvatarHeadGameObjects, List<GameObject> virseAvatarTorsoGameObjects)
+        {
+            _playerAppearanceOverridesProvider = playerAppearanceOverridesProvider;
+            _virseAvatarHeadGameObjects = virseAvatarHeadGameObjects;
+            _virseAvatarTorsoGameObjects = virseAvatarTorsoGameObjects;
+        }
 
-    public void HandleReceiveRemotePlayerState(PlayerState playerState)
-    {
-        transform.position = playerState.RootPosition;
-        transform.rotation = playerState.RootRotation;
+        public void HandleReceiveRemotePlayerState(PlayerState playerState)
+        {
+            transform.position = playerState.RootPosition;
+            transform.rotation = playerState.RootRotation;
 
-        _headHolder.position = playerState.HeadPosition;
-        _headHolder.rotation = playerState.HeadRotation;
+            _headHolder.position = playerState.HeadPosition;
+            _headHolder.rotation = playerState.HeadRotation;
 
-        _torsoHolder.position = playerState.HeadPosition + (_torsoOffsetFromHead * Vector3.up);
-    }
+            _torsoHolder.position = playerState.HeadPosition + (_torsoOffsetFromHead * Vector3.up);
+        }
 
-    public void HandleReceiveAvatarAppearance(InstancedPlayerPresentation newAvatarAppearance)
-    {
-        if (_avatarAppearance != null && _avatarAppearance.Equals(newAvatarAppearance))
-            return;
+        public void HandleReceiveAvatarAppearance(InstancedPlayerPresentation newAvatarAppearance)
+        {
+            if (_avatarAppearance != null && _avatarAppearance.Equals(newAvatarAppearance))
+                return;
 
-        _playerNameText.text = newAvatarAppearance.PlayerPresentationConfig.PlayerName;
+            _playerNameText.text = newAvatarAppearance.PlayerPresentationConfig.PlayerName;
 
-        GameObject avatarHead = null;
-        if (newAvatarAppearance.UsingOverrides) 
-            avatarHead = _playerAppearanceOverridesProvider.GetHeadOverrideGO(newAvatarAppearance.PlayerPresentationOverrides.AvatarHeadOverride);
-        if (avatarHead == null) //No override, or gameobject not found
-            avatarHead = _virseAvatarHeadGameObjects[(int)newAvatarAppearance.PlayerPresentationConfig.AvatarHeadType];
-        bool headChanged = SetHeadGameObject(avatarHead);
+            GameObject avatarHead = null;
+            if (newAvatarAppearance.UsingOverrides) 
+                avatarHead = _playerAppearanceOverridesProvider.GetHeadOverrideGO(newAvatarAppearance.PlayerPresentationOverrides.AvatarHeadOverride);
+            if (avatarHead == null) //No override, or gameobject not found
+            {
+                Debug.Log($"Avatar head type: {newAvatarAppearance.PlayerPresentationConfig.AvatarHeadType} heads found? {_virseAvatarHeadGameObjects.Count}");
+                avatarHead = _virseAvatarHeadGameObjects[(int)newAvatarAppearance.PlayerPresentationConfig.AvatarHeadType];
+            }
+            bool headChanged = SetHeadGameObject(avatarHead);
 
-        GameObject avatarTorso = null;
-        if (newAvatarAppearance.UsingOverrides)
-            avatarTorso = _playerAppearanceOverridesProvider.GetTorsoOverrideGO(newAvatarAppearance.PlayerPresentationOverrides.AvatarTorsoOverride);
-        if (avatarTorso == null) //No override, or gameobject not found
-            avatarTorso = _virseAvatarTorsoGameObjects[(int)newAvatarAppearance.PlayerPresentationConfig.AvatarTorsoType];
-        bool torsoChanged = SetTorsoGameObject(avatarTorso);
+            GameObject avatarTorso = null;
+            if (newAvatarAppearance.UsingOverrides)
+                avatarTorso = _playerAppearanceOverridesProvider.GetTorsoOverrideGO(newAvatarAppearance.PlayerPresentationOverrides.AvatarTorsoOverride);
+            if (avatarTorso == null) //No override, or gameobject not found
+                avatarTorso = _virseAvatarTorsoGameObjects[(int)newAvatarAppearance.PlayerPresentationConfig.AvatarTorsoType];
+            bool torsoChanged = SetTorsoGameObject(avatarTorso);
 
-        if (headChanged || torsoChanged)
-            RefreshMaterials();
+            if (headChanged || torsoChanged)
+                RefreshMaterials();
 
-        foreach (Material material in _colorMaterials)
-            material.color = new Color(newAvatarAppearance.PlayerPresentationConfig.AvatarRed, newAvatarAppearance.PlayerPresentationConfig.AvatarGreen, newAvatarAppearance.PlayerPresentationConfig.AvatarBlue) / 255f;
+            foreach (Material material in _colorMaterials)
+                material.color = new Color(newAvatarAppearance.PlayerPresentationConfig.AvatarRed, newAvatarAppearance.PlayerPresentationConfig.AvatarGreen, newAvatarAppearance.PlayerPresentationConfig.AvatarBlue) / 255f;
 
-        _avatarAppearance = newAvatarAppearance;
-    }
+            _avatarAppearance = newAvatarAppearance;
+        }
 
-    private bool SetHeadGameObject(GameObject newHead) 
-    {
-        if (newHead.name.Equals(_activeHead.name))
-            return false; 
+        private bool SetHeadGameObject(GameObject newHead) 
+        {
+            if (newHead.name.Equals(_activeHead.name))
+                return false; 
 
-        GameObject.Destroy(_activeHead);
-        _activeHead = GameObject.Instantiate(newHead, _headHolder.transform.position, _headHolder.transform.rotation, _headHolder);
+            GameObject.Destroy(_activeHead);
+            _activeHead = GameObject.Instantiate(newHead, _headHolder.transform.position, _headHolder.transform.rotation, _headHolder);
 
-        return true;
-    }
+            return true;
+        }
 
-    private bool SetTorsoGameObject(GameObject newTorso)
-    {
-        if (newTorso.name.Equals(_activeTorso.name))
-            return false;
+        private bool SetTorsoGameObject(GameObject newTorso)
+        {
+            if (newTorso.name.Equals(_activeTorso.name))
+                return false;
 
-        GameObject.Destroy(_activeTorso);
-        _activeTorso = GameObject.Instantiate(newTorso, _torsoHolder.transform.position, _torsoHolder.transform.rotation, _torsoHolder);
+            GameObject.Destroy(_activeTorso);
+            _activeTorso = GameObject.Instantiate(newTorso, _torsoHolder.transform.position, _torsoHolder.transform.rotation, _torsoHolder);
 
-        return true;
-    }
+            return true;
+        }
 
-    private void Update() 
-    {
-        if (Camera.main == null)
-            return;
+        private void Update() 
+        {
+            if (Camera.main == null)
+                return;
 
-        Vector3 dirToCamera = Camera.main.transform.position - _namePlateTransform.position;
-        Vector3 lookPosition = _namePlateTransform.position - dirToCamera;
-        _namePlateTransform.LookAt(lookPosition);
-    }
+            Vector3 dirToCamera = Camera.main.transform.position - _namePlateTransform.position;
+            Vector3 lookPosition = _namePlateTransform.position - dirToCamera;
+            _namePlateTransform.LookAt(lookPosition);
+        }
 
-    private void OnDisable() 
-    {
-        //Destroy GO for domain reload
-        if (gameObject != null)
-            Destroy(gameObject);
+        private void OnDisable() 
+        {
+            //Destroy GO for domain reload
+            if (gameObject != null)
+                Destroy(gameObject);
+        }
     }
 }

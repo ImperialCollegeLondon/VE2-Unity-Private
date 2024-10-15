@@ -4,19 +4,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Timers;
 using UnityEngine;
-using UnityEngine.Events;
-using ViRSE.FrameworkRuntime;
 using ViRSE.Core.Shared;
 using System.Net;
 using static NonCoreCommonSerializables;
-using static PlatformSerializables;
 using UnityEngine.SceneManagement;
-using UnityEditor;
-using System.Threading;
 using System.Linq;
 using static ViRSE.Core.Shared.CoreCommonSerializables;
+using ViRSE.PlatformNetworking;
+using static ViRSE.PlatformNetworking.PlatformSerializables;
 
-namespace ViRSE.PluginRuntime
+namespace ViRSE.Core
 {
     public static class PlatformServiceFactory
     {

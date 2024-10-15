@@ -14,13 +14,10 @@ using System.Collections.Generic;
 using static ViRSE.InstanceNetworking.V_InstanceIntegration;
 using ViRSE.InstanceNetworking;
 
-namespace ViRSE.PluginRuntime
+namespace ViRSE.Core
 {
     public static class InstanceServiceFactory
     {
-        /// <summary>
-        /// Pass a null config if the virse avatar isn't being used 
-        /// </summary>
         public static InstanceService Create(LocalClientIdWrapper localClientIDWrapper, bool connectAutomatically, ConnectionStateDebugWrapper connectionStateDebugWrapper) 
         {
             InstanceNetworkingCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
@@ -28,10 +25,7 @@ namespace ViRSE.PluginRuntime
         }
     }
 
-    /// <summary>
-    /// In charge of all sync management for the instance. Orchestrates WorldStateSyncer, PlayerSyncers, and InstantMessageRouter 
-    /// </summary>
-    public class InstanceService //: IInstanceService
+    public class InstanceService 
     {
         //TODO, should take some config for events like "OnBecomeHost", "OnLoseHost", maybe also sync frequencies
 
@@ -74,7 +68,6 @@ namespace ViRSE.PluginRuntime
         private ConnectionStateDebugWrapper _connectionStateDebugWrapper;
         private IInstanceNetworkSettingsProvider _networkSettingsProvider;
 
-        //TODO, consider constructing PluginSyncService using factory pattern to inject the WorldStateSyncer
         public InstanceService(IPluginSyncCommsHandler commsHandler, LocalClientIdWrapper localClientIDWrapper, ConnectionStateDebugWrapper connectionStateDebugWrapper, IInstanceNetworkSettingsProvider instanceNetworkSettingsProvider, bool connectAutomatically)
         {
             _commsHandler = commsHandler;
@@ -132,17 +125,15 @@ namespace ViRSE.PluginRuntime
         private void SendServerRegistration() 
         {
             Debug.Log("<color=green> Try connect to server with instance code - " + _networkSettingsProvider.InstanceNetworkSettings.InstanceCode);
+
             //We also send the LocalClientID here, this will either be maxvalue (if this is our first time connecting, the server will give us a new ID)..
             //..or it'll be the ID we we're given by the server (if we're reconnecting, the server will use the ID we provide)
-
             ServerRegistrationRequest serverRegistrationRequest = new(_networkSettingsProvider.InstanceNetworkSettings.InstanceCode, LocalClientID);
-
             _commsHandler.SendMessage(serverRegistrationRequest.Bytes, InstanceNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
         }
 
         private void HandleReceiveServerRegistrationConfirmation(byte[] bytes)
         {
-            //Debug.Log("ABOUT TO READ reg=================================================");
             ServerRegistrationConfirmation serverRegistrationConfirmation = new(bytes);
 
             _localClientIdWrapper.LocalClientID = serverRegistrationConfirmation.LocalClientID;
@@ -165,20 +156,12 @@ namespace ViRSE.PluginRuntime
             OnInstanceInfoChanged?.Invoke(InstanceInfo);
         }
 
-        //TODO, not a fan of this anymore. This is just a service, only meant for sending and receiving data. Think the actual syncers themselves should be the ones pushing data, and listening to received messages
-        //The worldstate syncer shouldn't be a dependency of the SyncService, that should be the other way around!
-        //The question the becomes, "where does the syncer get made"?
-        //Maybe by the mono? And maybe the mono should be called V_InstanceIntegration
-        //Whenever a syncmodule (player sync module, 
         public void NetworkUpdate() 
         {
             _commsHandler.MainThreadUpdate();
         }
 
-        public void ReceivePingFromHost()
-        {
-            //TODO
-        }
+        public void ReceivePingFromHost() {} //TODO
 
         public void DisconnectFromServer() => _commsHandler.DisconnectFromServer();
 
@@ -188,10 +171,6 @@ namespace ViRSE.PluginRuntime
             OnDisconnectedFromServer?.Invoke();
         }
 
-        //But we want to keep the worldstate syncer active...
-        //Think we need to separate "HandleDisconnect" 
-        //And "stop playing"
-        //Disconnecting should 
         public void TearDown()
         {
             _commsHandler.DisconnectFromServer();

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace ViRSE.PluginRuntime.VComponents
+namespace ViRSE.Core.VComponents
 {
     public interface ISingleInteractorActivatableStateModuleImplementor
     {

@@ -4,7 +4,7 @@ using UnityEngine;
 using ViRSE.Core.Shared;
 using static ViRSE.Core.Shared.CoreCommonSerializables;
 
-namespace ViRSE.PluginRuntime.VComponents
+namespace ViRSE.Core.VComponents
 {
     [System.Serializable]
     public class PushActivatableConfig

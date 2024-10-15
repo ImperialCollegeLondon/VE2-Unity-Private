@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 //No config for collider interactions
 
-namespace ViRSE.PluginRuntime.VComponents
+namespace ViRSE.Core.VComponents
 {
     public class ColliderInteractionModule : ICollidePlayerInteratable
     {

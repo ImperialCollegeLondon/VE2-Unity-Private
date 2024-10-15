@@ -9,7 +9,7 @@ using ViRSE.Core.Shared;
 using DRMessageReader = DarkRift.DarkRiftReader;
 using DRMessageWrapper = DarkRift.Message;
 
-namespace ViRSE.FrameworkRuntime
+namespace ViRSE.PlatformNetworking
 {
     public class PlatformCommsHandler : IPlatformCommsHandler
     {

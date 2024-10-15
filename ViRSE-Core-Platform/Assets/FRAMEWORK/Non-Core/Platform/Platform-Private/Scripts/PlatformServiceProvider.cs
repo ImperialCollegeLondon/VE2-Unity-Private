@@ -9,10 +9,10 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using ViRSE.Core.Shared;
-using ViRSE.PluginRuntime;
-using static PlatformSerializables;
+using ViRSE.Core;
+using static ViRSE.PlatformNetworking.PlatformSerializables;
 
-namespace ViRSE.InstanceNetworking
+namespace ViRSE.PlatformNetworking
 {
     public class PlatformServiceProvider : MonoBehaviour, IPlatformServiceProvider
     {

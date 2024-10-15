@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using ViRSE;
-using ViRSE.PluginRuntime.VComponents;
+using ViRSE.Core.VComponents;
 
 public class PluginTest : MonoBehaviour
 {

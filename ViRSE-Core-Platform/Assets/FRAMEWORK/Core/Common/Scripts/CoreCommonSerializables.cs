@@ -357,7 +357,7 @@ namespace ViRSE.Core.Shared //TODO - Need to expose to customer
 
                 public enum ViRSEAvatarHeadAppearanceType
                 {
-                        One, 
+                        One,
                         Two,
                         Three
                 }

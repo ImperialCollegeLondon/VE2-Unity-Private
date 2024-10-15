@@ -1,8 +1,8 @@
 using TMPro;
 using UnityEngine;
-using ViRSE.InstanceNetworking;
-using ViRSE.PluginRuntime;
-using static PlatformSerializables;
+using ViRSE.Core;
+using ViRSE.PlatformNetworking;
+using static ViRSE.PlatformNetworking.PlatformSerializables;
 
 public class DebugHubUI : MonoBehaviour
 {

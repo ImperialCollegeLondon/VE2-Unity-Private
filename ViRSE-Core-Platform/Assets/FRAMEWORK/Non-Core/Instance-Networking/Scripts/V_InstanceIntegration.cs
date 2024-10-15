@@ -10,8 +10,8 @@ using UnityEngine.SceneManagement;
 using ViRSE.Core.Player;
 using ViRSE.Core.Shared;
 using ViRSE.Networking;
-using ViRSE.PluginRuntime;
-using ViRSE.PluginRuntime.VComponents;
+using ViRSE.Core;
+using ViRSE.Core.VComponents;
 using static InstanceSyncSerializables;
 using static ViRSE.Core.Shared.CoreCommonSerializables;
 
@@ -37,10 +37,6 @@ namespace ViRSE.InstanceNetworking
         private InstanceService _instanceService;
         private WorldStateSyncer _worldStateSyncer;
         private PlayerSyncer _playerSyncer;
-
-        // private bool _instanceNetworkSettingsProviderPresent => _instanceNetworkSettingsProvider != null;
-        // private IInstanceNetworkSettingsProvider _instanceNetworkSettingsProvider => ViRSENonCoreServiceLocator.Instance.InstanceNetworkSettingsProvider;
-
 
         #region Core-Facing Interfaces
         //TODO - Could we follow the pattern set out by the VCs? Can we just stick this wiring in an interface?
@@ -108,15 +104,11 @@ namespace ViRSE.InstanceNetworking
                 _instanceService.OnInstanceInfoChanged += HandleReceiveInstanceInfo;
             }
 
-            // _instanceService ??= InstanceServiceFactory.Create(LocalClientIDWrapper, _connectOnStart, _connectionStateDebug); 
-            _worldStateSyncer ??= new WorldStateSyncer(_instanceService);
-            _playerSyncer ??= PlayerSyncerFactory.Create(_instanceService);
+            if (_worldStateSyncer == null)
+                _worldStateSyncer = new WorldStateSyncer(_instanceService);
 
-            // if ((_connectionStateDebug.ConnectionState == ConnectionState.NotYetConnected && _connectOnStart) || _connectionStateDebug.ConnectionState == ConnectionState.LostConnection)
-            // {
-            //     _instanceService.OnConnectedToServer += HandleConnectToServer; //TODO, maybe these events can go into the connection debug wrapper thing?
-            //     _instanceService.OnInstanceInfoChanged += HandleReceiveInstanceInfo;
-            // }
+            if (_playerSyncer == null)
+                _playerSyncer = PlayerSyncerFactory.Create(_instanceService);
         }
 
         private void FixedUpdate()

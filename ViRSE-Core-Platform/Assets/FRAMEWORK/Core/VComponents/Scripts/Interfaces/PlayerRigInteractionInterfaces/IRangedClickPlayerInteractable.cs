@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace ViRSE.PluginRuntime.VComponents
+namespace ViRSE.Core.VComponents
 {
     public interface IRangedClickPlayerInteractableImplementor : IRangedPlayerInteractableImplementor
     {

@@ -10,500 +10,503 @@ using static ViRSE.Core.Shared.CoreCommonSerializables;
 using UnityEngine;
 #endif
 
-public class PlatformSerializables
+namespace ViRSE.PlatformNetworking
 {
-    public static readonly int PlatformNetcodeVersion = 5;
-
-
-    public enum PlatformNetworkingMessageCodes
+    public class PlatformSerializables
     {
-        NetcodeVersionConfirmation,
-        ServerRegistrationRequest,
-        ServerRegistrationConfirmation,
-        GlobalInfo,
-        InstanceAllocationRequest,
-        UpdateUserSettings,
-    }
+        public static readonly int PlatformNetcodeVersion = 5;
 
 
-    public class ServerRegistrationRequest : ViRSESerializable
-    {
-        public UserIdentity UserIdentity { get; private set; }
-        public string StartingInstanceCode { get; private set; }
-
-        public ServerRegistrationRequest(UserIdentity userIdentity, string startingInstanceCode)
+        public enum PlatformNetworkingMessageCodes
         {
-            UserIdentity = userIdentity;
-            StartingInstanceCode = startingInstanceCode;
+            NetcodeVersionConfirmation,
+            ServerRegistrationRequest,
+            ServerRegistrationConfirmation,
+            GlobalInfo,
+            InstanceAllocationRequest,
+            UpdateUserSettings,
         }
 
-        public ServerRegistrationRequest(byte[] bytes) : base(bytes) { }
 
-        protected override byte[] ConvertToBytes()
+        public class ServerRegistrationRequest : ViRSESerializable
         {
-            using MemoryStream stream = new();
-            using BinaryWriter writer = new(stream);
+            public UserIdentity UserIdentity { get; private set; }
+            public string StartingInstanceCode { get; private set; }
 
-            byte[] userIdentityBytes = UserIdentity.Bytes;
-            writer.Write((ushort)userIdentityBytes.Length);
-            writer.Write(userIdentityBytes);
-            writer.Write(StartingInstanceCode);
+            public ServerRegistrationRequest(UserIdentity userIdentity, string startingInstanceCode)
+            {
+                UserIdentity = userIdentity;
+                StartingInstanceCode = startingInstanceCode;
+            }
 
-            return stream.ToArray();
+            public ServerRegistrationRequest(byte[] bytes) : base(bytes) { }
+
+            protected override byte[] ConvertToBytes()
+            {
+                using MemoryStream stream = new();
+                using BinaryWriter writer = new(stream);
+
+                byte[] userIdentityBytes = UserIdentity.Bytes;
+                writer.Write((ushort)userIdentityBytes.Length);
+                writer.Write(userIdentityBytes);
+                writer.Write(StartingInstanceCode);
+
+                return stream.ToArray();
+            }
+            protected override void PopulateFromBytes(byte[] data)
+            {
+                using MemoryStream stream = new(data);
+                using BinaryReader reader = new(stream);
+
+                int userIdentityLength = reader.ReadUInt16();
+                byte[] userIdentityBytes = reader.ReadBytes(userIdentityLength);
+                UserIdentity = new UserIdentity(userIdentityBytes);
+
+                StartingInstanceCode = reader.ReadString();
+            }
         }
-        protected override void PopulateFromBytes(byte[] data)
+
+
+        [Serializable]
+        public class UserIdentity : ViRSESerializable
         {
-            using MemoryStream stream = new(data);
-            using BinaryReader reader = new(stream);
-
-            int userIdentityLength = reader.ReadUInt16();
-            byte[] userIdentityBytes = reader.ReadBytes(userIdentityLength);
-            UserIdentity = new UserIdentity(userIdentityBytes);
-
-            StartingInstanceCode = reader.ReadString();
-        }
-    }
-
-
-    [Serializable]
-    public class UserIdentity : ViRSESerializable
-    {
 #if UNITY_EDITOR
-        [SerializeField, NotNull]
+            [SerializeField, NotNull]
 #endif
-        private string domain;
+            private string domain;
 
 #if UNITY_EDITOR
-        [SerializeField, NotNull]
-# endif
-        private string accountID;
-
-#if UNITY_EDITOR
-        [SerializeField, NotNull]
+            [SerializeField, NotNull]
 #endif
-        private string firstName;
+            private string accountID;
 
 #if UNITY_EDITOR
-        [SerializeField, NotNull]
+            [SerializeField, NotNull]
 #endif
-        private string lastName;
+            private string firstName;
 
 #if UNITY_EDITOR
-        [SerializeField, NotNull]
+            [SerializeField, NotNull]
 #endif
-        private string machineName;
+            private string lastName;
 
-        public string Domain => domain;
-        public string AccountID => accountID;
-        public string FirstName => firstName;
-        public string LastName => lastName;
-        public string MachineName => machineName;
+#if UNITY_EDITOR
+            [SerializeField, NotNull]
+#endif
+            private string machineName;
 
-        public const string GuestID = "GUEST";
+            public string Domain => domain;
+            public string AccountID => accountID;
+            public string FirstName => firstName;
+            public string LastName => lastName;
+            public string MachineName => machineName;
 
-        public UserIdentity(string domain, string accountID, string firstName, string lastName, string machineName)
-        {
-            this.domain = domain;
-            this.accountID = accountID;
-            this.firstName = firstName;
-            this.lastName = lastName;
-            this.machineName = machineName;
-        }
+            public const string GuestID = "GUEST";
 
-        public UserIdentity(byte[] bytes) : base(bytes) { }
-
-        protected override byte[] ConvertToBytes()
-        {
-            using MemoryStream stream = new();
-            using BinaryWriter writer = new(stream);
-
-            writer.Write(Domain);
-            writer.Write(AccountID);
-            writer.Write(FirstName);
-            writer.Write(LastName);
-            writer.Write(MachineName);
-
-            return stream.ToArray();
-        }
-
-        protected override void PopulateFromBytes(byte[] data)
-        {
-            using MemoryStream stream = new(data);
-            using BinaryReader reader = new(stream);
-
-            this.domain = reader.ReadString();
-            this.accountID = reader.ReadString();
-            this.firstName = reader.ReadString();
-            this.lastName = reader.ReadString();
-            this.machineName = reader.ReadString();
-        }
-
-        public override string ToString()
-        {
-            return $"Domain: {domain}, AccountID: {accountID}, FirstName: {firstName}, LastName: {lastName} MachineName: {machineName})";
-        }
-    }
-
-
-    public class ServerRegistrationConfirmation : ViRSESerializable
-    {
-        public ushort LocalClientID { get; private set; }
-        public UserSettingsPersistable UserSettings { get; private set; }
-        public GlobalInfo GlobalInfo { get; private set; }
-        public Dictionary<string, WorldDetails> AvailableWorlds { get; private set; }
-        public bool CompletedTutorial { get; private set; }
-
-        public ServerRegistrationConfirmation() { }
-
-        public ServerRegistrationConfirmation(byte[] bytes) : base(bytes) { }
-
-        public ServerRegistrationConfirmation(ushort localClientID, UserSettingsPersistable userSettings, GlobalInfo globalInfo, Dictionary<string, WorldDetails> availableWorlds, bool completedTutporial)
-        {
-            LocalClientID = localClientID;
-            UserSettings = userSettings;
-            GlobalInfo = globalInfo;
-            AvailableWorlds = availableWorlds;
-            CompletedTutorial = completedTutporial;
-        }
-
-        protected override byte[] ConvertToBytes()
-        {
-            using MemoryStream stream = new();
-            using BinaryWriter writer = new(stream);
-
-            writer.Write(LocalClientID);
-
-            // Serialize PlayerPresentationConfig
-            byte[] userSettingsBytes = UserSettings.Bytes;
-            writer.Write((ushort)userSettingsBytes.Length);
-            writer.Write(userSettingsBytes);
-
-            // Serialize GlobalInfo
-            byte[] globalInfoBytes = GlobalInfo.Bytes;
-            writer.Write((ushort)globalInfoBytes.Length);
-            writer.Write(globalInfoBytes);
-
-            // Serialize AvailableWorlds
-            writer.Write((ushort)AvailableWorlds.Count);
-            foreach (var kvp in AvailableWorlds)
+            public UserIdentity(string domain, string accountID, string firstName, string lastName, string machineName)
             {
-                writer.Write(kvp.Key);
-                byte[] worldDetailsBytes = kvp.Value.Bytes;
-                writer.Write((ushort)worldDetailsBytes.Length);
-                writer.Write(worldDetailsBytes);
+                this.domain = domain;
+                this.accountID = accountID;
+                this.firstName = firstName;
+                this.lastName = lastName;
+                this.machineName = machineName;
             }
 
-            // Serialize CompletedTutporial
-            writer.Write(CompletedTutorial);
+            public UserIdentity(byte[] bytes) : base(bytes) { }
 
-            return stream.ToArray();
-        }
-
-        protected override void PopulateFromBytes(byte[] data)
-        {
-            using MemoryStream stream = new(data);
-            using BinaryReader reader = new(stream);
-
-            LocalClientID = reader.ReadUInt16();
-
-            // Deserialize PlayerPresentationConfig
-            int userSettingsBytesLength = reader.ReadUInt16();
-            byte[] userSettingsBytes = reader.ReadBytes(userSettingsBytesLength);
-            UserSettings = new UserSettingsPersistable(userSettingsBytes);
-
-            // Deserialize GlobalInfo
-            int globalInfoLength = reader.ReadUInt16();
-            byte[] globalInfoBytes = reader.ReadBytes(globalInfoLength);
-            GlobalInfo = new GlobalInfo(globalInfoBytes);
-
-            // Deserialize AvailableWorlds
-            int availableWorldsCount = reader.ReadUInt16();
-            AvailableWorlds = new Dictionary<string, WorldDetails>();
-            for (int i = 0; i < availableWorldsCount; i++)
+            protected override byte[] ConvertToBytes()
             {
-                string key = reader.ReadString();
-                int worldDetailsLength = reader.ReadUInt16();
-                byte[] worldDetailsBytes = reader.ReadBytes(worldDetailsLength);
-                WorldDetails worldDetails = new WorldDetails(worldDetailsBytes);
-                AvailableWorlds[key] = worldDetails;
+                using MemoryStream stream = new();
+                using BinaryWriter writer = new(stream);
+
+                writer.Write(Domain);
+                writer.Write(AccountID);
+                writer.Write(FirstName);
+                writer.Write(LastName);
+                writer.Write(MachineName);
+
+                return stream.ToArray();
             }
 
-            // Deserialize CompletedTutporial
-            CompletedTutorial = reader.ReadBoolean();
-        }
-    }
-
-
-    public class WorldDetails : ViRSESerializable
-    {
-        public string Name { get; private set; }
-        public string Subtitle { get; private set; }
-        public string Authors { get; private set; }
-        public string DateOfPublish { get; private set; }
-        public int VersionNumber { get; private set; }
-        public bool VREnabled { get; private set; }
-        public bool TwoDEnabled { get; private set; }
-        public bool MultiplayerEnabled { get; private set; }
-        public string Path { get; private set; }
-        public string IPAddress { get; private set; }
-        public ushort PortNumber { get; private set; }
-        public byte[] Thumbnail { get; private set; }
-
-        public WorldDetails(string name, string subtitle, string authors, string dateOfPublish, int versionNumber, bool vrEnabled, bool twoDEnabled, bool multiplayerEnabled, string path, string ipAddress, ushort portNumber, byte[] thumbnail)
-        {
-            Name = name;
-            Subtitle = subtitle;
-            Authors = authors;
-            DateOfPublish = dateOfPublish;
-            VersionNumber = versionNumber;
-            VREnabled = vrEnabled;
-            TwoDEnabled = twoDEnabled;
-            MultiplayerEnabled = multiplayerEnabled;
-            Path = path;
-            IPAddress = ipAddress;
-            PortNumber = portNumber;
-            Thumbnail = thumbnail;
-        }
-
-        public WorldDetails(byte[] bytes) : base(bytes) { }
-
-        protected override byte[] ConvertToBytes()
-        {
-            using MemoryStream stream = new();
-            using BinaryWriter writer = new(stream);
-
-            writer.Write(Name);
-            writer.Write(Subtitle);
-            writer.Write(Authors);
-            writer.Write(DateOfPublish);
-            writer.Write(VersionNumber);
-            writer.Write(VREnabled);
-            writer.Write(TwoDEnabled);
-            writer.Write(MultiplayerEnabled);
-            writer.Write(Path);
-            writer.Write(IPAddress);
-            writer.Write(PortNumber);
-            writer.Write(Thumbnail.Length);
-            writer.Write(Thumbnail);
-
-            return stream.ToArray();
-        }
-
-        protected override void PopulateFromBytes(byte[] data)
-        {
-            using MemoryStream stream = new(data);
-            using BinaryReader reader = new(stream);
-
-            Name = reader.ReadString();
-            Subtitle = reader.ReadString();
-            Authors = reader.ReadString();
-            DateOfPublish = reader.ReadString();
-            VersionNumber = reader.ReadInt32();
-            VREnabled = reader.ReadBoolean();
-            TwoDEnabled = reader.ReadBoolean();
-            MultiplayerEnabled = reader.ReadBoolean();
-            Path = reader.ReadString();
-            IPAddress = reader.ReadString();
-            PortNumber = reader.ReadUInt16();
-            int thumbnailLength = reader.ReadInt32();
-            Thumbnail = reader.ReadBytes(thumbnailLength);
-        }
-    }
-
-
-    public class GlobalInfo : ViRSESerializable
-    {
-        public Dictionary<string, PlatformInstanceInfo> InstanceInfos { get; private set; }
-
-        public GlobalInfo(byte[] bytes) : base(bytes) { }
-
-        public GlobalInfo(Dictionary<string, PlatformInstanceInfo> instanceInfos)
-        {
-            InstanceInfos = instanceInfos;
-        }
-
-        public GlobalInfo()
-        {
-            InstanceInfos = new Dictionary<string, PlatformInstanceInfo>();
-        }
-
-        protected override byte[] ConvertToBytes()
-        {
-            using MemoryStream stream = new();
-            using BinaryWriter writer = new(stream);
-
-            writer.Write((ushort)InstanceInfos.Count);
-
-            foreach (var kvp in InstanceInfos)
+            protected override void PopulateFromBytes(byte[] data)
             {
-                writer.Write(kvp.Key);
-                byte[] instanceInfoBytes = kvp.Value.Bytes;
-                writer.Write((ushort)instanceInfoBytes.Length);
-                writer.Write(instanceInfoBytes);
+                using MemoryStream stream = new(data);
+                using BinaryReader reader = new(stream);
+
+                this.domain = reader.ReadString();
+                this.accountID = reader.ReadString();
+                this.firstName = reader.ReadString();
+                this.lastName = reader.ReadString();
+                this.machineName = reader.ReadString();
             }
 
-            return stream.ToArray();
-        }
-
-        protected override void PopulateFromBytes(byte[] data)
-        {
-            using MemoryStream stream = new(data);
-            using BinaryReader reader = new(stream);
-
-            ushort instanceInfoCount = reader.ReadUInt16();
-            InstanceInfos = new Dictionary<string, PlatformInstanceInfo>();
-
-            for (int i = 0; i < instanceInfoCount; i++)
+            public override string ToString()
             {
-                string instanceCode = reader.ReadString();
-                ushort instanceInfoBytesLength = reader.ReadUInt16();
-                byte[] instanceInfoBytes = reader.ReadBytes(instanceInfoBytesLength);
-                PlatformInstanceInfo instanceInfo = new(instanceInfoBytes);
-                InstanceInfos[instanceCode] = instanceInfo;
+                return $"Domain: {domain}, AccountID: {accountID}, FirstName: {firstName}, LastName: {lastName} MachineName: {machineName})";
             }
         }
 
-    }
 
-
-    public class PlatformInstanceInfo : InstanceInfoBase
-    {
-        public Dictionary<ushort, PlatformClientInfo> ClientInfos { get; private set; }
-
-        public PlatformInstanceInfo()
+        public class ServerRegistrationConfirmation : ViRSESerializable
         {
-            ClientInfos = new Dictionary<ushort, PlatformClientInfo>();
-        }
+            public ushort LocalClientID { get; private set; }
+            public UserSettingsPersistable UserSettings { get; private set; }
+            public GlobalInfo GlobalInfo { get; private set; }
+            public Dictionary<string, WorldDetails> AvailableWorlds { get; private set; }
+            public bool CompletedTutorial { get; private set; }
 
-        public PlatformInstanceInfo(byte[] bytes) : base(bytes) { }
+            public ServerRegistrationConfirmation() { }
 
-        public PlatformInstanceInfo(string worldName, string instanceSuffix, Dictionary<ushort, PlatformClientInfo> clientInfos) : base(worldName, instanceSuffix)
-        {
-            ClientInfos = clientInfos;
-        }
+            public ServerRegistrationConfirmation(byte[] bytes) : base(bytes) { }
 
-        protected override byte[] ConvertToBytes()
-        {
-            using MemoryStream stream = new();
-            using BinaryWriter writer = new(stream);
-
-            byte[] baseBytes = base.ConvertToBytes();
-            writer.Write((ushort)baseBytes.Length);
-            writer.Write(baseBytes);
-
-            writer.Write((ushort)ClientInfos.Count);
-            foreach (var kvp in ClientInfos)
+            public ServerRegistrationConfirmation(ushort localClientID, UserSettingsPersistable userSettings, GlobalInfo globalInfo, Dictionary<string, WorldDetails> availableWorlds, bool completedTutporial)
             {
-                writer.Write(kvp.Key);
-                byte[] clientInfoBytes = kvp.Value.Bytes;
-                writer.Write((ushort)clientInfoBytes.Length);
-                writer.Write(clientInfoBytes);
+                LocalClientID = localClientID;
+                UserSettings = userSettings;
+                GlobalInfo = globalInfo;
+                AvailableWorlds = availableWorlds;
+                CompletedTutorial = completedTutporial;
             }
 
-            return stream.ToArray();
-        }
-
-        protected override void PopulateFromBytes(byte[] data)
-        {
-            using MemoryStream stream = new(data);
-            using BinaryReader reader = new(stream);
-
-            ushort baseLength = reader.ReadUInt16();
-            byte[] baseData = reader.ReadBytes(baseLength);
-            base.PopulateFromBytes(baseData);
-
-            int clientCount = reader.ReadUInt16();
-            ClientInfos = new Dictionary<ushort, PlatformClientInfo>(clientCount);
-            for (int i = 0; i < clientCount; i++)
+            protected override byte[] ConvertToBytes()
             {
-                ushort key = reader.ReadUInt16();
-                ushort length = reader.ReadUInt16();
-                byte[] clientInfoBytes = reader.ReadBytes(length);
-                PlatformClientInfo value = new PlatformClientInfo(clientInfoBytes);
-                ClientInfos.Add(key, value);
+                using MemoryStream stream = new();
+                using BinaryWriter writer = new(stream);
+
+                writer.Write(LocalClientID);
+
+                // Serialize PlayerPresentationConfig
+                byte[] userSettingsBytes = UserSettings.Bytes;
+                writer.Write((ushort)userSettingsBytes.Length);
+                writer.Write(userSettingsBytes);
+
+                // Serialize GlobalInfo
+                byte[] globalInfoBytes = GlobalInfo.Bytes;
+                writer.Write((ushort)globalInfoBytes.Length);
+                writer.Write(globalInfoBytes);
+
+                // Serialize AvailableWorlds
+                writer.Write((ushort)AvailableWorlds.Count);
+                foreach (var kvp in AvailableWorlds)
+                {
+                    writer.Write(kvp.Key);
+                    byte[] worldDetailsBytes = kvp.Value.Bytes;
+                    writer.Write((ushort)worldDetailsBytes.Length);
+                    writer.Write(worldDetailsBytes);
+                }
+
+                // Serialize CompletedTutporial
+                writer.Write(CompletedTutorial);
+
+                return stream.ToArray();
+            }
+
+            protected override void PopulateFromBytes(byte[] data)
+            {
+                using MemoryStream stream = new(data);
+                using BinaryReader reader = new(stream);
+
+                LocalClientID = reader.ReadUInt16();
+
+                // Deserialize PlayerPresentationConfig
+                int userSettingsBytesLength = reader.ReadUInt16();
+                byte[] userSettingsBytes = reader.ReadBytes(userSettingsBytesLength);
+                UserSettings = new UserSettingsPersistable(userSettingsBytes);
+
+                // Deserialize GlobalInfo
+                int globalInfoLength = reader.ReadUInt16();
+                byte[] globalInfoBytes = reader.ReadBytes(globalInfoLength);
+                GlobalInfo = new GlobalInfo(globalInfoBytes);
+
+                // Deserialize AvailableWorlds
+                int availableWorldsCount = reader.ReadUInt16();
+                AvailableWorlds = new Dictionary<string, WorldDetails>();
+                for (int i = 0; i < availableWorldsCount; i++)
+                {
+                    string key = reader.ReadString();
+                    int worldDetailsLength = reader.ReadUInt16();
+                    byte[] worldDetailsBytes = reader.ReadBytes(worldDetailsLength);
+                    WorldDetails worldDetails = new WorldDetails(worldDetailsBytes);
+                    AvailableWorlds[key] = worldDetails;
+                }
+
+                // Deserialize CompletedTutporial
+                CompletedTutorial = reader.ReadBoolean();
             }
         }
-    }
 
 
-    public class PlatformClientInfo : ClientInfoBase
-    {
-        public PlayerPresentationConfig PlayerPresentationConfig;
-
-        public PlatformClientInfo() { }
-
-        public PlatformClientInfo(byte[] bytes) : base(bytes) { }
-
-        public PlatformClientInfo(ushort id, bool isAdmin, string machineName, PlayerPresentationConfig playerPresentationConfig) : base(id, isAdmin, machineName)
+        public class WorldDetails : ViRSESerializable
         {
-            PlayerPresentationConfig = playerPresentationConfig;
+            public string Name { get; private set; }
+            public string Subtitle { get; private set; }
+            public string Authors { get; private set; }
+            public string DateOfPublish { get; private set; }
+            public int VersionNumber { get; private set; }
+            public bool VREnabled { get; private set; }
+            public bool TwoDEnabled { get; private set; }
+            public bool MultiplayerEnabled { get; private set; }
+            public string Path { get; private set; }
+            public string IPAddress { get; private set; }
+            public ushort PortNumber { get; private set; }
+            public byte[] Thumbnail { get; private set; }
+
+            public WorldDetails(string name, string subtitle, string authors, string dateOfPublish, int versionNumber, bool vrEnabled, bool twoDEnabled, bool multiplayerEnabled, string path, string ipAddress, ushort portNumber, byte[] thumbnail)
+            {
+                Name = name;
+                Subtitle = subtitle;
+                Authors = authors;
+                DateOfPublish = dateOfPublish;
+                VersionNumber = versionNumber;
+                VREnabled = vrEnabled;
+                TwoDEnabled = twoDEnabled;
+                MultiplayerEnabled = multiplayerEnabled;
+                Path = path;
+                IPAddress = ipAddress;
+                PortNumber = portNumber;
+                Thumbnail = thumbnail;
+            }
+
+            public WorldDetails(byte[] bytes) : base(bytes) { }
+
+            protected override byte[] ConvertToBytes()
+            {
+                using MemoryStream stream = new();
+                using BinaryWriter writer = new(stream);
+
+                writer.Write(Name);
+                writer.Write(Subtitle);
+                writer.Write(Authors);
+                writer.Write(DateOfPublish);
+                writer.Write(VersionNumber);
+                writer.Write(VREnabled);
+                writer.Write(TwoDEnabled);
+                writer.Write(MultiplayerEnabled);
+                writer.Write(Path);
+                writer.Write(IPAddress);
+                writer.Write(PortNumber);
+                writer.Write(Thumbnail.Length);
+                writer.Write(Thumbnail);
+
+                return stream.ToArray();
+            }
+
+            protected override void PopulateFromBytes(byte[] data)
+            {
+                using MemoryStream stream = new(data);
+                using BinaryReader reader = new(stream);
+
+                Name = reader.ReadString();
+                Subtitle = reader.ReadString();
+                Authors = reader.ReadString();
+                DateOfPublish = reader.ReadString();
+                VersionNumber = reader.ReadInt32();
+                VREnabled = reader.ReadBoolean();
+                TwoDEnabled = reader.ReadBoolean();
+                MultiplayerEnabled = reader.ReadBoolean();
+                Path = reader.ReadString();
+                IPAddress = reader.ReadString();
+                PortNumber = reader.ReadUInt16();
+                int thumbnailLength = reader.ReadInt32();
+                Thumbnail = reader.ReadBytes(thumbnailLength);
+            }
         }
 
-        protected override byte[] ConvertToBytes()
+
+        public class GlobalInfo : ViRSESerializable
         {
-            using MemoryStream stream = new();
-            using BinaryWriter writer = new(stream);
+            public Dictionary<string, PlatformInstanceInfo> InstanceInfos { get; private set; }
 
-            byte[] baseBytes = base.ConvertToBytes();
-            writer.Write((ushort)baseBytes.Length);
-            writer.Write(baseBytes);
+            public GlobalInfo(byte[] bytes) : base(bytes) { }
 
-            byte[] playerPresentationConfigBytes = PlayerPresentationConfig.Bytes;
-            writer.Write((ushort)playerPresentationConfigBytes.Length);
-            writer.Write(playerPresentationConfigBytes);
+            public GlobalInfo(Dictionary<string, PlatformInstanceInfo> instanceInfos)
+            {
+                InstanceInfos = instanceInfos;
+            }
 
-            return stream.ToArray();
+            public GlobalInfo()
+            {
+                InstanceInfos = new Dictionary<string, PlatformInstanceInfo>();
+            }
+
+            protected override byte[] ConvertToBytes()
+            {
+                using MemoryStream stream = new();
+                using BinaryWriter writer = new(stream);
+
+                writer.Write((ushort)InstanceInfos.Count);
+
+                foreach (var kvp in InstanceInfos)
+                {
+                    writer.Write(kvp.Key);
+                    byte[] instanceInfoBytes = kvp.Value.Bytes;
+                    writer.Write((ushort)instanceInfoBytes.Length);
+                    writer.Write(instanceInfoBytes);
+                }
+
+                return stream.ToArray();
+            }
+
+            protected override void PopulateFromBytes(byte[] data)
+            {
+                using MemoryStream stream = new(data);
+                using BinaryReader reader = new(stream);
+
+                ushort instanceInfoCount = reader.ReadUInt16();
+                InstanceInfos = new Dictionary<string, PlatformInstanceInfo>();
+
+                for (int i = 0; i < instanceInfoCount; i++)
+                {
+                    string instanceCode = reader.ReadString();
+                    ushort instanceInfoBytesLength = reader.ReadUInt16();
+                    byte[] instanceInfoBytes = reader.ReadBytes(instanceInfoBytesLength);
+                    PlatformInstanceInfo instanceInfo = new(instanceInfoBytes);
+                    InstanceInfos[instanceCode] = instanceInfo;
+                }
+            }
+
         }
 
-        protected override void PopulateFromBytes(byte[] data)
+
+        public class PlatformInstanceInfo : InstanceInfoBase
         {
-            using MemoryStream stream = new(data);
-            using BinaryReader reader = new(stream);
+            public Dictionary<ushort, PlatformClientInfo> ClientInfos { get; private set; }
 
-            ushort baseBytesLength = reader.ReadUInt16();
-            byte[] baseData = reader.ReadBytes(baseBytesLength);
-            base.PopulateFromBytes(baseData);
+            public PlatformInstanceInfo()
+            {
+                ClientInfos = new Dictionary<ushort, PlatformClientInfo>();
+            }
 
-            ushort playerPresentationConfigLength = reader.ReadUInt16();
-            byte[] playerPresentationConfigBytes = reader.ReadBytes(playerPresentationConfigLength);
-            PlayerPresentationConfig = new PlayerPresentationConfig(playerPresentationConfigBytes);
+            public PlatformInstanceInfo(byte[] bytes) : base(bytes) { }
+
+            public PlatformInstanceInfo(string worldName, string instanceSuffix, Dictionary<ushort, PlatformClientInfo> clientInfos) : base(worldName, instanceSuffix)
+            {
+                ClientInfos = clientInfos;
+            }
+
+            protected override byte[] ConvertToBytes()
+            {
+                using MemoryStream stream = new();
+                using BinaryWriter writer = new(stream);
+
+                byte[] baseBytes = base.ConvertToBytes();
+                writer.Write((ushort)baseBytes.Length);
+                writer.Write(baseBytes);
+
+                writer.Write((ushort)ClientInfos.Count);
+                foreach (var kvp in ClientInfos)
+                {
+                    writer.Write(kvp.Key);
+                    byte[] clientInfoBytes = kvp.Value.Bytes;
+                    writer.Write((ushort)clientInfoBytes.Length);
+                    writer.Write(clientInfoBytes);
+                }
+
+                return stream.ToArray();
+            }
+
+            protected override void PopulateFromBytes(byte[] data)
+            {
+                using MemoryStream stream = new(data);
+                using BinaryReader reader = new(stream);
+
+                ushort baseLength = reader.ReadUInt16();
+                byte[] baseData = reader.ReadBytes(baseLength);
+                base.PopulateFromBytes(baseData);
+
+                int clientCount = reader.ReadUInt16();
+                ClientInfos = new Dictionary<ushort, PlatformClientInfo>(clientCount);
+                for (int i = 0; i < clientCount; i++)
+                {
+                    ushort key = reader.ReadUInt16();
+                    ushort length = reader.ReadUInt16();
+                    byte[] clientInfoBytes = reader.ReadBytes(length);
+                    PlatformClientInfo value = new PlatformClientInfo(clientInfoBytes);
+                    ClientInfos.Add(key, value);
+                }
+            }
         }
-    }
 
 
-    public class InstanceAllocationRequest : ViRSESerializable
-    {
-        public string WorldName { get; private set; }
-        public string InstanceSuffix { get; private set; }
-        public string InstanceCode => $"{WorldName}-{InstanceSuffix}";
-
-        public InstanceAllocationRequest(byte[] bytes) : base(bytes) { }
-
-        public InstanceAllocationRequest(string worldName, string instanceSuffix)
+        public class PlatformClientInfo : ClientInfoBase
         {
-            WorldName = worldName;
-            InstanceSuffix = instanceSuffix;
+            public PlayerPresentationConfig PlayerPresentationConfig;
+
+            public PlatformClientInfo() { }
+
+            public PlatformClientInfo(byte[] bytes) : base(bytes) { }
+
+            public PlatformClientInfo(ushort id, bool isAdmin, string machineName, PlayerPresentationConfig playerPresentationConfig) : base(id, isAdmin, machineName)
+            {
+                PlayerPresentationConfig = playerPresentationConfig;
+            }
+
+            protected override byte[] ConvertToBytes()
+            {
+                using MemoryStream stream = new();
+                using BinaryWriter writer = new(stream);
+
+                byte[] baseBytes = base.ConvertToBytes();
+                writer.Write((ushort)baseBytes.Length);
+                writer.Write(baseBytes);
+
+                byte[] playerPresentationConfigBytes = PlayerPresentationConfig.Bytes;
+                writer.Write((ushort)playerPresentationConfigBytes.Length);
+                writer.Write(playerPresentationConfigBytes);
+
+                return stream.ToArray();
+            }
+
+            protected override void PopulateFromBytes(byte[] data)
+            {
+                using MemoryStream stream = new(data);
+                using BinaryReader reader = new(stream);
+
+                ushort baseBytesLength = reader.ReadUInt16();
+                byte[] baseData = reader.ReadBytes(baseBytesLength);
+                base.PopulateFromBytes(baseData);
+
+                ushort playerPresentationConfigLength = reader.ReadUInt16();
+                byte[] playerPresentationConfigBytes = reader.ReadBytes(playerPresentationConfigLength);
+                PlayerPresentationConfig = new PlayerPresentationConfig(playerPresentationConfigBytes);
+            }
         }
 
-        protected override byte[] ConvertToBytes()
+
+        public class InstanceAllocationRequest : ViRSESerializable
         {
-            using MemoryStream stream = new();
-            using BinaryWriter writer = new(stream);
+            public string WorldName { get; private set; }
+            public string InstanceSuffix { get; private set; }
+            public string InstanceCode => $"{WorldName}-{InstanceSuffix}";
 
-            writer.Write(WorldName);
-            writer.Write(InstanceSuffix);
+            public InstanceAllocationRequest(byte[] bytes) : base(bytes) { }
 
-            return stream.ToArray();
+            public InstanceAllocationRequest(string worldName, string instanceSuffix)
+            {
+                WorldName = worldName;
+                InstanceSuffix = instanceSuffix;
+            }
+
+            protected override byte[] ConvertToBytes()
+            {
+                using MemoryStream stream = new();
+                using BinaryWriter writer = new(stream);
+
+                writer.Write(WorldName);
+                writer.Write(InstanceSuffix);
+
+                return stream.ToArray();
+            }
+
+            protected override void PopulateFromBytes(byte[] data)
+            {
+                using MemoryStream stream = new(data);
+                using BinaryReader reader = new(stream);
+
+                WorldName = reader.ReadString();
+                InstanceSuffix = reader.ReadString();
+            }
+
         }
-
-        protected override void PopulateFromBytes(byte[] data)
-        {
-            using MemoryStream stream = new(data);
-            using BinaryReader reader = new(stream);
-
-            WorldName = reader.ReadString();
-            InstanceSuffix = reader.ReadString();
-        }
-
     }
 }

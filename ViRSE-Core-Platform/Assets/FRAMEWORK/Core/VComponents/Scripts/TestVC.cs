@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ViRSE.PluginRuntime.VComponents;
+using ViRSE.Core.VComponents;
 
 public class TestVC : MonoBehaviour
 {

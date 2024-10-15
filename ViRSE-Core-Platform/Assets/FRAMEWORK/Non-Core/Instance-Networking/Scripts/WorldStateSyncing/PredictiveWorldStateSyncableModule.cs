@@ -8,7 +8,7 @@ using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
 
-namespace ViRSE.PluginRuntime.VComponents
+namespace ViRSE.Core.VComponents
 {
     [BurstCompile]
     public class PredictiveWorldStateHistoryQueue

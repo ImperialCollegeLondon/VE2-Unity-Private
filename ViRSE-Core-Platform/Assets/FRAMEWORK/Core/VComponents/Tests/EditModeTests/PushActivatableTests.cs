@@ -6,8 +6,8 @@ using UnityEngine;
 using UnityEngine.TestTools;
 using ViRSE;
 using ViRSE.Core.Shared;
-using ViRSE.PluginRuntime;
-using ViRSE.PluginRuntime.VComponents;
+using ViRSE.Core;
+using ViRSE.Core.VComponents;
 using static ViRSE.Core.Shared.CoreCommonSerializables;
 
 

@@ -6,193 +6,152 @@ using UnityEngine.SceneManagement;
 using ViRSE.Core.Shared;
 using static ViRSE.Core.Shared.CoreCommonSerializables;
 
-[ExecuteInEditMode]
-public class ViRSECoreServiceLocator : MonoBehaviour
+namespace ViRSE.Core
 {
-    private static ViRSECoreServiceLocator _instance;
-    public static ViRSECoreServiceLocator Instance { //Reload-proof singleton
-        get {
-            //Debug.Log("GeT CORE LOCATOR");
-            if (_instance == null)
-                _instance = FindFirstObjectByType<ViRSECoreServiceLocator>();
+    [ExecuteInEditMode]
+    public class ViRSECoreServiceLocator : MonoBehaviour
+    {
+        private static ViRSECoreServiceLocator _instance;
+        public static ViRSECoreServiceLocator Instance { //Reload-proof singleton
+            get {
+                if (_instance == null)
+                    _instance = FindFirstObjectByType<ViRSECoreServiceLocator>();
 
-            if (_instance == null)
-            {
-                Debug.Log("MADE NEW CORE LOCATOR");
-                _instance = new GameObject($"ViRSECoreServiceLocator{SceneManager.GetActiveScene().name}").AddComponent<ViRSECoreServiceLocator>();
-            }
+                if (_instance == null)
+                {
+                    Debug.Log("MADE NEW CORE LOCATOR");
+                    _instance = new GameObject($"ViRSECoreServiceLocator{SceneManager.GetActiveScene().name}").AddComponent<ViRSECoreServiceLocator>();
+                }
 
-            return _instance;
-        }
-    }
-
-    //Record the gameobject name so we can re-locate multiplayer support after a domain reload
-    [SerializeField, HideInInspector] private string _multiplayerSupportGOName;
-    private IMultiplayerSupport _multiPlayerSupport;
-    public IMultiplayerSupport MultiplayerSupport {
-        get {
-            if (_multiPlayerSupport == null && !string.IsNullOrEmpty(_multiplayerSupportGOName))
-                _multiPlayerSupport = GameObject.Find(_multiplayerSupportGOName)?.GetComponent<IMultiplayerSupport>();
-
-            if (_multiPlayerSupport == null || !_multiPlayerSupport.IsEnabled)
-                return null;
-            else
-                return _multiPlayerSupport;
-        }
-        set //Will need to be called externally
-        {
-            _multiPlayerSupport = value;
-
-            if (value != null)
-                _multiplayerSupportGOName = value.GameObjectName;
-        }
-    }
-
-    //Record the gameobject name so we can re-locate multiplayer support after a domain reload
-    //[SerializeField] public string testString;
-    [SerializeField] public string PlayerSettingsProviderGOName; //{ get; private set; }
-    private IPlayerSettingsProvider _playerSettingsProvider;
-    public IPlayerSettingsProvider PlayerSettingsProvider {
-        get {
-
-            if (_playerSettingsProvider == null && !string.IsNullOrEmpty(PlayerSettingsProviderGOName))
-                _playerSettingsProvider = GameObject.Find(PlayerSettingsProviderGOName)?.GetComponent<IPlayerSettingsProvider>();
-
-            if (_playerSettingsProvider == null || !_playerSettingsProvider.IsEnabled)
-                return null;
-            else 
-                return _playerSettingsProvider;
-        }
-        set //Will need to be called externally
-        {
-            _playerSettingsProvider = value;
-
-            if (value != null)
-            {
-                PlayerSettingsProviderGOName = value.GameObjectName;
+                return _instance;
             }
         }
-    }
 
-    //[SerializeField] private string testString;
-    [SerializeField] public string PlayerOverridesProviderGOName; // { get; private set; }
-    private IPlayerAppearanceOverridesProvider _playerOverridesProvider;
-    public IPlayerAppearanceOverridesProvider PlayerAppearanceOverridesProvider
-    {
-        get
-        {
-            if (_playerOverridesProvider == null && !string.IsNullOrEmpty(PlayerOverridesProviderGOName))
-                _playerOverridesProvider = GameObject.Find(PlayerOverridesProviderGOName)?.GetComponent<IPlayerAppearanceOverridesProvider>();
+        //Record the gameobject name so we can re-locate multiplayer support after a domain reload
+        [SerializeField, HideInInspector] private string _multiplayerSupportGOName;
+        private IMultiplayerSupport _multiPlayerSupport;
+        public IMultiplayerSupport MultiplayerSupport {
+            get {
+                if (_multiPlayerSupport == null && !string.IsNullOrEmpty(_multiplayerSupportGOName))
+                    _multiPlayerSupport = GameObject.Find(_multiplayerSupportGOName)?.GetComponent<IMultiplayerSupport>();
 
-            if (_playerOverridesProvider == null || !_playerOverridesProvider.IsEnabled)
-                return null;
-            else
-                return _playerOverridesProvider;
+                if (_multiPlayerSupport == null || !_multiPlayerSupport.IsEnabled)
+                    return null;
+                else
+                    return _multiPlayerSupport;
+            }
+            set //Will need to be called externally
+            {
+                _multiPlayerSupport = value;
+
+                if (value != null)
+                    _multiplayerSupportGOName = value.GameObjectName;
+            }
         }
-        set //Will need to be called externally
-        {
-            _playerOverridesProvider = value;
 
-            if (value != null)
-                PlayerOverridesProviderGOName = value.GameObjectName;
+        //Record the gameobject name so we can re-locate multiplayer support after a domain reload
+        [SerializeField] public string PlayerSettingsProviderGOName; //{ get; private set; }
+        private IPlayerSettingsProvider _playerSettingsProvider;
+        public IPlayerSettingsProvider PlayerSettingsProvider {
+            get {
+
+                if (_playerSettingsProvider == null && !string.IsNullOrEmpty(PlayerSettingsProviderGOName))
+                    _playerSettingsProvider = GameObject.Find(PlayerSettingsProviderGOName)?.GetComponent<IPlayerSettingsProvider>();
+
+                if (_playerSettingsProvider == null || !_playerSettingsProvider.IsEnabled)
+                    return null;
+                else 
+                    return _playerSettingsProvider;
+            }
+            set //Will need to be called externally
+            {
+                _playerSettingsProvider = value;
+
+                if (value != null)
+                {
+                    PlayerSettingsProviderGOName = value.GameObjectName;
+                }
+            }
         }
-    }
 
-    //TODO - Unlike the other components, the PlayerSpawner can be turned on and off at runtime 
-    //So we should still return it if it is disabled, the consumer can just listen to the OnEnabled event 
-    //TODO - think if this should apply to the other components too 
-    [SerializeField] public string PlayerSpawnerGOName; // { get; private set; }
-    private IPlayerSpawner _playerSpawner;
-    public IPlayerSpawner PlayerSpawner
-    {
-        get
+        //[SerializeField] private string testString;
+        [SerializeField] public string PlayerOverridesProviderGOName; // { get; private set; }
+        private IPlayerAppearanceOverridesProvider _playerOverridesProvider;
+        public IPlayerAppearanceOverridesProvider PlayerAppearanceOverridesProvider
         {
-            if (_playerSpawner == null && !string.IsNullOrEmpty(PlayerSpawnerGOName))
-                _playerSpawner = GameObject.Find(PlayerSpawnerGOName)?.GetComponent<IPlayerSpawner>();
+            get
+            {
+                if (_playerOverridesProvider == null && !string.IsNullOrEmpty(PlayerOverridesProviderGOName))
+                    _playerOverridesProvider = GameObject.Find(PlayerOverridesProviderGOName)?.GetComponent<IPlayerAppearanceOverridesProvider>();
 
-            return _playerSpawner; //Return even if disabled
+                if (_playerOverridesProvider == null || !_playerOverridesProvider.IsEnabled)
+                    return null;
+                else
+                    return _playerOverridesProvider;
+            }
+            set //Will need to be called externally
+            {
+                _playerOverridesProvider = value;
+
+                if (value != null)
+                    PlayerOverridesProviderGOName = value.GameObjectName;
+            }
         }
-        set //Will need to be called externally
+
+        [SerializeField] public string PlayerSpawnerGOName; // { get; private set; }
+        private IPlayerSpawner _playerSpawner;
+        public IPlayerSpawner PlayerSpawner
         {
-            _playerSpawner = value;
+            get
+            {
+                if (_playerSpawner == null && !string.IsNullOrEmpty(PlayerSpawnerGOName))
+                    _playerSpawner = GameObject.Find(PlayerSpawnerGOName)?.GetComponent<IPlayerSpawner>();
 
-            if (value != null)
-                PlayerSpawnerGOName = value.GameObjectName;
+                return _playerSpawner; //Return even if disabled
+            }
+            set //Will need to be called externally
+            {
+                _playerSpawner = value;
+
+                if (value != null)
+                    PlayerSpawnerGOName = value.GameObjectName;
+            }
         }
+
+        private void Awake()
+        {
+            _instance = this;
+            //gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
+            gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
+        }
+
+        private void OnDisable()
+        {
+            _instance = null;
+        }
+
     }
 
-
-    //Record the gameobject name so we can re-locate multiplayer support after a domain reload
-    // [SerializeField, HideInInspector] public string PlayerSpawnerGOName { get; private set; }
-    // private V_PlayerSpawner _playerSettingsProvider;
-    // public IPlayerSettingsProvider PlayerSettingsProvider
-    // {
-    //     get
-    //     {
-    //         if (_playerSettingsProvider == null && !string.IsNullOrEmpty(PlayerSettingsproviderGOName))
-    //             _playerSettingsProvider = GameObject.Find(PlayerSettingsproviderGOName)?.GetComponent<IPlayerSettingsProvider>();
-
-    //         if (_playerSettingsProvider != null && !_playerSettingsProvider.IsEnabled)
-    //             return null;
-    //         else
-    //             return _playerSettingsProvider;
-    //     }
-    //     set //Will need to be called externally
-    //     {
-    //         _playerSettingsProvider = value;
-
-    //         if (value != null)
-    //             PlayerSettingsproviderGOName = value.GameObjectName;
-    //     }
-    // }
-
-    private void Awake()
+    public interface IPlayerAppearanceOverridesProvider
     {
-        //Debug.Log("awake core");
-        _instance = this;
-        //gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
-        gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
+        public PlayerPresentationOverrides PlayerPresentationOverrides { get; }
+        public bool IsEnabled { get; }
+        public string GameObjectName { get; }
+
+        public void NotifyProviderOfChangeAppearanceOverrides();
+        public event Action OnAppearanceOverridesChanged;
+
+        public GameObject GetHeadOverrideGO(AvatarAppearanceOverrideType overrideType);
+        public GameObject GetTorsoOverrideGO(AvatarAppearanceOverrideType overrideType);
     }
 
-    private void OnDisable()
+    public interface IPlayerSpawner
     {
-        //Debug.Log("SCENE CHANGE core");
-        _instance = null;
-    }
+        public bool IsEnabled { get; }
+        public string GameObjectName { get; }
 
+        //Unlike the other components, the player spawner should be able to 
+        //Activate and deactivate at runtime
+        public event Action OnEnabledStateChanged;
+    }
 }
-
-public interface IPlayerAppearanceOverridesProvider
-{
-    public PlayerPresentationOverrides PlayerPresentationOverrides { get; }
-    public bool IsEnabled { get; }
-    public string GameObjectName { get; }
-
-    public void NotifyProviderOfChangeAppearanceOverrides();
-    public event Action OnAppearanceOverridesChanged;
-
-    public GameObject GetHeadOverrideGO(AvatarAppearanceOverrideType overrideType);
-    public GameObject GetTorsoOverrideGO(AvatarAppearanceOverrideType overrideType);
-}
-
-public interface IPlayerSpawner //TODO, maybe this is where the instance service gets the player data from?
-{
-    public bool IsEnabled { get; }
-    public string GameObjectName { get; }
-
-    //Unlike the other components, the player spawner should be able to 
-    //Activate and deactivate at runtime
-    public event Action OnEnabledStateChanged;
-}
-
-/*
-    As the player turns on and off, we need to notify the InstanceService so we change the InstancedAppearance 
-
-
-    Someone might use the playersettingsprovider outside of the player rig 
-    Anyway, we need to talk to the player spawner because the player spawner should turn on and off 
-
-    The spawner being enabled tells us whether UsingViRSEAvatar is true 
-    Then we pull from player settings provider, 
-    if there's an override thing present, that tells us to use the override settings
-*/

@@ -7,7 +7,7 @@ using UnityEngine.Events;
 using ViRSE;
 using ViRSE.Core.Shared;
 
-namespace ViRSE.FrameworkRuntime
+namespace ViRSE.PlatformNetworking
 {
     public interface IPlatformCommsHandler
     {
@@ -22,8 +22,6 @@ namespace ViRSE.FrameworkRuntime
         public event Action<byte[]> OnReceiveServerRegistrationConfirmation;
         public event Action<byte[]> OnReceiveGlobalInfoUpdate;
         public event Action OnDisconnectedFromServer;
-
     }
-
 }
 

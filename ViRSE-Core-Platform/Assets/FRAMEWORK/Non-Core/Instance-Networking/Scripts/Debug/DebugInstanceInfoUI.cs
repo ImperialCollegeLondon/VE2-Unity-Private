@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 using ViRSE.InstanceNetworking;
-using ViRSE.PluginRuntime;
+using ViRSE.Core;
 using static InstanceSyncSerializables;
 
 public class DebugInstanceInfoUI : MonoBehaviour

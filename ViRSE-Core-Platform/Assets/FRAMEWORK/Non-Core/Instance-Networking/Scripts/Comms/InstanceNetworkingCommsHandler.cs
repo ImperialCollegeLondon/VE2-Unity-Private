@@ -9,7 +9,7 @@ using DRMessageReader = DarkRift.DarkRiftReader;
 using DRMessageWrapper = DarkRift.Message;
 using System.Collections.Generic;
 
-namespace ViRSE.FrameworkRuntime
+namespace ViRSE.InstanceNetworking
 {
     public class InstanceNetworkingCommsHandler : IPluginSyncCommsHandler
     {

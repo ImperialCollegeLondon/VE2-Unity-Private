@@ -1,12 +1,14 @@
 using System;
 using System.IO;
 using UnityEngine;
+using ViRSE.Core;
 using ViRSE.Core.Shared;
 using static ViRSE.Core.Shared.CoreCommonSerializables;
 
+//TODO - namespace?
+
 [Serializable]
-public class 
-BaseStateConfig
+public class BaseStateConfig
 {
     [BeginGroup(Style = GroupStyle.Round, ApplyCondition = true)]
     [Title("Transmission Settings", ApplyCondition = true)]

@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using ViRSE.FrameworkRuntime.LocalPlayerRig;
-using ViRSE.PluginRuntime.VComponents;
+using ViRSE.Core.VComponents;
 
 namespace ViRSE.Core.Player
 {
