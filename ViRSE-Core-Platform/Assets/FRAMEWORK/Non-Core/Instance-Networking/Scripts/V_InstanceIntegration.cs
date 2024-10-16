@@ -114,23 +114,18 @@ namespace ViRSE.InstanceNetworking
 
             Debug.Log($"<color=red>Instance Integration disabled</color>");
 
-            _instanceService.DisconnectFromServer();
-
-            _playerSyncer.TearDown();
-            _worldStateSyncer.TearDown();
-            _playerSyncer = null;
-            _worldStateSyncer = null;
-        }
-
-        private void OnDestroy() 
-        {
-            if (!Application.isPlaying)
-                return;
-
+            _instanceService.OnConnectedToServer -= HandleConnectToServer; //TODO, maybe these events can go into the connection debug wrapper thing?
+            _instanceService.OnDisconnectedFromServer -= HandleDisconnectFromServer; //TODO, maybe these events can go into the connection debug wrapper thing?
+            _instanceService.OnInstanceInfoChanged -= HandleReceiveInstanceInfo;
             _instanceService.TearDown();
             _instanceService = null;
+            HandleDisconnectFromServer();
 
-            _connectionStateDebug.ConnectionState = ConnectionState.NotYetConnected;
+            _playerSyncer.TearDown();
+            _playerSyncer = null;
+
+            _worldStateSyncer.TearDown();
+            _worldStateSyncer = null;
         }
     }
 

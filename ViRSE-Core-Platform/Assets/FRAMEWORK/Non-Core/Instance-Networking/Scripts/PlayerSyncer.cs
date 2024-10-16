@@ -115,15 +115,16 @@ namespace ViRSE.InstanceNetworking
 
         public void RegisterLocalPlayer(ILocalPlayerRig localPlayerRig)
         {
-            _localPlayerRig.OnAppearanceChanged += HandleLocalAppearanceChanged;
             _localPlayerRig = localPlayerRig;
+            _localPlayerRig.OnAppearanceChanged += HandleLocalAppearanceChanged;
             HandleLocalAppearanceChanged();
         }
 
         public void DeregisterLocalPlayer(ILocalPlayerRig localPlayerRig)
         {
-            _localPlayerRig.OnAppearanceChanged -= HandleLocalAppearanceChanged;
             _localPlayerRig = null;
+            if (localPlayerRig != null)
+                localPlayerRig.OnAppearanceChanged -= HandleLocalAppearanceChanged;
             HandleLocalAppearanceChanged();
         }
 
