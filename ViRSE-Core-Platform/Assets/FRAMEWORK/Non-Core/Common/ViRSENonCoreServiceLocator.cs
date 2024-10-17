@@ -51,7 +51,7 @@ public class ViRSENonCoreServiceLocator : MonoBehaviour
     private void Awake()
     {
         _instance = this;
-        //gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
-        gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
+        gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
+        //gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
     }
 }

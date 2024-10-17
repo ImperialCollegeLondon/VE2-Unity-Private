@@ -8,7 +8,7 @@ using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
 
-namespace ViRSE.Core.VComponents
+namespace ViRSE.InstanceNetworking
 {
     [BurstCompile]
     public class PredictiveWorldStateHistoryQueue
@@ -17,8 +17,10 @@ namespace ViRSE.Core.VComponents
 
         public PredictiveWorldStateHistoryQueue(int queueSize)
         {
-            RecentStates = new();
-            RecentStates.Limit = queueSize;
+            RecentStates = new()
+            {
+                Limit = queueSize
+            };
         }
 
         public bool DoesStateAppearInStateList(byte[] bytesToCheck)
@@ -120,36 +122,36 @@ namespace ViRSE.Core.VComponents
             RecentStates.Enqueue(state);
         }
     }
-}
 
-public class FixedSizedQueue<T>
-{
-    ConcurrentQueue<T> q = new();
-    private object lockObject = new();
-
-    public int Limit { get; set; }
-    public void Enqueue(T obj)
+    public class FixedSizedQueue<T>
     {
-        q.Enqueue(obj);
-        lock (lockObject)
+        ConcurrentQueue<T> q = new();
+        private object lockObject = new();
+
+        public int Limit { get; set; }
+        public void Enqueue(T obj)
         {
-            T overflow;
-            while (q.Count > Limit && q.TryDequeue(out overflow)) ;
+            q.Enqueue(obj);
+            lock (lockObject)
+            {
+                T overflow;
+                while (q.Count > Limit && q.TryDequeue(out overflow)) ;
+            }
         }
-    }
 
-    public int Count => q.Count;
+        public int Count => q.Count;
 
-    public T[] values => q.ToArray();
+        public T[] values => q.ToArray();
 
-    public void Clear()
-    {
-        q.Clear();
-    }
+        public void Clear()
+        {
+            q.Clear();
+        }
 
-    public T PeekFront()
-    {
-        q.TryPeek(out T value);
-        return value;
+        public T PeekFront()
+        {
+            q.TryPeek(out T value);
+            return value;
+        }
     }
 }

@@ -27,14 +27,12 @@ namespace ViRSE.Core.Shared //TODO - Need to expose to customer
                 }
 
 
-                [Serializable] //TODO - Instance server doesn't need to see this. But it DOES need the presentation settings 
+                [Serializable] 
                 public class UserSettingsPersistable : ViRSESerializable //TODO, probably add audio config 
                 {
 #if UNITY_EDITOR
-                        //[Title("User Settings", Order = 0)]
-                        //[BeginGroup(Style = GroupStyle.Round, Order = 1)]
-                        [Title("2D Control Settings", Order = 2)]
 
+                        [Title("2D Control Settings", Order = 2)]
                         [SerializeField, IgnoreParent]
 #endif
                         public Player2DControlConfig Player2DControlConfig = new();
@@ -49,7 +47,6 @@ namespace ViRSE.Core.Shared //TODO - Need to expose to customer
 #if UNITY_EDITOR
                         [Space(5)]
                         [Title("Avatar Presentation Settings")]
-                        //[EndGroup]
                         [SerializeField, IgnoreParent]
 #endif
                         public PlayerPresentationConfig PresentationConfig = new();
@@ -102,8 +99,7 @@ namespace ViRSE.Core.Shared //TODO - Need to expose to customer
                 public class PlayerVRControlConfig : ViRSESerializable
                 {
 #if UNITY_EDITOR
-                        [BeginGroup(Style = GroupStyle.Round)]
-                        [SerializeField, Range(0.1f, 3f)]
+                        [BeginIndent, SerializeField, Range(0.1f, 3f)]
 #endif
                         public float DragSpeed = 1;
 
@@ -139,8 +135,7 @@ namespace ViRSE.Core.Shared //TODO - Need to expose to customer
                         public bool TeleportBlink = false;
 
 #if UNITY_EDITOR
-                        [EndGroup]
-                        [SerializeField]
+                        [EndIndent, SerializeField]
 #endif
                         public bool SnapTurnBlink = false;
 
@@ -185,14 +180,12 @@ namespace ViRSE.Core.Shared //TODO - Need to expose to customer
                 public class Player2DControlConfig : ViRSESerializable
                 {
 #if UNITY_EDITOR
-                        [BeginGroup(Style = GroupStyle.Round)]
-                        [SerializeField, Range(0.2f, 3f)]
+                        [BeginIndent, SerializeField, Range(0.2f, 3f)]
 #endif
                         public float MouseSensitivity = 1;
 
 #if UNITY_EDITOR
-                        [EndGroup]
-                        [SerializeField]
+                        [EndIndent, SerializeField]
 #endif
                         public bool CrouchHold = true;
 
@@ -227,8 +220,7 @@ namespace ViRSE.Core.Shared //TODO - Need to expose to customer
                 public class PlayerPresentationConfig : ViRSESerializable //TODO - this should just be a wrapper, don't like these attributes in here
                 {
 #if UNITY_EDITOR
-                        [BeginGroup(Style = GroupStyle.Round)]
-                        [SerializeField]
+                        [BeginIndent, SerializeField]
 #endif
                         public string PlayerName = "Unknown";
 
@@ -253,8 +245,7 @@ namespace ViRSE.Core.Shared //TODO - Need to expose to customer
                         public ushort AvatarGreen = 60;
 
 #if UNITY_EDITOR
-                        [EndGroup]
-                        [SerializeField]
+                        [EndIndent, SerializeField]
 #endif
                         public ushort AvatarBlue = 60;
 
@@ -300,7 +291,7 @@ namespace ViRSE.Core.Shared //TODO - Need to expose to customer
                                 AvatarBlue = reader.ReadUInt16();
                         }
                 }
-                
+
                 [Serializable]
                 public class ViRSEAvatarAppearance : ViRSESerializable
                 {

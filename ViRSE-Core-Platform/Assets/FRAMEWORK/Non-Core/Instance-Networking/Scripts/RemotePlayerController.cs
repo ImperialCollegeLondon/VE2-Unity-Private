@@ -51,24 +51,21 @@ namespace ViRSE.InstanceNetworking
             }
         }
 
+        /// <summary>
+        /// Note, this WON'T set the initial appearance, HandleReceiveAvatarAppearance should be called after initialization
+        /// </summary>
         public void Initialize(List<GameObject> virseAvatarHeadGameObjects, List<GameObject> virseAvatarTorsoGameObjects, List<GameObject> avatarHeadOverrideGameObjects, List<GameObject> avatarTorsoOverrideGameObjects)
         {
             _virseAvatarHeadGameObjects = virseAvatarHeadGameObjects;
             _virseAvatarTorsoGameObjects = virseAvatarTorsoGameObjects;
             _avatarHeadOverrideGameObjects = avatarHeadOverrideGameObjects;
             _avatarTorsoOverrideGameObjects = avatarTorsoOverrideGameObjects;
-
-            //TODO - set starting appearance here?
         }
 
         public void HandleReceiveRemotePlayerState(PlayerState playerState)
         {
-            transform.position = playerState.RootPosition;
-            transform.rotation = playerState.RootRotation;
-
-            _headHolder.position = playerState.HeadPosition;
-            _headHolder.rotation = playerState.HeadRotation;
-
+            transform.SetPositionAndRotation(playerState.RootPosition, playerState.RootRotation);
+            _headHolder.SetPositionAndRotation(playerState.HeadPosition, playerState.HeadRotation);
             _torsoHolder.position = playerState.HeadPosition + (_torsoOffsetFromHead * Vector3.up);
         }
 

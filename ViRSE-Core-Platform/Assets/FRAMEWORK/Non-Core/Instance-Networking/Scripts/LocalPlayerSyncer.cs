@@ -17,11 +17,11 @@ namespace ViRSE.InstanceNetworking
 
     public class LocalPlayerSyncer 
     {
-        private ILocalPlayerRig _localPlayerRig;
+        private IViRSEPlayerRig _localPlayerRig;
         private int _cycleNumber = 0;
-        private InstanceService _instanceService;
-        private ViRSECoreServiceLocator _coreServiceLocator;
-        private AvatarAppearanceWrapper _instancedPlayerPresentation
+        private readonly InstanceService _instanceService;
+        private readonly ViRSECoreServiceLocator _coreServiceLocator;
+        private AvatarAppearanceWrapper InstancedPlayerPresentation
         {
             get
             {
@@ -47,17 +47,17 @@ namespace ViRSE.InstanceNetworking
 
         private void HandleLocalAppearanceChanged()
         {
-            _instanceService.SendAvatarAppearanceUpdate(_instancedPlayerPresentation.Bytes);
+            _instanceService.SendAvatarAppearanceUpdate(InstancedPlayerPresentation.Bytes);
         }
 
-        public void RegisterLocalPlayer(ILocalPlayerRig localPlayerRig)
+        public void RegisterLocalPlayer(IViRSEPlayerRig localPlayerRig)
         {
             _localPlayerRig = localPlayerRig;
             _localPlayerRig.OnAppearanceChanged += HandleLocalAppearanceChanged;
             HandleLocalAppearanceChanged();
         }
 
-        public void DeregisterLocalPlayer(ILocalPlayerRig localPlayerRig)
+        public void DeregisterLocalPlayer(IViRSEPlayerRig localPlayerRig)
         {
             _localPlayerRig = null;
             if (localPlayerRig != null)

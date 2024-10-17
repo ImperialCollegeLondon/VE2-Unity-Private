@@ -8,7 +8,7 @@ using static ViRSE.Core.Shared.CoreCommonSerializables;
 namespace ViRSE.Core.Player
 {
     //TODO, don't think this should be a mono, should just be a service, that we inject with the 2d and vr players
-    public class Player : MonoBehaviour, ILocalPlayerRig //TODO - maybe should be PlayerService? Also, does this actually need to be a monobehaviour?
+    public class ViRSEPlayer : MonoBehaviour, IViRSEPlayerRig //TODO - maybe should be PlayerService? Also, does this actually need to be a monobehaviour?
     {
         #region Plugin Runtime interfaces
         public Vector3 RootPosition { get => _activePlayer.RootPosition; set => _activePlayer.RootPosition = value; }
@@ -113,15 +113,4 @@ namespace ViRSE.Core.Player
         TwoD, 
         VR
     }
-
-    /*
-     * 
-     *  For the VCs, we have a state module regardless of whether we're networked 
-     *  We probably want that too for the player? Although, the state is tied to the transform
-     *  The state module registers itself with the syncer 
-     *  
-     *  I'm not sure there's a reason to inject the state into the player?
-     *  If networked, register with the syncer
-     * 
-     */
 }

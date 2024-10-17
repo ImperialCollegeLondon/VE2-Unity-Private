@@ -1,50 +1,35 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using ViRSE.FrameworkRuntime;
 using ViRSE.Core.Shared;
 using ViRSE.Core.VComponents;
 using ViRSE.Core;
 using static InstanceSyncSerializables;
-using static ViRSE.Core.Shared.CoreCommonSerializables;
-using System.IO;
-using ViRSE.InstanceNetworking;
 
-namespace ViRSE.Networking
+namespace ViRSE.InstanceNetworking
 {
-    //TODO - are we calling things WorldState or SyncableState???
-
-    public class WorldStateSyncer //TODO, not sure if "Service" is the right term here
+    public class WorldStateSyncer 
     {
-        public static WorldStateSyncer Instance;
-
-        private string _localInstanceCode;
-        private int _cycleNumber = 0;
-
-        private const int WORLD_STATE_SYNC_INTERVAL_MS = 20;
-        public int WorldStateHistoryQueueSize { get; private set; } = 20; //TODO
-        //public UnityEvent<int> OnWorldStateHistoryQueueSizeChange { get; private set; } = new();
-
         private class SyncInfo
         {
-            public WorldStateTransmissionCounter TransmissionCounter;
+            public int HostSyncOffset;
             public PredictiveWorldStateHistoryQueue HistoryQueue;
             public IStateModule StateModule;
             public byte[] PreviousState;
 
-            public SyncInfo(WorldStateTransmissionCounter transmissionCounter, PredictiveWorldStateHistoryQueue historyQueue, IStateModule stateModule)
-            {
-                TransmissionCounter = transmissionCounter;
-                HistoryQueue = historyQueue;
-                StateModule = stateModule;
-                PreviousState = null;
-            }
+            public int HostSyncInterval => (int)(50 / StateModule.TransmissionFrequency);
         }
+        private readonly Dictionary<int, int> _numOfSyncablesPerSyncOffsets = new();
 
-        private Dictionary<string, SyncInfo> syncInfosAgainstIDs = new();
-        private List<WorldStateBundle> _incommingWorldStateBundleBuffer = new();
+        private readonly Dictionary<string, SyncInfo> _syncInfosAgainstIDs = new();
+        private readonly List<WorldStateBundle> _incommingWorldStateBundleBuffer = new();
+        private readonly string _localInstanceCode;
+        private int _cycleNumber = 0;
 
-        private InstanceService _instanceService;
+        private const int WORLD_STATE_SYNC_INTERVAL_MS = 20;
+        public int WorldStateHistoryQueueSize { get; private set; } = 100; //TODO tie this into ping
+
+        private readonly InstanceService _instanceService;
 
         public WorldStateSyncer(InstanceService instanceService) 
         {
@@ -72,24 +57,24 @@ namespace ViRSE.Networking
 
         public void RegisterStateModule(IStateModule stateModule)
         {
+            PredictiveWorldStateHistoryQueue historyQueue = new(WorldStateHistoryQueueSize); 
+            SyncInfo syncInfo = new() { HostSyncOffset = GenerateNewHostSyncOffset(), HistoryQueue = historyQueue, StateModule = stateModule, PreviousState = null };
 
-            WorldStateTransmissionCounter transmissionCounter = new(stateModule.TransmissionFrequency);
-            PredictiveWorldStateHistoryQueue historyQueue = new(10); //TODO - need to wire this into the ping, we should probably let all these classes see this limit directly... so a static data?
-            SyncInfo syncInfo = new(transmissionCounter, historyQueue, stateModule);
-
-            syncInfosAgainstIDs.Add(stateModule.ID, syncInfo);
+            _syncInfosAgainstIDs.Add(stateModule.ID, syncInfo);
         }
 
         public void DerigsterFromSyncer(IStateModule stateModule)
         {
-            syncInfosAgainstIDs.Remove(stateModule.ID);
+            if (_syncInfosAgainstIDs.TryGetValue(stateModule.ID, out SyncInfo syncInfo))
+            {
+                _numOfSyncablesPerSyncOffsets[syncInfo.HostSyncOffset]--;
+                _syncInfosAgainstIDs.Remove(stateModule.ID);
+            }
         }
 
         public void HandleReceiveWorldStateBundle(byte[] byteData)
         {
             WorldStateBundle worldStateBundle = new(byteData);
-            //Debug.Log("Rec state in syncer " + worldStateBundle.WorldStateWrappers.Count);
-
             _incommingWorldStateBundleBuffer.Add(worldStateBundle);
         }
 
@@ -100,16 +85,8 @@ namespace ViRSE.Networking
 
             _cycleNumber++;
 
-            CheckForDestroyedSyncables();
             ProcessReceivedWorldStates();
             TransmitLocalWorldStates();
-        }
-
-        private void CheckForDestroyedSyncables()
-        {
-            //Need a new way around this! Maybe expose GO in IStateModule?
-            foreach (string id in syncInfosAgainstIDs.Where(pair => pair.Value == null).Select(pair => pair.Key).ToList())
-                syncInfosAgainstIDs.Remove(id);
         }
 
         private void ProcessReceivedWorldStates()
@@ -126,7 +103,7 @@ namespace ViRSE.Networking
 
                     foreach (WorldStateWrapper worldStateWrapper in receivedBundle.WorldStateWrappers)
                     {
-                        if (syncInfosAgainstIDs.TryGetValue(worldStateWrapper.ID, out SyncInfo syncInfo))
+                        if (_syncInfosAgainstIDs.TryGetValue(worldStateWrapper.ID, out SyncInfo syncInfo))
                         {
                             //We only do the hitory check if we're not the host
                             if (syncInfo.StateModule.IsNetworked && (_instanceService.IsHost || !syncInfo.HistoryQueue.DoesStateAppearInStateList(worldStateWrapper.StateBytes)))
@@ -148,7 +125,6 @@ namespace ViRSE.Networking
                 {
                     Debug.Log("<color=blue>incomming bundle num states = " + bundle.WorldStateWrappers.Count + "</color>");
                 }
-
             }
         }
 
@@ -157,7 +133,7 @@ namespace ViRSE.Networking
             List<WorldStateWrapper> outgoingSyncableStateBufferTCP = new();
             List<WorldStateWrapper> outgoingSyncableStateBufferUDP = new();
 
-            foreach (KeyValuePair<string, SyncInfo> pair in syncInfosAgainstIDs)
+            foreach (KeyValuePair<string, SyncInfo> pair in _syncInfosAgainstIDs)
             {
                 SyncInfo syncInfo = pair.Value;
 
@@ -166,7 +142,7 @@ namespace ViRSE.Networking
 
                 byte[] newState = syncInfo.StateModule.StateAsBytes;
 
-                bool broadcastFromHost = _instanceService.IsHost && syncInfo.TransmissionCounter.IsOnBroadcastFrame(_cycleNumber);
+                bool broadcastFromHost = _instanceService.IsHost && (_cycleNumber + syncInfo.HostSyncOffset) % syncInfo.HostSyncInterval == 0;
                 bool transmitFromLocalStateChange = syncInfo.PreviousState != null && !newState.SequenceEqual(syncInfo.PreviousState);
                 bool shouldTransmit = broadcastFromHost || transmitFromLocalStateChange;
 
@@ -180,7 +156,7 @@ namespace ViRSE.Networking
                         outgoingSyncableStateBufferUDP.Add(worldStateWrapper);
                 }
 
-                syncInfo.PreviousState = newState; //Should this be somewhere else?
+                syncInfo.PreviousState = newState;
                 syncInfo.HistoryQueue.AddStateToQueue(newState);
             }
 
@@ -206,7 +182,7 @@ namespace ViRSE.Networking
         {
             List<WorldStateWrapper> outgoingSyncableStateBufferSnapshot = new();
 
-            foreach (KeyValuePair<string, SyncInfo> pair in syncInfosAgainstIDs)
+            foreach (KeyValuePair<string, SyncInfo> pair in _syncInfosAgainstIDs)
             {
                 SyncInfo syncInfo = pair.Value;
 
@@ -223,6 +199,35 @@ namespace ViRSE.Networking
             }
 
             return null;
+        }
+
+        public int GenerateNewHostSyncOffset()
+        {
+            //To smooth out the transmission load, choose the least used offset
+            int newSyncOffset = 0;
+            int timesLeastUsedSyncOffsetUsed = int.MaxValue;
+
+            for (int i = 0; i < 50; i++)
+            {
+                int timesSyncOffsetUsed = _numOfSyncablesPerSyncOffsets.ContainsKey(i) ?
+                    _numOfSyncablesPerSyncOffsets[i] : 0;
+
+                if (timesSyncOffsetUsed < timesLeastUsedSyncOffsetUsed)
+                {
+                    timesLeastUsedSyncOffsetUsed = timesSyncOffsetUsed;
+                    newSyncOffset = i;
+                }
+
+                if (timesLeastUsedSyncOffsetUsed == 0)
+                    break; //No need to keep searching, can't be less than zero!
+            }
+
+            if (_numOfSyncablesPerSyncOffsets.ContainsKey(newSyncOffset))
+                _numOfSyncablesPerSyncOffsets[newSyncOffset]++;
+            else
+                _numOfSyncablesPerSyncOffsets.Add(newSyncOffset, 1);
+
+            return newSyncOffset;
         }
     }
 }

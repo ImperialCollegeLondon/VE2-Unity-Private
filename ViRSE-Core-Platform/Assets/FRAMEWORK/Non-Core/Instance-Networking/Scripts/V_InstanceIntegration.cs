@@ -9,16 +9,14 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using ViRSE.Core.Player;
 using ViRSE.Core.Shared;
-using ViRSE.Networking;
 using ViRSE.Core;
 using ViRSE.Core.VComponents;
 using static InstanceSyncSerializables;
-using static ViRSE.Core.Shared.CoreCommonSerializables;
 
 namespace ViRSE.InstanceNetworking
 {
     [ExecuteInEditMode]
-    public class V_InstanceIntegration : MonoBehaviour, IMultiplayerSupport //, IInstanceNetworkSettingsReceiver
+    public class V_InstanceIntegration : MonoBehaviour, IMultiplayerSupport 
     {
         #region Inspector Fields
         // [DynamicHelp(nameof(_settingsMessage))]

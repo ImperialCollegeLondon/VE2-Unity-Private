@@ -33,11 +33,11 @@ namespace ViRSE.InstanceNetworking
     {
         private Dictionary<ushort, RemoteAvatarController> _remoteAvatars = new();
 
-        private InstanceService _instanceService;
-        private List<GameObject> _virseAvatarHeadGameObjects;
-        private List<GameObject> _virseAvatarTorsoGameObjects;
-        private List<GameObject> _avatarHeadOverrideGameObjects;
-        private List<GameObject> _avatarTorsoOverrideGameObjects;
+        private readonly InstanceService _instanceService;
+        private readonly List<GameObject> _virseAvatarHeadGameObjects;
+        private readonly List<GameObject> _virseAvatarTorsoGameObjects;
+        private readonly List<GameObject> _avatarHeadOverrideGameObjects;
+        private readonly List<GameObject> _avatarTorsoOverrideGameObjects;
 
 
         public RemotePlayerSyncer(InstanceService instanceSevice, List<GameObject> virseAvatarHeadGameObjects, List<GameObject> virseAvatarTorsoGameObjects, List<GameObject> avatarHeadOverrideGameObjects, List<GameObject> avatarTorsoOverrideGameObjects)

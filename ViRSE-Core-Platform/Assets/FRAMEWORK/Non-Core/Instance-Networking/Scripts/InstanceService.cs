@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.Events;
 using ViRSE.FrameworkRuntime;
 using ViRSE.Core.Shared;
-using ViRSE.Networking;
 using System.Net;
 using static NonCoreCommonSerializables;
 using ViRSE.Core.Player;
@@ -63,10 +62,10 @@ namespace ViRSE.InstanceNetworking
 
         //====================================================================================================
 
-        private IPluginSyncCommsHandler _commsHandler;
-        private LocalClientIdWrapper _localClientIdWrapper;
-        private ConnectionStateDebugWrapper _connectionStateDebugWrapper;
-        private IInstanceNetworkSettingsProvider _networkSettingsProvider;
+        private readonly IPluginSyncCommsHandler _commsHandler;
+        private readonly LocalClientIdWrapper _localClientIdWrapper;
+        private readonly ConnectionStateDebugWrapper _connectionStateDebugWrapper;
+        private readonly IInstanceNetworkSettingsProvider _networkSettingsProvider;
 
         public InstanceService(IPluginSyncCommsHandler commsHandler, LocalClientIdWrapper localClientIDWrapper, ConnectionStateDebugWrapper connectionStateDebugWrapper, IInstanceNetworkSettingsProvider instanceNetworkSettingsProvider, bool connectAutomatically)
         {
@@ -101,7 +100,7 @@ namespace ViRSE.InstanceNetworking
 
             InstanceNetworkSettings instanceConnectionDetails = _networkSettingsProvider.InstanceNetworkSettings;
             Debug.Log("Try connect... " + instanceConnectionDetails.IP);
-            
+
             if (IPAddress.TryParse(instanceConnectionDetails.IP, out IPAddress ipAddress))
                 _commsHandler.ConnectToServer(ipAddress, instanceConnectionDetails.Port);
             else

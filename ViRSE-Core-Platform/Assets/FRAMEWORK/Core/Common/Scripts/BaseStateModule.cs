@@ -33,7 +33,7 @@ public abstract class BaseStateModule : IStateModule
     public string ID { get; private set; }
     public string GameObjectName { get; private set; }  
 
-    public event Action OnBytesUpdated;
+    //public event Action OnBytesUpdated;
 
     public bool IsNetworked => Config.IsNetworked;
     public byte[] StateAsBytes { get => State.Bytes; set => UpdateBytes(value); }

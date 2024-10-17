@@ -48,7 +48,7 @@ namespace ViRSE.Core //TODO workout namespace... Core.Common? Or just ViRSE.Comm
         }
 
         //Record the gameobject name so we can re-locate multiplayer support after a domain reload
-        [SerializeField] public string PlayerSettingsProviderGOName; //{ get; private set; }
+        [SerializeField, HideInInspector] public string PlayerSettingsProviderGOName; //{ get; private set; }
         private IPlayerSettingsProvider _playerSettingsProvider;
         public IPlayerSettingsProvider PlayerSettingsProvider {
             get {
@@ -73,7 +73,7 @@ namespace ViRSE.Core //TODO workout namespace... Core.Common? Or just ViRSE.Comm
         }
 
         //[SerializeField] private string testString;
-        [SerializeField] public string PlayerOverridesProviderGOName; // { get; private set; }
+        [SerializeField, HideInInspector] public string PlayerOverridesProviderGOName; // { get; private set; }
         private IPlayerAppearanceOverridesProvider _playerOverridesProvider;
         public IPlayerAppearanceOverridesProvider PlayerAppearanceOverridesProvider
         {
@@ -112,8 +112,8 @@ namespace ViRSE.Core //TODO workout namespace... Core.Common? Or just ViRSE.Comm
             OnStateModuleDeregistered?.Invoke(module);  
         }
 
-        private ILocalPlayerRig _localPlayerRig;
-        public ILocalPlayerRig LocalPlayerRig {
+        private IViRSEPlayerRig _localPlayerRig;
+        public IViRSEPlayerRig LocalPlayerRig {
             get => _localPlayerRig;
             set {
                 _localPlayerRig = value;
@@ -124,15 +124,15 @@ namespace ViRSE.Core //TODO workout namespace... Core.Common? Or just ViRSE.Comm
                     OnLocalPlayerRigDeregistered?.Invoke(value);
             }
         }
-        public event Action<ILocalPlayerRig> OnLocalPlayerRigRegistered;
-        public event Action<ILocalPlayerRig> OnLocalPlayerRigDeregistered;
+        public event Action<IViRSEPlayerRig> OnLocalPlayerRigRegistered;
+        public event Action<IViRSEPlayerRig> OnLocalPlayerRigDeregistered;
 
 
         private void Awake()
         {
             _instance = this;
-            //gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
-            gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
+            gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
+            //gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
         }
     }
 

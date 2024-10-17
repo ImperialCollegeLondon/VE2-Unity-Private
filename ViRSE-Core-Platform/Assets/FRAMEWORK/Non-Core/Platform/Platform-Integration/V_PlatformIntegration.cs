@@ -21,13 +21,11 @@ namespace ViRSE.PlatformNetworking
 
         [Title("Debug User Settings")]
         [Help("For mocking the user settings that will be sent to V_PlayerSpawner in the editor. When you export your built world to the platform, the platform will override these settings.")]
-        [BeginGroup(Style = GroupStyle.Round)]
-        [SerializeField] private bool _exchangeDebugUserSettingsWithPlayerPrefs = true;
+        [BeginGroup(Style = GroupStyle.Round), SerializeField] private bool _exchangeDebugUserSettingsWithPlayerPrefs = true;
 
         [SpaceArea(spaceAfter: 10, Order = 0)]
-        [EndGroup(Order = 1)]
         [EditorButton(nameof(NotifyProviderOfChangeToUserSettings), "Update user settings", activityType: ButtonActivityType.OnPlayMode)]
-        [SerializeField, IgnoreParent, DisableIf(nameof(_shouldShowUserSettings), false)] private UserSettingsPersistable _debugUserSettings = new();
+        [EndGroup(Order = 50), SerializeField, IgnoreParent, DisableIf(nameof(_shouldShowUserSettings), false)] private UserSettingsPersistable _debugUserSettings = new();
         private bool _shouldShowUserSettings => Application.isPlaying || !_exchangeDebugUserSettingsWithPlayerPrefs;
 
         //TODO, only show these if there actually is a player, and if these things are actually in the scene
@@ -57,15 +55,8 @@ namespace ViRSE.PlatformNetworking
         public event Action OnPlayerSettingsReady { add { PlatformService.OnConnectedToServer += value; } remove { PlatformService.OnConnectedToServer -= value; } }
         public UserSettingsPersistable UserSettings => PlatformService.UserSettings;
         public void NotifyProviderOfChangeToUserSettings() => OnLocalChangeToPlayerSettings?.Invoke(); 
-        public event Action OnLocalChangeToPlayerSettings; //The instance relay needs this
+        public event Action OnLocalChangeToPlayerSettings; //TODO, probably remove this once the UI is in place
         #endregion
-
-        /*
-            The settings provider needs an event that can be listened to by the instance relay, and the platform service, to know when the settings have been changed 
-            The settings provider also needs a method that can be called by anything modifying the settings, to trigger this event 
-            So I guess that means, since the V_PlatformIntegration IS the PlayerSettingsProvider... we wire that into the service?
-            Is it weird that the platform provides the settings, but it has to listen to its own event???
-        */
 
         #region Shared Interfaces 
         public string GameObjectName => gameObject.name;
@@ -124,11 +115,11 @@ namespace ViRSE.PlatformNetworking
         public bool IsConnectedToServer => true;
 
         //TODO, when the user changes their settings, save to player prefs, also, LOAD from player prefs!
-        public InstanceNetworkSettings InstanceNetworkSettings { get; private set; }
-        public UserSettingsPersistable UserSettings { get; private set; }
+        public InstanceNetworkSettings InstanceNetworkSettings { get; }
+        public UserSettingsPersistable UserSettings { get; }
         private IPlayerSettingsProvider _playerSettingsProvider;
 
-        private bool _exchangeDebugUserSettingsWithPlayerPrefs;
+        private readonly bool _exchangeDebugUserSettingsWithPlayerPrefs;
 
         public event Action OnConnectedToServer;
 

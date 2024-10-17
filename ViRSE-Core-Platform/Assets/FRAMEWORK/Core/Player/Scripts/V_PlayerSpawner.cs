@@ -31,7 +31,7 @@ namespace ViRSE.Core.Player
 
         private const string LOCAL_PLAYER_RIG_PREFAB_PATH = "LocalPlayerRig";
         private GameObject _localPlayerRig;
-        private Player _player;
+        private ViRSEPlayer _player;
 
         #region Player Spawner Interfaces
         public bool IsEnabled {get; private set;} = false;
@@ -77,7 +77,7 @@ namespace ViRSE.Core.Player
             GameObject localPlayerRigPrefab = Resources.Load("LocalPlayerRig") as GameObject;
             _localPlayerRig = Instantiate(localPlayerRigPrefab, transform.position, transform.rotation);
 
-            _player = _localPlayerRig.GetComponent<Player>();
+            _player = _localPlayerRig.GetComponent<ViRSEPlayer>();
             _player.Initialize(playerStateConfig, ViRSECoreServiceLocator.Instance.PlayerSettingsProvider, ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider); //TODO, maybe just inject the locator?
 
             _player.RootPosition = playerStartPosition;

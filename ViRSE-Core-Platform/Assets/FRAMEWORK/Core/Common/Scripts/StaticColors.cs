@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class StaticColors : MonoBehaviour
+public class StaticColors : MonoBehaviour //TODO - this should probably be a ScriptableObject
 {
     private static StaticColors _instance = null;
     public static StaticColors Instance {

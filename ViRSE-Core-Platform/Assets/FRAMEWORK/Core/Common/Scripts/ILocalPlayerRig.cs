@@ -8,7 +8,7 @@ using static ViRSE.Core.Shared.CoreCommonSerializables;
 
 namespace ViRSE.Core.Player
 {
-    public interface ILocalPlayerRig
+    public interface IViRSEPlayerRig
     {
         public Vector3 RootPosition { get; set; } //Will be on the floor
         public Quaternion RootRotation { get; set; } //Will be level with the floor
