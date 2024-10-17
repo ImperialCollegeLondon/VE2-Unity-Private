@@ -42,7 +42,8 @@ RenderSettings:
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 12
+  serializedVersion: 13
+  m_BakeOnSceneLoad: 0
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -440,7 +441,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _multiplayerSupportGOName: 
   PlayerSettingsProviderGOName: PlatformIntegration
-  testString: hubtest123
   PlayerOverridesProviderGOName: PlayerSpawner
 --- !u!4 &167777612
 Transform:
@@ -971,8 +971,8 @@ MonoBehaviour:
       SnapTurnBlink: 0
     PresentationConfig:
       PlayerName: Unknown
-      AvatarHeadType: ViRSE-0
-      AvatarBodyType: ViRSE-0
+      AvatarHeadType: 0
+      AvatarTorsoType: 0
       AvatarRed: 255
       AvatarGreen: 60
       AvatarBlue: 60
@@ -23083,7 +23083,7 @@ MonoBehaviour:
     domain: ImperialCollegeLondon
     accountID: ftoveyan
     firstName: Fred
-    lastName: Tovey-Ansell
+    lastName: T.A
     machineName: Unknown
 --- !u!4 &1627529181
 Transform:
@@ -23945,17 +23945,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enableVR: 0
   enable2D: 0
-  PresentationOverrides:
-    UsingViRSEAvatar: 1
-    AvatarHeadTypeOverride: 
-    AvatarBodyTypeOverride: 
-    AvatarTransparancy: 0
   playerStateConfig:
     IsNetworked: 1
     RepeatedTransmissionConfig:
       TransmissionType: 0
       TransmissionFrequency: 1
-  playerSpawned: 0
+  startingPositionSet: 0
+  playerStartPosition: {x: 0, y: 0, z: 0}
+  playerStartRotation: {x: 0, y: 0, z: 0, w: 0}
 --- !u!4 &2040201057
 Transform:
   m_ObjectHideFlags: 0

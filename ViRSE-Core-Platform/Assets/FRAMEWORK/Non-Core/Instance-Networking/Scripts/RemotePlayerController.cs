@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -18,13 +19,14 @@ namespace ViRSE.InstanceNetworking
 
         private List<Material> _colorMaterials = new();
 
+        private ViRSEAvatarAppearance _currentRemoteAvatarAppearance;
         private GameObject _activeHead;
         private GameObject _activeTorso;
 
-        private ViRSEAvatarAppearanceWrapper _avatarAppearance;
-        private IPlayerAppearanceOverridesProvider _playerAppearanceOverridesProvider;
         private List<GameObject> _virseAvatarHeadGameObjects;
         private List<GameObject> _virseAvatarTorsoGameObjects;
+        private List<GameObject> _avatarHeadOverrideGameObjects;
+        private List<GameObject> _avatarTorsoOverrideGameObjects;
 
         private void Awake() 
         {
@@ -49,11 +51,14 @@ namespace ViRSE.InstanceNetworking
             }
         }
 
-        public void Initialize(IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider, List<GameObject> virseAvatarHeadGameObjects, List<GameObject> virseAvatarTorsoGameObjects)
+        public void Initialize(List<GameObject> virseAvatarHeadGameObjects, List<GameObject> virseAvatarTorsoGameObjects, List<GameObject> avatarHeadOverrideGameObjects, List<GameObject> avatarTorsoOverrideGameObjects)
         {
-            _playerAppearanceOverridesProvider = playerAppearanceOverridesProvider;
             _virseAvatarHeadGameObjects = virseAvatarHeadGameObjects;
             _virseAvatarTorsoGameObjects = virseAvatarTorsoGameObjects;
+            _avatarHeadOverrideGameObjects = avatarHeadOverrideGameObjects;
+            _avatarTorsoOverrideGameObjects = avatarTorsoOverrideGameObjects;
+
+            //TODO - set starting appearance here?
         }
 
         public void HandleReceiveRemotePlayerState(PlayerState playerState)
@@ -67,56 +72,78 @@ namespace ViRSE.InstanceNetworking
             _torsoHolder.position = playerState.HeadPosition + (_torsoOffsetFromHead * Vector3.up);
         }
 
-        public void HandleReceiveAvatarAppearance(ViRSEAvatarAppearanceWrapper newAvatarAppearance)
+        public void HandleReceiveAvatarAppearance(ViRSEAvatarAppearance newAvatarAppearance)
         {
-            if (_avatarAppearance != null && _avatarAppearance.Equals(newAvatarAppearance))
+            if (_currentRemoteAvatarAppearance != null && _currentRemoteAvatarAppearance.Equals(newAvatarAppearance))
                 return;
 
-            _playerNameText.text = newAvatarAppearance.ViRSEAvatarAppearance.PresentationConfig.PlayerName;
+            _playerNameText.text = newAvatarAppearance.PresentationConfig.PlayerName;
 
-            GameObject avatarHead = null;
-            if (newAvatarAppearance.ViRSEAvatarAppearance.HeadOverrideType != AvatarAppearanceOverrideType.None) 
-                avatarHead = _playerAppearanceOverridesProvider.GetHeadOverrideGO(newAvatarAppearance.ViRSEAvatarAppearance.HeadOverrideType);
-            if (avatarHead == null) //No override, or gameobject not found
-                avatarHead = _virseAvatarHeadGameObjects[(int)newAvatarAppearance.ViRSEAvatarAppearance.PresentationConfig.AvatarHeadType];
-            bool headChanged = SetHeadGameObject(avatarHead);
-
-            GameObject avatarTorso = null;
-            if (newAvatarAppearance.ViRSEAvatarAppearance.TorsoOverrideType != AvatarAppearanceOverrideType.None)
-                avatarTorso = _playerAppearanceOverridesProvider.GetTorsoOverrideGO(newAvatarAppearance.ViRSEAvatarAppearance.TorsoOverrideType);
-            if (avatarTorso == null) //No override, or gameobject not found
-                avatarTorso = _virseAvatarTorsoGameObjects[(int)newAvatarAppearance.ViRSEAvatarAppearance.PresentationConfig.AvatarTorsoType];
-            bool torsoChanged = SetTorsoGameObject(avatarTorso);
+            bool headChanged = SetHead(newAvatarAppearance.PresentationConfig.AvatarHeadType, newAvatarAppearance.HeadOverrideType);
+            bool torsoChanged = SetTorso(newAvatarAppearance.PresentationConfig.AvatarTorsoType, newAvatarAppearance.TorsoOverrideType);
 
             if (headChanged || torsoChanged)
                 RefreshMaterials();
 
             foreach (Material material in _colorMaterials)
-                material.color = new Color(newAvatarAppearance.ViRSEAvatarAppearance.PresentationConfig.AvatarRed, newAvatarAppearance.ViRSEAvatarAppearance.PresentationConfig.AvatarGreen, newAvatarAppearance.ViRSEAvatarAppearance.PresentationConfig.AvatarBlue) / 255f;
+                material.color = new Color(newAvatarAppearance.PresentationConfig.AvatarRed, newAvatarAppearance.PresentationConfig.AvatarGreen, newAvatarAppearance.PresentationConfig.AvatarBlue) / 255f;
 
-            _avatarAppearance = newAvatarAppearance;
+            _currentRemoteAvatarAppearance = newAvatarAppearance;
         }
 
-        private bool SetHeadGameObject(GameObject newHead) 
-        {
-            if (newHead.name.Equals(_activeHead.name))
-                return false; 
 
-            GameObject.Destroy(_activeHead);
+        private bool SetHead(ViRSEAvatarHeadAppearanceType avatarHeadType, AvatarAppearanceOverrideType headOverrideType)
+        {
+            if (_currentRemoteAvatarAppearance != null && _currentRemoteAvatarAppearance.PresentationConfig.AvatarHeadType == avatarHeadType && _currentRemoteAvatarAppearance.HeadOverrideType == headOverrideType)
+                return false;
+
+            GameObject newHead;
+            if (headOverrideType != AvatarAppearanceOverrideType.None && TryGetOverrideGO(headOverrideType, _avatarHeadOverrideGameObjects, out GameObject headOverrideGO))
+                newHead = headOverrideGO;
+            else
+                newHead = _virseAvatarHeadGameObjects[(int)avatarHeadType];
+
+            if (_activeHead != null)
+                GameObject.Destroy(_activeHead);
+
             _activeHead = GameObject.Instantiate(newHead, _headHolder.transform.position, _headHolder.transform.rotation, _headHolder);
 
             return true;
         }
 
-        private bool SetTorsoGameObject(GameObject newTorso)
+        private bool SetTorso(ViRSEAvatarTorsoAppearanceType avatarTorsoType, AvatarAppearanceOverrideType torsoOverrideType)
         {
-            if (newTorso.name.Equals(_activeTorso.name))
+            if (_currentRemoteAvatarAppearance != null && _currentRemoteAvatarAppearance.PresentationConfig.AvatarTorsoType == avatarTorsoType && _currentRemoteAvatarAppearance.TorsoOverrideType == torsoOverrideType)
                 return false;
 
-            GameObject.Destroy(_activeTorso);
+            GameObject newTorso;
+            if (torsoOverrideType != AvatarAppearanceOverrideType.None && TryGetOverrideGO(torsoOverrideType, _avatarTorsoOverrideGameObjects, out GameObject torsoOverrideGO))
+                newTorso = torsoOverrideGO;
+            else
+                newTorso = _virseAvatarTorsoGameObjects[(int)avatarTorsoType];
+
+            if (_activeTorso != null)
+                GameObject.Destroy(_activeTorso);
+
             _activeTorso = GameObject.Instantiate(newTorso, _torsoHolder.transform.position, _torsoHolder.transform.rotation, _torsoHolder);
 
             return true;
+        }
+
+        private bool TryGetOverrideGO(AvatarAppearanceOverrideType overrideType, List<GameObject> overrideGameObjects, out GameObject overrideGO)
+        {
+            int index = (int)overrideType - 1; //-1 as 0 is "no override"
+            if (overrideGameObjects.Count > index && overrideGameObjects[index] != null)
+            {
+                overrideGO = overrideGameObjects[index];
+                return true;
+            }
+            else 
+            {
+                overrideGO = null;
+                return false;
+            }
+
         }
 
         private void Update() 

@@ -169,15 +169,15 @@ public class InstanceSyncSerializables
 
     public class InstancedClientInfo : ClientInfoBase
     {
-        public ViRSEAvatarAppearanceWrapper InstancedAvatarAppearance;
+        public AvatarAppearanceWrapper AvatarAppearanceWrapper;
 
         public InstancedClientInfo() { }
 
         public InstancedClientInfo(byte[] bytes) : base(bytes) { }
 
-        public InstancedClientInfo(ushort clientID, bool isAdmin, ViRSEAvatarAppearanceWrapper instancedAvatarAppearance) : base(clientID, isAdmin, "unknown") //TODO, machine name should maybe be platform-specific?
+        public InstancedClientInfo(ushort clientID, bool isAdmin, AvatarAppearanceWrapper instancedAvatarAppearance) : base(clientID, isAdmin, "unknown") //TODO, machine name should maybe be platform-specific?
         {
-            InstancedAvatarAppearance = instancedAvatarAppearance;
+            AvatarAppearanceWrapper = instancedAvatarAppearance;
         }
 
         protected override byte[] ConvertToBytes()
@@ -189,7 +189,7 @@ public class InstanceSyncSerializables
             writer.Write((ushort)baseBytes.Length);
             writer.Write(baseBytes);
 
-            byte[] avatarAppearanceBytes = InstancedAvatarAppearance.Bytes;
+            byte[] avatarAppearanceBytes = AvatarAppearanceWrapper.Bytes;
             writer.Write((ushort)avatarAppearanceBytes.Length);
             writer.Write(avatarAppearanceBytes);
 
@@ -206,20 +206,20 @@ public class InstanceSyncSerializables
             base.PopulateFromBytes(baseData);
 
             ushort avatarAppearanceLength = reader.ReadUInt16();
-            InstancedAvatarAppearance = new ViRSEAvatarAppearanceWrapper(reader.ReadBytes(avatarAppearanceLength));
+            AvatarAppearanceWrapper = new AvatarAppearanceWrapper(reader.ReadBytes(avatarAppearanceLength));
         }
     }
 
-    public class ViRSEAvatarAppearanceWrapper : ViRSESerializable
+    public class AvatarAppearanceWrapper : ViRSESerializable
     {
         public bool UsingViRSEPlayer;
         public ViRSEAvatarAppearance ViRSEAvatarAppearance;
 
-        public ViRSEAvatarAppearanceWrapper() { }
+        public AvatarAppearanceWrapper() { }
 
-        public ViRSEAvatarAppearanceWrapper(byte[] bytes) : base(bytes) { }
+        public AvatarAppearanceWrapper(byte[] bytes) : base(bytes) { }
 
-        public ViRSEAvatarAppearanceWrapper(bool usingViRSEAvatar, ViRSEAvatarAppearance virseAvatarAppearance)
+        public AvatarAppearanceWrapper(bool usingViRSEAvatar, ViRSEAvatarAppearance virseAvatarAppearance)
         {
             UsingViRSEPlayer = usingViRSEAvatar;
             ViRSEAvatarAppearance = virseAvatarAppearance;

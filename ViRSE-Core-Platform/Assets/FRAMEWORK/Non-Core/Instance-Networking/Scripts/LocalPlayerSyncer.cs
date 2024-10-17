@@ -21,15 +21,15 @@ namespace ViRSE.InstanceNetworking
         private int _cycleNumber = 0;
         private InstanceService _instanceService;
         private ViRSECoreServiceLocator _coreServiceLocator;
-        private ViRSEAvatarAppearanceWrapper _instancedPlayerPresentation
+        private AvatarAppearanceWrapper _instancedPlayerPresentation
         {
             get
             {
                 bool usingViRSEAvatar = ViRSECoreServiceLocator.Instance.LocalPlayerRig != null && ViRSECoreServiceLocator.Instance.LocalPlayerRig.IsNetworked;
                 if (usingViRSEAvatar)
-                    return new ViRSEAvatarAppearanceWrapper(true, ViRSECoreServiceLocator.Instance.LocalPlayerRig.AvatarAppearance);
+                    return new AvatarAppearanceWrapper(true, ViRSECoreServiceLocator.Instance.LocalPlayerRig.AvatarAppearance);
                 else 
-                    return new ViRSEAvatarAppearanceWrapper(false, null);
+                    return new AvatarAppearanceWrapper(false, null);
             }
         }
 

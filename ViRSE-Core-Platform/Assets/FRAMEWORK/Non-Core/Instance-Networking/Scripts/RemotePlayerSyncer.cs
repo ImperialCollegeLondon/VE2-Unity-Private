@@ -22,9 +22,10 @@ namespace ViRSE.InstanceNetworking
 
             return new RemotePlayerSyncer(
                 instanceService,
-                ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider,
                 virseAvatarHeadGameObjects,
-                virseAvatarTorsoGameObjects);
+                virseAvatarTorsoGameObjects,
+                ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider.GetHeadOverrideGOs(),
+                ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider.GetTorsoOverrideGOs());
         }
     }
 
@@ -32,20 +33,21 @@ namespace ViRSE.InstanceNetworking
     {
         private Dictionary<ushort, RemoteAvatarController> _remoteAvatars = new();
 
+        private InstanceService _instanceService;
         private List<GameObject> _virseAvatarHeadGameObjects;
         private List<GameObject> _virseAvatarTorsoGameObjects;
+        private List<GameObject> _avatarHeadOverrideGameObjects;
+        private List<GameObject> _avatarTorsoOverrideGameObjects;
 
-        private InstanceService _instanceService;
-        private IPlayerAppearanceOverridesProvider _playerAppearanceOverridesProvider;
 
-        public RemotePlayerSyncer(InstanceService instanceSevice, IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider, List<GameObject> virseAvatarHeadGameObjects, List<GameObject> virseAvatarTorsoGameObjects)
+        public RemotePlayerSyncer(InstanceService instanceSevice, List<GameObject> virseAvatarHeadGameObjects, List<GameObject> virseAvatarTorsoGameObjects, List<GameObject> avatarHeadOverrideGameObjects, List<GameObject> avatarTorsoOverrideGameObjects)
         {
             _instanceService = instanceSevice;
 
-            _playerAppearanceOverridesProvider = playerAppearanceOverridesProvider;
-
             _virseAvatarHeadGameObjects = virseAvatarHeadGameObjects;
             _virseAvatarTorsoGameObjects = virseAvatarTorsoGameObjects;
+            _avatarHeadOverrideGameObjects = avatarHeadOverrideGameObjects;
+            _avatarTorsoOverrideGameObjects = avatarTorsoOverrideGameObjects;
 
             _instanceService.OnReceiveRemotePlayerState += HandleReceiveRemotePlayerState;
             _instanceService.OnInstanceInfoChanged += HandleInstanceInfoChanged;
@@ -56,7 +58,7 @@ namespace ViRSE.InstanceNetworking
             Dictionary<ushort, InstancedClientInfo> receivedRemoteClientInfosWithAppearance = new();
             foreach (KeyValuePair<ushort, InstancedClientInfo> kvp in newInstanceInfo.ClientInfos)
             {
-                if (kvp.Key != _instanceService.LocalClientID && kvp.Value.InstancedAvatarAppearance.UsingViRSEPlayer)
+                if (kvp.Key != _instanceService.LocalClientID && kvp.Value.AvatarAppearanceWrapper.UsingViRSEPlayer)
                     receivedRemoteClientInfosWithAppearance.Add(kvp.Key, kvp.Value);
             }
 
@@ -66,11 +68,11 @@ namespace ViRSE.InstanceNetworking
                 {
                     GameObject remotePlayerPrefab = Resources.Load<GameObject>("RemoteAvatar");
                     GameObject remotePlayerGO = GameObject.Instantiate(remotePlayerPrefab);
-                    remotePlayerGO.GetComponent<RemoteAvatarController>().Initialize(_playerAppearanceOverridesProvider, _virseAvatarHeadGameObjects, _virseAvatarTorsoGameObjects);
+                    remotePlayerGO.GetComponent<RemoteAvatarController>().Initialize(_virseAvatarHeadGameObjects, _virseAvatarTorsoGameObjects, _avatarHeadOverrideGameObjects, _avatarTorsoOverrideGameObjects);
                     _remoteAvatars.Add(receivedRemoteClientInfoWithAppearance.ClientID, remotePlayerGO.GetComponent<RemoteAvatarController>());
                 }
 
-                _remoteAvatars[receivedRemoteClientInfoWithAppearance.ClientID].HandleReceiveAvatarAppearance(receivedRemoteClientInfoWithAppearance.InstancedAvatarAppearance);
+                _remoteAvatars[receivedRemoteClientInfoWithAppearance.ClientID].HandleReceiveAvatarAppearance(receivedRemoteClientInfoWithAppearance.AvatarAppearanceWrapper.ViRSEAvatarAppearance);
             }
 
             List<ushort> remoteClientIDsToDespawn = new(_remoteAvatars.Keys);

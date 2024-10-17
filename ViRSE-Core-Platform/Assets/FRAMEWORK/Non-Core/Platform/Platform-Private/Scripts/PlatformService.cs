@@ -129,13 +129,10 @@ namespace ViRSE.Core
 
             if (netcodeVersionConfirmation.NetcodeVersion != PlatformNetcodeVersion)
             {
-                //TODO - handle bad netcode version
                 Debug.LogError($"Bad platform netcode version, received version {netcodeVersionConfirmation.NetcodeVersion} but we are on {PlatformNetcodeVersion}");
             } 
             else
             {
-                //Debug.Log("Rec platform nv, sending reg, instance code. " + _currentInstanceCode);
-
                 ServerRegistrationRequest serverRegistrationRequest = new(_userIdentity, CurrentInstanceCode);
                 _commsHandler.SendMessage(serverRegistrationRequest.Bytes, PlatformNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
             }
@@ -152,16 +149,8 @@ namespace ViRSE.Core
 
             IsConnectedToServer = true;
 
-            //TODO try catch
             OnConnectedToServer?.Invoke();
-
             OnGlobalInfoChanged?.Invoke(GlobalInfo);
-
-            //Debug.Log("Local client platform ID = " + _localClientID);
-            foreach (WorldDetails worldDetails in AvailableWorlds.Values)
-            {
-                Debug.Log($"World {worldDetails.Name} at {worldDetails.IPAddress}:{worldDetails.PortNumber}");
-            }
         }
 
         private void HandleReceiveGlobalInfoUpdate(byte[] bytes)
@@ -234,14 +223,12 @@ namespace ViRSE.Core
 
          private void HandleUserSettingsChanged()
          {
-            Debug.Log("Platform detected user settings changed - name = " + UserSettings.PresentationConfig.PlayerName);
              _commsHandler.SendMessage(UserSettings.Bytes, PlatformNetworkingMessageCodes.UpdateUserSettings, TransmissionProtocol.TCP);
          }
 
         public void TearDown()
         {
             _commsHandler?.DisconnectFromServer();
-            //Probably destroy remote players, so we can create them from fresh after domain reload 
         }
     }
 

@@ -79,6 +79,13 @@ namespace ViRSE.InstanceNetworking
             }
         }
 
+        private void HandleConnectToServer()
+        {
+            _worldStateSyncer = new WorldStateSyncer(_instanceService);
+            _localPlayerSyncer = LocalPlayerSyncerFactory.Create(_instanceService);
+            _remotePlayerSyncer = RemotePlayerSyncerFactory.Create(_instanceService);
+        }
+
         private void FixedUpdate()
         {
             _instanceService.NetworkUpdate(); 
@@ -86,13 +93,7 @@ namespace ViRSE.InstanceNetworking
             //TODO - maybe the service should emit an update event that the others listen to?
             _worldStateSyncer?.NetworkUpdate();
             _localPlayerSyncer?.NetworkUpdate();
-        }
-
-        private void HandleConnectToServer() 
-        {
-            _worldStateSyncer = new WorldStateSyncer(_instanceService);
-            _localPlayerSyncer = LocalPlayerSyncerFactory.Create(_instanceService);
-            _remotePlayerSyncer = RemotePlayerSyncerFactory.Create(_instanceService);
+            _remotePlayerSyncer?.NetworkUpdate();   
         }
 
         private void HandleReceiveInstanceInfo(InstancedInstanceInfo instanceInfo) 
@@ -113,8 +114,6 @@ namespace ViRSE.InstanceNetworking
         {
             if (!Application.isPlaying)
                 return;
-
-            Debug.Log($"<color=red>Instance Integration disabled</color>");
 
             _instanceService.OnConnectedToServer -= HandleConnectToServer; //TODO, maybe these events can go into the connection debug wrapper thing?
             _instanceService.OnDisconnectedFromServer -= HandleDisconnectFromServer; //TODO, maybe these events can go into the connection debug wrapper thing?

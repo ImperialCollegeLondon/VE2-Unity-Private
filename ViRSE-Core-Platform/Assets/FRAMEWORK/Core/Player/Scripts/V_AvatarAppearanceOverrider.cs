@@ -11,9 +11,9 @@ namespace ViRSE.Core.Player
     public class V_AvatarAppearanceOverrider : MonoBehaviour, IPlayerAppearanceOverridesProvider
     {
         [Title("Avatar Presentation Override Selection")]
-        [BeginGroup(Style = GroupStyle.Round), SerializeField] public AvatarAppearanceOverrideType HeadOverrideType = AvatarAppearanceOverrideType.None;
+        [BeginGroup(Style = GroupStyle.Round), SerializeField] private AvatarAppearanceOverrideType HeadOverrideType = AvatarAppearanceOverrideType.None;
         [EditorButton(nameof(NotifyProviderOfChangeAppearanceOverrides), "Update overrides", activityType: ButtonActivityType.OnPlayMode)]
-        [EndGroup, SerializeField] public AvatarAppearanceOverrideType TorsoOverrideType = AvatarAppearanceOverrideType.None;
+        [EndGroup, SerializeField] private AvatarAppearanceOverrideType TorsoOverrideType = AvatarAppearanceOverrideType.None;
 
         [Title("Head Overrides")]
         [BeginGroup(Style = GroupStyle.Round), SerializeField, AssetPreview] private GameObject HeadOverrideOne;
@@ -38,34 +38,8 @@ namespace ViRSE.Core.Player
 
         AvatarAppearanceOverrideType IPlayerAppearanceOverridesProvider.HeadOverrideType => HeadOverrideType;
         AvatarAppearanceOverrideType IPlayerAppearanceOverridesProvider.TorsoOverrideType => TorsoOverrideType;
-
-        public GameObject GetHeadOverrideGO(AvatarAppearanceOverrideType overrideType)
-        {
-            return overrideType switch
-            {
-                AvatarAppearanceOverrideType.None => null,
-                AvatarAppearanceOverrideType.OverideOne => HeadOverrideOne,
-                AvatarAppearanceOverrideType.OverrideTwo => HeadOverrideTwo,
-                AvatarAppearanceOverrideType.OverrideThree => HeadOverrideThree,
-                AvatarAppearanceOverrideType.OverrideFour => HeadOverrideFour,
-                AvatarAppearanceOverrideType.OverrideFive => HeadOverrideFive,
-                _ => null,
-            };
-        }
-
-        public GameObject GetTorsoOverrideGO(AvatarAppearanceOverrideType overrideType)
-        {
-            return overrideType switch
-            {
-                AvatarAppearanceOverrideType.None => null,
-                AvatarAppearanceOverrideType.OverideOne => TorsoOverrideOne,
-                AvatarAppearanceOverrideType.OverrideTwo => TorsoOverrideTwo,
-                AvatarAppearanceOverrideType.OverrideThree => TorsoOverrideThree,
-                AvatarAppearanceOverrideType.OverrideFour => TorsoOverrideFour,
-                AvatarAppearanceOverrideType.OverrideFive => TorsoOverrideFive,
-                _ => null,
-            };
-        }
+        public List<GameObject> GetHeadOverrideGOs() => new() { HeadOverrideOne, HeadOverrideTwo, HeadOverrideThree, HeadOverrideFour, HeadOverrideFive };
+        public List<GameObject> GetTorsoOverrideGOs() => new() { TorsoOverrideOne, TorsoOverrideTwo, TorsoOverrideThree, TorsoOverrideFour, TorsoOverrideFive }; 
         #endregion
 
         //TODO - need an API for changing overrrides 

@@ -146,8 +146,8 @@ namespace ViRSE.Core //TODO workout namespace... Core.Common? Or just ViRSE.Comm
         public void NotifyProviderOfChangeAppearanceOverrides();
         public event Action OnAppearanceOverridesChanged;
 
-        public GameObject GetHeadOverrideGO(AvatarAppearanceOverrideType overrideType);
-        public GameObject GetTorsoOverrideGO(AvatarAppearanceOverrideType overrideType);
+        public List<GameObject> GetHeadOverrideGOs();
+        public List<GameObject> GetTorsoOverrideGOs();
     }
 
     public interface IPlayerSpawner
