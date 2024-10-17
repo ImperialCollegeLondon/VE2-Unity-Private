@@ -7,8 +7,6 @@ using static ViRSE.Core.Shared.CoreCommonSerializables;
 
 namespace ViRSE.Core.Player
 {
-
-
     //TODO, don't think this should be a mono, should just be a service, that we inject with the 2d and vr players
     public class Player : MonoBehaviour, ILocalPlayerRig //TODO - maybe should be PlayerService? Also, does this actually need to be a monobehaviour?
     {
@@ -42,8 +40,7 @@ namespace ViRSE.Core.Player
         private IPlayerSettingsProvider _playerSettingsProvider;
         private IPlayerAppearanceOverridesProvider _appearanceOverridesProvider;
 
-
-        //TODO - wire in the state 
+        //TODO - wire in the state?
         public void Initialize(PlayerStateConfig playerStateConfig, IPlayerSettingsProvider playerSettingsProvider, IPlayerAppearanceOverridesProvider appearanceOverridesProvider)
         {
             _playerMode = LocalPlayerMode.TwoD; //TODO - support other modes 
@@ -59,15 +56,13 @@ namespace ViRSE.Core.Player
                 _appearanceOverridesProvider.OnAppearanceOverridesChanged += HandleOverridesChanged;
         }
 
-        private void HandleSettingsChanged() 
+        private void HandleSettingsChanged()  //TODO, change local avatar
         {
-            Debug.Log("Player rig detected settings changed"); //TODO, change local avatar
             OnAppearanceChanged?.Invoke();
         }
 
-        private void HandleOverridesChanged() 
+        private void HandleOverridesChanged() //TODO, change local avatar
         {
-            Debug.Log("Player rig detected avatar overrides changed"); //TODO, change local avatar
             OnAppearanceChanged?.Invoke();
         }
 

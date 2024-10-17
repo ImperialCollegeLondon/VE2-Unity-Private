@@ -8,6 +8,7 @@ using ViRSE.Core;
 using static InstanceSyncSerializables;
 using static ViRSE.Core.Shared.CoreCommonSerializables;
 using System.IO;
+using ViRSE.InstanceNetworking;
 
 namespace ViRSE.Networking
 {

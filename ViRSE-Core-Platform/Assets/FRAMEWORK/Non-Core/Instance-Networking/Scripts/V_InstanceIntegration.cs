@@ -36,7 +36,8 @@ namespace ViRSE.InstanceNetworking
 
         private InstanceService _instanceService;
         private WorldStateSyncer _worldStateSyncer;
-        private PlayerSyncer _playerSyncer;
+        private LocalPlayerSyncer _localPlayerSyncer;
+        private RemotePlayerSyncer _remotePlayerSyncer;
 
         #region Core-Facing Interfaces
         //TODO - Could we follow the pattern set out by the VCs? Can we just stick this wiring in an interface?
@@ -84,13 +85,14 @@ namespace ViRSE.InstanceNetworking
 
             //TODO - maybe the service should emit an update event that the others listen to?
             _worldStateSyncer?.NetworkUpdate();
-            _playerSyncer?.NetworkUpdate();
+            _localPlayerSyncer?.NetworkUpdate();
         }
 
         private void HandleConnectToServer() 
         {
             _worldStateSyncer = new WorldStateSyncer(_instanceService);
-            _playerSyncer = PlayerSyncerFactory.Create(_instanceService);
+            _localPlayerSyncer = LocalPlayerSyncerFactory.Create(_instanceService);
+            _remotePlayerSyncer = RemotePlayerSyncerFactory.Create(_instanceService);
         }
 
         private void HandleReceiveInstanceInfo(InstancedInstanceInfo instanceInfo) 
@@ -121,11 +123,14 @@ namespace ViRSE.InstanceNetworking
             _instanceService = null;
             HandleDisconnectFromServer();
 
-            _playerSyncer.TearDown();
-            _playerSyncer = null;
-
             _worldStateSyncer.TearDown();
             _worldStateSyncer = null;
+
+            _localPlayerSyncer.TearDown();
+            _localPlayerSyncer = null;
+
+            _remotePlayerSyncer.TearDown();
+            _remotePlayerSyncer = null;
         }
     }
 

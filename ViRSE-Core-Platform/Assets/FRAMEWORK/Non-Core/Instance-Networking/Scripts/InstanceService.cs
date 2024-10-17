@@ -14,7 +14,7 @@ using System.Collections.Generic;
 using static ViRSE.InstanceNetworking.V_InstanceIntegration;
 using ViRSE.InstanceNetworking;
 
-namespace ViRSE.Core
+namespace ViRSE.InstanceNetworking
 {
     public static class InstanceServiceFactory
     {
@@ -101,6 +101,7 @@ namespace ViRSE.Core
 
             InstanceNetworkSettings instanceConnectionDetails = _networkSettingsProvider.InstanceNetworkSettings;
             Debug.Log("Try connect... " + instanceConnectionDetails.IP);
+            
             if (IPAddress.TryParse(instanceConnectionDetails.IP, out IPAddress ipAddress))
                 _commsHandler.ConnectToServer(ipAddress, instanceConnectionDetails.Port);
             else
