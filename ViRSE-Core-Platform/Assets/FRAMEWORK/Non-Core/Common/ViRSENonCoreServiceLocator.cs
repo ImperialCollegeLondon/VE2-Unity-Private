@@ -18,20 +18,9 @@ public class ViRSENonCoreServiceLocator : MonoBehaviour
             if (_instance == null)
                 _instance = FindFirstObjectByType<ViRSENonCoreServiceLocator>();
 
-            if (_instance == null)
-            {
-                if (_instance == null)
-                {
-                        _instance = new GameObject($"ViRSENonCoreServiceLocator{SceneManager.GetActiveScene().name}").AddComponent<ViRSENonCoreServiceLocator>();
-                    //if (!Application.isPlaying)
-                    //{
-                    //    Debug.Log("<color=yellow>MADE NEW NON CORE LOCATOR</color> " + SceneManager.GetActiveScene().name);
-                    //}
-                    //else
-                    //    Debug.Log("<color=red>TRIED TO CREATE A NEW NON CORE LOCATOR AT RUNTIME</color>");
-                }
-            }
-
+            if (_instance == null && !Application.isPlaying)
+                    _instance = new GameObject($"ViRSENonCoreServiceLocator{SceneManager.GetActiveScene().name}").AddComponent<ViRSENonCoreServiceLocator>();
+            
             return _instance;
         }
     }
@@ -49,39 +38,20 @@ public class ViRSENonCoreServiceLocator : MonoBehaviour
             else
                 return _instanceNetworkSettingsProvider;
 
-            //if (_instanceNetworkSettingsProvider == null)
-            //{
-            //    Debug.LogError("InstanceNetworkSettingsProvider not found");
-            //    Debug.LogError("GO = " + _instanceNetworkSettingsGOName);
-            //}
         }
         set {
             _instanceNetworkSettingsProvider = value;
 
             if (value != null)
-            {
-                //Debug.Log("SET NAME : " + value.GameObjectName);
                 _instanceNetworkSettingsGOName = value.GameObjectName;
-            }
         }
     }
 
 
     private void Awake()
     {
-        //Debug.Log("awake non core");
         _instance = this;
         //gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
         gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
-
-//#if UNITY_EDITOR
-//        EditorApplication.hierarchyChanged += OnHierarchyChanged;
-//#endif
-    }
-
-    private void OnDisable()
-    {
-        //Debug.Log("SCENE CHANGE non core");
-        _instance = null;
     }
 }

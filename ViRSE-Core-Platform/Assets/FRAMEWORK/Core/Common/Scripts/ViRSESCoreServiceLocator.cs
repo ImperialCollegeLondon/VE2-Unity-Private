@@ -18,11 +18,8 @@ namespace ViRSE.Core //TODO workout namespace... Core.Common? Or just ViRSE.Comm
                 if (_instance == null)
                     _instance = FindFirstObjectByType<ViRSECoreServiceLocator>();
 
-                if (_instance == null)
-                {
-                    Debug.Log("MADE NEW CORE LOCATOR");
+                if (_instance == null && !Application.isPlaying)
                     _instance = new GameObject($"ViRSECoreServiceLocator{SceneManager.GetActiveScene().name}").AddComponent<ViRSECoreServiceLocator>();
-                }
 
                 return _instance;
             }
@@ -99,28 +96,6 @@ namespace ViRSE.Core //TODO workout namespace... Core.Common? Or just ViRSE.Comm
             }
         }
 
-        [SerializeField] public string PlayerSpawnerGOName; // { get; private set; }
-        private IPlayerSpawner _playerSpawner;
-        // public IPlayerSpawner PlayerSpawner
-        // {
-        //     get
-        //     {
-        //         if (_playerSpawner == null && !string.IsNullOrEmpty(PlayerSpawnerGOName))
-        //             _playerSpawner = GameObject.Find(PlayerSpawnerGOName)?.GetComponent<IPlayerSpawner>();
-
-        //         return _playerSpawner; //Return even if disabled
-        //     }
-        //     set //Will need to be called externally
-        //     {
-        //         _playerSpawner = value;
-
-        //         if (value != null)
-        //             PlayerSpawnerGOName = value.GameObjectName;
-        //     }
-        // }
-
-        //TODO - all of this is runtime stuff, maybe shouldn't live here?
-
         private List<IStateModule> _worldstateSyncableModules = new();
         public IReadOnlyList<IStateModule> WorldstateSyncableModules => _worldstateSyncableModules.AsReadOnly();
         public event Action<IStateModule> OnStateModuleRegistered;
@@ -159,12 +134,6 @@ namespace ViRSE.Core //TODO workout namespace... Core.Common? Or just ViRSE.Comm
             //gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
             gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
         }
-
-        private void OnDisable()
-        {
-            _instance = null;
-        }
-
     }
 
     public interface IPlayerAppearanceOverridesProvider

@@ -234,12 +234,9 @@ public class InstanceSyncSerializables
 
             if (UsingViRSEPlayer)
             {
-                byte[] presentationBytes = ViRSEAvatarAppearance.PresentationConfig.Bytes;
-                writer.Write((ushort)presentationBytes.Length);
-                writer.Write(presentationBytes);
-
-                writer.Write((ushort)ViRSEAvatarAppearance.HeadOverrideType);
-                writer.Write((ushort)ViRSEAvatarAppearance.TorsoOverrideType);
+                byte[] virseAppearanceBytes = ViRSEAvatarAppearance.Bytes;
+                writer.Write((ushort)virseAppearanceBytes.Length);
+                writer.Write(virseAppearanceBytes);
             }
 
             return stream.ToArray();
@@ -254,14 +251,9 @@ public class InstanceSyncSerializables
             
             if (UsingViRSEPlayer)
             {
-                ushort presentationBytesLength = reader.ReadUInt16();
-                byte[] presentationBytes = reader.ReadBytes(presentationBytesLength);
-                PlayerPresentationConfig playerPresentationConfig = new(presentationBytes);
-
-                AvatarAppearanceOverrideType headOverrideType = (AvatarAppearanceOverrideType)reader.ReadUInt16();  
-                AvatarAppearanceOverrideType torsoOverrideType = (AvatarAppearanceOverrideType)reader.ReadUInt16();
-                
-                ViRSEAvatarAppearance = new ViRSEAvatarAppearance(playerPresentationConfig, headOverrideType, torsoOverrideType);
+                ushort virseAppearanceBytesLength = reader.ReadUInt16();
+                byte[] virseAppearanceBytes = reader.ReadBytes(virseAppearanceBytesLength);
+                ViRSEAvatarAppearance = new(virseAppearanceBytes);
             }
         }
     }

@@ -6,7 +6,7 @@ using static ViRSE.Core.Shared.CoreCommonSerializables;
 
 namespace ViRSE.Core.VComponents
 {
-    [System.Serializable]
+    [Serializable]
     public class PushActivatableConfig
     {
         [SpaceArea(spaceAfter: 15), SerializeField, IgnoreParent] public ActivatableStateConfig StateConfig = new();
@@ -41,48 +41,16 @@ namespace ViRSE.Core.VComponents
         ICollidePlayerInteratable ICollidePlayerInteratableImplementor.CollidePlayerInteratable => _pushActivatable.ColliderInteractionModule;
         #endregion
 
-        private void OnValidate()
+        private void OnEnable()
         {
-            if (_config == null)
-                _config = new();
-        }
-
-        private void Start()
-        {
-            //Debug.Log("Activ start - " + (_pushActivatable == null));
-
-            //if (_pushActivatable == null)
             _pushActivatable = PushActivatableFactory.Create(_config, _state, gameObject.name);
         }
 
-#if UNITY_EDITOR
-        private static void HandleReload() //TODO - make use of OnEnable here instead
+        private void OnDisable()
         {
-            if (!Application.isPlaying)
-            {
-                return;
-            }
-            
-            Debug.Log("Make push activtable");
-
-            // Attempt to find the existing instance in the scene
-            V_PushActivatable[] v_PushActivatables = GameObject.FindObjectsOfType<V_PushActivatable>();
-
-            //Debug.Log("Try recreate Push Activatable " + v_PushActivatables.Count() + "----------------------");
-            foreach (V_PushActivatable v_PushActivatable in v_PushActivatables)
-            {
-                //Debug.Log("pushactive null? " + (v_PushActivatable._pushActivatable == null));
-                //if (v_PushActivatable._pushActivatable == null)
-                v_PushActivatable.Start();
-            }
+            _pushActivatable.TearDown();
+            _pushActivatable = null;
         }
-
-        [UnityEditor.InitializeOnLoadMethod]
-        private static void RegisterDomainReloadCallback()
-        {
-            UnityEditor.AssemblyReloadEvents.afterAssemblyReload += HandleReload;
-        }
-#endif
 
     }
 
@@ -99,7 +67,6 @@ namespace ViRSE.Core.VComponents
         }
     }
 
-    [Serializable]
     public class PushActivatable
     {
         #region Modules
@@ -128,6 +95,11 @@ namespace ViRSE.Core.VComponents
         {
             //Could live in interactor, call InvertState on state module, which would emit an event to the network module "OnStateChanged"
             StateModule.InvertState(interactorID);
+        }
+
+        public void TearDown() 
+        {
+            StateModule.TearDown();
         }
     }
 }

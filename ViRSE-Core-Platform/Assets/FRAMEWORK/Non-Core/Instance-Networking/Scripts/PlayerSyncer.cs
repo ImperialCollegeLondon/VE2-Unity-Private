@@ -109,7 +109,6 @@ namespace ViRSE.InstanceNetworking
 
         private void HandleLocalAppearanceChanged()
         {
-            Debug.Log($"InstanceService detected change to player settings using VAvatar? {_instancedPlayerPresentation.UsingViRSEPlayer}");
             _instanceService.SendAvatarAppearanceUpdate(_instancedPlayerPresentation.Bytes);
         }
 

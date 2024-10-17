@@ -11,11 +11,12 @@ namespace ViRSE.Core.Shared //TODO break into different files
         public string GameObjectName { get; }
     }
 
-    public interface IStateModule //TODO, rename to 
+    public interface IStateModule 
     {
         public string ID {get; }
         public byte[] StateAsBytes { get; set; }
 
+        public bool IsNetworked { get; }
         public TransmissionProtocol TransmissionProtocol { get; }
         public float TransmissionFrequency { get; }
     }

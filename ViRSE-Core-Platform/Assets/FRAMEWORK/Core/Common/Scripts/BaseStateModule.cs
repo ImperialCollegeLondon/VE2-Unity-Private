@@ -35,10 +35,10 @@ public abstract class BaseStateModule : IStateModule
 
     public event Action OnBytesUpdated;
 
-    //TODO - when the state is written to, we need to trigger some event to handle it... i.e, make the light turn on!
-    byte[] IStateModule.StateAsBytes { get => State.Bytes; set => UpdateBytes(value); }
-    TransmissionProtocol IStateModule.TransmissionProtocol => Config.RepeatedTransmissionConfig.TransmissionType;
-    float IStateModule.TransmissionFrequency => Config.RepeatedTransmissionConfig.TransmissionFrequency;
+    public bool IsNetworked => Config.IsNetworked;
+    public byte[] StateAsBytes { get => State.Bytes; set => UpdateBytes(value); }
+    public TransmissionProtocol TransmissionProtocol => Config.RepeatedTransmissionConfig.TransmissionType;
+    public float TransmissionFrequency => Config.RepeatedTransmissionConfig.TransmissionFrequency;
 
 
     public BaseStateModule(ViRSESerializable state, BaseStateConfig config, string goName, string syncType)
@@ -53,7 +53,8 @@ public abstract class BaseStateModule : IStateModule
 
     public void TearDown()
     {
-        ViRSECoreServiceLocator.Instance.DeregisterStateModule(this);
+        if (ViRSECoreServiceLocator.Instance != null)
+            ViRSECoreServiceLocator.Instance.DeregisterStateModule(this);
     }
 
     protected abstract void UpdateBytes(byte[] newBytes);

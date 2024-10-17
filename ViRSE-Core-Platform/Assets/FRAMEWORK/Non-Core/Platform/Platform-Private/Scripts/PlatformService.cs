@@ -54,16 +54,10 @@ namespace ViRSE.Core
         public InstanceNetworkSettings InstanceNetworkSettings {
             get {
                 string currentWorldName = PlatformInstanceInfo.SplitInstanceCode(CurrentInstanceCode).Item1;
-                Debug.Log("Looking for instance network settings - current scene is " + currentWorldName);
                 if (!AvailableWorlds.TryGetValue(currentWorldName, out WorldDetails worldDetails))
-                {
-                    Debug.LogError($"Could not find connection world details for world {currentWorldName}");
                     return null;
-                }
                 else
-                {
                     return new InstanceNetworkSettings(worldDetails.IPAddress, worldDetails.PortNumber, CurrentInstanceCode);
-                }
             }
         }
         #endregion

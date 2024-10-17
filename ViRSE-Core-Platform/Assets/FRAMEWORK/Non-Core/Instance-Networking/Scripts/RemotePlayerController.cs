@@ -78,10 +78,7 @@ namespace ViRSE.InstanceNetworking
             if (newAvatarAppearance.ViRSEAvatarAppearance.HeadOverrideType != AvatarAppearanceOverrideType.None) 
                 avatarHead = _playerAppearanceOverridesProvider.GetHeadOverrideGO(newAvatarAppearance.ViRSEAvatarAppearance.HeadOverrideType);
             if (avatarHead == null) //No override, or gameobject not found
-            {
-                Debug.Log($"Avatar head type: {newAvatarAppearance.ViRSEAvatarAppearance.PresentationConfig.AvatarHeadType} heads found? {_virseAvatarHeadGameObjects.Count}");
                 avatarHead = _virseAvatarHeadGameObjects[(int)newAvatarAppearance.ViRSEAvatarAppearance.PresentationConfig.AvatarHeadType];
-            }
             bool headChanged = SetHeadGameObject(avatarHead);
 
             GameObject avatarTorso = null;

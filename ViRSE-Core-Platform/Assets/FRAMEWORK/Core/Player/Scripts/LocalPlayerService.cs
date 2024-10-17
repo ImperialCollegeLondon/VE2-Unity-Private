@@ -79,7 +79,8 @@ namespace ViRSE.Core.Player
 
         private void OnDisable() 
         {
-            ViRSECoreServiceLocator.Instance.LocalPlayerRig = null;
+            if (ViRSECoreServiceLocator.Instance != null)
+                ViRSECoreServiceLocator.Instance.LocalPlayerRig = null;
         }
 
         public PlayerState GetPlayerState()

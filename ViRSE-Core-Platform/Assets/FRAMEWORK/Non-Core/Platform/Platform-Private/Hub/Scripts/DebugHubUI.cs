@@ -32,9 +32,6 @@ public class DebugHubUI : MonoBehaviour
             availableWorldList += $"{worldDetails.Name} - <i><color=yellow>{worldDetails.IPAddress}:{worldDetails.PortNumber}</color></i>\n";
         }
 
-        Debug.Log("TRY GET TEXT - " + (instancesListText == null));
-        Debug.Log(instancesListText.gameObject.name);
-
         instancesListText.text = availableWorldList;
     }
 

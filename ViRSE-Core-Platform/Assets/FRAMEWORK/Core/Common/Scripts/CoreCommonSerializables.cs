@@ -300,18 +300,51 @@ namespace ViRSE.Core.Shared //TODO - Need to expose to customer
                                 AvatarBlue = reader.ReadUInt16();
                         }
                 }
-
-                public class ViRSEAvatarAppearance
+                
+                [Serializable]
+                public class ViRSEAvatarAppearance : ViRSESerializable
                 {
-                        public PlayerPresentationConfig PresentationConfig { get; }
-                        public AvatarAppearanceOverrideType HeadOverrideType { get; }
-                        public AvatarAppearanceOverrideType TorsoOverrideType { get; }
+                        public PlayerPresentationConfig PresentationConfig { get; set; }
+                        public AvatarAppearanceOverrideType HeadOverrideType { get; set; }
+                        public AvatarAppearanceOverrideType TorsoOverrideType { get; set; }
+
+                        public ViRSEAvatarAppearance() { }
+
+                        public ViRSEAvatarAppearance(byte[] bytes) : base(bytes) { }
 
                         public ViRSEAvatarAppearance(PlayerPresentationConfig presentationConfig, AvatarAppearanceOverrideType headOverrideType, AvatarAppearanceOverrideType torsoOverrideType)
                         {
                                 PresentationConfig = presentationConfig;
                                 HeadOverrideType = headOverrideType;
                                 TorsoOverrideType = torsoOverrideType;
+                        }
+
+                        protected override byte[] ConvertToBytes()
+                        {
+                                using MemoryStream stream = new();
+                                using BinaryWriter writer = new(stream);
+
+                                byte[] presentationConfigBytes = PresentationConfig.Bytes;
+                                writer.Write((ushort)presentationConfigBytes.Length);
+                                writer.Write(presentationConfigBytes);
+
+                                writer.Write((ushort)HeadOverrideType);
+                                writer.Write((ushort)TorsoOverrideType);
+
+                                return stream.ToArray();
+                        }
+
+                        protected override void PopulateFromBytes(byte[] bytes)
+                        {
+                                using MemoryStream stream = new(bytes);
+                                using BinaryReader reader = new(stream);
+
+                                ushort presentationConfigLength = reader.ReadUInt16();
+                                byte[] presentationConfigBytes = reader.ReadBytes(presentationConfigLength);
+                                PresentationConfig = new PlayerPresentationConfig(presentationConfigBytes);
+
+                                HeadOverrideType = (AvatarAppearanceOverrideType)reader.ReadUInt16();
+                                TorsoOverrideType = (AvatarAppearanceOverrideType)reader.ReadUInt16();
                         }
                 }
 
