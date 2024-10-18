@@ -79,7 +79,7 @@ namespace ViRSE.InstanceNetworking
 
         private void HandleConnectToServer()
         {
-            _worldStateSyncer = new WorldStateSyncer(_instanceService);
+            _worldStateSyncer = WorldStateSyncerFactory.Create(_instanceService);
             _localPlayerSyncer = LocalPlayerSyncerFactory.Create(_instanceService);
             _remotePlayerSyncer = RemotePlayerSyncerFactory.Create(_instanceService);
         }

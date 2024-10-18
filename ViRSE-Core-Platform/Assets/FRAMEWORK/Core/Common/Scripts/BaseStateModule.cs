@@ -26,36 +26,55 @@ public class BaseStateConfig
     public IMultiplayerSupport MultiplayerSupport => ViRSECoreServiceLocator.Instance.MultiplayerSupport;
 }
 
-public abstract class BaseStateModule : IStateModule
+public abstract class BaseStateModule : IBaseStateModule
 {
     public ViRSESerializable State { get; private set; }
     protected BaseStateConfig Config { get; private set; }
-    public string ID { get; private set; }
-    public string GameObjectName { get; private set; }  
+    public string GameObjectName { get; private set; }
+    private readonly BaseStateModuleContainer _baseStateContainer;
 
     //public event Action OnBytesUpdated;
 
+    private bool _wasNetworkedLastFrame;
     public bool IsNetworked => Config.IsNetworked;
-    public byte[] StateAsBytes { get => State.Bytes; set => UpdateBytes(value); }
+    public event Action<bool> OnIsNetworkedChanged;
+
     public TransmissionProtocol TransmissionProtocol => Config.RepeatedTransmissionConfig.TransmissionType;
     public float TransmissionFrequency => Config.RepeatedTransmissionConfig.TransmissionFrequency;
 
 
-    public BaseStateModule(ViRSESerializable state, BaseStateConfig config, string goName, string syncType)
+    public BaseStateModule(ViRSESerializable state, BaseStateConfig config, string goName, BaseStateModuleContainer baseStateContainer)
     {
         State = state;
         Config = config;
         GameObjectName = goName;
-        ID = syncType + ":" + goName;
 
-        ViRSECoreServiceLocator.Instance.RegisterStateModule(this);
+        _baseStateContainer = baseStateContainer;
+        _baseStateContainer.RegisterStateModule(this);
+
+        _wasNetworkedLastFrame = IsNetworked;
     }
 
-    public void TearDown()
+    public void HandleFixedUpdate() 
     {
-        if (ViRSECoreServiceLocator.Instance != null)
-            ViRSECoreServiceLocator.Instance.DeregisterStateModule(this);
+        if (IsNetworked && !_wasNetworkedLastFrame)
+            OnIsNetworkedChanged?.Invoke(true);
+        else if (!IsNetworked && _wasNetworkedLastFrame)
+            OnIsNetworkedChanged?.Invoke(false);
     }
 
+    public virtual void TearDown() => _baseStateContainer.DeregisterStateModule(this);
+
+}
+
+public abstract class BaseWorldStateModule : BaseStateModule, IWorldStateModule
+{
+    public string ID { get; private set; }
+    public byte[] StateAsBytes { get => State.Bytes; set => UpdateBytes(value); }
     protected abstract void UpdateBytes(byte[] newBytes);
+
+    public BaseWorldStateModule(ViRSESerializable state, BaseStateConfig config, string goName, string syncType, WorldStateModulesContainer worldStateModulesContainer) : base(state, config, goName, worldStateModulesContainer)
+    {
+        ID = syncType + ":" + goName;
+    }
 }

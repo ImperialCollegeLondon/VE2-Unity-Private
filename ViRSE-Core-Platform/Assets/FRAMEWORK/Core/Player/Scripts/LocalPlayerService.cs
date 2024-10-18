@@ -7,81 +7,120 @@ using static ViRSE.Core.Shared.CoreCommonSerializables;
 
 namespace ViRSE.Core.Player
 {
-    //TODO, don't think this should be a mono, should just be a service, that we inject with the 2d and vr players
-    public class ViRSEPlayer : MonoBehaviour, IViRSEPlayerRig //TODO - maybe should be PlayerService? Also, does this actually need to be a monobehaviour?
+    public static class ViRSEPlayerFactory
     {
-        #region Plugin Runtime interfaces
-        public Vector3 RootPosition { get => _activePlayer.RootPosition; set => _activePlayer.RootPosition = value; }
-        public Quaternion RootRotation { get => _activePlayer.RootRotation; set => _activePlayer.RootRotation = value; }
-        public Vector3 HeadPosition => Camera.main.transform.position;
-        public Quaternion HeadRotation => Camera.main.transform.rotation;
-        public TransmissionProtocol TransmissionProtocol => _stateConfig.RepeatedTransmissionConfig.TransmissionType;
-        public float TransmissionFrequency => _stateConfig.RepeatedTransmissionConfig.TransmissionFrequency;
-        #endregion
+        private const string LOCAL_PLAYER_RIG_PREFAB_PATH = "LocalPlayerRig";
 
-        [SerializeField, HideInInspector] private LocalPlayerMode _playerMode;
+        public static GameObject Create(ViRSESerializable state, BaseStateConfig config, string goName, Transform spawnTransform)
+        {
+            GameObject localPlayerRigPrefab = Resources.Load(LOCAL_PLAYER_RIG_PREFAB_PATH) as GameObject;
+            GameObject instantiatedPlayer = GameObject.Instantiate(localPlayerRigPrefab, spawnTransform.position, spawnTransform.rotation);
+            ViRSEPlayer virsePlayer = instantiatedPlayer.GetComponent<ViRSEPlayer>();
+
+            PlayerStateModule playerStateModule = new(state, config, goName, ViRSECoreServiceLocator.Instance.ViRSEPlayerContainer, ViRSECoreServiceLocator.Instance.PlayerSettingsProvider, ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider, virsePlayer.GetPlayer2DTransform(), Camera.main);
+            virsePlayer.Initialize(playerStateModule, ViRSECoreServiceLocator.Instance.PlayerSettingsProvider.UserSettings.Player2DControlConfig, ViRSECoreServiceLocator.Instance.PlayerSettingsProvider.UserSettings.PlayerVRControlConfig);
+            return instantiatedPlayer;
+        }
+    }
+
+    public class PlayerStateModule : BaseStateModule, IPlayerStateModule
+    {
+        public PlayerState PlayerTransform { get {
+            return new(_player2DTransform.position, _player2DTransform.rotation, _player2DCamera.transform.position, _player2DCamera.transform.rotation);
+        }}
+
+        public ViRSEAvatarAppearance AvatarAppearance { get {
+            if (_appearanceOverridesProvider != null)
+                    return new(_playerSettingsProvider.UserSettings.PresentationConfig, _appearanceOverridesProvider.HeadOverrideType, _appearanceOverridesProvider.TorsoOverrideType);
+                else
+                    return new(_playerSettingsProvider.UserSettings.PresentationConfig, AvatarAppearanceOverrideType.None, AvatarAppearanceOverrideType.None);
+            }
+        }
+
+        public event Action<ViRSEAvatarAppearance> OnAvatarAppearanceChanged;
+
+        private readonly IPlayerSettingsProvider _playerSettingsProvider;
+        private readonly IPlayerAppearanceOverridesProvider _appearanceOverridesProvider;
+        private readonly Transform _player2DTransform; //TODO
+        private readonly Camera _player2DCamera; //TODO
+
+        public PlayerStateModule(ViRSESerializable state, BaseStateConfig config, string goName, 
+                ViRSEPlayerStateModuleContainer playerStateModuleContainer, IPlayerSettingsProvider playerSettingsProvider, IPlayerAppearanceOverridesProvider appearanceOverridesProvider,
+                Transform Player2DTransform, Camera Player2DCamera) 
+                : base(state, config, goName, playerStateModuleContainer)
+        {
+            _playerSettingsProvider = playerSettingsProvider;
+            _playerSettingsProvider.OnLocalChangeToPlayerSettings += HandleAvatarAppearanceChanged;
+
+            _appearanceOverridesProvider = appearanceOverridesProvider;
+            if (_appearanceOverridesProvider != null)
+                _appearanceOverridesProvider.OnAppearanceOverridesChanged += HandleAvatarAppearanceChanged;
+
+            _player2DTransform = Player2DTransform;
+            _player2DCamera = Player2DCamera;
+        }
+
+        private void HandleAvatarAppearanceChanged()
+        {
+            OnAvatarAppearanceChanged?.Invoke(AvatarAppearance);
+        }
+
+        // private void SetPlayerPosition(Vector3 position)
+        // {
+        //     _activePlayer.transform.position = position;
+
+        //     //How do we move back to the start position? 
+        //     //SartPosition lives in the PluginRuntime
+        //     //But the ui button that respawns the player lives in PluginRuntime 
+
+        //     //FrameworkRuntime will have to emit an event to PluginService to say "OnPlayerRequestRespawn"
+        // }
+
+        // private void SetPlayerRotation(Quaternion rotation)
+        // {
+        //     _activePlayer.transform.rotation = rotation;
+        // }
+
+        public override void TearDown()
+        {
+            base.TearDown();
+
+            _playerSettingsProvider.OnLocalChangeToPlayerSettings -= HandleAvatarAppearanceChanged;
+
+            if (_appearanceOverridesProvider != null)
+                _appearanceOverridesProvider.OnAppearanceOverridesChanged -= HandleAvatarAppearanceChanged;
+        }
+    }
+
+    //TODO, don't think this should be a mono, should just be a service, that we inject with the 2d and vr players
+    public class ViRSEPlayer : MonoBehaviour //, IViRSEPlayerRig //TODO - maybe should be PlayerService? Also, does this actually need to be a monobehaviour?
+    {
+        [SerializeField, HideInInspector] private LocalPlayerMode _playerMode = LocalPlayerMode.TwoD; //TODO!
         [SerializeField] private PlayerController2D _2dPlayer;
         [SerializeField] private PlayerControllerVR _vrPlayer;
         private PlayerController _activePlayer => _playerMode == LocalPlayerMode.TwoD? _2dPlayer : _vrPlayer;
 
-        public bool IsNetworked => true; //TODO!
-
-        public ViRSEAvatarAppearance AvatarAppearance {
-            get {
-                if (_appearanceOverridesProvider != null)
-                    return new ViRSEAvatarAppearance(_playerSettingsProvider.UserSettings.PresentationConfig, _appearanceOverridesProvider.HeadOverrideType, _appearanceOverridesProvider.TorsoOverrideType);
-                else
-                    return new ViRSEAvatarAppearance(_playerSettingsProvider.UserSettings.PresentationConfig, AvatarAppearanceOverrideType.None, AvatarAppearanceOverrideType.None);
-            }
-        }
-        public event Action OnAppearanceChanged;
-
-        private PlayerStateConfig _stateConfig;
-        private IPlayerSettingsProvider _playerSettingsProvider;
-        private IPlayerAppearanceOverridesProvider _appearanceOverridesProvider;
+        private PlayerStateModule _playerStateModule;
+        private Player2DControlConfig _player2DControlConfig;
+        private PlayerVRControlConfig _playerVRControlConfig;
 
         //TODO - wire in the state?
-        public void Initialize(PlayerStateConfig playerStateConfig, IPlayerSettingsProvider playerSettingsProvider, IPlayerAppearanceOverridesProvider appearanceOverridesProvider)
+        public void Initialize(PlayerStateModule playerStateModule, Player2DControlConfig player2DControlConfig, PlayerVRControlConfig playerVRControlConfig)
         {
-            _playerMode = LocalPlayerMode.TwoD; //TODO - support other modes 
+            _playerStateModule = playerStateModule;
+            _playerStateModule.OnAvatarAppearanceChanged += HandleAvatarAppearanceChanged;
 
-            _stateConfig = playerStateConfig;
-            _playerSettingsProvider = playerSettingsProvider;
-            _appearanceOverridesProvider = appearanceOverridesProvider;
+            _player2DControlConfig = player2DControlConfig;
+            _playerVRControlConfig = playerVRControlConfig;
 
-            //There MUST be a PlayerSettingsProvider to spawn the player rig 
-            _playerSettingsProvider.OnLocalChangeToPlayerSettings += HandleSettingsChanged;
-
-            if (_appearanceOverridesProvider != null)
-                _appearanceOverridesProvider.OnAppearanceOverridesChanged += HandleOverridesChanged;
+            //TODO - instantiate VR and 2D Players, wire in control configs 
+            //Sub players should probably inherit from a base, that has an abstract "public ViRSESerializable GetPlayerTransform", the state module can then use this 
         }
 
-        private void HandleSettingsChanged()  //TODO, change local avatar
+        private void HandleAvatarAppearanceChanged(ViRSEAvatarAppearance appearance)
         {
-            OnAppearanceChanged?.Invoke();
-        }
-
-        private void HandleOverridesChanged() //TODO, change local avatar
-        {
-            OnAppearanceChanged?.Invoke();
-        }
-
-
-        private void Start()
-        {
-            ViRSECoreServiceLocator.Instance.LocalPlayerRig = this;
-        }
-
-        private void OnDisable() 
-        {
-            if (ViRSECoreServiceLocator.Instance != null)
-                ViRSECoreServiceLocator.Instance.LocalPlayerRig = null;
-        }
-
-        public PlayerState GetPlayerState()
-        {
-            return new PlayerState(transform.position, transform.rotation, Camera.main.transform.position, Camera.main.transform.rotation);
-        }
+            //TODO - Change local avatar
+        }   
 
         private void Update()
         {
@@ -91,20 +130,14 @@ namespace ViRSE.Core.Player
             }
         }
 
-        private void SetPlayerPosition(Vector3 position)
+        private void FixedUpdate()
         {
-            _activePlayer.transform.position = position;
-
-            //How do we move back to the start position? 
-            //SartPosition lives in the PluginRuntime
-            //But the ui button that respawns the player lives in PluginRuntime 
-
-            //FrameworkRuntime will have to emit an event to PluginService to say "OnPlayerRequestRespawn"
+            _playerStateModule.HandleFixedUpdate();
         }
 
-        private void SetPlayerRotation(Quaternion rotation)
+        public Transform GetPlayer2DTransform()  //TODO remove
         {
-            _activePlayer.transform.rotation = rotation;
+            return _2dPlayer.transform;
         }
     }
 

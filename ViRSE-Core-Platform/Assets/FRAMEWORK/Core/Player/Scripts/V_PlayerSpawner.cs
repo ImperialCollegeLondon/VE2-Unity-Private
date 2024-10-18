@@ -17,7 +17,7 @@ namespace ViRSE.Core.Player
     //TODO, consolidate all this into one config class?
 
     [ExecuteInEditMode]
-    public class V_PlayerSpawner : MonoBehaviour, IPlayerSpawner //Should this be called "PlayerIntegration"?
+    public class V_PlayerSpawner : MonoBehaviour//, IPlayerSpawner //Should this be called "PlayerIntegration"?
     {
         #region domain-reload-tolerant data
         [SerializeField] public bool enableVR;
@@ -29,15 +29,14 @@ namespace ViRSE.Core.Player
         [SerializeField, HideInInspector] private Quaternion playerStartRotation;
         #endregion
 
-        private const string LOCAL_PLAYER_RIG_PREFAB_PATH = "LocalPlayerRig";
         private GameObject _localPlayerRig;
-        private ViRSEPlayer _player;
+        //private ViRSEPlayer _player;
 
-        #region Player Spawner Interfaces
-        public bool IsEnabled {get; private set;} = false;
-        public string GameObjectName => gameObject.name;
-        public event Action OnEnabledStateChanged;
-        #endregion
+        // #region Player Spawner Interfaces
+        // public bool IsEnabled {get; private set;} = false;
+        // public string GameObjectName => gameObject.name;
+        // public event Action OnEnabledStateChanged;
+        // #endregion
 
         void OnEnable() 
         {
@@ -47,8 +46,8 @@ namespace ViRSE.Core.Player
                 return;
             }
 
-            IsEnabled = true;
-            OnEnabledStateChanged?.Invoke();
+            // IsEnabled = true;
+            // OnEnabledStateChanged?.Invoke();
 
             if (!startingPositionSet)
             {
@@ -66,22 +65,16 @@ namespace ViRSE.Core.Player
             if (ViRSECoreServiceLocator.Instance.PlayerSettingsProvider.ArePlayerSettingsReady)
                 HandlePlayerSettingsReady();
             else
-                ViRSECoreServiceLocator.Instance.PlayerSettingsProvider.OnPlayerSettingsReady += HandlePlayerSettingsReady;
+                ViRSECoreServiceLocator.Instance.PlayerSettingsProvider.OnPlayerSettingsReady += HandlePlayerSettingsReady; //TODO- Maybe just wire this into the PlayerService?
         }
 
         private void HandlePlayerSettingsReady()
         {
             ViRSECoreServiceLocator.Instance.PlayerSettingsProvider.OnPlayerSettingsReady -= HandlePlayerSettingsReady;
+            _localPlayerRig = ViRSEPlayerFactory.Create(ViRSECoreServiceLocator.Instance.PlayerSettingsProvider.UserSettings, playerStateConfig, gameObject.name, transform);
 
-            GameObject localPlayerRigGO = GameObject.Find(LOCAL_PLAYER_RIG_PREFAB_PATH);
-            GameObject localPlayerRigPrefab = Resources.Load("LocalPlayerRig") as GameObject;
-            _localPlayerRig = Instantiate(localPlayerRigPrefab, transform.position, transform.rotation);
-
-            _player = _localPlayerRig.GetComponent<ViRSEPlayer>();
-            _player.Initialize(playerStateConfig, ViRSECoreServiceLocator.Instance.PlayerSettingsProvider, ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider); //TODO, maybe just inject the locator?
-
-            _player.RootPosition = playerStartPosition;
-            _player.RootRotation = playerStartRotation;
+            _localPlayerRig.transform.position = playerStartPosition;
+            _localPlayerRig.transform.rotation = playerStartRotation;
             //TODO, also need to wire in some VR dependency, so that the sync module can track the VR position, head, hands, etc
         }
 
@@ -90,13 +83,14 @@ namespace ViRSE.Core.Player
             if (!Application.isPlaying)
                 return;
 
-            IsEnabled = false;
-            OnEnabledStateChanged?.Invoke();
+            // IsEnabled = false;
+            // OnEnabledStateChanged?.Invoke();
 
+            //TODO, get the state module to update this itself, then we don't need to worry about setting it here
             if (_localPlayerRig != null) 
             {
-                playerStartPosition = _player.RootPosition;
-                playerStartRotation = _player.RootRotation;
+                playerStartPosition = _localPlayerRig.transform.position;
+                playerStartRotation = _localPlayerRig.transform.rotation;
                 
                 DestroyImmediate(_localPlayerRig);
             }

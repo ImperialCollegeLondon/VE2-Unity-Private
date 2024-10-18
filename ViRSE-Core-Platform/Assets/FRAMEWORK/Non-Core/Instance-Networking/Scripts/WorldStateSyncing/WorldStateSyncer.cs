@@ -8,13 +8,21 @@ using static InstanceSyncSerializables;
 
 namespace ViRSE.InstanceNetworking
 {
+    public static class WorldStateSyncerFactory 
+    {
+        public static WorldStateSyncer Create(InstanceService instanceService) 
+        {
+            return new WorldStateSyncer(instanceService, ViRSECoreServiceLocator.Instance.WorldStateModulesContainer);
+        }
+    }
+
     public class WorldStateSyncer 
     {
         private class SyncInfo
         {
             public int HostSyncOffset;
             public PredictiveWorldStateHistoryQueue HistoryQueue;
-            public IStateModule StateModule;
+            public IWorldStateModule StateModule;
             public byte[] PreviousState;
 
             public int HostSyncInterval => (int)(50 / StateModule.TransmissionFrequency);
@@ -30,22 +38,26 @@ namespace ViRSE.InstanceNetworking
         public int WorldStateHistoryQueueSize { get; private set; } = 100; //TODO tie this into ping
 
         private readonly InstanceService _instanceService;
+        private readonly WorldStateModulesContainer _worldStateModulesContainer;
 
-        public WorldStateSyncer(InstanceService instanceService) 
+        public WorldStateSyncer(InstanceService instanceService, WorldStateModulesContainer worldStateModulesContainer) 
         {
             _instanceService = instanceService;
             _instanceService.OnReceiveWorldStateSyncableBundle += HandleReceiveWorldStateBundle;
 
-            foreach (IStateModule stateModule in ViRSECoreServiceLocator.Instance.WorldstateSyncableModules)
-                RegisterStateModule(stateModule);
+            _worldStateModulesContainer = worldStateModulesContainer;
+            _worldStateModulesContainer.OnWorldStateModuleRegistered += RegisterStateModule;
+            _worldStateModulesContainer.OnWorldStateModuleDeregistered += DerigsterFromSyncer;
 
-            ViRSECoreServiceLocator.Instance.OnStateModuleRegistered += RegisterStateModule;
-            ViRSECoreServiceLocator.Instance.OnStateModuleDeregistered += DerigsterFromSyncer;
+            foreach (IWorldStateModule stateModule in worldStateModulesContainer.WorldstateSyncableModules)
+                RegisterStateModule(stateModule);
         } 
 
         public void TearDown() 
         {
             _instanceService.OnReceiveWorldStateSyncableBundle -= HandleReceiveWorldStateBundle;
+            _worldStateModulesContainer.OnWorldStateModuleRegistered -= RegisterStateModule;
+            _worldStateModulesContainer.OnWorldStateModuleDeregistered -= DerigsterFromSyncer;
         }
 
         //Happens if we move between instances of the same plugin
@@ -55,7 +67,7 @@ namespace ViRSE.InstanceNetworking
             //May need to tell all the syncables to wipe their data here
         }
 
-        public void RegisterStateModule(IStateModule stateModule)
+        public void RegisterStateModule(IWorldStateModule stateModule)
         {
             PredictiveWorldStateHistoryQueue historyQueue = new(WorldStateHistoryQueueSize); 
             SyncInfo syncInfo = new() { HostSyncOffset = GenerateNewHostSyncOffset(), HistoryQueue = historyQueue, StateModule = stateModule, PreviousState = null };
@@ -63,7 +75,7 @@ namespace ViRSE.InstanceNetworking
             _syncInfosAgainstIDs.Add(stateModule.ID, syncInfo);
         }
 
-        public void DerigsterFromSyncer(IStateModule stateModule)
+        public void DerigsterFromSyncer(IWorldStateModule stateModule)
         {
             if (_syncInfosAgainstIDs.TryGetValue(stateModule.ID, out SyncInfo syncInfo))
             {

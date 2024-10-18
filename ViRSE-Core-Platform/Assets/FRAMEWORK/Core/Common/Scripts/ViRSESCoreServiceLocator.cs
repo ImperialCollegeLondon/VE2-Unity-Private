@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.SocialPlatforms;
 using ViRSE.Core.Player;
 using ViRSE.Core.Shared;
 using static ViRSE.Core.Shared.CoreCommonSerializables;
@@ -96,36 +97,9 @@ namespace ViRSE.Core //TODO workout namespace... Core.Common? Or just ViRSE.Comm
             }
         }
 
-        private List<IStateModule> _worldstateSyncableModules = new();
-        public IReadOnlyList<IStateModule> WorldstateSyncableModules => _worldstateSyncableModules.AsReadOnly();
-        public event Action<IStateModule> OnStateModuleRegistered;
-        public event Action<IStateModule> OnStateModuleDeregistered;
-        public void RegisterStateModule(IStateModule module)
-        {
-            _worldstateSyncableModules.Add(module);
-            OnStateModuleRegistered?.Invoke(module);
-        }
+        public WorldStateModulesContainer WorldStateModulesContainer {get; private set;} = new();
 
-        public void DeregisterStateModule(IStateModule module)
-        {
-            _worldstateSyncableModules.Remove(module);
-            OnStateModuleDeregistered?.Invoke(module);  
-        }
-
-        private IViRSEPlayerRig _localPlayerRig;
-        public IViRSEPlayerRig LocalPlayerRig {
-            get => _localPlayerRig;
-            set {
-                _localPlayerRig = value;
-
-                if (value != null)
-                    OnLocalPlayerRigRegistered?.Invoke(value);
-                else 
-                    OnLocalPlayerRigDeregistered?.Invoke(value);
-            }
-        }
-        public event Action<IViRSEPlayerRig> OnLocalPlayerRigRegistered;
-        public event Action<IViRSEPlayerRig> OnLocalPlayerRigDeregistered;
+        public ViRSEPlayerStateModuleContainer ViRSEPlayerContainer {get; private set;} = new();
 
 
         private void Awake()
@@ -133,6 +107,12 @@ namespace ViRSE.Core //TODO workout namespace... Core.Common? Or just ViRSE.Comm
             _instance = this;
             gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
             //gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
+        }
+
+        private void OnDestroy() 
+        {
+            WorldStateModulesContainer.Reset();
+            ViRSEPlayerContainer.Reset();
         }
     }
 
@@ -150,13 +130,71 @@ namespace ViRSE.Core //TODO workout namespace... Core.Common? Or just ViRSE.Comm
         public List<GameObject> GetTorsoOverrideGOs();
     }
 
-    public interface IPlayerSpawner
-    {
-        public bool IsEnabled { get; }
-        public string GameObjectName { get; }
+    // public interface IPlayerSpawner
+    // {
+    //     public bool IsEnabled { get; }
+    //     public string GameObjectName { get; }
 
-        //Unlike the other components, the player spawner should be able to 
-        //Activate and deactivate at runtime
-        public event Action OnEnabledStateChanged;
+    //     //Unlike the other components, the player spawner should be able to 
+    //     //Activate and deactivate at runtime
+    //     public event Action OnEnabledStateChanged;
+    // }
+
+    public class WorldStateModulesContainer : BaseStateModuleContainer
+    {
+        private List<IWorldStateModule> _worldstateSyncableModules = new();
+        public IReadOnlyList<IWorldStateModule> WorldstateSyncableModules => _worldstateSyncableModules.AsReadOnly();
+        public event Action<IWorldStateModule> OnWorldStateModuleRegistered;
+        public event Action<IWorldStateModule> OnWorldStateModuleDeregistered;
+
+        protected override void RegisterStateModuleAndEmitEvent(IBaseStateModule moduleBase)
+        {
+            IWorldStateModule module = (IWorldStateModule)moduleBase;
+            _worldstateSyncableModules.Add(module);
+            OnWorldStateModuleRegistered(module);
+        }
+
+        protected override void DeregisterStateModuleAndEmitEvent(IBaseStateModule moduleBase)
+        {
+            IWorldStateModule module = (IWorldStateModule)moduleBase;
+            _worldstateSyncableModules.Remove(module);
+            OnWorldStateModuleDeregistered(module);
+        }
+
+        public override void Reset() => _worldstateSyncableModules.Clear();
+    }
+
+    public class ViRSEPlayerStateModuleContainer : BaseStateModuleContainer
+    {
+        public IPlayerStateModule PlayerStateModule {get; private set;}
+        public event Action<IPlayerStateModule> OnPlayerStateModuleRegistered;
+        public event Action<IPlayerStateModule> OnPlayerStateModuleDeregistered;
+
+        protected override void RegisterStateModuleAndEmitEvent(IBaseStateModule moduleBase)
+        {
+            PlayerStateModule = (IPlayerStateModule)moduleBase;
+            OnPlayerStateModuleRegistered(PlayerStateModule);
+        }
+
+        protected override void DeregisterStateModuleAndEmitEvent(IBaseStateModule moduleBase)
+        {
+            PlayerStateModule = null;
+            OnPlayerStateModuleRegistered((IPlayerStateModule)moduleBase);
+        }
+
+        public override void Reset() => PlayerStateModule = null;
+    }
+
+    public abstract class BaseStateModuleContainer
+    {
+        public void RegisterStateModule(IBaseStateModule module) => RegisterStateModuleAndEmitEvent(module);
+        
+        public void DeregisterStateModule(IBaseStateModule module) => DeregisterStateModuleAndEmitEvent(module);
+        
+        protected abstract void RegisterStateModuleAndEmitEvent(IBaseStateModule module);
+        protected abstract void DeregisterStateModuleAndEmitEvent(IBaseStateModule module);
+
+        //Doesn't emit events, used on exit playmode 
+        public abstract void Reset();
     }
 }

@@ -46,6 +46,11 @@ namespace ViRSE.Core.VComponents
             _pushActivatable = PushActivatableFactory.Create(_config, _state, gameObject.name);
         }
 
+        private void FixedUpdate()
+        {
+            _pushActivatable.HandleFixedUpdate();
+        }
+
         private void OnDisable()
         {
             _pushActivatable.TearDown();
@@ -58,7 +63,7 @@ namespace ViRSE.Core.VComponents
     {
         public static PushActivatable Create(PushActivatableConfig config, ViRSESerializable state, string goName)
         {
-            SingleInteractorActivatableStateModule stateModule = new(state, config.StateConfig, goName);
+            SingleInteractorActivatableStateModule stateModule = new(state, config.StateConfig, goName, ViRSECoreServiceLocator.Instance.WorldStateModulesContainer);
             GeneralInteractionModule GeneralInteractionModule = new(config.GeneralInteractionConfig);
             RangedClickInteractionModule RangedClickInteractionModule = new(config.RangedInteractionConfig);
             ColliderInteractionModule ColliderInteractionModule = new();
@@ -87,11 +92,16 @@ namespace ViRSE.Core.VComponents
             RangedClickInteractionModule = rangedClickInteractionModule;
             ColliderInteractionModule = colliderInteractionModule;
 
-            RangedClickInteractionModule.OnClickDown += HandleOnInteract;
-            ColliderInteractionModule.OnCollideEnter += HandleOnInteract;
+            RangedClickInteractionModule.OnClickDown += HandleInteract;
+            ColliderInteractionModule.OnCollideEnter += HandleInteract;
         }
 
-        private void HandleOnInteract(InteractorID interactorID)
+        public void HandleFixedUpdate()
+        {
+            StateModule.HandleFixedUpdate();
+        }
+
+        private void HandleInteract(InteractorID interactorID)
         {
             //Could live in interactor, call InvertState on state module, which would emit an event to the network module "OnStateChanged"
             StateModule.InvertState(interactorID);

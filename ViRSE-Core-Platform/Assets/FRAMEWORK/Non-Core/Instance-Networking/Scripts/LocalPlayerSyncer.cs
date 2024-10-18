@@ -11,38 +11,38 @@ namespace ViRSE.InstanceNetworking
     {
         public static LocalPlayerSyncer Create(InstanceService instanceService)
         {
-            return new LocalPlayerSyncer(instanceService, ViRSECoreServiceLocator.Instance);
+            return new LocalPlayerSyncer(instanceService, ViRSECoreServiceLocator.Instance.ViRSEPlayerContainer);
         }
     }
 
     public class LocalPlayerSyncer 
     {
-        private IViRSEPlayerRig _localPlayerRig;
         private int _cycleNumber = 0;
         private readonly InstanceService _instanceService;
-        private readonly ViRSECoreServiceLocator _coreServiceLocator;
+        private readonly ViRSEPlayerStateModuleContainer _virsePlayerContainer;
+        private IViRSEPlayerRig _localPlayerRig;
         private AvatarAppearanceWrapper InstancedPlayerPresentation
         {
             get
             {
-                bool usingViRSEAvatar = ViRSECoreServiceLocator.Instance.LocalPlayerRig != null && ViRSECoreServiceLocator.Instance.LocalPlayerRig.IsNetworked;
+                bool usingViRSEAvatar = _virsePlayerContainer.LocalPlayerRig != null && _virsePlayerContainer.LocalPlayerRig.IsNetworked;
                 if (usingViRSEAvatar)
-                    return new AvatarAppearanceWrapper(true, ViRSECoreServiceLocator.Instance.LocalPlayerRig.AvatarAppearance);
+                    return new AvatarAppearanceWrapper(true, _virsePlayerContainer.LocalPlayerRig.AvatarAppearance);
                 else 
                     return new AvatarAppearanceWrapper(false, null);
             }
         }
 
-        public LocalPlayerSyncer(InstanceService instanceSevice, ViRSECoreServiceLocator coreServiceLocator)
+        public LocalPlayerSyncer(InstanceService instanceSevice, ViRSEPlayerStateModuleContainer virsePlayerContainer)
         {
             _instanceService = instanceSevice;
-            _coreServiceLocator = coreServiceLocator;
 
-            _coreServiceLocator.OnLocalPlayerRigRegistered += RegisterLocalPlayer;
-            _coreServiceLocator.OnLocalPlayerRigDeregistered += DeregisterLocalPlayer;
+            _virsePlayerContainer = virsePlayerContainer;
+            _virsePlayerContainer.OnLocalPlayerRigRegistered += RegisterLocalPlayer;
+            _virsePlayerContainer.OnLocalPlayerRigDeregistered += DeregisterLocalPlayer;
 
-            if (_coreServiceLocator.LocalPlayerRig != null)
-                RegisterLocalPlayer(_coreServiceLocator.LocalPlayerRig);
+            if (_virsePlayerContainer.LocalPlayerRig != null)
+                RegisterLocalPlayer();
         }
 
         private void HandleLocalAppearanceChanged()
@@ -50,18 +50,17 @@ namespace ViRSE.InstanceNetworking
             _instanceService.SendAvatarAppearanceUpdate(InstancedPlayerPresentation.Bytes);
         }
 
-        public void RegisterLocalPlayer(IViRSEPlayerRig localPlayerRig)
+        public void RegisterLocalPlayer(IViRSEPlayerRig playerRig)
         {
-            _localPlayerRig = localPlayerRig;
+            _localPlayerRig = playerRig;
             _localPlayerRig.OnAppearanceChanged += HandleLocalAppearanceChanged;
             HandleLocalAppearanceChanged();
         }
 
-        public void DeregisterLocalPlayer(IViRSEPlayerRig localPlayerRig)
+        public void DeregisterLocalPlayer(IViRSEPlayerRig playerRig)
         {
+            playerRig.OnAppearanceChanged -= HandleLocalAppearanceChanged;
             _localPlayerRig = null;
-            if (localPlayerRig != null)
-                localPlayerRig.OnAppearanceChanged -= HandleLocalAppearanceChanged;
             HandleLocalAppearanceChanged();
         }
 
@@ -84,11 +83,10 @@ namespace ViRSE.InstanceNetworking
 
         public void TearDown() 
         {
-            if (_coreServiceLocator != null)
-            {
-                _coreServiceLocator.OnLocalPlayerRigRegistered -= RegisterLocalPlayer;
-                _coreServiceLocator.OnLocalPlayerRigDeregistered -= DeregisterLocalPlayer;
-            }
+
+            _virsePlayerContainer.OnPlayerStateModuleRegistered -= RegisterLocalPlayer;
+            _virsePlayerContainer.OnPlayerStateModuleDeregistered -= DeregisterLocalPlayer;
+            
 
             if (_localPlayerRig != null)
                 _localPlayerRig.OnAppearanceChanged -= HandleLocalAppearanceChanged;

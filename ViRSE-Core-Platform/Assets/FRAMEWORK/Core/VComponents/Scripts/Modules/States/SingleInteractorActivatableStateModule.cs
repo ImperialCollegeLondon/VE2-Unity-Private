@@ -19,7 +19,7 @@ namespace ViRSE.Core.VComponents
         [SerializeField] public UnityEvent OnDeactivate = new();
     }
 
-    public class SingleInteractorActivatableStateModule : BaseStateModule, ISingleInteractorActivatableStateModule
+    public class SingleInteractorActivatableStateModule : BaseWorldStateModule, ISingleInteractorActivatableStateModule
     {
         #region plugin interfaces
         UnityEvent ISingleInteractorActivatableStateModule.OnActivate => _config.OnActivate;
@@ -32,7 +32,7 @@ namespace ViRSE.Core.VComponents
 
         private ActivatableStateConfig _config => (ActivatableStateConfig)Config;
 
-        public SingleInteractorActivatableStateModule(ViRSESerializable state, BaseStateConfig config, string goName) : base(state, config, goName, "S.I.A") { }
+        public SingleInteractorActivatableStateModule(ViRSESerializable state, BaseStateConfig config, string goName, WorldStateModulesContainer worldStateModulesContainer) : base(state, config, goName, "S.I.A", worldStateModulesContainer) { }
 
         public event Action OnProgrammaticStateChangeFromPlugin;
 
