@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using ViRSE.Core;
+using ViRSE.Core.Player;
 using static InstanceSyncSerializables;
 using static ViRSE.Core.Shared.CoreCommonSerializables;
 
@@ -62,11 +63,11 @@ namespace ViRSE.InstanceNetworking
             _avatarTorsoOverrideGameObjects = avatarTorsoOverrideGameObjects;
         }
 
-        public void HandleReceiveRemotePlayerState(PlayerState playerState)
+        public void HandleReceiveRemotePlayerState(PlayerTransformData playerState)
         {
             transform.SetPositionAndRotation(playerState.RootPosition, playerState.RootRotation);
-            _headHolder.SetPositionAndRotation(playerState.HeadPosition, playerState.HeadRotation);
-            _torsoHolder.position = playerState.HeadPosition + (_torsoOffsetFromHead * Vector3.up);
+            _headHolder.SetLocalPositionAndRotation(playerState.HeadLocalPosition, playerState.HeadLocalRotation);
+            _torsoHolder.position = _headHolder.position + (_torsoOffsetFromHead * Vector3.up);
         }
 
         public void HandleReceiveAvatarAppearance(ViRSEAvatarAppearance newAvatarAppearance)

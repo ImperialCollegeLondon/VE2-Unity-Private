@@ -412,7 +412,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 60, z: 0}
 --- !u!1 &167777610
 GameObject:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -429,7 +429,7 @@ GameObject:
   m_IsActive: 1
 --- !u!114 &167777611
 MonoBehaviour:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -444,7 +444,7 @@ MonoBehaviour:
   PlayerOverridesProviderGOName: PlayerSpawner
 --- !u!4 &167777612
 Transform:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -15116,7 +15116,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 92.972, z: 0}
 --- !u!1 &676680397
 GameObject:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -15133,7 +15133,7 @@ GameObject:
   m_IsActive: 1
 --- !u!114 &676680398
 MonoBehaviour:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -15146,7 +15146,7 @@ MonoBehaviour:
   _instanceNetworkSettingsGOName: PlatformIntegration
 --- !u!4 &676680399
 Transform:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -23842,9 +23842,6 @@ MonoBehaviour:
     RepeatedTransmissionConfig:
       TransmissionType: 0
       TransmissionFrequency: 1
-  startingPositionSet: 0
-  playerStartPosition: {x: 0, y: 0, z: 0}
-  playerStartRotation: {x: 0, y: 0, z: 0, w: 0}
 --- !u!4 &2040201057
 Transform:
   m_ObjectHideFlags: 0

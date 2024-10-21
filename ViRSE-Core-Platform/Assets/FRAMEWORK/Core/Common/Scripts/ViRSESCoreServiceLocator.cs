@@ -98,7 +98,6 @@ namespace ViRSE.Core //TODO workout namespace... Core.Common? Or just ViRSE.Comm
         }
 
         public WorldStateModulesContainer WorldStateModulesContainer {get; private set;} = new();
-
         public ViRSEPlayerStateModuleContainer ViRSEPlayerContainer {get; private set;} = new();
 
 
@@ -147,18 +146,18 @@ namespace ViRSE.Core //TODO workout namespace... Core.Common? Or just ViRSE.Comm
         public event Action<IWorldStateModule> OnWorldStateModuleRegistered;
         public event Action<IWorldStateModule> OnWorldStateModuleDeregistered;
 
-        protected override void RegisterStateModuleAndEmitEvent(IBaseStateModule moduleBase)
+        public override void RegisterStateModule(IBaseStateModule moduleBase)
         {
             IWorldStateModule module = (IWorldStateModule)moduleBase;
             _worldstateSyncableModules.Add(module);
-            OnWorldStateModuleRegistered(module);
+            OnWorldStateModuleRegistered?.Invoke(module);
         }
 
-        protected override void DeregisterStateModuleAndEmitEvent(IBaseStateModule moduleBase)
+        public override void DeregisterStateModule(IBaseStateModule moduleBase)
         {
             IWorldStateModule module = (IWorldStateModule)moduleBase;
             _worldstateSyncableModules.Remove(module);
-            OnWorldStateModuleDeregistered(module);
+            OnWorldStateModuleDeregistered?.Invoke(module);
         }
 
         public override void Reset() => _worldstateSyncableModules.Clear();
@@ -170,29 +169,25 @@ namespace ViRSE.Core //TODO workout namespace... Core.Common? Or just ViRSE.Comm
         public event Action<IPlayerStateModule> OnPlayerStateModuleRegistered;
         public event Action<IPlayerStateModule> OnPlayerStateModuleDeregistered;
 
-        protected override void RegisterStateModuleAndEmitEvent(IBaseStateModule moduleBase)
+        public override void RegisterStateModule(IBaseStateModule moduleBase)
         {
             PlayerStateModule = (IPlayerStateModule)moduleBase;
-            OnPlayerStateModuleRegistered(PlayerStateModule);
+            OnPlayerStateModuleRegistered?.Invoke(PlayerStateModule);
         }
 
-        protected override void DeregisterStateModuleAndEmitEvent(IBaseStateModule moduleBase)
+        public override void DeregisterStateModule(IBaseStateModule moduleBase)
         {
             PlayerStateModule = null;
-            OnPlayerStateModuleRegistered((IPlayerStateModule)moduleBase);
+            OnPlayerStateModuleDeregistered?.Invoke((IPlayerStateModule)moduleBase);
         }
 
         public override void Reset() => PlayerStateModule = null;
     }
 
     public abstract class BaseStateModuleContainer
-    {
-        public void RegisterStateModule(IBaseStateModule module) => RegisterStateModuleAndEmitEvent(module);
-        
-        public void DeregisterStateModule(IBaseStateModule module) => DeregisterStateModuleAndEmitEvent(module);
-        
-        protected abstract void RegisterStateModuleAndEmitEvent(IBaseStateModule module);
-        protected abstract void DeregisterStateModuleAndEmitEvent(IBaseStateModule module);
+    {   
+        public abstract void RegisterStateModule(IBaseStateModule module);
+        public abstract void DeregisterStateModule(IBaseStateModule module);
 
         //Doesn't emit events, used on exit playmode 
         public abstract void Reset();

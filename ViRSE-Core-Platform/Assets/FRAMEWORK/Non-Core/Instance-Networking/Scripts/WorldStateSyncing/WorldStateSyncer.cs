@@ -118,7 +118,7 @@ namespace ViRSE.InstanceNetworking
                         if (_syncInfosAgainstIDs.TryGetValue(worldStateWrapper.ID, out SyncInfo syncInfo))
                         {
                             //We only do the hitory check if we're not the host
-                            if (syncInfo.StateModule.IsNetworked && (_instanceService.IsHost || !syncInfo.HistoryQueue.DoesStateAppearInStateList(worldStateWrapper.StateBytes)))
+                            if (_instanceService.IsHost || !syncInfo.HistoryQueue.DoesStateAppearInStateList(worldStateWrapper.StateBytes))
                             {
                                 syncInfo.StateModule.StateAsBytes = worldStateWrapper.StateBytes;
 
@@ -148,10 +148,6 @@ namespace ViRSE.InstanceNetworking
             foreach (KeyValuePair<string, SyncInfo> pair in _syncInfosAgainstIDs)
             {
                 SyncInfo syncInfo = pair.Value;
-
-                if (!syncInfo.StateModule.IsNetworked)
-                    return;
-
                 byte[] newState = syncInfo.StateModule.StateAsBytes;
 
                 bool broadcastFromHost = _instanceService.IsHost && (_cycleNumber + syncInfo.HostSyncOffset) % syncInfo.HostSyncInterval == 0;

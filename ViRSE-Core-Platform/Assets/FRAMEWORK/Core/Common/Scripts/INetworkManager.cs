@@ -15,10 +15,11 @@ namespace ViRSE.Core.Shared //TODO break into different files
 
     public interface IBaseStateModule 
     {
-        public bool IsNetworked { get; }
-        public event Action<bool> OnIsNetworkedChanged;
+        public ViRSESerializable State { get; }
         public TransmissionProtocol TransmissionProtocol { get; }
         public float TransmissionFrequency { get; }
+
+        //TODO - could put config and wiring in here
     }
 
     public interface IWorldStateModule : IBaseStateModule
@@ -29,7 +30,6 @@ namespace ViRSE.Core.Shared //TODO break into different files
 
     public interface IPlayerStateModule : IBaseStateModule
     {
-        public ViRSESerializable PlayerTransform {get;}
         public ViRSEAvatarAppearance AvatarAppearance {get;}
         public event Action<ViRSEAvatarAppearance> OnAvatarAppearanceChanged;
     }

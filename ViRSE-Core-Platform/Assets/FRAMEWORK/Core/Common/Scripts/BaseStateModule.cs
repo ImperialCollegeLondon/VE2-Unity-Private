@@ -28,43 +28,41 @@ public class BaseStateConfig
 
 public abstract class BaseStateModule : IBaseStateModule
 {
-    public ViRSESerializable State { get; private set; }
+    public ViRSESerializable State { get; }
     protected BaseStateConfig Config { get; private set; }
-    public string GameObjectName { get; private set; }
     private readonly BaseStateModuleContainer _baseStateContainer;
 
     //public event Action OnBytesUpdated;
 
     private bool _wasNetworkedLastFrame;
     public bool IsNetworked => Config.IsNetworked;
-    public event Action<bool> OnIsNetworkedChanged;
 
     public TransmissionProtocol TransmissionProtocol => Config.RepeatedTransmissionConfig.TransmissionType;
     public float TransmissionFrequency => Config.RepeatedTransmissionConfig.TransmissionFrequency;
 
 
-    public BaseStateModule(ViRSESerializable state, BaseStateConfig config, string goName, BaseStateModuleContainer baseStateContainer)
+    public BaseStateModule(ViRSESerializable state, BaseStateConfig config, BaseStateModuleContainer baseStateContainer)
     {
         State = state;
         Config = config;
-        GameObjectName = goName;
-
         _baseStateContainer = baseStateContainer;
-        _baseStateContainer.RegisterStateModule(this);
 
-        _wasNetworkedLastFrame = IsNetworked;
+        //If we're networked, wait until FixedUpdate to register 
+        //This allows for any initialization to complete before the module's state is queried 
+        _wasNetworkedLastFrame = false; 
     }
 
     public void HandleFixedUpdate() 
     {
         if (IsNetworked && !_wasNetworkedLastFrame)
-            OnIsNetworkedChanged?.Invoke(true);
+            _baseStateContainer.RegisterStateModule(this);
         else if (!IsNetworked && _wasNetworkedLastFrame)
-            OnIsNetworkedChanged?.Invoke(false);
+            _baseStateContainer.DeregisterStateModule(this);
+
+        _wasNetworkedLastFrame = IsNetworked;
     }
 
     public virtual void TearDown() => _baseStateContainer.DeregisterStateModule(this);
-
 }
 
 public abstract class BaseWorldStateModule : BaseStateModule, IWorldStateModule
@@ -73,8 +71,8 @@ public abstract class BaseWorldStateModule : BaseStateModule, IWorldStateModule
     public byte[] StateAsBytes { get => State.Bytes; set => UpdateBytes(value); }
     protected abstract void UpdateBytes(byte[] newBytes);
 
-    public BaseWorldStateModule(ViRSESerializable state, BaseStateConfig config, string goName, string syncType, WorldStateModulesContainer worldStateModulesContainer) : base(state, config, goName, worldStateModulesContainer)
+    public BaseWorldStateModule(ViRSESerializable state, BaseStateConfig config, string id, WorldStateModulesContainer worldStateModulesContainer) : base(state, config, worldStateModulesContainer)
     {
-        ID = syncType + ":" + goName;
+        ID = id; 
     }
 }

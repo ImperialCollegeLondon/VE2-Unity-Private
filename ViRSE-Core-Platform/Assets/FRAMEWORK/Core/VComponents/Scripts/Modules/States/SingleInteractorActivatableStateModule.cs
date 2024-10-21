@@ -32,7 +32,7 @@ namespace ViRSE.Core.VComponents
 
         private ActivatableStateConfig _config => (ActivatableStateConfig)Config;
 
-        public SingleInteractorActivatableStateModule(ViRSESerializable state, BaseStateConfig config, string goName, WorldStateModulesContainer worldStateModulesContainer) : base(state, config, goName, "S.I.A", worldStateModulesContainer) { }
+        public SingleInteractorActivatableStateModule(ViRSESerializable state, BaseStateConfig config, string id, WorldStateModulesContainer worldStateModulesContainer) : base(state, config, id, worldStateModulesContainer) { }
 
         public event Action OnProgrammaticStateChangeFromPlugin;
 
@@ -68,7 +68,7 @@ namespace ViRSE.Core.VComponents
             }
             catch (Exception e)
             {
-                Debug.Log($"Error when emitting OnActivate from {GameObjectName} \n{e.Message}\n{e.StackTrace}");
+                Debug.Log($"Error when emitting OnActivate from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
             }
         }
 
@@ -80,7 +80,7 @@ namespace ViRSE.Core.VComponents
             }
             catch (Exception e)
             {
-                Debug.Log($"Error when emitting OnDeactivate from {GameObjectName} \n{e.Message}\n{e.StackTrace}");
+                Debug.Log($"Error when emitting OnDeactivate from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
             }
         }
 

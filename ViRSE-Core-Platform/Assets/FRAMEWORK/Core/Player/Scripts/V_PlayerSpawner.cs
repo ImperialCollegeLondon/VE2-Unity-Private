@@ -11,7 +11,10 @@ namespace ViRSE.Core.Player
     [Serializable]
     public class PlayerStateConfig : BaseStateConfig
     {
-        //events for state change (2d/vr), teleport?
+        //Events for state change (2d/vr)
+        //Maybe also an event for appearance changed?
+        //The state module should probably also have methods for moving the player
+
     }
 
     //TODO, consolidate all this into one config class?
@@ -19,41 +22,31 @@ namespace ViRSE.Core.Player
     [ExecuteInEditMode]
     public class V_PlayerSpawner : MonoBehaviour//, IPlayerSpawner //Should this be called "PlayerIntegration"?
     {
-        #region domain-reload-tolerant data
+        //TODO, configs for each player, OnTeleport, DragHeight, FreeFlyMode, etc
         [SerializeField] public bool enableVR;
         [SerializeField] public bool enable2D;
         [SerializeField, IgnoreParent] public PlayerStateConfig playerStateConfig = new();
 
-        [SerializeField, HideInInspector] private bool startingPositionSet = false;
-        [SerializeField, HideInInspector] private Vector3 playerStartPosition;
-        [SerializeField, HideInInspector] private Quaternion playerStartRotation;
-        #endregion
+        [SerializeField, HideInInspector] private bool _transformDataSetup = false;
+        [SerializeField, HideInInspector] private PlayerTransformData _playerTransformData = new();
 
-        private GameObject _localPlayerRig;
-        //private ViRSEPlayer _player;
-
-        // #region Player Spawner Interfaces
-        // public bool IsEnabled {get; private set;} = false;
-        // public string GameObjectName => gameObject.name;
-        // public event Action OnEnabledStateChanged;
-        // #endregion
+        private ViRSEPlayerService _playerService;
 
         void OnEnable() 
         {
             if (!Application.isPlaying)
             {
+                //Initialise the player state with the spawn point transform
                 //ViRSECoreServiceLocator.Instance.PlayerSpawner = this;
                 return;
             }
 
-            // IsEnabled = true;
-            // OnEnabledStateChanged?.Invoke();
-
-            if (!startingPositionSet)
+            if (!_transformDataSetup)
             {
-                playerStartPosition = transform.position;
-                playerStartRotation = transform.rotation;
-                startingPositionSet = true;
+                Debug.LogError("Player transform null");
+                _playerTransformData.RootPosition = transform.position;
+                _playerTransformData.RootRotation = transform.rotation;
+                _transformDataSetup = true;
             }
 
             if (ViRSECoreServiceLocator.Instance.PlayerSettingsProvider == null) 
@@ -62,6 +55,9 @@ namespace ViRSE.Core.Player
                 return;
             }
 
+            //TODO, maybe we have the service in charge of this async stuff, then its easier to test
+            //Although, the service is doing a lot already, the integration maybe isn't the worst place for this..
+            //its not like we CAN'T test a Monobehaviour, we can just mock the service locator singleton
             if (ViRSECoreServiceLocator.Instance.PlayerSettingsProvider.ArePlayerSettingsReady)
                 HandlePlayerSettingsReady();
             else
@@ -71,11 +67,12 @@ namespace ViRSE.Core.Player
         private void HandlePlayerSettingsReady()
         {
             ViRSECoreServiceLocator.Instance.PlayerSettingsProvider.OnPlayerSettingsReady -= HandlePlayerSettingsReady;
-            _localPlayerRig = ViRSEPlayerFactory.Create(ViRSECoreServiceLocator.Instance.PlayerSettingsProvider.UserSettings, playerStateConfig, gameObject.name, transform);
+            _playerService = ViRSEPlayerFactory.Create(_playerTransformData, playerStateConfig);
+        }
 
-            _localPlayerRig.transform.position = playerStartPosition;
-            _localPlayerRig.transform.rotation = playerStartRotation;
-            //TODO, also need to wire in some VR dependency, so that the sync module can track the VR position, head, hands, etc
+        private void FixedUpdate() 
+        {
+            _playerService?.HandleFixedUpdate();
         }
 
         private void OnDisable() 
@@ -83,17 +80,8 @@ namespace ViRSE.Core.Player
             if (!Application.isPlaying)
                 return;
 
-            // IsEnabled = false;
-            // OnEnabledStateChanged?.Invoke();
-
-            //TODO, get the state module to update this itself, then we don't need to worry about setting it here
-            if (_localPlayerRig != null) 
-            {
-                playerStartPosition = _localPlayerRig.transform.position;
-                playerStartRotation = _localPlayerRig.transform.rotation;
-                
-                DestroyImmediate(_localPlayerRig);
-            }
+            _playerService?.TearDown();
+            Debug.Log("OnDisable - Is transform null? " + (_playerTransformData == null));  
         }
     }
 }

@@ -1,12 +1,15 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using ViRSE.FrameworkRuntime.LocalPlayerRig;
 using ViRSE.Core.VComponents;
 
 namespace ViRSE.Core.Player
 {
     public class Interactor2D : MonoBehaviour
     {
+        //TODO - a bunch of this should go into a superclass 
+        public Transform GrabberTransform;
+
         private Transform rayOrigin;
         private float maxRaycastDistance;
         [SerializeField] private LayerMask layerMask; // Add a layer mask field
@@ -19,7 +22,7 @@ namespace ViRSE.Core.Player
         private InteractorID _interactorID;
 
         // Setup method to initialize the ray origin and max raycast distance
-        public void Setup(Camera camera2d)
+        public void Initialize(Camera camera2d)
         {
             rayOrigin = camera2d.transform;
             maxRaycastDistance = camera2d.farClipPlane;
@@ -28,29 +31,30 @@ namespace ViRSE.Core.Player
 
         //TODO - these need to be re-wired on domain reloadasd
 
-        private void OnEnable()
-        {
-            InputHandler.Instance.OnMouseLeftClick.AddListener(HandleLeftClick);
-        }
+        // private void OnEnable()
+        // {
+        //     InputHandler.Instance.OnMouseLeftClick.AddListener(HandleLeftClick);
+        // }
 
-        private void OnDisable()
-        {
-            InputHandler.Instance.OnMouseLeftClick.RemoveListener(HandleLeftClick);
-        }
+        // private void OnDisable()
+        // {
+        //     InputHandler.Instance.OnMouseLeftClick.RemoveListener(HandleLeftClick);
+        // }
 
         private void HandleLeftClick()
         {
             if (_hoveringRangedInteractable != null)
             {
                 if (_hoveringRangedInteractable is IRangedClickPlayerInteractableImplementor rangedClickInteractable)
-                {
                     rangedClickInteractable.InvokeOnClickDown(_interactorID);
-                }
             }
         }
 
         void Update()
         {
+            if (Mouse.current.leftButton.wasPressedThisFrame)
+                HandleLeftClick();
+
             bool foundRangedInteractable = false;
             _hoveringRangedInteractable = null;
 

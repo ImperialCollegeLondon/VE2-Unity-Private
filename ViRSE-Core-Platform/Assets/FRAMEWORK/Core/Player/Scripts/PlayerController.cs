@@ -6,21 +6,9 @@ namespace ViRSE.Core.Player
 {
     public abstract class PlayerController : MonoBehaviour
     {
-        public abstract Vector3 RootPosition { get; set; }
-        public abstract Quaternion RootRotation { get; set; }
-
-        // Start is called before the first frame update
-        void Start()
-        {
-
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-
-        }
-
+        public abstract PlayerTransformData PlayerTransformData { get; }
+        public abstract void ActivatePlayer(PlayerTransformData initialTransformData);
+        public abstract void DeactivatePlayer();
     }
 }
 

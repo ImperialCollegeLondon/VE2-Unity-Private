@@ -2718,9 +2718,6 @@ MonoBehaviour:
     RepeatedTransmissionConfig:
       TransmissionType: 0
       TransmissionFrequency: 50
-  startingPositionSet: 0
-  playerStartPosition: {x: 0, y: 0, z: 0}
-  playerStartRotation: {x: 0, y: 0, z: 0, w: 0}
 --- !u!4 &798246511
 Transform:
   m_ObjectHideFlags: 0
@@ -3295,7 +3292,7 @@ GameObject:
   - component: {fileID: 835746393}
   - component: {fileID: 835746392}
   m_Layer: 0
-  m_Name: InstanceService
+  m_Name: InstanceIntegration
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6640,7 +6637,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4608a478f79362c46832323ea318f4a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _multiplayerSupportGOName: InstanceService
+  _multiplayerSupportGOName: InstanceIntegration
   PlayerSettingsProviderGOName: PlatformIntegration
   PlayerOverridesProviderGOName: AvatarOverrider
 --- !u!4 &1550410139

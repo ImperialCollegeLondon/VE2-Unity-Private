@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using ViRSE.Core;
+using ViRSE.Core.Player;
 using static InstanceSyncSerializables;
+using static ViRSE.Core.Shared.CoreCommonSerializables;
 
 namespace ViRSE.InstanceNetworking
 {
@@ -88,7 +90,7 @@ namespace ViRSE.InstanceNetworking
         public void HandleReceiveRemotePlayerState(byte[] stateAsBytes)
         {
             PlayerStateWrapper stateWrapper = new(stateAsBytes);
-            PlayerState playerState = new(stateWrapper.StateBytes);
+            PlayerTransformData playerState = new(stateWrapper.StateBytes);
 
             if (_remoteAvatars.TryGetValue(stateWrapper.ID, out RemoteAvatarController remotePlayerController))
                 remotePlayerController.HandleReceiveRemotePlayerState(playerState);

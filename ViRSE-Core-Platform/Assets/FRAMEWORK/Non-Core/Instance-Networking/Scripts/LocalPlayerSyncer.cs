@@ -4,6 +4,7 @@ using ViRSE.Core.Player;
 using ViRSE.Core.Shared;
 using ViRSE.Core;
 using static InstanceSyncSerializables;
+using static ViRSE.Core.Shared.CoreCommonSerializables;
 
 namespace ViRSE.InstanceNetworking
 {
@@ -20,76 +21,63 @@ namespace ViRSE.InstanceNetworking
         private int _cycleNumber = 0;
         private readonly InstanceService _instanceService;
         private readonly ViRSEPlayerStateModuleContainer _virsePlayerContainer;
-        private IViRSEPlayerRig _localPlayerRig;
-        private AvatarAppearanceWrapper InstancedPlayerPresentation
-        {
-            get
-            {
-                bool usingViRSEAvatar = _virsePlayerContainer.LocalPlayerRig != null && _virsePlayerContainer.LocalPlayerRig.IsNetworked;
-                if (usingViRSEAvatar)
-                    return new AvatarAppearanceWrapper(true, _virsePlayerContainer.LocalPlayerRig.AvatarAppearance);
-                else 
-                    return new AvatarAppearanceWrapper(false, null);
-            }
-        }
+        private IPlayerStateModule _playerStateModule => _virsePlayerContainer.PlayerStateModule;
 
         public LocalPlayerSyncer(InstanceService instanceSevice, ViRSEPlayerStateModuleContainer virsePlayerContainer)
         {
             _instanceService = instanceSevice;
 
             _virsePlayerContainer = virsePlayerContainer;
-            _virsePlayerContainer.OnLocalPlayerRigRegistered += RegisterLocalPlayer;
-            _virsePlayerContainer.OnLocalPlayerRigDeregistered += DeregisterLocalPlayer;
+            _virsePlayerContainer.OnPlayerStateModuleRegistered += HandlePlayerStateModuleRegistered;
+            _virsePlayerContainer.OnPlayerStateModuleDeregistered += HandlePlayerStateModuleDeregistered;
 
-            if (_virsePlayerContainer.LocalPlayerRig != null)
-                RegisterLocalPlayer();
+            if (_virsePlayerContainer.PlayerStateModule != null)
+                HandlePlayerStateModuleRegistered(_virsePlayerContainer.PlayerStateModule);
         }
 
-        private void HandleLocalAppearanceChanged()
+        private void HandleLocalAppearanceChanged(ViRSEAvatarAppearance appearance)
         {
-            _instanceService.SendAvatarAppearanceUpdate(InstancedPlayerPresentation.Bytes);
+            AvatarAppearanceWrapper avatarAppearanceWrapper = new(appearance != null, appearance);
+            _instanceService.SendAvatarAppearanceUpdate(avatarAppearanceWrapper.Bytes);
         }
 
-        public void RegisterLocalPlayer(IViRSEPlayerRig playerRig)
+        public void HandlePlayerStateModuleRegistered(IPlayerStateModule stateModule)
         {
-            _localPlayerRig = playerRig;
-            _localPlayerRig.OnAppearanceChanged += HandleLocalAppearanceChanged;
-            HandleLocalAppearanceChanged();
+            stateModule.OnAvatarAppearanceChanged += HandleLocalAppearanceChanged;
+            HandleLocalAppearanceChanged(stateModule.AvatarAppearance);
         }
 
-        public void DeregisterLocalPlayer(IViRSEPlayerRig playerRig)
+        public void HandlePlayerStateModuleDeregistered(IPlayerStateModule stateModule)
         {
-            playerRig.OnAppearanceChanged -= HandleLocalAppearanceChanged;
-            _localPlayerRig = null;
-            HandleLocalAppearanceChanged();
+            stateModule.OnAvatarAppearanceChanged -= HandleLocalAppearanceChanged;
+            HandleLocalAppearanceChanged(null);
         }
 
         public void NetworkUpdate() 
         {
-            if (_localPlayerRig == null)
+            if (_playerStateModule == null)
                 return;
 
             _cycleNumber++;
 
-            bool onTransmissionFrame = _cycleNumber % (int)(50 / _localPlayerRig.TransmissionFrequency) == 0;
+            bool onTransmissionFrame = _cycleNumber % (int)(50 / _playerStateModule.TransmissionFrequency) == 0;
             if (onTransmissionFrame)
             {
-                PlayerState playerState = new(_localPlayerRig.RootPosition, _localPlayerRig.RootRotation, _localPlayerRig.HeadPosition, _localPlayerRig.HeadRotation);
+                ViRSESerializable playerState = _playerStateModule.State; //Doesn't include appearance
                 PlayerStateWrapper playerStateWrapper = new(_instanceService.LocalClientID, playerState.Bytes);
 
-                _instanceService.SendPlayerState(playerStateWrapper.Bytes, _localPlayerRig.TransmissionProtocol);
+                _instanceService.SendPlayerState(playerStateWrapper.Bytes, _playerStateModule.TransmissionProtocol);
             }
         }
 
         public void TearDown() 
         {
-
-            _virsePlayerContainer.OnPlayerStateModuleRegistered -= RegisterLocalPlayer;
-            _virsePlayerContainer.OnPlayerStateModuleDeregistered -= DeregisterLocalPlayer;
+            _virsePlayerContainer.OnPlayerStateModuleRegistered -= HandlePlayerStateModuleRegistered;
+            _virsePlayerContainer.OnPlayerStateModuleDeregistered -= HandlePlayerStateModuleDeregistered;
             
 
-            if (_localPlayerRig != null)
-                _localPlayerRig.OnAppearanceChanged -= HandleLocalAppearanceChanged;
+            if (_playerStateModule != null)
+                _playerStateModule.OnAvatarAppearanceChanged -= HandleLocalAppearanceChanged;
         }
     }
 }

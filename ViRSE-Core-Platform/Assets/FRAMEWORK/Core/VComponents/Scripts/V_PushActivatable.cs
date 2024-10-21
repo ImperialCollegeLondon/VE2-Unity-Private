@@ -14,7 +14,7 @@ namespace ViRSE.Core.VComponents
         [SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfig = new();
     }
 
-    public abstract class BaseStateHolder : MonoBehaviour
+    public abstract class BaseStateHolder : MonoBehaviour //TODO - do we really need this?
     {
         public abstract BaseStateConfig BaseStateConfig { get; }
     }
@@ -43,7 +43,8 @@ namespace ViRSE.Core.VComponents
 
         private void OnEnable()
         {
-            _pushActivatable = PushActivatableFactory.Create(_config, _state, gameObject.name);
+            string id = "Activtable-" + gameObject.name; 
+            _pushActivatable = PushActivatableFactory.Create(_config, _state, id);
         }
 
         private void FixedUpdate()
@@ -61,9 +62,9 @@ namespace ViRSE.Core.VComponents
 
     public static class PushActivatableFactory
     {
-        public static PushActivatable Create(PushActivatableConfig config, ViRSESerializable state, string goName)
+        public static PushActivatable Create(PushActivatableConfig config, ViRSESerializable state, string id)
         {
-            SingleInteractorActivatableStateModule stateModule = new(state, config.StateConfig, goName, ViRSECoreServiceLocator.Instance.WorldStateModulesContainer);
+            SingleInteractorActivatableStateModule stateModule = new(state, config.StateConfig, id, ViRSECoreServiceLocator.Instance.WorldStateModulesContainer);
             GeneralInteractionModule GeneralInteractionModule = new(config.GeneralInteractionConfig);
             RangedClickInteractionModule RangedClickInteractionModule = new(config.RangedInteractionConfig);
             ColliderInteractionModule ColliderInteractionModule = new();
