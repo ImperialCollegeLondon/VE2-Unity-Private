@@ -53,6 +53,8 @@ namespace ViRSE.InstanceNetworking
 
             _instanceService.OnReceiveRemotePlayerState += HandleReceiveRemotePlayerState;
             _instanceService.OnInstanceInfoChanged += HandleInstanceInfoChanged;
+
+            HandleInstanceInfoChanged(_instanceService.InstanceInfo);
         }
 
         private void HandleInstanceInfoChanged(InstancedInstanceInfo newInstanceInfo)

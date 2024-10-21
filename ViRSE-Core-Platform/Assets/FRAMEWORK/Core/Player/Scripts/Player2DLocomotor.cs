@@ -9,13 +9,14 @@ namespace ViRSE.Core.Player
         public float moveSpeed = 5f;
         public float mouseSensitivity = 2f;
         public float jumpForce = 5f;
-        public float crouchHeight = 0.5f;
+        public float crouchHeight = 0.7f;
         public LayerMask groundLayer;
         public float minVerticalAngle = -90f; // Minimum vertical angle (looking down)
         public float maxVerticalAngle = 90f;  // Maximum vertical angle (looking up)
 
         // Private variables
         private CharacterController controller;
+        private float _originalControllerHeight;
         private Transform cameraTransform;
         private float verticalVelocity = 0f;
         private bool isCrouching = false;
@@ -25,6 +26,7 @@ namespace ViRSE.Core.Player
         void Start()
         {
             controller = GetComponent<CharacterController>();
+            _originalControllerHeight = controller.height;
             cameraTransform = Camera.main.transform;
 
             //Debug.Log("START " + Application.isFocused);
@@ -83,14 +85,13 @@ namespace ViRSE.Core.Player
                 {
                     if (isCrouching)
                     {
-                        controller.height = 2f;
-                        isCrouching = false;
+                        controller.Move(Vector3.up * (_originalControllerHeight - controller.height)); //Bodge so we don't fall through the floort
+                        controller.height = _originalControllerHeight;
                     }
                     else
-                    {
                         controller.height = crouchHeight;
-                        isCrouching = true;
-                    }
+
+                    isCrouching = !isCrouching;
                 }
             }
 

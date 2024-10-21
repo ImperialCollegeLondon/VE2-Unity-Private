@@ -18,8 +18,6 @@ namespace ViRSE.Core.Player
     }
 
     //TODO, consolidate all this into one config class?
-
-    [ExecuteInEditMode]
     public class V_PlayerSpawner : MonoBehaviour//, IPlayerSpawner //Should this be called "PlayerIntegration"?
     {
         //TODO, configs for each player, OnTeleport, DragHeight, FreeFlyMode, etc
@@ -34,16 +32,8 @@ namespace ViRSE.Core.Player
 
         void OnEnable() 
         {
-            if (!Application.isPlaying)
-            {
-                //Initialise the player state with the spawn point transform
-                //ViRSECoreServiceLocator.Instance.PlayerSpawner = this;
-                return;
-            }
-
             if (!_transformDataSetup)
             {
-                Debug.LogError("Player transform null");
                 _playerTransformData.RootPosition = transform.position;
                 _playerTransformData.RootRotation = transform.rotation;
                 _transformDataSetup = true;
@@ -77,11 +67,7 @@ namespace ViRSE.Core.Player
 
         private void OnDisable() 
         {
-            if (!Application.isPlaying)
-                return;
-
             _playerService?.TearDown();
-            Debug.Log("OnDisable - Is transform null? " + (_playerTransformData == null));  
         }
     }
 }

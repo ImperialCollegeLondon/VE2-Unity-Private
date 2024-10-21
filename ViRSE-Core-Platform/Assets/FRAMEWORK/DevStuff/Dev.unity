@@ -2691,7 +2691,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 798246511}
-  - component: {fileID: 798246510}
+  - component: {fileID: 798246512}
   m_Layer: 0
   m_Name: PlayerSpawner
   m_TagString: Untagged
@@ -2699,7 +2699,22 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &798246510
+--- !u!4 &798246511
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 798246509}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.22493754, z: -0, w: 0.97437316}
+  m_LocalPosition: {x: -4.29, y: 0, z: -5.55}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 351135655}
+  m_LocalEulerAnglesHint: {x: 0, y: 25.998, z: 0}
+--- !u!114 &798246512
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2718,21 +2733,10 @@ MonoBehaviour:
     RepeatedTransmissionConfig:
       TransmissionType: 0
       TransmissionFrequency: 50
---- !u!4 &798246511
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 798246509}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 0.22493754, z: -0, w: 0.97437316}
-  m_LocalPosition: {x: -4.29, y: 0, z: -5.55}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 351135655}
-  m_LocalEulerAnglesHint: {x: 0, y: 25.998, z: 0}
+  _transformDataSetup: 0
+  _playerTransformData:
+    RootPosition: {x: 0, y: 0, z: 0}
+    RootRotation: {x: 0, y: 0, z: 0, w: 0}
 --- !u!1 &803663753
 GameObject:
   m_ObjectHideFlags: 0
