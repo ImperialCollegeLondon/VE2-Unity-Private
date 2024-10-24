@@ -64,6 +64,7 @@ namespace ViRSE.Core.VComponents
     {
         public static PushActivatable Create(PushActivatableConfig config, ViRSESerializable state, string id)
         {
+            //TODO - DON'T INJECT STATE! But maybe do inject the WorldStateModulesContainer , or have the state module have its own factory 
             SingleInteractorActivatableStateModule stateModule = new(state, config.StateConfig, id, ViRSECoreServiceLocator.Instance.WorldStateModulesContainer);
             GeneralInteractionModule GeneralInteractionModule = new(config.GeneralInteractionConfig);
             RangedClickInteractionModule RangedClickInteractionModule = new(config.RangedInteractionConfig);

@@ -57,7 +57,7 @@ namespace ViRSE.Core.Player
         private void HandlePlayerSettingsReady()
         {
             ViRSECoreServiceLocator.Instance.PlayerSettingsProvider.OnPlayerSettingsReady -= HandlePlayerSettingsReady;
-            _playerService = ViRSEPlayerFactory.Create(_playerTransformData, playerStateConfig);
+            _playerService = ViRSEPlayerServiceFactory.Create(_playerTransformData, playerStateConfig, enableVR, enable2D);
         }
 
         private void FixedUpdate() 

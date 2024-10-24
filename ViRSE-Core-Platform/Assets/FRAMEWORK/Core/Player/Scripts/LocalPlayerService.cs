@@ -8,125 +8,77 @@ using static ViRSE.Core.Shared.CoreCommonSerializables;
 
 namespace ViRSE.Core.Player
 {
-    public static class ViRSEPlayerFactory
+    public static class ViRSEPlayerServiceFactory
     {
-        private const string PLAYEAR_2D_PATH = "2dPlayer";
-
-        public static ViRSEPlayerService Create(PlayerTransformData state, PlayerStateConfig config)
+        public static ViRSEPlayerService Create(PlayerTransformData state, PlayerStateConfig config, bool enableVR, bool enable2D)
         {
-            //TODO, take in bools for 2d and vr, create VR player
-
-            GameObject player2DPrefab = Resources.Load(PLAYEAR_2D_PATH) as GameObject;
-            GameObject instantiated2DPlayer = GameObject.Instantiate(player2DPrefab, null, false);
-            PlayerController2D playerController2D = instantiated2DPlayer.GetComponent<PlayerController2D>();
-            playerController2D.Initialize(ViRSECoreServiceLocator.Instance.PlayerSettingsProvider.UserSettings.Player2DControlConfig);
-
-            PlayerStateModule playerStateModule = new(state, config, 
-                ViRSECoreServiceLocator.Instance.ViRSEPlayerContainer, 
+            return new ViRSEPlayerService(state, config, enableVR, enable2D, 
+                ViRSECoreServiceLocator.Instance.ViRSEPlayerStateModuleContainer, 
                 ViRSECoreServiceLocator.Instance.PlayerSettingsProvider, 
                 ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider);
-
-            return new ViRSEPlayerService(playerStateModule, playerController2D, null);
         }
     }
 
-    public class PlayerStateModule : BaseStateModule, IPlayerStateModule
-    {
-        public PlayerTransformData PlayerTransformData {
-            get => (PlayerTransformData)State; 
-            set => State.Bytes = value.Bytes; 
-        }
+/*
+    TODO, we need to listen to input handler so we know when to switch between the two modes 
+    We also need functions for changing mode, and for moving the player
+    I'm still not totallysold on these things being part of the PlayerService and not the state module 
+    the mode itself does live in the state module...
+    For the VCs, the interfacs to get state point to the module 
+    But for the player, the most up to date state is actually the transforms 
+    So makes sense to be getting and setting state on the players directly, the StateModule is basically just a mirror 
+    Toggling players off... well, that probably shouldn't be the modules job, that's the playerService 
 
-        public ViRSEAvatarAppearance AvatarAppearance { get {
-            if (_appearanceOverridesProvider != null)
-                    return new(_playerSettingsProvider.UserSettings.PresentationConfig, _appearanceOverridesProvider.HeadOverrideType, _appearanceOverridesProvider.TorsoOverrideType);
-                else
-                    return new(_playerSettingsProvider.UserSettings.PresentationConfig, AvatarAppearanceOverrideType.None, AvatarAppearanceOverrideType.None);
-            }
-        }
-
-        public event Action<ViRSEAvatarAppearance> OnAvatarAppearanceChanged;
-
-        private readonly IPlayerSettingsProvider _playerSettingsProvider;
-        private readonly IPlayerAppearanceOverridesProvider _appearanceOverridesProvider;
-
-        public PlayerStateModule(PlayerTransformData state, BaseStateConfig config, 
-                ViRSEPlayerStateModuleContainer playerStateModuleContainer, IPlayerSettingsProvider playerSettingsProvider, IPlayerAppearanceOverridesProvider appearanceOverridesProvider)
-                : base(state, config, playerStateModuleContainer)
-            
-        {
-            PlayerTransformData = state;
-
-            _playerSettingsProvider = playerSettingsProvider;
-            _playerSettingsProvider.OnLocalChangeToPlayerSettings += HandleAvatarAppearanceChanged;
-
-            _appearanceOverridesProvider = appearanceOverridesProvider;
-            if (_appearanceOverridesProvider != null)
-                _appearanceOverridesProvider.OnAppearanceOverridesChanged += HandleAvatarAppearanceChanged;
-        }
-
-        private void HandleAvatarAppearanceChanged()
-        {
-            OnAvatarAppearanceChanged?.Invoke(AvatarAppearance);
-        }
-
-        // private void SetPlayerPosition(Vector3 position)
-        // {
-        //     _activePlayer.transform.position = position;
-
-        //     //How do we move back to the start position? 
-        //     //SartPosition lives in the PluginRuntime
-        //     //But the ui button that respawns the player lives in PluginRuntime 
-
-        //     //FrameworkRuntime will have to emit an event to PluginService to say "OnPlayerRequestRespawn"
-        // }
-
-        // private void SetPlayerRotation(Quaternion rotation)
-        // {
-        //     _activePlayer.transform.rotation = rotation;
-        // }
-
-        public override void TearDown()
-        {
-            base.TearDown();
-
-            _playerSettingsProvider.OnLocalChangeToPlayerSettings -= HandleAvatarAppearanceChanged;
-
-            if (_appearanceOverridesProvider != null)
-                _appearanceOverridesProvider.OnAppearanceOverridesChanged -= HandleAvatarAppearanceChanged;
-        }
-    }
-
-    //TODO, don't think this should be a mono, should just be a service, that we inject with the 2d and vr players
+    For instancing, the syncers are all given a reference to the instance service, and given references to their own dependencies 
+    But for the PlayerService, its the PlayerService that creates these "SubServices"? 
+    if we were following the patttern, we would be creating the sub-players in the PlayerIntegration, and injecting them with the PlayerService 
+    Things are I guess bit different, nothing is dependent on the InstanceService other than the "InstanceSubServices"
+    Maybe we don't think of these InstnaceSubServices as part of the InstanceService at all 
+    Maybe where we're going wrong is trying to conceptualise the Player as "PlayerService"... is it really a serice? 
+    If the integration spawned the players, injecting the service into the players doesn't really make sense 
+    The players don't need the service, it's the service that needs the players
+*/
     public class ViRSEPlayerService  
     {
-        [SerializeField, HideInInspector] private LocalPlayerMode _playerMode = LocalPlayerMode.TwoD; //TODO! Needs to live in the state
-        private PlayerController _activePlayer => _playerMode == LocalPlayerMode.TwoD? _player2d : _playerVR;
-
         private readonly PlayerStateModule _playerStateModule;
-        private readonly PlayerController2D _player2d;
+        private readonly PlayerController2D _player2D;
         private readonly PlayerControllerVR _playerVR;
 
-        //TODO - wire in the state?
-        public ViRSEPlayerService(PlayerStateModule playerStateModule, PlayerController2D player2d, PlayerControllerVR playerVR)
+        private PlayerController _activePlayer => _playerStateModule.PlayerTransformData.IsVRMode? _playerVR : _player2D;
+
+        public ViRSEPlayerService(PlayerTransformData state, PlayerStateConfig config, bool enableVR, bool enable2D, 
+            ViRSEPlayerStateModuleContainer virsePlayerStateModuleContainer, IPlayerSettingsProvider playerSettingsProvider, IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider)
         {
-            _playerStateModule = playerStateModule;
+            _playerStateModule = new(state, config, virsePlayerStateModuleContainer, playerSettingsProvider, playerAppearanceOverridesProvider);
             _playerStateModule.OnAvatarAppearanceChanged += HandleAvatarAppearanceChanged;
 
-            _player2d = player2d;
-            _playerVR = playerVR;
+            if (enableVR)
+                _playerVR = SpawnPlayerVR(playerSettingsProvider.UserSettings.PlayerVRControlConfig);
+            if (enable2D)
+                _player2D = SpawnPlayer2D(playerSettingsProvider.UserSettings.Player2DControlConfig);
 
             if (_playerStateModule.PlayerTransformData.IsVRMode)
-            {
-                //Enable VR rig
-            }
+                _playerVR.ActivatePlayer(_playerStateModule.PlayerTransformData);
             else 
-            {
-                _player2d.ActivatePlayer(_playerStateModule.PlayerTransformData);
-            }
+                _player2D.ActivatePlayer(_playerStateModule.PlayerTransformData);
+        }
 
-            //TODO, activate the appripriate player, based on the state 
-            //Also, send the state INTO the player in the first place 
+        private PlayerController2D SpawnPlayer2D(Player2DControlConfig player2DControlConfig) 
+        {
+            GameObject player2DPrefab = Resources.Load("2dPlayer") as GameObject;
+            GameObject instantiated2DPlayer = GameObject.Instantiate(player2DPrefab, null, false);
+            PlayerController2D playerController2D = instantiated2DPlayer.GetComponent<PlayerController2D>();
+            playerController2D.Initialize(player2DControlConfig);
+            return playerController2D;
+        }
+
+        private PlayerControllerVR SpawnPlayerVR(PlayerVRControlConfig playerVRControlConfig)
+        {
+            GameObject playerVRPrefab = Resources.Load("vrPlayer") as GameObject;
+            GameObject instantiatedVRPlayer = GameObject.Instantiate(playerVRPrefab, null, false);
+            PlayerControllerVR playerControllerVR = instantiatedVRPlayer.GetComponent<PlayerControllerVR>();
+            playerControllerVR.Initialize(playerVRControlConfig);
+            return playerControllerVR;
         }
 
         private void HandleAvatarAppearanceChanged(ViRSEAvatarAppearance appearance)
@@ -136,26 +88,19 @@ namespace ViRSE.Core.Player
 
         public void HandleFixedUpdate()
         {
-            if (_playerMode == LocalPlayerMode.TwoD)
-            {
-                _playerStateModule.PlayerTransformData = _player2d.PlayerTransformData;
-                //Right, I can't completely overwrite the object, because it needs to persist 
-                //I don't really want to have to convert to/from bytes at this stage 
-                //Don't want to write to bytes if I'm not even going to transmit 
-                //Thing is though, the syncer will be looking for changes in the bytes, so I need to write to bytes anyway
-                //Ok, well, unless we put an equals method in the state interface, which probably makes sense, we only
-                //want to write to bytes when we actually transmit?
+            if (_playerStateModule.PlayerTransformData.IsVRMode)
+                _playerStateModule.PlayerTransformData = _playerVR.PlayerTransformData;
+            else 
+                _playerStateModule.PlayerTransformData = _player2D.PlayerTransformData;
 
-                //Could just put this transform thing in a "CoreCommonNonSerializables" object?
-            }
             _playerStateModule.HandleFixedUpdate();
         }
         
         public void TearDown() 
         {
             //TODO - maybe make these TearDown methods instead?
-            if (_player2d != null)
-                GameObject.DestroyImmediate(_player2d.gameObject);
+            if (_player2D != null)
+                GameObject.DestroyImmediate(_player2D.gameObject);
 
             if (_playerVR != null)
                 GameObject.DestroyImmediate(_playerVR.gameObject);

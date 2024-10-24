@@ -98,7 +98,7 @@ namespace ViRSE.Core //TODO workout namespace... Core.Common? Or just ViRSE.Comm
         }
 
         public WorldStateModulesContainer WorldStateModulesContainer {get; private set;} = new();
-        public ViRSEPlayerStateModuleContainer ViRSEPlayerContainer {get; private set;} = new();
+        public ViRSEPlayerStateModuleContainer ViRSEPlayerStateModuleContainer {get; private set;} = new();
 
 
         private void Awake()
@@ -111,7 +111,7 @@ namespace ViRSE.Core //TODO workout namespace... Core.Common? Or just ViRSE.Comm
         private void OnDestroy() 
         {
             WorldStateModulesContainer.Reset();
-            ViRSEPlayerContainer.Reset();
+            ViRSEPlayerStateModuleContainer.Reset();
         }
     }
 

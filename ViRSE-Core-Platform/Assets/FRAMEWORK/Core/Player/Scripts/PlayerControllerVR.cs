@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static ViRSE.Core.Shared.CoreCommonSerializables;
 
 namespace ViRSE.Core.Player
 {
@@ -9,6 +10,7 @@ namespace ViRSE.Core.Player
         [SerializeField] private Camera cameraVR;
         [SerializeField] Interactor2D interactorVRLeft; //TODO should be a VR interactor
         [SerializeField] Interactor2D interactorVRRight; //TODO should be a VR interactor
+        private PlayerVRControlConfig _controlConfig;
 
         public override PlayerTransformData PlayerTransformData
         {
@@ -27,6 +29,14 @@ namespace ViRSE.Core.Player
                 );
             }
         }
+
+        public void Initialize(PlayerVRControlConfig controlConfig)
+        {
+            _controlConfig = controlConfig;
+            //interactorVRLeft.Initialize();
+            //interactorVRRight.Initialize();
+        }
+
 
         public override void ActivatePlayer(PlayerTransformData initTransformData)
         {

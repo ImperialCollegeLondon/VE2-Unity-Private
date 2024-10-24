@@ -12,7 +12,7 @@ namespace ViRSE.InstanceNetworking
     {
         public static LocalPlayerSyncer Create(InstanceService instanceService)
         {
-            return new LocalPlayerSyncer(instanceService, ViRSECoreServiceLocator.Instance.ViRSEPlayerContainer);
+            return new LocalPlayerSyncer(instanceService, ViRSECoreServiceLocator.Instance.ViRSEPlayerStateModuleContainer);
         }
     }
 
