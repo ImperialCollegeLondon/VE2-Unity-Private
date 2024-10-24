@@ -41,7 +41,7 @@ namespace ViRSE.Core.VComponents
         ICollidePlayerInteratable ICollidePlayerInteratableImplementor.CollidePlayerInteratable => _pushActivatable.ColliderInteractionModule;
         #endregion
 
-        private void OnEnable()
+        public void OnEnable() //TODO - hide this
         {
             string id = "Activtable-" + gameObject.name; 
             _pushActivatable = PushActivatableFactory.Create(_config, _state, id);

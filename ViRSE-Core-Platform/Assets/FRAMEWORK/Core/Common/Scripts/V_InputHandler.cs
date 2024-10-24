@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 public class V_InputHandler : MonoBehaviour
 {
-    private static V_InputHandler _instance;
+    protected static V_InputHandler _instance;
     public static V_InputHandler Instance {
         get {
             if (_instance == null)
@@ -16,7 +16,7 @@ public class V_InputHandler : MonoBehaviour
         }
     }
 
-    public InputHandler2D InputHandler2D {get; private set;} = new();
+    public virtual InputHandler2D InputHandler2D {get; protected set;} = new();
 
     private void Update()
     {
@@ -27,6 +27,7 @@ public class V_InputHandler : MonoBehaviour
 public class InputHandler2D 
 {
     public event Action OnMouseLeftClick;
+    protected void InvokeOnMouseLeftClick() => OnMouseLeftClick?.Invoke();
 
     public void HandleUpdate()
     {

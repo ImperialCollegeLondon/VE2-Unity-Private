@@ -11,7 +11,7 @@ namespace ViRSE.Core.VComponents
         public float InteractRange => RangedPlayerInteractable.InteractRange;
     }
 
-    public interface IRangedPlayerInteractable
+    public interface IRangedPlayerInteractable : IGeneralPlayerInteractable
     {
         public float InteractRange { get; }
     }

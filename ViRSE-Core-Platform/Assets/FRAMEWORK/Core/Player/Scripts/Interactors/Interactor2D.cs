@@ -9,6 +9,7 @@ namespace ViRSE.Core.Player
     {
         //TODO - a bunch of this should go into a superclass 
         public Transform GrabberTransform;
+        private RaycastProvider _raycaster;
 
         private Transform rayOrigin;
         private float maxRaycastDistance;
@@ -20,23 +21,26 @@ namespace ViRSE.Core.Player
         private IRangedPlayerInteractableImplementor _hoveringRangedInteractable = null;
 
         private InteractorID _interactorID;
+        private InputHandler2D _inputHandler2D => V_InputHandler.Instance.InputHandler2D;
+        private IRaycastProvider _raycastProvider => RaycastProvider.Instance;
 
         // Setup method to initialize the ray origin and max raycast distance
         public void Initialize(Camera camera2d)
         {
             rayOrigin = camera2d.transform;
             maxRaycastDistance = camera2d.farClipPlane;
+
             _interactorID = new InteractorID(0, InteractorType.TwoD);
         }
 
         private void OnEnable()
         {
-            V_InputHandler.Instance.InputHandler2D.OnMouseLeftClick += HandleLeftClick;
+            _inputHandler2D.OnMouseLeftClick += HandleLeftClick;
         }
 
         private void OnDisable()
         {
-            V_InputHandler.Instance.InputHandler2D.OnMouseLeftClick -= HandleLeftClick;
+            _inputHandler2D.OnMouseLeftClick -= HandleLeftClick;
         }
 
         private void HandleLeftClick()
@@ -54,14 +58,15 @@ namespace ViRSE.Core.Player
             _hoveringRangedInteractable = null;
 
             // Perform the raycast using the layer mask
-            if (Physics.Raycast(rayOrigin.position, rayOrigin.transform.forward, out RaycastHit hit, maxRaycastDistance, layerMask))
+            if (_raycastProvider.Raycast(rayOrigin.position, rayOrigin.transform.forward, out RaycastResultWrapper hitWrapper, maxRaycastDistance, layerMask))
             {
-                Vector3 hitPoint = hit.point;
-                Collider hitCollider = hit.collider;
+                Vector3 hitPoint = hitWrapper.Point;
+                Collider hitCollider = hitWrapper.Collider;
+                IRangedPlayerInteractableImplementor rangedInteractable = hitWrapper.RangedInteractableHit;
 
-                if (hit.collider.TryGetComponent(out IRangedPlayerInteractableImplementor rangedInteractable) && !rangedInteractable.AdminOnly)
+                if (rangedInteractable != null && !rangedInteractable.AdminOnly)
                 {
-                    float distance = Vector3.Distance(rayOrigin.transform.position, hit.collider.transform.position);
+                    float distance = Vector3.Distance(rayOrigin.transform.position, hitCollider.transform.position);
                     if (distance <= rangedInteractable.InteractRange)
                     {
                         foundRangedInteractable = true;
@@ -71,7 +76,7 @@ namespace ViRSE.Core.Player
                 }
                 else
                 {
-                    raycastHitDebug = hit.collider.gameObject.name;
+                    raycastHitDebug = hitCollider.gameObject.name;
                 }
             }
             else
