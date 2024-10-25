@@ -11,7 +11,7 @@ public class PluginTest : MonoBehaviour
     [SerializeField] private GameObject _lightOn;
     [SerializeField] private GameObject _lightOff;
     [SerializeField] private GameObject _pushButtonGO;
-    private IPushActivatable _pushActivatable => _pushButtonGO.GetComponent<IPushActivatable>();
+    private IV_PushActivatable _pushActivatable => _pushButtonGO.GetComponent<IV_PushActivatable>();
 
     // Start is called before the first frame update
     void Start()

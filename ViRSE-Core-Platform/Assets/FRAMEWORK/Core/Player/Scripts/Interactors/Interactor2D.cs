@@ -18,7 +18,7 @@ namespace ViRSE.Core.Player
         [SerializeField] private Image reticuleImage;
         [SerializeField] /*[ReadOnly]*/ private string raycastHitDebug;
 
-        private IRangedPlayerInteractableImplementor _hoveringRangedInteractable = null;
+        private IRangedPlayerInteractableIntegrator _hoveringRangedInteractable = null;
 
         private InteractorID _interactorID;
         private InputHandler2D _inputHandler2D => V_InputHandler.Instance.InputHandler2D;
@@ -47,7 +47,7 @@ namespace ViRSE.Core.Player
         {
             if (_hoveringRangedInteractable != null)
             {
-                if (_hoveringRangedInteractable is IRangedClickPlayerInteractableImplementor rangedClickInteractable)
+                if (_hoveringRangedInteractable is IRangedClickPlayerInteractableIntegrator rangedClickInteractable)
                     rangedClickInteractable.InvokeOnClickDown(_interactorID);
             }
         }
@@ -58,11 +58,11 @@ namespace ViRSE.Core.Player
             _hoveringRangedInteractable = null;
 
             // Perform the raycast using the layer mask
-            if (_raycastProvider.Raycast(rayOrigin.position, rayOrigin.transform.forward, out RaycastResultWrapper hitWrapper, maxRaycastDistance, layerMask))
+            if (_raycastProvider.Raycast(rayOrigin.position, rayOrigin.transform.forward, out IRaycastResultWrapper hitWrapper, maxRaycastDistance, layerMask))
             {
                 Vector3 hitPoint = hitWrapper.Point;
                 Collider hitCollider = hitWrapper.Collider;
-                IRangedPlayerInteractableImplementor rangedInteractable = hitWrapper.RangedInteractableHit;
+                IRangedPlayerInteractableIntegrator rangedInteractable = hitWrapper.RangedInteractableHit;
 
                 if (rangedInteractable != null && !rangedInteractable.AdminOnly)
                 {

@@ -5,15 +5,26 @@ using UnityEngine.Events;
 
 namespace ViRSE.Core.VComponents
 {
+    public interface ISingleInteractorActivatableStateModuleIntegrator
+    {
+        protected abstract ISingleInteractorActivatableStateModuleImplementor _implementor { get; }
+
+        public UnityEvent OnActivate => _implementor.OnActivate;
+        public UnityEvent OnDeactivate => _implementor.OnDeactivate;
+
+        public bool IsActivated { get { return _implementor.IsActivated; } set { _implementor.IsActivated = value; } }
+        public InteractorID CurrentInteractor => _implementor.CurrentInteractor;
+    }
+
     public interface ISingleInteractorActivatableStateModuleImplementor
     {
-        protected ISingleInteractorActivatableStateModule _module { get; }
+        protected ISingleInteractorActivatableStateModule _stateModule { get; }
 
-        public UnityEvent OnActivate => _module.OnActivate;
-        public UnityEvent OnDeactivate => _module.OnDeactivate;
+        public UnityEvent OnActivate => _stateModule.OnActivate;
+        public UnityEvent OnDeactivate => _stateModule.OnDeactivate;
 
-        public bool IsActivated { get { return _module.IsActivated; } set { _module.IsActivated = value; } }
-        public InteractorID CurrentInteractor => _module.CurrentInteractor;
+        public bool IsActivated { get { return _stateModule.IsActivated; } set { _stateModule.IsActivated = value; } }
+        public InteractorID CurrentInteractor => _stateModule.CurrentInteractor;
     }
 
     public interface ISingleInteractorActivatableStateModule
@@ -25,10 +36,3 @@ namespace ViRSE.Core.VComponents
         public InteractorID CurrentInteractor { get; }
     }
 }
-
-//These interfaces can't see anything that lives in the VC assembly 
-//So I guess that means we need to either...
-//1. Not pass the entire config to the network
-//      That might make sense, it's not like we pass the entire config for everything else 
-//      Right, the state module just has exposed stuff for frequency and protocol 
-//2. 

@@ -79,6 +79,7 @@ namespace ViRSE.InstanceNetworking
 
         private void HandleConnectToServer()
         {
+            //TODO - these things should be within the service, easier to test?
             _worldStateSyncer = WorldStateSyncerFactory.Create(_instanceService);
             _localPlayerSyncer = LocalPlayerSyncerFactory.Create(_instanceService);
             _remotePlayerSyncer = RemotePlayerSyncerFactory.Create(_instanceService);

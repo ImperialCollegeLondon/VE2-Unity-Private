@@ -30,7 +30,7 @@ namespace ViRSE.Core.Player
 
         private ViRSEPlayerService _playerService;
 
-        public void OnEnable() //TODO - hide this!
+        private void OnEnable() 
         {
             if (!_transformDataSetup)
             {

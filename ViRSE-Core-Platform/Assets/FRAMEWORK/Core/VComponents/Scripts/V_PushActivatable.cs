@@ -19,29 +19,28 @@ namespace ViRSE.Core.VComponents
         public abstract BaseStateConfig BaseStateConfig { get; }
     }
 
-    public class V_PushActivatable : BaseStateHolder, IPushActivatable, IRangedClickPlayerInteractableImplementor, ICollidePlayerInteratableImplementor
+
+    public class V_PushActivatable : BaseStateHolder, IV_PushActivatable, IRangedClickPlayerInteractableIntegrator, ICollidePlayerInteratableImplementor
     {
         [SerializeField, HideLabel, IgnoreParent] private PushActivatableConfig _config = new(); 
         [SerializeField, HideInInspector] private SingleInteractorActivatableState _state = new();
 
         private PushActivatable _pushActivatable = null;
-
         public override BaseStateConfig BaseStateConfig => _config.StateConfig;
 
-        #region Plugin Interfaces
-        ISingleInteractorActivatableStateModule ISingleInteractorActivatableStateModuleImplementor._module => _pushActivatable.StateModule;
-        IGeneralInteractionModule IGeneralInteractionModuleImplementor._module => _pushActivatable.GeneralInteractionModule;
-        IRangedInteractionModule IRangedInteractionModuleImplementor._module => _pushActivatable.RangedClickInteractionModule;
+        #region Customer facing Interfaces
+        IPushActivatable IV_PushActivatable._pushActivatableService => _pushActivatable;
         #endregion
 
-        #region Player Rig Interfaces
-        IGeneralPlayerInteractable IGeneralPlayerInteractableImplementor.GeneralPlayerInteractable => _pushActivatable.GeneralInteractionModule;
-        IRangedPlayerInteractable IRangedPlayerInteractableImplementor.RangedPlayerInteractable => _pushActivatable.RangedClickInteractionModule;
-        IRangedClickPlayerInteractable IRangedClickPlayerInteractableImplementor.RangedClickPlayerInteractable => _pushActivatable.RangedClickInteractionModule;
+        #region Player facing Interfaces
+        IGeneralPlayerInteractableImplementor IGeneralPlayerInteractableIntegrator.GeneralPlayerInteractableImplementor => _pushActivatable;
+        IRangedPlayerInteractableImplementor IRangedPlayerInteractableIntegrator.RangedPlayerInteractableImplementor => _pushActivatable;
+        IRangedClickPlayerInteractableImplementor IRangedClickPlayerInteractableIntegrator.RangedClickPlayerInteractableImplementor => _pushActivatable;
         ICollidePlayerInteratable ICollidePlayerInteratableImplementor.CollidePlayerInteratable => _pushActivatable.ColliderInteractionModule;
+
         #endregion
 
-        public void OnEnable() //TODO - hide this
+        private void OnEnable()
         {
             string id = "Activtable-" + gameObject.name; 
             _pushActivatable = PushActivatableFactory.Create(_config, _state, id);
@@ -57,25 +56,30 @@ namespace ViRSE.Core.VComponents
             _pushActivatable.TearDown();
             _pushActivatable = null;
         }
-
     }
 
     public static class PushActivatableFactory
     {
         public static PushActivatable Create(PushActivatableConfig config, ViRSESerializable state, string id)
         {
-            //TODO - DON'T INJECT STATE! But maybe do inject the WorldStateModulesContainer , or have the state module have its own factory 
-            SingleInteractorActivatableStateModule stateModule = new(state, config.StateConfig, id, ViRSECoreServiceLocator.Instance.WorldStateModulesContainer);
-            GeneralInteractionModule GeneralInteractionModule = new(config.GeneralInteractionConfig);
-            RangedClickInteractionModule RangedClickInteractionModule = new(config.RangedInteractionConfig);
-            ColliderInteractionModule ColliderInteractionModule = new();
-
-            return new PushActivatable(stateModule, GeneralInteractionModule, RangedClickInteractionModule, ColliderInteractionModule);
+            return new PushActivatable(config, state, id, ViRSECoreServiceLocator.Instance.WorldStateModulesContainer);
         }
     }
 
-    public class PushActivatable
+    public class PushActivatable : IRangedClickPlayerInteractableImplementor, IPushActivatable
     {
+        #region Customer-facing Interfaces 
+        ISingleInteractorActivatableStateModule ISingleInteractorActivatableStateModuleImplementor._stateModule => StateModule;
+        IGeneralInteractionModule IGeneralInteractionModuleImplementor._module => GeneralInteractionModule;
+        IRangedInteractionModule IRangedInteractionModuleImplementor._module => RangedClickInteractionModule;
+        #endregion
+
+        #region Player-facing Interfaces 
+        IGeneralPlayerInteractable IGeneralPlayerInteractableImplementor.GeneralPlayerInteractable => GeneralInteractionModule;
+        IRangedPlayerInteractable IRangedPlayerInteractableImplementor.RangedPlayerInteractable => RangedClickInteractionModule;
+        IRangedClickPlayerInteractable IRangedClickPlayerInteractableImplementor.RangedClickPlayerInteractable => RangedClickInteractionModule;
+        #endregion
+
         #region Modules
         public SingleInteractorActivatableStateModule StateModule { get; private set; }
         public GeneralInteractionModule GeneralInteractionModule { get; private set; }
@@ -83,16 +87,12 @@ namespace ViRSE.Core.VComponents
         public ColliderInteractionModule ColliderInteractionModule { get; private set; }
         #endregion
 
-        public PushActivatable(
-            SingleInteractorActivatableStateModule stateModule,
-            GeneralInteractionModule generalInteractionModule,
-            RangedClickInteractionModule rangedClickInteractionModule,
-            ColliderInteractionModule colliderInteractionModule)
+        public PushActivatable(PushActivatableConfig config, ViRSESerializable state, string id, WorldStateModulesContainer worldStateModulesContainer)
         {
-            StateModule = stateModule;
-            GeneralInteractionModule = generalInteractionModule;
-            RangedClickInteractionModule = rangedClickInteractionModule;
-            ColliderInteractionModule = colliderInteractionModule;
+            StateModule = new(state, config.StateConfig, id, worldStateModulesContainer);
+            GeneralInteractionModule = new(config.GeneralInteractionConfig);
+            RangedClickInteractionModule = new(config.RangedInteractionConfig);
+            ColliderInteractionModule = new();
 
             RangedClickInteractionModule.OnClickDown += HandleInteract;
             ColliderInteractionModule.OnCollideEnter += HandleInteract;

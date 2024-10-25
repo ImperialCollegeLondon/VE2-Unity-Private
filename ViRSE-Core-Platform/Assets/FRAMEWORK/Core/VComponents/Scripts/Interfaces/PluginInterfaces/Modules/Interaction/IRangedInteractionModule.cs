@@ -4,6 +4,13 @@ using UnityEngine;
 
 namespace ViRSE.Core.VComponents
 {
+    public interface IRangedInteractionModuleIntegrator
+    {
+        protected IRangedInteractionModuleImplementor _implementor { get; } //Not visible to customer 
+
+        public float InteractRange { get => _implementor.InteractRange; set => _implementor.InteractRange = value; }
+    }
+
     public interface IRangedInteractionModuleImplementor
     {
         protected IRangedInteractionModule _module { get; } //Not visible to customer 

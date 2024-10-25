@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace ViRSE.Core.VComponents
 {
-    public interface ICollidePlayerInteratableImplementor : IGeneralPlayerInteractableImplementor
+    public interface ICollidePlayerInteratableImplementor : IGeneralPlayerInteractableIntegrator
     {
         protected ICollidePlayerInteratable CollidePlayerInteratable { get; }
 

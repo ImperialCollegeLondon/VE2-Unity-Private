@@ -4,6 +4,13 @@ using UnityEngine;
 
 namespace ViRSE.Core.VComponents
 {
+    public interface IRangedPlayerInteractableIntegrator : IGeneralPlayerInteractableIntegrator
+    {
+        protected IRangedPlayerInteractableImplementor RangedPlayerInteractableImplementor { get; }
+
+        public float InteractRange => RangedPlayerInteractableImplementor.InteractRange;
+    }
+
     public interface IRangedPlayerInteractableImplementor : IGeneralPlayerInteractableImplementor
     {
         protected IRangedPlayerInteractable RangedPlayerInteractable { get; }

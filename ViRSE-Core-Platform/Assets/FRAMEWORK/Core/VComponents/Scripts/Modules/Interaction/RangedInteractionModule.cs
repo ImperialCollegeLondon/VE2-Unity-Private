@@ -30,6 +30,10 @@ namespace ViRSE.Core.VComponents
     {
         #region Plugin and Player Rig Interfaces
         public float InteractRange { get => _config.InteractionRange; set => _config.InteractionRange = value; }
+
+        public bool AdminOnly => generalInteractionModule.AdminOnly;
+        public bool VibrateControllers => generalInteractionModule.VibrateControllers;
+        public bool ShowTooltips => generalInteractionModule.ShowTooltips;
         #endregion
 
         private RangedInteractionConfig _config;
