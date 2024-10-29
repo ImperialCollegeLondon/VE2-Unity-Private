@@ -83,7 +83,7 @@ namespace ViRSE.InstanceNetworking
                 ConnectToServerOnceDetailsReady();
         }
 
-        private void ConnectToServerOnceDetailsReady() 
+        public void ConnectToServerOnceDetailsReady() 
         {
             _connectionStateDebugWrapper.ConnectionState = ConnectionState.FetchingConnectionSettings;
 

@@ -23836,12 +23836,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enableVR: 0
-  enable2D: 0
+  enable2D: 1
   playerStateConfig:
     IsNetworked: 1
     RepeatedTransmissionConfig:
       TransmissionType: 0
       TransmissionFrequency: 1
+  _transformDataSetup: 0
+  _playerTransformData:
+    RootPosition: {x: 0, y: 0, z: 0}
+    RootRotation: {x: 0, y: 0, z: 0, w: 0}
 --- !u!4 &2040201057
 Transform:
   m_ObjectHideFlags: 0

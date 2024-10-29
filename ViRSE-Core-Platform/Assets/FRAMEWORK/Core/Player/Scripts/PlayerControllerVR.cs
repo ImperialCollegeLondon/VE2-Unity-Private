@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ViRSE.Core.Shared;
 using static ViRSE.Core.Shared.CoreCommonSerializables;
 
 namespace ViRSE.Core.Player
@@ -30,7 +31,7 @@ namespace ViRSE.Core.Player
             }
         }
 
-        public void Initialize(PlayerVRControlConfig controlConfig)
+        public void Initialize(PlayerVRControlConfig controlConfig, IMultiplayerSupport multiplayerSupport)
         {
             _controlConfig = controlConfig;
             //interactorVRLeft.Initialize();

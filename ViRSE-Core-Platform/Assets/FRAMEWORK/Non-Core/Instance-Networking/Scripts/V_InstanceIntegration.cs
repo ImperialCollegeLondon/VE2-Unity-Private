@@ -20,6 +20,7 @@ namespace ViRSE.InstanceNetworking
     {
         #region Inspector Fields
         // [DynamicHelp(nameof(_settingsMessage))]
+        [EditorButton(nameof(ConnectToServerOnceDetailsReady), "Connect", activityType: ButtonActivityType.OnPlayMode)] //TODO only works if _connectOnStart is false, look into other EditorButton packages
         [SerializeField] private bool _connectOnStart = true;
 
         // private string _settingsMessage => _instanceNetworkSettingsProviderPresent ?
@@ -48,6 +49,8 @@ namespace ViRSE.InstanceNetworking
         public bool IsConnectedToServer => _connectionStateDebug.ConnectionState == ConnectionState.Connected;
         public ushort LocalClientID => LocalClientIDWrapper.LocalClientID;
         public InstancedInstanceInfo InstanceInfo => _instanceService.InstanceInfo; //TODO, don't want to expose this
+        public bool IsHost => _instanceService.IsHost;
+
         public event Action<InstancedInstanceInfo> OnInstanceInfoChanged;
         public event Action OnDisconnectedFromServer;
         #endregion
@@ -76,6 +79,12 @@ namespace ViRSE.InstanceNetworking
                 _instanceService.OnInstanceInfoChanged += HandleReceiveInstanceInfo;
             }
         }
+
+        public void ConnectToServerOnceDetailsReady() 
+        {
+            if (!_connectOnStart && !_instanceService.IsConnectedToServer)
+                _instanceService?.ConnectToServer();
+        } 
 
         private void HandleConnectToServer()
         {

@@ -35,17 +35,20 @@ namespace ViRSE.Tests
             CustomerScript customerScript = Substitute.For<CustomerScript>();
             pushActivatableInterface.OnActivate.AddListener(customerScript.HandleActivateReceived);
             pushActivatableInterface.OnDeactivate.AddListener(customerScript.HandleDeactivateReceived);
-    
-            //Stub out the VC's integration layer
-            RangedPlayerInteractableStub rangedInteractableStub = new(pushActivatable);
 
-            //Stub out the raycast provider
+            //Stub out the raycast provider to hit the activatable
+            RangedPlayerInteractableStub rangedInteractableStub = new(pushActivatable); 
             RaycastResultWrapperStub raycastResultStub = new(rangedInteractableStub);
             RaycastProviderStub raycastProvider = new(raycastResultStub);
 
             //Stub out the input handler    
             InputHandler2DStub inputHandler2DStub = new();
             InputHandlerStub inputHandlerStub = new(inputHandler2DStub);
+
+            //Stub out the multiplayer support
+            IMultiplayerSupport multiplayerSupportStub = Substitute.For<IMultiplayerSupport>();
+            multiplayerSupportStub.IsConnectedToServer.Returns(true);
+            multiplayerSupportStub.LocalClientID.Returns((ushort)50);
 
             //Create the player (2d)
             ViRSEPlayerService playerService = new(
@@ -55,18 +58,21 @@ namespace ViRSE.Tests
                 true,
                 Substitute.For<ViRSEPlayerStateModuleContainer>(),
                 new PlayerSettingsProviderStub(),
-                Substitute.For<IPlayerAppearanceOverridesProvider>()
+                Substitute.For<IPlayerAppearanceOverridesProvider>(),
+                multiplayerSupportStub
             );
 
             //Check customer received the activation, and that the interactorID is set
             inputHandler2DStub.SimulateMouseClick();
             customerScript.Received(1).HandleActivateReceived();
-            //Assert.AreEqual(interactorID, stateInterface.CurrentInteractor);
+            InteractorID interactorID = pushActivatableInterface.CurrentInteractor;
+            Assert.AreEqual(50, interactorID.ClientID);
+            Assert.AreEqual(InteractorType.TwoD, interactorID.InteractorType);
 
             // Invoke the click to deactivate
             inputHandler2DStub.SimulateMouseClick();
             customerScript.Received(1).HandleDeactivateReceived();
-            //Assert.IsNull(stateInterface.CurrentInteractor);
+            Assert.IsNull(pushActivatableInterface.CurrentInteractor);
         }
 
         public class CustomerScript

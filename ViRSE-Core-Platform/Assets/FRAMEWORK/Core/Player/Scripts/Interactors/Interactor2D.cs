@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using ViRSE.Core.Shared;
 using ViRSE.Core.VComponents;
 
 namespace ViRSE.Core.Player
@@ -20,17 +21,19 @@ namespace ViRSE.Core.Player
 
         private IRangedPlayerInteractableIntegrator _hoveringRangedInteractable = null;
 
-        private InteractorID _interactorID;
+        private InteractorID _interactorID => new(_multiplayerSupport == null? 0 : _multiplayerSupport.LocalClientID, InteractorType.TwoD);
         private InputHandler2D _inputHandler2D => V_InputHandler.Instance.InputHandler2D;
         private IRaycastProvider _raycastProvider => RaycastProvider.Instance;
 
+        private IMultiplayerSupport _multiplayerSupport;
+        private bool _waitingForMultiplayerSupport => _multiplayerSupport != null && !_multiplayerSupport.IsConnectedToServer;
+
         // Setup method to initialize the ray origin and max raycast distance
-        public void Initialize(Camera camera2d)
+        public void Initialize(Camera camera2d, IMultiplayerSupport multiplayerSupport)
         {
             rayOrigin = camera2d.transform;
             maxRaycastDistance = camera2d.farClipPlane;
-
-            _interactorID = new InteractorID(0, InteractorType.TwoD);
+            _multiplayerSupport = multiplayerSupport;
         }
 
         private void OnEnable()
@@ -54,7 +57,11 @@ namespace ViRSE.Core.Player
 
         void Update()
         {
-            bool foundRangedInteractable = false;
+            //If we're waiting for multiplayer, we can't interact with anything 
+            //We need to know our ID before we can interact with anything, as this ID will end up in the state module
+            if (_waitingForMultiplayerSupport)
+                return;
+
             _hoveringRangedInteractable = null;
 
             // Perform the raycast using the layer mask
@@ -69,7 +76,6 @@ namespace ViRSE.Core.Player
                     float distance = Vector3.Distance(rayOrigin.transform.position, hitCollider.transform.position);
                     if (distance <= rangedInteractable.InteractRange)
                     {
-                        foundRangedInteractable = true;
                         _hoveringRangedInteractable = rangedInteractable;
                         raycastHitDebug = rangedInteractable.ToString();
                     }
@@ -84,7 +90,7 @@ namespace ViRSE.Core.Player
                 raycastHitDebug = "none";
             }
 
-            reticuleImage.color = foundRangedInteractable ? StaticColors.Instance.tangerine : StaticColors.Instance.lightBlue;
+            reticuleImage.color = _hoveringRangedInteractable != null ? StaticColors.Instance.tangerine : StaticColors.Instance.lightBlue;
         }
     }
 }

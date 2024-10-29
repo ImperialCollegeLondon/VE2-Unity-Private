@@ -11,6 +11,9 @@ namespace ViRSE.Core.Shared //TODO break into different files
     {
         public bool IsEnabled { get; }
         public string GameObjectName { get; }
+        public ushort LocalClientID { get; }
+        public bool IsHost { get; }
+        public bool IsConnectedToServer { get; }
     }
 
     public interface IBaseStateModule 

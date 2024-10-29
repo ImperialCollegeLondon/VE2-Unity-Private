@@ -15,7 +15,8 @@ namespace ViRSE.Core.Player
             return new ViRSEPlayerService(state, config, enableVR, enable2D, 
                 ViRSECoreServiceLocator.Instance.ViRSEPlayerStateModuleContainer, 
                 ViRSECoreServiceLocator.Instance.PlayerSettingsProvider, 
-                ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider);
+                ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider,
+                ViRSECoreServiceLocator.Instance.MultiplayerSupport);
         }
     }
 
@@ -47,15 +48,15 @@ namespace ViRSE.Core.Player
         private PlayerController _activePlayer => _playerStateModule.PlayerTransformData.IsVRMode? _playerVR : _player2D;
 
         public ViRSEPlayerService(PlayerTransformData state, PlayerStateConfig config, bool enableVR, bool enable2D, 
-            ViRSEPlayerStateModuleContainer virsePlayerStateModuleContainer, IPlayerSettingsProvider playerSettingsProvider, IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider)
+            ViRSEPlayerStateModuleContainer virsePlayerStateModuleContainer, IPlayerSettingsProvider playerSettingsProvider, IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider, IMultiplayerSupport multiplayerSupport)
         {
             _playerStateModule = new(state, config, virsePlayerStateModuleContainer, playerSettingsProvider, playerAppearanceOverridesProvider);
             _playerStateModule.OnAvatarAppearanceChanged += HandleAvatarAppearanceChanged;
 
             if (enableVR)
-                _playerVR = SpawnPlayerVR(playerSettingsProvider.UserSettings.PlayerVRControlConfig);
+                _playerVR = SpawnPlayerVR(playerSettingsProvider.UserSettings.PlayerVRControlConfig, multiplayerSupport);
             if (enable2D)
-                _player2D = SpawnPlayer2D(playerSettingsProvider.UserSettings.Player2DControlConfig);
+                _player2D = SpawnPlayer2D(playerSettingsProvider.UserSettings.Player2DControlConfig, multiplayerSupport);
 
             if (_playerStateModule.PlayerTransformData.IsVRMode)
                 _playerVR.ActivatePlayer(_playerStateModule.PlayerTransformData);
@@ -63,21 +64,21 @@ namespace ViRSE.Core.Player
                 _player2D.ActivatePlayer(_playerStateModule.PlayerTransformData);
         }
 
-        private PlayerController2D SpawnPlayer2D(Player2DControlConfig player2DControlConfig) 
+        private PlayerController2D SpawnPlayer2D(Player2DControlConfig player2DControlConfig, IMultiplayerSupport multiplayerSupport) 
         {
             GameObject player2DPrefab = Resources.Load("2dPlayer") as GameObject;
             GameObject instantiated2DPlayer = GameObject.Instantiate(player2DPrefab, null, false);
             PlayerController2D playerController2D = instantiated2DPlayer.GetComponent<PlayerController2D>();
-            playerController2D.Initialize(player2DControlConfig);
+            playerController2D.Initialize(player2DControlConfig, multiplayerSupport);
             return playerController2D;
         }
 
-        private PlayerControllerVR SpawnPlayerVR(PlayerVRControlConfig playerVRControlConfig)
+        private PlayerControllerVR SpawnPlayerVR(PlayerVRControlConfig playerVRControlConfig, IMultiplayerSupport multiplayerSupport)
         {
             GameObject playerVRPrefab = Resources.Load("vrPlayer") as GameObject;
             GameObject instantiatedVRPlayer = GameObject.Instantiate(playerVRPrefab, null, false);
             PlayerControllerVR playerControllerVR = instantiatedVRPlayer.GetComponent<PlayerControllerVR>();
-            playerControllerVR.Initialize(playerVRControlConfig);
+            playerControllerVR.Initialize(playerVRControlConfig, multiplayerSupport);
             return playerControllerVR;
         }
 

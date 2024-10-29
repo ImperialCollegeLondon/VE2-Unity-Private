@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ViRSE.Core.Shared;
 using static ViRSE.Core.Shared.CoreCommonSerializables;
 
 namespace ViRSE.Core.Player
@@ -37,10 +38,10 @@ namespace ViRSE.Core.Player
 
         private Player2DControlConfig _controlConfig;
 
-        public void Initialize(Player2DControlConfig controlConfig) 
+        public void Initialize(Player2DControlConfig controlConfig, IMultiplayerSupport multiplayerSupport) 
         {
             _controlConfig = controlConfig;
-            _interactor2D.Initialize(_camera2D);
+            _interactor2D.Initialize(_camera2D, multiplayerSupport);
         }
 
         public override void ActivatePlayer(PlayerTransformData initTransformData)
