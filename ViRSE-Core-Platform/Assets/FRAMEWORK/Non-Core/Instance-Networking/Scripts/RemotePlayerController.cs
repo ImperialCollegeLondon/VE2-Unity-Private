@@ -17,6 +17,9 @@ namespace ViRSE.InstanceNetworking
 
         [SerializeField] private TMP_Text _playerNameText;
         [SerializeField] private Transform _namePlateTransform;
+        [SerializeField] private GameObject _interactor2DGameObject;
+        [SerializeField] private GameObject _interactorVRLeftGameObject;
+        [SerializeField] private GameObject _interactorVRRightGameObject;
 
         private List<Material> _colorMaterials = new();
 
@@ -68,6 +71,19 @@ namespace ViRSE.InstanceNetworking
             transform.SetPositionAndRotation(playerState.RootPosition, playerState.RootRotation);
             _headHolder.SetLocalPositionAndRotation(playerState.HeadLocalPosition, playerState.HeadLocalRotation);
             _torsoHolder.position = _headHolder.position + (_torsoOffsetFromHead * Vector3.up);
+
+            _interactorVRLeftGameObject.SetActive(playerState.IsVRMode);
+            _interactorVRRightGameObject.SetActive(playerState.IsVRMode);
+            _interactor2DGameObject.SetActive(!playerState.IsVRMode);
+
+            if (playerState.IsVRMode)
+            {
+                _interactorVRLeftGameObject.transform.SetLocalPositionAndRotation(playerState.HandVRLeftLocalPosition, playerState.HandVRLeftLocalRotation);
+                _interactorVRRightGameObject.transform.SetLocalPositionAndRotation(playerState.HandVRRightLocalPosition, playerState.HandVRRightLocalRotation);
+            }
+            else {
+                _interactor2DGameObject.transform.SetLocalPositionAndRotation(playerState.Hand2DLocalPosition, playerState.Hand2DLocalRotation);
+            }
         }
 
         public void HandleReceiveAvatarAppearance(ViRSEAvatarAppearance newAvatarAppearance)
