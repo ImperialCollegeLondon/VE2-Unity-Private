@@ -23,6 +23,10 @@ namespace ViRSE.Core.Player
         private readonly PlayerStateModule _playerStateModule;
         private readonly PlayerController2D _player2D;
         private readonly PlayerControllerVR _playerVR;
+        private bool _enable2D;
+        private bool _enableVR;
+
+        private readonly IInputHandler _inputHandler;
 
         private PlayerController _activePlayer => _playerStateModule.PlayerTransformData.IsVRMode? _playerVR : _player2D;
 
@@ -33,21 +37,29 @@ namespace ViRSE.Core.Player
             _playerStateModule = new(state, config, virsePlayerStateModuleContainer, playerSettingsProvider, playerAppearanceOverridesProvider);
             _playerStateModule.OnAvatarAppearanceChanged += HandleAvatarAppearanceChanged;
 
+            _enable2D = enable2D;
+            _enableVR = enableVR;
+            _inputHandler = inputHandler;
+
             if (enableVR)
                 _playerVR = SpawnPlayerVR(playerSettingsProvider.UserSettings.PlayerVRControlConfig, multiplayerSupport, inputHandler, raycastProvider);
             if (enable2D)
                 _player2D = SpawnPlayer2D(playerSettingsProvider.UserSettings.Player2DControlConfig, multiplayerSupport, inputHandler, raycastProvider);
 
+            //TODO, figure out what mode to start in? Maybe we need some persistent data to remember the mode in the last scene??
             if (_playerStateModule.PlayerTransformData.IsVRMode)
                 _playerVR.ActivatePlayer(_playerStateModule.PlayerTransformData);
             else 
                 _player2D.ActivatePlayer(_playerStateModule.PlayerTransformData);
+
+            _inputHandler.OnChangeModePressed += HandleChangeModePressed;   
         }
 
         private PlayerController2D SpawnPlayer2D(Player2DControlConfig player2DControlConfig, IMultiplayerSupport multiplayerSupport, IInputHandler inputHandler, IRaycastProvider raycastProvider) 
         {
             GameObject player2DPrefab = Resources.Load("2dPlayer") as GameObject;
             GameObject instantiated2DPlayer = GameObject.Instantiate(player2DPrefab, null, false);
+            instantiated2DPlayer.SetActive(false);
             PlayerController2D playerController2D = instantiated2DPlayer.GetComponent<PlayerController2D>();
             playerController2D.Initialize(player2DControlConfig, multiplayerSupport, inputHandler, raycastProvider);
             return playerController2D;
@@ -57,9 +69,31 @@ namespace ViRSE.Core.Player
         {
             GameObject playerVRPrefab = Resources.Load("vrPlayer") as GameObject;
             GameObject instantiatedVRPlayer = GameObject.Instantiate(playerVRPrefab, null, false);
+            instantiatedVRPlayer.SetActive(false);
             PlayerControllerVR playerControllerVR = instantiatedVRPlayer.GetComponent<PlayerControllerVR>();
             playerControllerVR.Initialize(playerVRControlConfig, multiplayerSupport, inputHandler, raycastProvider);
             return playerControllerVR;
+        }
+
+        private void HandleChangeModePressed() 
+        {
+            Debug.Log("Change mode pressed");
+
+            if (!_enable2D || !_enableVR)
+                return; //Can't change modes if both aren't enabled!
+
+            if (_playerStateModule.PlayerTransformData.IsVRMode)
+            {
+                _playerVR.DeactivatePlayer();
+                _player2D.ActivatePlayer(_playerStateModule.PlayerTransformData);
+            }
+            else 
+            {
+                _player2D.DeactivatePlayer();
+                _playerVR.ActivatePlayer(_playerStateModule.PlayerTransformData);
+            }
+
+            _playerStateModule.PlayerTransformData.IsVRMode = !_playerStateModule.PlayerTransformData.IsVRMode;
         }
 
         private void HandleAvatarAppearanceChanged(ViRSEAvatarAppearance appearance)
@@ -87,6 +121,7 @@ namespace ViRSE.Core.Player
                 GameObject.DestroyImmediate(_playerVR.gameObject);
 
             _playerStateModule.TearDown();
+            _inputHandler.OnChangeModePressed -= HandleChangeModePressed;
         }
     }
 

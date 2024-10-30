@@ -6,66 +6,37 @@ using ViRSE.Core.VComponents;
 
 namespace ViRSE.Core.Player
 {
-    public class Interactor2D : MonoBehaviour
+    public abstract class BaseInteractor : MonoBehaviour
     {
-        //TODO - a bunch of this should go into a superclass 
-        public Transform GrabberTransform;
-        private RaycastProvider _raycaster;
+        [SerializeField] public Transform GrabberTransform;
+        [SerializeField] protected LayerMask _LayerMask; // Add a layer mask field
+        [SerializeField] protected string _RaycastHitDebug;
 
-        private Transform rayOrigin;
-        private float maxRaycastDistance;
-        [SerializeField] private LayerMask layerMask; // Add a layer mask field
-
-        [SerializeField] private Image reticuleImage;
-        [SerializeField] /*[ReadOnly]*/ private string raycastHitDebug;
-
-        private InteractorID _interactorID => new(_multiplayerSupport == null? 0 : _multiplayerSupport.LocalClientID, InteractorType.TwoD);
-        private IMultiplayerSupport _multiplayerSupport;
-        private IInputHandler _inputHandler;
-        private IRaycastProvider _raycastProvider;
-
+        protected Transform _RayOrigin;
+        protected const float MAX_RAYCAST_DISTANCE = 10;
+        protected InteractorID _InteractorID => new(_multiplayerSupport == null ? 0 : _multiplayerSupport.LocalClientID, InteractorType.TwoD);
         private bool _waitingForMultiplayerSupport => _multiplayerSupport != null && !_multiplayerSupport.IsConnectedToServer;
+
+        protected IMultiplayerSupport _multiplayerSupport;
+        protected IInputHandler _InputHandler;
+        protected IRaycastProvider _RaycastProvider;
 
         // Setup method to initialize the ray origin and max raycast distance
         public void Initialize(Camera camera2d, IMultiplayerSupport multiplayerSupport, IInputHandler inputHandler, IRaycastProvider raycastProvider)
         {
-            rayOrigin = camera2d.transform;
-            maxRaycastDistance = camera2d.farClipPlane;
+            _RayOrigin = camera2d.transform;
 
             _multiplayerSupport = multiplayerSupport;
-            _inputHandler = inputHandler;
-            _raycastProvider = raycastProvider;
-
-            _inputHandler.OnMouseLeftClick += HandleLeftClick;
+            _InputHandler = inputHandler;
+            _RaycastProvider = raycastProvider;
         }
 
-        private void HandleLeftClick()
-        {
-            if (TryGetHoveringRangedInteractable(out IRangedPlayerInteractableImplementor hoveringInteractable))
-            {
-                if (hoveringInteractable is IRangedClickPlayerInteractableImplementor rangedClickInteractable)
-                    rangedClickInteractable.InvokeOnClickDown(_interactorID);
-            }
-        }
+        protected abstract void SubscribeToInputHandler(IInputHandler inputHandler);
 
-        void Update()
-        {
-            if (TryGetHoveringRangedInteractable(out IRangedPlayerInteractableImplementor hoveringInteractable))
-            {
-                reticuleImage.color = StaticColors.Instance.tangerine;
-                raycastHitDebug = hoveringInteractable.ToString();
-            }
-            else 
-            {
-                reticuleImage.color = StaticColors.Instance.lightBlue;
-                raycastHitDebug = "none";
-            }
-        }
-
-        private bool TryGetHoveringRangedInteractable(out IRangedPlayerInteractableImplementor hoveringInteractable)
+        protected bool TryGetHoveringRangedInteractable(out IRangedPlayerInteractableImplementor hoveringInteractable)
         {
             // Perform the raycast using the layer mask
-            if (!_waitingForMultiplayerSupport && _raycastProvider.TryGetRangedPlayerInteractable(rayOrigin.position, rayOrigin.transform.forward, out IRangedPlayerInteractableImplementor rangedInteractable, maxRaycastDistance, layerMask))
+            if (!_waitingForMultiplayerSupport && _RaycastProvider.TryGetRangedPlayerInteractable(_RayOrigin.position, _RayOrigin.transform.forward, out IRangedPlayerInteractableImplementor rangedInteractable, MAX_RAYCAST_DISTANCE, _LayerMask))
             {
                 if (!rangedInteractable.AdminOnly)
                 {
@@ -80,7 +51,48 @@ namespace ViRSE.Core.Player
 
         private void OnDestroy()
         {
-            _inputHandler.OnMouseLeftClick -= HandleLeftClick;
+            UnsubscribeFromInputHandler(_InputHandler);
+        }
+
+        protected abstract void UnsubscribeFromInputHandler(IInputHandler inputHandler);
+    }
+
+    public class Interactor2D : BaseInteractor
+    {
+        [SerializeField] private Image reticuleImage;
+
+        protected override void SubscribeToInputHandler(IInputHandler inputHandler) 
+        {
+            inputHandler.OnMouseLeftClick += HandleLeftClick;
+        }
+
+        private void HandleLeftClick()
+        {
+            if (TryGetHoveringRangedInteractable(out IRangedPlayerInteractableImplementor hoveringInteractable))
+            {
+                if (hoveringInteractable is IRangedClickPlayerInteractableImplementor rangedClickInteractable)
+                    rangedClickInteractable.InvokeOnClickDown(_InteractorID);
+            }
+        }
+
+        void Update()
+        {
+            if (TryGetHoveringRangedInteractable(out IRangedPlayerInteractableImplementor hoveringInteractable))
+            {
+                reticuleImage.color = StaticColors.Instance.tangerine;
+                _RaycastHitDebug = hoveringInteractable.ToString();
+            }
+            else 
+            {
+                reticuleImage.color = StaticColors.Instance.lightBlue;
+                _RaycastHitDebug = "none";
+            }
+        }
+
+        protected override void UnsubscribeFromInputHandler(IInputHandler inputHandler)
+        {
+            inputHandler.OnMouseLeftClick -= HandleLeftClick;
         }
     }
+
 }

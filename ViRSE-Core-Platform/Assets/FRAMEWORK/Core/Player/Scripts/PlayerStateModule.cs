@@ -66,7 +66,7 @@ namespace ViRSE.Core.Player
     [Serializable]
     public class PlayerTransformData : ViRSESerializable
     {
-        public bool IsVRMode { get; private set; }
+        public bool IsVRMode;
 
         public Vector3 RootPosition;
         public Quaternion RootRotation;

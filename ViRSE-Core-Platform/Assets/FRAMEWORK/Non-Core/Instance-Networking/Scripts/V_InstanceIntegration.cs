@@ -130,13 +130,13 @@ namespace ViRSE.InstanceNetworking
             _instanceService = null;
             HandleDisconnectFromServer();
 
-            _worldStateSyncer.TearDown();
+            _worldStateSyncer?.TearDown();
             _worldStateSyncer = null;
 
-            _localPlayerSyncer.TearDown();
+            _localPlayerSyncer?.TearDown();
             _localPlayerSyncer = null;
 
-            _remotePlayerSyncer.TearDown();
+            _remotePlayerSyncer?.TearDown();
             _remotePlayerSyncer = null;
         }
     }
