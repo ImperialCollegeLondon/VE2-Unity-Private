@@ -111,8 +111,6 @@ namespace ViRSE.Core.VComponents
             CurrentInteractor = null;
         }
 
-        //public SingleInteractorActivatableState(byte[] data) : base(data) { }
-
         protected override byte[] ConvertToBytes()
         {
             using MemoryStream stream = new();
@@ -153,11 +151,3 @@ namespace ViRSE.Core.VComponents
         }
     }
 }
-
-/*
- * TODO - we want both the interaction module and the sync module to be able to change state directly?
- * mmm, that might violage SR though... maybe having the VC orchestrate is better?
- * Then again, it's simpler overall if the interaction and network modules DO change state 
- * Maybe we can just pass the entire StateModule directly??
- * 
- */

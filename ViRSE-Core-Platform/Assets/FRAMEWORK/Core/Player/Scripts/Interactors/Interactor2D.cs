@@ -19,78 +19,68 @@ namespace ViRSE.Core.Player
         [SerializeField] private Image reticuleImage;
         [SerializeField] /*[ReadOnly]*/ private string raycastHitDebug;
 
-        private IRangedPlayerInteractableIntegrator _hoveringRangedInteractable = null;
-
         private InteractorID _interactorID => new(_multiplayerSupport == null? 0 : _multiplayerSupport.LocalClientID, InteractorType.TwoD);
-        private InputHandler2D _inputHandler2D => V_InputHandler.Instance.InputHandler2D;
-        private IRaycastProvider _raycastProvider => RaycastProvider.Instance;
-
         private IMultiplayerSupport _multiplayerSupport;
+        private IInputHandler _inputHandler;
+        private IRaycastProvider _raycastProvider;
+
         private bool _waitingForMultiplayerSupport => _multiplayerSupport != null && !_multiplayerSupport.IsConnectedToServer;
 
         // Setup method to initialize the ray origin and max raycast distance
-        public void Initialize(Camera camera2d, IMultiplayerSupport multiplayerSupport)
+        public void Initialize(Camera camera2d, IMultiplayerSupport multiplayerSupport, IInputHandler inputHandler, IRaycastProvider raycastProvider)
         {
             rayOrigin = camera2d.transform;
             maxRaycastDistance = camera2d.farClipPlane;
+
             _multiplayerSupport = multiplayerSupport;
-        }
+            _inputHandler = inputHandler;
+            _raycastProvider = raycastProvider;
 
-        private void OnEnable()
-        {
-            _inputHandler2D.OnMouseLeftClick += HandleLeftClick;
-        }
-
-        private void OnDisable()
-        {
-            _inputHandler2D.OnMouseLeftClick -= HandleLeftClick;
+            _inputHandler.OnMouseLeftClick += HandleLeftClick;
         }
 
         private void HandleLeftClick()
         {
-            if (_hoveringRangedInteractable != null)
+            if (TryGetHoveringRangedInteractable(out IRangedPlayerInteractableImplementor hoveringInteractable))
             {
-                if (_hoveringRangedInteractable is IRangedClickPlayerInteractableIntegrator rangedClickInteractable)
+                if (hoveringInteractable is IRangedClickPlayerInteractableImplementor rangedClickInteractable)
                     rangedClickInteractable.InvokeOnClickDown(_interactorID);
             }
         }
 
         void Update()
         {
-            //If we're waiting for multiplayer, we can't interact with anything 
-            //We need to know our ID before we can interact with anything, as this ID will end up in the state module
-            if (_waitingForMultiplayerSupport)
-                return;
-
-            _hoveringRangedInteractable = null;
-
-            // Perform the raycast using the layer mask
-            if (_raycastProvider.Raycast(rayOrigin.position, rayOrigin.transform.forward, out IRaycastResultWrapper hitWrapper, maxRaycastDistance, layerMask))
+            if (TryGetHoveringRangedInteractable(out IRangedPlayerInteractableImplementor hoveringInteractable))
             {
-                Vector3 hitPoint = hitWrapper.Point;
-                Collider hitCollider = hitWrapper.Collider;
-                IRangedPlayerInteractableIntegrator rangedInteractable = hitWrapper.RangedInteractableHit;
-
-                if (rangedInteractable != null && !rangedInteractable.AdminOnly)
-                {
-                    float distance = Vector3.Distance(rayOrigin.transform.position, hitCollider.transform.position);
-                    if (distance <= rangedInteractable.InteractRange)
-                    {
-                        _hoveringRangedInteractable = rangedInteractable;
-                        raycastHitDebug = rangedInteractable.ToString();
-                    }
-                }
-                else
-                {
-                    raycastHitDebug = hitCollider.gameObject.name;
-                }
+                reticuleImage.color = StaticColors.Instance.tangerine;
+                raycastHitDebug = hoveringInteractable.ToString();
             }
-            else
+            else 
             {
+                reticuleImage.color = StaticColors.Instance.lightBlue;
                 raycastHitDebug = "none";
             }
+        }
 
-            reticuleImage.color = _hoveringRangedInteractable != null ? StaticColors.Instance.tangerine : StaticColors.Instance.lightBlue;
+        private bool TryGetHoveringRangedInteractable(out IRangedPlayerInteractableImplementor hoveringInteractable)
+        {
+            // Perform the raycast using the layer mask
+            if (!_waitingForMultiplayerSupport && _raycastProvider.TryGetRangedPlayerInteractable(rayOrigin.position, rayOrigin.transform.forward, out IRangedPlayerInteractableImplementor rangedInteractable, maxRaycastDistance, layerMask))
+            {
+                if (!rangedInteractable.AdminOnly)
+                {
+                    hoveringInteractable = rangedInteractable;
+                    return true;
+                }
+            }
+
+            hoveringInteractable = null;
+            return false;
+        }
+
+        private void OnDestroy()
+        {
+            _inputHandler.OnMouseLeftClick -= HandleLeftClick;
         }
     }
 }

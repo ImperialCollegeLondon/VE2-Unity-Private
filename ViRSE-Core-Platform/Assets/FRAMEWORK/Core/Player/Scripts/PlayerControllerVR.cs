@@ -31,7 +31,7 @@ namespace ViRSE.Core.Player
             }
         }
 
-        public void Initialize(PlayerVRControlConfig controlConfig, IMultiplayerSupport multiplayerSupport)
+        public void Initialize(PlayerVRControlConfig controlConfig, IMultiplayerSupport multiplayerSupport, IInputHandler inputHandler, IRaycastProvider raycastProvider)
         {
             _controlConfig = controlConfig;
             //interactorVRLeft.Initialize();

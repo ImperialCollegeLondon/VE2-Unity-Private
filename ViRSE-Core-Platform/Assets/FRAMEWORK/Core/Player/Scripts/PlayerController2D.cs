@@ -38,10 +38,10 @@ namespace ViRSE.Core.Player
 
         private Player2DControlConfig _controlConfig;
 
-        public void Initialize(Player2DControlConfig controlConfig, IMultiplayerSupport multiplayerSupport) 
+        public void Initialize(Player2DControlConfig controlConfig, IMultiplayerSupport multiplayerSupport, IInputHandler inputHandler, IRaycastProvider raycastProvider) 
         {
             _controlConfig = controlConfig;
-            _interactor2D.Initialize(_camera2D, multiplayerSupport);
+            _interactor2D.Initialize(_camera2D, multiplayerSupport, inputHandler, raycastProvider);
         }
 
         public override void ActivatePlayer(PlayerTransformData initTransformData)

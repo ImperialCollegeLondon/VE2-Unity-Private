@@ -3,38 +3,25 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
-public class V_InputHandler : MonoBehaviour
+public interface IInputHandler 
 {
-    protected static V_InputHandler _instance;
-    public static V_InputHandler Instance {
-        get {
-            if (_instance == null)
-                _instance = FindFirstObjectByType<V_InputHandler>();
-            if (_instance == null)
-                _instance = new GameObject("V_InputHandler").AddComponent<V_InputHandler>();
-            return _instance;
-        }
-    }
+    public event Action OnMouseLeftClick;
+}
 
-    public virtual InputHandler2D InputHandler2D {get; protected set;} = new();
+public class InputHandler : MonoBehaviour, IInputHandler
+{
+    public event Action OnMouseLeftClick;
 
     private void Update()
     {
-        InputHandler2D.HandleUpdate();
+        HandleInput2D();
     }
-}
 
-public class InputHandler2D 
-{
-    public event Action OnMouseLeftClick;
-    protected void InvokeOnMouseLeftClick() => OnMouseLeftClick?.Invoke();
-
-    public void HandleUpdate()
+    private void HandleInput2D()
     {
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
             OnMouseLeftClick?.Invoke();
         }
-            
     }
 }

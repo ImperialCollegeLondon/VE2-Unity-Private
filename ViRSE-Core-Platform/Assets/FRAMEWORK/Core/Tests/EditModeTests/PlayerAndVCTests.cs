@@ -1,10 +1,5 @@
 using NSubstitute;
 using NUnit.Framework;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.TestTools;
-using ViRSE;
 using ViRSE.Core.Shared;
 using ViRSE.Core;
 using ViRSE.Core.VComponents;
@@ -17,8 +12,6 @@ namespace ViRSE.Tests
 {
     public class PushActivatableTests
     {
-        //TODO - figure out interactor ID 
-        //Also figure out general refactoring, do we really need all these ugly test doubles?
         [Test]
         public void OnUserClick_WithHoveringActivatable_CustomerScriptReceivesOnActivate()
         {
@@ -32,23 +25,31 @@ namespace ViRSE.Tests
 
             //Wire up mock customer script
             IPushActivatable pushActivatableInterface = pushActivatable;
-            CustomerScript customerScript = Substitute.For<CustomerScript>();
-            pushActivatableInterface.OnActivate.AddListener(customerScript.HandleActivateReceived);
-            pushActivatableInterface.OnDeactivate.AddListener(customerScript.HandleDeactivateReceived);
+            CustomerScriptMock customerScriptMock = new();;
+            pushActivatableInterface.OnActivate.AddListener(customerScriptMock.HandleActivateReceived);
+            pushActivatableInterface.OnDeactivate.AddListener(customerScriptMock.HandleDeactivateReceived);
 
-            //Stub out the raycast provider to hit the activatable
-            RangedPlayerInteractableStub rangedInteractableStub = new(pushActivatable); 
-            RaycastResultWrapperStub raycastResultStub = new(rangedInteractableStub);
-            RaycastProviderStub raycastProvider = new(raycastResultStub);
-
-            //Stub out the input handler    
-            InputHandler2DStub inputHandler2DStub = new();
-            InputHandlerStub inputHandlerStub = new(inputHandler2DStub);
+            //Stub out the player settings provider with default settings
+            IPlayerSettingsProvider playerSettingsProviderStub = Substitute.For<IPlayerSettingsProvider>();
+            playerSettingsProviderStub.UserSettings.Returns(new UserSettingsPersistable());
 
             //Stub out the multiplayer support
             IMultiplayerSupport multiplayerSupportStub = Substitute.For<IMultiplayerSupport>();
             multiplayerSupportStub.IsConnectedToServer.Returns(true);
             multiplayerSupportStub.LocalClientID.Returns((ushort)50);
+
+            //Stub out the input handler    
+            IInputHandler inputHandlerStub = Substitute.For<IInputHandler>();
+
+            //Stub out the raycast provider to hit the activatable
+            IRaycastProvider raycastProviderStub = Substitute.For<IRaycastProvider>();
+            raycastProviderStub
+                .TryGetRangedPlayerInteractable(default, default, out Arg.Any<IRangedPlayerInteractableImplementor>(), default, default)
+                .ReturnsForAnyArgs(x =>
+                {
+                    x[2] = pushActivatable;
+                    return true;
+                });
 
             //Create the player (2d)
             ViRSEPlayerService playerService = new(
@@ -57,102 +58,37 @@ namespace ViRSE.Tests
                 false,
                 true,
                 Substitute.For<ViRSEPlayerStateModuleContainer>(),
-                new PlayerSettingsProviderStub(),
+                playerSettingsProviderStub,
                 Substitute.For<IPlayerAppearanceOverridesProvider>(),
-                multiplayerSupportStub
+                multiplayerSupportStub,
+                inputHandlerStub,
+                raycastProviderStub
             );
 
             //Check customer received the activation, and that the interactorID is set
-            inputHandler2DStub.SimulateMouseClick();
-            customerScript.Received(1).HandleActivateReceived();
+            inputHandlerStub.OnMouseLeftClick += Raise.Event<Action>();
+            customerScriptMock.DidNotReceive().HandleActivateReceived();
+            customerScriptMock.Received(1).HandleActivateReceived();
+            customerScriptMock.Received(1).HandleDeactivateReceived(); //Wrong, not actually received deactivate yet
+            customerScriptMock.Received(0).HandleActivateReceived(); //Wrong, there has been 1 activate
+            customerScriptMock.Received(100).HandleActivateReceived(); //Wrong again!
+            Assert.IsTrue(pushActivatableInterface.IsActivated);
             InteractorID interactorID = pushActivatableInterface.CurrentInteractor;
             Assert.AreEqual(50, interactorID.ClientID);
             Assert.AreEqual(InteractorType.TwoD, interactorID.InteractorType);
 
             // Invoke the click to deactivate
-            inputHandler2DStub.SimulateMouseClick();
-            customerScript.Received(1).HandleDeactivateReceived();
+            inputHandlerStub.OnMouseLeftClick += Raise.Event<Action>();
+            customerScriptMock.Received(1).HandleDeactivateReceived();
+            Assert.IsFalse(pushActivatableInterface.IsActivated);
             Assert.IsNull(pushActivatableInterface.CurrentInteractor);
         }
 
-        public class CustomerScript
+        public class CustomerScriptMock
         {
             public void HandleActivateReceived() { }
 
             public void HandleDeactivateReceived() { }
-        }
-
-        public class RaycastResultWrapperStub : IRaycastResultWrapper
-        {
-            public Collider Collider => null;
-            public GameObject GameObject => null;
-            public IRangedPlayerInteractableIntegrator RangedInteractableHit => _interactableInteracterStub;
-            public Vector3 Point => Vector3.zero;
-
-            private RangedPlayerInteractableStub _interactableInteracterStub;
-
-            public RaycastResultWrapperStub(RangedPlayerInteractableStub interactableInteracterStub)
-            {
-                _interactableInteracterStub = interactableInteracterStub;
-            }
-        }
-
-        public class RaycastProviderStub : RaycastProvider
-        {
-            private readonly IRaycastResultWrapper _raycastHitWrapperStub;
-
-            public RaycastProviderStub(IRaycastResultWrapper raycastHitWrapper)
-            {
-                _raycastHitWrapperStub = raycastHitWrapper;
-                _instance = this;
-            }
-
-            public override bool Raycast(Vector3 rayOrigin, Vector3 raycastDirection, out IRaycastResultWrapper hit, float maxRaycastDistance, LayerMask layerMask)
-            {
-                hit = _raycastHitWrapperStub;
-                return true;
-            }
-        }
-
-        public class RangedPlayerInteractableStub : IRangedPlayerInteractableIntegrator
-        {
-            IRangedPlayerInteractableImplementor IRangedPlayerInteractableIntegrator.RangedPlayerInteractableImplementor => _interactableInteracterStub;
-            IGeneralPlayerInteractableImplementor IGeneralPlayerInteractableIntegrator.GeneralPlayerInteractableImplementor => _interactableInteracterStub;
-            private IRangedPlayerInteractableImplementor _interactableInteracterStub;
-
-            public RangedPlayerInteractableStub(IRangedPlayerInteractableImplementor interactableInteracterStub)
-            {
-                _interactableInteracterStub = interactableInteracterStub;
-            }
-        }
-
-        public class InputHandlerStub : V_InputHandler
-        {
-            private readonly InputHandler2D _inputHandler2DStub;
-            public override InputHandler2D InputHandler2D => _inputHandler2DStub;
-
-            public InputHandlerStub(InputHandler2D InputHandler2DStub)
-            {
-                _inputHandler2DStub = InputHandler2DStub;
-                _instance = this;
-            }   
-        }
-
-        public class InputHandler2DStub : InputHandler2D
-        {
-            public void SimulateMouseClick() => InvokeOnMouseLeftClick();
-        }
-
-        public class PlayerSettingsProviderStub : IPlayerSettingsProvider
-        {
-            public bool ArePlayerSettingsReady => true;
-            public UserSettingsPersistable UserSettings => new();
-            public string GameObjectName => "test";
-            public bool IsEnabled => true;
-            public event Action OnPlayerSettingsReady;
-            public event Action OnLocalChangeToPlayerSettings;
-
-            public void NotifyProviderOfChangeToUserSettings() { }
         }
     }
 }

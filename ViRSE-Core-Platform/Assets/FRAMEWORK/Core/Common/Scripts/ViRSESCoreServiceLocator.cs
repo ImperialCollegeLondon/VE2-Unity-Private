@@ -10,6 +10,10 @@ using static ViRSE.Core.Shared.CoreCommonSerializables;
 
 namespace ViRSE.Core //TODO workout namespace... Core.Common? Or just ViRSE.Common?
 {
+    /* A number of these service references should exist at editor time, so inspectors can respond to their presence 
+    *  These service integrations have their GameObject name recorded in the locator so they can be re-located after a domain reload
+    *  Services/containers that do NOT record GO names exist at runtime only */
+
     [ExecuteInEditMode]
     public class ViRSECoreServiceLocator : MonoBehaviour
     {
@@ -25,6 +29,9 @@ namespace ViRSE.Core //TODO workout namespace... Core.Common? Or just ViRSE.Comm
                 return _instance;
             }
         }
+
+        //################################ MULTIPLAYER SUPPORT ########################################
+        //#############################################################################################
 
         //Record the gameobject name so we can re-locate multiplayer support after a domain reload
         [SerializeField, HideInInspector] private string _multiplayerSupportGOName;
@@ -48,7 +55,9 @@ namespace ViRSE.Core //TODO workout namespace... Core.Common? Or just ViRSE.Comm
             }
         }
 
-        //Record the gameobject name so we can re-locate multiplayer support after a domain reload
+        //############################## PLAYER SETTINGS PROVIDER #####################################
+        //#############################################################################################
+
         [SerializeField, HideInInspector] public string PlayerSettingsProviderGOName; //{ get; private set; }
         private IPlayerSettingsProvider _playerSettingsProvider;
         public IPlayerSettingsProvider PlayerSettingsProvider {
@@ -73,7 +82,9 @@ namespace ViRSE.Core //TODO workout namespace... Core.Common? Or just ViRSE.Comm
             }
         }
 
-        //[SerializeField] private string testString;
+        //############################## PLAYER OVERRIDES PROVIDER ####################################
+        //#############################################################################################
+
         [SerializeField, HideInInspector] public string PlayerOverridesProviderGOName; // { get; private set; }
         private IPlayerAppearanceOverridesProvider _playerOverridesProvider;
         public IPlayerAppearanceOverridesProvider PlayerAppearanceOverridesProvider
@@ -97,9 +108,43 @@ namespace ViRSE.Core //TODO workout namespace... Core.Common? Or just ViRSE.Comm
             }
         }
 
+        //############################### STATE MODULE CONTAINERS #####################################
+        //#############################################################################################
+
         public WorldStateModulesContainer WorldStateModulesContainer {get; private set;} = new();
         public ViRSEPlayerStateModuleContainer ViRSEPlayerStateModuleContainer {get; private set;} = new();
 
+        //##################################### INPUT HANDLER #########################################
+        //#############################################################################################
+
+        private IInputHandler _inputHandler;
+        public IInputHandler InputHandler //Returns the default InputHandler 
+        {
+            get
+            {
+                if (!Application.isPlaying)
+                {
+                    Debug.LogError("InputHandler is only available at runtime");   
+                    return null;
+                }
+
+                _inputHandler ??= FindFirstObjectByType<InputHandler>();
+                _inputHandler ??= new GameObject("V_InputHandler").AddComponent<InputHandler>();
+                return _inputHandler;
+            }
+        }
+
+        //#################################### RAYCAST PROVIDER #######################################
+        //#############################################################################################
+
+        private IRaycastProvider _raycastProvider;
+        public IRaycastProvider RaycastProvider { get { //Returns the default RaycastProvider
+            _raycastProvider ??= new RaycastProvider();
+            return _raycastProvider;
+        }}
+
+        //################################## MONOBEHAVIOUR METHODS ####################################
+        //#############################################################################################
 
         private void Awake()
         {
@@ -128,16 +173,6 @@ namespace ViRSE.Core //TODO workout namespace... Core.Common? Or just ViRSE.Comm
         public List<GameObject> GetHeadOverrideGOs();
         public List<GameObject> GetTorsoOverrideGOs();
     }
-
-    // public interface IPlayerSpawner
-    // {
-    //     public bool IsEnabled { get; }
-    //     public string GameObjectName { get; }
-
-    //     //Unlike the other components, the player spawner should be able to 
-    //     //Activate and deactivate at runtime
-    //     public event Action OnEnabledStateChanged;
-    // }
 
     public class WorldStateModulesContainer : BaseStateModuleContainer
     {
