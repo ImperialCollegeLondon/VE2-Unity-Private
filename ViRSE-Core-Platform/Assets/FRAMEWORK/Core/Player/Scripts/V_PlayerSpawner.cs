@@ -1,8 +1,10 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
+using UnityEngine.XR.Management;
 using ViRSE.Core.Shared;
 using static ViRSE.Core.Shared.CoreCommonSerializables;
 
@@ -29,6 +31,7 @@ namespace ViRSE.Core.Player
         [SerializeField, HideInInspector] private PlayerTransformData _playerTransformData = new();
 
         private ViRSEPlayerService _playerService;
+        private bool _xrInitialized = false;
 
         private void OnEnable() 
         {
@@ -45,6 +48,9 @@ namespace ViRSE.Core.Player
                 return;
             }
 
+            if (enableVR)
+                StartCoroutine(InitializeXR());
+
             //TODO, maybe we have the service in charge of this async stuff, then its easier to test
             //Although, the service is doing a lot already, the integration maybe isn't the worst place for this..
             //its not like we CAN'T test a Monobehaviour, we can just mock the service locator singleton
@@ -54,9 +60,43 @@ namespace ViRSE.Core.Player
                 ViRSECoreServiceLocator.Instance.PlayerSettingsProvider.OnPlayerSettingsReady += HandlePlayerSettingsReady; //TODO- Maybe just wire this into the PlayerService?
         }
 
+        private IEnumerator InitializeXR()
+        {
+            Debug.Log("Initializing XR...");
+            yield return XRGeneralSettings.Instance.Manager.InitializeLoader();
+
+            if (XRGeneralSettings.Instance.Manager.activeLoader == null)
+            {
+                Debug.LogError("Failed to initialize XR Loader.");
+            }
+            else
+            {
+                XRGeneralSettings.Instance.Manager.StartSubsystems();
+                Debug.Log("XR initialized and subsystems started.");
+                _xrInitialized = true;
+            }
+        }
+
         private void HandlePlayerSettingsReady()
         {
             ViRSECoreServiceLocator.Instance.PlayerSettingsProvider.OnPlayerSettingsReady -= HandlePlayerSettingsReady;
+
+            if (enableVR && !_xrInitialized)
+                StartCoroutine(InitializePlayerServiceAfterXRInit());
+            else
+                InitializePlayerService();
+        }
+
+        private IEnumerator InitializePlayerServiceAfterXRInit()
+        {
+            while (!_xrInitialized)
+                yield return null;
+
+            InitializePlayerService();
+        }
+
+        private void InitializePlayerService()
+        {
             _playerService = ViRSEPlayerServiceFactory.Create(_playerTransformData, playerStateConfig, enableVR, enable2D);
         }
 
@@ -68,6 +108,12 @@ namespace ViRSE.Core.Player
         private void OnDisable() 
         {
             _playerService?.TearDown();
+
+            if (enableVR && XRGeneralSettings.Instance.Manager.isInitializationComplete)
+            {
+                XRGeneralSettings.Instance.Manager.StopSubsystems();
+                XRGeneralSettings.Instance.Manager.DeinitializeLoader();
+            }
         }
     }
 }
