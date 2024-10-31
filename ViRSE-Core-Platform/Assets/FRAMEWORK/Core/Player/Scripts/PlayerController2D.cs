@@ -48,7 +48,7 @@ namespace ViRSE.Core.Player
         {
             _rootPosition = initTransformData.RootPosition;
             transform.rotation = initTransformData.RootRotation;
-            _camera2D.transform.SetLocalPositionAndRotation(initTransformData.HeadLocalPosition, initTransformData.HeadLocalRotation);
+            _camera2D.transform.rotation = initTransformData.HeadLocalRotation;
             _interactor2D.GrabberTransform.SetLocalPositionAndRotation(initTransformData.Hand2DLocalPosition, initTransformData.Hand2DLocalRotation);
             gameObject.SetActive(true);
         }

@@ -6,6 +6,7 @@ using ViRSE.Core.VComponents;
 using ViRSE.Core.Player;
 using static ViRSE.Core.Shared.CoreCommonSerializables;
 using System;
+using UnityEngine.XR.Management;
 
 
 namespace ViRSE.Tests
@@ -62,7 +63,8 @@ namespace ViRSE.Tests
                 Substitute.For<IPlayerAppearanceOverridesProvider>(),
                 multiplayerSupportStub,
                 inputHandlerStub,
-                raycastProviderStub
+                raycastProviderStub, 
+                Substitute.For<XRManagerSettings>()
             );
 
             //Check customer received the activation, and that the interactorID is set

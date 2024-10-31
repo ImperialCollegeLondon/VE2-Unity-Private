@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.XR.Management;
 using ViRSE.Core.Shared;
 using static ViRSE.Core.Shared.CoreCommonSerializables;
 
@@ -12,6 +13,7 @@ namespace ViRSE.Core.Player
         [SerializeField] private InteractorVR interactorVRLeft; 
         [SerializeField] private InteractorVR interactorVRRight; 
         private PlayerVRControlConfig _controlConfig;
+        private XRManagerSettings _xrManagerSettings;
 
         public override PlayerTransformData PlayerTransformData
         {
@@ -31,9 +33,10 @@ namespace ViRSE.Core.Player
             }
         }
 
-        public void Initialize(PlayerVRControlConfig controlConfig, IMultiplayerSupport multiplayerSupport, IInputHandler inputHandler, IRaycastProvider raycastProvider)
+        public void Initialize(PlayerVRControlConfig controlConfig, IMultiplayerSupport multiplayerSupport, IInputHandler inputHandler, IRaycastProvider raycastProvider, XRManagerSettings xrManagerSettings)
         {
             _controlConfig = controlConfig;
+            _xrManagerSettings = xrManagerSettings;
             //interactorVRLeft.Initialize();
             //interactorVRRight.Initialize();
         }
@@ -45,12 +48,15 @@ namespace ViRSE.Core.Player
             _headTransform.transform.SetLocalPositionAndRotation(initTransformData.HeadLocalPosition, initTransformData.HeadLocalRotation);
             interactorVRLeft.GrabberTransform.SetLocalPositionAndRotation(initTransformData.HandVRLeftLocalPosition, initTransformData.HandVRLeftLocalRotation);
             interactorVRLeft.GrabberTransform.SetLocalPositionAndRotation(initTransformData.HandVRRightLocalPosition, initTransformData.HandVRRightLocalRotation);
+
             gameObject.SetActive(true);
+            _xrManagerSettings.StartSubsystems();
         }
 
         public override void DeactivatePlayer()
         {
             gameObject.SetActive(false);
+            _xrManagerSettings.StopSubsystems();
         }
     }
 }

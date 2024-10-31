@@ -71,7 +71,6 @@ namespace ViRSE.Core.Player
             }
             else
             {
-                XRGeneralSettings.Instance.Manager.StartSubsystems();
                 Debug.Log("XR initialized and subsystems started.");
                 _xrInitialized = true;
             }

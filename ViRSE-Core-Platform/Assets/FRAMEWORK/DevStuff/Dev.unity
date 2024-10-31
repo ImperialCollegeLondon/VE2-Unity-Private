@@ -2735,6 +2735,7 @@ MonoBehaviour:
       TransmissionFrequency: 50
   _transformDataSetup: 0
   _playerTransformData:
+    IsVRMode: 0
     RootPosition: {x: 0, y: 0, z: 0}
     RootRotation: {x: 0, y: 0, z: 0, w: 0}
 --- !u!1 &803663753

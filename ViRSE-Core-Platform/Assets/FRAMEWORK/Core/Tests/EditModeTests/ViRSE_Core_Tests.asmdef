@@ -11,7 +11,8 @@
         "VIRSE_Plugin_To_VC_API",
         "ViRSE_Core_VComponents",
         "ViRSE_Core_Global",
-        "ViRSE_Player_Rig"
+        "ViRSE_Player_Rig",
+        "Unity.XR.Management"
     ],
     "includePlatforms": [
         "Editor"
