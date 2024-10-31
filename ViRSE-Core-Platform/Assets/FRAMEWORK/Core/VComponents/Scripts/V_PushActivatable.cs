@@ -91,7 +91,7 @@ namespace ViRSE.Core.VComponents
         {
             StateModule = new(state, config.StateConfig, id, worldStateModulesContainer);
             GeneralInteractionModule = new(config.GeneralInteractionConfig);
-            RangedClickInteractionModule = new(config.RangedInteractionConfig);
+            RangedClickInteractionModule = new(config.RangedInteractionConfig, config.GeneralInteractionConfig);
             ColliderInteractionModule = new();
 
             RangedClickInteractionModule.OnClickDown += HandleInteract;

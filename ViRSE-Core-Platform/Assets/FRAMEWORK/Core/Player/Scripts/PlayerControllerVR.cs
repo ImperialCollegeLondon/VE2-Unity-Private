@@ -13,7 +13,7 @@ namespace ViRSE.Core.Player
         [SerializeField] private InteractorVR interactorVRLeft; 
         [SerializeField] private InteractorVR interactorVRRight; 
         private PlayerVRControlConfig _controlConfig;
-        private XRManagerSettings _xrManagerSettings;
+        private IXRManagerWrapper _xrManagerSettingsWrapper;
 
         public override PlayerTransformData PlayerTransformData
         {
@@ -33,10 +33,10 @@ namespace ViRSE.Core.Player
             }
         }
 
-        public void Initialize(PlayerVRControlConfig controlConfig, IMultiplayerSupport multiplayerSupport, IInputHandler inputHandler, IRaycastProvider raycastProvider, XRManagerSettings xrManagerSettings)
+        public void Initialize(PlayerVRControlConfig controlConfig, IMultiplayerSupport multiplayerSupport, IInputHandler inputHandler, IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper)
         {
             _controlConfig = controlConfig;
-            _xrManagerSettings = xrManagerSettings;
+            _xrManagerSettingsWrapper = xrManagerSettingsWrapper;
             //interactorVRLeft.Initialize();
             //interactorVRRight.Initialize();
         }
@@ -50,13 +50,13 @@ namespace ViRSE.Core.Player
             interactorVRLeft.GrabberTransform.SetLocalPositionAndRotation(initTransformData.HandVRRightLocalPosition, initTransformData.HandVRRightLocalRotation);
 
             gameObject.SetActive(true);
-            _xrManagerSettings.StartSubsystems();
+            _xrManagerSettingsWrapper.StartSubsystems();
         }
 
         public override void DeactivatePlayer()
         {
             gameObject.SetActive(false);
-            _xrManagerSettings.StopSubsystems();
+            _xrManagerSettingsWrapper.StopSubsystems();
         }
     }
 }

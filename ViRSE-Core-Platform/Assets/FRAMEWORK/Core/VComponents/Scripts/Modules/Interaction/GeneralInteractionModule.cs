@@ -31,9 +31,9 @@ namespace ViRSE.Core.VComponents
         public InteractorID CurrentInteractor { get; set; }
 
         #region Player rig-facing Interfaces
-        public bool VibrateControllers => Config.AdminOnly;
+        public bool VibrateControllers => Config.EnableControllerVibrations;
 
-        public bool ShowTooltips =>Config.ShowTooltipsAndHighlight;
+        public bool ShowTooltips => Config.ShowTooltipsAndHighlight;
         #endregion
 
         public GeneralInteractionModule(GeneralInteractionConfig config)

@@ -6,14 +6,13 @@ namespace ViRSE.Core.VComponents
 {
     public interface IRangedPlayerInteractableIntegrator : IGeneralPlayerInteractableIntegrator
     {
-        public IRangedPlayerInteractableImplementor RangedPlayerInteractableImplementor { get; }
+        public IRangedPlayerInteractable RangedPlayerInteractable => RangedPlayerInteractableImplementor.RangedPlayerInteractable;
+        protected IRangedPlayerInteractableImplementor RangedPlayerInteractableImplementor { get; }
     }
 
     public interface IRangedPlayerInteractableImplementor : IGeneralPlayerInteractableImplementor
     {
-        protected IRangedPlayerInteractable RangedPlayerInteractable { get; } 
-
-        public float InteractRange => RangedPlayerInteractable.InteractRange;
+        public IRangedPlayerInteractable RangedPlayerInteractable { get; } 
     }
 
     public interface IRangedPlayerInteractable : IGeneralPlayerInteractable

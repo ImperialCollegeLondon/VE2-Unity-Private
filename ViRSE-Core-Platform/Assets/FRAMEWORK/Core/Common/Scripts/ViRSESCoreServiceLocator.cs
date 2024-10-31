@@ -143,6 +143,15 @@ namespace ViRSE.Core //TODO workout namespace... Core.Common? Or just ViRSE.Comm
             return _raycastProvider;
         }}
 
+        //#################################### XR MANAGER WRAPPER #####################################
+        //#############################################################################################
+
+        private IXRManagerWrapper _xrManagerWrapper;
+        public IXRManagerWrapper XRManagerWrapper { get {
+            _xrManagerWrapper ??= new XRManagerWrapper(); //Returns the default XRManager
+            return _xrManagerWrapper;
+        }}
+
         //################################## MONOBEHAVIOUR METHODS ####################################
         //#############################################################################################
 

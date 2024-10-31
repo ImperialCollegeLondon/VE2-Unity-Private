@@ -16,7 +16,7 @@ namespace ViRSE.Core.Player
                 ViRSECoreServiceLocator.Instance.MultiplayerSupport, 
                 ViRSECoreServiceLocator.Instance.InputHandler,
                 ViRSECoreServiceLocator.Instance.RaycastProvider,
-                XRGeneralSettings.Instance.Manager);
+                ViRSECoreServiceLocator.Instance.XRManagerWrapper);
         }
     }
 
@@ -34,7 +34,7 @@ namespace ViRSE.Core.Player
 
         public ViRSEPlayerService(PlayerTransformData state, PlayerStateConfig config, bool enableVR, bool enable2D, 
             ViRSEPlayerStateModuleContainer virsePlayerStateModuleContainer, IPlayerSettingsProvider playerSettingsProvider, IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider, 
-            IMultiplayerSupport multiplayerSupport, IInputHandler inputHandler, IRaycastProvider raycastProvider, XRManagerSettings xrManagerSettings)
+            IMultiplayerSupport multiplayerSupport, IInputHandler inputHandler, IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper)
         {
             _playerStateModule = new(state, config, virsePlayerStateModuleContainer, playerSettingsProvider, playerAppearanceOverridesProvider);
             _playerStateModule.OnAvatarAppearanceChanged += HandleAvatarAppearanceChanged;
@@ -44,7 +44,7 @@ namespace ViRSE.Core.Player
             _inputHandler = inputHandler;
 
             if (enableVR)
-                _playerVR = SpawnPlayerVR(playerSettingsProvider.UserSettings.PlayerVRControlConfig, multiplayerSupport, inputHandler, raycastProvider, xrManagerSettings);
+                _playerVR = SpawnPlayerVR(playerSettingsProvider.UserSettings.PlayerVRControlConfig, multiplayerSupport, inputHandler, raycastProvider, xrManagerSettingsWrapper);
             if (enable2D)
                 _player2D = SpawnPlayer2D(playerSettingsProvider.UserSettings.Player2DControlConfig, multiplayerSupport, inputHandler, raycastProvider);
 
@@ -67,20 +67,18 @@ namespace ViRSE.Core.Player
             return playerController2D;
         }
 
-        private PlayerControllerVR SpawnPlayerVR(PlayerVRControlConfig playerVRControlConfig, IMultiplayerSupport multiplayerSupport, IInputHandler inputHandler, IRaycastProvider raycastProvider, XRManagerSettings xrManagerSettings)
+        private PlayerControllerVR SpawnPlayerVR(PlayerVRControlConfig playerVRControlConfig, IMultiplayerSupport multiplayerSupport, IInputHandler inputHandler, IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper)
         {
             GameObject playerVRPrefab = Resources.Load("vrPlayer") as GameObject;
             GameObject instantiatedVRPlayer = GameObject.Instantiate(playerVRPrefab, null, false);
             instantiatedVRPlayer.SetActive(false);
             PlayerControllerVR playerControllerVR = instantiatedVRPlayer.GetComponent<PlayerControllerVR>();
-            playerControllerVR.Initialize(playerVRControlConfig, multiplayerSupport, inputHandler, raycastProvider, xrManagerSettings);
+            playerControllerVR.Initialize(playerVRControlConfig, multiplayerSupport, inputHandler, raycastProvider, xrManagerSettingsWrapper);
             return playerControllerVR;
         }
 
         private void HandleChangeModePressed() 
         {
-            Debug.Log("Change mode pressed");
-
             if (!_enable2D || !_enableVR)
                 return; //Can't change modes if both aren't enabled!
 

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
-using UnityEngine.XR.Management;
 using ViRSE.Core.Shared;
 using static ViRSE.Core.Shared.CoreCommonSerializables;
 
@@ -62,10 +61,9 @@ namespace ViRSE.Core.Player
 
         private IEnumerator InitializeXR()
         {
-            Debug.Log("Initializing XR...");
-            yield return XRGeneralSettings.Instance.Manager.InitializeLoader();
+            yield return ViRSECoreServiceLocator.Instance.XRManagerWrapper.InitializeLoader();
 
-            if (XRGeneralSettings.Instance.Manager.activeLoader == null)
+            if (ViRSECoreServiceLocator.Instance.XRManagerWrapper.ActiveLoader == null)
             {
                 Debug.LogError("Failed to initialize XR Loader.");
             }
@@ -108,10 +106,10 @@ namespace ViRSE.Core.Player
         {
             _playerService?.TearDown();
 
-            if (enableVR && XRGeneralSettings.Instance.Manager.isInitializationComplete)
+            if (enableVR && ViRSECoreServiceLocator.Instance.XRManagerWrapper.IsInitializationComplete)
             {
-                XRGeneralSettings.Instance.Manager.StopSubsystems();
-                XRGeneralSettings.Instance.Manager.DeinitializeLoader();
+                ViRSECoreServiceLocator.Instance.XRManagerWrapper.StopSubsystems();
+                ViRSECoreServiceLocator.Instance.XRManagerWrapper.DeinitializeLoader();
             }
         }
     }

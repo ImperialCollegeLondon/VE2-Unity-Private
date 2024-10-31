@@ -123,11 +123,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GrabberTransform: {fileID: 2036654600086750462}
-  layerMask:
+  _LayerMask:
     serializedVersion: 2
-    m_Bits: 823
+    m_Bits: 4294967295
+  _RaycastHitDebug: 
   reticuleImage: {fileID: 7207473826304763245}
-  raycastHitDebug: 
 --- !u!1 &1921325276597920190
 GameObject:
   m_ObjectHideFlags: 0

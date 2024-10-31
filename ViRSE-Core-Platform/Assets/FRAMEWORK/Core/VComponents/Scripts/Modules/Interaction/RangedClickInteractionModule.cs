@@ -19,6 +19,6 @@ namespace ViRSE.Core.VComponents
 
         public event Action<InteractorID> OnClickDown;
 
-        public RangedClickInteractionModule(RangedInteractionConfig config) : base(config) { }  
+        public RangedClickInteractionModule(RangedInteractionConfig rangedConfig, GeneralInteractionConfig generalConfig) : base(rangedConfig, generalConfig) { }  
     }
 }

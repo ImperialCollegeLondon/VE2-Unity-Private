@@ -6,7 +6,6 @@ using ViRSE.Core.VComponents;
 using ViRSE.Core.Player;
 using static ViRSE.Core.Shared.CoreCommonSerializables;
 using System;
-using UnityEngine.XR.Management;
 
 
 namespace ViRSE.Tests
@@ -24,12 +23,6 @@ namespace ViRSE.Tests
                 Substitute.For<WorldStateModulesContainer>()
             );
 
-            //Wire up mock customer script
-            IPushActivatable pushActivatableInterface = pushActivatable;
-            CustomerScriptMock customerScriptMock = new();;
-            pushActivatableInterface.OnActivate.AddListener(customerScriptMock.HandleActivateReceived);
-            pushActivatableInterface.OnDeactivate.AddListener(customerScriptMock.HandleDeactivateReceived);
-
             //Stub out the player settings provider with default settings
             IPlayerSettingsProvider playerSettingsProviderStub = Substitute.For<IPlayerSettingsProvider>();
             playerSettingsProviderStub.UserSettings.Returns(new UserSettingsPersistable());
@@ -42,13 +35,14 @@ namespace ViRSE.Tests
             //Stub out the input handler    
             IInputHandler inputHandlerStub = Substitute.For<IInputHandler>();
 
-            //Stub out the raycast provider to hit the activatable
+            //Stub out the raycast provider to hit the activatable with 0 range
+            IRangedClickPlayerInteractableImplementor pushActivatablePlayerInterface = pushActivatable;
             IRaycastProvider raycastProviderStub = Substitute.For<IRaycastProvider>();
             raycastProviderStub
-                .TryGetRangedPlayerInteractable(default, default, out Arg.Any<IRangedPlayerInteractableImplementor>(), default, default)
+                .TryGetRangedPlayerInteractable(default, default, out Arg.Any<RangedPlayerInteractableHitResult>(), default, default)
                 .ReturnsForAnyArgs(x =>
                 {
-                    x[2] = pushActivatable;
+                    x[2] = new RangedPlayerInteractableHitResult(pushActivatablePlayerInterface.RangedPlayerInteractable, 0);
                     return true;
                 });
 
@@ -64,26 +58,28 @@ namespace ViRSE.Tests
                 multiplayerSupportStub,
                 inputHandlerStub,
                 raycastProviderStub, 
-                Substitute.For<XRManagerSettings>()
+                Substitute.For<IXRManagerWrapper>()
             );
+
+            //Wire up mock customer script
+            IPushActivatable pushActivatableCustomerInterface = pushActivatable;
+            CustomerScriptMock customerScriptMock = Substitute.For<CustomerScriptMock>();
+            pushActivatableCustomerInterface.OnActivate.AddListener(customerScriptMock.HandleActivateReceived);
+            pushActivatableCustomerInterface.OnDeactivate.AddListener(customerScriptMock.HandleDeactivateReceived);
 
             //Check customer received the activation, and that the interactorID is set
             inputHandlerStub.OnMouseLeftClick += Raise.Event<Action>();
-            customerScriptMock.DidNotReceive().HandleActivateReceived();
-            customerScriptMock.Received(1).HandleActivateReceived();
-            customerScriptMock.Received(1).HandleDeactivateReceived(); //Wrong, not actually received deactivate yet
-            customerScriptMock.Received(0).HandleActivateReceived(); //Wrong, there has been 1 activate
-            customerScriptMock.Received(100).HandleActivateReceived(); //Wrong again!
-            Assert.IsTrue(pushActivatableInterface.IsActivated);
-            InteractorID interactorID = pushActivatableInterface.CurrentInteractor;
+            customerScriptMock.Received(100).HandleActivateReceived();
+            Assert.IsTrue(pushActivatableCustomerInterface.IsActivated);
+            InteractorID interactorID = pushActivatableCustomerInterface.CurrentInteractor;
             Assert.AreEqual(50, interactorID.ClientID);
             Assert.AreEqual(InteractorType.TwoD, interactorID.InteractorType);
 
             // Invoke the click to deactivate
             inputHandlerStub.OnMouseLeftClick += Raise.Event<Action>();
             customerScriptMock.Received(1).HandleDeactivateReceived();
-            Assert.IsFalse(pushActivatableInterface.IsActivated);
-            Assert.IsNull(pushActivatableInterface.CurrentInteractor);
+            Assert.IsFalse(pushActivatableCustomerInterface.IsActivated);
+            Assert.IsNull(pushActivatableCustomerInterface.CurrentInteractor);
         }
 
         public class CustomerScriptMock

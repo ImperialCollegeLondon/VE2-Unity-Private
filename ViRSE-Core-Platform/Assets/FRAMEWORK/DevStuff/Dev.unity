@@ -2726,7 +2726,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea5830b1d78a6804c9c44ba68f3bacd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enableVR: 1
+  enableVR: 0
   enable2D: 1
   playerStateConfig:
     IsNetworked: 1
@@ -3315,7 +3315,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8995ff54d324b04ea0f50966b2be213, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _connectOnStart: 0
+  _connectOnStart: 1
   _connectionStateDebug:
     ConnectionState: 0
   LocalClientIDWrapper:

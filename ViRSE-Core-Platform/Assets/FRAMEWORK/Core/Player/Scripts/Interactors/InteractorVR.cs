@@ -16,7 +16,7 @@ public class InteractorVR : BaseInteractor
 
     private void HandleTriggerPressed()
     {
-        if (TryGetHoveringRangedInteractable(out IRangedPlayerInteractableImplementor hoveringInteractable))
+        if (TryGetHoveringRangedInteractable(out IRangedPlayerInteractable hoveringInteractable))
         {
             if (hoveringInteractable is IRangedClickPlayerInteractableImplementor rangedClickInteractable)
                 rangedClickInteractable.InvokeOnClickDown(_InteractorID);

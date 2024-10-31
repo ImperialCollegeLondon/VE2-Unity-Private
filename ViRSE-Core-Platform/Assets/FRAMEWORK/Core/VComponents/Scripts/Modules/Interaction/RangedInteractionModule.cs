@@ -29,19 +29,20 @@ namespace ViRSE.Core.VComponents
     public class RangedInteractionModule : IRangedPlayerInteractable, IRangedInteractionModule
     {
         #region Plugin and Player Rig Interfaces
-        public float InteractRange { get => _config.InteractionRange; set => _config.InteractionRange = value; }
+        public float InteractRange { get => _rangedConfig.InteractionRange; set => _rangedConfig.InteractionRange = value; }
 
-        public bool AdminOnly => generalInteractionModule.AdminOnly;
-        public bool VibrateControllers => generalInteractionModule.VibrateControllers;
-        public bool ShowTooltips => generalInteractionModule.ShowTooltips;
+        public bool AdminOnly => _generalConfig.AdminOnly;
+        public bool VibrateControllers => _generalConfig.EnableControllerVibrations;
+        public bool ShowTooltips => _generalConfig.ShowTooltipsAndHighlight;
         #endregion
 
-        private RangedInteractionConfig _config;
-        private GeneralInteractionModule generalInteractionModule;
+        private RangedInteractionConfig _rangedConfig;
+        private GeneralInteractionConfig _generalConfig;
 
-        public RangedInteractionModule(RangedInteractionConfig config)
+        public RangedInteractionModule(RangedInteractionConfig config, GeneralInteractionConfig generalInteractionConfig)
         {
-            _config = config;
+            _rangedConfig = config;
+            _generalConfig = generalInteractionConfig;
         }
 
         public void OnLocalInteractorHoverEnter()
