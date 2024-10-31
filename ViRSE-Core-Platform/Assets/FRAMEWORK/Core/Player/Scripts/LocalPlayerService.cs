@@ -82,18 +82,25 @@ namespace ViRSE.Core.Player
             if (!_enable2D || !_enableVR)
                 return; //Can't change modes if both aren't enabled!
 
-            if (_playerStateModule.PlayerTransformData.IsVRMode)
+            try 
             {
-                _playerVR.DeactivatePlayer();
-                _player2D.ActivatePlayer(_playerStateModule.PlayerTransformData);
-            }
-            else 
-            {
-                _player2D.DeactivatePlayer();
-                _playerVR.ActivatePlayer(_playerStateModule.PlayerTransformData);
-            }
+                if (_playerStateModule.PlayerTransformData.IsVRMode)
+                {
+                    _playerVR.DeactivatePlayer();
+                    _player2D.ActivatePlayer(_playerStateModule.PlayerTransformData);
+                }
+                else
+                {
+                    _player2D.DeactivatePlayer();
+                    _playerVR.ActivatePlayer(_playerStateModule.PlayerTransformData);
+                }
 
-            _playerStateModule.PlayerTransformData.IsVRMode = !_playerStateModule.PlayerTransformData.IsVRMode;
+                _playerStateModule.PlayerTransformData.IsVRMode = !_playerStateModule.PlayerTransformData.IsVRMode;
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError("Error changing player mode: " + e.Message + " - " + e.StackTrace);
+            }
         }
 
         private void HandleAvatarAppearanceChanged(ViRSEAvatarAppearance appearance)

@@ -28,7 +28,7 @@ namespace ViRSE.Core.Player
                     false,
                     _rootPosition, 
                     transform.rotation,
-                    _camera2D.transform.localPosition,
+                    _camera2D.transform.position - _rootPosition,
                     _camera2D.transform.localRotation,
                     _interactor2D.GrabberTransform.localPosition, 
                     _interactor2D.GrabberTransform.localRotation
