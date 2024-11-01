@@ -1,12 +1,10 @@
 {
-    "name": "ViRSE_Core_Global",
+    "name": "ViRSE.Core.Common",
     "rootNamespace": "",
     "references": [
         "GUID:696a0953692949b40bec8730e64e1fdd",
         "GUID:1b845e2499b39be4aab3e6ac2c8aa02a",
-        "GUID:75469ad4d38634e559750d17036d5f7c",
-        "GUID:f29bb4ce1c4eb6a4e9ce1d6e3ee9f03f",
-        "GUID:e40ba710768534012815d3193fa296cb"
+        "GUID:8b39aeabfc189e24783534bdcdf45069"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

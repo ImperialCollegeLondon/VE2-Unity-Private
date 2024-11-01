@@ -37,7 +37,7 @@ public class PluginTest : MonoBehaviour
 
     public void OnButtonDeactivate()
     {
-        Debug.Log("Button deactivated! ");
+        Debug.Log("Button deactivated!");
         Debug.Log($"Button state = {_pushActivatable.IsActivated}");
 
         _lightOn.SetActive(false);

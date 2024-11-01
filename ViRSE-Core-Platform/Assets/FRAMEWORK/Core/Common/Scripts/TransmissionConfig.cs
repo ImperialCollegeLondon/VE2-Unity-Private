@@ -1,26 +1,26 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using ViRSE;
-using ViRSE.Core.Shared;
+using ViRSE.Common;
 
-[Serializable]
-public class RepeatedTransmissionConfig : TransmissionConfig
+namespace ViRSE.Core.Common
 {
-    [Suffix("Hz")]
-    [Range(0.2f, 50f)]
-    [SerializeField] public float TransmissionFrequency = 1;
-
-    protected virtual void OnValidate() //TODO - OnVlidate needs to come from VC
+    [Serializable]
+    public class RepeatedTransmissionConfig : TransmissionConfig
     {
-        if (TransmissionFrequency > 1)
-            TransmissionFrequency = Mathf.RoundToInt(TransmissionFrequency);
-    }
-}
+        [Suffix("Hz")]
+        [Range(0.2f, 50f)]
+        [SerializeField] public float TransmissionFrequency = 1;
 
-[Serializable]
-public class TransmissionConfig
-{
-    [SerializeField] public TransmissionProtocol TransmissionType;
+        protected virtual void OnValidate() //TODO - OnVlidate needs to come from VC
+        {
+            if (TransmissionFrequency > 1)
+                TransmissionFrequency = Mathf.RoundToInt(TransmissionFrequency);
+        }
+    }
+
+    [Serializable]
+    public class TransmissionConfig
+    {
+        [SerializeField] public TransmissionProtocol TransmissionType;
+    }
 }

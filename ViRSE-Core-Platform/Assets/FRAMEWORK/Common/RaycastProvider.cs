@@ -1,6 +1,4 @@
 using UnityEngine;
-using ViRSE.Core.VComponents;
-using ViRSE.Core.VComponents.PlayerInterfaces;
 
 public interface IRaycastProvider
 {

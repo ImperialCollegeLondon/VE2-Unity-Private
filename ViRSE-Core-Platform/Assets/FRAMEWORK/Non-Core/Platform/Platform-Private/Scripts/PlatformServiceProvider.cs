@@ -3,13 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Net;
-using System.Threading;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-using ViRSE.Core.Shared;
-using ViRSE.Core;
+using ViRSE.NonCore.Platform.Private;
 using static ViRSE.PlatformNetworking.PlatformSerializables;
 
 namespace ViRSE.PlatformNetworking

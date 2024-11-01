@@ -2,10 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
-using UnityEngine;
-using UnityEngine.Events;
-using ViRSE;
-using ViRSE.Core.Shared;
+using ViRSE.Common;
 
 namespace ViRSE.InstanceNetworking
 {

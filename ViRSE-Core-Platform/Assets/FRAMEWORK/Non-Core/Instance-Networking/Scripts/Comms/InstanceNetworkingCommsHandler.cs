@@ -2,12 +2,10 @@ using DarkRift;
 using DarkRift.Client;
 using System;
 using System.Net;
-using UnityEngine;
-using ViRSE.Core.Shared;
-using ViRSE;
 using DRMessageReader = DarkRift.DarkRiftReader;
 using DRMessageWrapper = DarkRift.Message;
 using System.Collections.Generic;
+using ViRSE.Common;
 
 namespace ViRSE.InstanceNetworking
 {

@@ -4,7 +4,8 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using static NonCoreCommonSerializables;
-using static ViRSE.Core.Shared.CoreCommonSerializables;
+using static ViRSE.Common.CoreCommonSerializables;
+
 
 #if UNITY_EDITOR
 using UnityEngine;

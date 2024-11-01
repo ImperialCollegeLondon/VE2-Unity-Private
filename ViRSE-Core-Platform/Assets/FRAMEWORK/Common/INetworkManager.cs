@@ -1,11 +1,7 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using ViRSE.Core.Player;
-using static ViRSE.Core.Shared.CoreCommonSerializables;
+using static ViRSE.Common.CoreCommonSerializables;
 
-namespace ViRSE.Core.Shared //TODO break into different files
+namespace ViRSE.Common //TODO break into different files
 {
     public interface IMultiplayerSupport
     {

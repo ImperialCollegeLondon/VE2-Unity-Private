@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ViRSE.Core.Shared;
-using static ViRSE.Core.Shared.CoreCommonSerializables;
+using ViRSE.Common;
+using ViRSE.Core.Common;
+using VIRSE.Common;
+using static ViRSE.Common.CoreCommonSerializables;
 
 namespace ViRSE.Core.Player
 {

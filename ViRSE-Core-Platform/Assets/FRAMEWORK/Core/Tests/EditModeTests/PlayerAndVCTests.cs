@@ -1,16 +1,15 @@
 using NSubstitute;
 using NUnit.Framework;
-using ViRSE.Core.Shared;
-using ViRSE.Core;
 using ViRSE.Core.VComponents;
 using ViRSE.Core.Player;
-using static ViRSE.Core.Shared.CoreCommonSerializables;
 using System;
-using System.Diagnostics;
 using ViRSE.Core.VComponents.Tests;
 using ViRSE.Core.VComponents.PlayerInterfaces;
 using ViRSE.Core.VComponents.PluginInterfaces;
 using UnityEngine;
+using ViRSE.Common;
+using static ViRSE.Common.CoreCommonSerializables;
+using VIRSE.Common;
 
 
 namespace ViRSE.Tests

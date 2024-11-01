@@ -1,11 +1,11 @@
 using System;
 using System.Linq;
 using UnityEngine;
-using ViRSE.Core.Shared;
+using ViRSE.Common;
 using ViRSE.Core.VComponents.InternalInterfaces;
 using ViRSE.Core.VComponents.PlayerInterfaces;
 using ViRSE.Core.VComponents.PluginInterfaces;
-using static ViRSE.Core.Shared.CoreCommonSerializables;
+using static ViRSE.Common.CoreCommonSerializables;
 
 namespace ViRSE.Core.VComponents
 {

@@ -1,10 +1,6 @@
-using System.Collections.Generic;
-using UnityEngine;
-using ViRSE.Core.Player;
-using ViRSE.Core.Shared;
-using ViRSE.Core;
 using static InstanceSyncSerializables;
-using static ViRSE.Core.Shared.CoreCommonSerializables;
+using ViRSE.Common;
+using static ViRSE.Common.CoreCommonSerializables;
 
 namespace ViRSE.InstanceNetworking
 {

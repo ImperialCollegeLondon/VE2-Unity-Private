@@ -5,7 +5,7 @@ using System.IO;
 using UnityEngine;
 #endif
 
-namespace ViRSE.Core.Shared //TODO - Need to expose to customer 
+namespace ViRSE.Common //TODO - Need to expose to customer 
 {
         public class CoreCommonSerializables
         {
@@ -27,7 +27,7 @@ namespace ViRSE.Core.Shared //TODO - Need to expose to customer
                 }
 
 
-                [Serializable] 
+                [Serializable]
                 public class UserSettingsPersistable : ViRSESerializable //TODO, probably add audio config 
                 {
 #if UNITY_EDITOR

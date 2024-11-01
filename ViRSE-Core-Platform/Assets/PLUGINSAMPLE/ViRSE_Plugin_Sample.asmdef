@@ -2,7 +2,6 @@
     "name": "ViRSE_Plugin_Sample",
     "rootNamespace": "",
     "references": [
-        "GUID:7338b66f386638440b9030cbde0c1b27",
         "GUID:27761945d4a599347997de06d94a1ae9",
         "GUID:75469ad4d38634e559750d17036d5f7c",
         "GUID:696a0953692949b40bec8730e64e1fdd",

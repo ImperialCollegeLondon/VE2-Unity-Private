@@ -6,11 +6,11 @@
         "UnityEditor.TestRunner",
         "UnityEngine.UI",
         "TNRD.NSubstitute",
-        "ViRSE_Core_Global",
         "ViRSE.Core.VComponents",
         "VIRSE.Core.VComponents.InternalInterfaces",
         "ViRSE_Core_VComponents_PlayerInterfaces",
-        "VIRSE.Core.VComponents.PluginInterfaces"
+        "VIRSE.Core.VComponents.PluginInterfaces",
+        "ViRSE.Common"
     ],
     "includePlatforms": [
         "Editor"

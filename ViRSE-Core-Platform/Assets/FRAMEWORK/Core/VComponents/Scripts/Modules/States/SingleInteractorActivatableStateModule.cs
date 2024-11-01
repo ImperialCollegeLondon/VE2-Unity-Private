@@ -2,9 +2,10 @@ using System;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
-using ViRSE.Core.Shared;
+using ViRSE.Common;
+using ViRSE.Core.Common;
 using ViRSE.Core.VComponents.InternalInterfaces;
-using static ViRSE.Core.Shared.CoreCommonSerializables;
+using static ViRSE.Common.CoreCommonSerializables;
 
 namespace ViRSE.Core.VComponents
 {

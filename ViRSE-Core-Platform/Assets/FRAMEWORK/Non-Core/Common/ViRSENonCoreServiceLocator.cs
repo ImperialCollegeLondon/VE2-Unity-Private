@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using ViRSE.Core.Shared;
 
 #if UNITY_EDITOR
 using UnityEditor;

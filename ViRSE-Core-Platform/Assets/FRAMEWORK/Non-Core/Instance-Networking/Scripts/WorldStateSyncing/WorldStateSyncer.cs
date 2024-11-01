@@ -1,10 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using ViRSE.Core.Shared;
-using ViRSE.Core.VComponents;
-using ViRSE.Core;
 using static InstanceSyncSerializables;
+using ViRSE.Common;
 
 namespace ViRSE.InstanceNetworking
 {

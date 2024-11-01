@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-using NUnit.Framework;
 using UnityEngine;
-using ViRSE.Core.Shared;
-using static ViRSE.Core.Shared.CoreCommonSerializables;
+using ViRSE.Common;
+using static ViRSE.Common.CoreCommonSerializables;
 
 namespace ViRSE.Core.Player
 {
@@ -28,9 +27,8 @@ namespace ViRSE.Core.Player
         [SerializeField, AssetPreview] private GameObject TorsoOverrideThree;
         [SerializeField, AssetPreview] private GameObject TorsoOverrideFour;
         [EndGroup, SerializeField, AssetPreview] private GameObject TorsoOverrideFive;
-
+        
         #region Appearance Overrides Interfaces 
-
         public void NotifyProviderOfChangeAppearanceOverrides() => OnAppearanceOverridesChanged?.Invoke();
         public event Action OnAppearanceOverridesChanged;
         public bool IsEnabled => enabled;

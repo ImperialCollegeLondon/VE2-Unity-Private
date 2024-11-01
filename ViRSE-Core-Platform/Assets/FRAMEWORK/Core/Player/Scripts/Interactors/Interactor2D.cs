@@ -1,9 +1,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using ViRSE.Common;
 using ViRSE.Core.Common;
-using ViRSE.Core.Shared;
-using ViRSE.Core.VComponents;
 using ViRSE.Core.VComponents.PlayerInterfaces;
 
 namespace ViRSE.Core.Player

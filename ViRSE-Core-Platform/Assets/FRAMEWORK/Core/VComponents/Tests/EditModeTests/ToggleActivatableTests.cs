@@ -4,6 +4,7 @@ using ViRSE.Core.VComponents.PluginInterfaces;
 using ViRSE.Core.VComponents.PlayerInterfaces;
 using ViRSE.Core.VComponents.InternalInterfaces;
 using UnityEngine;
+using ViRSE.Common;
 
 namespace ViRSE.Core.VComponents.Tests
 {

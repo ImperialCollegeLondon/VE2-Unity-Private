@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using ViRSE.Core;
-using static ViRSE.Core.Shared.CoreCommonSerializables;
+using ViRSE.Common;
+using static ViRSE.Common.CoreCommonSerializables;
 
 namespace ViRSE.PlatformNetworking
 {

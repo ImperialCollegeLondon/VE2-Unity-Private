@@ -1,14 +1,10 @@
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.SocialPlatforms;
-using ViRSE.Core.Player;
-using ViRSE.Core.Shared;
-using static ViRSE.Core.Shared.CoreCommonSerializables;
+using static ViRSE.Common.CoreCommonSerializables;
 
-namespace ViRSE.Core //TODO workout namespace... Core.Common? Or just ViRSE.Common?
+namespace ViRSE.Common
 {
     /* A number of these service references should exist at editor time, so inspectors can respond to their presence 
     *  These service integrations have their GameObject name recorded in the locator so they can be re-located after a domain reload

@@ -1,7 +1,7 @@
 using System;
 using TMPro;
 using UnityEngine;
-using ViRSE.Core;
+using ViRSE.NonCore.Platform.Private;
 using ViRSE.PlatformNetworking;
 using static ViRSE.PlatformNetworking.PlatformSerializables;
 

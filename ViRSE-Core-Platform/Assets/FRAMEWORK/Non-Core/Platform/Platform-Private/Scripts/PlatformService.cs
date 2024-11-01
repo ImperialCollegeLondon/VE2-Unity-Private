@@ -1,19 +1,17 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Timers;
 using UnityEngine;
-using ViRSE.Core.Shared;
 using System.Net;
 using static NonCoreCommonSerializables;
 using UnityEngine.SceneManagement;
 using System.Linq;
-using static ViRSE.Core.Shared.CoreCommonSerializables;
 using ViRSE.PlatformNetworking;
 using static ViRSE.PlatformNetworking.PlatformSerializables;
+using static ViRSE.Common.CoreCommonSerializables;
+using ViRSE.Common;
 
-namespace ViRSE.Core
+namespace ViRSE.NonCore.Platform.Private
 {
     public static class PlatformServiceFactory
     {

@@ -2,10 +2,8 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using ViRSE.Core;
-using ViRSE.Core.Player;
-using static InstanceSyncSerializables;
-using static ViRSE.Core.Shared.CoreCommonSerializables;
+using VIRSE.Common;
+using static ViRSE.Common.CoreCommonSerializables;
 
 namespace ViRSE.InstanceNetworking
 {
