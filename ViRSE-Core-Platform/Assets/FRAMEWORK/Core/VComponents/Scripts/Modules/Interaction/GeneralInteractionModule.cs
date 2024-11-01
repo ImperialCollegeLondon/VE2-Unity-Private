@@ -10,8 +10,7 @@ namespace ViRSE.Core.VComponents
     internal class GeneralInteractionConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
-        [Title("Ranged Interation Settings")]
-        [Space(5)]
+        [Title("General Interation Settings")]
         [SerializeField] public bool AdminOnly = false;
 
         [SerializeField] public bool EnableControllerVibrations = true;
@@ -20,36 +19,27 @@ namespace ViRSE.Core.VComponents
         [SerializeField] public bool ShowTooltipsAndHighlight = true;
     }
 
-    internal class GeneralInteractionModule : IGeneralInteractionModule
+    internal abstract class GeneralInteractionModule : IGeneralInteractionModule
     {
-        #region Plugin Interfaces
-        public bool AdminOnly { get { return Config.AdminOnly; } set { ReceiveNewAdminOnlyFromPlugin(value); } }
-        #endregion
-
-        public GeneralInteractionConfig Config { get; set; }
-        public UnityEvent OnBecomeAdminOnly { get; private set; } = new(); //E.G if grabbable, the VC needs to know to force drop
-
-
-        #region Player rig-facing Interfaces
+        public bool AdminOnly { get { return Config.AdminOnly; } set { UpdateAdminOnly(value); } }
         public bool VibrateControllers => Config.EnableControllerVibrations;
-
         public bool ShowTooltips => Config.ShowTooltipsAndHighlight;
-        #endregion
+
+        public event Action OnBecomeAdminOnly; //E.G if grabbable, the VC needs to know to force drop
+        public readonly GeneralInteractionConfig Config;
 
         public GeneralInteractionModule(GeneralInteractionConfig config)
         {
             Config = config;
         }
 
-        private void ReceiveNewAdminOnlyFromPlugin(bool newAdminOnly)
+        private void UpdateAdminOnly(bool newAdminOnly)
         {
             bool oldAdminOnly = Config.AdminOnly;
             Config.AdminOnly = newAdminOnly;
 
             if (newAdminOnly && !oldAdminOnly)
-            {
                 OnBecomeAdminOnly.Invoke();
-            }
         }
     }
 }

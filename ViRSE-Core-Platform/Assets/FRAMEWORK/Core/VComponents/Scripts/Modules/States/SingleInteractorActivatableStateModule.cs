@@ -13,12 +13,11 @@ namespace ViRSE.Core.VComponents
     internal class ActivatableStateConfig : BaseStateConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
-        [Space(5)]
         [Title("Activation Settings", ApplyCondition = true)]
         [SerializeField] public UnityEvent OnActivate = new();
 
-        [EndGroup]
-        [SerializeField] public UnityEvent OnDeactivate = new();
+        [EndGroup(Order = 1)]
+        [SpaceArea(spaceAfter: 10, Order = -1), SerializeField] public UnityEvent OnDeactivate = new();
     }
 
     internal class SingleInteractorActivatableStateModule : BaseWorldStateModule, ISingleInteractorActivatableStateModule

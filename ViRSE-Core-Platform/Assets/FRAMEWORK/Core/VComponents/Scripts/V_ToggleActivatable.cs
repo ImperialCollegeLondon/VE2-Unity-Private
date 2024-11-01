@@ -12,8 +12,8 @@ namespace ViRSE.Core.VComponents
     [Serializable]
     internal class ToggleActivatableConfig
     {
-        [SpaceArea(spaceAfter: 15), SerializeField, IgnoreParent] public ActivatableStateConfig StateConfig = new();
-        [SpaceArea(spaceAfter: 15), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
+        [SerializeField, IgnoreParent] public ActivatableStateConfig StateConfig = new();
+        [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
         [SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfig = new();
     }
 

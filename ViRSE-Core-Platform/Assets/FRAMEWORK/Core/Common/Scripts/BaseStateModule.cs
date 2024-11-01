@@ -18,9 +18,8 @@ namespace ViRSE.Core.Common
 
         [HideIf(nameof(MultiplayerSupportPresent), false)]
         [DisableIf(nameof(IsNetworked), false)]
-        [EndGroup(ApplyCondition = true)]
-        [Space(5)]
-        [SerializeField, IgnoreParent] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new();
+        [EndGroup(ApplyCondition = true, Order = 5)]
+        [SpaceArea(spaceAfter: 10, Order = -1), SerializeField, IgnoreParent] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new();
 
         [SerializeField, HideInInspector] public bool MultiplayerSupportPresent => MultiplayerSupport != null;
         public IMultiplayerSupport MultiplayerSupport => ViRSECoreServiceLocator.Instance.MultiplayerSupport;
