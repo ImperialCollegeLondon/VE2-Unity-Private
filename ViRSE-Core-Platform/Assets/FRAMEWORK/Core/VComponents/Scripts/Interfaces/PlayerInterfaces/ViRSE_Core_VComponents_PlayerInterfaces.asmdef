@@ -1,0 +1,16 @@
+{
+    "name": "ViRSE_Core_VComponents_PlayerInterfaces",
+    "rootNamespace": "",
+    "references": [
+        "GUID:c42ddce3965037f4cb71b24109685180"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

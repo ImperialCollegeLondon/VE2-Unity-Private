@@ -2,11 +2,12 @@ using System;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
+using ViRSE.Core.VComponents.InternalInterfaces;
 
 namespace ViRSE.Core.VComponents
 {
     [Serializable]
-    public class RangedInteractionConfig
+    internal class RangedInteractionConfig
     {
         //[VerticalGroup("RangedInteractionModule_VGroup")]
         //[FoldoutGroup("RangedInteractionModule_VGroup/Ranged Interaction Settings")]
@@ -26,23 +27,15 @@ namespace ViRSE.Core.VComponents
         [SerializeField] public UnityEvent OnLocalHoverExit;
     }
 
-    public class RangedInteractionModule : IRangedPlayerInteractable, IRangedInteractionModule
+    internal class RangedInteractionModule : GeneralInteractionModule, IRangedInteractionModule
     {
-        #region Plugin and Player Rig Interfaces
         public float InteractRange { get => _rangedConfig.InteractionRange; set => _rangedConfig.InteractionRange = value; }
 
-        public bool AdminOnly => _generalConfig.AdminOnly;
-        public bool VibrateControllers => _generalConfig.EnableControllerVibrations;
-        public bool ShowTooltips => _generalConfig.ShowTooltipsAndHighlight;
-        #endregion
+        private readonly RangedInteractionConfig _rangedConfig;
 
-        private RangedInteractionConfig _rangedConfig;
-        private GeneralInteractionConfig _generalConfig;
-
-        public RangedInteractionModule(RangedInteractionConfig config, GeneralInteractionConfig generalInteractionConfig)
+        public RangedInteractionModule(RangedInteractionConfig config, GeneralInteractionConfig generalInteractionConfig) : base(generalInteractionConfig)
         {
             _rangedConfig = config;
-            _generalConfig = generalInteractionConfig;
         }
 
         public void OnLocalInteractorHoverEnter()

@@ -1,38 +1,38 @@
 using UnityEngine;
 using ViRSE.Core.VComponents;
+using ViRSE.Core.VComponents.PlayerInterfaces;
 
 public interface IRaycastProvider
 {
-    bool TryGetRangedPlayerInteractable(Vector3 rayOrigin, Vector3 raycastDirection, out RangedPlayerInteractableHitResult hit, float maxRaycastDistance, LayerMask layerMask);
+    bool TryGetGameObject(Vector3 rayOrigin, Vector3 raycastDirection, out RaycastResultWrapper hit, float maxRaycastDistance, LayerMask layerMask);
 }
 
 public class RaycastProvider : IRaycastProvider
 {
-    public bool TryGetRangedPlayerInteractable(Vector3 rayOrigin, Vector3 raycastDirection, out RangedPlayerInteractableHitResult result, float maxRaycastDistance, LayerMask layerMask) 
+    public bool TryGetGameObject(Vector3 rayOrigin, Vector3 raycastDirection, out RaycastResultWrapper result, float maxRaycastDistance, LayerMask layerMask) 
     {
         if (Physics.Raycast(rayOrigin, raycastDirection, out RaycastHit raycastHit, maxRaycastDistance, layerMask)) 
         {
-            if (raycastHit.collider.gameObject.TryGetComponent(out IRangedPlayerInteractableIntegrator rangedInteractableIntegrator))
-            {
-                float distance = Vector3.Distance(rayOrigin, raycastHit.transform.position);
-                result = new RangedPlayerInteractableHitResult(rangedInteractableIntegrator.RangedPlayerInteractable, distance);
-                return true;
-            }
+            result = new RaycastResultWrapper(raycastHit.collider.gameObject, raycastHit.distance);
+            return true;
+        }
+        else 
+        {
+            result = null;
+            return false;
         }
 
-        result = null;
-        return false;
     }
 }
 
-public class RangedPlayerInteractableHitResult 
+public class RaycastResultWrapper 
 {
-    public IRangedPlayerInteractable RangedPlayerInteractable { get; private set; }
+    public GameObject GameObject { get; private set; }
     public float Distance { get; private set; }
 
-    public RangedPlayerInteractableHitResult(IRangedPlayerInteractable rangedPlayerInteractable, float distance) 
+    public RaycastResultWrapper(GameObject gameObject, float distance) 
     {
-        RangedPlayerInteractable = rangedPlayerInteractable;
+        GameObject = gameObject;
         Distance = distance;
     }
 }

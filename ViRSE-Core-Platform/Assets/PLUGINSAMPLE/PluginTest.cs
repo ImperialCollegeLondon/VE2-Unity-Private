@@ -5,13 +5,14 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using ViRSE;
 using ViRSE.Core.VComponents;
+using ViRSE.Core.VComponents.PluginInterfaces;
 
 public class PluginTest : MonoBehaviour
 {
     [SerializeField] private GameObject _lightOn;
     [SerializeField] private GameObject _lightOff;
     [SerializeField] private GameObject _pushButtonGO;
-    private IV_PushActivatable _pushActivatable => _pushButtonGO.GetComponent<IV_PushActivatable>();
+    private IV_ToggleActivatable _pushActivatable => _pushButtonGO.GetComponent<IV_ToggleActivatable>();
 
     // Start is called before the first frame update
     void Start()
@@ -22,12 +23,12 @@ public class PluginTest : MonoBehaviour
 
     public void OnButtonActivate()
     {
-        InteractorID interactorID = _pushActivatable.CurrentInteractor;
+        ushort clientID = _pushActivatable.MostRecentInteractingClientID;
         Debug.Log("Button activated! ");
         Debug.Log($"Button state = {_pushActivatable.IsActivated}");
 
-        if (interactorID != null) 
-            Debug.Log($"Activate by... {interactorID.ToString()}");
+        if (clientID != ushort.MaxValue) 
+            Debug.Log($"Activate by... {clientID.ToString()}");
 
         _lightOn.SetActive(true);
         _lightOff.SetActive(false);

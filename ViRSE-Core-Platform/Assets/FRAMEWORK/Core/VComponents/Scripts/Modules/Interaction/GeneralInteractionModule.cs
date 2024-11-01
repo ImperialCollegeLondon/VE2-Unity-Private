@@ -1,12 +1,13 @@
 using System;
 using UnityEngine;
 using UnityEngine.Events;
+using ViRSE.Core.VComponents.InternalInterfaces;
 
 
 namespace ViRSE.Core.VComponents
 {
     [Serializable]
-    public class GeneralInteractionConfig
+    internal class GeneralInteractionConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Ranged Interation Settings")]
@@ -19,7 +20,7 @@ namespace ViRSE.Core.VComponents
         [SerializeField] public bool ShowTooltipsAndHighlight = true;
     }
 
-    public class GeneralInteractionModule : IGeneralInteractionModule, IGeneralPlayerInteractable
+    internal class GeneralInteractionModule : IGeneralInteractionModule
     {
         #region Plugin Interfaces
         public bool AdminOnly { get { return Config.AdminOnly; } set { ReceiveNewAdminOnlyFromPlugin(value); } }
@@ -28,7 +29,6 @@ namespace ViRSE.Core.VComponents
         public GeneralInteractionConfig Config { get; set; }
         public UnityEvent OnBecomeAdminOnly { get; private set; } = new(); //E.G if grabbable, the VC needs to know to force drop
 
-        public InteractorID CurrentInteractor { get; set; }
 
         #region Player rig-facing Interfaces
         public bool VibrateControllers => Config.EnableControllerVibrations;

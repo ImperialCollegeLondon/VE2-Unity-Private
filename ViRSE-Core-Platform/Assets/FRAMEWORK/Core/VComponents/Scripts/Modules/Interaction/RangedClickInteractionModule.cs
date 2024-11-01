@@ -4,20 +4,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using ViRSE.Core.VComponents.InternalInterfaces;
 
-namespace ViRSE.Core.VComponents
+namespace ViRSE.Core.VComponents.PluginInterfaces
 {
-    public class RangedClickInteractionModule : RangedInteractionModule, IRangedClickPlayerInteractable
+    internal class RangedClickInteractionModule : RangedInteractionModule, IRangedClickInteractionModule
     {
-        #region Player Rig Interfaces
-        public void InvokeOnClickDown(InteractorID interactorID)
+
+        public void Click(ushort clientID)
         {
             //only happens if is valid click
-            OnClickDown?.Invoke(interactorID);
+            OnClickDown?.Invoke(clientID);
         }
-        #endregion
 
-        public event Action<InteractorID> OnClickDown;
+        public event Action<ushort> OnClickDown;
 
         public RangedClickInteractionModule(RangedInteractionConfig rangedConfig, GeneralInteractionConfig generalConfig) : base(rangedConfig, generalConfig) { }  
     }

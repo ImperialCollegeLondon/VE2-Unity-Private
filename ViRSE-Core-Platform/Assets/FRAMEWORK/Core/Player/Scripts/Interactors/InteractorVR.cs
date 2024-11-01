@@ -1,6 +1,7 @@
 using UnityEngine;
 using ViRSE.Core.Player;
 using ViRSE.Core.VComponents;
+using ViRSE.Core.VComponents.PlayerInterfaces;
 
 public class InteractorVR : BaseInteractor
 {
@@ -18,8 +19,8 @@ public class InteractorVR : BaseInteractor
     {
         if (TryGetHoveringRangedInteractable(out IRangedPlayerInteractable hoveringInteractable))
         {
-            if (hoveringInteractable is IRangedClickPlayerInteractableImplementor rangedClickInteractable)
-                rangedClickInteractable.InvokeOnClickDown(_InteractorID);
+            if (hoveringInteractable is IRangedClickPlayerInteractable rangedClickInteractable)
+                rangedClickInteractable.Click(_InteractorID.ClientID);
         }
     }
 

@@ -1,5 +1,5 @@
 {
-    "name": "ViRSE.Core.Tests",
+    "name": "ViRSE.Core.VComponents.Tests",
     "rootNamespace": "",
     "references": [
         "UnityEngine.TestRunner",
@@ -7,13 +7,10 @@
         "UnityEngine.UI",
         "TNRD.NSubstitute",
         "ViRSE_Core_Global",
-        "ViRSE_Player_Rig",
-        "Unity.XR.Management",
         "ViRSE.Core.VComponents",
-        "VIRSE.Core.VComponents.PluginInterfaces",
         "VIRSE.Core.VComponents.InternalInterfaces",
         "ViRSE_Core_VComponents_PlayerInterfaces",
-        "ViRSE.Core.VComponents.Tests"
+        "VIRSE.Core.VComponents.PluginInterfaces"
     ],
     "includePlatforms": [
         "Editor"

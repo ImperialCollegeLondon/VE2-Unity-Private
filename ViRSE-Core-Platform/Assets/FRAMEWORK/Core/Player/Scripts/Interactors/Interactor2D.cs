@@ -1,8 +1,10 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using ViRSE.Core.Common;
 using ViRSE.Core.Shared;
 using ViRSE.Core.VComponents;
+using ViRSE.Core.VComponents.PlayerInterfaces;
 
 namespace ViRSE.Core.Player
 {
@@ -14,7 +16,7 @@ namespace ViRSE.Core.Player
 
         protected Transform _RayOrigin;
         protected const float MAX_RAYCAST_DISTANCE = 10;
-        protected InteractorID _InteractorID => new(_multiplayerSupport == null ? 0 : _multiplayerSupport.LocalClientID, InteractorType.TwoD);
+        protected InteractorID _InteractorID => new(_multiplayerSupport == null ? ushort.MaxValue : _multiplayerSupport.LocalClientID, InteractorType.Mouse2D);
         private bool _waitingForMultiplayerSupport => _multiplayerSupport != null && !_multiplayerSupport.IsConnectedToServer;
 
         protected IMultiplayerSupport _multiplayerSupport;
@@ -38,11 +40,11 @@ namespace ViRSE.Core.Player
         protected bool TryGetHoveringRangedInteractable(out IRangedPlayerInteractable hoveringInteractable)
         {
             // Perform the raycast using the layer mask
-            if (!_waitingForMultiplayerSupport && _RaycastProvider.TryGetRangedPlayerInteractable(_RayOrigin.position, _RayOrigin.transform.forward, out RangedPlayerInteractableHitResult rangedInteractableHitResult, MAX_RAYCAST_DISTANCE, _LayerMask))
+            if (!_waitingForMultiplayerSupport && _RaycastProvider.TryGetGameObject(_RayOrigin.position, _RayOrigin.transform.forward, out RaycastResultWrapper rangedInteractableHitResult, MAX_RAYCAST_DISTANCE, _LayerMask))
             {
-                if (rangedInteractableHitResult.Distance <= rangedInteractableHitResult.RangedPlayerInteractable.InteractRange && !rangedInteractableHitResult.RangedPlayerInteractable.AdminOnly)
+                if (rangedInteractableHitResult.GameObject.TryGetComponent(out IRangedPlayerInteractable rangedInteractable) && rangedInteractableHitResult.Distance <= rangedInteractable.InteractRange)
                 {
-                    hoveringInteractable = rangedInteractableHitResult.RangedPlayerInteractable;
+                    hoveringInteractable = rangedInteractable;
                     return true;
                 }
             }
@@ -65,17 +67,22 @@ namespace ViRSE.Core.Player
 
         protected override void SubscribeToInputHandler(IInputHandler inputHandler) 
         {
-            Debug.Log("Subscribing to input handler");  
             inputHandler.OnMouseLeftClick += HandleLeftClick;
         }
 
         private void HandleLeftClick()
         {
-            Debug.Log("Click interactor");
             if (TryGetHoveringRangedInteractable(out IRangedPlayerInteractable hoveringInteractable))
             {
-                if (hoveringInteractable is IRangedClickPlayerInteractable rangedClickInteractable)
-                    rangedClickInteractable.InvokeOnClickDown(_InteractorID);
+                if (!hoveringInteractable.AdminOnly)
+                {
+                    if (hoveringInteractable is IRangedClickPlayerInteractable rangedClickInteractable)
+                        rangedClickInteractable.Click(_InteractorID.ClientID);
+                }
+                else 
+                {
+                    //TODO, maybe play an error sound or something
+                }
             }
         }
 
@@ -83,7 +90,8 @@ namespace ViRSE.Core.Player
         {
             if (TryGetHoveringRangedInteractable(out IRangedPlayerInteractable hoveringInteractable))
             {
-                reticuleImage.color = StaticColors.Instance.tangerine;
+                bool isAllowedToInteract = !hoveringInteractable.AdminOnly; //TODO: Add admin check
+                reticuleImage.color = isAllowedToInteract ? StaticColors.Instance.tangerine : Color.red;
                 _RaycastHitDebug = hoveringInteractable.ToString();
             }
             else 

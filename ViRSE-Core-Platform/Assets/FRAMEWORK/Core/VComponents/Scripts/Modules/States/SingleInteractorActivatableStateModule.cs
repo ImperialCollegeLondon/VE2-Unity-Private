@@ -3,12 +3,13 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
 using ViRSE.Core.Shared;
+using ViRSE.Core.VComponents.InternalInterfaces;
 using static ViRSE.Core.Shared.CoreCommonSerializables;
 
 namespace ViRSE.Core.VComponents
 {
     [Serializable]
-    public class ActivatableStateConfig : BaseStateConfig
+    internal class ActivatableStateConfig : BaseStateConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Space(5)]
@@ -19,39 +20,36 @@ namespace ViRSE.Core.VComponents
         [SerializeField] public UnityEvent OnDeactivate = new();
     }
 
-    public class SingleInteractorActivatableStateModule : BaseWorldStateModule, ISingleInteractorActivatableStateModule
+    internal class SingleInteractorActivatableStateModule : BaseWorldStateModule, ISingleInteractorActivatableStateModule
     {
-        #region plugin interfaces
-        UnityEvent ISingleInteractorActivatableStateModule.OnActivate => _config.OnActivate;
-        UnityEvent ISingleInteractorActivatableStateModule.OnDeactivate => _config.OnDeactivate;
-        bool ISingleInteractorActivatableStateModule.IsActivated { get => _state.IsActivated; set => ReceiveNewActivationStateFromCustomer(value); }
-        InteractorID ISingleInteractorActivatableStateModule.CurrentInteractor => _state.CurrentInteractor;
-        #endregion
+        public UnityEvent OnActivate => _config.OnActivate;
+        public UnityEvent OnDeactivate => _config.OnDeactivate;
+        public bool IsActivated { get => _state.IsActivated; set => HandleExternalActivation(value); }
+        public ushort MostRecentInteractingClientID => _state.MostRecentInteractingClientID;
 
         private SingleInteractorActivatableState _state => (SingleInteractorActivatableState)State;
-
         private ActivatableStateConfig _config => (ActivatableStateConfig)Config;
 
         public SingleInteractorActivatableStateModule(ViRSESerializable state, BaseStateConfig config, string id, WorldStateModulesContainer worldStateModulesContainer) : base(state, config, id, worldStateModulesContainer) { }
 
         public event Action OnProgrammaticStateChangeFromPlugin;
 
-        //public SingleInteractorActivatableStateModule(ActivatableStateConfig config, ViRSESerializable state, string goName) : base(state, config, goName)
-        //{
-        //}
 
-        private void ReceiveNewActivationStateFromCustomer(bool newIsActivated)
+        private void HandleExternalActivation(bool newIsActivated)
         {
             if (newIsActivated != _state.IsActivated)
-                InvertState(null);
+                InvertState(ushort.MaxValue);
 
             OnProgrammaticStateChangeFromPlugin?.Invoke();
         }
 
-        public void InvertState(InteractorID interactorID)
+        public void InvertState(ushort clientID)
         {
             _state.IsActivated = !_state.IsActivated;
-            _state.CurrentInteractor = _state.IsActivated ? interactorID : null;
+
+            if (clientID != ushort.MaxValue)
+                _state.MostRecentInteractingClientID = clientID;
+                
             _state.StateChangeNumber++;
 
             if (_state.IsActivated)
@@ -98,17 +96,17 @@ namespace ViRSE.Core.VComponents
     }
 
     [Serializable]
-    public class SingleInteractorActivatableState : ViRSESerializable
+    internal class SingleInteractorActivatableState : ViRSESerializable
     {
         public ushort StateChangeNumber { get; set; }
         public bool IsActivated { get; set; }
-        public InteractorID CurrentInteractor { get; set; }
+        public ushort MostRecentInteractingClientID { get; set; }
 
         public SingleInteractorActivatableState()
         {
             StateChangeNumber = 0;
             IsActivated = false;
-            CurrentInteractor = null;
+            MostRecentInteractingClientID = ushort.MaxValue;
         }
 
         protected override byte[] ConvertToBytes()
@@ -118,13 +116,7 @@ namespace ViRSE.Core.VComponents
 
             writer.Write(StateChangeNumber);
             writer.Write(IsActivated);
-
-            writer.Write(CurrentInteractor != null);
-            if (CurrentInteractor != null)
-            {
-                writer.Write((ushort)CurrentInteractor.ClientID);
-                writer.Write((ushort)CurrentInteractor.InteractorType);
-            }
+            writer.Write(MostRecentInteractingClientID);
 
             return stream.ToArray();
         }
@@ -136,18 +128,7 @@ namespace ViRSE.Core.VComponents
 
             StateChangeNumber = reader.ReadUInt16();
             IsActivated = reader.ReadBoolean();
-
-            bool someoneInteracting = reader.ReadBoolean();
-            if (someoneInteracting)
-            {
-                CurrentInteractor = new(
-                    clientID: reader.ReadUInt16(), 
-                    interactorType: (InteractorType)reader.ReadUInt16());
-            }
-            else
-            {
-                CurrentInteractor = null;
-            }
+            MostRecentInteractingClientID = reader.ReadUInt16();
         }
     }
 }

@@ -5,13 +5,17 @@ using System.Collections.Generic;
 
 //No config for collider interactions
 
-namespace ViRSE.Core.VComponents
+namespace ViRSE.Core.VComponents.InternalInterfaces
 {
-    public class ColliderInteractionModule : ICollidePlayerInteratable
+    internal class ColliderInteractionModule : GeneralInteractionModule, ICollideInteractionModule
     {
-        public event Action<InteractorID> OnCollideEnter;
+        public ColliderInteractionModule(GeneralInteractionConfig config) : base(config)
+        {
+        }
 
-        public void InvokeOnCollideEnter(InteractorID id)
+        public event Action<ushort> OnCollideEnter;
+
+        public void InvokeOnCollideEnter(ushort id)
         {
             OnCollideEnter.Invoke(id);
         }
