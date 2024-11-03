@@ -1,16 +1,11 @@
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Events;
 using VIRSE.Core.VComponents.InteractableInterfaces;
 
-namespace ViRSE.Core.VComponents.PluginInterfaces
+namespace ViRSE.Core.VComponents.Internal
 {
     internal class RangedClickInteractionModule : RangedInteractionModule, IRangedClickInteractionModule
     {
-
         public void Click(ushort clientID)
         {
             //only happens if is valid click

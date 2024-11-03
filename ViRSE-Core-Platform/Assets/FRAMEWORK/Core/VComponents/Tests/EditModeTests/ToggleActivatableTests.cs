@@ -6,6 +6,7 @@ using ViRSE.Common;
 using VIRSE.Core.VComponents.InteractableInterfaces;
 using ViRSE.Core.VComponents.NonInteractableInterfaces;
 using ViRSE.Core.VComponents.RaycastInterfaces;
+using ViRSE.Core.VComponents.Internal;
 
 namespace ViRSE.Core.VComponents.Tests
 {
@@ -18,13 +19,12 @@ namespace ViRSE.Core.VComponents.Tests
             ToggleActivatable toggleActivatable = new (new ToggleActivatableConfig(), new SingleInteractorActivatableState(), "debug", Substitute.For<WorldStateModulesContainer>());
 
             //Stub out the VC (integration layer) with the activatable
-            GameObject emptyGO = new();
-            V_ToggleActivatableStub v_activatableStub = emptyGO.AddComponent< V_ToggleActivatableStub>();
-            v_activatableStub.ToggleActivatable = toggleActivatable;
+            V_ToggleActivatableStub v_activatableStub = new(toggleActivatable);
 
             //Get interfaces
             IV_ToggleActivatable activatablePluginInterface = v_activatableStub;
-            IRangedClickInteractionModule activatablePlayerInterface = ((IRangedClickPlayerInteractableIntegrator)v_activatableStub).RangedClickInteractionModule;
+            IRangedClickPlayerInteractableIntegrator activatableRaycastInterface = v_activatableStub;
+            IRangedClickInteractionModule activatablePlayerInterface = activatableRaycastInterface.RangedClickInteractionModule;
 
             //Wire up the customer script to receive the events
             CustomerScript customerScript = Substitute.For<CustomerScript>();
@@ -33,7 +33,7 @@ namespace ViRSE.Core.VComponents.Tests
 
             //Create an ID
             System.Random random = new();
-            ushort localClientID = (ushort)random.Next(0, ushort.MaxValue + 1);
+            ushort localClientID = (ushort)random.Next(0, ushort.MaxValue);
 
             //Invoke click, Check customer received the activation, and that the interactorID is set
             activatablePlayerInterface.Click(localClientID);
@@ -56,18 +56,23 @@ namespace ViRSE.Core.VComponents.Tests
         }
     }
 
-    internal class V_ToggleActivatableStub : MonoBehaviour, IV_ToggleActivatable, IRangedClickPlayerInteractableIntegrator, ICollidePlayerInteractableIntegrator
+    internal class V_ToggleActivatableStub : IV_ToggleActivatable, IRangedClickPlayerInteractableIntegrator, ICollidePlayerInteractableIntegrator
     {
         #region Plugin Interfaces
-        ISingleInteractorActivatableStateModule IV_ToggleActivatable._StateModule => ToggleActivatable.StateModule;
-        IRangedClickInteractionModule IV_ToggleActivatable._RangedClickModule => ToggleActivatable.RangedClickInteractionModule;
+        ISingleInteractorActivatableStateModule IV_ToggleActivatable._StateModule => _ToggleActivatable.StateModule;
+        IRangedClickInteractionModule IV_ToggleActivatable._RangedClickModule => _ToggleActivatable.RangedClickInteractionModule;
         #endregion
 
         #region Player Interfaces
-        ICollideInteractionModule ICollidePlayerInteractableIntegrator._CollideInteractionModule => ToggleActivatable.ColliderInteractionModule;
-        IRangedInteractionModule IRangedPlayerInteractableIntegrator.RangedInteractionModule => ToggleActivatable.RangedClickInteractionModule;
+        ICollideInteractionModule ICollidePlayerInteractableIntegrator._CollideInteractionModule => _ToggleActivatable.ColliderInteractionModule;
+        IRangedInteractionModule IRangedPlayerInteractableIntegrator.RangedInteractionModule => _ToggleActivatable.RangedClickInteractionModule;
         #endregion
 
-        public ToggleActivatable ToggleActivatable = null;
+        protected ToggleActivatable _ToggleActivatable = null;
+
+        public V_ToggleActivatableStub(ToggleActivatable ToggleActivatable)
+        {
+            _ToggleActivatable = ToggleActivatable;
+        }
     }
 }

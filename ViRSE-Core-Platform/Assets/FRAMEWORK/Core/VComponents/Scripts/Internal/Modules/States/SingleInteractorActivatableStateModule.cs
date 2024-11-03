@@ -7,10 +7,10 @@ using ViRSE.Core.Common;
 using ViRSE.Core.VComponents.NonInteractableInterfaces;
 using static ViRSE.Common.CoreCommonSerializables;
 
-namespace ViRSE.Core.VComponents
+namespace ViRSE.Core.VComponents.Internal
 {
     [Serializable]
-    internal class ActivatableStateConfig : BaseStateConfig
+    public class ActivatableStateConfig : BaseStateConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Activation Settings", ApplyCondition = true)]
@@ -96,7 +96,7 @@ namespace ViRSE.Core.VComponents
     }
 
     [Serializable]
-    internal class SingleInteractorActivatableState : ViRSESerializable
+    public class SingleInteractorActivatableState : ViRSESerializable
     {
         public ushort StateChangeNumber { get; set; }
         public bool IsActivated { get; set; }

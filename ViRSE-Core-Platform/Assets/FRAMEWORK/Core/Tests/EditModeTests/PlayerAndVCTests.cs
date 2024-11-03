@@ -1,6 +1,5 @@
 using NSubstitute;
 using NUnit.Framework;
-using ViRSE.Core.VComponents;
 using ViRSE.Core.Player;
 using System;
 using ViRSE.Core.VComponents.Tests;
@@ -10,9 +9,9 @@ using ViRSE.Common;
 using static ViRSE.Common.CoreCommonSerializables;
 using VIRSE.Common;
 using ViRSE.Core.VComponents.RaycastInterfaces;
+using ViRSE.Core.VComponents.Internal;
 
-
-namespace ViRSE.Tests
+namespace ViRSE.Core.Tests
 {
     public class PushActivatableTests
     {
@@ -28,13 +27,11 @@ namespace ViRSE.Tests
             );
 
             //Stub out the VC (integration layer) with the activatable
-            GameObject gameObjectHitStub = new();
-            V_ToggleActivatableStub v_activatableStub = gameObjectHitStub.AddComponent<V_ToggleActivatableStub>();
-            v_activatableStub.ToggleActivatable = toggleActivatable;
+            V_ToggleActivatableStub v_activatableStub = new(toggleActivatable);
 
             //Get interfaces
             IV_ToggleActivatable activatablePluginInterface = v_activatableStub;
-            IRangedClickPlayerInteractableIntegrator activatablePlayerInterface = v_activatableStub;
+            IRangedClickPlayerInteractableIntegrator activatableRaycastInterface = v_activatableStub;
 
             //Stub out the player settings provider with default settings
             IPlayerSettingsProvider playerSettingsProviderStub = Substitute.For<IPlayerSettingsProvider>();
@@ -42,7 +39,7 @@ namespace ViRSE.Tests
 
             //Stub out the multiplayer support
             System.Random random = new();
-            ushort localClientID = (ushort)random.Next(0, ushort.MaxValue + 1);
+            ushort localClientID = (ushort)random.Next(0, ushort.MaxValue);
             IMultiplayerSupport multiplayerSupportStub = Substitute.For<IMultiplayerSupport>();
             multiplayerSupportStub.IsConnectedToServer.Returns(true);
             multiplayerSupportStub.LocalClientID.Returns(localClientID);
@@ -56,7 +53,7 @@ namespace ViRSE.Tests
                 .TryGetRangedInteractionModule(default, default, out Arg.Any<RaycastResultWrapper>(), default, default)
                 .ReturnsForAnyArgs(x =>
                 {
-                    x[2] = new RaycastResultWrapper(toggleActivatable.RangedClickInteractionModule, 0);
+                    x[2] = new RaycastResultWrapper(activatableRaycastInterface.RangedClickInteractionModule, 0);
                     return true;
                 });
 
@@ -77,13 +74,12 @@ namespace ViRSE.Tests
 
             //Wire up mock customer script
             PluginScriptMock PluginScriptMock = Substitute.For<PluginScriptMock>();
-            PluginScriptMock.HandleActivateReceived(); //This is fine 
-            activatablePluginInterface.OnActivate.AddListener(PluginScriptMock.HandleActivateReceived); //But a null ref here??
+            activatablePluginInterface.OnActivate.AddListener(PluginScriptMock.HandleActivateReceived);
             activatablePluginInterface.OnDeactivate.AddListener(PluginScriptMock.HandleDeactivateReceived);
 
             //Check customer received the activation, and that the interactorID is set
             inputHandlerStub.OnMouseLeftClick += Raise.Event<Action>();
-            PluginScriptMock.Received(100).HandleActivateReceived();
+            PluginScriptMock.Received(100).HandleActivateReceived(); //NOT RIGHT!!! 
             Assert.IsTrue(activatablePluginInterface.IsActivated);
             Assert.AreEqual(activatablePluginInterface.MostRecentInteractingClientID, localClientID);
 
@@ -96,7 +92,7 @@ namespace ViRSE.Tests
 
         public class PluginScriptMock
         {
-            public void HandleActivateReceived() { }
+            public void HandleActivateReceived() { Debug.Log("Rec"); } //Def NOT called 100 times, just once!
 
             public void HandleDeactivateReceived() { }
         }

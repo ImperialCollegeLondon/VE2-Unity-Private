@@ -1,13 +1,10 @@
 using System;
-using System.Data.Common;
-using System.IO;
 using UnityEngine;
 using ViRSE.Common;
 using static ViRSE.Common.CoreCommonSerializables;
 
 namespace ViRSE.Core.Common
 {
-
     [Serializable]
     public class BaseStateConfig
     {

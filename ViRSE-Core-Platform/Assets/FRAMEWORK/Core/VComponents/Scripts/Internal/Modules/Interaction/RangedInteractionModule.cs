@@ -4,25 +4,19 @@ using UnityEngine;
 using UnityEngine.Events;
 using VIRSE.Core.VComponents.InteractableInterfaces;
 
-namespace ViRSE.Core.VComponents
+namespace ViRSE.Core.VComponents.Internal
 {
     [Serializable]
-    internal class RangedInteractionConfig
+    public class RangedInteractionConfig
     {
-        //[VerticalGroup("RangedInteractionModule_VGroup")]
-        //[FoldoutGroup("RangedInteractionModule_VGroup/Ranged Interaction Settings")]
-        //[SuffixLabel("metres")]
         [BeginGroup(Style = GroupStyle.Round)]
         [Space(5)]
         [Title("Ranged Interation Settings")]
         [SerializeField] public float InteractionRange = 5;
 
-        //[PropertySpace(SpaceBefore = 5)]
-        //[FoldoutGroup("RangedInteractionModule_VGroup/Ranged Interaction Settings")]
         [Space(5)]
         [SerializeField] public UnityEvent OnLocalHoverEnter;
 
-        //[FoldoutGroup("RangedInteractionModule_VGroup/Ranged Interaction Settings")]
         [EndGroup]
         [SerializeField] public UnityEvent OnLocalHoverExit;
     }

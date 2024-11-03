@@ -1,12 +1,11 @@
 using System;
 using UnityEngine;
-using UnityEngine.Events;
 using VIRSE.Core.VComponents.InteractableInterfaces;
 
-namespace ViRSE.Core.VComponents
+namespace ViRSE.Core.VComponents.Internal
 {
     [Serializable]
-    internal class GeneralInteractionConfig
+    public class GeneralInteractionConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("General Interation Settings")]
