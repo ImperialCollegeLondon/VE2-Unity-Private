@@ -8,12 +8,13 @@
         "VIRSE.Core.VComponents.InteractableInterfaces",
         "VIRSE.Core.VComponents.NonInteractableInterfaces",
         "ViRSE.Core.VComponents.Tests",
-        "ViRSE_Player_Rig",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "TNRD.NSubstitute",
         "Unity.XR.Management",
-        "ViRSE_Core_VComponents_RaycastInterfaces"
+        "ViRSE_Core_VComponents_RaycastInterfaces",
+        "ViRSE_Player_InteractionFinders",
+        "ViRSE_Player_Internal"
     ],
     "includePlatforms": [
         "Editor"
