@@ -1,8 +1,7 @@
 {
-    "name": "VIRSE.Core.VComponents.PluginInterfaces",
+    "name": "ViRSE_Core_VComponents_RaycastInterfaces",
     "rootNamespace": "",
     "references": [
-        "GUID:c42ddce3965037f4cb71b24109685180",
         "GUID:e600ad6c868daef4e954bddef787b76b"
     ],
     "includePlatforms": [],

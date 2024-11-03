@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
-using ViRSE.Core.VComponents.InternalInterfaces;
+using VIRSE.Core.VComponents.InteractableInterfaces;
 
 namespace ViRSE.Core.VComponents.PluginInterfaces
 {

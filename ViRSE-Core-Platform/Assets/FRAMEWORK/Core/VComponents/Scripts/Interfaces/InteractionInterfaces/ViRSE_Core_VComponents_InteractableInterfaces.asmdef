@@ -1,9 +1,7 @@
 {
-    "name": "ViRSE_Core_VComponents_PlayerInterfaces",
+    "name": "VIRSE.Core.VComponents.InteractableInterfaces",
     "rootNamespace": "",
-    "references": [
-        "GUID:c42ddce3965037f4cb71b24109685180"
-    ],
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

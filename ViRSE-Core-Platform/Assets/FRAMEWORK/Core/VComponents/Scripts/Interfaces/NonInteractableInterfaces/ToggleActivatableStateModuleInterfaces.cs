@@ -3,13 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace ViRSE.Core.VComponents.InternalInterfaces
+namespace ViRSE.Core.VComponents.NonInteractableInterfaces
 {
-    public interface ISingleInteractorActivatableStateModuleImplementor
-    {
-        public ISingleInteractorActivatableStateModule StateModule { get; }
-    }
-
     public interface ISingleInteractorActivatableStateModule
     {
         public UnityEvent OnActivate { get; }

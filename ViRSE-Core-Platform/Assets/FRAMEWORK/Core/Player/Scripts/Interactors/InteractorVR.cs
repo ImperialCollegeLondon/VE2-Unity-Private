@@ -1,9 +1,8 @@
 using UnityEngine;
 using ViRSE.Core.Player;
-using ViRSE.Core.VComponents;
-using ViRSE.Core.VComponents.PlayerInterfaces;
+using VIRSE.Core.VComponents.InteractableInterfaces;
 
-public class InteractorVR : BaseInteractor
+public class InteractorVR : PointerInteractor
 {
     [SerializeField] private bool _isRightHand;
 
@@ -17,9 +16,9 @@ public class InteractorVR : BaseInteractor
 
     private void HandleTriggerPressed()
     {
-        if (TryGetHoveringRangedInteractable(out IRangedPlayerInteractable hoveringInteractable))
+        if (TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable))
         {
-            if (hoveringInteractable is IRangedClickPlayerInteractable rangedClickInteractable)
+            if (hoveringInteractable is IRangedClickInteractionModule rangedClickInteractable)
                 rangedClickInteractable.Click(_InteractorID.ClientID);
         }
     }

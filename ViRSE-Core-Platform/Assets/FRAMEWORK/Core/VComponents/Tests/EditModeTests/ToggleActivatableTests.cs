@@ -1,10 +1,11 @@
 using NSubstitute;
 using NUnit.Framework;
 using ViRSE.Core.VComponents.PluginInterfaces;
-using ViRSE.Core.VComponents.PlayerInterfaces;
-using ViRSE.Core.VComponents.InternalInterfaces;
 using UnityEngine;
 using ViRSE.Common;
+using VIRSE.Core.VComponents.InteractableInterfaces;
+using ViRSE.Core.VComponents.NonInteractableInterfaces;
+using ViRSE.Core.VComponents.RaycastInterfaces;
 
 namespace ViRSE.Core.VComponents.Tests
 {
@@ -23,7 +24,7 @@ namespace ViRSE.Core.VComponents.Tests
 
             //Get interfaces
             IV_ToggleActivatable activatablePluginInterface = v_activatableStub;
-            IRangedClickPlayerInteractable activatablePlayerInterface = v_activatableStub;
+            IRangedClickInteractionModule activatablePlayerInterface = ((IRangedClickPlayerInteractableIntegrator)v_activatableStub).RangedClickInteractionModule;
 
             //Wire up the customer script to receive the events
             CustomerScript customerScript = Substitute.For<CustomerScript>();
@@ -55,18 +56,16 @@ namespace ViRSE.Core.VComponents.Tests
         }
     }
 
-    internal class V_ToggleActivatableStub : MonoBehaviour, IV_ToggleActivatable, IRangedClickPlayerInteractable, ICollidePlayerInteractable
+    internal class V_ToggleActivatableStub : MonoBehaviour, IV_ToggleActivatable, IRangedClickPlayerInteractableIntegrator, ICollidePlayerInteractableIntegrator
     {
         #region Plugin Interfaces
-        ISingleInteractorActivatableStateModuleImplementor ISingleInteractorStateModulePluginInterface._StateModuleImplementor => ToggleActivatable;
-        IRangedInteractionModuleImplementor IRangedInteractablePluginInterface._RangedModuleImplementor => ToggleActivatable;
-        IGeneralInteractionModuleImplementor IGeneralInteractionPluginInterface._GeneralModuleImplementor => ToggleActivatable;
+        ISingleInteractorActivatableStateModule IV_ToggleActivatable._StateModule => ToggleActivatable.StateModule;
+        IRangedClickInteractionModule IV_ToggleActivatable._RangedClickModule => ToggleActivatable.RangedClickInteractionModule;
         #endregion
 
         #region Player Interfaces
-        IRangedInteractionModuleImplementor IRangedPlayerInteractable.RangedModuleImplementor => ToggleActivatable;
-        IGeneralInteractionModuleImplementor IGeneralPlayerInteractable._GeneralModuleImplementor => ToggleActivatable;
-        ICollideInteractionModuleImplementor ICollidePlayerInteractable._CollideModuleImplementor => ToggleActivatable;
+        ICollideInteractionModule ICollidePlayerInteractableIntegrator._CollideInteractionModule => ToggleActivatable.ColliderInteractionModule;
+        IRangedInteractionModule IRangedPlayerInteractableIntegrator.RangedInteractionModule => ToggleActivatable.RangedClickInteractionModule;
         #endregion
 
         public ToggleActivatable ToggleActivatable = null;

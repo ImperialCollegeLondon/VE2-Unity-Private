@@ -2,9 +2,11 @@ using System;
 using System.Linq;
 using UnityEngine;
 using ViRSE.Common;
-using ViRSE.Core.VComponents.InternalInterfaces;
-using ViRSE.Core.VComponents.PlayerInterfaces;
+using ViRSE.Core.VComponents.Internal;
+using ViRSE.Core.VComponents.NonInteractableInterfaces;
+using ViRSE.Core.VComponents.RaycastInterfaces;
 using ViRSE.Core.VComponents.PluginInterfaces;
+using VIRSE.Core.VComponents.InteractableInterfaces;
 using static ViRSE.Common.CoreCommonSerializables;
 
 namespace ViRSE.Core.VComponents
@@ -17,21 +19,19 @@ namespace ViRSE.Core.VComponents
         [SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfig = new();
     }
 
-    internal class V_ToggleActivatable : MonoBehaviour, IV_ToggleActivatable, IRangedClickPlayerInteractable, ICollidePlayerInteractable
+    internal class V_ToggleActivatable : MonoBehaviour, IV_ToggleActivatable, IRangedClickPlayerInteractableIntegrator, ICollidePlayerInteractableIntegrator
     {
         [SerializeField, HideLabel, IgnoreParent] private ToggleActivatableConfig _config = new(); 
         [SerializeField, HideInInspector] private SingleInteractorActivatableState _state = new();
 
         #region Plugin Interfaces
-        ISingleInteractorActivatableStateModuleImplementor ISingleInteractorStateModulePluginInterface._StateModuleImplementor => _toggleActivatable;
-        IRangedInteractionModuleImplementor IRangedInteractablePluginInterface._RangedModuleImplementor => _toggleActivatable;
-        IGeneralInteractionModuleImplementor IGeneralInteractionPluginInterface._GeneralModuleImplementor => _toggleActivatable;
+        ISingleInteractorActivatableStateModule IV_ToggleActivatable._StateModule => _toggleActivatable.StateModule;
+        IRangedClickInteractionModule IV_ToggleActivatable._RangedClickModule => _toggleActivatable.RangedClickInteractionModule;
         #endregion
 
         #region Player Interfaces
-        IRangedInteractionModuleImplementor IRangedPlayerInteractable.RangedModuleImplementor => _toggleActivatable;
-        IGeneralInteractionModuleImplementor IGeneralPlayerInteractable._GeneralModuleImplementor => _toggleActivatable;
-        ICollideInteractionModuleImplementor ICollidePlayerInteractable._CollideModuleImplementor => _toggleActivatable;
+        ICollideInteractionModule ICollidePlayerInteractableIntegrator._CollideInteractionModule => _toggleActivatable.ColliderInteractionModule;
+        IRangedInteractionModule IRangedPlayerInteractableIntegrator.RangedInteractionModule => _toggleActivatable.RangedClickInteractionModule;
         #endregion
 
         private ToggleActivatable _toggleActivatable = null;
@@ -39,7 +39,7 @@ namespace ViRSE.Core.VComponents
         private void OnEnable()
         {
             string id = "Activatable-" + gameObject.name; 
-            _toggleActivatable = ToggleActivatableFactory.Create(_config, _state, id);
+            _toggleActivatable = new ToggleActivatable(_config, _state, id, ViRSECoreServiceLocator.Instance.WorldStateModulesContainer);
         }
 
         private void FixedUpdate()
@@ -54,52 +54,41 @@ namespace ViRSE.Core.VComponents
         }
     }
 
-    internal static class ToggleActivatableFactory
+    internal class ToggleActivatable
     {
-        public static ToggleActivatable Create(ToggleActivatableConfig config, ViRSESerializable state, string id)
-        {
-            return new ToggleActivatable(config, state, id, ViRSECoreServiceLocator.Instance.WorldStateModulesContainer);
-        }
-    }
-
-    internal class ToggleActivatable : ISingleInteractorActivatableStateModuleImplementor, IRangedClickInteractionModuleImplementor, ICollideInteractionModuleImplementor
-    {
-        #region Interfaces
-        ISingleInteractorActivatableStateModule ISingleInteractorActivatableStateModuleImplementor.StateModule => _stateModule;
-        IRangedInteractionModule IRangedInteractionModuleImplementor.RangedInteractionModule => _rangedClickInteractionModule;
-        ICollideInteractionModule ICollideInteractionModuleImplementor.CollideInteractionModule => _colliderInteractionModule;
-        IGeneralInteractionModule IGeneralInteractionModuleImplementor.GeneralInteractionModule => _rangedClickInteractionModule;
-        #endregion
+        public ISingleInteractorActivatableStateModule StateModule => _StateModule;
+        public IRangedClickInteractionModule RangedClickInteractionModule => _RangedClickInteractionModule;
+        public ICollideInteractionModule ColliderInteractionModule => _ColliderInteractionModule;
 
         #region Modules
-        private readonly SingleInteractorActivatableStateModule _stateModule;
-        private readonly RangedClickInteractionModule _rangedClickInteractionModule;
-        private readonly ColliderInteractionModule _colliderInteractionModule;
+        private readonly SingleInteractorActivatableStateModule _StateModule;
+        private readonly RangedClickInteractionModule _RangedClickInteractionModule;
+        private readonly ColliderInteractionModule _ColliderInteractionModule;
         #endregion
 
         public ToggleActivatable(ToggleActivatableConfig config, ViRSESerializable state, string id, WorldStateModulesContainer worldStateModulesContainer)
         {
-            _stateModule = new(state, config.StateConfig, id, worldStateModulesContainer);
-            _rangedClickInteractionModule = new(config.RangedInteractionConfig, config.GeneralInteractionConfig);
-            _colliderInteractionModule = new(config.GeneralInteractionConfig);
+            _StateModule = new(state, config.StateConfig, id, worldStateModulesContainer);
+            _RangedClickInteractionModule = new(config.RangedInteractionConfig, config.GeneralInteractionConfig);
+            _ColliderInteractionModule = new(config.GeneralInteractionConfig);
 
-            _rangedClickInteractionModule.OnClickDown += HandleInteract;
-            _colliderInteractionModule.OnCollideEnter += HandleInteract;
+            _RangedClickInteractionModule.OnClickDown += HandleInteract;
+            _ColliderInteractionModule.OnCollideEnter += HandleInteract;
         }
 
         public void HandleFixedUpdate()
         {
-            _stateModule.HandleFixedUpdate();
+            _StateModule.HandleFixedUpdate();
         }
 
         private void HandleInteract(ushort clientID)
         {
-            _stateModule.InvertState(clientID);
+            _StateModule.InvertState(clientID);
         }
 
         public void TearDown() 
         {
-            _stateModule.TearDown();
+            _StateModule.TearDown();
         }
     }
 }

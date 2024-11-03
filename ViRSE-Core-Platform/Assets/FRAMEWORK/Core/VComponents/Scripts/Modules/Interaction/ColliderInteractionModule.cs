@@ -1,11 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using VIRSE.Core.VComponents.InteractableInterfaces;
 
 
 //No config for collider interactions
 
-namespace ViRSE.Core.VComponents.InternalInterfaces
+namespace ViRSE.Core.VComponents.Internal
 {
     internal class ColliderInteractionModule : GeneralInteractionModule, ICollideInteractionModule
     {

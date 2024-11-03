@@ -4,12 +4,12 @@ using ViRSE.Core.VComponents;
 using ViRSE.Core.Player;
 using System;
 using ViRSE.Core.VComponents.Tests;
-using ViRSE.Core.VComponents.PlayerInterfaces;
 using ViRSE.Core.VComponents.PluginInterfaces;
 using UnityEngine;
 using ViRSE.Common;
 using static ViRSE.Common.CoreCommonSerializables;
 using VIRSE.Common;
+using ViRSE.Core.VComponents.RaycastInterfaces;
 
 
 namespace ViRSE.Tests
@@ -34,7 +34,7 @@ namespace ViRSE.Tests
 
             //Get interfaces
             IV_ToggleActivatable activatablePluginInterface = v_activatableStub;
-            IRangedClickPlayerInteractable activatablePlayerInterface = v_activatableStub;
+            IRangedClickPlayerInteractableIntegrator activatablePlayerInterface = v_activatableStub;
 
             //Stub out the player settings provider with default settings
             IPlayerSettingsProvider playerSettingsProviderStub = Substitute.For<IPlayerSettingsProvider>();
@@ -53,10 +53,10 @@ namespace ViRSE.Tests
             //Stub out the raycast provider to hit the activatable GO with 0 range
             IRaycastProvider raycastProviderStub = Substitute.For<IRaycastProvider>();
             raycastProviderStub
-                .TryGetGameObject(default, default, out Arg.Any<RaycastResultWrapper>(), default, default)
+                .TryGetRangedInteractionModule(default, default, out Arg.Any<RaycastResultWrapper>(), default, default)
                 .ReturnsForAnyArgs(x =>
                 {
-                    x[2] = new RaycastResultWrapper(gameObjectHitStub, 0);
+                    x[2] = new RaycastResultWrapper(toggleActivatable.RangedClickInteractionModule, 0);
                     return true;
                 });
 

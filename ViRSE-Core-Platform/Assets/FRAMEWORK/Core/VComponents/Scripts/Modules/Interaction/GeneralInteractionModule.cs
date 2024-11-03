@@ -1,8 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Events;
-using ViRSE.Core.VComponents.InternalInterfaces;
-
+using VIRSE.Core.VComponents.InteractableInterfaces;
 
 namespace ViRSE.Core.VComponents
 {
@@ -21,25 +20,14 @@ namespace ViRSE.Core.VComponents
 
     internal abstract class GeneralInteractionModule : IGeneralInteractionModule
     {
-        public bool AdminOnly { get { return Config.AdminOnly; } set { UpdateAdminOnly(value); } }
-        public bool VibrateControllers => Config.EnableControllerVibrations;
-        public bool ShowTooltips => Config.ShowTooltipsAndHighlight;
-
-        public event Action OnBecomeAdminOnly; //E.G if grabbable, the VC needs to know to force drop
-        public readonly GeneralInteractionConfig Config;
+        public bool AdminOnly { get { return _config.AdminOnly; } set { _config.AdminOnly = value; } }
+        public bool EnableControllerVibrations { get => _config.EnableControllerVibrations; set => _config.EnableControllerVibrations = value; }
+        public bool ShowTooltipsAndHighlight { get => _config.ShowTooltipsAndHighlight; set => _config.ShowTooltipsAndHighlight = value; }
+        private readonly GeneralInteractionConfig _config;
 
         public GeneralInteractionModule(GeneralInteractionConfig config)
         {
-            Config = config;
-        }
-
-        private void UpdateAdminOnly(bool newAdminOnly)
-        {
-            bool oldAdminOnly = Config.AdminOnly;
-            Config.AdminOnly = newAdminOnly;
-
-            if (newAdminOnly && !oldAdminOnly)
-                OnBecomeAdminOnly.Invoke();
+            _config = config;
         }
     }
 }

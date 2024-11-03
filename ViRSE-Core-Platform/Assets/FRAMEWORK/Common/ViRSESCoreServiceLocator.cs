@@ -133,11 +133,11 @@ namespace ViRSE.Common
         //#################################### RAYCAST PROVIDER #######################################
         //#############################################################################################
 
-        private IRaycastProvider _raycastProvider;
-        public IRaycastProvider RaycastProvider { get { //Returns the default RaycastProvider
-            _raycastProvider ??= new RaycastProvider();
-            return _raycastProvider;
-        }}
+        // private IRaycastProvider _raycastProvider;
+        // public IRaycastProvider RaycastProvider { get { //Returns the default RaycastProvider
+        //     _raycastProvider ??= new RaycastProvider();
+        //     return _raycastProvider;
+        // }}
 
         //#################################### XR MANAGER WRAPPER #####################################
         //#############################################################################################

@@ -2,7 +2,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
-using ViRSE.Core.VComponents.InternalInterfaces;
+using VIRSE.Core.VComponents.InteractableInterfaces;
 
 namespace ViRSE.Core.VComponents
 {

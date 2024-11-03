@@ -15,7 +15,7 @@ namespace ViRSE.Core.Player
                 ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider,
                 ViRSECoreServiceLocator.Instance.MultiplayerSupport, 
                 ViRSECoreServiceLocator.Instance.InputHandler,
-                ViRSECoreServiceLocator.Instance.RaycastProvider,
+                new RaycastProvider(),
                 ViRSECoreServiceLocator.Instance.XRManagerWrapper);
         }
     }

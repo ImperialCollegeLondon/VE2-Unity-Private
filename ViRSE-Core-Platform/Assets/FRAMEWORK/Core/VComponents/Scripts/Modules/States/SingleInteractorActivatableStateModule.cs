@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using ViRSE.Common;
 using ViRSE.Core.Common;
-using ViRSE.Core.VComponents.InternalInterfaces;
+using ViRSE.Core.VComponents.NonInteractableInterfaces;
 using static ViRSE.Common.CoreCommonSerializables;
 
 namespace ViRSE.Core.VComponents

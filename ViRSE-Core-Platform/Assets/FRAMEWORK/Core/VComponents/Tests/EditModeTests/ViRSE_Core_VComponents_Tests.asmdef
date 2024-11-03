@@ -2,15 +2,15 @@
     "name": "ViRSE.Core.VComponents.Tests",
     "rootNamespace": "",
     "references": [
+        "ViRSE.Common",
+        "ViRSE.Core.VComponents.Internal",
+        "VIRSE.Core.VComponents.PluginInterfaces",
+        "VIRSE.Core.VComponents.InteractableInterfaces",
+        "VIRSE.Core.VComponents.NonInteractableInterfaces",
+        "ViRSE_Core_VComponents_RaycastInterfaces",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "UnityEngine.UI",
-        "TNRD.NSubstitute",
-        "ViRSE.Core.VComponents",
-        "VIRSE.Core.VComponents.InternalInterfaces",
-        "ViRSE_Core_VComponents_PlayerInterfaces",
-        "VIRSE.Core.VComponents.PluginInterfaces",
-        "ViRSE.Common"
+        "TNRD.NSubstitute"
     ],
     "includePlatforms": [
         "Editor"

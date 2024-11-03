@@ -1,5 +1,5 @@
 {
-    "name": "VIRSE.Core.VComponents.InternalInterfaces",
+    "name": "VIRSE.Core.VComponents.NonInteractableInterfaces",
     "rootNamespace": "",
     "references": [],
     "includePlatforms": [],
