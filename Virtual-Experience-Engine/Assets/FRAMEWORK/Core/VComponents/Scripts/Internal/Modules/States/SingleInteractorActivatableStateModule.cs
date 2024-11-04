@@ -5,7 +5,7 @@ using UnityEngine.Events;
 using VE2.Common;
 using VE2.Core.Common;
 using VE2.Core.VComponents.NonInteractableInterfaces;
-using static VE2.Common.CoreCommonSerializables;
+using static VE2.Common.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
 {

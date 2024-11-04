@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using static NonCoreCommonSerializables;
-using static VE2.Common.CoreCommonSerializables;
+using static VE2.Common.CommonSerializables;
 
 
 #if UNITY_EDITOR

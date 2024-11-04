@@ -1,6 +1,6 @@
 using static InstanceSyncSerializables;
 using VE2.Common;
-using static VE2.Common.CoreCommonSerializables;
+using static VE2.Common.CommonSerializables;
 
 namespace VE2.InstanceNetworking
 {

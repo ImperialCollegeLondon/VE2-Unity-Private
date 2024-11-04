@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using static NonCoreCommonSerializables;
-using static VE2.Common.CoreCommonSerializables;
+using static VE2.Common.CommonSerializables;
 
 
 #if UNITY_EDITOR

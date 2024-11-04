@@ -1,6 +1,6 @@
 using System;
 using VE2.Common;
-using static VE2.Common.CoreCommonSerializables;
+using static VE2.Common.CommonSerializables;
 
 public interface IPlatformService //TODO, maybe not all of these should live in the same interface?
 {

@@ -6,7 +6,7 @@ using VE2.Core.VComponents.Tests;
 using VE2.Core.VComponents.PluginInterfaces;
 using UnityEngine;
 using VE2.Common;
-using static VE2.Common.CoreCommonSerializables;
+using static VE2.Common.CommonSerializables;
 using VE2.Core.VComponents.InteractableFindables;
 using VE2.Core.VComponents.Internal;
 

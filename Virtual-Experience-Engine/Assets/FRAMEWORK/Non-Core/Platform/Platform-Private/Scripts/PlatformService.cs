@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 using System.Linq;
 using VE2.PlatformNetworking;
 using static VE2.PlatformNetworking.PlatformSerializables;
-using static VE2.Common.CoreCommonSerializables;
+using static VE2.Common.CommonSerializables;
 using VE2.Common;
 
 namespace VE2.NonCore.Platform.Private

@@ -3,7 +3,7 @@ using UnityEngine;
 using VE2.Common;
 using VE2.Core.VComponents.NonInteractableInterfaces;
 using VE2.Core.VComponents.InteractableInterfaces;
-using static VE2.Common.CoreCommonSerializables;
+using static VE2.Common.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
 {

@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace VE2.Common //TODO - Need to expose to customer 
 {
-        public class CoreCommonSerializables
+        public class CommonSerializables
         {
                 [Serializable]
                 public abstract class VE2Serializable
