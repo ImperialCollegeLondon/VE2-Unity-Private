@@ -15,7 +15,7 @@ namespace VE2.PlatformNetworking
 {
     public class PlatformSerializables
     {
-        public static readonly int PlatformNetcodeVersion = 5;
+        public static readonly int PlatformNetcodeVersion = 1;
 
 
         public enum PlatformNetworkingMessageCodes

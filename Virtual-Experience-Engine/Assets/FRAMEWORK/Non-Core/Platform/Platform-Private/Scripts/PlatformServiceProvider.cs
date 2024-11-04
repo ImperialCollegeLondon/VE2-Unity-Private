@@ -17,7 +17,7 @@ namespace VE2.PlatformNetworking
         [SerializeField] private ServerType _serverType = ServerType.Local;
         [SerializeField] private string _localServerIP = "127.0.0.1";
         [SerializeField] private string _remoteServerIP = "";
-        [SerializeField] private ushort _portNumber = 4296;
+        [SerializeField] private ushort _portNumber = 4298;
 
         [Space(10)]
         [SerializeField, HideInInspector] private string _instanceCode = null;

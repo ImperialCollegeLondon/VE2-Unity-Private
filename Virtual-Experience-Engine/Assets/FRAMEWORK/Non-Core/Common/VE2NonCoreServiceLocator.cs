@@ -50,7 +50,7 @@ public class VE2NonCoreServiceLocator : MonoBehaviour
     private void Awake()
     {
         _instance = this;
-        //gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
-        gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
+        gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
+        //gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
     }
 }

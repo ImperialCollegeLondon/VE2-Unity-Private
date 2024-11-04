@@ -154,8 +154,8 @@ namespace VE2.Common
         private void Awake()
         {
             _instance = this;
-            //gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
-            gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
+            gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
+            //gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
         }
 
         private void OnDestroy() 

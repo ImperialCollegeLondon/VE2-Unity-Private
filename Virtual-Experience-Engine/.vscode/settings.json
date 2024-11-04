@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "ViRSE-Core-Platform.sln"
+    "dotnet.defaultSolution": "Virtual-Experience-Engine.sln"
 }
