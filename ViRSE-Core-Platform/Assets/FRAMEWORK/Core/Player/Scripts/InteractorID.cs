@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ViRSE.Core.Common;
+using VE2.Core.Common;
 
-namespace ViRSE
+namespace VE2
 {
     public class InteractorID //TODO - PlayerRig needs this too, maybe move into some shared assembly, where both PluginAPI and PlayerRigAPI can see it?
     {

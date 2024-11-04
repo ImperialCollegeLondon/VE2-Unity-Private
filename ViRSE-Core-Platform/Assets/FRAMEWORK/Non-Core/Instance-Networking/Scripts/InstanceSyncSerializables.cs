@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using static NonCoreCommonSerializables;
-using static ViRSE.Common.CoreCommonSerializables;
+using static VE2.Common.CoreCommonSerializables;
 
 
 #if UNITY_EDITOR
@@ -28,7 +28,7 @@ public class InstanceSyncSerializables
     //Needs to have the avatar presentation details
     //Also needs the instance code 
 
-    public class ServerRegistrationRequest : ViRSESerializable
+    public class ServerRegistrationRequest : VE2Serializable
     {
         public string InstanceCode { get; private set; }
         public ushort IDToRestore { get; private set; }
@@ -62,7 +62,7 @@ public class InstanceSyncSerializables
         }
     }
 
-    public class ServerRegistrationConfirmation : ViRSESerializable
+    public class ServerRegistrationConfirmation : VE2Serializable
     {
         public ushort LocalClientID { get; private set; }
         public InstancedInstanceInfo InstanceInfo { get; private set; }
@@ -211,16 +211,16 @@ public class InstanceSyncSerializables
         }
     }
 
-    public class AvatarAppearanceWrapper : ViRSESerializable
+    public class AvatarAppearanceWrapper : VE2Serializable
     {
         public bool UsingViRSEPlayer;
-        public ViRSEAvatarAppearance ViRSEAvatarAppearance;
+        public AvatarAppearance ViRSEAvatarAppearance;
 
         public AvatarAppearanceWrapper() { }
 
         public AvatarAppearanceWrapper(byte[] bytes) : base(bytes) { }
 
-        public AvatarAppearanceWrapper(bool usingViRSEAvatar, ViRSEAvatarAppearance virseAvatarAppearance)
+        public AvatarAppearanceWrapper(bool usingViRSEAvatar, AvatarAppearance virseAvatarAppearance)
         {
             UsingViRSEPlayer = usingViRSEAvatar;
             ViRSEAvatarAppearance = virseAvatarAppearance;
@@ -260,7 +260,7 @@ public class InstanceSyncSerializables
     }
 
 
-    public class WorldStateSnapshot : ViRSESerializable
+    public class WorldStateSnapshot : VE2Serializable
     {
         public string InstanceCode { get; private set; }
         public WorldStateBundle WorldStateBundle { get; private set; }
@@ -299,7 +299,7 @@ public class InstanceSyncSerializables
         }
     }
 
-    public class WorldStateBundle : ViRSESerializable
+    public class WorldStateBundle : VE2Serializable
     {
         public List<WorldStateWrapper> WorldStateWrappers { get; private set; } = new();
 
@@ -343,7 +343,7 @@ public class InstanceSyncSerializables
         }
     }
 
-    public class WorldStateWrapper : ViRSESerializable
+    public class WorldStateWrapper : VE2Serializable
     {
         public string ID { get; private set; }
         public byte[] StateBytes { get; private set; }

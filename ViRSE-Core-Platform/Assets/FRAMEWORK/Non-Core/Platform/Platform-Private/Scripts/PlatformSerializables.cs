@@ -4,14 +4,14 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using static NonCoreCommonSerializables;
-using static ViRSE.Common.CoreCommonSerializables;
+using static VE2.Common.CoreCommonSerializables;
 
 
 #if UNITY_EDITOR
 using UnityEngine;
 #endif
 
-namespace ViRSE.PlatformNetworking
+namespace VE2.PlatformNetworking
 {
     public class PlatformSerializables
     {
@@ -29,7 +29,7 @@ namespace ViRSE.PlatformNetworking
         }
 
 
-        public class ServerRegistrationRequest : ViRSESerializable
+        public class ServerRegistrationRequest : VE2Serializable
         {
             public UserIdentity UserIdentity { get; private set; }
             public string StartingInstanceCode { get; private set; }
@@ -69,7 +69,7 @@ namespace ViRSE.PlatformNetworking
 
 
         [Serializable]
-        public class UserIdentity : ViRSESerializable
+        public class UserIdentity : VE2Serializable
         {
 #if UNITY_EDITOR
             [SerializeField, NotNull]
@@ -148,7 +148,7 @@ namespace ViRSE.PlatformNetworking
         }
 
 
-        public class ServerRegistrationConfirmation : ViRSESerializable
+        public class ServerRegistrationConfirmation : VE2Serializable
         {
             public ushort LocalClientID { get; private set; }
             public UserSettingsPersistable UserSettings { get; private set; }
@@ -237,7 +237,7 @@ namespace ViRSE.PlatformNetworking
         }
 
 
-        public class WorldDetails : ViRSESerializable
+        public class WorldDetails : VE2Serializable
         {
             public string Name { get; private set; }
             public string Subtitle { get; private set; }
@@ -314,7 +314,7 @@ namespace ViRSE.PlatformNetworking
         }
 
 
-        public class GlobalInfo : ViRSESerializable
+        public class GlobalInfo : VE2Serializable
         {
             public Dictionary<string, PlatformInstanceInfo> InstanceInfos { get; private set; }
 
@@ -474,7 +474,7 @@ namespace ViRSE.PlatformNetworking
         }
 
 
-        public class InstanceAllocationRequest : ViRSESerializable
+        public class InstanceAllocationRequest : VE2Serializable
         {
             public string WorldName { get; private set; }
             public string InstanceSuffix { get; private set; }

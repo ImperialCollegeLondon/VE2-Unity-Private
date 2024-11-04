@@ -1,14 +1,14 @@
 using System;
 using System.IO;
 using UnityEngine;
-using static ViRSE.Common.CoreCommonSerializables;
+using static VE2.Common.CoreCommonSerializables;
 
-namespace VIRSE.Common
+namespace VE2.Common
 {
     //TODO, we know the player will always be rotated to be level with the floor 
     //So that means we can actually just transmit a single float for the root rotation angle
     [Serializable]
-    public class PlayerTransformData : ViRSESerializable
+    public class PlayerTransformData : VE2Serializable
     {
         public bool IsVRMode;
 

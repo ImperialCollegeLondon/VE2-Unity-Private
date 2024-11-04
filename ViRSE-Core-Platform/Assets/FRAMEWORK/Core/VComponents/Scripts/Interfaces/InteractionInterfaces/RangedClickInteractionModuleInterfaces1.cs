@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace VIRSE.Core.VComponents.InteractableInterfaces
+namespace VE2.Core.VComponents.InteractableInterfaces
 {
     public interface IRangedClickInteractionModule : IRangedInteractionModule
     {

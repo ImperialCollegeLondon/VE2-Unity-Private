@@ -1,9 +1,10 @@
 {
-    "name": "VIRSE.Core.VComponents.PluginInterfaces",
+    "name": "VE2.Core.Common",
     "rootNamespace": "",
     "references": [
-        "GUID:c42ddce3965037f4cb71b24109685180",
-        "GUID:e600ad6c868daef4e954bddef787b76b"
+        "GUID:696a0953692949b40bec8730e64e1fdd",
+        "GUID:1b845e2499b39be4aab3e6ac2c8aa02a",
+        "GUID:8b39aeabfc189e24783534bdcdf45069"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

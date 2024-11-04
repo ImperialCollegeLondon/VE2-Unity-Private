@@ -2,12 +2,12 @@ using System;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
-using ViRSE.Common;
-using ViRSE.Core.Common;
-using ViRSE.Core.VComponents.NonInteractableInterfaces;
-using static ViRSE.Common.CoreCommonSerializables;
+using VE2.Common;
+using VE2.Core.Common;
+using VE2.Core.VComponents.NonInteractableInterfaces;
+using static VE2.Common.CoreCommonSerializables;
 
-namespace ViRSE.Core.VComponents.Internal
+namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
     public class ActivatableStateConfig : BaseStateConfig
@@ -30,7 +30,7 @@ namespace ViRSE.Core.VComponents.Internal
         private SingleInteractorActivatableState _state => (SingleInteractorActivatableState)State;
         private ActivatableStateConfig _config => (ActivatableStateConfig)Config;
 
-        public SingleInteractorActivatableStateModule(ViRSESerializable state, BaseStateConfig config, string id, WorldStateModulesContainer worldStateModulesContainer) : base(state, config, id, worldStateModulesContainer) { }
+        public SingleInteractorActivatableStateModule(VE2Serializable state, BaseStateConfig config, string id, WorldStateModulesContainer worldStateModulesContainer) : base(state, config, id, worldStateModulesContainer) { }
 
         public event Action OnProgrammaticStateChangeFromPlugin;
 
@@ -96,7 +96,7 @@ namespace ViRSE.Core.VComponents.Internal
     }
 
     [Serializable]
-    public class SingleInteractorActivatableState : ViRSESerializable
+    public class SingleInteractorActivatableState : VE2Serializable
     {
         public ushort StateChangeNumber { get; set; }
         public bool IsActivated { get; set; }

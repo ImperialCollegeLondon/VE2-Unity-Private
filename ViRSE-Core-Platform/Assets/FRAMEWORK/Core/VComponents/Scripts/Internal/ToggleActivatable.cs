@@ -1,11 +1,11 @@
 using System;
 using UnityEngine;
-using ViRSE.Common;
-using ViRSE.Core.VComponents.NonInteractableInterfaces;
-using VIRSE.Core.VComponents.InteractableInterfaces;
-using static ViRSE.Common.CoreCommonSerializables;
+using VE2.Common;
+using VE2.Core.VComponents.NonInteractableInterfaces;
+using VE2.Core.VComponents.InteractableInterfaces;
+using static VE2.Common.CoreCommonSerializables;
 
-namespace ViRSE.Core.VComponents.Internal
+namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
     public class ToggleActivatableConfig
@@ -29,7 +29,7 @@ namespace ViRSE.Core.VComponents.Internal
         private readonly ColliderInteractionModule _ColliderInteractionModule;
         #endregion
 
-        public ToggleActivatable(ToggleActivatableConfig config, ViRSESerializable state, string id, WorldStateModulesContainer worldStateModulesContainer)
+        public ToggleActivatable(ToggleActivatableConfig config, VE2Serializable state, string id, WorldStateModulesContainer worldStateModulesContainer)
         {
             _StateModule = new(state, config.StateConfig, id, worldStateModulesContainer);
             _RangedClickInteractionModule = new(config.RangedInteractionConfig, config.GeneralInteractionConfig);

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using ViRSE;
-using ViRSE.Core.VComponents;
-using ViRSE.Core.VComponents.PluginInterfaces;
+using VE2;
+using VE2.Core.VComponents;
+using VE2.Core.VComponents.PluginInterfaces;
 
 public class PluginTest : MonoBehaviour
 {

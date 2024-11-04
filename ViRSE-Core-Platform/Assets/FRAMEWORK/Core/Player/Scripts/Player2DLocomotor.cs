@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace ViRSE.Core.Player
+namespace VE2.Core.Player
 {
     public class Player2DLocomotor : MonoBehaviour
     {

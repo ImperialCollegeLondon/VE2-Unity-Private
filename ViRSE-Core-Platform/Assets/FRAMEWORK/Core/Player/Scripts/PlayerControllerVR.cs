@@ -1,13 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.XR.Management;
-using ViRSE.Common;
-using ViRSE.Core.Common;
-using VIRSE.Common;
-using static ViRSE.Common.CoreCommonSerializables;
+using VE2.Common;
+using static VE2.Common.CoreCommonSerializables;
 
-namespace ViRSE.Core.Player
+namespace VE2.Core.Player
 {
     public class PlayerControllerVR : PlayerController
     {

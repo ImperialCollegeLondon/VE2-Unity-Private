@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace ViRSE.Core.VComponents.NonInteractableInterfaces
+namespace VE2.Core.VComponents.NonInteractableInterfaces
 {
     public interface ISingleInteractorActivatableStateModule
     {

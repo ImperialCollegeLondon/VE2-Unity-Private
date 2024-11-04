@@ -1,8 +1,11 @@
 {
-    "name": "ViRSE_Core_VComponents_RaycastInterfaces",
+    "name": "VE2_Plugin_Sample",
     "rootNamespace": "",
     "references": [
-        "GUID:e600ad6c868daef4e954bddef787b76b"
+        "GUID:27761945d4a599347997de06d94a1ae9",
+        "GUID:75469ad4d38634e559750d17036d5f7c",
+        "GUID:696a0953692949b40bec8730e64e1fdd",
+        "GUID:1b845e2499b39be4aab3e6ac2c8aa02a"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

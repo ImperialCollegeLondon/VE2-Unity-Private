@@ -1,12 +1,12 @@
 using System;
 using System.IO;
 using UnityEngine;
-using ViRSE.Common;
-using ViRSE.Core.Common;
-using VIRSE.Common;
-using static ViRSE.Common.CoreCommonSerializables;
+using VE2.Common;
+using VE2.Core.Common;
+using VE2.Common;
+using static VE2.Common.CoreCommonSerializables;
 
-namespace ViRSE.Core.Player
+namespace VE2.Core.Player
 {
     public class PlayerStateModule : BaseStateModule, IPlayerStateModule //TODO - customer interfaces for changing player position/rotation
     {
@@ -16,7 +16,7 @@ namespace ViRSE.Core.Player
             set => State.Bytes = value.Bytes;
         }
 
-        public ViRSEAvatarAppearance AvatarAppearance
+        public AvatarAppearance AvatarAppearance
         {
             get
             {
@@ -27,13 +27,13 @@ namespace ViRSE.Core.Player
             }
         }
 
-        public event Action<ViRSEAvatarAppearance> OnAvatarAppearanceChanged;
+        public event Action<AvatarAppearance> OnAvatarAppearanceChanged;
 
         private readonly IPlayerSettingsProvider _playerSettingsProvider;
         private readonly IPlayerAppearanceOverridesProvider _appearanceOverridesProvider;
 
         public PlayerStateModule(PlayerTransformData state, BaseStateConfig config,
-                ViRSEPlayerStateModuleContainer playerStateModuleContainer, IPlayerSettingsProvider playerSettingsProvider, IPlayerAppearanceOverridesProvider appearanceOverridesProvider)
+                PlayerStateModuleContainer playerStateModuleContainer, IPlayerSettingsProvider playerSettingsProvider, IPlayerAppearanceOverridesProvider appearanceOverridesProvider)
                 : base(state, config, playerStateModuleContainer)
 
         {

@@ -6,10 +6,10 @@ using System.Net;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-using ViRSE.NonCore.Platform.Private;
-using static ViRSE.PlatformNetworking.PlatformSerializables;
+using VE2.NonCore.Platform.Private;
+using static VE2.PlatformNetworking.PlatformSerializables;
 
-namespace ViRSE.PlatformNetworking
+namespace VE2.PlatformNetworking
 {
     public class PlatformServiceProvider : MonoBehaviour, IPlatformServiceProvider
     {

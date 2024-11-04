@@ -1,5 +1,5 @@
 
-namespace VIRSE.Core.VComponents.InteractableInterfaces
+namespace VE2.Core.VComponents.InteractableInterfaces
 {
     public interface IRangedInteractionModule : IGeneralInteractionModule
     {

@@ -1,6 +1,6 @@
 using UnityEngine;
-using ViRSE.Core.VComponents.RaycastInterfaces;
-using VIRSE.Core.VComponents.InteractableInterfaces;
+using VE2.Core.VComponents.RaycastInterfaces;
+using VE2.Core.VComponents.InteractableInterfaces;
 
 public interface IRaycastProvider
 {

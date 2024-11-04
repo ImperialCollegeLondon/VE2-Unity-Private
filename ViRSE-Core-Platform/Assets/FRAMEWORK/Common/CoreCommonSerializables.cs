@@ -5,18 +5,18 @@ using System.IO;
 using UnityEngine;
 #endif
 
-namespace ViRSE.Common //TODO - Need to expose to customer 
+namespace VE2.Common //TODO - Need to expose to customer 
 {
         public class CoreCommonSerializables
         {
                 [Serializable]
-                public abstract class ViRSESerializable
+                public abstract class VE2Serializable
                 {
                         public byte[] Bytes { get => ConvertToBytes(); set => PopulateFromBytes(value); }
 
-                        public ViRSESerializable() { }
+                        public VE2Serializable() { }
 
-                        public ViRSESerializable(byte[] bytes)
+                        public VE2Serializable(byte[] bytes)
                         {
                                 PopulateFromBytes(bytes);
                         }
@@ -28,7 +28,7 @@ namespace ViRSE.Common //TODO - Need to expose to customer
 
 
                 [Serializable]
-                public class UserSettingsPersistable : ViRSESerializable //TODO, probably add audio config 
+                public class UserSettingsPersistable : VE2Serializable //TODO, probably add audio config 
                 {
 #if UNITY_EDITOR
 
@@ -96,7 +96,7 @@ namespace ViRSE.Common //TODO - Need to expose to customer
 
 
                 [Serializable]
-                public class PlayerVRControlConfig : ViRSESerializable
+                public class PlayerVRControlConfig : VE2Serializable
                 {
 #if UNITY_EDITOR
                         [BeginIndent, SerializeField, Range(0.1f, 3f)]
@@ -177,7 +177,7 @@ namespace ViRSE.Common //TODO - Need to expose to customer
                 }
 
                 [Serializable]
-                public class Player2DControlConfig : ViRSESerializable
+                public class Player2DControlConfig : VE2Serializable
                 {
 #if UNITY_EDITOR
                         [BeginIndent, SerializeField, Range(0.2f, 3f)]
@@ -217,7 +217,7 @@ namespace ViRSE.Common //TODO - Need to expose to customer
                 }
 
                 [Serializable]
-                public class PlayerPresentationConfig : ViRSESerializable //TODO - this should just be a wrapper, don't like these attributes in here
+                public class PlayerPresentationConfig : VE2Serializable //TODO - this should just be a wrapper, don't like these attributes in here
                 {
 #if UNITY_EDITOR
                         [BeginIndent, SerializeField]
@@ -293,17 +293,17 @@ namespace ViRSE.Common //TODO - Need to expose to customer
                 }
 
                 [Serializable]
-                public class ViRSEAvatarAppearance : ViRSESerializable //TODO - needs to contain VR/2D
+                public class AvatarAppearance : VE2Serializable //TODO - needs to contain VR/2D
                 {
                         public PlayerPresentationConfig PresentationConfig { get; set; }
                         public AvatarAppearanceOverrideType HeadOverrideType { get; set; }
                         public AvatarAppearanceOverrideType TorsoOverrideType { get; set; }
 
-                        public ViRSEAvatarAppearance() { }
+                        public AvatarAppearance() { }
 
-                        public ViRSEAvatarAppearance(byte[] bytes) : base(bytes) { }
+                        public AvatarAppearance(byte[] bytes) : base(bytes) { }
 
-                        public ViRSEAvatarAppearance(PlayerPresentationConfig presentationConfig, AvatarAppearanceOverrideType headOverrideType, AvatarAppearanceOverrideType torsoOverrideType)
+                        public AvatarAppearance(PlayerPresentationConfig presentationConfig, AvatarAppearanceOverrideType headOverrideType, AvatarAppearanceOverrideType torsoOverrideType)
                         {
                                 PresentationConfig = presentationConfig;
                                 HeadOverrideType = headOverrideType;
@@ -362,7 +362,7 @@ namespace ViRSE.Common //TODO - Need to expose to customer
                         Three
                 }
 
-                public class PlayerStateWrapper : ViRSESerializable
+                public class PlayerStateWrapper : VE2Serializable
                 {
                         public ushort ID { get; private set; }
                         public byte[] StateBytes { get; private set; }

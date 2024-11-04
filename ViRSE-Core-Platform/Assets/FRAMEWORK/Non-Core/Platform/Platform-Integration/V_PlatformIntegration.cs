@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using ViRSE.Common;
-using static ViRSE.Common.CoreCommonSerializables;
+using VE2.Common;
+using static VE2.Common.CoreCommonSerializables;
 
-namespace ViRSE.PlatformNetworking
+namespace VE2.PlatformNetworking
 {
     [ExecuteInEditMode]
     public class V_PlatformIntegration : MonoBehaviour, IInstanceNetworkSettingsProvider, IPlayerSettingsProvider
@@ -68,8 +68,8 @@ namespace ViRSE.PlatformNetworking
         {
             if (!Application.isPlaying)
             {
-                ViRSENonCoreServiceLocator.Instance.InstanceNetworkSettingsProvider = this;
-                ViRSECoreServiceLocator.Instance.PlayerSettingsProvider = this;
+                VE2NonCoreServiceLocator.Instance.InstanceNetworkSettingsProvider = this;
+                VE2CoreServiceLocator.Instance.PlayerSettingsProvider = this;
                 return;
             }
 

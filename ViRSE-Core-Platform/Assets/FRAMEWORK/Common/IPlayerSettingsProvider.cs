@@ -1,7 +1,7 @@
 using System;
-using static ViRSE.Common.CoreCommonSerializables;
+using static VE2.Common.CoreCommonSerializables;
 
-namespace ViRSE.Common
+namespace VE2.Common
 {
     public interface IPlayerSettingsProvider
     {

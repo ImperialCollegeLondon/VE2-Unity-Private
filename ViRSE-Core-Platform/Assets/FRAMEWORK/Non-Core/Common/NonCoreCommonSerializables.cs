@@ -2,11 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using static ViRSE.Common.CoreCommonSerializables;
+using static VE2.Common.CoreCommonSerializables;
 
 public class NonCoreCommonSerializables
 {
-    public class NetcodeVersionConfirmation : ViRSESerializable
+    public class NetcodeVersionConfirmation : VE2Serializable
     {
         public int NetcodeVersion { get; private set; }
 
@@ -36,7 +36,7 @@ public class NonCoreCommonSerializables
         }
     }
 
-    public class InstanceInfoBase : ViRSESerializable
+    public class InstanceInfoBase : VE2Serializable
     {
         public string WorldName { get; private set; }
         public string InstanceSuffix { get; private set; }
@@ -77,7 +77,7 @@ public class NonCoreCommonSerializables
     }
 
 
-    public abstract class ClientInfoBase : ViRSESerializable
+    public abstract class ClientInfoBase : VE2Serializable
     {
         public ushort ClientID;
         //public string DisplayName;

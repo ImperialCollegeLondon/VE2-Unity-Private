@@ -1,14 +1,14 @@
 using NSubstitute;
 using NUnit.Framework;
-using ViRSE.Core.VComponents.PluginInterfaces;
+using VE2.Core.VComponents.PluginInterfaces;
 using UnityEngine;
-using ViRSE.Common;
-using VIRSE.Core.VComponents.InteractableInterfaces;
-using ViRSE.Core.VComponents.NonInteractableInterfaces;
-using ViRSE.Core.VComponents.RaycastInterfaces;
-using ViRSE.Core.VComponents.Internal;
+using VE2.Common;
+using VE2.Core.VComponents.InteractableInterfaces;
+using VE2.Core.VComponents.NonInteractableInterfaces;
+using VE2.Core.VComponents.RaycastInterfaces;
+using VE2.Core.VComponents.Internal;
 
-namespace ViRSE.Core.VComponents.Tests
+namespace VE2.Core.VComponents.Tests
 {
     public class PushActivatableTests
     {
@@ -56,7 +56,7 @@ namespace ViRSE.Core.VComponents.Tests
         }
     }
 
-    internal class V_ToggleActivatableStub : IV_ToggleActivatable, IRangedClickPlayerInteractableIntegrator, ICollidePlayerInteractableIntegrator
+    public class V_ToggleActivatableStub : IV_ToggleActivatable, IRangedClickPlayerInteractableIntegrator, ICollidePlayerInteractableIntegrator
     {
         #region Plugin Interfaces
         ISingleInteractorActivatableStateModule IV_ToggleActivatable._StateModule => _ToggleActivatable.StateModule;

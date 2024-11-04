@@ -1,17 +1,16 @@
 using NSubstitute;
 using NUnit.Framework;
-using ViRSE.Core.Player;
+using VE2.Core.Player;
 using System;
-using ViRSE.Core.VComponents.Tests;
-using ViRSE.Core.VComponents.PluginInterfaces;
+using VE2.Core.VComponents.Tests;
+using VE2.Core.VComponents.PluginInterfaces;
 using UnityEngine;
-using ViRSE.Common;
-using static ViRSE.Common.CoreCommonSerializables;
-using VIRSE.Common;
-using ViRSE.Core.VComponents.RaycastInterfaces;
-using ViRSE.Core.VComponents.Internal;
+using VE2.Common;
+using static VE2.Common.CoreCommonSerializables;
+using VE2.Core.VComponents.RaycastInterfaces;
+using VE2.Core.VComponents.Internal;
 
-namespace ViRSE.Core.Tests
+namespace VE2.Core.Tests
 {
     public class PushActivatableTests
     {
@@ -58,12 +57,12 @@ namespace ViRSE.Core.Tests
                 });
 
             //Create the player (2d)
-            ViRSEPlayerService playerService = new(
+            PlayerService playerService = new(
                 new PlayerTransformData(),
                 new PlayerStateConfig(),
                 false,
                 true,
-                Substitute.For<ViRSEPlayerStateModuleContainer>(),
+                Substitute.For<PlayerStateModuleContainer>(),
                 playerSettingsProviderStub,
                 Substitute.For<IPlayerAppearanceOverridesProvider>(),
                 multiplayerSupportStub,

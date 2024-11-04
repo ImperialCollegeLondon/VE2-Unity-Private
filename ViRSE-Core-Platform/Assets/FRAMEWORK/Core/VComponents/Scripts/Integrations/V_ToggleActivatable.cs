@@ -1,13 +1,13 @@
 using System;
 using UnityEngine;
-using ViRSE.Common;
-using ViRSE.Core.VComponents.NonInteractableInterfaces;
-using ViRSE.Core.VComponents.RaycastInterfaces;
-using ViRSE.Core.VComponents.PluginInterfaces;
-using VIRSE.Core.VComponents.InteractableInterfaces;
-using ViRSE.Core.VComponents.Internal;
+using VE2.Common;
+using VE2.Core.VComponents.NonInteractableInterfaces;
+using VE2.Core.VComponents.RaycastInterfaces;
+using VE2.Core.VComponents.PluginInterfaces;
+using VE2.Core.VComponents.InteractableInterfaces;
+using VE2.Core.VComponents.Internal;
 
-namespace ViRSE.Core.VComponents.Integration
+namespace VE2.Core.VComponents.Integration
 {
     internal class V_ToggleActivatable : MonoBehaviour, IV_ToggleActivatable, IRangedClickPlayerInteractableIntegrator, ICollidePlayerInteractableIntegrator
     {
@@ -29,7 +29,7 @@ namespace ViRSE.Core.VComponents.Integration
         private void OnEnable()
         {
             string id = "Activatable-" + gameObject.name; 
-            _toggleActivatable = new ToggleActivatable(_config, _state, id, ViRSECoreServiceLocator.Instance.WorldStateModulesContainer);
+            _toggleActivatable = new ToggleActivatable(_config, _state, id, VE2CoreServiceLocator.Instance.WorldStateModulesContainer);
         }
 
         private void FixedUpdate()

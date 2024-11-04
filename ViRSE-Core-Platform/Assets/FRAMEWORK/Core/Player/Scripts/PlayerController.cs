@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using VIRSE.Common;
+using VE2.Common;
 
-namespace ViRSE.Core.Player 
+namespace VE2.Core.Player 
 {
     public abstract class PlayerController : MonoBehaviour
     {

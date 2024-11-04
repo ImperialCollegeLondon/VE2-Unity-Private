@@ -1,8 +1,8 @@
 using System;
 using UnityEngine;
-using ViRSE.Common;
+using VE2.Common;
 
-namespace ViRSE.Core.Common
+namespace VE2.Core.Common
 {
     [Serializable]
     public class RepeatedTransmissionConfig : TransmissionConfig

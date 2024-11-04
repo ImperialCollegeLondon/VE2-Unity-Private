@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace ViRSE.VComponents
+namespace VE2.VComponents
 {
     public class GrabbableInteractionModule : MonoBehaviour
     {

@@ -6,12 +6,12 @@ using System.Net;
 using static NonCoreCommonSerializables;
 using UnityEngine.SceneManagement;
 using System.Linq;
-using ViRSE.PlatformNetworking;
-using static ViRSE.PlatformNetworking.PlatformSerializables;
-using static ViRSE.Common.CoreCommonSerializables;
-using ViRSE.Common;
+using VE2.PlatformNetworking;
+using static VE2.PlatformNetworking.PlatformSerializables;
+using static VE2.Common.CoreCommonSerializables;
+using VE2.Common;
 
-namespace ViRSE.NonCore.Platform.Private
+namespace VE2.NonCore.Platform.Private
 {
     public static class PlatformServiceFactory
     {

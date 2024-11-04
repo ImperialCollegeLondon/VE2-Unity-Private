@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using VIRSE.Common;
-using static ViRSE.Common.CoreCommonSerializables;
+using VE2.Common;
+using static VE2.Common.CoreCommonSerializables;
 
-namespace ViRSE.InstanceNetworking
+namespace VE2.InstanceNetworking
 {
     public class RemoteAvatarController : MonoBehaviour
     {
@@ -21,7 +21,7 @@ namespace ViRSE.InstanceNetworking
 
         private List<Material> _colorMaterials = new();
 
-        private ViRSEAvatarAppearance _currentRemoteAvatarAppearance;
+        private AvatarAppearance _currentRemoteAvatarAppearance;
         private GameObject _activeHead;
         private GameObject _activeTorso;
 
@@ -85,7 +85,7 @@ namespace ViRSE.InstanceNetworking
             }
         }
 
-        public void HandleReceiveAvatarAppearance(ViRSEAvatarAppearance newAvatarAppearance)
+        public void HandleReceiveAvatarAppearance(AvatarAppearance newAvatarAppearance)
         {
             if (_currentRemoteAvatarAppearance != null && _currentRemoteAvatarAppearance.Equals(newAvatarAppearance))
                 return;

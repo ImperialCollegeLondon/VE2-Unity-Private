@@ -1,6 +1,6 @@
 using UnityEngine;
-using ViRSE.Core.Player;
-using VIRSE.Core.VComponents.InteractableInterfaces;
+using VE2.Core.Player;
+using VE2.Core.VComponents.InteractableInterfaces;
 
 public class InteractorVR : PointerInteractor
 {

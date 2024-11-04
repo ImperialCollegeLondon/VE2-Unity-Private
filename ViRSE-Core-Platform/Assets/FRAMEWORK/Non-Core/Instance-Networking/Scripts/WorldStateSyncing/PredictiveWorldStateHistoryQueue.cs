@@ -8,7 +8,7 @@ using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
 
-namespace ViRSE.InstanceNetworking
+namespace VE2.InstanceNetworking
 {
     [BurstCompile]
     public class PredictiveWorldStateHistoryQueue

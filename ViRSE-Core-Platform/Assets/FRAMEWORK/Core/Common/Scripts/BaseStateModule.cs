@@ -1,9 +1,9 @@
 using System;
 using UnityEngine;
-using ViRSE.Common;
-using static ViRSE.Common.CoreCommonSerializables;
+using VE2.Common;
+using static VE2.Common.CoreCommonSerializables;
 
-namespace ViRSE.Core.Common
+namespace VE2.Core.Common
 {
     [Serializable]
     public class BaseStateConfig
@@ -19,12 +19,12 @@ namespace ViRSE.Core.Common
         [SpaceArea(spaceAfter: 10, Order = -1), SerializeField, IgnoreParent] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new();
 
         [SerializeField, HideInInspector] public bool MultiplayerSupportPresent => MultiplayerSupport != null;
-        public IMultiplayerSupport MultiplayerSupport => ViRSECoreServiceLocator.Instance.MultiplayerSupport;
+        public IMultiplayerSupport MultiplayerSupport => VE2CoreServiceLocator.Instance.MultiplayerSupport;
     }
 
     public abstract class BaseStateModule : IBaseStateModule
     {
-        public ViRSESerializable State { get; }
+        public VE2Serializable State { get; }
         protected BaseStateConfig Config { get; private set; }
         private readonly BaseStateModuleContainer _baseStateContainer;
 
@@ -37,7 +37,7 @@ namespace ViRSE.Core.Common
         public float TransmissionFrequency => Config.RepeatedTransmissionConfig.TransmissionFrequency;
 
 
-        public BaseStateModule(ViRSESerializable state, BaseStateConfig config, BaseStateModuleContainer baseStateContainer)
+        public BaseStateModule(VE2Serializable state, BaseStateConfig config, BaseStateModuleContainer baseStateContainer)
         {
             State = state;
             Config = config;
@@ -67,7 +67,7 @@ namespace ViRSE.Core.Common
         public byte[] StateAsBytes { get => State.Bytes; set => UpdateBytes(value); }
         protected abstract void UpdateBytes(byte[] newBytes);
 
-        public BaseWorldStateModule(ViRSESerializable state, BaseStateConfig config, string id, WorldStateModulesContainer worldStateModulesContainer) : base(state, config, worldStateModulesContainer)
+        public BaseWorldStateModule(VE2Serializable state, BaseStateConfig config, string id, WorldStateModulesContainer worldStateModulesContainer) : base(state, config, worldStateModulesContainer)
         {
             ID = id;
         }

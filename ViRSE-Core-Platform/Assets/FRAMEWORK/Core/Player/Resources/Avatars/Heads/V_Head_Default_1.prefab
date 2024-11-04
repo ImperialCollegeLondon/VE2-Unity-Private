@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6265428145243008965}
   m_Layer: 0
-  m_Name: ViRSE_Head_Default_1
+  m_Name: V_Head_Default_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

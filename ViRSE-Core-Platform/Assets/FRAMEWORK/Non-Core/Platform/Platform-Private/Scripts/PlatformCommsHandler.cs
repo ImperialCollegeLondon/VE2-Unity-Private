@@ -4,11 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using UnityEngine;
-using ViRSE.Common;
+using VE2.Common;
 using DRMessageReader = DarkRift.DarkRiftReader;
 using DRMessageWrapper = DarkRift.Message;
 
-namespace ViRSE.PlatformNetworking
+namespace VE2.PlatformNetworking
 {
     public class PlatformCommsHandler : IPlatformCommsHandler
     {

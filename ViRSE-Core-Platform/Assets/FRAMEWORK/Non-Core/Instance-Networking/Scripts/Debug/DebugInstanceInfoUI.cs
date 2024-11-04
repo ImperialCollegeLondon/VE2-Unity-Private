@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
-using ViRSE.InstanceNetworking;
-using ViRSE.Core;
+using VE2.InstanceNetworking;
+using VE2.Core;
 using static InstanceSyncSerializables;
 
 public class DebugInstanceInfoUI : MonoBehaviour

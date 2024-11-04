@@ -1,6 +1,6 @@
-using VIRSE.Core.VComponents.InteractableInterfaces;
+using VE2.Core.VComponents.InteractableInterfaces;
 
-namespace ViRSE.Core.VComponents.RaycastInterfaces
+namespace VE2.Core.VComponents.RaycastInterfaces
 {
     public interface IRangedPlayerInteractableIntegrator //: IGeneralPlayerInteractable
     {

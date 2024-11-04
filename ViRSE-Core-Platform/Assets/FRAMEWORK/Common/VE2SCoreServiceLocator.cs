@@ -2,25 +2,25 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using static ViRSE.Common.CoreCommonSerializables;
+using static VE2.Common.CoreCommonSerializables;
 
-namespace ViRSE.Common
+namespace VE2.Common
 {
     /* A number of these service references should exist at editor time, so inspectors can respond to their presence 
     *  These service integrations have their GameObject name recorded in the locator so they can be re-located after a domain reload
     *  Services/containers that do NOT record GO names exist at runtime only */
 
     [ExecuteInEditMode]
-    public class ViRSECoreServiceLocator : MonoBehaviour
+    public class VE2CoreServiceLocator : MonoBehaviour
     {
-        private static ViRSECoreServiceLocator _instance;
-        public static ViRSECoreServiceLocator Instance { //Reload-proof singleton
+        private static VE2CoreServiceLocator _instance;
+        public static VE2CoreServiceLocator Instance { //Reload-proof singleton
             get {
                 if (_instance == null)
-                    _instance = FindFirstObjectByType<ViRSECoreServiceLocator>();
+                    _instance = FindFirstObjectByType<VE2CoreServiceLocator>();
 
                 if (_instance == null && !Application.isPlaying)
-                    _instance = new GameObject($"ViRSECoreServiceLocator{SceneManager.GetActiveScene().name}").AddComponent<ViRSECoreServiceLocator>();
+                    _instance = new GameObject($"VE2CoreServiceLocator{SceneManager.GetActiveScene().name}").AddComponent<VE2CoreServiceLocator>();
 
                 return _instance;
             }
@@ -108,7 +108,7 @@ namespace ViRSE.Common
         //#############################################################################################
 
         public WorldStateModulesContainer WorldStateModulesContainer {get; private set;} = new();
-        public ViRSEPlayerStateModuleContainer ViRSEPlayerStateModuleContainer {get; private set;} = new();
+        public PlayerStateModuleContainer ViRSEPlayerStateModuleContainer {get; private set;} = new();
 
         //##################################### INPUT HANDLER #########################################
         //#############################################################################################
@@ -154,8 +154,8 @@ namespace ViRSE.Common
         private void Awake()
         {
             _instance = this;
-            gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
-            //gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
+            //gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
+            gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
         }
 
         private void OnDestroy() 
@@ -203,7 +203,7 @@ namespace ViRSE.Common
         public override void Reset() => _worldstateSyncableModules.Clear();
     }
 
-    public class ViRSEPlayerStateModuleContainer : BaseStateModuleContainer
+    public class PlayerStateModuleContainer : BaseStateModuleContainer
     {
         public IPlayerStateModule PlayerStateModule {get; private set;}
         public event Action<IPlayerStateModule> OnPlayerStateModuleRegistered;

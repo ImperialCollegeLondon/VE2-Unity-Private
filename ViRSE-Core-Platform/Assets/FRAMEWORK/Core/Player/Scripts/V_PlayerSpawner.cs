@@ -1,11 +1,11 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using ViRSE.Common;
-using ViRSE.Core.Common;
-using VIRSE.Common;
+using VE2.Common;
+using VE2.Core.Common;
+using VE2.Common;
 
-namespace ViRSE.Core.Player
+namespace VE2.Core.Player
 {
     [Serializable]
     public class PlayerStateConfig : BaseStateConfig
@@ -27,7 +27,7 @@ namespace ViRSE.Core.Player
         [SerializeField, HideInInspector] private bool _transformDataSetup = false;
         [SerializeField, HideInInspector] private PlayerTransformData _playerTransformData = new();
 
-        private ViRSEPlayerService _playerService;
+        private PlayerService _playerService;
         private bool _xrInitialized = false;
 
         private void OnEnable() 
@@ -39,7 +39,7 @@ namespace ViRSE.Core.Player
                 _transformDataSetup = true;
             }
 
-            if (ViRSECoreServiceLocator.Instance.PlayerSettingsProvider == null) 
+            if (VE2CoreServiceLocator.Instance.PlayerSettingsProvider == null) 
             {
                 Debug.LogError("Error, V_PlayerSpawner cannot spawn player, no player settings provider found");
                 return;
@@ -51,17 +51,17 @@ namespace ViRSE.Core.Player
             //TODO, maybe we have the service in charge of this async stuff, then its easier to test
             //Although, the service is doing a lot already, the integration maybe isn't the worst place for this..
             //its not like we CAN'T test a Monobehaviour, we can just mock the service locator singleton
-            if (ViRSECoreServiceLocator.Instance.PlayerSettingsProvider.ArePlayerSettingsReady)
+            if (VE2CoreServiceLocator.Instance.PlayerSettingsProvider.ArePlayerSettingsReady)
                 HandlePlayerSettingsReady();
             else
-                ViRSECoreServiceLocator.Instance.PlayerSettingsProvider.OnPlayerSettingsReady += HandlePlayerSettingsReady; //TODO- Maybe just wire this into the PlayerService?
+                VE2CoreServiceLocator.Instance.PlayerSettingsProvider.OnPlayerSettingsReady += HandlePlayerSettingsReady; //TODO- Maybe just wire this into the PlayerService?
         }
 
         private IEnumerator InitializeXR()
         {
-            yield return ViRSECoreServiceLocator.Instance.XRManagerWrapper.InitializeLoader();
+            yield return VE2CoreServiceLocator.Instance.XRManagerWrapper.InitializeLoader();
 
-            if (ViRSECoreServiceLocator.Instance.XRManagerWrapper.ActiveLoader == null)
+            if (VE2CoreServiceLocator.Instance.XRManagerWrapper.ActiveLoader == null)
             {
                 Debug.LogError("Failed to initialize XR Loader.");
             }
@@ -74,7 +74,7 @@ namespace ViRSE.Core.Player
 
         private void HandlePlayerSettingsReady()
         {
-            ViRSECoreServiceLocator.Instance.PlayerSettingsProvider.OnPlayerSettingsReady -= HandlePlayerSettingsReady;
+            VE2CoreServiceLocator.Instance.PlayerSettingsProvider.OnPlayerSettingsReady -= HandlePlayerSettingsReady;
 
             if (enableVR && !_xrInitialized)
                 StartCoroutine(InitializePlayerServiceAfterXRInit());
@@ -92,7 +92,7 @@ namespace ViRSE.Core.Player
 
         private void InitializePlayerService()
         {
-            _playerService = ViRSEPlayerServiceFactory.Create(_playerTransformData, playerStateConfig, enableVR, enable2D);
+            _playerService = VE2PlayerServiceFactory.Create(_playerTransformData, playerStateConfig, enableVR, enable2D);
         }
 
         private void FixedUpdate() 
@@ -104,10 +104,10 @@ namespace ViRSE.Core.Player
         {
             _playerService?.TearDown();
 
-            if (enableVR && ViRSECoreServiceLocator.Instance.XRManagerWrapper.IsInitializationComplete)
+            if (enableVR && VE2CoreServiceLocator.Instance.XRManagerWrapper.IsInitializationComplete)
             {
-                ViRSECoreServiceLocator.Instance.XRManagerWrapper.StopSubsystems();
-                ViRSECoreServiceLocator.Instance.XRManagerWrapper.DeinitializeLoader();
+                VE2CoreServiceLocator.Instance.XRManagerWrapper.StopSubsystems();
+                VE2CoreServiceLocator.Instance.XRManagerWrapper.DeinitializeLoader();
             }
         }
     }

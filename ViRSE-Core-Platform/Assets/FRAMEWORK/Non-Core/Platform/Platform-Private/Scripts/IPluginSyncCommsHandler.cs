@@ -2,9 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
-using ViRSE.Common;
+using VE2.Common;
 
-namespace ViRSE.PlatformNetworking
+namespace VE2.PlatformNetworking
 {
     public interface IPlatformCommsHandler
     {

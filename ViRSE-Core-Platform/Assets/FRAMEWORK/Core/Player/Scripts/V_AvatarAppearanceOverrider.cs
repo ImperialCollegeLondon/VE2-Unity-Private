@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using ViRSE.Common;
-using static ViRSE.Common.CoreCommonSerializables;
+using VE2.Common;
+using static VE2.Common.CoreCommonSerializables;
 
-namespace ViRSE.Core.Player
+namespace VE2.Core.Player
 {
     [ExecuteInEditMode]
     public class V_AvatarAppearanceOverrider : MonoBehaviour, IPlayerAppearanceOverridesProvider
@@ -46,7 +46,7 @@ namespace ViRSE.Core.Player
         {
             if (!Application.isPlaying)
             {
-                ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider = this;
+                VE2CoreServiceLocator.Instance.PlayerAppearanceOverridesProvider = this;
                 return;
             }
         }

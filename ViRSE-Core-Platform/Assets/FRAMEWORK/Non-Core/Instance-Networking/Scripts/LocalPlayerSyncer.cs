@@ -1,14 +1,14 @@
 using static InstanceSyncSerializables;
-using ViRSE.Common;
-using static ViRSE.Common.CoreCommonSerializables;
+using VE2.Common;
+using static VE2.Common.CoreCommonSerializables;
 
-namespace ViRSE.InstanceNetworking
+namespace VE2.InstanceNetworking
 {
     public static class LocalPlayerSyncerFactory 
     {
         public static LocalPlayerSyncer Create(InstanceService instanceService)
         {
-            return new LocalPlayerSyncer(instanceService, ViRSECoreServiceLocator.Instance.ViRSEPlayerStateModuleContainer);
+            return new LocalPlayerSyncer(instanceService, VE2CoreServiceLocator.Instance.ViRSEPlayerStateModuleContainer);
         }
     }
 
@@ -16,10 +16,10 @@ namespace ViRSE.InstanceNetworking
     {
         private int _cycleNumber = 0;
         private readonly InstanceService _instanceService;
-        private readonly ViRSEPlayerStateModuleContainer _virsePlayerContainer;
+        private readonly PlayerStateModuleContainer _virsePlayerContainer;
         private IPlayerStateModule _playerStateModule => _virsePlayerContainer.PlayerStateModule;
 
-        public LocalPlayerSyncer(InstanceService instanceSevice, ViRSEPlayerStateModuleContainer virsePlayerContainer)
+        public LocalPlayerSyncer(InstanceService instanceSevice, PlayerStateModuleContainer virsePlayerContainer)
         {
             _instanceService = instanceSevice;
 
@@ -31,7 +31,7 @@ namespace ViRSE.InstanceNetworking
                 HandlePlayerStateModuleRegistered(_virsePlayerContainer.PlayerStateModule);
         }
 
-        private void HandleLocalAppearanceChanged(ViRSEAvatarAppearance appearance)
+        private void HandleLocalAppearanceChanged(AvatarAppearance appearance)
         {
             AvatarAppearanceWrapper avatarAppearanceWrapper = new(appearance != null, appearance);
             _instanceService.SendAvatarAppearanceUpdate(avatarAppearanceWrapper.Bytes);
@@ -59,7 +59,7 @@ namespace ViRSE.InstanceNetworking
             bool onTransmissionFrame = _cycleNumber % (int)(50 / _playerStateModule.TransmissionFrequency) == 0;
             if (onTransmissionFrame)
             {
-                ViRSESerializable playerState = _playerStateModule.State; //Doesn't include appearance
+                VE2Serializable playerState = _playerStateModule.State; //Doesn't include appearance
                 PlayerStateWrapper playerStateWrapper = new(_instanceService.LocalClientID, playerState.Bytes);
 
                 _instanceService.SendPlayerState(playerStateWrapper.Bytes, _playerStateModule.TransmissionProtocol);

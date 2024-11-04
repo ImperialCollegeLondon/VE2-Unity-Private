@@ -1,26 +1,25 @@
 using UnityEngine;
-using ViRSE.Common;
-using VIRSE.Common;
-using static ViRSE.Common.CoreCommonSerializables;
+using VE2.Common;
+using static VE2.Common.CoreCommonSerializables;
 
-namespace ViRSE.Core.Player
+namespace VE2.Core.Player
 {
-    public static class ViRSEPlayerServiceFactory
+    public static class VE2PlayerServiceFactory
     {
-        public static ViRSEPlayerService Create(PlayerTransformData state, PlayerStateConfig config, bool enableVR, bool enable2D)
+        public static PlayerService Create(PlayerTransformData state, PlayerStateConfig config, bool enableVR, bool enable2D)
         {
-            return new ViRSEPlayerService(state, config, enableVR, enable2D, 
-                ViRSECoreServiceLocator.Instance.ViRSEPlayerStateModuleContainer, 
-                ViRSECoreServiceLocator.Instance.PlayerSettingsProvider, 
-                ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider,
-                ViRSECoreServiceLocator.Instance.MultiplayerSupport, 
-                ViRSECoreServiceLocator.Instance.InputHandler,
+            return new PlayerService(state, config, enableVR, enable2D, 
+                VE2CoreServiceLocator.Instance.ViRSEPlayerStateModuleContainer, 
+                VE2CoreServiceLocator.Instance.PlayerSettingsProvider, 
+                VE2CoreServiceLocator.Instance.PlayerAppearanceOverridesProvider,
+                VE2CoreServiceLocator.Instance.MultiplayerSupport, 
+                VE2CoreServiceLocator.Instance.InputHandler,
                 new RaycastProvider(),
-                ViRSECoreServiceLocator.Instance.XRManagerWrapper);
+                VE2CoreServiceLocator.Instance.XRManagerWrapper);
         }
     }
 
-    public class ViRSEPlayerService  
+    public class PlayerService  
     {
         private readonly PlayerStateModule _playerStateModule;
         private readonly PlayerController2D _player2D;
@@ -32,11 +31,11 @@ namespace ViRSE.Core.Player
 
         private PlayerController _activePlayer => _playerStateModule.PlayerTransformData.IsVRMode? _playerVR : _player2D;
 
-        public ViRSEPlayerService(PlayerTransformData state, PlayerStateConfig config, bool enableVR, bool enable2D, 
-            ViRSEPlayerStateModuleContainer virsePlayerStateModuleContainer, IPlayerSettingsProvider playerSettingsProvider, IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider, 
+        public PlayerService(PlayerTransformData state, PlayerStateConfig config, bool enableVR, bool enable2D, 
+            PlayerStateModuleContainer playerStateModuleContainer, IPlayerSettingsProvider playerSettingsProvider, IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider, 
             IMultiplayerSupport multiplayerSupport, IInputHandler inputHandler, IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper)
         {
-            _playerStateModule = new(state, config, virsePlayerStateModuleContainer, playerSettingsProvider, playerAppearanceOverridesProvider);
+            _playerStateModule = new(state, config, playerStateModuleContainer, playerSettingsProvider, playerAppearanceOverridesProvider);
             _playerStateModule.OnAvatarAppearanceChanged += HandleAvatarAppearanceChanged;
 
             _enable2D = enable2D;
@@ -103,7 +102,7 @@ namespace ViRSE.Core.Player
             }
         }
 
-        private void HandleAvatarAppearanceChanged(ViRSEAvatarAppearance appearance)
+        private void HandleAvatarAppearanceChanged(AvatarAppearance appearance)
         {
             //TODO - Change local avatar
         }   

@@ -4,17 +4,17 @@ using static NonCoreCommonSerializables;
 using static InstanceSyncSerializables;
 using System;
 using System.Linq;
-using static ViRSE.InstanceNetworking.V_InstanceIntegration;
-using ViRSE.Common;
+using static VE2.InstanceNetworking.V_InstanceIntegration;
+using VE2.Common;
 
-namespace ViRSE.InstanceNetworking
+namespace VE2.InstanceNetworking
 {
     public static class InstanceServiceFactory
     {
         public static InstanceService Create(LocalClientIdWrapper localClientIDWrapper, bool connectAutomatically, ConnectionStateDebugWrapper connectionStateDebugWrapper) 
         {
             InstanceNetworkingCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
-            return new InstanceService(commsHandler, localClientIDWrapper, connectionStateDebugWrapper, ViRSENonCoreServiceLocator.Instance.InstanceNetworkSettingsProvider, connectAutomatically);
+            return new InstanceService(commsHandler, localClientIDWrapper, connectionStateDebugWrapper, VE2NonCoreServiceLocator.Instance.InstanceNetworkSettingsProvider, connectAutomatically);
         }
     }
 

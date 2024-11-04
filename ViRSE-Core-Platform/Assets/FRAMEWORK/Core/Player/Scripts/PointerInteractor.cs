@@ -1,9 +1,9 @@
 using UnityEngine;
-using ViRSE.Common;
-using ViRSE.Core.Common;
-using VIRSE.Core.VComponents.InteractableInterfaces;
+using VE2.Common;
+using VE2.Core.Common;
+using VE2.Core.VComponents.InteractableInterfaces;
 
-namespace ViRSE.Core.Player
+namespace VE2.Core.Player
 {
     public abstract class PointerInteractor : MonoBehaviour 
     {

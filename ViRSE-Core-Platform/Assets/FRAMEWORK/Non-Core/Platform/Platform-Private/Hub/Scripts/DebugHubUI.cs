@@ -1,9 +1,9 @@
 using TMPro;
 using UnityEngine;
-using ViRSE.Core;
-using ViRSE.NonCore.Platform.Private;
-using ViRSE.PlatformNetworking;
-using static ViRSE.PlatformNetworking.PlatformSerializables;
+using VE2.Core;
+using VE2.NonCore.Platform.Private;
+using VE2.PlatformNetworking;
+using static VE2.PlatformNetworking.PlatformSerializables;
 
 public class DebugHubUI : MonoBehaviour
 {

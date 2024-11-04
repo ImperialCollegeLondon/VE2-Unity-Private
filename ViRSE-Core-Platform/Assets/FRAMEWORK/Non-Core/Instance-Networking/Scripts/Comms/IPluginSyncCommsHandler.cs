@@ -2,9 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
-using ViRSE.Common;
+using VE2.Common;
 
-namespace ViRSE.InstanceNetworking
+namespace VE2.InstanceNetworking
 {
     public interface IPluginSyncCommsHandler
     {

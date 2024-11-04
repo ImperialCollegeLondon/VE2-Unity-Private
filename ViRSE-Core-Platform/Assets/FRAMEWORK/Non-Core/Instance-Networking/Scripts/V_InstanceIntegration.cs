@@ -1,9 +1,9 @@
 using System;
 using UnityEngine;
-using ViRSE.Common;
+using VE2.Common;
 using static InstanceSyncSerializables;
 
-namespace ViRSE.InstanceNetworking
+namespace VE2.InstanceNetworking
 {
     [ExecuteInEditMode]
     public class V_InstanceIntegration : MonoBehaviour, IMultiplayerSupport 
@@ -49,13 +49,13 @@ namespace ViRSE.InstanceNetworking
         {
             if (!Application.isPlaying)
             {
-                ViRSECoreServiceLocator.Instance.MultiplayerSupport = this;  
+                VE2CoreServiceLocator.Instance.MultiplayerSupport = this;  
                 return;
             }
 
             //But if we expose this to the customer... how does it go into the service locator???
             //Ok, we cam just make some base class for the settings provider that we can expose to the plugin, the plugin-defined settings provider can just inherit from that. The base can worry about putting itself into the service locator 
-            if (ViRSENonCoreServiceLocator.Instance.InstanceNetworkSettingsProvider == null)
+            if (VE2NonCoreServiceLocator.Instance.InstanceNetworkSettingsProvider == null)
             {
                 Debug.LogError("Can't boot instance integration, no network settings provider found");
                 return;

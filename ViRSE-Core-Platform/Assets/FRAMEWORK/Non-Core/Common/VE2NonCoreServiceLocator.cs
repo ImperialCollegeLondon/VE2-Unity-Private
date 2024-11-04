@@ -9,16 +9,16 @@ using UnityEditor;
 #endif
 
 [ExecuteInEditMode]
-public class ViRSENonCoreServiceLocator : MonoBehaviour
+public class VE2NonCoreServiceLocator : MonoBehaviour
 {
-    private static ViRSENonCoreServiceLocator _instance;
-    public static ViRSENonCoreServiceLocator Instance {
+    private static VE2NonCoreServiceLocator _instance;
+    public static VE2NonCoreServiceLocator Instance {
         get {
             if (_instance == null)
-                _instance = FindFirstObjectByType<ViRSENonCoreServiceLocator>();
+                _instance = FindFirstObjectByType<VE2NonCoreServiceLocator>();
 
             if (_instance == null && !Application.isPlaying)
-                    _instance = new GameObject($"ViRSENonCoreServiceLocator{SceneManager.GetActiveScene().name}").AddComponent<ViRSENonCoreServiceLocator>();
+                    _instance = new GameObject($"VE2NonCoreServiceLocator{SceneManager.GetActiveScene().name}").AddComponent<VE2NonCoreServiceLocator>();
             
             return _instance;
         }
@@ -50,7 +50,7 @@ public class ViRSENonCoreServiceLocator : MonoBehaviour
     private void Awake()
     {
         _instance = this;
-        gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
-        //gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
+        //gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
+        gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
     }
 }

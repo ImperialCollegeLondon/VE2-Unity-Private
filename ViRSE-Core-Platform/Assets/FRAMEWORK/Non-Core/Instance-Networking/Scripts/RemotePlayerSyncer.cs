@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
-using ViRSE.Common;
-using VIRSE.Common;
+using VE2.Common;
+using VE2.Common;
 using static InstanceSyncSerializables;
-using static ViRSE.Common.CoreCommonSerializables;
+using static VE2.Common.CoreCommonSerializables;
 
-namespace ViRSE.InstanceNetworking
+namespace VE2.InstanceNetworking
 {
     public static class RemotePlayerSyncerFactory
     {
@@ -26,8 +26,8 @@ namespace ViRSE.InstanceNetworking
                 instanceService,
                 virseAvatarHeadGameObjects,
                 virseAvatarTorsoGameObjects,
-                ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider.GetHeadOverrideGOs(),
-                ViRSECoreServiceLocator.Instance.PlayerAppearanceOverridesProvider.GetTorsoOverrideGOs());
+                VE2CoreServiceLocator.Instance.PlayerAppearanceOverridesProvider.GetHeadOverrideGOs(),
+                VE2CoreServiceLocator.Instance.PlayerAppearanceOverridesProvider.GetTorsoOverrideGOs());
         }
     }
 

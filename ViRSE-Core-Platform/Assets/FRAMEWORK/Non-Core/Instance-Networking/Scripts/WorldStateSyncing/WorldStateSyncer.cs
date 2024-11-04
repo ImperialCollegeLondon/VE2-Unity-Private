@@ -2,15 +2,15 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using static InstanceSyncSerializables;
-using ViRSE.Common;
+using VE2.Common;
 
-namespace ViRSE.InstanceNetworking
+namespace VE2.InstanceNetworking
 {
     public static class WorldStateSyncerFactory 
     {
         public static WorldStateSyncer Create(InstanceService instanceService) 
         {
-            return new WorldStateSyncer(instanceService, ViRSECoreServiceLocator.Instance.WorldStateModulesContainer);
+            return new WorldStateSyncer(instanceService, VE2CoreServiceLocator.Instance.WorldStateModulesContainer);
         }
     }
 

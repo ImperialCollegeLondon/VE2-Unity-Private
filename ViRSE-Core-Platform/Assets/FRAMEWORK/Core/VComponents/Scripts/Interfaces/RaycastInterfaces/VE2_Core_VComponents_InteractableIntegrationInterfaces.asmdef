@@ -1,7 +1,9 @@
 {
-    "name": "VIRSE.Core.VComponents.InteractableInterfaces",
+    "name": "VE2_Core_VComponents_InteractableIntegrationInterfaces",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "GUID:e600ad6c868daef4e954bddef787b76b"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

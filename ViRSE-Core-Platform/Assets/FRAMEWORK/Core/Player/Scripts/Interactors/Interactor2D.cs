@@ -1,8 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
-using VIRSE.Core.VComponents.InteractableInterfaces;
+using VE2.Core.VComponents.InteractableInterfaces;
 
-namespace ViRSE.Core.Player
+namespace VE2.Core.Player
 {
 
     public class Interactor2D : PointerInteractor

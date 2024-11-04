@@ -6615,7 +6615,7 @@ MonoBehaviour:
   m_SelectedVertices: 
 --- !u!1 &1550410137
 GameObject:
-  m_ObjectHideFlags: 1
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -6624,7 +6624,7 @@ GameObject:
   - component: {fileID: 1550410139}
   - component: {fileID: 1550410138}
   m_Layer: 0
-  m_Name: ViRSECoreServiceLocatorDev
+  m_Name: VE2CoreServiceLocatorDev
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6632,7 +6632,7 @@ GameObject:
   m_IsActive: 1
 --- !u!114 &1550410138
 MonoBehaviour:
-  m_ObjectHideFlags: 1
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -6647,7 +6647,7 @@ MonoBehaviour:
   PlayerOverridesProviderGOName: AvatarOverrider
 --- !u!4 &1550410139
 Transform:
-  m_ObjectHideFlags: 1
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -7932,7 +7932,7 @@ MeshFilter:
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &1910504562
 GameObject:
-  m_ObjectHideFlags: 1
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -7941,7 +7941,7 @@ GameObject:
   - component: {fileID: 1910504564}
   - component: {fileID: 1910504563}
   m_Layer: 0
-  m_Name: ViRSENonCoreServiceLocatorDev
+  m_Name: VE2NonCoreServiceLocatorDev
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7949,7 +7949,7 @@ GameObject:
   m_IsActive: 1
 --- !u!114 &1910504563
 MonoBehaviour:
-  m_ObjectHideFlags: 1
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -7962,7 +7962,7 @@ MonoBehaviour:
   _instanceNetworkSettingsGOName: PlatformIntegration
 --- !u!4 &1910504564
 Transform:
-  m_ObjectHideFlags: 1
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}

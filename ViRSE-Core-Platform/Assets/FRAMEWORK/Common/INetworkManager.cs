@@ -1,7 +1,7 @@
 using System;
-using static ViRSE.Common.CoreCommonSerializables;
+using static VE2.Common.CoreCommonSerializables;
 
-namespace ViRSE.Common //TODO break into different files
+namespace VE2.Common //TODO break into different files
 {
     public interface IMultiplayerSupport
     {
@@ -14,7 +14,7 @@ namespace ViRSE.Common //TODO break into different files
 
     public interface IBaseStateModule 
     {
-        public ViRSESerializable State { get; }
+        public VE2Serializable State { get; }
         public TransmissionProtocol TransmissionProtocol { get; }
         public float TransmissionFrequency { get; }
 
@@ -29,8 +29,8 @@ namespace ViRSE.Common //TODO break into different files
 
     public interface IPlayerStateModule : IBaseStateModule
     {
-        public ViRSEAvatarAppearance AvatarAppearance {get;}
-        public event Action<ViRSEAvatarAppearance> OnAvatarAppearanceChanged;
+        public AvatarAppearance AvatarAppearance {get;}
+        public event Action<AvatarAppearance> OnAvatarAppearanceChanged;
     }
 
     public enum TransmissionProtocol //TODO - move

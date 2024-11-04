@@ -1,8 +1,8 @@
 
 using System;
-using VIRSE.Core.VComponents.InteractableInterfaces;
+using VE2.Core.VComponents.InteractableInterfaces;
 
-namespace ViRSE.Core.VComponents.Internal
+namespace VE2.Core.VComponents.Internal
 {
     internal class RangedClickInteractionModule : RangedInteractionModule, IRangedClickInteractionModule
     {
