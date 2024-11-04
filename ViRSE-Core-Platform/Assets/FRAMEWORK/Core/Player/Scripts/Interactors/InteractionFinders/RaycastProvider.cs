@@ -1,5 +1,5 @@
 using UnityEngine;
-using VE2.Core.VComponents.RaycastInterfaces;
+using VE2.Core.VComponents.InteractableFindables;
 using VE2.Core.VComponents.InteractableInterfaces;
 
 public interface IRaycastProvider

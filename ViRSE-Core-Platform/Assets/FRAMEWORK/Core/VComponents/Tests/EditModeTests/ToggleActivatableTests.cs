@@ -5,7 +5,7 @@ using UnityEngine;
 using VE2.Common;
 using VE2.Core.VComponents.InteractableInterfaces;
 using VE2.Core.VComponents.NonInteractableInterfaces;
-using VE2.Core.VComponents.RaycastInterfaces;
+using VE2.Core.VComponents.InteractableFindables;
 using VE2.Core.VComponents.Internal;
 
 namespace VE2.Core.VComponents.Tests

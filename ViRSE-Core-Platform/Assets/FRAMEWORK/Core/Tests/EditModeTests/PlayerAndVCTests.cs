@@ -7,7 +7,7 @@ using VE2.Core.VComponents.PluginInterfaces;
 using UnityEngine;
 using VE2.Common;
 using static VE2.Common.CoreCommonSerializables;
-using VE2.Core.VComponents.RaycastInterfaces;
+using VE2.Core.VComponents.InteractableFindables;
 using VE2.Core.VComponents.Internal;
 
 namespace VE2.Core.Tests

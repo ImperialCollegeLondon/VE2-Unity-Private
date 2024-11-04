@@ -1,5 +1,5 @@
 {
-    "name": "VE2_Core_VComponents_InteractableIntegrationInterfaces",
+    "name": "VE2_Core_VComponents_InteractableFindables",
     "rootNamespace": "",
     "references": [
         "GUID:e600ad6c868daef4e954bddef787b76b"

@@ -9,8 +9,8 @@
         "VE2.Core.VComponents.NonInteractableInterfaces",
         "VE2.Core.VComponents.PluginInterfaces",
         "VE2.Core.VComponents.Internal",
-        "VE2_Core_VComponents_InteractableIntegrationInterfaces",
-        "VE2.Core.VComponents.InteractableInterfaces"
+        "VE2.Core.VComponents.InteractableInterfaces",
+        "VE2_Core_VComponents_InteractableFindables"
     ],
     "includePlatforms": [
         "Editor"
