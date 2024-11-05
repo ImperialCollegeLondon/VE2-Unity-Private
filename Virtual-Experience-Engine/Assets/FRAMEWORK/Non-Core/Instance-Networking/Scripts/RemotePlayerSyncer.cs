@@ -13,13 +13,13 @@ namespace VE2.InstanceNetworking
         {
             List<GameObject> virseAvatarHeadGameObjects = new()
             {
-                Resources.Load<GameObject>("Avatars/Heads/ViRSE_Head_Default_1"),
-                Resources.Load<GameObject>("Avatars/Heads/ViRSE_Head_Default_2"),
+                Resources.Load<GameObject>("Avatars/Heads/V_Avatar_Head_Default_1"),
+                Resources.Load<GameObject>("Avatars/Heads/V_Avatar_Head_Default_2"),
             };
 
             List<GameObject> virseAvatarTorsoGameObjects = new()
             {
-                Resources.Load<GameObject>("Avatars/Torsos/ViRSE_Torso_Default_1"),
+                Resources.Load<GameObject>("Avatars/Torsos/V_Avatar_Torso_Default_1"),
             };
 
             return new RemotePlayerSyncer(
