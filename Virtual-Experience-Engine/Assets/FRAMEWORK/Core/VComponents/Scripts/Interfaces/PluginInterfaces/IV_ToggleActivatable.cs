@@ -7,7 +7,7 @@ namespace VE2.Core.VComponents.PluginInterfaces
     public interface IV_ToggleActivatable 
     {
         #region State Module Interface
-        protected ISingleInteractorActivatableStateModule _StateModule{ get; }
+        protected ISingleInteractorActivatableStateModule _StateModule { get; }
 
         public UnityEvent OnActivate => _StateModule.OnActivate;
         public UnityEvent OnDeactivate => _StateModule.OnDeactivate;

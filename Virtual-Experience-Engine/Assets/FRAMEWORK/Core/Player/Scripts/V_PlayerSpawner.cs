@@ -3,7 +3,6 @@ using System.Collections;
 using UnityEngine;
 using VE2.Common;
 using VE2.Core.Common;
-using VE2.Common;
 
 namespace VE2.Core.Player
 {
@@ -24,8 +23,8 @@ namespace VE2.Core.Player
         [SerializeField] public bool enable2D;
         [SerializeField, IgnoreParent] public PlayerStateConfig playerStateConfig = new();
 
-        [SerializeField, HideInInspector] private bool _transformDataSetup = false;
-        [SerializeField, HideInInspector] private PlayerTransformData _playerTransformData = new();
+        private bool _transformDataSetup = false;
+        private PlayerTransformData _playerTransformData = new();
 
         private PlayerService _playerService;
         private bool _xrInitialized = false;
