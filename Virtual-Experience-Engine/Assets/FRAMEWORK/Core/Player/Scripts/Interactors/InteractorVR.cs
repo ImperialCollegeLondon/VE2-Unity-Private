@@ -1,10 +1,14 @@
 using UnityEngine;
+using VE2.Common;
+using VE2.Core.Common;
 using VE2.Core.Player;
 using VE2.Core.VComponents.InteractableInterfaces;
 
 public class InteractorVR : PointerInteractor
 {
     [SerializeField] private bool _isRightHand;
+
+    protected override InteractorType InteractorType => _isRightHand ? InteractorType.RightHandVR : InteractorType.LeftHandVR;
 
     protected override void SubscribeToInputHandler(IInputHandler inputHandler)
     {

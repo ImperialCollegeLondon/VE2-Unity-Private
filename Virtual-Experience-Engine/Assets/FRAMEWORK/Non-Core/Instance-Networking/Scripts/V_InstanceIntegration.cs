@@ -32,6 +32,7 @@ namespace VE2.InstanceNetworking
         //TODO - Could we follow the pattern set out by the VCs? Can we just stick this wiring in an interface?
         public bool IsEnabled => enabled && gameObject.activeInHierarchy;
         public string GameObjectName => gameObject.name;
+        public event Action OnConnectedToServer;
         #endregion
 
         #region Debug Interfaces 
@@ -82,6 +83,8 @@ namespace VE2.InstanceNetworking
             _worldStateSyncer = WorldStateSyncerFactory.Create(_instanceService);
             _localPlayerSyncer = LocalPlayerSyncerFactory.Create(_instanceService);
             _remotePlayerSyncer = RemotePlayerSyncerFactory.Create(_instanceService);
+
+            OnConnectedToServer?.Invoke();
         }
 
         private void FixedUpdate()

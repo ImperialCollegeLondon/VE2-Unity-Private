@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
+using VE2.Common;
+using VE2.Core.Common;
 using VE2.Core.VComponents.InteractableInterfaces;
 
 namespace VE2.Core.Player
@@ -8,6 +10,8 @@ namespace VE2.Core.Player
     public class Interactor2D : PointerInteractor
     {
         [SerializeField] private Image reticuleImage;
+
+        protected override InteractorType InteractorType => InteractorType.Mouse2D;
 
         protected override void SubscribeToInputHandler(IInputHandler inputHandler) 
         {
