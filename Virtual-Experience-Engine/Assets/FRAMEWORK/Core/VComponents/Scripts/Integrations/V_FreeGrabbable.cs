@@ -9,38 +9,38 @@ using VE2.Core.VComponents.Internal;
 
 namespace VE2.Core.VComponents.Integration
 {
-    internal class V_FreeGrabbable : MonoBehaviour //IV_ToggleActivatable IRangedClickPlayerInteractableIntegrator, ICollidePlayerInteractableIntegrator
+    internal class V_FreeGrabbable : MonoBehaviour, IRangedGrabPlayerInteractableIntegrator //IV_ToggleActivatable, ICollidePlayerInteractableIntegrator
     {
-        [SerializeField, HideLabel, IgnoreParent] private ToggleActivatableConfig _config = new();
-        [SerializeField, HideInInspector] private SingleInteractorActivatableState _state = new();
+        [SerializeField, HideLabel, IgnoreParent] private FreeGrabbableConfig _config = new();
+        [SerializeField, HideInInspector] private FreeGrabbableState _state = new();
 
         #region Plugin Interfaces
-        //ISingleInteractorActivatableStateModule IV_ToggleActivatable._StateModule => _toggleActivatable.StateModule;
-        //IRangedClickInteractionModule IV_ToggleActivatable._RangedClickModule => _toggleActivatable.RangedClickInteractionModule;
+        //ISingleInteractorActivatableStateModule IV_ToggleActivatable._StateModule => _freeGrabbable.StateModule;
+        //IRangedClickInteractionModule IV_ToggleActivatable._RangedClickModule => _freeGrabbable.RangedClickInteractionModule;
         #endregion
 
         #region Player Interfaces
-        //ICollideInteractionModule ICollidePlayerInteractableIntegrator._CollideInteractionModule => _toggleActivatable.ColliderInteractionModule;
-        //IRangedInteractionModule IRangedPlayerInteractableIntegrator.RangedInteractionModule => _toggleActivatable.RangedClickInteractionModule;
+        //ICollideInteractionModule ICollidePlayerInteractableIntegrator._CollideInteractionModule => _freeGrabbable.ColliderInteractionModule;
+        IRangedInteractionModule IRangedPlayerInteractableIntegrator.RangedInteractionModule => _freeGrabbable.RangedGrabInteractionModule;
         #endregion
 
-        private ToggleActivatable _toggleActivatable = null;
+        private FreeGrabbable _freeGrabbable = null;
 
         private void OnEnable()
         {
-            string id = "Activatable-" + gameObject.name;
-            _toggleActivatable = new ToggleActivatable(_config, _state, id, VE2CoreServiceLocator.Instance.WorldStateModulesContainer);
+            string id = "FreeGrabbable-" + gameObject.name;
+            _freeGrabbable = new FreeGrabbable(_config, _state, id, VE2CoreServiceLocator.Instance.WorldStateModulesContainer,new GameObjectFindProvider(), GetComponent<Rigidbody>());
         }
 
         private void FixedUpdate()
         {
-            _toggleActivatable.HandleFixedUpdate();
+            _freeGrabbable.HandleFixedUpdate();
         }
 
         private void OnDisable()
         {
-            _toggleActivatable.TearDown();
-            _toggleActivatable = null;
+            _freeGrabbable.TearDown();
+            _freeGrabbable = null;
         }
     }
 }

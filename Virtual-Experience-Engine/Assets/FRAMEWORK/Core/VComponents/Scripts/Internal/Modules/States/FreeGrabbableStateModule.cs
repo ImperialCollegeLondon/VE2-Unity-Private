@@ -13,7 +13,7 @@ namespace VE2.Core.VComponents.Internal
     public class FreeGrabbableStateConfig : BaseStateConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
-        [Title("Grab State Settings", ApplyCondition = true)]
+        [Title("LocalInteractorGrab State Settings", ApplyCondition = true)]
         [SerializeField] public UnityEvent OnGrab = new();
 
         [EndGroup(Order = 1)]
@@ -26,17 +26,20 @@ namespace VE2.Core.VComponents.Internal
 
         public UnityEvent OnDrop => _config.OnDrop;
 
-        public event Action<InteractorID> OnGrabInternal;
-        public event Action<InteractorID> OnDropInternal;
+        //internal event Action<InteractorID> OnStateBecomeGrabbed;
+        //internal event Action<InteractorID> OnStateBecomeDropped;
         public bool IsGrabbed { get => _state.IsGrabbed; private set => _state.IsGrabbed = value; }
         public ushort MostRecentInteractingClientID => _state.MostRecentInteractingInteractorID.ClientID;
-
+        public Transform CurrentGrabbingGrabberTransform { get; private set; }
         private FreeGrabbableState _state => (FreeGrabbableState)State;
         private FreeGrabbableStateConfig _config => (FreeGrabbableStateConfig)Config;
+        private readonly IGameObjectFindProvider _gameObjectFindProvider;
 
 
-
-        public FreeGrabbableStateModule(VE2Serializable state, BaseStateConfig config, string id, WorldStateModulesContainer worldStateModulesContainer) : base(state, config, id, worldStateModulesContainer) { }
+        public FreeGrabbableStateModule(VE2Serializable state, BaseStateConfig config, string id, WorldStateModulesContainer worldStateModulesContainer, IGameObjectFindProvider gameObjectFindProvider) : base(state, config, id, worldStateModulesContainer)
+        {
+            _gameObjectFindProvider = gameObjectFindProvider;
+        }
 
         public event Action OnProgrammaticStateChangeFromPlugin;
 
@@ -46,11 +49,22 @@ namespace VE2.Core.VComponents.Internal
             if (IsGrabbed)
                 return;
 
-            _state.MostRecentInteractingInteractorID = interactorID;
-                
-            _state.StateChangeNumber++;
 
-            OnGrabInternal?.Invoke(interactorID);
+
+            string interactorGameobjectName = $"Interactor{interactorID.ClientID}-{interactorID.InteractorType}";
+            GameObject interactorGameobject = _gameObjectFindProvider.FindGameObject(interactorGameobjectName);
+
+            if(interactorGameobject.TryGetComponent(out IInteractor interactor))
+            {
+                CurrentGrabbingGrabberTransform = interactor.Transform;
+                _state.IsGrabbed = true;
+                _state.MostRecentInteractingInteractorID = interactorID;
+                _state.StateChangeNumber++;
+            }
+            else
+            {
+                Debug.LogError($"Could not find Interactor with {interactorID.ClientID} and {interactorID.InteractorType}");
+            }
         }
 
         public void SetDropped(InteractorID interactorID)
@@ -62,8 +76,8 @@ namespace VE2.Core.VComponents.Internal
                 _state.MostRecentInteractingInteractorID = interactorID;
 
             _state.StateChangeNumber++;
-
-            OnDropInternal?.Invoke(interactorID);
+            _state.IsGrabbed = false;
+            CurrentGrabbingGrabberTransform = null;
         }
         //private void InvokeCustomerOnActivateEvent()
         //{
@@ -73,7 +87,7 @@ namespace VE2.Core.VComponents.Internal
         //    }
         //    catch (Exception e)
         //    {
-        //        Debug.Log($"Error when emitting OnGrab from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
+        //        Debug.Log($"Error when emitting OnLocalInteractorGrab from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
         //    }
         //}
 
@@ -85,7 +99,7 @@ namespace VE2.Core.VComponents.Internal
         //    }
         //    catch (Exception e)
         //    {
-        //        Debug.Log($"Error when emitting OnDrop from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
+        //        Debug.Log($"Error when emitting OnLocalInteractorDrop from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
         //    }
         //}
 

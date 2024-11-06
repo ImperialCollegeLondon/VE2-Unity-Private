@@ -15,6 +15,7 @@ namespace VE2.Core.Player
 
         protected Transform _RayOrigin;
         protected const float MAX_RAYCAST_DISTANCE = 10;
+        protected IRangedGrabInteractionModule _CurrentGrabbingGrabbable;
         protected InteractorID _InteractorID => new(_multiplayerSupport == null ? (ushort)0 : _multiplayerSupport.LocalClientID, InteractorType);
         private bool _waitingForMultiplayerSupport => _multiplayerSupport != null && !_multiplayerSupport.IsConnectedToServer;
 
@@ -33,21 +34,25 @@ namespace VE2.Core.Player
             _InputHandler = inputHandler;
             _RaycastProvider = raycastProvider;
 
-            if (_multiplayerSupport != null)
-            {
-                if (_multiplayerSupport.IsConnectedToServer)
-                    HandleConnectToServer();
-                else
-                    _multiplayerSupport.OnConnectedToServer += HandleConnectToServer;
-            }
+            if (_multiplayerSupport != null && !_multiplayerSupport.IsConnectedToServer)
+                _multiplayerSupport.OnConnectedToServer += RenameInteractorToLocalID;
+            else
+                RenameInteractorToLocalID();
 
             SubscribeToInputHandler(_InputHandler);
         }
 
-        private void HandleConnectToServer() 
+        private void RenameInteractorToLocalID() 
         {
-            _multiplayerSupport.OnConnectedToServer -= HandleConnectToServer;
-            gameObject.name = $"Interactor{_multiplayerSupport.LocalClientID}-{InteractorType}";
+            ushort localID = 0;
+
+            if (_multiplayerSupport != null)
+            {
+                _multiplayerSupport.OnConnectedToServer -= RenameInteractorToLocalID;
+                localID = _multiplayerSupport.LocalClientID;
+            }
+
+            gameObject.name = $"Interactor{localID}-{InteractorType}";
         }
 
         protected abstract void SubscribeToInputHandler(IInputHandler inputHandler);
