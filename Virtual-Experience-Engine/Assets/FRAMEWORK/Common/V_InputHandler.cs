@@ -7,14 +7,13 @@ public interface IInputHandler
 {
     public event Action OnMouseLeftClick;
     public event Action OnChangeModePressed;
-    public event Action OnGrabKeyPressed;
+    //public event Action OnGrabKeyPressed;
 }
 
 public class InputHandler : MonoBehaviour, IInputHandler
 {
     public event Action OnMouseLeftClick;
     public event Action OnChangeModePressed;
-    public event Action OnGrabKeyPressed;
 
     private void Update()
     {
@@ -31,11 +30,6 @@ public class InputHandler : MonoBehaviour, IInputHandler
         if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.hKey.wasPressedThisFrame)
         {
             OnChangeModePressed?.Invoke();
-        }
-
-        if (Keyboard.current.fKey.wasPressedThisFrame)
-        {
-            OnGrabKeyPressed?.Invoke();
         }
     }
 }

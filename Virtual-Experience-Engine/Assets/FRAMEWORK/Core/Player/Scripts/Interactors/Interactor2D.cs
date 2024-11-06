@@ -16,17 +16,29 @@ namespace VE2.Core.Player
         protected override void SubscribeToInputHandler(IInputHandler inputHandler) 
         {
             inputHandler.OnMouseLeftClick += HandleLeftClick;
-            inputHandler.OnGrabKeyPressed += HandleGrabKeyPressed;
         }
 
         private void HandleLeftClick()
         {
-            if (TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable))
+            if (_CurrentGrabbingGrabbable != null)
+            {
+                IRangedGrabInteractionModule rangedGrabInteractableToDrop = _CurrentGrabbingGrabbable;
+                _CurrentGrabbingGrabbable = null;
+                DropGrabbable(rangedGrabInteractableToDrop);
+            }
+            else if (TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable))
             {
                 if (!hoveringInteractable.AdminOnly)
                 {
                     if (hoveringInteractable is IRangedClickInteractionModule rangedClickInteractable)
+                    {
                         rangedClickInteractable.Click(_InteractorID.ClientID);
+                    }
+                    else if (hoveringInteractable is IRangedGrabInteractionModule rangedGrabInteractable)
+                    {
+                        _CurrentGrabbingGrabbable = rangedGrabInteractable;
+                        GrabGrabbable(rangedGrabInteractable);
+                    }
                 }
                 else 
                 {
@@ -35,42 +47,16 @@ namespace VE2.Core.Player
             }
         }
 
-        private void HandleGrabKeyPressed()
-        {
-            if(_CurrentGrabbingGrabbable == null)
-            {
-                if (TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable))
-                {
-                    if (!hoveringInteractable.AdminOnly)
-                    {
-                        if (hoveringInteractable is IRangedGrabInteractionModule rangedGrabInteractable)
-                        {
-                            _CurrentGrabbingGrabbable = rangedGrabInteractable;
-                            GrabGrabbable(rangedGrabInteractable);
-                        }                          
-                    }
-                    else
-                    {
-                        //TODO, maybe play an error sound or something
-                    }
-                }
-            }
-            else
-            {
-                IRangedGrabInteractionModule rangedGrabInteractableToDrop = _CurrentGrabbingGrabbable;
-                _CurrentGrabbingGrabbable = null;
-                DropGrabbable(rangedGrabInteractableToDrop);               
-            }
-        }
-
         private void GrabGrabbable(IRangedGrabInteractionModule rangedGrabInteractable)
         {
+            reticuleImage.enabled = false;
             rangedGrabInteractable.LocalInteractorGrab(_InteractorID);
             Debug.Log("Interactor tried to Grab");
         }
 
         private void DropGrabbable(IRangedGrabInteractionModule rangedGrabInteractable)
         {
+            reticuleImage.enabled = true;
             rangedGrabInteractable.LocalInteractorDrop(_InteractorID);
         }
 
@@ -78,7 +64,7 @@ namespace VE2.Core.Player
         {
             if (TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable))
             {
-                bool isAllowedToInteract = !hoveringInteractable.AdminOnly; //TODO: Add admin check
+                bool isAllowedToInteract = !hoveringInteractable.AdminOnly; 
                 reticuleImage.color = isAllowedToInteract ? StaticColors.Instance.tangerine : Color.red;
                 _RaycastHitDebug = hoveringInteractable.ToString();
             }

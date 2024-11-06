@@ -13,7 +13,7 @@ namespace VE2.Core.VComponents.Internal
     public class FreeGrabbableStateConfig : BaseStateConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
-        [Title("LocalInteractorGrab State Settings", ApplyCondition = true)]
+        [Title("Grab State Settings", ApplyCondition = true)]
         [SerializeField] public UnityEvent OnGrab = new();
 
         [EndGroup(Order = 1)]
