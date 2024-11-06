@@ -27,9 +27,9 @@ namespace VE2.Core.VComponents.Tests
             IRangedClickInteractionModule activatablePlayerInterface = activatableRaycastInterface.RangedClickInteractionModule;
 
             //Wire up the customer script to receive the events
-            CustomerScript customerScript = Substitute.For<CustomerScript>();
+            PluginScriptMock customerScript = Substitute.For<PluginScriptMock>();
             activatablePluginInterface.OnActivate.AddListener(customerScript.HandleActivateReceived);
-            activatablePluginInterface.OnDeactivate.AddListener(customerScript.HandleDectivateReceived);
+            activatablePluginInterface.OnDeactivate.AddListener(customerScript.HandleDeactivateReceived);
 
             //Create an ID
             System.Random random = new();
@@ -43,17 +43,17 @@ namespace VE2.Core.VComponents.Tests
 
             // Invoke the click to deactivate
             activatablePlayerInterface.Click(localClientID);
-            customerScript.Received(1).HandleDectivateReceived();
+            customerScript.Received(1).HandleDeactivateReceived();
             Assert.IsFalse(activatablePluginInterface.IsActivated);
             Assert.AreEqual(activatablePluginInterface.MostRecentInteractingClientID, localClientID);
         }
+    }
 
-        public class CustomerScript
-        {
-            public void HandleActivateReceived() { }
+    public class PluginScriptMock
+    {
+        public virtual void HandleActivateReceived() { }
 
-            public void HandleDectivateReceived() { }
-        }
+        public virtual void HandleDeactivateReceived() { }
     }
 
     public class V_ToggleActivatableStub : IV_ToggleActivatable, IRangedClickPlayerInteractableIntegrator, ICollidePlayerInteractableIntegrator

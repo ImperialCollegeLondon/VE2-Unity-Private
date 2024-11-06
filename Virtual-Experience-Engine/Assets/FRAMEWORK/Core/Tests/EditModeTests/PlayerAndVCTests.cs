@@ -22,7 +22,7 @@ namespace VE2.Core.Tests
                 new ToggleActivatableConfig(),
                 new SingleInteractorActivatableState(),
                 "testID",
-                Substitute.For<WorldStateModulesContainer>()
+                new WorldStateModulesContainer()
             );
 
             //Stub out the VC (integration layer) with the activatable
@@ -62,7 +62,7 @@ namespace VE2.Core.Tests
                 new PlayerStateConfig(),
                 false,
                 true,
-                Substitute.For<PlayerStateModuleContainer>(),
+                new PlayerStateModuleContainer(),
                 playerSettingsProviderStub,
                 Substitute.For<IPlayerAppearanceOverridesProvider>(),
                 multiplayerSupportStub,
@@ -78,7 +78,7 @@ namespace VE2.Core.Tests
 
             //Check customer received the activation, and that the interactorID is set
             inputHandlerStub.OnMouseLeftClick += Raise.Event<Action>();
-            PluginScriptMock.Received(100).HandleActivateReceived(); //NOT RIGHT!!! 
+            PluginScriptMock.Received(1).HandleActivateReceived(); 
             Assert.IsTrue(activatablePluginInterface.IsActivated);
             Assert.AreEqual(activatablePluginInterface.MostRecentInteractingClientID, localClientID);
 
@@ -87,13 +87,6 @@ namespace VE2.Core.Tests
             PluginScriptMock.Received(1).HandleDeactivateReceived();
             Assert.IsFalse(activatablePluginInterface.IsActivated);
             Assert.AreEqual(activatablePluginInterface.MostRecentInteractingClientID, localClientID);
-        }
-
-        public class PluginScriptMock
-        {
-            public void HandleActivateReceived() { Debug.Log("Rec"); } //Def NOT called 100 times, just once!
-
-            public void HandleDeactivateReceived() { }
         }
     }
 }
