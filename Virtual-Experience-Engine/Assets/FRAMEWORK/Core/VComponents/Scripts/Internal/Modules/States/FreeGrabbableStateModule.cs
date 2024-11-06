@@ -49,10 +49,10 @@ namespace VE2.Core.VComponents.Internal
             if (IsGrabbed)
                 return;
 
-
-
             string interactorGameobjectName = $"Interactor{interactorID.ClientID}-{interactorID.InteractorType}";
             GameObject interactorGameobject = _gameObjectFindProvider.FindGameObject(interactorGameobjectName);
+
+            Debug.Log("Set grab called, looking for " + interactorGameobjectName);
 
             if(interactorGameobject.TryGetComponent(out IInteractor interactor))
             {

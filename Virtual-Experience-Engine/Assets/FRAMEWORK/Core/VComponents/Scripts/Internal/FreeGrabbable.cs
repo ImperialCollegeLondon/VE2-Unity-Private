@@ -74,7 +74,7 @@ namespace VE2.Core.VComponents.Internal
             if (directionToGrabberMaxVelocityMagnitudeRatio > 1)
                 directionToGrabber /= directionToGrabberMaxVelocityMagnitudeRatio;
             _rigidbody.linearVelocity *= VELOCITY_DAMPING;
-            _rigidbody.linearVelocity += (directionToGrabber / Time.fixedDeltaTime * VELOCITY_SCALE);
+            _rigidbody.linearVelocity += directionToGrabber / Time.fixedDeltaTime * VELOCITY_SCALE;
         }
 
         private void TrackRotation(Quaternion targetRotation)
@@ -83,9 +83,9 @@ namespace VE2.Core.VComponents.Internal
             rotationDelta.ToAngleAxis(out var angleInDegrees, out var rotationAxis);
             if (angleInDegrees > 180f)
                 angleInDegrees -= 360f;
-            var angularVelocity = (rotationAxis * (angleInDegrees * Mathf.Deg2Rad));
+            var angularVelocity = rotationAxis * (angleInDegrees * Mathf.Deg2Rad);
             _rigidbody.angularVelocity *= ANGULAR_VELOCITY_DAMPING;
-            _rigidbody.angularVelocity += (angularVelocity / Time.fixedDeltaTime * ANGULAR_VELOCITY_SCALE);
+            _rigidbody.angularVelocity += angularVelocity / Time.fixedDeltaTime * ANGULAR_VELOCITY_SCALE;
         }
 
         public void TearDown()

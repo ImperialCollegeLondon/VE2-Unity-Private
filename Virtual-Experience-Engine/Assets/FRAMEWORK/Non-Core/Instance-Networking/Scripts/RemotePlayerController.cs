@@ -58,9 +58,9 @@ namespace VE2.InstanceNetworking
         /// </summary>
         public void Initialize(ushort clientID, List<GameObject> virseAvatarHeadGameObjects, List<GameObject> virseAvatarTorsoGameObjects, List<GameObject> avatarHeadOverrideGameObjects, List<GameObject> avatarTorsoOverrideGameObjects)
         {
-            _interactorVRLeftGameObject.name = $"Interactor{clientID}-{InteractorType.Mouse2D}";
-            _interactorVRRightGameObject.name = $"Interactor{clientID}-{InteractorType.LeftHandVR}";
-            _interactor2DGameObject.name = $"Interactor{clientID}-{InteractorType.RightHandVR}";
+            _interactorVRLeftGameObject.name = $"Interactor{clientID}-{InteractorType.LeftHandVR}";
+            _interactorVRRightGameObject.name = $"Interactor{clientID}-{InteractorType.RightHandVR}";
+            _interactor2DGameObject.name = $"Interactor{clientID}-{InteractorType.Mouse2D}";
 
             _virseAvatarHeadGameObjects = virseAvatarHeadGameObjects;
             _virseAvatarTorsoGameObjects = virseAvatarTorsoGameObjects;
