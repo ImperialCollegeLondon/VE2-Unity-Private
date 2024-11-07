@@ -52,7 +52,7 @@ namespace VE2.Core.VComponents.Internal
             string interactorGameobjectName = $"Interactor{interactorID.ClientID}-{interactorID.InteractorType}";
             GameObject interactorGameobject = _gameObjectFindProvider.FindGameObject(interactorGameobjectName);
 
-            if(interactorGameobject.TryGetComponent(out IInteractor interactor))
+            if(_gameObjectFindProvider.TryGetComponent(interactorGameobject, out IInteractor interactor))
             {
                 CurrentGrabbingGrabberTransform = interactor.Transform;
                 _state.IsGrabbed = true;
