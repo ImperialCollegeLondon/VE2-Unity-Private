@@ -451,7 +451,7 @@ GameObject:
   - component: {fileID: 227671775}
   - component: {fileID: 227671774}
   m_Layer: 0
-  m_Name: Sphere
+  m_Name: Grabbable
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5911,6 +5911,7 @@ MonoBehaviour:
   _lightOn: {fileID: 548330449}
   _lightOff: {fileID: 1865241996}
   _pushButtonGO: {fileID: 1250561189}
+  _freeGrabbableGO: {fileID: 227671773}
 --- !u!4 &1499303677
 Transform:
   m_ObjectHideFlags: 0

@@ -9,18 +9,17 @@ using VE2.Core.VComponents.Internal;
 
 namespace VE2.Core.VComponents.Integration
 {
-    internal class V_FreeGrabbable : MonoBehaviour, IRangedGrabPlayerInteractableIntegrator //IV_ToggleActivatable, ICollidePlayerInteractableIntegrator
+    internal class V_FreeGrabbable : MonoBehaviour, IV_FreeGrabbable, IRangedGrabPlayerInteractableIntegrator
     {
         [SerializeField, HideLabel, IgnoreParent] private FreeGrabbableConfig _config = new();
         [SerializeField, HideInInspector] private FreeGrabbableState _state = new();
 
-        #region Plugin Interfaces
-        //ISingleInteractorActivatableStateModule IV_ToggleActivatable._StateModule => _freeGrabbable.StateModule;
-        //IRangedClickInteractionModule IV_ToggleActivatable._RangedClickModule => _freeGrabbable.RangedClickInteractionModule;
+        #region Plugin Interfaces     
+        IFreeGrabbableStateModule IV_FreeGrabbable._StateModule => _service.StateModule;
+        IRangedGrabInteractionModule IV_FreeGrabbable._RangedGrabModule => _service.RangedGrabInteractionModule;
         #endregion
 
         #region Player Interfaces
-        //ICollideInteractionModule ICollidePlayerInteractableIntegrator._CollideInteractionModule => _freeGrabbable.ColliderInteractionModule;
         IRangedInteractionModule IRangedPlayerInteractableIntegrator.RangedInteractionModule => _service.RangedGrabInteractionModule;
         #endregion
 

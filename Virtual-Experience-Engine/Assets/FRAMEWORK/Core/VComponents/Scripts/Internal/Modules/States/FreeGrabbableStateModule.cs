@@ -58,6 +58,15 @@ namespace VE2.Core.VComponents.Internal
                 _state.IsGrabbed = true;
                 _state.MostRecentInteractingInteractorID = interactorID;
                 _state.StateChangeNumber++;
+
+                try
+                {
+                    _config.OnGrab?.Invoke();
+                }
+                catch (Exception e)
+                {
+                    Debug.Log($"Error when emitting OnLocalInteractorGrab from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
+                }
             }
             else
             {
@@ -76,30 +85,16 @@ namespace VE2.Core.VComponents.Internal
             _state.StateChangeNumber++;
             _state.IsGrabbed = false;
             CurrentGrabbingGrabberTransform = null;
-        }
-        //private void InvokeCustomerOnActivateEvent()
-        //{
-        //    try
-        //    {
-        //        _config.OnActivate?.Invoke();
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Debug.Log($"Error when emitting OnLocalInteractorGrab from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
-        //    }
-        //}
 
-        //private void InvokeCustomerOnDeactivateEvent()
-        //{
-        //    try
-        //    {
-        //        _config.OnDeactivate?.Invoke();
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Debug.Log($"Error when emitting OnLocalInteractorDrop from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
-        //    }
-        //}
+            try
+            {
+                _config.OnDrop?.Invoke();
+            }
+            catch (Exception e)
+            {
+                Debug.Log($"Error when emitting OnLocalInteractorDrop from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
+            }
+        }
 
         protected override void UpdateBytes(byte[] newBytes)
         {
