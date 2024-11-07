@@ -16,7 +16,7 @@ namespace VE2.Core.VComponents.Tests
         public void PushActivatable_WhenClicked_EmitsToPlugin()
         {
             //Create the activatable with default values
-            ToggleActivatable toggleActivatable = new (new ToggleActivatableConfig(), new SingleInteractorActivatableState(), "debug", Substitute.For<WorldStateModulesContainer>());
+            ToggleActivatableService toggleActivatable = new (new ToggleActivatableConfig(), new SingleInteractorActivatableState(), "debug", Substitute.For<WorldStateModulesContainer>());
 
             //Stub out the VC (integration layer) with the activatable
             V_ToggleActivatableStub v_activatableStub = new(toggleActivatable);
@@ -68,9 +68,9 @@ namespace VE2.Core.VComponents.Tests
         IRangedInteractionModule IRangedPlayerInteractableIntegrator.RangedInteractionModule => _ToggleActivatable.RangedClickInteractionModule;
         #endregion
 
-        protected ToggleActivatable _ToggleActivatable = null;
+        protected ToggleActivatableService _ToggleActivatable = null;
 
-        public V_ToggleActivatableStub(ToggleActivatable ToggleActivatable)
+        public V_ToggleActivatableStub(ToggleActivatableService ToggleActivatable)
         {
             _ToggleActivatable = ToggleActivatable;
         }

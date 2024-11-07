@@ -21,26 +21,48 @@ namespace VE2.Core.VComponents.Integration
 
         #region Player Interfaces
         //ICollideInteractionModule ICollidePlayerInteractableIntegrator._CollideInteractionModule => _freeGrabbable.ColliderInteractionModule;
-        IRangedInteractionModule IRangedPlayerInteractableIntegrator.RangedInteractionModule => _freeGrabbable.RangedGrabInteractionModule;
+        IRangedInteractionModule IRangedPlayerInteractableIntegrator.RangedInteractionModule => _service.RangedGrabInteractionModule;
         #endregion
 
-        private FreeGrabbable _freeGrabbable = null;
+        private FreeGrabbableService _service = null;
 
         private void OnEnable()
         {
             string id = "FreeGrabbable-" + gameObject.name;
-            _freeGrabbable = new FreeGrabbable(_config, _state, id, VE2CoreServiceLocator.Instance.WorldStateModulesContainer,new GameObjectFindProvider(), GetComponent<Rigidbody>());
+
+            _service = new FreeGrabbableService(
+                _config, 
+                _state, 
+                id, 
+                VE2CoreServiceLocator.Instance.WorldStateModulesContainer,
+                new GameObjectFindProvider(), 
+                GetComponent<Rigidbody>(),
+                Resources.Load<PhysicsConstants>("PhysicsConstants"));
         }
+
+        bool _grabbedLastFixedUpdate = false;
 
         private void FixedUpdate()
         {
-            _freeGrabbable.HandleFixedUpdate();
+            _service.HandleFixedUpdate();
+
+            if (_service.IsGrabbed && !_grabbedLastFixedUpdate)
+            {
+                _grabbedLastFixedUpdate = true;
+                GetComponent<Collider>().enabled = false;
+            }
+            else if (!_service.IsGrabbed && _grabbedLastFixedUpdate)
+            {
+                _grabbedLastFixedUpdate = false;
+                GetComponent<Collider>().enabled = true;
+            }
+            
         }
 
         private void OnDisable()
         {
-            _freeGrabbable.TearDown();
-            _freeGrabbable = null;
+            _service.TearDown();
+            _service = null;
         }
     }
 }

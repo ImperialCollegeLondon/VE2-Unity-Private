@@ -51,7 +51,6 @@ namespace VE2.Core.Player
         {
             reticuleImage.enabled = false;
             rangedGrabInteractable.LocalInteractorGrab(_InteractorID);
-            Debug.Log("Interactor tried to Grab");
         }
 
         private void DropGrabbable(IRangedGrabInteractionModule rangedGrabInteractable)

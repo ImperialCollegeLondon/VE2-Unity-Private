@@ -18,7 +18,7 @@ namespace VE2.Core.Tests
         public void OnUserClick_WithHoveringActivatable_CustomerScriptReceivesOnActivate()
         {
             //Create an activatable with default config and state
-            ToggleActivatable toggleActivatable = new( 
+            ToggleActivatableService toggleActivatable = new( 
                 new ToggleActivatableConfig(),
                 new SingleInteractorActivatableState(),
                 "testID",

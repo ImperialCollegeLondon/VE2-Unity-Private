@@ -15,7 +15,7 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfig = new();
     }
 
-    public class ToggleActivatable
+    public class ToggleActivatableService
     {
         #region Interfaces
         public ISingleInteractorActivatableStateModule StateModule => _StateModule;
@@ -29,7 +29,7 @@ namespace VE2.Core.VComponents.Internal
         private readonly ColliderInteractionModule _ColliderInteractionModule;
         #endregion
 
-        public ToggleActivatable(ToggleActivatableConfig config, VE2Serializable state, string id, WorldStateModulesContainer worldStateModulesContainer)
+        public ToggleActivatableService(ToggleActivatableConfig config, VE2Serializable state, string id, WorldStateModulesContainer worldStateModulesContainer)
         {
             _StateModule = new(state, config.StateConfig, id, worldStateModulesContainer);
             _RangedClickInteractionModule = new(config.RangedInteractionConfig, config.GeneralInteractionConfig);

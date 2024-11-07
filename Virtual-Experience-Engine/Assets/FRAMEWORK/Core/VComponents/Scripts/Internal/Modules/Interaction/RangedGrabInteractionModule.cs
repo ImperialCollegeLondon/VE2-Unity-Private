@@ -16,7 +16,6 @@ namespace VE2.Core.VComponents.Internal
         public void LocalInteractorGrab(InteractorID interactorID)
         {
             OnLocalInteractorGrab?.Invoke(interactorID);
-            UnityEngine.Debug.Log("Local Interactor Grab called");
         }
 
         public void LocalInteractorDrop(InteractorID interactorID)

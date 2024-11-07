@@ -52,8 +52,6 @@ namespace VE2.Core.VComponents.Internal
             string interactorGameobjectName = $"Interactor{interactorID.ClientID}-{interactorID.InteractorType}";
             GameObject interactorGameobject = _gameObjectFindProvider.FindGameObject(interactorGameobjectName);
 
-            Debug.Log("Set grab called, looking for " + interactorGameobjectName);
-
             if(interactorGameobject.TryGetComponent(out IInteractor interactor))
             {
                 CurrentGrabbingGrabberTransform = interactor.Transform;

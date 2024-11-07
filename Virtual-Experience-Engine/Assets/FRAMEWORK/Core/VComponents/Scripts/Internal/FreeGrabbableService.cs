@@ -16,7 +16,7 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfig = new();
     }
 
-    public class FreeGrabbable
+    public class FreeGrabbableService
     {
         #region Interfacess
         public IFreeGrabbableStateModule StateModule => _StateModule;
@@ -28,19 +28,17 @@ namespace VE2.Core.VComponents.Internal
         private readonly RangedGrabInteractionModule _RangedGrabInteractionModule;
         #endregion
 
-        private Rigidbody _rigidbody;
-        private const float DEFAULT_MAX_VELOCITY = 10;
-        private const float DEFAULT_MAX_ANGULAR_VELOCITY = 10;
-        private const float VELOCITY_SCALE = 0.35f;
-        private const float VELOCITY_DAMPING = 0.45f;
-        private const float ANGULAR_VELOCITY_SCALE = 0.35f;
-        private const float ANGULAR_VELOCITY_DAMPING = 0.45f;
+        public bool IsGrabbed => _StateModule.IsGrabbed;
 
-        public FreeGrabbable(FreeGrabbableConfig config, VE2Serializable state, string id, WorldStateModulesContainer worldStateModulesContainer, IGameObjectFindProvider gameObjectFindProvider, Rigidbody rigidbody)
+        private Rigidbody _rigidbody;
+        private PhysicsConstants _physicsConstants;
+
+        public FreeGrabbableService(FreeGrabbableConfig config, VE2Serializable state, string id, WorldStateModulesContainer worldStateModulesContainer, IGameObjectFindProvider gameObjectFindProvider, Rigidbody rigidbody, PhysicsConstants physicsConstants)
         {
             _StateModule = new(state, config.StateConfig, id, worldStateModulesContainer, gameObjectFindProvider);
             _rigidbody  = rigidbody;
             _RangedGrabInteractionModule = new(config.RangedInteractionConfig, config.GeneralInteractionConfig);
+            _physicsConstants = physicsConstants;
 
             _RangedGrabInteractionModule.OnLocalInteractorGrab += HandleGrabFromLocalInteractor;
             _RangedGrabInteractionModule.OnLocalInteractorDrop += HandleDropFromLocalInteractor;
@@ -61,7 +59,6 @@ namespace VE2.Core.VComponents.Internal
             _StateModule.HandleFixedUpdate();
             if(_StateModule.IsGrabbed)
             {
-                Debug.Log("State Module is Grabbed");
                 TrackPosition(_StateModule.CurrentGrabbingGrabberTransform.position);
                 TrackRotation(_StateModule.CurrentGrabbingGrabberTransform.rotation);
             }
@@ -70,11 +67,11 @@ namespace VE2.Core.VComponents.Internal
         private void TrackPosition(Vector3 targetPosition)
         {
             Vector3 directionToGrabber = targetPosition - _rigidbody.position;
-            float directionToGrabberMaxVelocityMagnitudeRatio = directionToGrabber.magnitude / DEFAULT_MAX_VELOCITY;
+            float directionToGrabberMaxVelocityMagnitudeRatio = directionToGrabber.magnitude / _physicsConstants.DefaultMaxAngularVelocity;
             if (directionToGrabberMaxVelocityMagnitudeRatio > 1)
                 directionToGrabber /= directionToGrabberMaxVelocityMagnitudeRatio;
-            _rigidbody.linearVelocity *= VELOCITY_DAMPING;
-            _rigidbody.linearVelocity += directionToGrabber / Time.fixedDeltaTime * VELOCITY_SCALE;
+            _rigidbody.linearVelocity *= _physicsConstants.VelocityDamping;
+            _rigidbody.linearVelocity += directionToGrabber / Time.fixedDeltaTime * _physicsConstants.VelocityScale;
         }
 
         private void TrackRotation(Quaternion targetRotation)
@@ -84,8 +81,8 @@ namespace VE2.Core.VComponents.Internal
             if (angleInDegrees > 180f)
                 angleInDegrees -= 360f;
             var angularVelocity = rotationAxis * (angleInDegrees * Mathf.Deg2Rad);
-            _rigidbody.angularVelocity *= ANGULAR_VELOCITY_DAMPING;
-            _rigidbody.angularVelocity += angularVelocity / Time.fixedDeltaTime * ANGULAR_VELOCITY_SCALE;
+            _rigidbody.angularVelocity *= _physicsConstants.AngularVelocityDamping;
+            _rigidbody.angularVelocity += angularVelocity / Time.fixedDeltaTime * _physicsConstants.AngularVelocityScale;
         }
 
         public void TearDown()
