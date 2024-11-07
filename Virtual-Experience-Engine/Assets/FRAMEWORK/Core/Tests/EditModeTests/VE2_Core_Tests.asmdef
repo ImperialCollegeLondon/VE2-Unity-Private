@@ -14,7 +14,8 @@
         "VE2.Core.VComponents.Internal",
         "VE2_Player_Internal",
         "VE2_Player_InteractionFinders",
-        "VE2_Core_VComponents_InteractableFindables"
+        "VE2_Core_VComponents_InteractableFindables",
+        "VE2.Core.Common"
     ],
     "includePlatforms": [
         "Editor"
