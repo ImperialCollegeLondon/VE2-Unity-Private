@@ -6,7 +6,7 @@ namespace VE2.Core.VComponents.InteractableInterfaces
 {
     public interface IRangedGrabInteractionModule : IRangedInteractionModule
     {
-        public void LocalInteractorGrab(InteractorID interactorID);
-        public void LocalInteractorDrop(InteractorID interactorID);
+        public void RequestLocalGrab(InteractorID interactorID);
+        public void RequestLocalDrop(InteractorID interactorID);
     }
 }

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "NewPhysicsConstants", menuName = "PhysicsConstants")]
+//[CreateAssetMenu(fileName = "NewPhysicsConstants", menuName = "PhysicsConstants")]
 public class PhysicsConstants : ScriptableObject
 {
     [SerializeField] public float DefaultMaxVelocity = 10;

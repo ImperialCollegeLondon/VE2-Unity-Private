@@ -13,12 +13,12 @@ namespace VE2.Core.VComponents.Internal
 
         public RangedGrabInteractionModule(RangedInteractionConfig config, GeneralInteractionConfig generalInteractionConfig) : base(config, generalInteractionConfig) { }
 
-        public void LocalInteractorGrab(InteractorID interactorID)
+        public void RequestLocalGrab(InteractorID interactorID)
         {
             OnLocalInteractorGrab?.Invoke(interactorID);
         }
 
-        public void LocalInteractorDrop(InteractorID interactorID)
+        public void RequestLocalDrop(InteractorID interactorID)
         {
             OnLocalInteractorDrop?.Invoke(interactorID);
         }

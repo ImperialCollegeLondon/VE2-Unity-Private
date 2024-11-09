@@ -24,7 +24,7 @@ namespace VE2.Core.Player
             {
                 IRangedGrabInteractionModule rangedGrabInteractableToDrop = _CurrentGrabbingGrabbable;
                 _CurrentGrabbingGrabbable = null;
-                DropGrabbable(rangedGrabInteractableToDrop);
+                rangedGrabInteractableToDrop.RequestLocalDrop(_InteractorID);
             }
             else if (TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable))
             {
@@ -37,7 +37,7 @@ namespace VE2.Core.Player
                     else if (hoveringInteractable is IRangedGrabInteractionModule rangedGrabInteractable)
                     {
                         _CurrentGrabbingGrabbable = rangedGrabInteractable;
-                        GrabGrabbable(rangedGrabInteractable);
+                        rangedGrabInteractable.RequestLocalGrab(_InteractorID);
                     }
                 }
                 else 
@@ -47,16 +47,15 @@ namespace VE2.Core.Player
             }
         }
 
-        private void GrabGrabbable(IRangedGrabInteractionModule rangedGrabInteractable)
+        public override Transform ConfirmGrab()
         {
             reticuleImage.enabled = false;
-            rangedGrabInteractable.LocalInteractorGrab(_InteractorID);
+            return GrabberTransform;
         }
 
-        private void DropGrabbable(IRangedGrabInteractionModule rangedGrabInteractable)
+        public override void ConfirmDrop()
         {
             reticuleImage.enabled = true;
-            rangedGrabInteractable.LocalInteractorDrop(_InteractorID);
         }
 
         void Update()

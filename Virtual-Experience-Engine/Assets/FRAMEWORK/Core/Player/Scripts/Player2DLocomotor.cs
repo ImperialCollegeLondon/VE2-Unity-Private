@@ -23,6 +23,18 @@ namespace VE2.Core.Player
         private float verticalRotation = 0f; // To keep track of vertical rotation
         private bool isCursorLocked = true;  // Flag to control camera movement
 
+        private IInputHandler _inputHandler;
+
+        public void Initialize(IInputHandler inputHandler)
+        {
+            _inputHandler = inputHandler;
+        }
+
+        private void OnEnable()
+        {
+            
+        }
+
         void Start()
         {
             controller = GetComponent<CharacterController>();

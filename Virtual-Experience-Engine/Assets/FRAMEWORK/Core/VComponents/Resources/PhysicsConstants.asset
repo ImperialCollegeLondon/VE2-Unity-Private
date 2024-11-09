@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 002cad546fc5d3541a996e10d687c934, type: 3}
   m_Name: PhysicsConstants
   m_EditorClassIdentifier: 
-  DefaultMaxVelocity: 10
+  DefaultMaxVelocity: 9.69
   DefaultMaxAngularVelocity: 10
   VelocityScale: 0.35
-  VelocityDamping: 0.45
+  VelocityDamping: 0.67
   AngularVelocityScale: 0.35
   AngularVelocityDamping: 0.45

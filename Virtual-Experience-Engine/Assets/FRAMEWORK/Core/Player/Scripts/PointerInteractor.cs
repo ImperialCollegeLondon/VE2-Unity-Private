@@ -11,8 +11,6 @@ namespace VE2.Core.Player
         [SerializeField] protected LayerMask _LayerMask; // Add a layer mask field
         [SerializeField] protected string _RaycastHitDebug;
 
-        public Transform Transform => GrabberTransform;
-
         protected Transform _RayOrigin;
         protected const float MAX_RAYCAST_DISTANCE = 10;
         protected IRangedGrabInteractionModule _CurrentGrabbingGrabbable;
@@ -79,6 +77,10 @@ namespace VE2.Core.Player
         }
 
         protected abstract void UnsubscribeFromInputHandler(IInputHandler inputHandler);
+
+        abstract public Transform ConfirmGrab();
+
+        abstract public void ConfirmDrop();
     }
 }
 

@@ -56,13 +56,13 @@ namespace VE2.Core.VComponents.Tests
             grabbablePluginInterface.OnDrop.AddListener(pluginScript.HandleDropReceived);
 
             //Invoke grab, check customer received the grab, and that the interactorID is set
-            grabbablePlayerInterface.LocalInteractorGrab(interactorID);
+            grabbablePlayerInterface.RequestLocalGrab(interactorID);
             pluginScript.Received(1).HandleGrabReceived();
             Assert.IsTrue(grabbablePluginInterface.IsGrabbed);
             Assert.AreEqual(grabbablePluginInterface.MostRecentInteractingClientID, localClientID);
 
             //Invoke drop, Check customer received the drop, and that the interactorID is set
-            grabbablePlayerInterface.LocalInteractorDrop(interactorID);
+            grabbablePlayerInterface.RequestLocalDrop(interactorID);
             pluginScript.Received(1).HandleDropReceived();
             Assert.IsFalse(grabbablePluginInterface.IsGrabbed);
             Assert.AreEqual(grabbablePluginInterface.MostRecentInteractingClientID, localClientID);

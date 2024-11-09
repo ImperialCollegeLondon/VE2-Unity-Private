@@ -5,6 +5,15 @@ namespace VE2.InstanceNetworking
 {
     public class RemoteInteractor : MonoBehaviour, IInteractor
     {
-        public Transform Transform => transform;
+        public Transform ConfirmGrab()
+        {
+            return transform;
+            //TODO: hide
+        }
+
+        public void ConfirmDrop()
+        {
+            //TODO: Show 
+        }
     }
 }

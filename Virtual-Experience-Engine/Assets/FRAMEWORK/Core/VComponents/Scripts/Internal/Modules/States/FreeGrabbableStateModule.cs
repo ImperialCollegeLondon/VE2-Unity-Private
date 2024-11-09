@@ -54,7 +54,7 @@ namespace VE2.Core.VComponents.Internal
 
             if(_gameObjectFindProvider.TryGetComponent(interactorGameobject, out IInteractor interactor))
             {
-                CurrentGrabbingGrabberTransform = interactor.Transform;
+                CurrentGrabbingGrabberTransform = interactor.ConfirmGrab();
                 _state.IsGrabbed = true;
                 _state.MostRecentInteractingInteractorID = interactorID;
                 _state.StateChangeNumber++;
@@ -82,17 +82,28 @@ namespace VE2.Core.VComponents.Internal
             if (interactorID.ClientID != ushort.MaxValue)
                 _state.MostRecentInteractingInteractorID = interactorID;
 
-            _state.StateChangeNumber++;
-            _state.IsGrabbed = false;
-            CurrentGrabbingGrabberTransform = null;
+            string interactorGameobjectName = $"Interactor{interactorID.ClientID}-{interactorID.InteractorType}";
+            GameObject interactorGameobject = _gameObjectFindProvider.FindGameObject(interactorGameobjectName);
 
-            try
+            if (_gameObjectFindProvider.TryGetComponent(interactorGameobject, out IInteractor interactor))
             {
-                _config.OnDrop?.Invoke();
+                interactor.ConfirmDrop();
+                _state.StateChangeNumber++;
+                _state.IsGrabbed = false;
+                CurrentGrabbingGrabberTransform = null;
+
+                try
+                {
+                    _config.OnDrop?.Invoke();
+                }
+                catch (Exception e)
+                {
+                    Debug.Log($"Error when emitting OnLocalInteractorDrop from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
+                }
             }
-            catch (Exception e)
+            else
             {
-                Debug.Log($"Error when emitting OnLocalInteractorDrop from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
+                Debug.LogError($"Could not find Interactor with {interactorID.ClientID} and {interactorID.InteractorType}");
             }
         }
 
