@@ -7,6 +7,7 @@ public interface IInputHandler
 {
     public event Action OnMouseLeftClick;
     public event Action OnChangeModePressed;
+    //public event Action OnGrabKeyPressed;
 }
 
 public class InputHandler : MonoBehaviour, IInputHandler

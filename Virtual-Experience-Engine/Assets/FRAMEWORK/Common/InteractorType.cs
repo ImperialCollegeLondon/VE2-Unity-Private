@@ -1,11 +1,12 @@
 
-namespace VE2.Core.Common
+namespace VE2.Common
 {
     /// <summary>
     /// Not to be confused with ViRSE.Core.VComponents.Plugin
     /// </summary>
     public enum InteractorType
-    {
+    {   
+        None,
         Mouse2D,
         LeftHandVR,
         RightHandVR,

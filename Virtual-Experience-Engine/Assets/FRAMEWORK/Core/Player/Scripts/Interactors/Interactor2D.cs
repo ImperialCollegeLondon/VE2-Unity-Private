@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
+using VE2.Common;
+using VE2.Core.Common;
 using VE2.Core.VComponents.InteractableInterfaces;
 
 namespace VE2.Core.Player
@@ -9,6 +11,8 @@ namespace VE2.Core.Player
     {
         [SerializeField] private Image reticuleImage;
 
+        protected override InteractorType InteractorType => InteractorType.Mouse2D;
+
         protected override void SubscribeToInputHandler(IInputHandler inputHandler) 
         {
             inputHandler.OnMouseLeftClick += HandleLeftClick;
@@ -16,12 +20,25 @@ namespace VE2.Core.Player
 
         private void HandleLeftClick()
         {
-            if (TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable))
+            if (_CurrentGrabbingGrabbable != null)
+            {
+                IRangedGrabInteractionModule rangedGrabInteractableToDrop = _CurrentGrabbingGrabbable;
+                _CurrentGrabbingGrabbable = null;
+                rangedGrabInteractableToDrop.RequestLocalDrop(_InteractorID);
+            }
+            else if (TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable))
             {
                 if (!hoveringInteractable.AdminOnly)
                 {
                     if (hoveringInteractable is IRangedClickInteractionModule rangedClickInteractable)
+                    {
                         rangedClickInteractable.Click(_InteractorID.ClientID);
+                    }
+                    else if (hoveringInteractable is IRangedGrabInteractionModule rangedGrabInteractable)
+                    {
+                        _CurrentGrabbingGrabbable = rangedGrabInteractable;
+                        rangedGrabInteractable.RequestLocalGrab(_InteractorID);
+                    }
                 }
                 else 
                 {
@@ -30,11 +47,22 @@ namespace VE2.Core.Player
             }
         }
 
+        public override Transform ConfirmGrab()
+        {
+            reticuleImage.enabled = false;
+            return GrabberTransform;
+        }
+
+        public override void ConfirmDrop()
+        {
+            reticuleImage.enabled = true;
+        }
+
         void Update()
         {
             if (TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable))
             {
-                bool isAllowedToInteract = !hoveringInteractable.AdminOnly; //TODO: Add admin check
+                bool isAllowedToInteract = !hoveringInteractable.AdminOnly; 
                 reticuleImage.color = isAllowedToInteract ? StaticColors.Instance.tangerine : Color.red;
                 _RaycastHitDebug = hoveringInteractable.ToString();
             }

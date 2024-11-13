@@ -12,13 +12,18 @@ public class PluginTest : MonoBehaviour
     [SerializeField] private GameObject _lightOn;
     [SerializeField] private GameObject _lightOff;
     [SerializeField] private GameObject _pushButtonGO;
+    [SerializeField] private GameObject _freeGrabbableGO;
     private IV_ToggleActivatable _pushActivatable => _pushButtonGO.GetComponent<IV_ToggleActivatable>();
+    private IV_FreeGrabbable _freeGrabbable => _freeGrabbableGO.GetComponent<IV_FreeGrabbable>();
 
     // Start is called before the first frame update
     void Start()
     {
         //_pushActivatable.OnActivate.AddListener(OnButtonActivate);
         //_pushActivatable.OnDeactivate.AddListener(OnButtonDeactivate);
+
+        _freeGrabbable.OnGrab.AddListener(OnFreeGrabbableGrab);
+        _freeGrabbable.OnDrop.AddListener(OnFreeGrabbableDrop);
     }
 
     public void OnButtonActivate()
@@ -42,6 +47,18 @@ public class PluginTest : MonoBehaviour
 
         _lightOn.SetActive(false);
         _lightOff.SetActive(true);
+    }
+
+    public void OnFreeGrabbableGrab()
+    {
+        Debug.Log("Free Grabbable grabbed!");
+        Debug.Log($"Free Grabbable State = {_freeGrabbable.IsGrabbed}");
+    }
+
+    public void OnFreeGrabbableDrop()
+    {
+        Debug.Log("Free Grabbable dropped!");
+        Debug.Log($"Free Grabbable State = {_freeGrabbable.IsGrabbed}");
     }
 
     // Update is called once per frame

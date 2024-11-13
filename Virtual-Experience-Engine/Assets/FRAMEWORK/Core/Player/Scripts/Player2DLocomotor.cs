@@ -23,6 +23,18 @@ namespace VE2.Core.Player
         private float verticalRotation = 0f; // To keep track of vertical rotation
         private bool isCursorLocked = true;  // Flag to control camera movement
 
+        private IInputHandler _inputHandler;
+
+        public void Initialize(IInputHandler inputHandler)
+        {
+            _inputHandler = inputHandler;
+        }
+
+        private void OnEnable()
+        {
+            
+        }
+
         void Start()
         {
             controller = GetComponent<CharacterController>();
@@ -43,7 +55,7 @@ namespace VE2.Core.Player
                 LockCursor();
         }
 
-        void Update()
+        void Update() //TODO: Should listen to InputHandler, this should maybe go in FixedUpdate to keep grabbables happy (they are updated in FixedUpdate)
         {
             // Handle Escape key to unlock the cursor
             if (Keyboard.current.escapeKey.wasPressedThisFrame)

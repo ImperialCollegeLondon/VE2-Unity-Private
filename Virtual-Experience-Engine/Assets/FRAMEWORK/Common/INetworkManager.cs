@@ -10,6 +10,7 @@ namespace VE2.Common //TODO break into different files
         public ushort LocalClientID { get; }
         public bool IsHost { get; }
         public bool IsConnectedToServer { get; }
+        public event Action OnConnectedToServer;
     }
 
     public interface IBaseStateModule 

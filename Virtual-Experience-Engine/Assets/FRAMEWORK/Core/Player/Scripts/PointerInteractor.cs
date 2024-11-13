@@ -5,7 +5,7 @@ using VE2.Core.VComponents.InteractableInterfaces;
 
 namespace VE2.Core.Player
 {
-    public abstract class PointerInteractor : MonoBehaviour 
+    public abstract class PointerInteractor : MonoBehaviour, IInteractor
     {
         [SerializeField] public Transform GrabberTransform;
         [SerializeField] protected LayerMask _LayerMask; // Add a layer mask field
@@ -13,8 +13,11 @@ namespace VE2.Core.Player
 
         protected Transform _RayOrigin;
         protected const float MAX_RAYCAST_DISTANCE = 10;
-        protected InteractorID _InteractorID => new(_multiplayerSupport == null ? ushort.MaxValue : _multiplayerSupport.LocalClientID, InteractorType.Mouse2D);
+        protected IRangedGrabInteractionModule _CurrentGrabbingGrabbable;
+        protected InteractorID _InteractorID => new(_multiplayerSupport == null ? (ushort)0 : _multiplayerSupport.LocalClientID, InteractorType);
         private bool _waitingForMultiplayerSupport => _multiplayerSupport != null && !_multiplayerSupport.IsConnectedToServer;
+
+        protected abstract InteractorType InteractorType { get; }
 
         protected IMultiplayerSupport _multiplayerSupport;
         protected IInputHandler _InputHandler;
@@ -29,7 +32,25 @@ namespace VE2.Core.Player
             _InputHandler = inputHandler;
             _RaycastProvider = raycastProvider;
 
+            if (_multiplayerSupport != null && !_multiplayerSupport.IsConnectedToServer)
+                _multiplayerSupport.OnConnectedToServer += RenameInteractorToLocalID;
+            else
+                RenameInteractorToLocalID();
+
             SubscribeToInputHandler(_InputHandler);
+        }
+
+        private void RenameInteractorToLocalID() 
+        {
+            ushort localID = 0;
+
+            if (_multiplayerSupport != null)
+            {
+                _multiplayerSupport.OnConnectedToServer -= RenameInteractorToLocalID;
+                localID = _multiplayerSupport.LocalClientID;
+            }
+
+            gameObject.name = $"Interactor{localID}-{InteractorType}";
         }
 
         protected abstract void SubscribeToInputHandler(IInputHandler inputHandler);
@@ -56,6 +77,10 @@ namespace VE2.Core.Player
         }
 
         protected abstract void UnsubscribeFromInputHandler(IInputHandler inputHandler);
+
+        abstract public Transform ConfirmGrab();
+
+        abstract public void ConfirmDrop();
     }
 }
 

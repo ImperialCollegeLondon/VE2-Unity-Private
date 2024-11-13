@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using VE2.Common;
-using VE2.Common;
 using static InstanceSyncSerializables;
 using static VE2.Common.CommonSerializables;
 
@@ -72,7 +71,13 @@ namespace VE2.InstanceNetworking
                 {
                     GameObject remotePlayerPrefab = Resources.Load<GameObject>("RemoteAvatar");
                     GameObject remotePlayerGO = GameObject.Instantiate(remotePlayerPrefab);
-                    remotePlayerGO.GetComponent<RemoteAvatarController>().Initialize(_virseAvatarHeadGameObjects, _virseAvatarTorsoGameObjects, _avatarHeadOverrideGameObjects, _avatarTorsoOverrideGameObjects);
+                    remotePlayerGO.GetComponent<RemoteAvatarController>().Initialize(
+                        receivedRemoteClientInfoWithAppearance.ClientID,
+                        _virseAvatarHeadGameObjects, 
+                        _virseAvatarTorsoGameObjects, 
+                        _avatarHeadOverrideGameObjects, 
+                        _avatarTorsoOverrideGameObjects);
+
                     _remoteAvatars.Add(receivedRemoteClientInfoWithAppearance.ClientID, remotePlayerGO.GetComponent<RemoteAvatarController>());
                 }
 
