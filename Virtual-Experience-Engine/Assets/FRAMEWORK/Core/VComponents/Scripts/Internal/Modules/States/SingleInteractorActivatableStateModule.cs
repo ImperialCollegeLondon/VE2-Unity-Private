@@ -32,15 +32,10 @@ namespace VE2.Core.VComponents.Internal
 
         public SingleInteractorActivatableStateModule(VE2Serializable state, BaseStateConfig config, string id, WorldStateModulesContainer worldStateModulesContainer) : base(state, config, id, worldStateModulesContainer) { }
 
-        public event Action OnProgrammaticStateChangeFromPlugin;
-
-
         private void HandleExternalActivation(bool newIsActivated)
         {
             if (newIsActivated != _state.IsActivated)
                 InvertState(ushort.MaxValue);
-
-            OnProgrammaticStateChangeFromPlugin?.Invoke();
         }
 
         public void InvertState(ushort clientID)
@@ -86,7 +81,6 @@ namespace VE2.Core.VComponents.Internal
         {
             bool oldIsActivated = _state.IsActivated;
             State.Bytes = newBytes;
-            //State = new(receivedStateAsBytes);
 
             if (_state.IsActivated && !oldIsActivated)
                 InvokeCustomerOnActivateEvent();

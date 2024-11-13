@@ -28,8 +28,6 @@ namespace VE2.Core.Common
         protected BaseStateConfig Config { get; private set; }
         private readonly BaseStateModuleContainer _baseStateContainer;
 
-        //public event Action OnBytesUpdated;
-
         private bool _wasNetworkedLastFrame;
         public bool IsNetworked => Config.IsNetworked;
 
