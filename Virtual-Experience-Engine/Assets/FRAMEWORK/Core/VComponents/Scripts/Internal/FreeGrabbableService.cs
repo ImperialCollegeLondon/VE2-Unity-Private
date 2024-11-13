@@ -5,6 +5,7 @@ using VE2.Core.VComponents.NonInteractableInterfaces;
 using VE2.Core.VComponents.InteractableInterfaces;
 using static VE2.Common.CommonSerializables;
 using log4net.Util;
+using System.Collections.Generic;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -33,34 +34,35 @@ namespace VE2.Core.VComponents.Internal
         private Rigidbody _rigidbody;
         private PhysicsConstants _physicsConstants;
 
-        public FreeGrabbableService(FreeGrabbableConfig config, VE2Serializable state, string id, WorldStateModulesContainer worldStateModulesContainer, IGameObjectFindProvider gameObjectFindProvider, Rigidbody rigidbody, PhysicsConstants physicsConstants)
+        public FreeGrabbableService(List<IHandheldInteraction> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id, WorldStateModulesContainer worldStateModulesContainer, IGameObjectFindProvider gameObjectFindProvider, Rigidbody rigidbody, PhysicsConstants physicsConstants)
         {
             _StateModule = new(state, config.StateConfig, id, worldStateModulesContainer, gameObjectFindProvider);
             _rigidbody  = rigidbody;
-            _RangedGrabInteractionModule = new(config.RangedInteractionConfig, config.GeneralInteractionConfig);
+            _RangedGrabInteractionModule = new(handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
             _physicsConstants = physicsConstants;
 
-            _RangedGrabInteractionModule.OnLocalInteractorGrab += HandleGrabFromLocalInteractor;
-            _RangedGrabInteractionModule.OnLocalInteractorDrop += HandleDropFromLocalInteractor;
+            _RangedGrabInteractionModule.OnLocalInteractorRequestGrab += (InteractorID interactorID) => _StateModule.SetGrabbed(interactorID);
+            _RangedGrabInteractionModule.OnLocalInteractorRequestDrop += (InteractorID interactorID) => _StateModule.SetDropped(interactorID);
+
+            _StateModule.OnGrabConfirmed += (IInteractor interactor) => _RangedGrabInteractionModule.ConfirmGrabOnInteractor(interactor);
+            _StateModule.OnDropConfirmed += (IInteractor interactor) => _RangedGrabInteractionModule.ConfirmDropOnInteractor(interactor);
         }
 
-        private void HandleGrabFromLocalInteractor(InteractorID interactorID)
-        {
-            _StateModule.SetGrabbed(interactorID);
-        }
+        // private void HandleLocalInteractorRequestGrab(InteractorID interactorID) =>  _StateModule.SetGrabbed(interactorID);
 
-        private void HandleDropFromLocalInteractor(InteractorID interactorID)
-        {
-            _StateModule.SetDropped(interactorID);
-        }
+        // private void HandleLocalInteractorRequestDrop(InteractorID interactorID) => _StateModule.SetDropped(interactorID);
+        
+        // private void HandleGrabConfirmed(IInteractor interactor) => _RangedGrabInteractionModule.ConfirmGrabOnInteractor(interactor);
+    
+        // private void HandleDropConfirmed(IInteractor interactor) => _RangedGrabInteractionModule.ConfirmDropOnInteractor(interactor);
 
         public void HandleFixedUpdate()
         {
             _StateModule.HandleFixedUpdate();
             if(_StateModule.IsGrabbed)
             {
-                TrackPosition(_StateModule.CurrentGrabbingGrabberTransform.position);
-                TrackRotation(_StateModule.CurrentGrabbingGrabberTransform.rotation);
+                TrackPosition(_RangedGrabInteractionModule.CurrentGrabbingGrabberTransform.position);
+                TrackRotation(_RangedGrabInteractionModule.CurrentGrabbingGrabberTransform.rotation);
             }
         }
 
@@ -88,6 +90,12 @@ namespace VE2.Core.VComponents.Internal
         public void TearDown()
         {
             _StateModule.TearDown();
+
+            // _RangedGrabInteractionModule.OnLocalInteractorRequestGrab -= HandleLocalInteractorRequestGrab;
+            // _RangedGrabInteractionModule.OnLocalInteractorRequestDrop -= HandleLocalInteractorRequestDrop;
+
+            // _StateModule.OnGrabConfirmed -= HandleGrabConfirmed;
+            // _StateModule.OnDropConfirmed -= HandleDropConfirmed;
         }
     }
 }

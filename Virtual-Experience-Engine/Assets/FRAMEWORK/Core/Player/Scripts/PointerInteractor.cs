@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using VE2.Common;
 using VE2.Core.Common;
@@ -78,7 +79,7 @@ namespace VE2.Core.Player
 
         protected abstract void UnsubscribeFromInputHandler(IInputHandler inputHandler);
 
-        abstract public Transform ConfirmGrab();
+        abstract public Transform ConfirmGrab(IRangedGrabInteractionModule rangedGrabInteractable);
 
         abstract public void ConfirmDrop();
     }

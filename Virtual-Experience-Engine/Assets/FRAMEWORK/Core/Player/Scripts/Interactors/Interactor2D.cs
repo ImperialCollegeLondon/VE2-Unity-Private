@@ -16,6 +16,7 @@ namespace VE2.Core.Player
         protected override void SubscribeToInputHandler(IInputHandler inputHandler) 
         {
             inputHandler.OnMouseLeftClick += HandleLeftClick;
+            inputHandler.OnKeyboardActionKeyPressed += HandleActionKeyPressed;
         }
 
         private void HandleLeftClick()
@@ -47,14 +48,24 @@ namespace VE2.Core.Player
             }
         }
 
-        public override Transform ConfirmGrab()
+        private void HandleActionKeyPressed() 
         {
+            foreach (IHandheldInteraction handheldInteraction in _CurrentGrabbingGrabbable.HandheldInteractions)
+            {
+                //TODO: Check if its a HandHeldActivatable, if so, call the Activate method
+            }
+        }
+
+        public override Transform ConfirmGrab(IRangedGrabInteractionModule rangedGrabInteractable)
+        {
+            _CurrentGrabbingGrabbable = rangedGrabInteractable;
             reticuleImage.enabled = false;
             return GrabberTransform;
         }
 
         public override void ConfirmDrop()
         {
+            _CurrentGrabbingGrabbable = null;
             reticuleImage.enabled = true;
         }
 
@@ -76,6 +87,7 @@ namespace VE2.Core.Player
         protected override void UnsubscribeFromInputHandler(IInputHandler inputHandler)
         {
             inputHandler.OnMouseLeftClick -= HandleLeftClick;
+            inputHandler.OnKeyboardActionKeyPressed -= HandleActionKeyPressed;
         }
     }
 

@@ -35,7 +35,7 @@ public class InteractorVR : PointerInteractor
         //     inputHandler.OnLeftTriggerPressed -= HandleTriggerPressed;
     }
 
-    public override Transform ConfirmGrab()
+    public override Transform ConfirmGrab(IRangedGrabInteractionModule rangedGrabInteractionModule)
     {
         //TODO:
         return null;

@@ -6,6 +6,7 @@ using VE2.Core.VComponents.InteractableFindables;
 using VE2.Core.VComponents.PluginInterfaces;
 using VE2.Core.VComponents.InteractableInterfaces;
 using VE2.Core.VComponents.Internal;
+using System.Collections.Generic;
 
 namespace VE2.Core.VComponents.Integration
 {
@@ -29,7 +30,10 @@ namespace VE2.Core.VComponents.Integration
         {
             string id = "FreeGrabbable-" + gameObject.name;
 
+            List<IHandheldInteraction> handheldInteractions = new(); //TODO: perform GetComponent to populate list
+
             _service = new FreeGrabbableService(
+                handheldInteractions,
                 _config, 
                 _state, 
                 id, 

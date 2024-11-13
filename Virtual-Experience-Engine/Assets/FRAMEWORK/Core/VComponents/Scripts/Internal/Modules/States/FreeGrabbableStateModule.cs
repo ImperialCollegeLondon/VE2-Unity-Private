@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using VE2.Common;
 using VE2.Core.Common;
+using VE2.Core.VComponents.InteractableInterfaces;
 using VE2.Core.VComponents.NonInteractableInterfaces;
 using static VE2.Common.CommonSerializables;
 
@@ -30,11 +31,12 @@ namespace VE2.Core.VComponents.Internal
         //internal event Action<InteractorID> OnStateBecomeDropped;
         public bool IsGrabbed { get => _state.IsGrabbed; private set => _state.IsGrabbed = value; }
         public ushort MostRecentInteractingClientID => _state.MostRecentInteractingInteractorID.ClientID;
-        public Transform CurrentGrabbingGrabberTransform { get; private set; }
         private FreeGrabbableState _state => (FreeGrabbableState)State;
         private FreeGrabbableStateConfig _config => (FreeGrabbableStateConfig)Config;
         private readonly IGameObjectFindProvider _gameObjectFindProvider;
 
+        internal event Action<IInteractor> OnGrabConfirmed;
+        internal event Action<IInteractor> OnDropConfirmed;
 
         public FreeGrabbableStateModule(VE2Serializable state, BaseStateConfig config, string id, WorldStateModulesContainer worldStateModulesContainer, IGameObjectFindProvider gameObjectFindProvider) : base(state, config, id, worldStateModulesContainer)
         {
@@ -54,7 +56,7 @@ namespace VE2.Core.VComponents.Internal
 
             if(_gameObjectFindProvider.TryGetComponent(interactorGameobject, out IInteractor interactor))
             {
-                CurrentGrabbingGrabberTransform = interactor.ConfirmGrab();
+                OnGrabConfirmed?.Invoke(interactor);
                 _state.IsGrabbed = true;
                 _state.MostRecentInteractingInteractorID = interactorID;
                 _state.StateChangeNumber++;
@@ -87,10 +89,9 @@ namespace VE2.Core.VComponents.Internal
 
             if (_gameObjectFindProvider.TryGetComponent(interactorGameobject, out IInteractor interactor))
             {
-                interactor.ConfirmDrop();
+                OnDropConfirmed?.Invoke(interactor);
                 _state.StateChangeNumber++;
                 _state.IsGrabbed = false;
-                CurrentGrabbingGrabberTransform = null;
 
                 try
                 {
@@ -109,7 +110,7 @@ namespace VE2.Core.VComponents.Internal
 
         protected override void UpdateBytes(byte[] newBytes)
         {
-            FreeGrabbableState receiveState = new FreeGrabbableState(newBytes);
+            FreeGrabbableState receiveState = new(newBytes);
 
             if (receiveState.IsGrabbed)
             {

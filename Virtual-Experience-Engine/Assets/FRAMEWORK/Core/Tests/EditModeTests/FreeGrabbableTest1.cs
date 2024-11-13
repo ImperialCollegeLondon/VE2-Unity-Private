@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using NSubstitute;
 using NUnit.Framework;
 using VE2.Core.VComponents.PluginInterfaces;
@@ -40,6 +41,7 @@ namespace VE2.Core.VComponents.Tests
             });
 
             FreeGrabbableService freeGrabbable = new( 
+                new List<IHandheldInteraction>() {},
                 new FreeGrabbableConfig(),
                 new FreeGrabbableState(), 
                 "debug",

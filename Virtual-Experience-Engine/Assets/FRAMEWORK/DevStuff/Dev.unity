@@ -498,7 +498,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config:
     StateConfig:
-      IsNetworked: 0
+      IsNetworked: 1
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
@@ -5948,7 +5948,19 @@ MonoBehaviour:
       TransmissionFrequency: 1
     OnStateChange:
       m_PersistentCalls:
-        m_Calls: []
+        m_Calls:
+        - m_Target: {fileID: 0}
+          m_TargetAssemblyTypeName: 
+          m_MethodName: 
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: 
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &1521567705
 GameObject:
   m_ObjectHideFlags: 0
