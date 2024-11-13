@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 using VE2;
 using VE2.Core.VComponents;
 using VE2.Core.VComponents.PluginInterfaces;
+using VE2.NonCore.Instancing.VComponents.PluginInterfaces;
 
 public class PluginTest : MonoBehaviour
 {
@@ -13,8 +14,13 @@ public class PluginTest : MonoBehaviour
     [SerializeField] private GameObject _lightOff;
     [SerializeField] private GameObject _pushButtonGO;
     [SerializeField] private GameObject _freeGrabbableGO;
+    [SerializeField] private GameObject _networkObjectGO;
+
     private IV_ToggleActivatable _pushActivatable => _pushButtonGO.GetComponent<IV_ToggleActivatable>();
     private IV_FreeGrabbable _freeGrabbable => _freeGrabbableGO.GetComponent<IV_FreeGrabbable>();
+    private IV_NetworkObject _networkObject => _networkObjectGO.GetComponent<IV_NetworkObject>();
+
+    private int _counter = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -24,6 +30,8 @@ public class PluginTest : MonoBehaviour
 
         _freeGrabbable.OnGrab.AddListener(OnFreeGrabbableGrab);
         _freeGrabbable.OnDrop.AddListener(OnFreeGrabbableDrop);
+
+        _networkObject.OnStateChange.AddListener(HandleNetworkObjectStateChange);
     }
 
     public void OnButtonActivate()
@@ -68,6 +76,17 @@ public class PluginTest : MonoBehaviour
             _pushActivatable.IsActivated = !_pushActivatable.IsActivated;
         else if (Keyboard.current.digit2Key.wasPressedThisFrame)
             _pushActivatable.InteractRange = 0;
+        else if (Keyboard.current.digit3Key.wasPressedThisFrame)
+        {
+            _counter++;
+            _networkObject.NetworkObject = _counter;
+        }
+    }
+
+    private void HandleNetworkObjectStateChange(object data)
+    {
+        _counter = (int)data;
+        Debug.Log(_counter);
     }
 
     // private void HandleNewColor()
