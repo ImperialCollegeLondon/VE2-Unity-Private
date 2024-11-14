@@ -19,7 +19,9 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
     internal class NetworkObjectStateModule : BaseWorldStateModule, INetworkObjectStateModule
     {
         public UnityEvent<object> OnStateChange => _config.OnStateChange;
-        public object NetworkObject { get => _state.NetworkObject; set => HandleExternalStateChange(value); }
+
+        private MemoryStream _serializedNetworkObject = new();
+        public object NetworkObject { get => GetUnserializedNetworkObject(); set => HandleExternalStateChange(value); }
 
         private NetworkObjectState _state => (NetworkObjectState)State;
         private NetworkObjectStateConfig _config => (NetworkObjectStateConfig)Config;
@@ -29,16 +31,35 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
 
         private void HandleExternalStateChange(object unserializedNetworkObject)
         {
-            _state.NetworkObject = unserializedNetworkObject;
+            try
+            {
+                BinaryFormatter binaryFormatter = new();
+                binaryFormatter.Serialize(_serializedNetworkObject, unserializedNetworkObject);
+
+                _state.SerializedNetworkObject = _serializedNetworkObject;
+            }
+            catch (Exception e)
+            {
+                Debug.Log($"Error encountered when trying to serialize NetworkObject with ID {ID} \n{e.Message}\n{e.StackTrace}");
+                return;
+            }
+
             InvokeCustomerOnStateChangeEvent();
         }
 
+        private object GetUnserializedNetworkObject()
+        {
+            BinaryFormatter binaryFormatter = new();
+            object deserializedNetworkObject = binaryFormatter.Deserialize(_serializedNetworkObject);
+
+            return deserializedNetworkObject;
+        }
 
         private void InvokeCustomerOnStateChangeEvent()
         {
             try
             {
-                _config.OnStateChange?.Invoke(_state.NetworkObject);
+                _config.OnStateChange?.Invoke(NetworkObject);
             }
             catch (Exception e)
             {
@@ -58,12 +79,12 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
     public class NetworkObjectState : VE2Serializable
     {
         public ushort StateChangeNumber { get; set; }
-        public object NetworkObject { get; set; }
+        public MemoryStream SerializedNetworkObject { get; set; }
 
         public NetworkObjectState()
         {
             StateChangeNumber = 0;
-            NetworkObject = null;
+            SerializedNetworkObject = null;
         }
 
         protected override byte[] ConvertToBytes()
@@ -73,13 +94,9 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
 
             writer.Write(StateChangeNumber);
 
-            if (NetworkObject != null)
+            if (SerializedNetworkObject != null)
             {
-                BinaryFormatter binaryFormatter = new();
-                MemoryStream serializedNetworkObject = new();
-
-                binaryFormatter.Serialize(serializedNetworkObject, NetworkObject);
-                byte[] networkObjectBytes = serializedNetworkObject.ToArray();
+                byte[] networkObjectBytes = SerializedNetworkObject.ToArray();
 
                 writer.Write(networkObjectBytes.Length);
                 writer.Write(networkObjectBytes);
@@ -104,14 +121,14 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
             {
                 byte[] networkObjectBytes = reader.ReadBytes(bytesLength);
 
-                BinaryFormatter binaryFormatter = new();
-                MemoryStream serializedNetworkObject = new(networkObjectBytes);
+                BinaryFormatter binaryFormatter = new BinaryFormatter();
+                MemoryStream SerializedNetworkObject = new(networkObjectBytes);
 
-                NetworkObject = binaryFormatter.Deserialize(serializedNetworkObject);
+                Debug.Log($"Successfully deserialized {binaryFormatter.Deserialize(SerializedNetworkObject)}");
             }
             else
             {
-                NetworkObject = null;
+                SerializedNetworkObject = null;
             }
         }
     }
