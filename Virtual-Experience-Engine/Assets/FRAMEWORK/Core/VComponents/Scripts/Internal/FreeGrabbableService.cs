@@ -31,11 +31,11 @@ namespace VE2.Core.VComponents.Internal
 
         public bool IsGrabbed => _StateModule.IsGrabbed;
 
-        private Rigidbody _rigidbody;
+        private IRigidbodyWrapper _rigidbody;
         private bool _isKinematicOnStart;
         private PhysicsConstants _physicsConstants;
 
-        public FreeGrabbableService(List<IHandheldInteractionModule> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id, WorldStateModulesContainer worldStateModulesContainer, IGameObjectFindProvider gameObjectFindProvider, Rigidbody rigidbody, PhysicsConstants physicsConstants)
+        public FreeGrabbableService(List<IHandheldInteractionModule> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id, WorldStateModulesContainer worldStateModulesContainer, IGameObjectFindProvider gameObjectFindProvider, IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants)
         {
             _StateModule = new(state, config.StateConfig, id, worldStateModulesContainer, gameObjectFindProvider);
             _rigidbody  = rigidbody;

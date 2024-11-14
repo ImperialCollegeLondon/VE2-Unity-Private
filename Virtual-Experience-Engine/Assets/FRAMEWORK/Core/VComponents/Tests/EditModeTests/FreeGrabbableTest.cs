@@ -40,7 +40,7 @@ namespace VE2.Core.VComponents.Tests
                 "debug",
                 Substitute.For<WorldStateModulesContainer>(),
                 findProviderStub,
-                new Rigidbody(), 
+                Substitute.For<IRigidbodyWrapper>(), 
                 new PhysicsConstants());
 
             //Stub out the VC (integration layer) with the grabbable
