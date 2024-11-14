@@ -3741,7 +3741,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8995ff54d324b04ea0f50966b2be213, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _connectOnStart: 1
+  _connectOnStart: 0
   _connectionStateDebug:
     ConnectionState: 0
   LocalClientIDWrapper:
@@ -6034,6 +6034,7 @@ MonoBehaviour:
   _lightOff: {fileID: 1865241996}
   _pushButtonGO: {fileID: 1250561189}
   _freeGrabbableGO: {fileID: 227671773}
+  _handheldActivatableGO: {fileID: 1542206479}
   _networkObjectGO: {fileID: 1499303675}
 --- !u!4 &1499303677
 Transform:
@@ -7090,7 +7091,7 @@ GameObject:
   - component: {fileID: 1542206481}
   - component: {fileID: 1542206480}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: Torch
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

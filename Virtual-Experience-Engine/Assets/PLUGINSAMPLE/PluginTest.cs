@@ -14,10 +14,12 @@ public class PluginTest : MonoBehaviour
     [SerializeField] private GameObject _lightOff;
     [SerializeField] private GameObject _pushButtonGO;
     [SerializeField] private GameObject _freeGrabbableGO;
+    [SerializeField] private GameObject _handheldActivatableGO;
     [SerializeField] private GameObject _networkObjectGO;
 
     private IV_ToggleActivatable _pushActivatable => _pushButtonGO.GetComponent<IV_ToggleActivatable>();
     private IV_FreeGrabbable _freeGrabbable => _freeGrabbableGO.GetComponent<IV_FreeGrabbable>();
+    private IV_HandheldActivatable _handheldActivatable => _handheldActivatableGO.GetComponent<IV_HandheldActivatable>();
     private IV_NetworkObject _networkObject => _networkObjectGO.GetComponent<IV_NetworkObject>();
 
     private int _counter = 0;
@@ -30,6 +32,9 @@ public class PluginTest : MonoBehaviour
 
         _freeGrabbable.OnGrab.AddListener(OnFreeGrabbableGrab);
         _freeGrabbable.OnDrop.AddListener(OnFreeGrabbableDrop);
+
+        _handheldActivatable.OnActivate.AddListener(OnHandheldActivatableActivate);
+        _handheldActivatable.OnDeactivate.AddListener(OnHandheldActivatableDeactivate);
 
         _networkObject.OnStateChange.AddListener(HandleNetworkObjectStateChange);
     }
@@ -81,6 +86,20 @@ public class PluginTest : MonoBehaviour
             _counter++;
             _networkObject.NetworkObject = _counter;
         }
+        else if(Keyboard.current.digit4Key.wasPressedThisFrame)
+            _handheldActivatable.IsActivated = !_handheldActivatable.IsActivated;
+    }
+
+    private void OnHandheldActivatableActivate()
+    {
+        Debug.Log("Handheld Activatable activated!");
+        Debug.Log($"Handheld Activatable State = {_handheldActivatable.IsActivated}");
+    }
+
+    private void OnHandheldActivatableDeactivate()
+    {
+        Debug.Log("Handheld Activatable deactivated!");
+        Debug.Log($"Handheld Activatable State = {_handheldActivatable.IsActivated}");
     }
 
     private void HandleNetworkObjectStateChange(object data)
