@@ -25,7 +25,7 @@ namespace VE2.Core.VComponents.Integration
         #endregion
 
         private FreeGrabbableService _service = null;
-
+        private RigidbodyWrapper _rigidbodyWrapper = null;
         private void OnEnable()
         {
             string id = "FreeGrabbable-" + gameObject.name;
@@ -36,15 +36,15 @@ namespace VE2.Core.VComponents.Integration
             {
                 handheldInteractions.Add(handheldActivatable.HandheldClickInteractionModule);
             }
-
+            _rigidbodyWrapper = new(GetComponent<Rigidbody>());
             _service = new FreeGrabbableService(
                 handheldInteractions,
                 _config, 
                 _state, 
                 id, 
                 VE2CoreServiceLocator.Instance.WorldStateModulesContainer,
-                new GameObjectFindProvider(), 
-                GetComponent<Rigidbody>(),
+                new GameObjectFindProvider(),
+                _rigidbodyWrapper,
                 Resources.Load<PhysicsConstants>("PhysicsConstants"));
         }
 

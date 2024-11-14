@@ -11,8 +11,9 @@ using VE2.Core.VComponents.Internal;
 using static VE2.Common.CommonSerializables;
 using VE2.Core.Player;
 using System;
+using VE2.Core.VComponents.Tests;
 
-namespace VE2.Core.VComponents.Tests
+namespace VE2.Core.Tests
 {
     public class PlayerAndFreeGrabbableTests
     {
@@ -47,7 +48,7 @@ namespace VE2.Core.VComponents.Tests
                 "debug",
                 Substitute.For<WorldStateModulesContainer>(),
                 findProviderStub,
-                new Rigidbody(), 
+                Substitute.For<IRigidbodyWrapper>(), 
                 new PhysicsConstants());
 
             //Stub out the VC (integration layer) with the grabbable
