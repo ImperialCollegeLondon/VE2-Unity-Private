@@ -11,8 +11,9 @@ using VE2.Core.VComponents.Internal;
 using static VE2.Common.CommonSerializables;
 using VE2.Core.Player;
 using System;
+using VE2.Core.VComponents.Tests;
 
-namespace VE2.Core.VComponents.Tests
+namespace VE2.Core.Tests
 {
     public class PlayerAndFreeGrabbableTests
     {
