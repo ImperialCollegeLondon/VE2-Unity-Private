@@ -50,9 +50,12 @@ namespace VE2.Core.Player
 
         private void HandleActionKeyPressed() 
         {
-            foreach (IHandheldInteraction handheldInteraction in _CurrentGrabbingGrabbable.HandheldInteractions)
+            foreach (IHandheldInteractionModule handheldInteraction in _CurrentGrabbingGrabbable.HandheldInteractions)
             {
-                //TODO: Check if its a HandHeldActivatable, if so, call the Activate method
+                if (handheldInteraction is IHandheldClickInteractionModule handheldClickInteraction)
+                {
+                    handheldClickInteraction.Click(_InteractorID.ClientID);
+                }
             }
         }
 

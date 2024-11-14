@@ -32,29 +32,39 @@ namespace VE2.Core.VComponents.Internal
         public bool IsGrabbed => _StateModule.IsGrabbed;
 
         private Rigidbody _rigidbody;
+        private bool _isKinematicOnStart;
         private PhysicsConstants _physicsConstants;
 
-        public FreeGrabbableService(List<IHandheldInteraction> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id, WorldStateModulesContainer worldStateModulesContainer, IGameObjectFindProvider gameObjectFindProvider, Rigidbody rigidbody, PhysicsConstants physicsConstants)
+        public FreeGrabbableService(List<IHandheldInteractionModule> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id, WorldStateModulesContainer worldStateModulesContainer, IGameObjectFindProvider gameObjectFindProvider, Rigidbody rigidbody, PhysicsConstants physicsConstants)
         {
             _StateModule = new(state, config.StateConfig, id, worldStateModulesContainer, gameObjectFindProvider);
             _rigidbody  = rigidbody;
+            _isKinematicOnStart = _rigidbody.isKinematic;
             _RangedGrabInteractionModule = new(handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
             _physicsConstants = physicsConstants;
 
             _RangedGrabInteractionModule.OnLocalInteractorRequestGrab += (InteractorID interactorID) => _StateModule.SetGrabbed(interactorID);
             _RangedGrabInteractionModule.OnLocalInteractorRequestDrop += (InteractorID interactorID) => _StateModule.SetDropped(interactorID);
 
-            _StateModule.OnGrabConfirmed += (IInteractor interactor) => _RangedGrabInteractionModule.ConfirmGrabOnInteractor(interactor);
-            _StateModule.OnDropConfirmed += (IInteractor interactor) => _RangedGrabInteractionModule.ConfirmDropOnInteractor(interactor);
+            _StateModule.OnGrabConfirmed += HandleGrabConfirmed;
+            _StateModule.OnDropConfirmed += HandleDropConfirmed;
         }
 
         // private void HandleLocalInteractorRequestGrab(InteractorID interactorID) =>  _StateModule.SetGrabbed(interactorID);
 
         // private void HandleLocalInteractorRequestDrop(InteractorID interactorID) => _StateModule.SetDropped(interactorID);
         
-        // private void HandleGrabConfirmed(IInteractor interactor) => _RangedGrabInteractionModule.ConfirmGrabOnInteractor(interactor);
+        private void HandleGrabConfirmed(IInteractor interactor)
+        {
+            _rigidbody.isKinematic = false;
+            _RangedGrabInteractionModule.ConfirmGrabOnInteractor(interactor);
+        }
     
-        // private void HandleDropConfirmed(IInteractor interactor) => _RangedGrabInteractionModule.ConfirmDropOnInteractor(interactor);
+        private void HandleDropConfirmed(IInteractor interactor)
+        {
+            _rigidbody.isKinematic = _isKinematicOnStart;
+            _RangedGrabInteractionModule.ConfirmDropOnInteractor(interactor);
+        } 
 
         public void HandleFixedUpdate()
         {
@@ -94,8 +104,8 @@ namespace VE2.Core.VComponents.Internal
             // _RangedGrabInteractionModule.OnLocalInteractorRequestGrab -= HandleLocalInteractorRequestGrab;
             // _RangedGrabInteractionModule.OnLocalInteractorRequestDrop -= HandleLocalInteractorRequestDrop;
 
-            // _StateModule.OnGrabConfirmed -= HandleGrabConfirmed;
-            // _StateModule.OnDropConfirmed -= HandleDropConfirmed;
+            _StateModule.OnGrabConfirmed -= HandleGrabConfirmed;
+            _StateModule.OnDropConfirmed -= HandleDropConfirmed;
         }
     }
 }

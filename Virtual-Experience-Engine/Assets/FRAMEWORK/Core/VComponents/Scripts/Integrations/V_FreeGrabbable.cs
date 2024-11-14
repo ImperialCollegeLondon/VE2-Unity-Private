@@ -30,7 +30,12 @@ namespace VE2.Core.VComponents.Integration
         {
             string id = "FreeGrabbable-" + gameObject.name;
 
-            List<IHandheldInteraction> handheldInteractions = new(); //TODO: perform GetComponent to populate list
+            List<IHandheldInteractionModule> handheldInteractions = new(); //TODO: perform GetComponent to populate list
+
+            if(TryGetComponent(out V_HandheldActivatable handheldActivatable))
+            {
+                handheldInteractions.Add(handheldActivatable.HandheldClickInteractionModule);
+            }
 
             _service = new FreeGrabbableService(
                 handheldInteractions,

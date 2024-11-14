@@ -12,11 +12,11 @@ namespace VE2.Core.VComponents.Internal
     {
         internal event Action<InteractorID> OnLocalInteractorRequestGrab;
         internal event Action<InteractorID> OnLocalInteractorRequestDrop;
-        public List<IHandheldInteraction> HandheldInteractions {get; private set; } = new();
+        public List<IHandheldInteractionModule> HandheldInteractions {get; private set; } = new();
 
         public Transform CurrentGrabbingGrabberTransform { get; private set; }
 
-        public RangedGrabInteractionModule(List<IHandheldInteraction> handheldInteractions, RangedInteractionConfig config, GeneralInteractionConfig generalInteractionConfig) : base(config, generalInteractionConfig) 
+        public RangedGrabInteractionModule(List<IHandheldInteractionModule> handheldInteractions, RangedInteractionConfig config, GeneralInteractionConfig generalInteractionConfig) : base(config, generalInteractionConfig) 
         {
             HandheldInteractions = handheldInteractions;
         }
