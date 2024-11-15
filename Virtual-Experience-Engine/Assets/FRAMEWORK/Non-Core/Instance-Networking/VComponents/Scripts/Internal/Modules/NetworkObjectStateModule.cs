@@ -32,7 +32,6 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
             try
             {
                 BinaryFormatter binaryFormatter = new();
-                _state.SerializedNetworkObject.Position = 0;
                 _state.SerializedNetworkObject.SetLength(0);
                 binaryFormatter.Serialize(_state.SerializedNetworkObject, unserializedNetworkObject);
             }
@@ -48,7 +47,6 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
         private object DeserializedNetworkObject()
         {
             BinaryFormatter binaryFormatter = new();
-            _state.SerializedNetworkObject.Position = 0;
             object deserializedNetworkObject = binaryFormatter.Deserialize(_state.SerializedNetworkObject);
 
             return deserializedNetworkObject;
@@ -77,12 +75,20 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
     public class NetworkObjectState : VE2Serializable
     {
         public ushort StateChangeNumber { get; set; }
-        public MemoryStream SerializedNetworkObject { get; set; }
+        private MemoryStream _serializedNetworkObject;
+        public MemoryStream SerializedNetworkObject { 
+            get 
+            {
+                _serializedNetworkObject.Position = 0;
+                return _serializedNetworkObject;
+            } 
+            set => _serializedNetworkObject = value; 
+        }
 
         public NetworkObjectState()
         {
             StateChangeNumber = 0;
-            SerializedNetworkObject = new();
+            _serializedNetworkObject = new();
         }
 
         protected override byte[] ConvertToBytes()
@@ -94,7 +100,6 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
 
             writer.Write((int)SerializedNetworkObject.Length);
 
-            SerializedNetworkObject.Position = 0;
             if (SerializedNetworkObject.Length > 0)
                 SerializedNetworkObject.CopyTo(stream);
 
@@ -110,7 +115,6 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
 
             int bytesLength = reader.ReadInt32();
 
-            SerializedNetworkObject.Position = 0;
             SerializedNetworkObject.SetLength(0);
             byte[] networkObjectBytes = reader.ReadBytes(bytesLength);
             if (bytesLength > 0)
