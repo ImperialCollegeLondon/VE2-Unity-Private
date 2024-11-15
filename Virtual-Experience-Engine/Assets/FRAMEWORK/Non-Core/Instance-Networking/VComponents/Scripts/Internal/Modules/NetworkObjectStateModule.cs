@@ -20,23 +20,21 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
     {
         public UnityEvent<object> OnStateChange => _config.OnStateChange;
 
-        private MemoryStream _serializedNetworkObject = new();
-        public object NetworkObject { get => GetUnserializedNetworkObject(); set => HandleExternalStateChange(value); }
+        public object NetworkObject { get => DeserializedNetworkObject(); set => SerializeNetworkObject(value); }
 
         private NetworkObjectState _state => (NetworkObjectState)State;
         private NetworkObjectStateConfig _config => (NetworkObjectStateConfig)Config;
 
-
         public NetworkObjectStateModule(VE2Serializable state, BaseStateConfig config, string id, WorldStateModulesContainer worldStateModulesContainer) : base(state, config, id, worldStateModulesContainer) { }
 
-        private void HandleExternalStateChange(object unserializedNetworkObject)
+        private void SerializeNetworkObject(object unserializedNetworkObject)
         {
             try
             {
                 BinaryFormatter binaryFormatter = new();
-                binaryFormatter.Serialize(_serializedNetworkObject, unserializedNetworkObject);
-
-                _state.SerializedNetworkObject = _serializedNetworkObject;
+                _state.SerializedNetworkObject.Position = 0;
+                _state.SerializedNetworkObject.SetLength(0);
+                binaryFormatter.Serialize(_state.SerializedNetworkObject, unserializedNetworkObject);
             }
             catch (Exception e)
             {
@@ -47,10 +45,11 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
             InvokeCustomerOnStateChangeEvent();
         }
 
-        private object GetUnserializedNetworkObject()
+        private object DeserializedNetworkObject()
         {
             BinaryFormatter binaryFormatter = new();
-            object deserializedNetworkObject = binaryFormatter.Deserialize(_serializedNetworkObject);
+            _state.SerializedNetworkObject.Position = 0;
+            object deserializedNetworkObject = binaryFormatter.Deserialize(_state.SerializedNetworkObject);
 
             return deserializedNetworkObject;
         }
@@ -66,7 +65,6 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
                 Debug.Log($"Error when emitting OnStateChange from NetworkObject with ID {ID} \n{e.Message}\n{e.StackTrace}");
             }
         }
-
 
         protected override void UpdateBytes(byte[] newBytes)
         {
@@ -84,7 +82,7 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
         public NetworkObjectState()
         {
             StateChangeNumber = 0;
-            SerializedNetworkObject = null;
+            SerializedNetworkObject = new();
         }
 
         protected override byte[] ConvertToBytes()
@@ -94,17 +92,11 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
 
             writer.Write(StateChangeNumber);
 
-            if (SerializedNetworkObject != null)
-            {
-                byte[] networkObjectBytes = SerializedNetworkObject.ToArray();
+            writer.Write((int)SerializedNetworkObject.Length);
 
-                writer.Write(networkObjectBytes.Length);
-                writer.Write(networkObjectBytes);
-            }
-            else
-            {
-                writer.Write(-1);
-            }
+            SerializedNetworkObject.Position = 0;
+            if (SerializedNetworkObject.Length > 0)
+                SerializedNetworkObject.CopyTo(stream);
 
             return stream.ToArray();
         }
@@ -115,21 +107,14 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
             using BinaryReader reader = new(stream);
 
             StateChangeNumber = reader.ReadUInt16();
+
             int bytesLength = reader.ReadInt32();
 
-            if (bytesLength != -1)
-            {
-                byte[] networkObjectBytes = reader.ReadBytes(bytesLength);
-
-                BinaryFormatter binaryFormatter = new BinaryFormatter();
-                MemoryStream SerializedNetworkObject = new(networkObjectBytes);
-
-                Debug.Log($"Successfully deserialized {binaryFormatter.Deserialize(SerializedNetworkObject)}");
-            }
-            else
-            {
-                SerializedNetworkObject = null;
-            }
+            SerializedNetworkObject.Position = 0;
+            SerializedNetworkObject.SetLength(0);
+            byte[] networkObjectBytes = reader.ReadBytes(bytesLength);
+            if (bytesLength > 0)
+                SerializedNetworkObject.Write(networkObjectBytes, 0, networkObjectBytes.Length);
         }
     }
 }

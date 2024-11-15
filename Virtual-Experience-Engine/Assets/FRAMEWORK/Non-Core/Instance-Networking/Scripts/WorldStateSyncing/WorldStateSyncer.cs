@@ -130,7 +130,7 @@ namespace VE2.InstanceNetworking
             }
             catch (System.Exception e)
             {
-                Debug.Log(e.Message + "\n bundles: " + _incommingWorldStateBundleBuffer.Count);
+                Debug.Log(e.Message + "\n bundles: " + _incommingWorldStateBundleBuffer.Count + " - " + e.StackTrace);
                 foreach (var bundle in _incommingWorldStateBundleBuffer)
                 {
                     Debug.Log("<color=blue>incomming bundle num states = " + bundle.WorldStateWrappers.Count + "</color> \n" + e.StackTrace);
