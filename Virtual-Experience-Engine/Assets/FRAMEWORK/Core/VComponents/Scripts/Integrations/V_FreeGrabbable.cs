@@ -36,6 +36,11 @@ namespace VE2.Core.VComponents.Integration
             {
                 handheldInteractions.Add(handheldActivatable.HandheldClickInteractionModule);
             }
+            if (TryGetComponent(out V_HandheldAdjustable handheldAdjustable))
+            {
+                handheldInteractions.Add(handheldAdjustable.HandheldScrollInteractionModule);
+            }
+
             _rigidbodyWrapper = new(GetComponent<Rigidbody>());
             _service = new FreeGrabbableService(
                 handheldInteractions,

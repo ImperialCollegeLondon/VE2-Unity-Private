@@ -15,11 +15,14 @@ public class PluginTest : MonoBehaviour
     [SerializeField] private GameObject _pushButtonGO;
     [SerializeField] private GameObject _freeGrabbableGO;
     [SerializeField] private GameObject _handheldActivatableGO;
+    [SerializeField] private GameObject _handheldAdjustableGO;
     [SerializeField] private GameObject _networkObjectGO;
+
 
     private IV_ToggleActivatable _pushActivatable => _pushButtonGO.GetComponent<IV_ToggleActivatable>();
     private IV_FreeGrabbable _freeGrabbable => _freeGrabbableGO.GetComponent<IV_FreeGrabbable>();
     private IV_HandheldActivatable _handheldActivatable => _handheldActivatableGO.GetComponent<IV_HandheldActivatable>();
+    private IV_HandheldAdjustable _handheldAdjustable => _handheldAdjustableGO.GetComponent<IV_HandheldAdjustable>();
     private IV_NetworkObject _networkObject => _networkObjectGO.GetComponent<IV_NetworkObject>();
 
     private int _counter = 0;
@@ -35,6 +38,7 @@ public class PluginTest : MonoBehaviour
 
         _handheldActivatable.OnActivate.AddListener(OnHandheldActivatableActivate);
         _handheldActivatable.OnDeactivate.AddListener(OnHandheldActivatableDeactivate);
+        _handheldAdjustable.OnValueAdjusted.AddListener(OnHandheldAdjustableValueAdjusted);
 
         _networkObject.OnStateChange.AddListener(HandleNetworkObjectStateChange);
     }
@@ -88,6 +92,11 @@ public class PluginTest : MonoBehaviour
         }
         else if(Keyboard.current.digit4Key.wasPressedThisFrame)
             _handheldActivatable.IsActivated = !_handheldActivatable.IsActivated;
+        else if(Keyboard.current.digit5Key.wasPressedThisFrame)
+            _handheldAdjustable.Value--;
+        else if (Keyboard.current.digit6Key.wasPressedThisFrame)
+            _handheldAdjustable.Value++;
+
     }
 
     private void OnHandheldActivatableActivate()
@@ -100,6 +109,12 @@ public class PluginTest : MonoBehaviour
     {
         Debug.Log("Handheld Activatable deactivated!");
         Debug.Log($"Handheld Activatable State = {_handheldActivatable.IsActivated}");
+    }
+
+    private void OnHandheldAdjustableValueAdjusted(float value)
+    {
+        Debug.Log("Handheld Adjustable Adjusted!");
+        Debug.Log($"Handheld Adjustable Value = {_handheldAdjustable.Value}");
     }
 
     private void HandleNetworkObjectStateChange(object data)

@@ -17,6 +17,8 @@ namespace VE2.Core.Player
         {
             inputHandler.OnMouseLeftClick += HandleLeftClick;
             inputHandler.OnKeyboardActionKeyPressed += HandleActionKeyPressed;
+            inputHandler.OnMouseScrollUp += HandleScrollUp;
+            inputHandler.OnMouseScrollDown += HandleScrollDown;
         }
 
         private void HandleLeftClick()
@@ -58,7 +60,26 @@ namespace VE2.Core.Player
                 }
             }
         }
-
+        private void HandleScrollUp()
+        {
+            foreach (IHandheldInteractionModule handheldInteraction in _CurrentGrabbingGrabbable.HandheldInteractions)
+            {
+                if (handheldInteraction is IHandheldScrollInteractionModule handheldScrollInteraction)
+                {
+                    handheldScrollInteraction.ScrollUp(_InteractorID.ClientID);
+                }
+            }
+        }
+        private void HandleScrollDown()
+        {
+            foreach (IHandheldInteractionModule handheldInteraction in _CurrentGrabbingGrabbable.HandheldInteractions)
+            {
+                if (handheldInteraction is IHandheldScrollInteractionModule handheldScrollInteraction)
+                {
+                    handheldScrollInteraction.ScrollDown(_InteractorID.ClientID);
+                }
+            }
+        }
         public override Transform ConfirmGrab(IRangedGrabInteractionModule rangedGrabInteractable)
         {
             _CurrentGrabbingGrabbable = rangedGrabInteractable;
@@ -91,6 +112,8 @@ namespace VE2.Core.Player
         {
             inputHandler.OnMouseLeftClick -= HandleLeftClick;
             inputHandler.OnKeyboardActionKeyPressed -= HandleActionKeyPressed;
+            inputHandler.OnMouseScrollUp -= HandleScrollUp;
+            inputHandler.OnMouseScrollDown -= HandleScrollDown;
         }
     }
 
