@@ -57,8 +57,6 @@ namespace VE2.Core.VComponents.Tests
         {
             _HandheldActivatable = HandheldActivatable;
         }
-
-
     }
 }
 

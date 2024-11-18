@@ -52,8 +52,8 @@ namespace VE2.Core.VComponents.Tests
     public class PluginScriptMock
     {
         public virtual void HandleActivateReceived() { }
-
         public virtual void HandleDeactivateReceived() { }
+        public virtual void HandleValueAdjusted(float value) { }
     }
 
     public class V_ToggleActivatableStub : IV_ToggleActivatable, IRangedClickPlayerInteractableIntegrator, ICollidePlayerInteractableIntegrator
