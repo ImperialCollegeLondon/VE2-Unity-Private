@@ -22,6 +22,11 @@ namespace VE2.Core.Tests
             PlayerSettingsProviderStub = Substitute.For<IPlayerSettingsProvider>();
             PlayerSettingsProviderStub.UserSettings.Returns(new UserSettingsPersistable());
         }
+
+        public static void StubUserSettingsValueForPlayerSettingsProviderStub(UserSettingsPersistable userSettings)
+        {
+            PlayerSettingsProviderStub.UserSettings.Returns(userSettings);
+        }
     }
 
     [SetUpFixture]
@@ -53,10 +58,13 @@ namespace VE2.Core.Tests
 
             MultiplayerSupportStub = Substitute.For<IMultiplayerSupport>();
             MultiplayerSupportStub.IsConnectedToServer.Returns(true);
-            MultiplayerSupportStub.LocalClientID.Returns(localClientID);
-
             InteractorID = new(localClientID, InteractorType.Mouse2D);
             InteractorGameobjectName = $"Interactor{InteractorID.ClientID}-{InteractorID.InteractorType}";
+        }
+
+        public static void StubLocalClientIDForMultiplayerSupportStub(ushort localClientID)
+        {
+            MultiplayerSupportStub.LocalClientID.Returns(localClientID);
         }
     }
 
@@ -82,16 +90,16 @@ namespace VE2.Core.Tests
         [OneTimeSetUp]
         public void GameObjectFindProviderStubSetupOnce()
         {
-            string interactorGameobjectName = MultiplayerSupportSetup.InteractorGameobjectName;
-            IInteractor interactorStub = InteractorSetup.InteractorStub;
-            GameObject interactorGameObject = InteractorSetup.InteractorGameObject;
-
             //Stub out the game object find provider
             GameObjectFindProviderStub = Substitute.For<IGameObjectFindProvider>();
+        }
+
+        public static void StubFindGameObjectForGameObjectFindProviderStub(GameObject interactorGameObject)
+        {
             GameObjectFindProviderStub.FindGameObject(MultiplayerSupportSetup.InteractorGameobjectName).Returns(interactorGameObject);
             GameObjectFindProviderStub.TryGetComponent<IInteractor>(interactorGameObject, out Arg.Any<IInteractor>()).Returns(x =>
             {
-                x[1] = interactorStub;
+                x[1] = InteractorSetup.InteractorStub;
                 return true;
             });
         }
@@ -102,10 +110,14 @@ namespace VE2.Core.Tests
     {
         public static IRaycastProvider RaycastProviderStub { get; private set; }
 
-        public static void SetUpRaycastProviderStub(IRangedInteractionModule rangedInteractionModule)
+        [OneTimeSetUp]
+        public void RayCastProviderStubSetupOnce()
         {
-            //Stub out the raycast provider to return the provided interaction module
             RaycastProviderStub = Substitute.For<IRaycastProvider>();
+        }
+
+        public static void StubRangedInteractionModuleForRaycastProviderStub(IRangedInteractionModule rangedInteractionModule)
+        {
             RaycastProviderStub
                 .TryGetRangedInteractionModule(default, default, out Arg.Any<RaycastResultWrapper>(), default, default)
                 .ReturnsForAnyArgs(x =>
@@ -121,7 +133,8 @@ namespace VE2.Core.Tests
     {
         public static PlayerService PlayerServiceStub { get; private set; }
 
-        public static void SetUpPlayerServiceStub()
+        [OneTimeSetUp]
+        public void SetUpPlayerServiceStub()
         {
             //Create the player (2d)
             PlayerServiceStub = new(

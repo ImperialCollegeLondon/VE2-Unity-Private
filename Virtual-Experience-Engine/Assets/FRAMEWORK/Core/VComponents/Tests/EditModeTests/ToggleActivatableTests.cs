@@ -24,21 +24,21 @@ namespace VE2.Core.VComponents.Tests
         public void SetUpOnce()
         {
             //Create the activatable
-            _v_activatableStub = VComponentStubFactory.CreateToggleActivatableStub();
+            ToggleActivatableService toggleActivatable = ToggleActivatableServiceStubFactory.Create();
+            _v_activatableStub = new(toggleActivatable);
 
             //Get interfaces
             _activatablePluginInterface = _v_activatableStub;
-        }
 
-        //setup that runs before every test method in this class
-        [SetUp]
-        public void SetUpBeforeEveryTest()
-        {
             //Wire up the customer script to receive the events           
             _customerScript = Substitute.For<PluginScriptMock>();
             _activatablePluginInterface.OnActivate.AddListener(_customerScript.HandleActivateReceived);
             _activatablePluginInterface.OnDeactivate.AddListener(_customerScript.HandleDeactivateReceived);
         }
+
+        //setup that runs before every test method in this class
+        [SetUp]
+        public void SetUpBeforeEveryTest() { }
 
         //test method to confirm that the activatable emits the correct events when Activated/Deactivated
         [Test]
@@ -109,10 +109,10 @@ namespace VE2.Core.VComponents.Tests
         }
     }
 
-    public static class VComponentStubFactory
+    public static class ToggleActivatableServiceStubFactory
     {
         //factory method to create the activatable stub
-        public static V_ToggleActivatableStub CreateToggleActivatableStub(
+        public static ToggleActivatableService Create(
             ToggleActivatableConfig config = null,
             SingleInteractorActivatableState interactorState = null,
             string debugName = "debug",
@@ -127,10 +127,7 @@ namespace VE2.Core.VComponents.Tests
             //Create the activatable with default values
             ToggleActivatableService toggleActivatable = new(config, interactorState, debugName, worldStateModules);
 
-            //Stub out the VC (integration layer) with the activatable
-            V_ToggleActivatableStub activatableStub = new(toggleActivatable);
-
-            return activatableStub;
+            return toggleActivatable;
         }
     }
 }

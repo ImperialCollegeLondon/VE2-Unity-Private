@@ -5,6 +5,7 @@ using VE2.Core.VComponents.Tests;
 using VE2.Core.VComponents.PluginInterfaces;
 using UnityEngine;
 using VE2.Core.VComponents.InteractableFindables;
+using VE2.Core.VComponents.Internal;
 
 
 namespace VE2.Core.Tests
@@ -19,50 +20,49 @@ namespace VE2.Core.Tests
         private V_ToggleActivatableStub _v_activatableStub;
         private IRangedClickPlayerInteractableIntegrator _activatableRaycastInterface;
         private IInputHandler _inputHandlerStub;
-        private ushort _localClientID;
 
         //Setup Once for every single test in this test fixture
         [OneTimeSetUp]
         public void SetUpOnce()
         {
             //Create the activatable
-            _v_activatableStub = VComponentStubFactory.CreateToggleActivatableStub();
+            ToggleActivatableService toggleActivatableService = ToggleActivatableServiceStubFactory.Create();
+            _v_activatableStub = new(toggleActivatableService);
+
+            //hook up interfaces
             _activatablePluginInterface = _v_activatableStub;
             _activatableRaycastInterface = _v_activatableStub;
 
-            RayCastProviderSetup.SetUpRaycastProviderStub(_activatableRaycastInterface.RangedClickInteractionModule);
-            PlayerServiceSetup.SetUpPlayerServiceStub();
-
             _inputHandlerStub = InputHandlerSetup.InputHandlerStub;
-            _localClientID = MultiplayerSupportSetup.InteractorID.ClientID;
-        }
 
-        //setup that runs before every test method in this test fixture
-        [SetUp]
-        public void SetUpBeforeEveryTest()
-        {
             //Wire up the customer script to receive the events           
             _customerScript = Substitute.For<PluginScriptMock>();
             _activatablePluginInterface.OnActivate.AddListener(_customerScript.HandleActivateReceived);
             _activatablePluginInterface.OnDeactivate.AddListener(_customerScript.HandleDeactivateReceived);
         }
 
+        //setup that runs before every test method in this test fixture
+        [SetUp]
+        public void SetUpBeforeEveryTest() { }
+
         //test method to confirm that the activatable emits the correct events when the player interacts with it
         [Test]
-        public void OnUserClick_WithHoveringActivatable_CustomerScriptReceivesOnActivate()
+        public void OnUserClick_WithHoveringActivatable_CustomerScriptReceivesOnActivate( [Random((ushort) 0, ushort.MaxValue, 1)] ushort localClientID)
         {
+            RayCastProviderSetup.StubRangedInteractionModuleForRaycastProviderStub(_activatableRaycastInterface.RangedClickInteractionModule);
+            MultiplayerSupportSetup.MultiplayerSupportStub.LocalClientID.Returns(localClientID);
+
             //Check customer received the activation, and that the interactorID is set
             _inputHandlerStub.OnMouseLeftClick += Raise.Event<Action>();
             _customerScript.Received(1).HandleActivateReceived();
             Assert.IsTrue(_activatablePluginInterface.IsActivated, "Activatable should be activated");
-            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, _localClientID);
+            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, localClientID);
 
             // Invoke the click to deactivate
             _inputHandlerStub.OnMouseLeftClick += Raise.Event<Action>();
             _customerScript.Received(1).HandleDeactivateReceived();
-
             Assert.IsFalse(_activatablePluginInterface.IsActivated, "Activatable should be deactivated");
-            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, _localClientID);
+            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, localClientID);
         }
 
         //tear down that runs after every test method in this test fixture
