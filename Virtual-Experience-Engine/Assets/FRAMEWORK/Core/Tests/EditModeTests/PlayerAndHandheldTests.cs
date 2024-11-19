@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using VE2.Common;
+using VE2.Core.Common;
 using VE2.Core.Player;
 using VE2.Core.VComponents.InteractableFindables;
 using VE2.Core.VComponents.InteractableInterfaces;
@@ -73,7 +74,9 @@ namespace VE2.Core.Tests
             playerSettingsProviderStub.UserSettings.Returns(new UserSettingsPersistable());
 
             //Stub out the input handler    
-            IInputHandler inputHandlerStub = Substitute.For<IInputHandler>();
+            IPressableInput grabInputStub = Substitute.For<IPressableInput>();
+            IPressableInput handheldInputStub = Substitute.For<IPressableInput>();
+            PlayerInputContainer playerInputContainerStub = PlayerInputContainerStubFactory.Create(grab2D: grabInputStub, handheldClick2D: handheldInputStub); 
 
             //Stub out the raycast provider to hit the activatable GO with 0 range
             IRaycastProvider raycastProviderStub = Substitute.For<IRaycastProvider>();
@@ -95,7 +98,7 @@ namespace VE2.Core.Tests
                 playerSettingsProviderStub,
                 Substitute.For<IPlayerAppearanceOverridesProvider>(),
                 multiplayerSupportStub,
-                inputHandlerStub,
+                playerInputContainerStub,
                 raycastProviderStub,
                 Substitute.For<IXRManagerWrapper>()
             );
@@ -106,22 +109,21 @@ namespace VE2.Core.Tests
             handheldActivatablePluginInterface.OnDeactivate.AddListener(pluginScriptMock.HandleDeactivateReceived);
 
             //Invoke grab, check customer received the grab, and that the interactorID is set
-            inputHandlerStub.OnMouseLeftClick += Raise.Event<Action>();
+            grabInputStub.OnPressed += Raise.Event<Action>();
             Assert.IsTrue(grabbablePluginInterface.IsGrabbed);
             Assert.AreEqual(grabbablePluginInterface.MostRecentInteractingClientID, localClientID);
 
             //Invoke Activate, Check customer received the activate, and that the interactorID is set
-            inputHandlerStub.OnKeyboardActionKeyPressed += Raise.Event<Action>();
+            handheldInputStub.OnPressed += Raise.Event<Action>();
             pluginScriptMock.Received(1).HandleActivateReceived();
             Assert.IsTrue(handheldActivatablePluginInterface.IsActivated);
             Assert.AreEqual(handheldActivatablePluginInterface.MostRecentInteractingClientID, localClientID);
 
             //Invoke Deactivate, Check customer received the deactivate, and that the interactorID is set
-            inputHandlerStub.OnKeyboardActionKeyPressed += Raise.Event<Action>();
+            handheldInputStub.OnPressed += Raise.Event<Action>();
             pluginScriptMock.Received(1).HandleDeactivateReceived();
             Assert.IsFalse(handheldActivatablePluginInterface.IsActivated);
             Assert.AreEqual(handheldActivatablePluginInterface.MostRecentInteractingClientID, localClientID);
         }
     }
 }
-

@@ -12,6 +12,7 @@ using static VE2.Common.CommonSerializables;
 using VE2.Core.Player;
 using System;
 using VE2.Core.VComponents.Tests;
+using VE2.Core.Common;
 
 namespace VE2.Core.Tests
 {
@@ -64,7 +65,8 @@ namespace VE2.Core.Tests
             playerSettingsProviderStub.UserSettings.Returns(new UserSettingsPersistable());
 
             //Stub out the input handler    
-            IInputHandler inputHandlerStub = Substitute.For<IInputHandler>();
+            IPressableInput grabInputStub = Substitute.For<IPressableInput>();
+            PlayerInputContainer playerInputContainerStub = PlayerInputContainerStubFactory.Create(grab2D: grabInputStub); 
 
             //Stub out the raycast provider to hit the activatable GO with 0 range
             IRaycastProvider raycastProviderStub = Substitute.For<IRaycastProvider>();
@@ -86,7 +88,7 @@ namespace VE2.Core.Tests
                 playerSettingsProviderStub,
                 Substitute.For<IPlayerAppearanceOverridesProvider>(),
                 multiplayerSupportStub,
-                inputHandlerStub,
+                playerInputContainerStub,
                 raycastProviderStub, 
                 Substitute.For<IXRManagerWrapper>()
             );
@@ -97,13 +99,13 @@ namespace VE2.Core.Tests
             grabbablePluginInterface.OnDrop.AddListener(pluginScript.HandleDropReceived);
 
             //Invoke grab, check customer received the grab, and that the interactorID is set
-            inputHandlerStub.OnMouseLeftClick += Raise.Event<Action>();
+            grabInputStub.OnPressed += Raise.Event<Action>();
             pluginScript.Received(1).HandleGrabReceived();
             Assert.IsTrue(grabbablePluginInterface.IsGrabbed);
             Assert.AreEqual(grabbablePluginInterface.MostRecentInteractingClientID, localClientID);
 
             //Invoke drop, Check customer received the drop, and that the interactorID is set
-            inputHandlerStub.OnMouseLeftClick += Raise.Event<Action>();
+            grabInputStub.OnPressed += Raise.Event<Action>();
             pluginScript.Received(1).HandleDropReceived();
             Assert.IsFalse(grabbablePluginInterface.IsGrabbed);
             Assert.AreEqual(grabbablePluginInterface.MostRecentInteractingClientID, localClientID);

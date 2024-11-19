@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using VE2.Common;
 using VE2.Core.Common;
-using VE2.Common;
 using static VE2.Common.CommonSerializables;
 
 namespace VE2.Core.Player
@@ -39,11 +38,16 @@ namespace VE2.Core.Player
         }
 
         private Player2DControlConfig _controlConfig;
+        private Player2DInputContainer _player2DInputContainer;
 
-        public void Initialize(Player2DControlConfig controlConfig, IMultiplayerSupport multiplayerSupport, IInputHandler inputHandler, IRaycastProvider raycastProvider) 
+        public void Initialize(Player2DControlConfig controlConfig, IMultiplayerSupport multiplayerSupport, Player2DInputContainer player2DInputContainer, IRaycastProvider raycastProvider) 
         {
             _controlConfig = controlConfig;
-            _interactor2D.Initialize(_camera2D, multiplayerSupport, inputHandler, raycastProvider);
+            _player2DInputContainer = player2DInputContainer;
+            _interactor2D.Initialize(_camera2D.transform, InteractorType.Mouse2D, multiplayerSupport, player2DInputContainer.InteractorInputContainer2D, raycastProvider);
+
+            //TODO: think about inspect mode, does that live in the interactor, or the player controller?
+            //If interactor, will need to make the interactor2d constructor take a this as a param, and forward the other params to the base constructor
         }
 
         public override void ActivatePlayer(PlayerTransformData initTransformData)
@@ -53,11 +57,15 @@ namespace VE2.Core.Player
             _camera2D.transform.rotation = initTransformData.HeadLocalRotation;
             _interactor2D.GrabberTransform.SetLocalPositionAndRotation(initTransformData.Hand2DLocalPosition, initTransformData.Hand2DLocalRotation);
             gameObject.SetActive(true);
+
+            _interactor2D.HandleOnEnable();
         }
 
         public override void DeactivatePlayer() 
         {
             gameObject.SetActive(false);
+
+            _interactor2D.HandleOnDisable();
         }
     }
 }

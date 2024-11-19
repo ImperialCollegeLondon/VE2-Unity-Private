@@ -11,86 +11,25 @@ namespace VE2.Core.Player
     {
         [SerializeField] private Image reticuleImage;
 
-        protected override InteractorType InteractorType => InteractorType.Mouse2D;
-
-        protected override void SubscribeToInputHandler(IInputHandler inputHandler) 
+        protected override void SetInteractorState(InteractorState newState)
         {
-            inputHandler.OnMouseLeftClick += HandleLeftClick;
-            inputHandler.OnKeyboardActionKeyPressed += HandleActionKeyPressed;
-        }
+            reticuleImage.enabled = newState != InteractorState.Grabbing;
 
-        private void HandleLeftClick()
-        {
-            if (_CurrentGrabbingGrabbable != null)
+            switch (newState)
             {
-                IRangedGrabInteractionModule rangedGrabInteractableToDrop = _CurrentGrabbingGrabbable;
-                _CurrentGrabbingGrabbable = null;
-                rangedGrabInteractableToDrop.RequestLocalDrop(_InteractorID);
+                case InteractorState.Idle:
+                    reticuleImage.color = StaticColors.Instance.lightBlue;
+                    break;
+                case InteractorState.InteractionAvailable:
+                    reticuleImage.color = StaticColors.Instance.tangerine;
+                    break;
+                case InteractorState.InteractionLocked:
+                    reticuleImage.color = Color.red;
+                    break;
+                case InteractorState.Grabbing:
+                    //No colour 
+                    break;
             }
-            else if (TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable))
-            {
-                if (!hoveringInteractable.AdminOnly)
-                {
-                    if (hoveringInteractable is IRangedClickInteractionModule rangedClickInteractable)
-                    {
-                        rangedClickInteractable.Click(_InteractorID.ClientID);
-                    }
-                    else if (hoveringInteractable is IRangedGrabInteractionModule rangedGrabInteractable)
-                    {
-                        _CurrentGrabbingGrabbable = rangedGrabInteractable;
-                        rangedGrabInteractable.RequestLocalGrab(_InteractorID);
-                    }
-                }
-                else 
-                {
-                    //TODO, maybe play an error sound or something
-                }
-            }
-        }
-
-        private void HandleActionKeyPressed() 
-        {
-            foreach (IHandheldInteractionModule handheldInteraction in _CurrentGrabbingGrabbable.HandheldInteractions)
-            {
-                if (handheldInteraction is IHandheldClickInteractionModule handheldClickInteraction)
-                {
-                    handheldClickInteraction.Click(_InteractorID.ClientID);
-                }
-            }
-        }
-
-        public override Transform ConfirmGrab(IRangedGrabInteractionModule rangedGrabInteractable)
-        {
-            _CurrentGrabbingGrabbable = rangedGrabInteractable;
-            reticuleImage.enabled = false;
-            return GrabberTransform;
-        }
-
-        public override void ConfirmDrop()
-        {
-            _CurrentGrabbingGrabbable = null;
-            reticuleImage.enabled = true;
-        }
-
-        void Update()
-        {
-            if (TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable))
-            {
-                bool isAllowedToInteract = !hoveringInteractable.AdminOnly; 
-                reticuleImage.color = isAllowedToInteract ? StaticColors.Instance.tangerine : Color.red;
-                _RaycastHitDebug = hoveringInteractable.ToString();
-            }
-            else 
-            {
-                reticuleImage.color = StaticColors.Instance.lightBlue;
-                _RaycastHitDebug = "none";
-            }
-        }
-
-        protected override void UnsubscribeFromInputHandler(IInputHandler inputHandler)
-        {
-            inputHandler.OnMouseLeftClick -= HandleLeftClick;
-            inputHandler.OnKeyboardActionKeyPressed -= HandleActionKeyPressed;
         }
     }
 

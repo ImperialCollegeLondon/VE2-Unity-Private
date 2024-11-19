@@ -102,12 +102,6 @@ namespace VE2.Core.Player
         private void OnDisable() 
         {
             _playerService?.TearDown();
-
-            if (enableVR && VE2CoreServiceLocator.Instance.XRManagerWrapper.IsInitializationComplete)
-            {
-                VE2CoreServiceLocator.Instance.XRManagerWrapper.StopSubsystems();
-                VE2CoreServiceLocator.Instance.XRManagerWrapper.DeinitializeLoader();
-            }
         }
     }
 }

@@ -1,5 +1,6 @@
 using UnityEngine;
 using VE2.Common;
+using VE2.Core.Common;
 using static VE2.Common.CommonSerializables;
 
 namespace VE2.Core.Player
@@ -13,7 +14,7 @@ namespace VE2.Core.Player
                 VE2CoreServiceLocator.Instance.PlayerSettingsProvider, 
                 VE2CoreServiceLocator.Instance.PlayerAppearanceOverridesProvider,
                 VE2CoreServiceLocator.Instance.MultiplayerSupport, 
-                VE2CoreServiceLocator.Instance.InputHandler,
+                VE2CoreServiceLocator.Instance.InputHandler.PlayerInputContainer,
                 new RaycastProvider(),
                 VE2CoreServiceLocator.Instance.XRManagerWrapper);
         }
@@ -27,25 +28,25 @@ namespace VE2.Core.Player
         private bool _enable2D;
         private bool _enableVR;
 
-        private readonly IInputHandler _inputHandler;
+        private readonly PlayerInputContainer _playerInputContainer;
 
         private PlayerController _activePlayer => _playerStateModule.PlayerTransformData.IsVRMode? _playerVR : _player2D;
 
         public PlayerService(PlayerTransformData state, PlayerStateConfig config, bool enableVR, bool enable2D, 
             PlayerStateModuleContainer playerStateModuleContainer, IPlayerSettingsProvider playerSettingsProvider, IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider, 
-            IMultiplayerSupport multiplayerSupport, IInputHandler inputHandler, IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper)
+            IMultiplayerSupport multiplayerSupport, PlayerInputContainer playerInputContainer, IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper)
         {
             _playerStateModule = new(state, config, playerStateModuleContainer, playerSettingsProvider, playerAppearanceOverridesProvider);
             _playerStateModule.OnAvatarAppearanceChanged += HandleAvatarAppearanceChanged;
 
             _enable2D = enable2D;
             _enableVR = enableVR;
-            _inputHandler = inputHandler;
+            _playerInputContainer = playerInputContainer;
 
             if (enableVR)
-                _playerVR = SpawnPlayerVR(playerSettingsProvider.UserSettings.PlayerVRControlConfig, multiplayerSupport, inputHandler, raycastProvider, xrManagerSettingsWrapper);
+                _playerVR = SpawnPlayerVR(playerSettingsProvider.UserSettings.PlayerVRControlConfig, multiplayerSupport, _playerInputContainer.PlayerVRInputContainer, raycastProvider, xrManagerSettingsWrapper);
             if (enable2D)
-                _player2D = SpawnPlayer2D(playerSettingsProvider.UserSettings.Player2DControlConfig, multiplayerSupport, inputHandler, raycastProvider);
+                _player2D = SpawnPlayer2D(playerSettingsProvider.UserSettings.Player2DControlConfig, multiplayerSupport, _playerInputContainer.Player2DInputContainer, raycastProvider);
 
             //TODO, figure out what mode to start in? Maybe we need some persistent data to remember the mode in the last scene??
             if (_playerStateModule.PlayerTransformData.IsVRMode)
@@ -53,26 +54,26 @@ namespace VE2.Core.Player
             else 
                 _player2D.ActivatePlayer(_playerStateModule.PlayerTransformData);
 
-            _inputHandler.OnChangeModePressed += HandleChangeModePressed;   
+            _playerInputContainer.ChangeMode.OnPressed += HandleChangeModePressed;   
         }
 
-        private PlayerController2D SpawnPlayer2D(Player2DControlConfig player2DControlConfig, IMultiplayerSupport multiplayerSupport, IInputHandler inputHandler, IRaycastProvider raycastProvider) 
+        private PlayerController2D SpawnPlayer2D(Player2DControlConfig player2DControlConfig, IMultiplayerSupport multiplayerSupport, Player2DInputContainer player2DInputContainer, IRaycastProvider raycastProvider) 
         {
             GameObject player2DPrefab = Resources.Load("2dPlayer") as GameObject;
             GameObject instantiated2DPlayer = GameObject.Instantiate(player2DPrefab, null, false);
             instantiated2DPlayer.SetActive(false);
             PlayerController2D playerController2D = instantiated2DPlayer.GetComponent<PlayerController2D>();
-            playerController2D.Initialize(player2DControlConfig, multiplayerSupport, inputHandler, raycastProvider);
+            playerController2D.Initialize(player2DControlConfig, multiplayerSupport, player2DInputContainer, raycastProvider);
             return playerController2D;
         }
 
-        private PlayerControllerVR SpawnPlayerVR(PlayerVRControlConfig playerVRControlConfig, IMultiplayerSupport multiplayerSupport, IInputHandler inputHandler, IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper)
+        private PlayerControllerVR SpawnPlayerVR(PlayerVRControlConfig playerVRControlConfig, IMultiplayerSupport multiplayerSupport, PlayerVRInputContainer playerVRInputContainer, IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper)
         {
             GameObject playerVRPrefab = Resources.Load("vrPlayer") as GameObject;
             GameObject instantiatedVRPlayer = GameObject.Instantiate(playerVRPrefab, null, false);
             instantiatedVRPlayer.SetActive(false);
             PlayerControllerVR playerControllerVR = instantiatedVRPlayer.GetComponent<PlayerControllerVR>();
-            playerControllerVR.Initialize(playerVRControlConfig, multiplayerSupport, inputHandler, raycastProvider, xrManagerSettingsWrapper);
+            playerControllerVR.Initialize(playerVRControlConfig, multiplayerSupport, playerVRInputContainer, raycastProvider, xrManagerSettingsWrapper);
             return playerControllerVR;
         }
 
@@ -104,7 +105,7 @@ namespace VE2.Core.Player
 
         private void HandleAvatarAppearanceChanged(AvatarAppearance appearance)
         {
-            //TODO - Change local avatar
+            //TODO - Change local avatar, materials and models etc
         }   
 
         public void HandleFixedUpdate()
@@ -127,7 +128,7 @@ namespace VE2.Core.Player
                 GameObject.DestroyImmediate(_playerVR.gameObject);
 
             _playerStateModule.TearDown();
-            _inputHandler.OnChangeModePressed -= HandleChangeModePressed;
+            _playerInputContainer.ChangeMode.OnPressed -= HandleChangeModePressed;
         }
     }
 

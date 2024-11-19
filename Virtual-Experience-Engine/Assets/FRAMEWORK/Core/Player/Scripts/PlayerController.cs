@@ -5,7 +5,7 @@ using VE2.Common;
 
 namespace VE2.Core.Player 
 {
-    public abstract class PlayerController : MonoBehaviour
+    public abstract class PlayerController : MonoBehaviour //TODO: Can this just be an interface? Or do we even need this at all?
     {
         public abstract PlayerTransformData PlayerTransformData { get; }
         public abstract void ActivatePlayer(PlayerTransformData initialTransformData);

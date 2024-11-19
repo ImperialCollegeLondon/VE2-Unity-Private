@@ -9,6 +9,7 @@ using VE2.Common;
 using static VE2.Common.CommonSerializables;
 using VE2.Core.VComponents.InteractableFindables;
 using VE2.Core.VComponents.Internal;
+using VE2.Core.Common;
 
 namespace VE2.Core.Tests
 {
@@ -44,7 +45,8 @@ namespace VE2.Core.Tests
             multiplayerSupportStub.LocalClientID.Returns(localClientID);
 
             //Stub out the input handler    
-            IInputHandler inputHandlerStub = Substitute.For<IInputHandler>();
+            IPressableInput rangedClickInputStub = Substitute.For<IPressableInput>();
+            PlayerInputContainer playerInputContainerStub = PlayerInputContainerStubFactory.Create(rangedClick2D: rangedClickInputStub); 
 
             //Stub out the raycast provider to hit the activatable GO with 0 range
             IRaycastProvider raycastProviderStub = Substitute.For<IRaycastProvider>();
@@ -66,7 +68,7 @@ namespace VE2.Core.Tests
                 playerSettingsProviderStub,
                 Substitute.For<IPlayerAppearanceOverridesProvider>(),
                 multiplayerSupportStub,
-                inputHandlerStub,
+                playerInputContainerStub,
                 raycastProviderStub, 
                 Substitute.For<IXRManagerWrapper>()
             );
@@ -77,16 +79,57 @@ namespace VE2.Core.Tests
             activatablePluginInterface.OnDeactivate.AddListener(PluginScriptMock.HandleDeactivateReceived);
 
             //Check customer received the activation, and that the interactorID is set
-            inputHandlerStub.OnMouseLeftClick += Raise.Event<Action>();
+            rangedClickInputStub.OnPressed += Raise.Event<Action>();
             PluginScriptMock.Received(1).HandleActivateReceived(); 
             Assert.IsTrue(activatablePluginInterface.IsActivated);
             Assert.AreEqual(activatablePluginInterface.MostRecentInteractingClientID, localClientID);
 
             // Invoke the click to deactivate
-            inputHandlerStub.OnMouseLeftClick += Raise.Event<Action>();
+            rangedClickInputStub.OnPressed += Raise.Event<Action>();
             PluginScriptMock.Received(1).HandleDeactivateReceived();
             Assert.IsFalse(activatablePluginInterface.IsActivated);
             Assert.AreEqual(activatablePluginInterface.MostRecentInteractingClientID, localClientID);
+        }
+    }
+
+    public static class PlayerInputContainerStubFactory
+    {
+        public static PlayerInputContainer Create(
+            IPressableInput changeMode2D = null,
+            IPressableInput inspectModeButton = null, IPressableInput rangedClick2D = null, IPressableInput grab2D = null, IPressableInput handheldClick2D = null, IScrollInput scrollTickUp2D = null, IScrollInput scrollTickDown2D = null,
+            IPressableInput resetViewVR = null,
+            IPressableInput rangedClickVRLeft = null, IPressableInput grabVRLeft = null, IPressableInput handheldClickVRLeft = null, IScrollInput scrollTickUpVRLeft = null, IScrollInput scrollTickDownVRLeft = null,
+            IPressableInput rangedClickVRRight = null, IPressableInput grabVRRight = null, IPressableInput handheldClickVRRight = null, IScrollInput scrollTickUpVRRight = null, IScrollInput scrollTickDownVRRight = null)
+        {
+            // Substitute null inputs with mock implementations
+            changeMode2D ??= Substitute.For<IPressableInput>();
+            inspectModeButton ??= Substitute.For<IPressableInput>();
+            rangedClick2D ??= Substitute.For<IPressableInput>();
+            grab2D ??= Substitute.For<IPressableInput>();
+            handheldClick2D ??= Substitute.For<IPressableInput>();
+            scrollTickUp2D ??= Substitute.For<IScrollInput>();
+            scrollTickDown2D ??= Substitute.For<IScrollInput>();
+            resetViewVR ??= Substitute.For<IPressableInput>();
+            rangedClickVRLeft ??= Substitute.For<IPressableInput>();
+            grabVRLeft ??= Substitute.For<IPressableInput>();
+            handheldClickVRLeft ??= Substitute.For<IPressableInput>();
+            scrollTickUpVRLeft ??= Substitute.For<IScrollInput>();
+            scrollTickDownVRLeft ??= Substitute.For<IScrollInput>();
+            rangedClickVRRight ??= Substitute.For<IPressableInput>();
+            grabVRRight ??= Substitute.For<IPressableInput>();
+            handheldClickVRRight ??= Substitute.For<IPressableInput>();
+            scrollTickUpVRRight ??= Substitute.For<IScrollInput>();
+            scrollTickDownVRRight ??= Substitute.For<IScrollInput>();
+
+            // Return a PlayerInputContainer with all inputs set
+            return new PlayerInputContainer(
+                changeMode2D,
+                inspectModeButton, 
+                rangedClick2D, grab2D, handheldClick2D, scrollTickUp2D, scrollTickDown2D,
+                resetViewVR,
+                rangedClickVRLeft, grabVRLeft, handheldClickVRLeft, scrollTickUpVRLeft, scrollTickDownVRLeft,
+                rangedClickVRRight, grabVRRight, handheldClickVRRight, scrollTickUpVRRight, scrollTickDownVRRight
+            );
         }
     }
 }

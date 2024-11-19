@@ -1,41 +1,267 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UIElements;
 
-public interface IInputHandler 
+namespace VE2.Core.Common
 {
-    public event Action OnMouseLeftClick;
-    public event Action OnChangeModePressed;
-    public event Action OnKeyboardActionKeyPressed;
-}
 
-public class InputHandler : MonoBehaviour, IInputHandler
-{
-    public event Action OnMouseLeftClick;
-    public event Action OnChangeModePressed;
-    public event Action OnKeyboardActionKeyPressed;
+    #region Input Types 
 
-    private void Update()
+    public interface IValueInput<T>
     {
-        HandleInput2D();
+        public event Action<T> OnValueChanged;
+        public T Value { get; }
     }
 
-    private void HandleInput2D()
+    public interface IPressableInput
     {
-        if (Mouse.current.leftButton.wasPressedThisFrame)
+        public event Action OnPressed;
+        public event Action OnReleased;
+        public bool IsPressed { get; }
+    }
+
+    public class PressableInput : IPressableInput
+    {
+        public event Action OnPressed;
+        public event Action OnReleased;
+        public bool IsPressed => _inputAction.IsPressed();
+
+        private readonly InputAction _inputAction;
+
+        public PressableInput(InputAction inputAction)
         {
-            OnMouseLeftClick?.Invoke();
+            _inputAction = inputAction;
+            _inputAction.Enable();
+            _inputAction.performed += ctx => OnPressed?.Invoke();
+            _inputAction.canceled += ctx => OnReleased?.Invoke();
+        }
+    }
+
+    public interface IScrollInput
+    {
+        public event Action OnTickOver;
+    }
+
+    public class ScrollInput : IScrollInput
+    {
+        public event Action OnTickOver;
+
+        private readonly InputAction _inputAction;
+        private float _minThreshold;
+        private float _maxThreshold;
+        private float _minTicksPerSecond;
+        private float _maxTicksPerSecond;
+        private float _timeOfLastTick;
+        private bool _scrollUp;
+
+        public ScrollInput(InputAction inputAction, float minThreshold, float maxThreshold, float minTicksPerSecond, float maxTicksPerSecond, bool scrollUp)
+        {
+            _inputAction = inputAction;
+            _inputAction.Enable();
+
+            _minThreshold = minThreshold;
+            _maxThreshold = maxThreshold;
+            _minTicksPerSecond = minTicksPerSecond;
+            _maxTicksPerSecond = maxTicksPerSecond;
+            _scrollUp = scrollUp;
         }
 
-        if (Keyboard.current.leftCtrlKey.isPressed && Keyboard.current.hKey.wasPressedThisFrame)
+        public void HandleUpdate()
         {
-            OnChangeModePressed?.Invoke();
+            if (_inputAction.ReadValue<Vector2>().y > _minThreshold)
+            {
+                float inputValue = _inputAction.ReadValue<Vector2>().y;
+                if (!_scrollUp)
+                    inputValue = 1 - inputValue;
+
+                float currentStickProgress = Mathf.InverseLerp(_minThreshold, _maxThreshold, inputValue);
+                float currentTickInterval = 1 / Mathf.Lerp(_minTicksPerSecond, _maxTicksPerSecond, currentStickProgress); //1 / speed
+                float timeSinceLastTick = Time.time - _timeOfLastTick;
+                bool shouldTick = timeSinceLastTick >= currentTickInterval;
+
+                if (timeSinceLastTick > currentTickInterval)
+                {
+                    OnTickOver?.Invoke();
+                    _timeOfLastTick = Time.time;
+                }
+            }
+        }
+    }
+
+    #endregion
+
+    #region Input Containers
+    public class PlayerInputContainer
+    {
+        public IPressableInput ChangeMode { get; private set; }
+        public Player2DInputContainer Player2DInputContainer { get; private set; }
+        public PlayerVRInputContainer PlayerVRInputContainer { get; private set; }
+
+        public PlayerInputContainer(
+            IPressableInput changeMode2D,
+            IPressableInput inspectModeButton,
+            IPressableInput rangedClick2D, IPressableInput grab2D, IPressableInput handheldClick2D, IScrollInput scrollTickUp2D, IScrollInput scrollTickDown2D,
+            IPressableInput resetViewVR,
+            IPressableInput rangedClickVRLeft, IPressableInput grabVRLeft, IPressableInput handheldClickVRLeft, IScrollInput scrollTickUpVRLeft, IScrollInput scrollTickDownVRLeft,
+            IPressableInput rangedClickVRRight, IPressableInput grabVRRight, IPressableInput handheldClickVRRight, IScrollInput scrollTickUpVRRight, IScrollInput scrollTickDownVRRight)
+        {
+            ChangeMode = changeMode2D;
+
+            Player2DInputContainer = new(
+                inspectModeButton,
+                new(rangedClick2D, grab2D, handheldClick2D, scrollTickUp2D, scrollTickDown2D)
+            );
+
+            PlayerVRInputContainer = new(
+                resetViewVR,
+                new(rangedClickVRLeft, grabVRLeft, handheldClickVRLeft, scrollTickUpVRLeft, scrollTickDownVRLeft),
+                new(rangedClickVRRight, grabVRRight, handheldClickVRRight, scrollTickUpVRRight, scrollTickDownVRRight)
+            );
+        }
+    }
+
+    public class Player2DInputContainer
+    {
+        public IPressableInput InspectModeButton { get; private set; }
+        public InteractorInputContainer InteractorInputContainer2D { get; private set; }
+
+        public Player2DInputContainer(IPressableInput inspectModeButton, InteractorInputContainer interactorInputContainer2D)
+        {
+            InspectModeButton = inspectModeButton;
+            InteractorInputContainer2D = interactorInputContainer2D;
+        }
+    }
+
+    public class PlayerVRInputContainer
+    {
+        public IPressableInput ResetView { get; private set; }
+        public InteractorInputContainer InteractorVRLeftInputContainer { get; private set; }
+        public InteractorInputContainer InteractorVRRightInputContainer { get; private set; }
+
+        public PlayerVRInputContainer(IPressableInput resetView, InteractorInputContainer interactorVRLeftInputContainer, InteractorInputContainer interactorVRRightInputContainer)
+        {
+            InteractorVRLeftInputContainer = interactorVRLeftInputContainer;
+            InteractorVRRightInputContainer = interactorVRRightInputContainer;
+            ResetView = resetView;
+        }
+    }
+
+    public class InteractorInputContainer
+    {
+        public IPressableInput RangedClick { get; private set; }
+        public IPressableInput Grab { get; private set; }
+        public IPressableInput HandheldClick { get; private set; }
+        public IScrollInput ScrollTickUp { get; private set; }
+        public IScrollInput ScrollTickDown { get; private set; }
+
+        public InteractorInputContainer(IPressableInput rangedClick, IPressableInput grab, IPressableInput handheldClick, IScrollInput scrollTickUp, IScrollInput scrollTickDown)
+        {
+            RangedClick = rangedClick;
+            Grab = grab;
+            HandheldClick = handheldClick;
+            ScrollTickUp = scrollTickUp;
+            ScrollTickDown = scrollTickDown;
+        }
+    }
+    #endregion
+
+    public interface IInputHandler
+    {
+        public PlayerInputContainer PlayerInputContainer { get; }
+        public IPressableInput ToggleMenu { get; }
+    }
+
+    //TODO: The actual handler could go into its own assembly... where to draw the line though? Each interface could also go into its own assembly too...
+    //Could also expose different interfaces in the ServiceLocator, rather than the single IInputHandler
+    public class InputHandler : MonoBehaviour, IInputHandler
+    {
+        public PlayerInputContainer PlayerInputContainer { get; private set; }
+        public IPressableInput ToggleMenu { get; private set; }
+
+        //Special cases, need to be updated manually to mimic the mouse scroll wheel notches
+        private List<ScrollInput> _scrollInputs;
+        private const float MIN_SCROLL_THRESHOLD_2D = -1;
+        private const float MAX_SCROLL_THRESHOLD_2D = 1;
+        private const float MIN_SCROLL_THRESHOLD_VR = 0.15f;
+        private const float MAX_SCROLL_THRESHOLD_VR = 1;
+        private const float MIN_SCROLL_TICKS_PER_SECOND = 1;
+        private const float MAX_SCROLL_TICKS_PER_SECOND = 10;
+
+        private void Awake()
+        {
+            InputActionAsset inputActionAsset = Resources.Load<InputActionAsset>("V_InputActions");
+
+            // Player Action Map
+            InputActionMap actionMapPlayer = inputActionAsset.FindActionMap("InputPlayer");
+            PressableInput changeMode2D = new(actionMapPlayer.FindAction("ToggleMode"));
+
+            // 2D Action Map
+            InputActionMap actionMap2D = inputActionAsset.FindActionMap("Input2D");
+            PressableInput inspectModeButton = new(actionMap2D.FindAction("InspectMode"));
+
+            // 2D Interactor Action Map
+            InputActionMap actionMapInteractor2D = inputActionAsset.FindActionMap("InputInteractor2D");
+            PressableInput rangedClick2D = new(actionMapInteractor2D.FindAction("RangedClick"));
+            PressableInput grab2D = new(actionMapInteractor2D.FindAction("Grab"));
+            PressableInput handheldClick2D = new(actionMapInteractor2D.FindAction("HandheldClick"));
+            ScrollInput scrollTickUp2D = new(actionMapInteractor2D.FindAction("ScrollValue"), MIN_SCROLL_THRESHOLD_2D, MAX_SCROLL_THRESHOLD_2D, MIN_SCROLL_TICKS_PER_SECOND, MAX_SCROLL_TICKS_PER_SECOND, true);
+            ScrollInput scrollTickDown2D = new(actionMapInteractor2D.FindAction("ScrollValue"), MIN_SCROLL_THRESHOLD_2D, MAX_SCROLL_THRESHOLD_2D, MIN_SCROLL_TICKS_PER_SECOND, MAX_SCROLL_TICKS_PER_SECOND, false);
+
+            // VR Action Map
+            InputActionMap actionMapVR = inputActionAsset.FindActionMap("InputVR");
+            PressableInput resetViewVR = new(actionMapVR.FindAction("ResetView"));
+
+            // VR Left Hand Interactor Action Map
+            InputActionMap actionMapInteractorVRLeft = inputActionAsset.FindActionMap("InputInteractorVRLeft");
+            PressableInput rangedClickVRLeft = new(actionMapInteractorVRLeft.FindAction("RangedClick"));
+            PressableInput grabVRLeft = new(actionMapInteractorVRLeft.FindAction("Grab"));
+            PressableInput handheldClickVRLeft = new(actionMapInteractorVRLeft.FindAction("HandheldClick"));
+            ScrollInput scrollTickUpVRLeft = new(actionMapInteractorVRLeft.FindAction("ScrollValue"), MIN_SCROLL_THRESHOLD_VR, MAX_SCROLL_THRESHOLD_VR, MIN_SCROLL_TICKS_PER_SECOND, MAX_SCROLL_TICKS_PER_SECOND, true);
+            ScrollInput scrollTickDownVRLeft = new(actionMapInteractorVRLeft.FindAction("ScrollValue"), MIN_SCROLL_THRESHOLD_VR, MAX_SCROLL_THRESHOLD_VR, MIN_SCROLL_TICKS_PER_SECOND, MAX_SCROLL_TICKS_PER_SECOND, false);
+
+            // VR Right Hand Interactor Action Map
+            InputActionMap actionMapInteractorVRRight = inputActionAsset.FindActionMap("InputInteractorVRRight");
+            PressableInput rangedClickVRRight = new(actionMapInteractorVRRight.FindAction("RangedClick"));
+            PressableInput grabVRRight = new(actionMapInteractorVRRight.FindAction("Grab"));
+            PressableInput handheldClickVRRight = new(actionMapInteractorVRRight.FindAction("HandheldClick"));
+            ScrollInput scrollTickUpVRRight = new(actionMapInteractorVRRight.FindAction("ScrollValue"), MIN_SCROLL_THRESHOLD_VR, MAX_SCROLL_THRESHOLD_VR, MIN_SCROLL_TICKS_PER_SECOND, MAX_SCROLL_TICKS_PER_SECOND, true);
+            ScrollInput scrollTickDownVRRight = new(actionMapInteractorVRRight.FindAction("ScrollValue"), MIN_SCROLL_THRESHOLD_VR, MAX_SCROLL_THRESHOLD_VR, MIN_SCROLL_TICKS_PER_SECOND, MAX_SCROLL_TICKS_PER_SECOND, false);
+
+            // UI Action Map 
+            InputActionMap actionMapUI = inputActionAsset.FindActionMap("InputUI");
+            ToggleMenu = new PressableInput(actionMapUI.FindAction("ToggleMenu"));
+
+            // Initialize the PlayerInputContainer
+            PlayerInputContainer = new(
+                changeMode2D: changeMode2D,
+                inspectModeButton: inspectModeButton,
+                rangedClick2D: rangedClick2D,
+                grab2D: grab2D,
+                handheldClick2D: handheldClick2D,
+                scrollTickUp2D: scrollTickUp2D,
+                scrollTickDown2D: scrollTickDown2D,
+                resetViewVR: resetViewVR,
+                rangedClickVRLeft: rangedClickVRLeft,
+                grabVRLeft: grabVRLeft,
+                handheldClickVRLeft: handheldClickVRLeft,
+                scrollTickUpVRLeft: scrollTickUpVRLeft,
+                scrollTickDownVRLeft: scrollTickDownVRLeft,
+                rangedClickVRRight: rangedClickVRRight,
+                grabVRRight: grabVRRight,
+                handheldClickVRRight: handheldClickVRRight,
+                scrollTickUpVRRight: scrollTickUpVRRight,
+                scrollTickDownVRRight: scrollTickDownVRRight
+            );
+
+            _scrollInputs = new List<ScrollInput> { scrollTickUp2D, scrollTickDown2D, scrollTickUpVRLeft, scrollTickDownVRLeft, scrollTickUpVRRight, scrollTickDownVRRight };
         }
 
-        if (Keyboard.current.fKey.wasPressedThisFrame)
+        private void Update()
         {
-            OnKeyboardActionKeyPressed?.Invoke();
+            foreach (ScrollInput scrollInput in _scrollInputs)
+                scrollInput.HandleUpdate();
         }
     }
 }
+

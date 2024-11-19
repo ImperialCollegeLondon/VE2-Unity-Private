@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VE2.Core.Common;
 using static VE2.Common.CommonSerializables;
 
 namespace VE2.Common
