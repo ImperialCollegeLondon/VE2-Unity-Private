@@ -98,11 +98,14 @@ namespace VE2.Core.Tests
             IPressableInput changeMode2D = null,
             IPressableInput inspectModeButton = null, IPressableInput rangedClick2D = null, IPressableInput grab2D = null, IPressableInput handheldClick2D = null, IScrollInput scrollTickUp2D = null, IScrollInput scrollTickDown2D = null,
             IPressableInput resetViewVR = null,
+            IValueInput<Vector3> handVRLeftPosition = null, IValueInput<Quaternion> handVRLeftRotation = default,
             IPressableInput rangedClickVRLeft = null, IPressableInput grabVRLeft = null, IPressableInput handheldClickVRLeft = null, IScrollInput scrollTickUpVRLeft = null, IScrollInput scrollTickDownVRLeft = null,
+            IValueInput<Vector3> handVRRightPosition = null, IValueInput<Quaternion> handVRRightRotation = default,
             IPressableInput rangedClickVRRight = null, IPressableInput grabVRRight = null, IPressableInput handheldClickVRRight = null, IScrollInput scrollTickUpVRRight = null, IScrollInput scrollTickDownVRRight = null)
         {
-            // Substitute null inputs with mock implementations
             changeMode2D ??= Substitute.For<IPressableInput>();
+
+            //2D player
             inspectModeButton ??= Substitute.For<IPressableInput>();
             rangedClick2D ??= Substitute.For<IPressableInput>();
             grab2D ??= Substitute.For<IPressableInput>();
@@ -110,11 +113,19 @@ namespace VE2.Core.Tests
             scrollTickUp2D ??= Substitute.For<IScrollInput>();
             scrollTickDown2D ??= Substitute.For<IScrollInput>();
             resetViewVR ??= Substitute.For<IPressableInput>();
+
+            //Left hand VR
+            handVRLeftPosition ??= Substitute.For<IValueInput<Vector3>>();
+            handVRLeftRotation ??= Substitute.For<IValueInput<Quaternion>>();
             rangedClickVRLeft ??= Substitute.For<IPressableInput>();
             grabVRLeft ??= Substitute.For<IPressableInput>();
             handheldClickVRLeft ??= Substitute.For<IPressableInput>();
             scrollTickUpVRLeft ??= Substitute.For<IScrollInput>();
             scrollTickDownVRLeft ??= Substitute.For<IScrollInput>();
+
+            //Right hand VR
+            handVRRightPosition ??= Substitute.For<IValueInput<Vector3>>();
+            handVRRightRotation ??= Substitute.For<IValueInput<Quaternion>>();
             rangedClickVRRight ??= Substitute.For<IPressableInput>();
             grabVRRight ??= Substitute.For<IPressableInput>();
             handheldClickVRRight ??= Substitute.For<IPressableInput>();
@@ -123,12 +134,28 @@ namespace VE2.Core.Tests
 
             // Return a PlayerInputContainer with all inputs set
             return new PlayerInputContainer(
-                changeMode2D,
-                inspectModeButton, 
-                rangedClick2D, grab2D, handheldClick2D, scrollTickUp2D, scrollTickDown2D,
-                resetViewVR,
-                rangedClickVRLeft, grabVRLeft, handheldClickVRLeft, scrollTickUpVRLeft, scrollTickDownVRLeft,
-                rangedClickVRRight, grabVRRight, handheldClickVRRight, scrollTickUpVRRight, scrollTickDownVRRight
+                changeMode2D: changeMode2D,
+                inspectModeButton: inspectModeButton,
+                rangedClick2D: rangedClick2D,
+                grab2D: grab2D,
+                handheldClick2D: handheldClick2D,
+                scrollTickUp2D: scrollTickUp2D,
+                scrollTickDown2D: scrollTickDown2D,
+                resetViewVR: resetViewVR,
+                handVRLeftPosition: handVRLeftPosition,
+                handVRLeftRotation: handVRLeftRotation,
+                rangedClickVRLeft: rangedClickVRLeft,
+                grabVRLeft: grabVRLeft,
+                handheldClickVRLeft: handheldClickVRLeft,
+                scrollTickUpVRLeft: scrollTickUpVRLeft,
+                scrollTickDownVRLeft: scrollTickDownVRLeft,
+                handVRRightPosition: handVRRightPosition,
+                handVRRightRotation: handVRRightRotation,
+                rangedClickVRRight: rangedClickVRRight,
+                grabVRRight: grabVRRight,
+                handheldClickVRRight: handheldClickVRRight,
+                scrollTickUpVRRight: scrollTickUpVRRight,
+                scrollTickDownVRRight: scrollTickDownVRRight
             );
         }
     }

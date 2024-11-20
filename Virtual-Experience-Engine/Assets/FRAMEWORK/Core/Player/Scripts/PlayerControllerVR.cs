@@ -10,8 +10,14 @@ namespace VE2.Core.Player
     public class PlayerControllerVR : PlayerController
     {
         [SerializeField] private Transform _headTransform;
-        [SerializeField] private InteractorVR interactorVRLeft; 
-        [SerializeField] private InteractorVR interactorVRRight; 
+        // [SerializeField] private InteractorVR interactorVRLeft; 
+        // [SerializeField] private InteractorVR interactorVRRight; 
+
+        private V_HandController _handControllerLeft;
+        private V_HandController _handControllerRight;
+
+        [SerializeField] private Transform _rightHandHolder;
+        [SerializeField] private Transform _leftHandHolder;
 
         public override PlayerTransformData PlayerTransformData
         {
@@ -23,10 +29,10 @@ namespace VE2.Core.Player
                     transform.rotation,
                     _headTransform.transform.localPosition,
                     _headTransform.transform.rotation,
-                    interactorVRLeft.GrabberTransform.localPosition,
-                    interactorVRLeft.GrabberTransform.localRotation,
-                    interactorVRRight.GrabberTransform.localPosition,
-                    interactorVRRight.GrabberTransform.localRotation
+                    _handControllerLeft.GrabberTransform.localPosition,
+                    _handControllerLeft.GrabberTransform.localRotation,
+                    _handControllerRight.GrabberTransform.localPosition,
+                    _handControllerRight.GrabberTransform.localRotation
                 );
             }
         }
@@ -44,24 +50,27 @@ namespace VE2.Core.Player
 
             //TODO, instantiate the InteractorVRObjects, create one, mirror it for the second 
 
-            interactorVRLeft.Initialize(interactorVRLeft.transform, InteractorType.LeftHandVR, multiplayerSupport, _playerVRInputContainer.InteractorVRLeftInputContainer, raycastProvider);
-            interactorVRRight.Initialize(interactorVRLeft.transform, InteractorType.RightHandVR, multiplayerSupport, _playerVRInputContainer.InteractorVRLeftInputContainer, raycastProvider);
+            GameObject handVRLeftPrefab = Resources.Load<GameObject>("HandVRLeft");
+            GameObject handVRLeftGO = GameObject.Instantiate(handVRLeftPrefab, transform, false);
+            GameObject handVRRightGO = GameObject.Instantiate(handVRLeftPrefab, transform, false);
+            handVRRightGO.transform.localScale = new Vector3(-1, 1, 1);
+
+            _handControllerLeft = new V_HandController(handVRLeftGO, playerVRInputContainer.HandVRLeftInputContainer, InteractorType.LeftHandVR, multiplayerSupport, raycastProvider);
+            _handControllerRight = new V_HandController(handVRRightGO, playerVRInputContainer.HandVRRightInputContainer, InteractorType.RightHandVR, multiplayerSupport, raycastProvider);
         }
 
         public override void ActivatePlayer(PlayerTransformData initTransformData)
         {
             transform.SetPositionAndRotation(initTransformData.RootPosition, initTransformData.RootRotation);
             _headTransform.transform.SetLocalPositionAndRotation(initTransformData.HeadLocalPosition, initTransformData.HeadLocalRotation);
-            interactorVRLeft.GrabberTransform.SetLocalPositionAndRotation(initTransformData.HandVRLeftLocalPosition, initTransformData.HandVRLeftLocalRotation);
-            interactorVRLeft.GrabberTransform.SetLocalPositionAndRotation(initTransformData.HandVRRightLocalPosition, initTransformData.HandVRRightLocalRotation);
 
             gameObject.SetActive(true);
             _xrManagerSettingsWrapper.StartSubsystems();
 
             _playerVRInputContainer.ResetView.OnPressed += HandleResetViewPressed;
             _playerVRInputContainer.ResetView.OnReleased += HandleResetViewReleased;
-            interactorVRLeft.HandleOnEnable();
-            interactorVRRight.HandleOnEnable();
+
+            _handControllerLeft.HandleOnEnable();   
         }
 
         public override void DeactivatePlayer()
@@ -71,8 +80,6 @@ namespace VE2.Core.Player
 
             _playerVRInputContainer.ResetView.OnPressed -= HandleResetViewPressed;
             _playerVRInputContainer.ResetView.OnReleased -= HandleResetViewReleased;
-            interactorVRLeft.HandleOnDisable();
-            interactorVRRight.HandleOnDisable();
         }
 
         private void HandleResetViewPressed()

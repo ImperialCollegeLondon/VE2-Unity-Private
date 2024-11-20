@@ -64,7 +64,7 @@ namespace VE2.Core.VComponents.Tests
         #endregion
 
         #region Player Interfaces
-        ICollideInteractionModule ICollidePlayerInteractableIntegrator._CollideInteractionModule => _ToggleActivatable.ColliderInteractionModule;
+        ICollideInteractionModule ICollidePlayerInteractableIntegrator.CollideInteractionModule => _ToggleActivatable.ColliderInteractionModule;
         IRangedInteractionModule IRangedPlayerInteractableIntegrator.RangedInteractionModule => _ToggleActivatable.RangedClickInteractionModule;
         #endregion
 

@@ -505,6 +505,102 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "InputHandVRLeft",
+            "id": "0000c70a-3d47-419d-bec5-7cc887e21c2b",
+            "actions": [
+                {
+                    "name": "HandPosition",
+                    "type": "Value",
+                    "id": "22252098-6fba-4c89-969d-909fe5e427e9",
+                    "expectedControlType": "Vector3",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "HandRotation",
+                    "type": "Value",
+                    "id": "b0d727bb-348c-4f8e-b958-b25b5e366488",
+                    "expectedControlType": "Quaternion",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "3a61293e-708a-4b63-818f-654575ba1be9",
+                    "path": "<XRController>{LeftHand}/devicePosition",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HandPosition",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ca41ef79-4e27-4b90-bbb5-257ceaf37db3",
+                    "path": "<TrackedDevice>/deviceRotation",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HandRotation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "InputHandVRRight",
+            "id": "4ef7960d-bcda-4833-9ec2-1981d7a992f6",
+            "actions": [
+                {
+                    "name": "HandPosition",
+                    "type": "Value",
+                    "id": "74ab2dac-ef0a-4a8d-85da-30d7c0b44896",
+                    "expectedControlType": "Vector3",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "HandRotation",
+                    "type": "Value",
+                    "id": "f56d298a-588d-435e-ac65-7ed481063d81",
+                    "expectedControlType": "Quaternion",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "a837c8e8-2804-49f3-a268-3529b1fd1c37",
+                    "path": "<XRController>{RightHand}/devicePosition",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HandPosition",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "99311727-d097-4b61-88a0-237344bee73c",
+                    "path": "<XRController>{RightHand}/deviceRotation",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HandRotation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []

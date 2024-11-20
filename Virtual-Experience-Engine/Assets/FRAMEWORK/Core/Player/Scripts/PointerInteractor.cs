@@ -16,7 +16,7 @@ namespace VE2.Core.Player
         protected const float MAX_RAYCAST_DISTANCE = 10;
         protected IRangedGrabInteractionModule _CurrentGrabbingGrabbable;
         protected InteractorID _InteractorID => new(_multiplayerSupport == null ? (ushort)0 : _multiplayerSupport.LocalClientID, _InteractorType);
-        private bool _waitingForMultiplayerSupport => _multiplayerSupport != null && !_multiplayerSupport.IsConnectedToServer;
+        protected bool _WaitingForMultiplayerSupport => _multiplayerSupport != null && !_multiplayerSupport.IsConnectedToServer;
 
         //TODO: maybe these can all be private?
         protected Transform _RayOrigin;
@@ -35,20 +35,20 @@ namespace VE2.Core.Player
             _interactorInputContainer = interactorInputContainer;
             _RaycastProvider = raycastProvider;
 
-            if (_multiplayerSupport != null && !_multiplayerSupport.IsConnectedToServer)
+            if (_WaitingForMultiplayerSupport)
                 _multiplayerSupport.OnConnectedToServer += RenameInteractorToLocalID;
             else
                 RenameInteractorToLocalID();
         }
 
-        public void HandleOnEnable()
+        public virtual void HandleOnEnable()
         {
             _interactorInputContainer.RangedClick.OnPressed += HandleRangedClickPressed;
             _interactorInputContainer.HandheldClick.OnPressed += HandleHandheldClickPressed;
             _interactorInputContainer.Grab.OnPressed += HandleGrabPressed;
         }
 
-        public void HandleOnDisable()
+        public virtual void HandleOnDisable()
         {
             _interactorInputContainer.RangedClick.OnPressed -= HandleRangedClickPressed;
             _interactorInputContainer.HandheldClick.OnPressed -= HandleHandheldClickPressed;
@@ -70,7 +70,7 @@ namespace VE2.Core.Player
 
         void Update()
         {
-            if (TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable))
+            if (!_WaitingForMultiplayerSupport && TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable))
             {
                 bool isAllowedToInteract = !hoveringInteractable.AdminOnly;
                 SetInteractorState(isAllowedToInteract ? InteractorState.InteractionAvailable : InteractorState.InteractionLocked);
@@ -85,7 +85,7 @@ namespace VE2.Core.Player
 
         private void HandleRangedClickPressed()
         {
-            if (TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable))
+            if (!_WaitingForMultiplayerSupport && TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable))
             {
                 if (hoveringInteractable is IRangedClickInteractionModule rangedClickInteractable)
                     rangedClickInteractable.Click(_InteractorID.ClientID);
@@ -100,11 +100,10 @@ namespace VE2.Core.Player
                 _CurrentGrabbingGrabbable = null;
                 rangedGrabInteractableToDrop.RequestLocalDrop(_InteractorID);
             }
-            else if (TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable))
+            else if (!_WaitingForMultiplayerSupport && TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable))
             {
                 if (!hoveringInteractable.AdminOnly)
                 {
-
                     if (hoveringInteractable is IRangedGrabInteractionModule rangedGrabInteractable)
                     {
                         _CurrentGrabbingGrabbable = rangedGrabInteractable;
@@ -133,7 +132,7 @@ namespace VE2.Core.Player
 
         private void HandleHandheldClickPressed()
         {
-            if (_CurrentGrabbingGrabbable != null)
+            if (!_WaitingForMultiplayerSupport && _CurrentGrabbingGrabbable != null)
             {
                 foreach (IHandheldInteractionModule handheldInteraction in _CurrentGrabbingGrabbable.HandheldInteractions)
                 {
@@ -148,7 +147,7 @@ namespace VE2.Core.Player
         protected bool TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable)
         {
             // Perform the raycast using the layer mask
-            if (!_waitingForMultiplayerSupport && _RaycastProvider.TryGetRangedInteractionModule(_RayOrigin.position, _RayOrigin.transform.forward, out RaycastResultWrapper rangedInteractableHitResult, MAX_RAYCAST_DISTANCE, _LayerMask))
+            if (!_WaitingForMultiplayerSupport && _RaycastProvider.TryGetRangedInteractionModule(_RayOrigin.position, _RayOrigin.transform.forward, out RaycastResultWrapper rangedInteractableHitResult, MAX_RAYCAST_DISTANCE, _LayerMask))
             {
                 if (rangedInteractableHitResult.Distance <= rangedInteractableHitResult.RangedInteractable.InteractRange)
                 {

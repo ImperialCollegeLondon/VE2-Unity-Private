@@ -10,8 +10,20 @@ namespace VE2.Core.Common
 
     public interface IValueInput<T>
     {
-        public event Action<T> OnValueChanged;
         public T Value { get; }
+    }
+
+    public class ValueInput<T> : IValueInput<T> where T : struct
+    {
+        public T Value => _inputAction.ReadValue<T>(); 
+
+        private readonly InputAction _inputAction;
+
+        public ValueInput(InputAction inputAction)
+        {
+            _inputAction = inputAction;
+            _inputAction.Enable();
+        }
     }
 
     public interface IPressableInput
@@ -103,20 +115,22 @@ namespace VE2.Core.Common
             IPressableInput inspectModeButton,
             IPressableInput rangedClick2D, IPressableInput grab2D, IPressableInput handheldClick2D, IScrollInput scrollTickUp2D, IScrollInput scrollTickDown2D,
             IPressableInput resetViewVR,
+            IValueInput<Vector3> handVRLeftPosition, IValueInput<Quaternion> handVRLeftRotation,
             IPressableInput rangedClickVRLeft, IPressableInput grabVRLeft, IPressableInput handheldClickVRLeft, IScrollInput scrollTickUpVRLeft, IScrollInput scrollTickDownVRLeft,
+            IValueInput<Vector3> handVRRightPosition, IValueInput<Quaternion> handVRRightRotation,
             IPressableInput rangedClickVRRight, IPressableInput grabVRRight, IPressableInput handheldClickVRRight, IScrollInput scrollTickUpVRRight, IScrollInput scrollTickDownVRRight)
         {
             ChangeMode = changeMode2D;
 
             Player2DInputContainer = new(
                 inspectModeButton,
-                new(rangedClick2D, grab2D, handheldClick2D, scrollTickUp2D, scrollTickDown2D)
+                new InteractorInputContainer(rangedClick2D, grab2D, handheldClick2D, scrollTickUp2D, scrollTickDown2D)
             );
 
             PlayerVRInputContainer = new(
                 resetViewVR,
-                new(rangedClickVRLeft, grabVRLeft, handheldClickVRLeft, scrollTickUpVRLeft, scrollTickDownVRLeft),
-                new(rangedClickVRRight, grabVRRight, handheldClickVRRight, scrollTickUpVRRight, scrollTickDownVRRight)
+                new HandVRInputContainer(handVRLeftPosition, handVRLeftRotation, new InteractorInputContainer(rangedClickVRLeft, grabVRLeft, handheldClickVRLeft, scrollTickUpVRLeft, scrollTickDownVRLeft)),
+                new HandVRInputContainer(handVRRightPosition, handVRRightRotation, new InteractorInputContainer(rangedClickVRRight, grabVRRight, handheldClickVRRight, scrollTickUpVRRight, scrollTickDownVRRight))
             );
         }
     }
@@ -136,14 +150,28 @@ namespace VE2.Core.Common
     public class PlayerVRInputContainer
     {
         public IPressableInput ResetView { get; private set; }
-        public InteractorInputContainer InteractorVRLeftInputContainer { get; private set; }
-        public InteractorInputContainer InteractorVRRightInputContainer { get; private set; }
+        public HandVRInputContainer HandVRLeftInputContainer { get; private set; }
+        public HandVRInputContainer HandVRRightInputContainer { get; private set; }
 
-        public PlayerVRInputContainer(IPressableInput resetView, InteractorInputContainer interactorVRLeftInputContainer, InteractorInputContainer interactorVRRightInputContainer)
+        public PlayerVRInputContainer(IPressableInput resetView, HandVRInputContainer handVRLeftInputContainer, HandVRInputContainer handVRRightInputContainer)
         {
-            InteractorVRLeftInputContainer = interactorVRLeftInputContainer;
-            InteractorVRRightInputContainer = interactorVRRightInputContainer;
             ResetView = resetView;
+            HandVRLeftInputContainer = handVRLeftInputContainer;
+            HandVRRightInputContainer = handVRRightInputContainer;
+        }
+    }
+
+    public class HandVRInputContainer
+    {
+        public IValueInput<Vector3> HandPosition { get; private set; }
+        public IValueInput<Quaternion> HandRotation { get; private set; }
+        public InteractorInputContainer InteractorVRInputContainer { get; private set; }
+
+        public HandVRInputContainer(IValueInput<Vector3> handPosition, IValueInput<Quaternion> handRotation, InteractorInputContainer interactorVRInputContainer)
+        {
+            HandPosition = handPosition;
+            HandRotation = handRotation;
+            InteractorVRInputContainer = interactorVRInputContainer;
         }
     }
 
@@ -188,6 +216,8 @@ namespace VE2.Core.Common
         private const float MIN_SCROLL_TICKS_PER_SECOND = 1;
         private const float MAX_SCROLL_TICKS_PER_SECOND = 10;
 
+        private IValueInput<Vector3> leftHandPos;
+
         private void Awake()
         {
             InputActionAsset inputActionAsset = Resources.Load<InputActionAsset>("V_InputActions");
@@ -212,7 +242,12 @@ namespace VE2.Core.Common
             InputActionMap actionMapVR = inputActionAsset.FindActionMap("InputVR");
             PressableInput resetViewVR = new(actionMapVR.FindAction("ResetView"));
 
-            // VR Left Hand Interactor Action Map
+            // VR Left Hand Action Map
+            InputActionMap actionMapHandVRLeft = inputActionAsset.FindActionMap("InputHandVRLeft");
+            ValueInput<Vector3> handVRLeftPosition = new(actionMapHandVRLeft.FindAction("HandPosition"));
+            ValueInput<Quaternion> handVRLeftRotation = new(actionMapHandVRLeft.FindAction("HandRotation"));
+
+            // VR Left Interactor Action Map
             InputActionMap actionMapInteractorVRLeft = inputActionAsset.FindActionMap("InputInteractorVRLeft");
             PressableInput rangedClickVRLeft = new(actionMapInteractorVRLeft.FindAction("RangedClick"));
             PressableInput grabVRLeft = new(actionMapInteractorVRLeft.FindAction("Grab"));
@@ -220,7 +255,12 @@ namespace VE2.Core.Common
             ScrollInput scrollTickUpVRLeft = new(actionMapInteractorVRLeft.FindAction("ScrollValue"), MIN_SCROLL_THRESHOLD_VR, MAX_SCROLL_THRESHOLD_VR, MIN_SCROLL_TICKS_PER_SECOND, MAX_SCROLL_TICKS_PER_SECOND, true);
             ScrollInput scrollTickDownVRLeft = new(actionMapInteractorVRLeft.FindAction("ScrollValue"), MIN_SCROLL_THRESHOLD_VR, MAX_SCROLL_THRESHOLD_VR, MIN_SCROLL_TICKS_PER_SECOND, MAX_SCROLL_TICKS_PER_SECOND, false);
 
-            // VR Right Hand Interactor Action Map
+            // VR Right Hand Action Map
+            InputActionMap actionMapHandVRRight = inputActionAsset.FindActionMap("InputHandVRRight");
+            ValueInput<Vector3> handVRRightPosition = new(actionMapHandVRRight.FindAction("HandPosition"));
+            ValueInput<Quaternion> handVRRightRotation = new(actionMapHandVRRight.FindAction("HandRotation"));
+
+            // VR Right Interactor Action Map
             InputActionMap actionMapInteractorVRRight = inputActionAsset.FindActionMap("InputInteractorVRRight");
             PressableInput rangedClickVRRight = new(actionMapInteractorVRRight.FindAction("RangedClick"));
             PressableInput grabVRRight = new(actionMapInteractorVRRight.FindAction("Grab"));
@@ -242,11 +282,15 @@ namespace VE2.Core.Common
                 scrollTickUp2D: scrollTickUp2D,
                 scrollTickDown2D: scrollTickDown2D,
                 resetViewVR: resetViewVR,
+                handVRLeftPosition: handVRLeftPosition,
+                handVRLeftRotation: handVRLeftRotation,
                 rangedClickVRLeft: rangedClickVRLeft,
                 grabVRLeft: grabVRLeft,
                 handheldClickVRLeft: handheldClickVRLeft,
                 scrollTickUpVRLeft: scrollTickUpVRLeft,
                 scrollTickDownVRLeft: scrollTickDownVRLeft,
+                handVRRightPosition: handVRRightPosition,
+                handVRRightRotation: handVRRightRotation,
                 rangedClickVRRight: rangedClickVRRight,
                 grabVRRight: grabVRRight,
                 handheldClickVRRight: handheldClickVRRight,
@@ -254,13 +298,18 @@ namespace VE2.Core.Common
                 scrollTickDownVRRight: scrollTickDownVRRight
             );
 
+            //TODO: Not really a big fan of the whole ScrollInput approach... scrollInputs should probably just be ValueInputs? 
             _scrollInputs = new List<ScrollInput> { scrollTickUp2D, scrollTickDown2D, scrollTickUpVRLeft, scrollTickDownVRLeft, scrollTickUpVRRight, scrollTickDownVRRight };
+
+            rangedClickVRLeft.OnPressed += () => Debug.Log("Ranged Click VR Left");
         }
 
         private void Update()
         {
             foreach (ScrollInput scrollInput in _scrollInputs)
                 scrollInput.HandleUpdate();
+
+            Debug.Log(leftHandPos.Value);
         }
     }
 }

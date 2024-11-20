@@ -2,6 +2,8 @@ using UnityEngine;
 using VE2.Core.VComponents.InteractableFindables;
 using VE2.Core.VComponents.InteractableInterfaces;
 
+//TODO: - namespace!
+
 public interface IRaycastProvider
 {
     bool TryGetRangedInteractionModule(Vector3 rayOrigin, Vector3 raycastDirection, out RaycastResultWrapper hit, float maxRaycastDistance, LayerMask layerMask);

@@ -20,7 +20,7 @@ namespace VE2.Core.VComponents.Integration
         #endregion
 
         #region Player Interfaces
-        ICollideInteractionModule ICollidePlayerInteractableIntegrator._CollideInteractionModule => _service.ColliderInteractionModule;
+        ICollideInteractionModule ICollidePlayerInteractableIntegrator.CollideInteractionModule => _service.ColliderInteractionModule;
         IRangedInteractionModule IRangedPlayerInteractableIntegrator.RangedInteractionModule => _service.RangedClickInteractionModule;
         #endregion
 

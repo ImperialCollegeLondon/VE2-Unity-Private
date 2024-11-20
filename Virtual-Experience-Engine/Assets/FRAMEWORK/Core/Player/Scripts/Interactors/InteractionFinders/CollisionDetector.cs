@@ -1,0 +1,35 @@
+using System;
+using UnityEngine;
+using VE2.Core.VComponents.InteractableFindables;
+using VE2.Core.VComponents.InteractableInterfaces;
+
+namespace VE2.Core.Player.InteractionFinders
+{
+    public interface ICollisionDetector
+    {
+        public event Action<ICollideInteractionModule> OnCollideStart;
+        public event Action<ICollideInteractionModule> OnCollideEnd;
+    }
+
+    public class CollisionDetector : MonoBehaviour, ICollisionDetector
+    {
+        public event Action<ICollideInteractionModule> OnCollideStart;
+        public event Action<ICollideInteractionModule> OnCollideEnd;
+
+        private void OnCollisionEnter(Collision collision)
+        {
+            if (collision.gameObject.TryGetComponent(out ICollidePlayerInteractableIntegrator collidable))
+            {
+                OnCollideStart?.Invoke(collidable.CollideInteractionModule);
+            }
+        }
+
+        private void OnCollisionExit(Collision collision)
+        {
+            if (collision.gameObject.TryGetComponent(out ICollidePlayerInteractableIntegrator collidable))
+            {
+                OnCollideEnd?.Invoke(collidable.CollideInteractionModule);
+            }
+        }
+    }
+}
