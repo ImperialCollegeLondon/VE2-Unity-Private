@@ -41,6 +41,7 @@ public class PluginTest : MonoBehaviour
         _handheldAdjustable.OnValueAdjusted.AddListener(OnHandheldAdjustableValueAdjusted);
 
         _networkObject.OnStateChange.AddListener(HandleNetworkObjectStateChange);
+
     }
 
     public void OnButtonActivate()

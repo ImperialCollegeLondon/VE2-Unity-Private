@@ -23,7 +23,7 @@ namespace VE2.Core.VComponents.Integration
         ICollideInteractionModule ICollidePlayerInteractableIntegrator._CollideInteractionModule => _service.ColliderInteractionModule;
         IRangedInteractionModule IRangedPlayerInteractableIntegrator.RangedInteractionModule => _service.RangedClickInteractionModule;
         #endregion
-
+        
         private ToggleActivatableService _service = null;
 
         private void OnEnable()

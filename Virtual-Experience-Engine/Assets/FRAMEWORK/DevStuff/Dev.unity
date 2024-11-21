@@ -3728,7 +3728,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &835746392
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3741,7 +3741,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8995ff54d324b04ea0f50966b2be213, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _connectOnStart: 0
+  _connectOnStart: 1
   _connectionStateDebug:
     ConnectionState: 0
   LocalClientIDWrapper:
@@ -7340,6 +7340,7 @@ MonoBehaviour:
             m_CallState: 2
       MinimumValue: 0
       MaximumValue: 3
+      EmitValueOnStart: 1
     HandheldAdjustableServiceConfig:
       LoopValues: 1
       StartingValue: 0
