@@ -8,6 +8,7 @@ namespace VE2.Core.Player
 {
     //TODO: DOesn't need to be a MB?
     //If not an MB, we need to figure out how the state module will find the interactor!!
+    //Through the ServiceLocator, maybe? Hmmn, needs to find remote interactors too though, maybe MB is actually fine here
     public abstract class PointerInteractor : MonoBehaviour, IInteractor
     {
         [SerializeField] public Transform GrabberTransform;
@@ -45,7 +46,6 @@ namespace VE2.Core.Player
 
         public virtual void HandleOnEnable()
         {
-            Debug.Log(gameObject.name + " Listening to inputs");
             _interactorInputContainer.RangedClick.OnPressed += HandleRangedClickPressed;
             _interactorInputContainer.HandheldClick.OnPressed += HandleHandheldClickPressed;
             _interactorInputContainer.Grab.OnPressed += HandleGrabPressed;
@@ -55,7 +55,6 @@ namespace VE2.Core.Player
 
         public virtual void HandleOnDisable()
         {
-            Debug.Log(gameObject.name + " Stopped listening to inputs");
             _interactorInputContainer.RangedClick.OnPressed -= HandleRangedClickPressed;
             _interactorInputContainer.HandheldClick.OnPressed -= HandleHandheldClickPressed;
             _interactorInputContainer.Grab.OnPressed -= HandleGrabPressed;

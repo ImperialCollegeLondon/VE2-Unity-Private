@@ -16,17 +16,17 @@ namespace VE2.Core.Player.InteractionFinders
         public event Action<ICollideInteractionModule> OnCollideStart;
         public event Action<ICollideInteractionModule> OnCollideEnd;
 
-        private void OnCollisionEnter(Collision collision)
+        private void OnTriggerEnter(Collider other)
         {
-            if (collision.gameObject.TryGetComponent(out ICollidePlayerInteractableIntegrator collidable))
+            if (other.gameObject.TryGetComponent(out ICollidePlayerInteractableIntegrator collidable))
             {
                 OnCollideStart?.Invoke(collidable.CollideInteractionModule);
             }
         }
 
-        private void OnCollisionExit(Collision collision)
+        private void OnTriggerExit(Collider other)
         {
-            if (collision.gameObject.TryGetComponent(out ICollidePlayerInteractableIntegrator collidable))
+            if (other.gameObject.TryGetComponent(out ICollidePlayerInteractableIntegrator collidable))
             {
                 OnCollideEnd?.Invoke(collidable.CollideInteractionModule);
             }

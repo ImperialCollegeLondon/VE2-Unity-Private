@@ -8,15 +8,17 @@ using VE2.Core.VComponents.InteractableInterfaces;
 public class InteractorVR : PointerInteractor
 {
     private V_CollisionDetector _collisionDetector;
+    private GameObject _handVisualGO;
     private LineRenderer _lineRenderer;
     private Material _lineMaterial;
     private const float LINE_EMISSION_INTENSITY = 15;
 
     public void InitializeVR(Transform rayOrigin, InteractorType interactorType, IMultiplayerSupport multiplayerSupport, InteractorInputContainer interactorInputContainer, IRaycastProvider raycastProvider,
-        V_CollisionDetector collisionDetector, LineRenderer lineRenderer) 
+        V_CollisionDetector collisionDetector, GameObject handVisualGO, LineRenderer lineRenderer) 
     {
         base.Initialize(rayOrigin, interactorType, multiplayerSupport, interactorInputContainer, raycastProvider);
         _collisionDetector = collisionDetector;
+        _handVisualGO = handVisualGO;
         _lineRenderer = lineRenderer;
         _lineMaterial = _lineRenderer.material;
         _lineMaterial.EnableKeyword("_EMISSION");
@@ -55,7 +57,7 @@ public class InteractorVR : PointerInteractor
 
     protected override void SetInteractorState(InteractorState newState)
     {
-        _lineRenderer.enabled = newState != InteractorState.Grabbing;
+        _handVisualGO.SetActive(newState != InteractorState.Grabbing);
 
         switch (newState)
         {
@@ -74,7 +76,6 @@ public class InteractorVR : PointerInteractor
                 _lineMaterial.SetColor("_EmissionColor", Color.red * LINE_EMISSION_INTENSITY);
                 break;
             case InteractorState.Grabbing:
-
                 break;
         }
     }

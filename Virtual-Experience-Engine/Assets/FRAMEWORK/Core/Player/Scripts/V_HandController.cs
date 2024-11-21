@@ -17,7 +17,7 @@ public class V_HandController
         V_HandVRReferences handVRReferences = handGO.GetComponent<V_HandVRReferences>();
         _interactor = handGO.GetComponent<InteractorVR>(); //TODO: Move to refs, or decouple from MB?
         _interactor.InitializeVR(handVRReferences.RayOrigin, interactorType, multiplayerSupport, handVRInputContainer.InteractorVRInputContainer, raycastProvider, 
-            handVRReferences.CollisionDetector, handVRReferences.LineRenderer);
+            handVRReferences.CollisionDetector, handVRReferences.HandVisualGO, handVRReferences.LineRenderer);
 
         //TODO: Ray should end at the racyast hit point... how do we do this? RaycastProvider needs to return even if it doesn't hit an interactable
     }
