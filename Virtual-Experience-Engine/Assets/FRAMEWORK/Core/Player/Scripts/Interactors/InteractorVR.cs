@@ -7,15 +7,19 @@ using VE2.Core.VComponents.InteractableInterfaces;
 
 public class InteractorVR : PointerInteractor
 {
-    private CollisionDetector _collisionDetector;
+    private V_CollisionDetector _collisionDetector;
     private LineRenderer _lineRenderer;
+    private Material _lineMaterial;
+    private const float LINE_EMISSION_INTENSITY = 15;
 
     public void InitializeVR(Transform rayOrigin, InteractorType interactorType, IMultiplayerSupport multiplayerSupport, InteractorInputContainer interactorInputContainer, IRaycastProvider raycastProvider,
-        CollisionDetector collisionDetector, LineRenderer lineRenderer) 
+        V_CollisionDetector collisionDetector, LineRenderer lineRenderer) 
     {
         base.Initialize(rayOrigin, interactorType, multiplayerSupport, interactorInputContainer, raycastProvider);
         _collisionDetector = collisionDetector;
         _lineRenderer = lineRenderer;
+        _lineMaterial = _lineRenderer.material;
+        _lineMaterial.EnableKeyword("_EMISSION");
     }
 
     public override void HandleOnEnable()
@@ -51,20 +55,21 @@ public class InteractorVR : PointerInteractor
         switch (newState)
         {
             case InteractorState.Idle:
-                _lineRenderer.startColor = StaticColors.Instance.lightBlue;
-                _lineRenderer.endColor = StaticColors.Instance.lightBlue;
+                _lineMaterial.color = StaticColors.Instance.lightBlue;
+                _lineMaterial.SetColor("_EmissionColor", StaticColors.Instance.lightBlue * LINE_EMISSION_INTENSITY);
                 break;
             case InteractorState.InteractionAvailable:
-                _lineRenderer.startColor = StaticColors.Instance.tangerine;
-                _lineRenderer.endColor = StaticColors.Instance.tangerine;
+
+                _lineMaterial.color = StaticColors.Instance.tangerine;
+                _lineMaterial.SetColor("_EmissionColor", StaticColors.Instance.tangerine * LINE_EMISSION_INTENSITY);
                 break;
             case InteractorState.InteractionLocked:
-                _lineRenderer.startColor = Color.red;
-                _lineRenderer.endColor = Color.red;
+
+                _lineMaterial.color = Color.red;
+                _lineMaterial.SetColor("_EmissionColor", Color.red * LINE_EMISSION_INTENSITY);
                 break;
             case InteractorState.Grabbing:
-                _lineRenderer.startColor = StaticColors.Instance.lightBlue;
-                _lineRenderer.endColor = StaticColors.Instance.lightBlue;
+
                 break;
         }
     }

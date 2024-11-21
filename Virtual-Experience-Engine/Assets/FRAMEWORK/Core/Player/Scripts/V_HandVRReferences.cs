@@ -1,7 +1,7 @@
 using UnityEngine;
 using VE2.Core.Player.InteractionFinders;
 
-public class HandVRReferences : MonoBehaviour
+public class V_HandVRReferences : MonoBehaviour
 {
     public LineRenderer LineRenderer => _lineRenderer;
     [SerializeField] private LineRenderer _lineRenderer;
@@ -9,8 +9,8 @@ public class HandVRReferences : MonoBehaviour
     public Transform RayOrigin => _rayOrigin;
     [SerializeField] private Transform _rayOrigin; 
 
-    public CollisionDetector CollisionDetector => _collisionDetector;
-    [SerializeField] private CollisionDetector _collisionDetector;
+    public V_CollisionDetector CollisionDetector => _collisionDetector;
+    [SerializeField] private V_CollisionDetector _collisionDetector;
 
     //TODO: Collision detector 
     //TODO: AnimationController?

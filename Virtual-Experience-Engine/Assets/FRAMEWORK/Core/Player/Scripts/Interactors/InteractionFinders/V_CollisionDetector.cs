@@ -11,7 +11,7 @@ namespace VE2.Core.Player.InteractionFinders
         public event Action<ICollideInteractionModule> OnCollideEnd;
     }
 
-    public class CollisionDetector : MonoBehaviour, ICollisionDetector
+    public class V_CollisionDetector : MonoBehaviour, ICollisionDetector
     {
         public event Action<ICollideInteractionModule> OnCollideStart;
         public event Action<ICollideInteractionModule> OnCollideEnd;

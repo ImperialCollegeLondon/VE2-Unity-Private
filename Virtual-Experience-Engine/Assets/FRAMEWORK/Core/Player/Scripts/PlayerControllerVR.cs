@@ -16,8 +16,8 @@ namespace VE2.Core.Player
         private V_HandController _handControllerLeft;
         private V_HandController _handControllerRight;
 
-        [SerializeField] private Transform _rightHandHolder;
         [SerializeField] private Transform _leftHandHolder;
+        [SerializeField] private Transform _rightHandHolder;
 
         public override PlayerTransformData PlayerTransformData
         {
@@ -50,9 +50,9 @@ namespace VE2.Core.Player
 
             //TODO, instantiate the InteractorVRObjects, create one, mirror it for the second 
 
-            GameObject handVRLeftPrefab = Resources.Load<GameObject>("HandVRLeft");
-            GameObject handVRLeftGO = GameObject.Instantiate(handVRLeftPrefab, transform, false);
-            GameObject handVRRightGO = GameObject.Instantiate(handVRLeftPrefab, transform, false);
+            GameObject handVRLeftPrefab = Resources.Load<GameObject>("HandModelVRLeft");
+            GameObject handVRLeftGO = GameObject.Instantiate(handVRLeftPrefab, _leftHandHolder, false);
+            GameObject handVRRightGO = GameObject.Instantiate(handVRLeftPrefab, _rightHandHolder, false);
             handVRRightGO.transform.localScale = new Vector3(-1, 1, 1);
 
             _handControllerLeft = new V_HandController(handVRLeftGO, playerVRInputContainer.HandVRLeftInputContainer, InteractorType.LeftHandVR, multiplayerSupport, raycastProvider);
@@ -70,7 +70,8 @@ namespace VE2.Core.Player
             _playerVRInputContainer.ResetView.OnPressed += HandleResetViewPressed;
             _playerVRInputContainer.ResetView.OnReleased += HandleResetViewReleased;
 
-            _handControllerLeft.HandleOnEnable();   
+            _handControllerLeft.HandleOnEnable();
+            _handControllerRight.HandleOnEnable();
         }
 
         public override void DeactivatePlayer()
@@ -80,6 +81,9 @@ namespace VE2.Core.Player
 
             _playerVRInputContainer.ResetView.OnPressed -= HandleResetViewPressed;
             _playerVRInputContainer.ResetView.OnReleased -= HandleResetViewReleased;
+
+            _handControllerLeft.HandleOnDisable();
+            _handControllerRight.HandleOnDisable();
         }
 
         private void HandleResetViewPressed()

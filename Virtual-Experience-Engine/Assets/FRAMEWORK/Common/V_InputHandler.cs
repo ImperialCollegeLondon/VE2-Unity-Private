@@ -216,8 +216,6 @@ namespace VE2.Core.Common
         private const float MIN_SCROLL_TICKS_PER_SECOND = 1;
         private const float MAX_SCROLL_TICKS_PER_SECOND = 10;
 
-        private IValueInput<Vector3> leftHandPos;
-
         private void Awake()
         {
             InputActionAsset inputActionAsset = Resources.Load<InputActionAsset>("V_InputActions");
@@ -301,15 +299,13 @@ namespace VE2.Core.Common
             //TODO: Not really a big fan of the whole ScrollInput approach... scrollInputs should probably just be ValueInputs? 
             _scrollInputs = new List<ScrollInput> { scrollTickUp2D, scrollTickDown2D, scrollTickUpVRLeft, scrollTickDownVRLeft, scrollTickUpVRRight, scrollTickDownVRRight };
 
-            rangedClickVRLeft.OnPressed += () => Debug.Log("Ranged Click VR Left");
+            rangedClickVRRight.OnPressed += () => Debug.Log("Ranged Click VR Left");
         }
 
         private void Update()
         {
             foreach (ScrollInput scrollInput in _scrollInputs)
                 scrollInput.HandleUpdate();
-
-            Debug.Log(leftHandPos.Value);
         }
     }
 }

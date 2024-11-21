@@ -587,7 +587,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1400002753366115961
 Transform:
   m_ObjectHideFlags: 0
@@ -4172,7 +4172,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 385957545340405095}
-  - component: {fileID: 3392911581517209120}
   m_Layer: 0
   m_Name: LeftHandAnchor
   m_TagString: Untagged
@@ -4197,23 +4196,6 @@ Transform:
   - {fileID: 1400002753366115961}
   m_Father: {fileID: 4996934038395276829}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3392911581517209120
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2910834422075083066}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3a2e16b5a99f9924cb3ffdf09ae525b2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GrabberTransform: {fileID: 385957545340405095}
-  _LayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  _RaycastHitDebug: 
 --- !u!1 &2923401573441832063
 GameObject:
   m_ObjectHideFlags: 0
@@ -5233,10 +5215,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _headTransform: {fileID: 898134213713562171}
-  interactorVRLeft: {fileID: 3392911581517209120}
-  interactorVRRight: {fileID: 6318908883900013224}
-  _rightHandHolder: {fileID: 0}
-  _leftHandHolder: {fileID: 0}
+  _rightHandHolder: {fileID: 6942805919433040815}
+  _leftHandHolder: {fileID: 385957545340405095}
 --- !u!1 &3434280277865962897
 GameObject:
   m_ObjectHideFlags: 0
@@ -6437,7 +6417,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8894464020673300305
 Transform:
   m_ObjectHideFlags: 0
@@ -10399,7 +10379,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6030134867346598031
 Transform:
   m_ObjectHideFlags: 0
@@ -11955,7 +11935,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6942805919433040815}
-  - component: {fileID: 6318908883900013224}
   m_Layer: 0
   m_Name: RightHandAnchor
   m_TagString: Untagged
@@ -11980,23 +11959,6 @@ Transform:
   - {fileID: 6030134867346598031}
   m_Father: {fileID: 4996934038395276829}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6318908883900013224
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6793680772509376371}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3a2e16b5a99f9924cb3ffdf09ae525b2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GrabberTransform: {fileID: 6942805919433040815}
-  _LayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  _RaycastHitDebug: 
 --- !u!1 &6799832156027924015
 GameObject:
   m_ObjectHideFlags: 0
@@ -12355,7 +12317,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &5923211080650353834
 Transform:
   m_ObjectHideFlags: 0

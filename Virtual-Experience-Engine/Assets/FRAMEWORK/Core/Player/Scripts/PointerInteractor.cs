@@ -7,6 +7,7 @@ using VE2.Core.VComponents.InteractableInterfaces;
 namespace VE2.Core.Player
 {
     //TODO: DOesn't need to be a MB?
+    //If not an MB, we need to figure out how the state module will find the interactor!!
     public abstract class PointerInteractor : MonoBehaviour, IInteractor
     {
         [SerializeField] public Transform GrabberTransform;
@@ -15,6 +16,7 @@ namespace VE2.Core.Player
 
         protected const float MAX_RAYCAST_DISTANCE = 10;
         protected IRangedGrabInteractionModule _CurrentGrabbingGrabbable;
+        protected bool IsCurrentlyGrabbing => _CurrentGrabbingGrabbable != null;
         protected InteractorID _InteractorID => new(_multiplayerSupport == null ? (ushort)0 : _multiplayerSupport.LocalClientID, _InteractorType);
         protected bool _WaitingForMultiplayerSupport => _multiplayerSupport != null && !_multiplayerSupport.IsConnectedToServer;
 
@@ -43,6 +45,7 @@ namespace VE2.Core.Player
 
         public virtual void HandleOnEnable()
         {
+            Debug.Log(gameObject.name + " Listening to inputs");
             _interactorInputContainer.RangedClick.OnPressed += HandleRangedClickPressed;
             _interactorInputContainer.HandheldClick.OnPressed += HandleHandheldClickPressed;
             _interactorInputContainer.Grab.OnPressed += HandleGrabPressed;
@@ -50,6 +53,7 @@ namespace VE2.Core.Player
 
         public virtual void HandleOnDisable()
         {
+            Debug.Log(gameObject.name + " Stopped listening to inputs");
             _interactorInputContainer.RangedClick.OnPressed -= HandleRangedClickPressed;
             _interactorInputContainer.HandheldClick.OnPressed -= HandleHandheldClickPressed;
             _interactorInputContainer.Grab.OnPressed -= HandleGrabPressed;
@@ -70,6 +74,9 @@ namespace VE2.Core.Player
 
         void Update()
         {
+            if (IsCurrentlyGrabbing)
+                return;
+
             if (!_WaitingForMultiplayerSupport && TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable))
             {
                 bool isAllowedToInteract = !hoveringInteractable.AdminOnly;
@@ -85,7 +92,7 @@ namespace VE2.Core.Player
 
         private void HandleRangedClickPressed()
         {
-            if (!_WaitingForMultiplayerSupport && TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable))
+            if (!_WaitingForMultiplayerSupport && !IsCurrentlyGrabbing && TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable))
             {
                 if (hoveringInteractable is IRangedClickInteractionModule rangedClickInteractable)
                     rangedClickInteractable.Click(_InteractorID.ClientID);
@@ -94,7 +101,7 @@ namespace VE2.Core.Player
 
         private void HandleGrabPressed()
         {
-            if (_CurrentGrabbingGrabbable != null)
+            if (IsCurrentlyGrabbing)
             {
                 IRangedGrabInteractionModule rangedGrabInteractableToDrop = _CurrentGrabbingGrabbable;
                 _CurrentGrabbingGrabbable = null;
@@ -132,7 +139,7 @@ namespace VE2.Core.Player
 
         private void HandleHandheldClickPressed()
         {
-            if (!_WaitingForMultiplayerSupport && _CurrentGrabbingGrabbable != null)
+            if (!_WaitingForMultiplayerSupport && IsCurrentlyGrabbing)
             {
                 foreach (IHandheldInteractionModule handheldInteraction in _CurrentGrabbingGrabbable.HandheldInteractions)
                 {

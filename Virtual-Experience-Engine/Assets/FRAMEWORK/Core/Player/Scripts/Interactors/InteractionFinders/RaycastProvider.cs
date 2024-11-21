@@ -15,6 +15,7 @@ public class RaycastProvider : IRaycastProvider
     {
         if (Physics.Raycast(rayOrigin, raycastDirection, out RaycastHit raycastHit, maxRaycastDistance, layerMask)) 
         {
+            //Debug.Log("Raycast hit: " + raycastHit.collider.name + " - pos " + raycastHit.point);
             if (raycastHit.collider.TryGetComponent(out IRangedPlayerInteractableIntegrator rangedPlayerInteractableIntegrator)) 
             {
                 result = new(rangedPlayerInteractableIntegrator.RangedInteractionModule, raycastHit.distance);
