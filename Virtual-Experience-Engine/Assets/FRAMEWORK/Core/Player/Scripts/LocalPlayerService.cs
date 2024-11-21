@@ -122,10 +122,16 @@ namespace VE2.Core.Player
         {
             //TODO - maybe make these TearDown methods instead?
             if (_player2D != null)
+            {
+                _player2D.DeactivatePlayer();
                 GameObject.DestroyImmediate(_player2D.gameObject);
+            }
 
             if (_playerVR != null)
+            {
+                _playerVR.DeactivatePlayer();
                 GameObject.DestroyImmediate(_playerVR.gameObject);
+            }
 
             _playerStateModule.TearDown();
             _playerInputContainer.ChangeMode.OnPressed -= HandleChangeModePressed;

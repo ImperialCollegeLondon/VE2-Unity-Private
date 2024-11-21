@@ -157,6 +157,9 @@ namespace VE2.Core.Player
 
         private void HandleScrollUp()
         {
+            if (!IsCurrentlyGrabbing)
+                return;
+
             foreach (IHandheldInteractionModule handheldInteraction in _CurrentGrabbingGrabbable.HandheldInteractions)
             {
                 if (handheldInteraction is IHandheldScrollInteractionModule handheldScrollInteraction)
@@ -167,6 +170,11 @@ namespace VE2.Core.Player
         }
         private void HandleScrollDown()
         {
+            if (!IsCurrentlyGrabbing)
+                return;
+
+            Debug.Log("DETECT SCROLL DOWN");
+
             foreach (IHandheldInteractionModule handheldInteraction in _CurrentGrabbingGrabbable.HandheldInteractions)
             {
                 if (handheldInteraction is IHandheldScrollInteractionModule handheldScrollInteraction)

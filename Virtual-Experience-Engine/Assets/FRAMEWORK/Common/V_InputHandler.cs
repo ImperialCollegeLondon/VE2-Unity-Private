@@ -81,23 +81,44 @@ namespace VE2.Core.Common
 
         public void HandleUpdate()
         {
-            if (_inputAction.ReadValue<Vector2>().y > _minThreshold)
+            float inputValue = _inputAction.ReadValue<Vector2>().y;
+
+            if (!_scrollUp)
+                inputValue = -inputValue;
+
+            if (inputValue < _minThreshold)
+                return;
+
+            float inputProgressToMaxThreshold = Mathf.InverseLerp(_minThreshold, _maxThreshold, inputValue);
+            float currentTickInterval = 1 / Mathf.Lerp(_minTicksPerSecond, _maxTicksPerSecond, inputProgressToMaxThreshold); //1 / speed
+            float timeSinceLastTick = Time.time - _timeOfLastTick;
+            bool shouldTick = timeSinceLastTick >= currentTickInterval;
+
+            if (shouldTick)
             {
-                float inputValue = _inputAction.ReadValue<Vector2>().y;
+                OnTickOver?.Invoke();
+                _timeOfLastTick = Time.time;
+
                 if (!_scrollUp)
-                    inputValue = 1 - inputValue;
-
-                float currentStickProgress = Mathf.InverseLerp(_minThreshold, _maxThreshold, inputValue);
-                float currentTickInterval = 1 / Mathf.Lerp(_minTicksPerSecond, _maxTicksPerSecond, currentStickProgress); //1 / speed
-                float timeSinceLastTick = Time.time - _timeOfLastTick;
-                bool shouldTick = timeSinceLastTick >= currentTickInterval;
-
-                if (timeSinceLastTick > currentTickInterval)
-                {
-                    OnTickOver?.Invoke();
-                    _timeOfLastTick = Time.time;
-                }
+                    Debug.Log("EMIT SCROLL DOWN TICK");
             }
+        }
+
+        public void LogValue()
+        {
+            float inputValue = _inputAction.ReadValue<Vector2>().y;
+            if (!_scrollUp)
+                inputValue = -inputValue;
+
+            if (inputValue < _minThreshold)
+                return;
+
+            float currentStickProgress = Mathf.InverseLerp(_minThreshold, _maxThreshold, inputValue);
+            float currentTickInterval = 1 / Mathf.Lerp(_minTicksPerSecond, _maxTicksPerSecond, currentStickProgress); //1 / speed
+            float timeSinceLastTick = Time.time - _timeOfLastTick;
+            bool shouldTick = timeSinceLastTick >= currentTickInterval;
+
+            Debug.Log($"Input Value: {inputValue}, Stick Progress: {currentStickProgress}, Tick Interval: {currentTickInterval}, Time Since Last Tick: {timeSinceLastTick}, Should Tick: {shouldTick} + time = {Time.time} timeOfLastTick = {_timeOfLastTick}");    
         }
     }
 
@@ -209,12 +230,16 @@ namespace VE2.Core.Common
 
         //Special cases, need to be updated manually to mimic the mouse scroll wheel notches
         private List<ScrollInput> _scrollInputs;
-        private const float MIN_SCROLL_THRESHOLD_2D = -1;
+        private const float MIN_SCROLL_THRESHOLD_2D = 0.1f;
         private const float MAX_SCROLL_THRESHOLD_2D = 1;
         private const float MIN_SCROLL_THRESHOLD_VR = 0.15f;
         private const float MAX_SCROLL_THRESHOLD_VR = 1;
-        private const float MIN_SCROLL_TICKS_PER_SECOND = 1;
-        private const float MAX_SCROLL_TICKS_PER_SECOND = 10;
+        private const float MIN_SCROLL_TICKS_PER_SECOND_2D = 1;
+        private const float MAX_SCROLL_TICKS_PER_SECOND_2D = 10;
+        private const float MIN_SCROLL_TICKS_PER_SECOND_VR = 0.5f;
+        private const float MAX_SCROLL_TICKS_PER_SECOND_VR = 5f;
+
+        ScrollInput ScrollTickDebug;
 
         private void Awake()
         {
@@ -233,8 +258,8 @@ namespace VE2.Core.Common
             PressableInput rangedClick2D = new(actionMapInteractor2D.FindAction("RangedClick"));
             PressableInput grab2D = new(actionMapInteractor2D.FindAction("Grab"));
             PressableInput handheldClick2D = new(actionMapInteractor2D.FindAction("HandheldClick"));
-            ScrollInput scrollTickUp2D = new(actionMapInteractor2D.FindAction("ScrollValue"), MIN_SCROLL_THRESHOLD_2D, MAX_SCROLL_THRESHOLD_2D, MIN_SCROLL_TICKS_PER_SECOND, MAX_SCROLL_TICKS_PER_SECOND, true);
-            ScrollInput scrollTickDown2D = new(actionMapInteractor2D.FindAction("ScrollValue"), MIN_SCROLL_THRESHOLD_2D, MAX_SCROLL_THRESHOLD_2D, MIN_SCROLL_TICKS_PER_SECOND, MAX_SCROLL_TICKS_PER_SECOND, false);
+            ScrollInput scrollTickUp2D = new(actionMapInteractor2D.FindAction("ScrollValue"), MIN_SCROLL_THRESHOLD_2D, MAX_SCROLL_THRESHOLD_2D, MIN_SCROLL_TICKS_PER_SECOND_2D, MAX_SCROLL_TICKS_PER_SECOND_2D, true);
+            ScrollInput scrollTickDown2D = new(actionMapInteractor2D.FindAction("ScrollValue"), MIN_SCROLL_THRESHOLD_2D, MAX_SCROLL_THRESHOLD_2D, MIN_SCROLL_TICKS_PER_SECOND_2D, MAX_SCROLL_TICKS_PER_SECOND_2D, false);
 
             // VR Action Map
             InputActionMap actionMapVR = inputActionAsset.FindActionMap("InputVR");
@@ -250,8 +275,8 @@ namespace VE2.Core.Common
             PressableInput rangedClickVRLeft = new(actionMapInteractorVRLeft.FindAction("RangedClick"));
             PressableInput grabVRLeft = new(actionMapInteractorVRLeft.FindAction("Grab"));
             PressableInput handheldClickVRLeft = new(actionMapInteractorVRLeft.FindAction("HandheldClick"));
-            ScrollInput scrollTickUpVRLeft = new(actionMapInteractorVRLeft.FindAction("ScrollValue"), MIN_SCROLL_THRESHOLD_VR, MAX_SCROLL_THRESHOLD_VR, MIN_SCROLL_TICKS_PER_SECOND, MAX_SCROLL_TICKS_PER_SECOND, true);
-            ScrollInput scrollTickDownVRLeft = new(actionMapInteractorVRLeft.FindAction("ScrollValue"), MIN_SCROLL_THRESHOLD_VR, MAX_SCROLL_THRESHOLD_VR, MIN_SCROLL_TICKS_PER_SECOND, MAX_SCROLL_TICKS_PER_SECOND, false);
+            ScrollInput scrollTickUpVRLeft = new(actionMapInteractorVRLeft.FindAction("ScrollValue"), MIN_SCROLL_THRESHOLD_VR, MAX_SCROLL_THRESHOLD_VR, MIN_SCROLL_TICKS_PER_SECOND_VR, MAX_SCROLL_TICKS_PER_SECOND_VR, true);
+            ScrollInput scrollTickDownVRLeft = new(actionMapInteractorVRLeft.FindAction("ScrollValue"), MIN_SCROLL_THRESHOLD_VR, MAX_SCROLL_THRESHOLD_VR, MIN_SCROLL_TICKS_PER_SECOND_VR, MAX_SCROLL_TICKS_PER_SECOND_VR, false);
 
             // VR Right Hand Action Map
             InputActionMap actionMapHandVRRight = inputActionAsset.FindActionMap("InputHandVRRight");
@@ -263,8 +288,8 @@ namespace VE2.Core.Common
             PressableInput rangedClickVRRight = new(actionMapInteractorVRRight.FindAction("RangedClick"));
             PressableInput grabVRRight = new(actionMapInteractorVRRight.FindAction("Grab"));
             PressableInput handheldClickVRRight = new(actionMapInteractorVRRight.FindAction("HandheldClick"));
-            ScrollInput scrollTickUpVRRight = new(actionMapInteractorVRRight.FindAction("ScrollValue"), MIN_SCROLL_THRESHOLD_VR, MAX_SCROLL_THRESHOLD_VR, MIN_SCROLL_TICKS_PER_SECOND, MAX_SCROLL_TICKS_PER_SECOND, true);
-            ScrollInput scrollTickDownVRRight = new(actionMapInteractorVRRight.FindAction("ScrollValue"), MIN_SCROLL_THRESHOLD_VR, MAX_SCROLL_THRESHOLD_VR, MIN_SCROLL_TICKS_PER_SECOND, MAX_SCROLL_TICKS_PER_SECOND, false);
+            ScrollInput scrollTickUpVRRight = new(actionMapInteractorVRRight.FindAction("ScrollValue"), MIN_SCROLL_THRESHOLD_VR, MAX_SCROLL_THRESHOLD_VR, MIN_SCROLL_TICKS_PER_SECOND_VR, MAX_SCROLL_TICKS_PER_SECOND_VR, true);
+            ScrollInput scrollTickDownVRRight = new(actionMapInteractorVRRight.FindAction("ScrollValue"), MIN_SCROLL_THRESHOLD_VR, MAX_SCROLL_THRESHOLD_VR, MIN_SCROLL_TICKS_PER_SECOND_VR, MAX_SCROLL_TICKS_PER_SECOND_VR, false);
 
             // UI Action Map 
             InputActionMap actionMapUI = inputActionAsset.FindActionMap("InputUI");
@@ -300,10 +325,14 @@ namespace VE2.Core.Common
             _scrollInputs = new List<ScrollInput> { scrollTickUp2D, scrollTickDown2D, scrollTickUpVRLeft, scrollTickDownVRLeft, scrollTickUpVRRight, scrollTickDownVRRight };
 
             rangedClickVRRight.OnPressed += () => Debug.Log("Ranged Click VR Left");
+
+            ScrollTickDebug = scrollTickDown2D;
         }
 
         private void Update()
         {
+            ScrollTickDebug.LogValue();
+
             foreach (ScrollInput scrollInput in _scrollInputs)
                 scrollInput.HandleUpdate();
         }
