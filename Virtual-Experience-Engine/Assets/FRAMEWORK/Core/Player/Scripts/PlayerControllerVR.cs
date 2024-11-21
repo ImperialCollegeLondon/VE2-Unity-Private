@@ -84,6 +84,12 @@ namespace VE2.Core.Player
             _handControllerRight.HandleOnDisable();
         }
 
+        public void HandleLocalAvatarColorChanged(Color newColor)
+        {
+            _handControllerLeft.HandleLocalAvatarColorChanged(newColor);
+            _handControllerRight.HandleLocalAvatarColorChanged(newColor);
+        }
+
         private void HandleResetViewPressed()
         {
             //TODO:

@@ -54,7 +54,9 @@ namespace VE2.Core.Player
             else 
                 _player2D.ActivatePlayer(_playerStateModule.PlayerTransformData);
 
-            _playerInputContainer.ChangeMode.OnPressed += HandleChangeModePressed;   
+            _playerInputContainer.ChangeMode.OnPressed += HandleChangeModePressed;
+
+            HandleAvatarAppearanceChanged(_playerStateModule.AvatarAppearance); //Do this now to set the initial color
         }
 
         private PlayerController2D SpawnPlayer2D(Player2DControlConfig player2DControlConfig, IMultiplayerSupport multiplayerSupport, Player2DInputContainer player2DInputContainer, IRaycastProvider raycastProvider) 
@@ -105,7 +107,11 @@ namespace VE2.Core.Player
 
         private void HandleAvatarAppearanceChanged(AvatarAppearance appearance)
         {
-            //TODO - Change local avatar, materials and models etc
+            //TOOD: Handle head and torso changes 
+            _playerVR?.HandleLocalAvatarColorChanged(new Color(
+                appearance.PresentationConfig.AvatarRed, 
+                appearance.PresentationConfig.AvatarGreen, 
+                appearance.PresentationConfig.AvatarBlue) / 255f);
         }   
 
         public void HandleFixedUpdate()

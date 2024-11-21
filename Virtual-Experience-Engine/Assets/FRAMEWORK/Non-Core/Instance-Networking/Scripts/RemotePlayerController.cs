@@ -41,16 +41,7 @@ namespace VE2.InstanceNetworking
 
         private void RefreshMaterials() 
         {
-            _colorMaterials.Clear();
-
-            foreach (Renderer renderer in GetComponentsInChildren<Renderer>())
-            {
-                for (int i = 0; i < renderer.materials.Length; i++)
-                {
-                    if (renderer.materials[i].name.Contains("V_AvatarPrimary"))
-                        _colorMaterials.Add(renderer.materials[i]);
-                }
-            }
+            _colorMaterials = CommonUtils.GetAvatarColorMaterialsForGameObject(gameObject);
         }
 
         /// <summary>

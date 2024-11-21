@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using VE2.Common;
 using VE2.Core.Common;
@@ -11,6 +12,7 @@ public class V_HandController
     private readonly IValueInput<Vector3> _positionInput;
     private readonly IValueInput<Quaternion> _rotationInput;
     private readonly InteractorVR _interactor;
+    private List<Material> _colorMaterials = new();
 
     public V_HandController(GameObject handGO, HandVRInputContainer handVRInputContainer, InteractorType interactorType, IMultiplayerSupport multiplayerSupport, IRaycastProvider raycastProvider)
     {
@@ -19,7 +21,7 @@ public class V_HandController
         _interactor.InitializeVR(handVRReferences.RayOrigin, interactorType, multiplayerSupport, handVRInputContainer.InteractorVRInputContainer, raycastProvider, 
             handVRReferences.CollisionDetector, handVRReferences.HandVisualGO, handVRReferences.LineRenderer);
 
-        //TODO: Ray should end at the racyast hit point... how do we do this? RaycastProvider needs to return even if it doesn't hit an interactable
+        _colorMaterials = CommonUtils.GetAvatarColorMaterialsForGameObject(handGO);
     }
 
     public void HandleOnEnable() 
@@ -37,6 +39,13 @@ public class V_HandController
         _handGO.transform.localPosition = _positionInput.Value;
         _handGO.transform.localRotation = _rotationInput.Value;
     }
+
+    public void HandleLocalAvatarColorChanged(Color newColor)
+    {
+        foreach (Material material in _colorMaterials)
+            material.color = newColor;
+    }
+
 
     //TODO:
     /*
