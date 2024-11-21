@@ -70,12 +70,8 @@ namespace VE2.Core.Tests
             //Stub out the raycast provider to hit the activatable GO with 0 range
             IRaycastProvider raycastProviderStub = Substitute.For<IRaycastProvider>();
             raycastProviderStub
-                .TryGetRangedInteractionModule(default, default, out Arg.Any<RaycastResultWrapper>(), default, default)
-                .ReturnsForAnyArgs(x =>
-                {
-                    x[2] = new RaycastResultWrapper(grabbableRaycastInterface.RangedGrabInteractionModule, 0);
-                    return true;
-                });
+                .Raycast(default, default, default, default)
+                .ReturnsForAnyArgs(new RaycastResultWrapper(grabbablePlayerInterface, 0));
 
             //Create the player (2d)
             PlayerService playerService = new(

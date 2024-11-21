@@ -81,24 +81,37 @@ namespace VE2.Core.Player
             if (IsCurrentlyGrabbing)
                 return;
 
-            if (!_WaitingForMultiplayerSupport && TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable))
+            RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
+
+            if (!_WaitingForMultiplayerSupport && raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange)
             {
-                bool isAllowedToInteract = !hoveringInteractable.AdminOnly;
+                bool isAllowedToInteract = !raycastResultWrapper.RangedInteractable.AdminOnly;
                 SetInteractorState(isAllowedToInteract ? InteractorState.InteractionAvailable : InteractorState.InteractionLocked);
-                _RaycastHitDebug = hoveringInteractable.ToString();
+                _RaycastHitDebug = raycastResultWrapper.RangedInteractable.ToString();
             }
             else
             {
                 SetInteractorState(InteractorState.Idle);
                 _RaycastHitDebug = "none";
             }
+
+            HandleRaycastDistance(raycastResultWrapper.HitDistance);
         }
+
+        protected virtual void HandleRaycastDistance(float distance) { } //TODO: Code smell? InteractorVR needs this to set the LineRenderer length
+
+        private RaycastResultWrapper GetRayCastResult() 
+        {
+            return _RaycastProvider.Raycast(_RayOrigin.position, _RayOrigin.transform.forward, MAX_RAYCAST_DISTANCE, _LayerMask);
+        }    
 
         private void HandleRangedClickPressed()
         {
-            if (!_WaitingForMultiplayerSupport && !IsCurrentlyGrabbing && TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable))
+            RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
+
+            if (!_WaitingForMultiplayerSupport && !IsCurrentlyGrabbing && raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange)
             {
-                if (hoveringInteractable is IRangedClickInteractionModule rangedClickInteractable)
+                if (raycastResultWrapper.RangedInteractable is IRangedClickInteractionModule rangedClickInteractable)
                     rangedClickInteractable.Click(_InteractorID.ClientID);
             }
         }
@@ -111,19 +124,24 @@ namespace VE2.Core.Player
                 _CurrentGrabbingGrabbable = null;
                 rangedGrabInteractableToDrop.RequestLocalDrop(_InteractorID);
             }
-            else if (!_WaitingForMultiplayerSupport && TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable))
+            else 
             {
-                if (!hoveringInteractable.AdminOnly)
-                {
-                    if (hoveringInteractable is IRangedGrabInteractionModule rangedGrabInteractable)
+                RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
+
+                if (!_WaitingForMultiplayerSupport && raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange)
+                {   
+                    if (!raycastResultWrapper.RangedInteractable.AdminOnly)
                     {
-                        _CurrentGrabbingGrabbable = rangedGrabInteractable;
-                        rangedGrabInteractable.RequestLocalGrab(_InteractorID);
+                        if (raycastResultWrapper.RangedInteractable is IRangedGrabInteractionModule rangedGrabInteractable)
+                        {
+                            _CurrentGrabbingGrabbable = rangedGrabInteractable;
+                            rangedGrabInteractable.RequestLocalGrab(_InteractorID);
+                        }
                     }
-                }
-                else
-                {
-                    //TODO, maybe play an error sound or something
+                    else
+                    {
+                        //TODO, maybe play an error sound or something
+                    }
                 }
             }
         }
@@ -184,21 +202,22 @@ namespace VE2.Core.Player
             }
         }
 
-        protected bool TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable)
-        {
-            // Perform the raycast using the layer mask
-            if (!_WaitingForMultiplayerSupport && _RaycastProvider.TryGetRangedInteractionModule(_RayOrigin.position, _RayOrigin.transform.forward, out RaycastResultWrapper rangedInteractableHitResult, MAX_RAYCAST_DISTANCE, _LayerMask))
-            {
-                if (rangedInteractableHitResult.Distance <= rangedInteractableHitResult.RangedInteractable.InteractRange)
-                {
-                    hoveringInteractable = rangedInteractableHitResult.RangedInteractable;
-                    return true;
-                }
-            }
+        // protected bool TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable)
+        // {
+        //     // Perform the raycast using the layer mask
+        //     if (!_WaitingForMultiplayerSupport && _RaycastProvider.Raycast(_RayOrigin.position, _RayOrigin.transform.forward, MAX_RAYCAST_DISTANCE, _LayerMask))
+        //     {
+        //         if (rangedInteractableHitResult.HitDistance <= rangedInteractableHitResult.RangedInteractable.InteractRange)
+        //         {
+        //             hoveringInteractable = rangedInteractableHitResult.RangedInteractable;
+        //             return true;
+        //         }
+        //     }
 
-            hoveringInteractable = null;
-            return false;
-        }
+        //     hoveringInteractable = null;
+        //     return false;
+        // }
+
 
         protected abstract void SetInteractorState(InteractorState newState);
         protected enum InteractorState

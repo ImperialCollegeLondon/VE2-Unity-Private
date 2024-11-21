@@ -48,8 +48,6 @@ namespace VE2.Core.Player
             _xrManagerSettingsWrapper = xrManagerSettingsWrapper;
             _playerVRInputContainer = playerVRInputContainer;
 
-            //TODO, instantiate the InteractorVRObjects, create one, mirror it for the second 
-
             GameObject handVRLeftPrefab = Resources.Load<GameObject>("HandModelVRLeft");
             GameObject handVRLeftGO = GameObject.Instantiate(handVRLeftPrefab, _leftHandHolder, false);
             GameObject handVRRightGO = GameObject.Instantiate(handVRLeftPrefab, _rightHandHolder, false);

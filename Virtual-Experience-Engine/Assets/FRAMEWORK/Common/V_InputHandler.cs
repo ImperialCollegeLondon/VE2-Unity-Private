@@ -134,6 +134,11 @@ namespace VE2.Core.Common
                 new HandVRInputContainer(handVRRightPosition, handVRRightRotation, new InteractorInputContainer(rangedClickVRRight, grabVRRight, handheldClickVRRight, scrollTickUpVRRight, scrollTickDownVRRight))
             );
         }
+
+        public void HandleUpdate()
+        {
+            
+        }
     }
 
     public class Player2DInputContainer
@@ -214,6 +219,7 @@ namespace VE2.Core.Common
         } 
             private set => _playerInputContainer = value;
         }
+        
         public IPressableInput _toggleMenu { get; private set; }
         public IPressableInput ToggleMenu {
             get
@@ -316,10 +322,7 @@ namespace VE2.Core.Common
                 scrollTickDownVRRight: scrollTickDownVRRight
             );
 
-            //TODO: Not really a big fan of the whole ScrollInput approach... scrollInputs should probably just be ValueInputs? 
             _scrollInputs = new List<ScrollInput> { scrollTickUp2D, scrollTickDown2D, scrollTickUpVRLeft, scrollTickDownVRLeft, scrollTickUpVRRight, scrollTickDownVRRight };
-
-            rangedClickVRRight.OnPressed += () => Debug.Log("Ranged Click VR Left");
         }
 
         private void Update()

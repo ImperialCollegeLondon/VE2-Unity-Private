@@ -7246,13 +7246,11 @@ MonoBehaviour:
             m_CallState: 2
       MinimumValue: 0
       MaximumValue: 3
+      StartingValue: 0
       EmitValueOnStart: 1
     HandheldAdjustableServiceConfig:
       LoopValues: 1
-      StartingValue: 0
-      IncrementPerMouseWheelScroll: 1
-      SinglePressScroll: 0
-      IncrementPerSecondVRStickHeld: 4
+      IncrementPerScrollTick: 1
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
@@ -9750,6 +9748,7 @@ GameObject:
   - component: {fileID: 543450652514148534}
   - component: {fileID: 3469287838644727571}
   - component: {fileID: 1711813854583888857}
+  - component: {fileID: 3469287838644727572}
   m_Layer: 8
   m_Name: Pedestal
   m_TagString: Untagged
@@ -9811,6 +9810,28 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 919132148059814412}
+  m_Mesh: {fileID: -604661087031213322, guid: a5afa8eb859f42c46a9ce7da3a465efb, type: 3}
+--- !u!64 &3469287838644727572
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 919132148059814412}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
   m_Mesh: {fileID: -604661087031213322, guid: a5afa8eb859f42c46a9ce7da3a465efb, type: 3}
 --- !u!33 &6844267495192110285
 MeshFilter:

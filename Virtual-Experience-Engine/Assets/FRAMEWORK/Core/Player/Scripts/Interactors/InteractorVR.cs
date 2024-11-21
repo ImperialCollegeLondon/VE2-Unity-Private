@@ -48,6 +48,11 @@ public class InteractorVR : PointerInteractor
             collideInteractionModule.InvokeOnCollideExit(_InteractorID.ClientID);
     }
 
+    protected override void HandleRaycastDistance(float distance)
+    {
+        _lineRenderer.SetPosition(1, new Vector3(0, 0, distance / _lineRenderer.transform.lossyScale.z));
+    }
+
     protected override void SetInteractorState(InteractorState newState)
     {
         _lineRenderer.enabled = newState != InteractorState.Grabbing;

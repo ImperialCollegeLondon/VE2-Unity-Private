@@ -120,12 +120,8 @@ namespace VE2.Core.Tests
         public static void StubRangedInteractionModuleForRaycastProviderStub(IRangedInteractionModule rangedInteractionModule)
         {
             RaycastProviderStub
-                .TryGetRangedInteractionModule(default, default, out Arg.Any<RaycastResultWrapper>(), default, default)
-                .ReturnsForAnyArgs(x =>
-                {
-                    x[2] = new RaycastResultWrapper(rangedInteractionModule, 0);
-                    return true;
-                });
+                .Raycast(default, default, default, default)
+                .ReturnsForAnyArgs(new RaycastResultWrapper(rangedInteractionModule, 0));
         }
     }
 
