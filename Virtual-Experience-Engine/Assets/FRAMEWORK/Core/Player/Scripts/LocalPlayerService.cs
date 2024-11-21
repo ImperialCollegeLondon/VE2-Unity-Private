@@ -43,6 +43,9 @@ namespace VE2.Core.Player
             _enableVR = enableVR;
             _playerInputContainer = playerInputContainer;
 
+            Debug.Log("PlayerVRControlConfig null? " + (playerSettingsProvider.UserSettings.PlayerVRControlConfig == null));
+            Debug.Log("Input container null? " + (playerInputContainer.PlayerVRInputContainer == null));
+
             if (enableVR)
                 _playerVR = SpawnPlayerVR(playerSettingsProvider.UserSettings.PlayerVRControlConfig, multiplayerSupport, _playerInputContainer.PlayerVRInputContainer, raycastProvider, xrManagerSettingsWrapper);
             if (enable2D)

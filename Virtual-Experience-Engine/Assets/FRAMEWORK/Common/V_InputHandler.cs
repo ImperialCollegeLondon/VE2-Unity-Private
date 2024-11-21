@@ -98,27 +98,7 @@ namespace VE2.Core.Common
             {
                 OnTickOver?.Invoke();
                 _timeOfLastTick = Time.time;
-
-                if (!_scrollUp)
-                    Debug.Log("EMIT SCROLL DOWN TICK");
             }
-        }
-
-        public void LogValue()
-        {
-            float inputValue = _inputAction.ReadValue<Vector2>().y;
-            if (!_scrollUp)
-                inputValue = -inputValue;
-
-            if (inputValue < _minThreshold)
-                return;
-
-            float currentStickProgress = Mathf.InverseLerp(_minThreshold, _maxThreshold, inputValue);
-            float currentTickInterval = 1 / Mathf.Lerp(_minTicksPerSecond, _maxTicksPerSecond, currentStickProgress); //1 / speed
-            float timeSinceLastTick = Time.time - _timeOfLastTick;
-            bool shouldTick = timeSinceLastTick >= currentTickInterval;
-
-            Debug.Log($"Input Value: {inputValue}, Stick Progress: {currentStickProgress}, Tick Interval: {currentTickInterval}, Time Since Last Tick: {timeSinceLastTick}, Should Tick: {shouldTick} + time = {Time.time} timeOfLastTick = {_timeOfLastTick}");    
         }
     }
 
@@ -225,8 +205,25 @@ namespace VE2.Core.Common
     //Could also expose different interfaces in the ServiceLocator, rather than the single IInputHandler
     public class InputHandler : MonoBehaviour, IInputHandler
     {
-        public PlayerInputContainer PlayerInputContainer { get; private set; }
-        public IPressableInput ToggleMenu { get; private set; }
+        private PlayerInputContainer _playerInputContainer;
+        public PlayerInputContainer PlayerInputContainer { 
+            get {
+            if (_playerInputContainer == null)
+                CreateInputs();
+            return _playerInputContainer;
+        } 
+            private set => _playerInputContainer = value;
+        }
+        public IPressableInput _toggleMenu { get; private set; }
+        public IPressableInput ToggleMenu {
+            get
+            {
+                if (_toggleMenu == null)
+                    CreateInputs();
+                return _toggleMenu;
+            }
+            private set => _toggleMenu = value;
+        }
 
         //Special cases, need to be updated manually to mimic the mouse scroll wheel notches
         private List<ScrollInput> _scrollInputs;
@@ -239,9 +236,7 @@ namespace VE2.Core.Common
         private const float MIN_SCROLL_TICKS_PER_SECOND_VR = 0.5f;
         private const float MAX_SCROLL_TICKS_PER_SECOND_VR = 5f;
 
-        ScrollInput ScrollTickDebug;
-
-        private void Awake()
+        private void CreateInputs()
         {
             InputActionAsset inputActionAsset = Resources.Load<InputActionAsset>("V_InputActions");
 
@@ -325,14 +320,10 @@ namespace VE2.Core.Common
             _scrollInputs = new List<ScrollInput> { scrollTickUp2D, scrollTickDown2D, scrollTickUpVRLeft, scrollTickDownVRLeft, scrollTickUpVRRight, scrollTickDownVRRight };
 
             rangedClickVRRight.OnPressed += () => Debug.Log("Ranged Click VR Left");
-
-            ScrollTickDebug = scrollTickDown2D;
         }
 
         private void Update()
         {
-            ScrollTickDebug.LogValue();
-
             foreach (ScrollInput scrollInput in _scrollInputs)
                 scrollInput.HandleUpdate();
         }
