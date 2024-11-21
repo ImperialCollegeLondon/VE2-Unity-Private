@@ -11,7 +11,7 @@ namespace VE2.Core.VComponents.Internal
         public event Action<ushort> OnCollideEnter;
         public event Action<ushort> OnCollideExit;
 
-        public void InvokeOnCollideEnter(ushort id) => OnCollideEnter.Invoke(id);
-        public void InvokeOnCollideExit(ushort id) => OnCollideExit.Invoke(id);
+        public void InvokeOnCollideEnter(ushort id) => OnCollideEnter?.Invoke(id);
+        public void InvokeOnCollideExit(ushort id) => OnCollideExit?.Invoke(id);
     }
 }
