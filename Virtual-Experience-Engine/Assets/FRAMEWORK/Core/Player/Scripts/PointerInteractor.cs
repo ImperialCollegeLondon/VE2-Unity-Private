@@ -49,6 +49,8 @@ namespace VE2.Core.Player
             _interactorInputContainer.RangedClick.OnPressed += HandleRangedClickPressed;
             _interactorInputContainer.HandheldClick.OnPressed += HandleHandheldClickPressed;
             _interactorInputContainer.Grab.OnPressed += HandleGrabPressed;
+            _interactorInputContainer.ScrollTickUp.OnTickOver += HandleScrollUp;
+            _interactorInputContainer.ScrollTickDown.OnTickOver += HandleScrollDown;
         }
 
         public virtual void HandleOnDisable()
@@ -57,6 +59,8 @@ namespace VE2.Core.Player
             _interactorInputContainer.RangedClick.OnPressed -= HandleRangedClickPressed;
             _interactorInputContainer.HandheldClick.OnPressed -= HandleHandheldClickPressed;
             _interactorInputContainer.Grab.OnPressed -= HandleGrabPressed;
+            _interactorInputContainer.ScrollTickUp.OnTickOver -= HandleScrollUp;
+            _interactorInputContainer.ScrollTickDown.OnTickOver -= HandleScrollDown;
         }
 
         private void RenameInteractorToLocalID() 
@@ -147,6 +151,27 @@ namespace VE2.Core.Player
                     {
                         handheldClickInteraction.Click(_InteractorID.ClientID);
                     }
+                }
+            }
+        }
+
+        private void HandleScrollUp()
+        {
+            foreach (IHandheldInteractionModule handheldInteraction in _CurrentGrabbingGrabbable.HandheldInteractions)
+            {
+                if (handheldInteraction is IHandheldScrollInteractionModule handheldScrollInteraction)
+                {
+                    handheldScrollInteraction.ScrollUp(_InteractorID.ClientID);
+                }
+            }
+        }
+        private void HandleScrollDown()
+        {
+            foreach (IHandheldInteractionModule handheldInteraction in _CurrentGrabbingGrabbable.HandheldInteractions)
+            {
+                if (handheldInteraction is IHandheldScrollInteractionModule handheldScrollInteraction)
+                {
+                    handheldScrollInteraction.ScrollDown(_InteractorID.ClientID);
                 }
             }
         }

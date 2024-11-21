@@ -3728,7 +3728,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &835746392
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3741,7 +3741,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8995ff54d324b04ea0f50966b2be213, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _connectOnStart: 0
+  _connectOnStart: 1
   _connectionStateDebug:
     ConnectionState: 0
   LocalClientIDWrapper:
@@ -5941,6 +5941,7 @@ MonoBehaviour:
   _pushButtonGO: {fileID: 1250561189}
   _freeGrabbableGO: {fileID: 227671773}
   _handheldActivatableGO: {fileID: 1542206479}
+  _handheldAdjustableGO: {fileID: 1542206479}
   _networkObjectGO: {fileID: 1499303675}
 --- !u!4 &1499303677
 Transform:
@@ -6996,6 +6997,8 @@ GameObject:
   - component: {fileID: 1542206482}
   - component: {fileID: 1542206481}
   - component: {fileID: 1542206480}
+  - component: {fileID: 1542206487}
+  - component: {fileID: 1542206488}
   m_Layer: 0
   m_Name: Torch
   m_TagString: Untagged
@@ -7208,6 +7211,65 @@ Transform:
   - {fileID: 344576805}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1542206487
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1542206479}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 788648ad552e832428bdca9fb2549643, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _config:
+    StateConfig:
+      IsNetworked: 1
+      RepeatedTransmissionConfig:
+        TransmissionType: 0
+        TransmissionFrequency: 1
+      OnValueAdjusted:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 1542206488}
+            m_TargetAssemblyTypeName: HandleAdjustableTest, VE2_Plugin_Sample
+            m_MethodName: OnColourChanged
+            m_Mode: 0
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
+      MinimumValue: 0
+      MaximumValue: 3
+      EmitValueOnStart: 1
+    HandheldAdjustableServiceConfig:
+      LoopValues: 1
+      StartingValue: 0
+      IncrementPerMouseWheelScroll: 1
+      SinglePressScroll: 0
+      IncrementPerSecondVRStickHeld: 4
+    GeneralInteractionConfig:
+      AdminOnly: 0
+      EnableControllerVibrations: 1
+      ShowTooltipsAndHighlight: 1
+--- !u!114 &1542206488
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1542206479}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be3660df2c1d1b3428bf915cc3b1d611, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  torch: {fileID: 344576807}
 --- !u!1 &1550410137
 GameObject:
   m_ObjectHideFlags: 1
