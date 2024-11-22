@@ -1,0 +1,12 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Events;
+
+namespace VE2.NonCore.Instancing.VComponents.NonInteractableInterfaces
+{
+    public interface IRigidbodySyncableStateModule
+    {
+        // What goes here?
+    }
+}
