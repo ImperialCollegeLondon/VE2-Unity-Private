@@ -36,7 +36,7 @@ namespace VE2.NonCore.Instancing.VComponents.Tests
 
             // ===========Assert=========
             // Check the customer received the same object
-            customerScript.Received(1).HandleObjectReceived(serializableObject)
+            customerScript.Received(1).HandleObjectReceived(serializableObject);
         }
     }
 
