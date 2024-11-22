@@ -175,6 +175,8 @@ namespace VE2.Core.Tests
         public IPressableInput HandheldClickVRLeft { get; private set; } = Substitute.For<IPressableInput>();
         public IScrollInput ScrollTickUpVRLeft { get; private set; } = Substitute.For<IScrollInput>();
         public IScrollInput ScrollTickDownVRLeft { get; private set; } = Substitute.For<IScrollInput>();
+        public IPressableInput HorizontalDragVRLeft { get; private set; } = Substitute.For<IPressableInput>();
+        public IPressableInput VerticalDragVRLeft { get; private set; } = Substitute.For<IPressableInput>();
 
         // Right-hand VR
         public IValueInput<Vector3> HandVRRightPosition { get; private set; } = Substitute.For<IValueInput<Vector3>>();
@@ -184,6 +186,8 @@ namespace VE2.Core.Tests
         public IPressableInput HandheldClickVRRight { get; private set; } = Substitute.For<IPressableInput>();
         public IScrollInput ScrollTickUpVRRight { get; private set; } = Substitute.For<IScrollInput>();
         public IScrollInput ScrollTickDownVRRight { get; private set; } = Substitute.For<IScrollInput>();
+        public IPressableInput HorizontalDragVRRight { get; private set; } = Substitute.For<IPressableInput>();
+        public IPressableInput VerticalDragVRRight { get; private set; } = Substitute.For<IPressableInput>();
 
         public PlayerInputContainerStubWrapper()
         {
@@ -203,13 +207,17 @@ namespace VE2.Core.Tests
                 handheldClickVRLeft: HandheldClickVRLeft,
                 scrollTickUpVRLeft: ScrollTickUpVRLeft,
                 scrollTickDownVRLeft: ScrollTickDownVRLeft,
+                horizontalDragVRLeft: HorizontalDragVRLeft,
+                verticalDragVRLeft: VerticalDragVRLeft,
                 handVRRightPosition: HandVRRightPosition,
                 handVRRightRotation: HandVRRightRotation,
                 rangedClickVRRight: RangedClickVRRight,
                 grabVRRight: GrabVRRight,
                 handheldClickVRRight: HandheldClickVRRight,
                 scrollTickUpVRRight: ScrollTickUpVRRight,
-                scrollTickDownVRRight: ScrollTickDownVRRight
+                scrollTickDownVRRight: ScrollTickDownVRRight,
+                horizontalDragVRRight: HorizontalDragVRRight,
+                verticalDragVRRight: VerticalDragVRRight
             );
         }
     }

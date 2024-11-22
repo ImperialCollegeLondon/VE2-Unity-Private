@@ -53,8 +53,8 @@ namespace VE2.Core.Player
             GameObject handVRRightGO = GameObject.Instantiate(handVRLeftPrefab, _rightHandHolder, false);
             handVRRightGO.transform.localScale = new Vector3(-1, 1, 1);
 
-            _handControllerLeft = new V_HandController(handVRLeftGO, playerVRInputContainer.HandVRLeftInputContainer, InteractorType.LeftHandVR, multiplayerSupport, raycastProvider);
-            _handControllerRight = new V_HandController(handVRRightGO, playerVRInputContainer.HandVRRightInputContainer, InteractorType.RightHandVR, multiplayerSupport, raycastProvider);
+            _handControllerLeft = new V_HandController(transform, handVRLeftGO, playerVRInputContainer.HandVRLeftInputContainer, InteractorType.LeftHandVR, multiplayerSupport, raycastProvider);
+            _handControllerRight = new V_HandController(transform, handVRRightGO, playerVRInputContainer.HandVRRightInputContainer, InteractorType.RightHandVR, multiplayerSupport, raycastProvider);
         }
 
         public override void ActivatePlayer(PlayerTransformData initTransformData)

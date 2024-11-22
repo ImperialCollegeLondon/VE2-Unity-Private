@@ -9,6 +9,8 @@ namespace VE2.Core.Player
     //TODO: DOesn't need to be a MB?
     //If not an MB, we need to figure out how the state module will find the interactor!!
     //Through the ServiceLocator, maybe? Hmmn, needs to find remote interactors too though, maybe MB is actually fine here
+    //Actually, maybe we have some base PointerInteractor that can hold some lookup table or something? 
+    //Nah, let's have an InteractorContainer in the ServiceLocator, each interactor will register itself there
     public abstract class PointerInteractor : MonoBehaviour, IInteractor
     {
         [SerializeField] public Transform GrabberTransform;

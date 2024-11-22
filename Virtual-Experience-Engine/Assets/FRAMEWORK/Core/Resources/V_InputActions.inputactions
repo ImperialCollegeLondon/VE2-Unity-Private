@@ -601,6 +601,102 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "InputDragVRLeft",
+            "id": "b3bcf135-a189-4e87-80d3-061e8497733b",
+            "actions": [
+                {
+                    "name": "HorizontalDrag",
+                    "type": "Button",
+                    "id": "f2dc6ad6-cdeb-4d72-9ad9-8191f21f4d3d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "VerticalDrag",
+                    "type": "Button",
+                    "id": "8eabf3a2-98d1-4e34-80c2-8b9752f99f5c",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "50833f85-7be6-4e4e-83df-f208055988c7",
+                    "path": "<XRController>{LeftHand}/primaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HorizontalDrag",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "85a277c5-0c04-464d-96d5-4c325b399505",
+                    "path": "<XRController>{LeftHand}/secondaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "VerticalDrag",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "InputDragVRRight",
+            "id": "3124df50-8c41-44a4-8c24-0ad795227a86",
+            "actions": [
+                {
+                    "name": "HorizontalDrag",
+                    "type": "Button",
+                    "id": "e1f04468-8d67-4861-858c-f02f0923f2e5",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "VerticalDrag",
+                    "type": "Button",
+                    "id": "c6a8a7f1-d7bf-49b3-93c1-a6db60344a8b",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "2bf9b97d-82cd-40c6-bfe3-7870d0e9e22c",
+                    "path": "<XRController>{RightHand}/primaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HorizontalDrag",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7afa8ae1-ce0c-4ecd-964a-8eaa13dc668c",
+                    "path": "<XRController>{RightHand}/secondaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "VerticalDrag",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []
