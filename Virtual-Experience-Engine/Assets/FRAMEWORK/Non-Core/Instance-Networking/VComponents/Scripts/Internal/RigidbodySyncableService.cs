@@ -28,6 +28,8 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
             _rigidbody = rigidbodyWrapper;
             _isKinematicOnStart = _rigidbody.isKinematic;
             _rbStates = new(); // TODO: store received states in a list, including a pseudo arrival-time, for interpolation by non-host
+
+            _StateModule.OnReceiveState.AddListener(HandleReceiveRigidbodyState);
         }
 
         public void HandleFixedUpdate()
@@ -38,6 +40,11 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
         public void TearDown()
         {
             _StateModule.TearDown();
+        }
+
+        public void HandleReceiveRigidbodyState(Vector3 Position, Quaternion Rotation)
+        {
+            Debug.Log("Received Rigidbody state against all odds!");
         }
     }
 }

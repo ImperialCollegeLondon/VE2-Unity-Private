@@ -11,10 +11,13 @@ using static VE2.Common.CommonSerializables;
 namespace VE2.NonCore.Instancing.VComponents.Internal
 {
     [Serializable]
-    public class RigidbodySyncableStateConfig : BaseStateConfig { }
+    public class RigidbodySyncableStateConfig : BaseStateConfig {
+        [SerializeField] public UnityEvent<Vector3, Quaternion> OnReceiveState = new();
+    }
 
     internal class RigidbodySyncableStateModule : BaseWorldStateModule, IRigidbodySyncableStateModule
     {
+        public UnityEvent<Vector3, Quaternion> OnReceiveState => _config.OnReceiveState;
         private RigidbodySyncableState _state => (RigidbodySyncableState)State;
         private RigidbodySyncableStateConfig _config => (RigidbodySyncableStateConfig)Config;
 
@@ -24,6 +27,14 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
         protected override void UpdateBytes(byte[] newBytes)
         {
             State.Bytes = newBytes;
+            try
+            {
+                _config.OnReceiveState?.Invoke(_state.Position, _state.Rotation);
+            }
+            catch (Exception e)
+            {
+                Debug.Log($"Error when emitting OnReceiveState from RigidbodySyncable with ID {ID} \n{e.Message}\n{e.StackTrace}");
+            }
         }
 
     }
@@ -95,4 +106,5 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
         }
         #endregion
     }
+
 }
