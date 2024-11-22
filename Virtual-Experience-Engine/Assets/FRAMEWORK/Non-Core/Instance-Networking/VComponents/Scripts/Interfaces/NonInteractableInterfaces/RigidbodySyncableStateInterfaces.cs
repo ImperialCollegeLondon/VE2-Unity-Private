@@ -7,6 +7,6 @@ namespace VE2.NonCore.Instancing.VComponents.NonInteractableInterfaces
 {
     public interface IRigidbodySyncableStateModule
     {
-        // What goes here?
+
     }
 }

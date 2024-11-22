@@ -17,11 +17,13 @@ namespace VE2.NonCore.Instancing.VComponents.MonoBehaviours
         #endregion
 
         private RigidbodySyncableService _service = null;
+        private RigidbodyWrapper _rigidbodyWrapper = null;
 
         private void OnEnable()
         {
             string id = "RBS-" + gameObject.name;
-            _service = new RigidbodySyncableService(_config, _state, id, VE2CoreServiceLocator.Instance.WorldStateModulesContainer);
+            _rigidbodyWrapper = new(GetComponent<Rigidbody>());
+            _service = new RigidbodySyncableService(_config, _state, id, VE2CoreServiceLocator.Instance.WorldStateModulesContainer, _rigidbodyWrapper);
         }
 
         private void FixedUpdate()

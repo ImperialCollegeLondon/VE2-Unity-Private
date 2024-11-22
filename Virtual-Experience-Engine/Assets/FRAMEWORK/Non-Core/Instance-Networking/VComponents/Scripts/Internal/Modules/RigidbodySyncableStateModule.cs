@@ -15,7 +15,6 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
 
     internal class RigidbodySyncableStateModule : BaseWorldStateModule, IRigidbodySyncableStateModule
     {
-
         private RigidbodySyncableState _state => (RigidbodySyncableState)State;
         private RigidbodySyncableStateConfig _config => (RigidbodySyncableStateConfig)Config;
 
