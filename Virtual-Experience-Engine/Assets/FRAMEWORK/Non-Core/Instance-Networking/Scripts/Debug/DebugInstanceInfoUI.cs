@@ -20,7 +20,7 @@ public class DebugInstanceInfoUI : MonoBehaviour
                 HandleInstanceInfoChanged(instanceIntegration.InstanceInfo);
 
             instanceIntegration.OnInstanceInfoChanged += HandleInstanceInfoChanged;
-            instanceIntegration.OnDisconnectedFromServer += HandleDisconnectFromServer;
+            instanceIntegration.OnDisconnectedFromInstance += HandleDisconnectFromServer;
         }
         else
         {
@@ -65,7 +65,7 @@ public class DebugInstanceInfoUI : MonoBehaviour
             if (instanceIntegration.IsConnectedToServer)
             {
                 instanceIntegration.OnInstanceInfoChanged -= HandleInstanceInfoChanged;
-                instanceIntegration.OnDisconnectedFromServer -= HandleDisconnectFromServer;
+                instanceIntegration.OnDisconnectedFromInstance -= HandleDisconnectFromServer;
             }
         }
     }

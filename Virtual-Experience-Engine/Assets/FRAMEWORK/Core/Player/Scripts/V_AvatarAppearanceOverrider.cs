@@ -36,8 +36,8 @@ namespace VE2.Core.Player
 
         AvatarAppearanceOverrideType IPlayerAppearanceOverridesProvider.HeadOverrideType => HeadOverrideType;
         AvatarAppearanceOverrideType IPlayerAppearanceOverridesProvider.TorsoOverrideType => TorsoOverrideType;
-        public List<GameObject> GetHeadOverrideGOs() => new() { HeadOverrideOne, HeadOverrideTwo, HeadOverrideThree, HeadOverrideFour, HeadOverrideFive };
-        public List<GameObject> GetTorsoOverrideGOs() => new() { TorsoOverrideOne, TorsoOverrideTwo, TorsoOverrideThree, TorsoOverrideFour, TorsoOverrideFive }; 
+        public List<GameObject> HeadOverrideGOs => new() { HeadOverrideOne, HeadOverrideTwo, HeadOverrideThree, HeadOverrideFour, HeadOverrideFive };
+        public List<GameObject> TorsoOverrideGOs => new() { TorsoOverrideOne, TorsoOverrideTwo, TorsoOverrideThree, TorsoOverrideFour, TorsoOverrideFive }; 
         #endregion
 
         //TODO - need an API for changing overrrides 

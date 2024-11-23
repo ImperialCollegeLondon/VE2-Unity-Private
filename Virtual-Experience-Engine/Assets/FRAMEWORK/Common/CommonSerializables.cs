@@ -293,7 +293,7 @@ namespace VE2.Common //TODO - Need to expose to customer
                 }
 
                 [Serializable]
-                public class AvatarAppearance : VE2Serializable //TODO - needs to contain VR/2D
+                public class AvatarAppearance : VE2Serializable
                 {
                         public PlayerPresentationConfig PresentationConfig { get; set; }
                         public AvatarAppearanceOverrideType HeadOverrideType { get; set; }
@@ -336,6 +336,22 @@ namespace VE2.Common //TODO - Need to expose to customer
 
                                 HeadOverrideType = (AvatarAppearanceOverrideType)reader.ReadUInt16();
                                 TorsoOverrideType = (AvatarAppearanceOverrideType)reader.ReadUInt16();
+                        }
+
+                        public override bool Equals(object obj)
+                        {
+                                if (obj is AvatarAppearance other)
+                                {
+                                        return PresentationConfig.Equals(other.PresentationConfig) &&
+                                               HeadOverrideType == other.HeadOverrideType &&
+                                               TorsoOverrideType == other.TorsoOverrideType;
+                                }
+                                return false;
+                        }
+
+                        public override int GetHashCode()
+                        {
+                                return HashCode.Combine(PresentationConfig, HeadOverrideType, TorsoOverrideType);
                         }
                 }
 

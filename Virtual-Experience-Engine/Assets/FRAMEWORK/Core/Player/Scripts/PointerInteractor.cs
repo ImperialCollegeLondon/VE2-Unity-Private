@@ -41,7 +41,7 @@ namespace VE2.Core.Player
             _RaycastProvider = raycastProvider;
 
             if (_WaitingForMultiplayerSupport)
-                _multiplayerSupport.OnConnectedToServer += RenameInteractorToLocalID;
+                _multiplayerSupport.OnConnectedToInstance += RenameInteractorToLocalID;
             else
                 RenameInteractorToLocalID();
         }
@@ -70,7 +70,7 @@ namespace VE2.Core.Player
 
             if (_multiplayerSupport != null)
             {
-                _multiplayerSupport.OnConnectedToServer -= RenameInteractorToLocalID;
+                _multiplayerSupport.OnConnectedToInstance -= RenameInteractorToLocalID;
                 localID = _multiplayerSupport.LocalClientID;
             }
 

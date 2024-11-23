@@ -109,7 +109,7 @@ namespace VE2.Common
         //#############################################################################################
 
         public WorldStateModulesContainer WorldStateModulesContainer {get; private set;} = new();
-        public PlayerStateModuleContainer ViRSEPlayerStateModuleContainer {get; private set;} = new();
+        public PlayerStateModuleContainer PlayerStateModuleContainer {get; private set;} = new();
 
         //##################################### INPUT HANDLER #########################################
         //#############################################################################################
@@ -162,7 +162,7 @@ namespace VE2.Common
         private void OnDestroy() 
         {
             WorldStateModulesContainer.Reset();
-            ViRSEPlayerStateModuleContainer.Reset();
+            PlayerStateModuleContainer.Reset();
         }
     }
 
@@ -176,8 +176,8 @@ namespace VE2.Common
         public void NotifyProviderOfChangeAppearanceOverrides();
         public event Action OnAppearanceOverridesChanged;
 
-        public List<GameObject> GetHeadOverrideGOs();
-        public List<GameObject> GetTorsoOverrideGOs();
+        public List<GameObject> HeadOverrideGOs { get; }
+        public List<GameObject> TorsoOverrideGOs { get; }
     }
 
     public class WorldStateModulesContainer : BaseStateModuleContainer

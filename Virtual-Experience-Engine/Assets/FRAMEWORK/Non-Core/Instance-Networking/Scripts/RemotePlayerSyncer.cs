@@ -6,62 +6,44 @@ using static VE2.Common.CommonSerializables;
 
 namespace VE2.InstanceNetworking
 {
-    public static class RemotePlayerSyncerFactory
+    internal class RemotePlayerSyncer
     {
-        public static RemotePlayerSyncer Create(InstanceService instanceService)
-        {
-            List<GameObject> virseAvatarHeadGameObjects = new()
-            {
-                Resources.Load<GameObject>("Avatars/Heads/V_Avatar_Head_Default_1"),
-                Resources.Load<GameObject>("Avatars/Heads/V_Avatar_Head_Default_2"),
-            };
-
-            List<GameObject> virseAvatarTorsoGameObjects = new()
-            {
-                Resources.Load<GameObject>("Avatars/Torsos/V_Avatar_Torso_Default_1"),
-            };
-
-            return new RemotePlayerSyncer(
-                instanceService,
-                virseAvatarHeadGameObjects,
-                virseAvatarTorsoGameObjects,
-                VE2CoreServiceLocator.Instance.PlayerAppearanceOverridesProvider.GetHeadOverrideGOs(),
-                VE2CoreServiceLocator.Instance.PlayerAppearanceOverridesProvider.GetTorsoOverrideGOs());
-        }
-    }
-
-    public class RemotePlayerSyncer
-    {
-        private Dictionary<ushort, RemoteAvatarController> _remoteAvatars = new();
-
-        private readonly InstanceService _instanceService;
+        private readonly InstanceInfoContainer _instanceInfoContainer;
         private readonly List<GameObject> _virseAvatarHeadGameObjects;
         private readonly List<GameObject> _virseAvatarTorsoGameObjects;
         private readonly List<GameObject> _avatarHeadOverrideGameObjects;
         private readonly List<GameObject> _avatarTorsoOverrideGameObjects;
 
+        private Dictionary<ushort, RemoteAvatarController> _remoteAvatars = new();
 
-        public RemotePlayerSyncer(InstanceService instanceSevice, List<GameObject> virseAvatarHeadGameObjects, List<GameObject> virseAvatarTorsoGameObjects, List<GameObject> avatarHeadOverrideGameObjects, List<GameObject> avatarTorsoOverrideGameObjects)
+        public RemotePlayerSyncer(InstanceInfoContainer instanceInfoContainer, IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider)
         {
-            _instanceService = instanceSevice;
+            _instanceInfoContainer = instanceInfoContainer;
+            _instanceInfoContainer.OnInstanceInfoChanged += HandleNewInstanceInfo;
 
-            _virseAvatarHeadGameObjects = virseAvatarHeadGameObjects;
-            _virseAvatarTorsoGameObjects = virseAvatarTorsoGameObjects;
-            _avatarHeadOverrideGameObjects = avatarHeadOverrideGameObjects;
-            _avatarTorsoOverrideGameObjects = avatarTorsoOverrideGameObjects;
+            _virseAvatarHeadGameObjects = new List<GameObject>()
+            {
+                Resources.Load<GameObject>("Avatars/Heads/V_Avatar_Head_Default_1"),
+                Resources.Load<GameObject>("Avatars/Heads/V_Avatar_Head_Default_2"),
+            };
 
-            _instanceService.OnReceiveRemotePlayerState += HandleReceiveRemotePlayerState;
-            _instanceService.OnInstanceInfoChanged += HandleInstanceInfoChanged;
+            _virseAvatarTorsoGameObjects = new List<GameObject>()
+            {
+                Resources.Load<GameObject>("Avatars/Torsos/V_Avatar_Torso_Default_1"),
+            };
 
-            HandleInstanceInfoChanged(_instanceService.InstanceInfo);
+            _avatarHeadOverrideGameObjects = playerAppearanceOverridesProvider.HeadOverrideGOs;
+            _avatarTorsoOverrideGameObjects = playerAppearanceOverridesProvider.HeadOverrideGOs;
+
+            HandleNewInstanceInfo(_instanceInfoContainer.InstanceInfo); //must do this after the gameobject references have been set up above
         }
 
-        private void HandleInstanceInfoChanged(InstancedInstanceInfo newInstanceInfo)
+        private void HandleNewInstanceInfo(InstancedInstanceInfo newInstanceInfo)
         {
             Dictionary<ushort, InstancedClientInfo> receivedRemoteClientInfosWithAppearance = new();
             foreach (KeyValuePair<ushort, InstancedClientInfo> kvp in newInstanceInfo.ClientInfos)
             {
-                if (kvp.Key != _instanceService.LocalClientID && kvp.Value.AvatarAppearanceWrapper.UsingViRSEPlayer)
+                if (kvp.Key != _instanceInfoContainer.LocalClientID && kvp.Value.AvatarAppearanceWrapper.UsingViRSEPlayer)
                     receivedRemoteClientInfosWithAppearance.Add(kvp.Key, kvp.Value);
             }
 
@@ -112,7 +94,7 @@ namespace VE2.InstanceNetworking
                     GameObject.Destroy(remotePlayerController.gameObject);
 
             _remoteAvatars.Clear();
-            _instanceService.OnReceiveRemotePlayerState -= HandleReceiveRemotePlayerState;
+            _instanceInfoContainer.OnInstanceInfoChanged -= HandleNewInstanceInfo;
         }
     }
 }

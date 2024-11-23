@@ -29,6 +29,8 @@ namespace VE2.Core.VComponents.Internal
         private readonly ColliderInteractionModule _ColliderInteractionModule;
         #endregion
 
+        internal bool test = false;
+
         public ToggleActivatableService(ToggleActivatableConfig config, VE2Serializable state, string id, WorldStateModulesContainer worldStateModulesContainer)
         {
             _StateModule = new(state, config.StateConfig, id, worldStateModulesContainer);

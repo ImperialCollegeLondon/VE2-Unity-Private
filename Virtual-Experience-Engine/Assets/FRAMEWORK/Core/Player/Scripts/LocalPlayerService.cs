@@ -10,7 +10,7 @@ namespace VE2.Core.Player
         public static PlayerService Create(PlayerTransformData state, PlayerStateConfig config, bool enableVR, bool enable2D)
         {
             return new PlayerService(state, config, enableVR, enable2D, 
-                VE2CoreServiceLocator.Instance.ViRSEPlayerStateModuleContainer, 
+                VE2CoreServiceLocator.Instance.PlayerStateModuleContainer, 
                 VE2CoreServiceLocator.Instance.PlayerSettingsProvider, 
                 VE2CoreServiceLocator.Instance.PlayerAppearanceOverridesProvider,
                 VE2CoreServiceLocator.Instance.MultiplayerSupport, 
