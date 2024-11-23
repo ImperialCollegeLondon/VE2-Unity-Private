@@ -59,10 +59,11 @@ namespace VE2.Core.Player
 
         public override void ActivatePlayer(PlayerTransformData initTransformData)
         {
+            base.ActivatePlayer(initTransformData);
             transform.SetPositionAndRotation(initTransformData.RootPosition, initTransformData.RootRotation);
             _headTransform.transform.SetLocalPositionAndRotation(initTransformData.HeadLocalPosition, initTransformData.HeadLocalRotation);
 
-            gameObject.SetActive(true);
+            _xrManagerSettingsWrapper.InitializeLoader();
             _xrManagerSettingsWrapper.StartSubsystems();
 
             _playerVRInputContainer.ResetView.OnPressed += HandleResetViewPressed;
@@ -74,7 +75,8 @@ namespace VE2.Core.Player
 
         public override void DeactivatePlayer()
         {
-            gameObject.SetActive(false);
+            base.DeactivatePlayer();
+
             _xrManagerSettingsWrapper.StopSubsystems();
 
             _playerVRInputContainer.ResetView.OnPressed -= HandleResetViewPressed;

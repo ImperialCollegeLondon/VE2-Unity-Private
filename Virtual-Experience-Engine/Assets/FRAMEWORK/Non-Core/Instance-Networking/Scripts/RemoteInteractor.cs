@@ -6,6 +6,8 @@ namespace VE2.InstanceNetworking
 {
     public class RemoteInteractor : MonoBehaviour, IInteractor
     {
+        public Transform Transform => transform;
+
         public Transform ConfirmGrab(IRangedGrabInteractionModule rangedGrabInteractionModule)
         {
             return transform;
@@ -15,6 +17,11 @@ namespace VE2.InstanceNetworking
         public void ConfirmDrop()
         {
             //TODO: Show 
+        }
+
+        void IInteractor.ConfirmGrab(IRangedGrabInteractionModule rangedGrabInteractionModule)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

@@ -101,7 +101,9 @@ namespace VE2.Core.Player
 
         private void OnDisable() 
         {
+            Debug.Log("Disabling player spawner, service null? " + (_playerService == null));
             _playerService?.TearDown();
+            _playerService = null;
         }
     }
 }

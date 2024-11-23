@@ -37,11 +37,12 @@ namespace VE2.Core.VComponents.Internal
 
         public FreeGrabbableService(List<IHandheldInteractionModule> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id, WorldStateModulesContainer worldStateModulesContainer, IGameObjectFindProvider gameObjectFindProvider, IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants)
         {
-            _StateModule = new(state, config.StateConfig, id, worldStateModulesContainer, gameObjectFindProvider);
-            _rigidbody  = rigidbody;
-            _isKinematicOnStart = _rigidbody.isKinematic;
             _RangedGrabInteractionModule = new(handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
+            _StateModule = new(state, config.StateConfig, id, worldStateModulesContainer, gameObjectFindProvider, RangedGrabInteractionModule);
+            
+            _rigidbody  = rigidbody;
             _physicsConstants = physicsConstants;
+            _isKinematicOnStart = _rigidbody.isKinematic;
 
             _RangedGrabInteractionModule.OnLocalInteractorRequestGrab += (InteractorID interactorID) => _StateModule.SetGrabbed(interactorID);
             _RangedGrabInteractionModule.OnLocalInteractorRequestDrop += (InteractorID interactorID) => _StateModule.SetDropped(interactorID);
@@ -54,16 +55,14 @@ namespace VE2.Core.VComponents.Internal
 
         // private void HandleLocalInteractorRequestDrop(InteractorID interactorID) => _StateModule.SetDropped(interactorID);
         
-        private void HandleGrabConfirmed(IInteractor interactor)
+        private void HandleGrabConfirmed()
         {
             _rigidbody.isKinematic = false;
-            _RangedGrabInteractionModule.ConfirmGrabOnInteractor(interactor);
         }
     
-        private void HandleDropConfirmed(IInteractor interactor)
+        private void HandleDropConfirmed()
         {
             _rigidbody.isKinematic = _isKinematicOnStart;
-            _RangedGrabInteractionModule.ConfirmDropOnInteractor(interactor);
         } 
 
         public void HandleFixedUpdate()
@@ -71,8 +70,8 @@ namespace VE2.Core.VComponents.Internal
             _StateModule.HandleFixedUpdate();
             if(_StateModule.IsGrabbed)
             {
-                TrackPosition(_RangedGrabInteractionModule.CurrentGrabbingGrabberTransform.position);
-                TrackRotation(_RangedGrabInteractionModule.CurrentGrabbingGrabberTransform.rotation);
+                TrackPosition(_StateModule.CurrentGrabbingInteractor.Transform.position);
+                TrackRotation(_StateModule.CurrentGrabbingInteractor.Transform.rotation);
             }
         }
 
@@ -100,9 +99,6 @@ namespace VE2.Core.VComponents.Internal
         public void TearDown()
         {
             _StateModule.TearDown();
-
-            // _RangedGrabInteractionModule.OnLocalInteractorRequestGrab -= HandleLocalInteractorRequestGrab;
-            // _RangedGrabInteractionModule.OnLocalInteractorRequestDrop -= HandleLocalInteractorRequestDrop;
 
             _StateModule.OnGrabConfirmed -= HandleGrabConfirmed;
             _StateModule.OnDropConfirmed -= HandleDropConfirmed;

@@ -9,6 +9,7 @@ namespace VE2.Core.Player
 {
     public class PlayerController2D : PlayerController
     {
+        //TODO: Maybe this can be encompassed in a Player2DReferences object?
         [SerializeField] private Camera _camera2D;
         [SerializeField] private Player2DLocomotor _playerLocomotor2D;
         [SerializeField] private Interactor2D _interactor2D;
@@ -52,19 +53,17 @@ namespace VE2.Core.Player
 
         public override void ActivatePlayer(PlayerTransformData initTransformData)
         {
+            base.ActivatePlayer(initTransformData);
             _rootPosition = initTransformData.RootPosition;
             transform.rotation = initTransformData.RootRotation;
             _camera2D.transform.rotation = initTransformData.HeadLocalRotation;
             _interactor2D.GrabberTransform.SetLocalPositionAndRotation(initTransformData.Hand2DLocalPosition, initTransformData.Hand2DLocalRotation);
-            gameObject.SetActive(true);
-
             _interactor2D.HandleOnEnable();
         }
 
         public override void DeactivatePlayer() 
         {
-            gameObject.SetActive(false);
-
+            base.DeactivatePlayer();
             _interactor2D.HandleOnDisable();
         }
     }

@@ -46,7 +46,7 @@ namespace VE2.Core.Common
             _wasNetworkedLastFrame = false;
         }
 
-        public void HandleFixedUpdate()
+        public virtual void HandleFixedUpdate()
         {
             if (IsNetworked && !_wasNetworkedLastFrame)
                 _baseStateContainer.RegisterStateModule(this);

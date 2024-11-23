@@ -23,43 +23,43 @@ namespace VE2.Core.VComponents.Internal
 
     internal class FreeGrabbableStateModule : BaseWorldStateModule, IFreeGrabbableStateModule
     {
+        #region Interfaces
         public UnityEvent OnGrab => _config.OnGrab;
-
         public UnityEvent OnDrop => _config.OnDrop;
-
-        //internal event Action<InteractorID> OnStateBecomeGrabbed;
-        //internal event Action<InteractorID> OnStateBecomeDropped;
         public bool IsGrabbed { get => _state.IsGrabbed; private set => _state.IsGrabbed = value; }
         public ushort MostRecentInteractingClientID => _state.MostRecentInteractingInteractorID.ClientID;
+        #endregion
+
         private FreeGrabbableState _state => (FreeGrabbableState)State;
         private FreeGrabbableStateConfig _config => (FreeGrabbableStateConfig)Config;
         private readonly IGameObjectFindProvider _gameObjectFindProvider;
+        private readonly IRangedGrabInteractionModule _rangedGrabInteractionModule;
 
-        internal event Action<IInteractor> OnGrabConfirmed;
-        internal event Action<IInteractor> OnDropConfirmed;
+        internal IInteractor CurrentGrabbingInteractor { get; private set; }
+        internal event Action OnGrabConfirmed;
+        internal event Action OnDropConfirmed;
 
-        public FreeGrabbableStateModule(VE2Serializable state, BaseStateConfig config, string id, WorldStateModulesContainer worldStateModulesContainer, IGameObjectFindProvider gameObjectFindProvider) : base(state, config, id, worldStateModulesContainer)
+        public FreeGrabbableStateModule(VE2Serializable state, BaseStateConfig config, string id, WorldStateModulesContainer worldStateModulesContainer, IGameObjectFindProvider gameObjectFindProvider, IRangedGrabInteractionModule rangedGrabInteractionModule) : 
+            base(state, config, id, worldStateModulesContainer)
         {
+            _rangedGrabInteractionModule = rangedGrabInteractionModule;
             _gameObjectFindProvider = gameObjectFindProvider;
         }
-
-        public event Action OnProgrammaticStateChangeFromPlugin;
-
 
         public void SetGrabbed(InteractorID interactorID)
         {
             if (IsGrabbed)
                 return;
 
-            string interactorGameobjectName = $"Interactor{interactorID.ClientID}-{interactorID.InteractorType}";
-            GameObject interactorGameobject = _gameObjectFindProvider.FindGameObject(interactorGameobjectName);
-
-            if(_gameObjectFindProvider.TryGetComponent(interactorGameobject, out IInteractor interactor))
+            if (TryGetInteractorWithInteractorID(interactorID, out IInteractor interactor))
             {
-                OnGrabConfirmed?.Invoke(interactor);
+                CurrentGrabbingInteractor = interactor;
                 _state.IsGrabbed = true;
                 _state.MostRecentInteractingInteractorID = interactorID;
                 _state.StateChangeNumber++;
+
+                interactor.ConfirmGrab(_rangedGrabInteractionModule);
+                OnGrabConfirmed?.Invoke();
 
                 try
                 {
@@ -81,31 +81,39 @@ namespace VE2.Core.VComponents.Internal
             if (!IsGrabbed)
                 return;
 
-            if (interactorID.ClientID != ushort.MaxValue)
-                _state.MostRecentInteractingInteractorID = interactorID;
+            //Different validation to SetGrabbed. The interactor may have been destroyed (and is thus no longer present), but we still want to set the state to dropped
+            CurrentGrabbingInteractor = null;
+            _state.IsGrabbed = false;
+            _state.StateChangeNumber++;
 
+            if (TryGetInteractorWithInteractorID(interactorID, out IInteractor interactor))
+                interactor.ConfirmDrop();
+
+            OnDropConfirmed?.Invoke();
+
+            try
+            {
+                _config.OnDrop?.Invoke();
+            }
+            catch (Exception e)
+            {
+                Debug.Log($"Error when emitting OnLocalInteractorDrop from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
+            }
+        }
+
+        private bool TryGetInteractorWithInteractorID(InteractorID interactorID, out IInteractor interactor)
+        {
             string interactorGameobjectName = $"Interactor{interactorID.ClientID}-{interactorID.InteractorType}";
             GameObject interactorGameobject = _gameObjectFindProvider.FindGameObject(interactorGameobjectName);
-
-            if (_gameObjectFindProvider.TryGetComponent(interactorGameobject, out IInteractor interactor))
+            if (interactorGameobject == null)
             {
-                OnDropConfirmed?.Invoke(interactor);
-                _state.StateChangeNumber++;
-                _state.IsGrabbed = false;
-
-                try
-                {
-                    _config.OnDrop?.Invoke();
-                }
-                catch (Exception e)
-                {
-                    Debug.Log($"Error when emitting OnLocalInteractorDrop from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
-                }
+                interactor = null;
+                return false;
             }
-            else
+            else 
             {
-                Debug.LogError($"Could not find Interactor with {interactorID.ClientID} and {interactorID.InteractorType}");
-            }
+                return _gameObjectFindProvider.TryGetComponent(interactorGameobject, out interactor);
+            }               
         }
 
         protected override void UpdateBytes(byte[] newBytes)
@@ -119,6 +127,15 @@ namespace VE2.Core.VComponents.Internal
             else
             {
                 SetDropped(receiveState.MostRecentInteractingInteractorID);
+            }
+        }
+
+        public override void HandleFixedUpdate()
+        {
+            base.HandleFixedUpdate();
+            if (CurrentGrabbingInteractor == null && IsGrabbed)
+            {
+                SetDropped(_state.MostRecentInteractingInteractorID);
             }
         }
     }

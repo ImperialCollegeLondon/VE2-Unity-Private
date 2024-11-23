@@ -13,6 +13,8 @@ namespace VE2.Core.Player
     //Nah, let's have an InteractorContainer in the ServiceLocator, each interactor will register itself there
     public abstract class PointerInteractor : MonoBehaviour, IInteractor
     {
+        public Transform Transform => transform;
+
         [SerializeField] public Transform GrabberTransform;
         [SerializeField] protected LayerMask _LayerMask; // Add a layer mask field
         [SerializeField] protected string _RaycastHitDebug;
@@ -23,12 +25,15 @@ namespace VE2.Core.Player
         protected InteractorID _InteractorID => new(_multiplayerSupport == null ? (ushort)0 : _multiplayerSupport.LocalClientID, _InteractorType);
         protected bool _WaitingForMultiplayerSupport => _multiplayerSupport != null && !_multiplayerSupport.IsConnectedToServer;
 
+
         //TODO: maybe these can all be private?
         protected Transform _RayOrigin;
         protected InteractorType _InteractorType;
         protected IMultiplayerSupport _multiplayerSupport;
         private InteractorInputContainer _interactorInputContainer; 
         protected IRaycastProvider _RaycastProvider;
+
+        private ushort _randomID;
 
         // Setup method to initialize the ray origin and max raycast distance
         //TODO: Ideally, this would be a constructor
@@ -40,6 +45,8 @@ namespace VE2.Core.Player
             _interactorInputContainer = interactorInputContainer;
             _RaycastProvider = raycastProvider;
 
+            _randomID = (ushort)Random.Range(0, ushort.MaxValue);
+
             if (_WaitingForMultiplayerSupport)
                 _multiplayerSupport.OnConnectedToInstance += RenameInteractorToLocalID;
             else
@@ -48,6 +55,8 @@ namespace VE2.Core.Player
 
         public virtual void HandleOnEnable()
         {
+            Debug.Log("Random ID: " + _randomID + " subscrived to input");
+
             _interactorInputContainer.RangedClick.OnPressed += HandleRangedClickPressed;
             _interactorInputContainer.HandheldClick.OnPressed += HandleHandheldClickPressed;
             _interactorInputContainer.Grab.OnPressed += HandleGrabPressed;
@@ -57,6 +66,8 @@ namespace VE2.Core.Player
 
         public virtual void HandleOnDisable()
         {
+            Debug.Log("Random ID: " + _randomID + " unsubscribed from input");
+
             _interactorInputContainer.RangedClick.OnPressed -= HandleRangedClickPressed;
             _interactorInputContainer.HandheldClick.OnPressed -= HandleHandheldClickPressed;
             _interactorInputContainer.Grab.OnPressed -= HandleGrabPressed;
@@ -103,7 +114,7 @@ namespace VE2.Core.Player
 
         private RaycastResultWrapper GetRayCastResult() 
         {
-            return _RaycastProvider.Raycast(_RayOrigin.position, _RayOrigin.transform.forward, MAX_RAYCAST_DISTANCE, _LayerMask);
+            return _RaycastProvider.Raycast(_RayOrigin.position, _RayOrigin.forward, MAX_RAYCAST_DISTANCE, _LayerMask);
         }    
 
         private void HandleRangedClickPressed()
@@ -122,7 +133,6 @@ namespace VE2.Core.Player
             if (IsCurrentlyGrabbing)
             {
                 IRangedGrabInteractionModule rangedGrabInteractableToDrop = _CurrentGrabbingGrabbable;
-                _CurrentGrabbingGrabbable = null;
                 rangedGrabInteractableToDrop.RequestLocalDrop(_InteractorID);
             }
             else 
@@ -135,7 +145,6 @@ namespace VE2.Core.Player
                     {
                         if (raycastResultWrapper.RangedInteractable is IRangedGrabInteractionModule rangedGrabInteractable)
                         {
-                            _CurrentGrabbingGrabbable = rangedGrabInteractable;
                             rangedGrabInteractable.RequestLocalGrab(_InteractorID);
                         }
                     }
@@ -147,11 +156,10 @@ namespace VE2.Core.Player
             }
         }
 
-        public Transform ConfirmGrab(IRangedGrabInteractionModule rangedGrabInteractable)
+        public void ConfirmGrab(IRangedGrabInteractionModule rangedGrabInteractable)
         {
             _CurrentGrabbingGrabbable = rangedGrabInteractable;
             SetInteractorState(InteractorState.Grabbing);
-            return GrabberTransform;
         }
 
         public void ConfirmDrop()
@@ -192,8 +200,6 @@ namespace VE2.Core.Player
             if (!IsCurrentlyGrabbing)
                 return;
 
-            Debug.Log("DETECT SCROLL DOWN");
-
             foreach (IHandheldInteractionModule handheldInteraction in _CurrentGrabbingGrabbable.HandheldInteractions)
             {
                 if (handheldInteraction is IHandheldScrollInteractionModule handheldScrollInteraction)
@@ -221,6 +227,7 @@ namespace VE2.Core.Player
 
 
         protected abstract void SetInteractorState(InteractorState newState);
+
         protected enum InteractorState
         {
             Idle,

@@ -5,18 +5,11 @@ using VE2.Common;
 
 namespace VE2.Core.Player 
 {
-    public abstract class PlayerController : MonoBehaviour //TODO: Can this just be an interface? Or do we even need this at all?
+    public abstract class PlayerController : MonoBehaviour //TODO: Can this just be an interface? Or do we even need MB at all here?
     {
         public abstract PlayerTransformData PlayerTransformData { get; }
-        public abstract void ActivatePlayer(PlayerTransformData initialTransformData);
-        public abstract void DeactivatePlayer();
+        public virtual void ActivatePlayer(PlayerTransformData initialTransformData) => gameObject.SetActive(true);
+        public virtual void DeactivatePlayer() => gameObject.SetActive(false);
     }
 }
 
-/*
-How do we want 2d/vr player transform to actually work?
-Most performant to keep both rigs in the scene and toggle active, rather than instantiate/destroy
-Is there actually any point at all in having this master player gameobject? 
-Let's just have separate prefabs, and inject the controllers for these into the 
-
-*/

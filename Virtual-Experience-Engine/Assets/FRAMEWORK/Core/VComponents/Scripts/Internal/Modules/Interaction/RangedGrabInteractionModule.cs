@@ -14,8 +14,6 @@ namespace VE2.Core.VComponents.Internal
         internal event Action<InteractorID> OnLocalInteractorRequestDrop;
         public List<IHandheldInteractionModule> HandheldInteractions {get; private set; } = new();
 
-        public Transform CurrentGrabbingGrabberTransform { get; private set; }
-
         public RangedGrabInteractionModule(List<IHandheldInteractionModule> handheldInteractions, RangedInteractionConfig config, GeneralInteractionConfig generalInteractionConfig) : base(config, generalInteractionConfig) 
         {
             HandheldInteractions = handheldInteractions;
@@ -29,17 +27,6 @@ namespace VE2.Core.VComponents.Internal
         public void RequestLocalDrop(InteractorID interactorID)
         {
             OnLocalInteractorRequestDrop?.Invoke(interactorID);
-        }
-
-        public void ConfirmGrabOnInteractor(IInteractor interactor)
-        {
-            CurrentGrabbingGrabberTransform = interactor.ConfirmGrab(this);
-        }
-
-        public void ConfirmDropOnInteractor(IInteractor interactor)
-        {
-            CurrentGrabbingGrabberTransform = null;
-            interactor.ConfirmDrop();
         }
     }
 }

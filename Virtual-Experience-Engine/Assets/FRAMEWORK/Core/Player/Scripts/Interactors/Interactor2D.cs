@@ -1,8 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-using VE2.Common;
-using VE2.Core.Common;
-using VE2.Core.VComponents.InteractableInterfaces;
 
 namespace VE2.Core.Player
 {

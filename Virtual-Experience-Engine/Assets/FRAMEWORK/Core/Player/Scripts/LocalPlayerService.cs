@@ -126,6 +126,8 @@ namespace VE2.Core.Player
         
         public void TearDown() 
         {
+            Debug.Log("Tearing down player service - 2d null? " + (_player2D == null) + " - vr null? " + (_playerVR == null));
+
             //TODO - maybe make these TearDown methods instead?
             if (_player2D != null)
             {
