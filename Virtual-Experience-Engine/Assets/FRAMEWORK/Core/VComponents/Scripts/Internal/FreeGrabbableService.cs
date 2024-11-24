@@ -37,10 +37,10 @@ namespace VE2.Core.VComponents.Internal
 
         public FreeGrabbableService(List<IHandheldInteractionModule> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id, 
             WorldStateModulesContainer worldStateModulesContainer, InteractorContainer interactorContainer, 
-            IGameObjectFindProvider gameObjectFindProvider, IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants)
+            IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants)
         {
             _RangedGrabInteractionModule = new(handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
-            _StateModule = new(state, config.StateConfig, id, worldStateModulesContainer, interactorContainer, gameObjectFindProvider, RangedGrabInteractionModule);
+            _StateModule = new(state, config.StateConfig, id, worldStateModulesContainer, interactorContainer, RangedGrabInteractionModule);
             
             _rigidbody  = rigidbody;
             _physicsConstants = physicsConstants;

@@ -45,7 +45,6 @@ namespace VE2.Core.VComponents.Integration
                 id, 
                 VE2CoreServiceLocator.Instance.WorldStateModulesContainer,
                 VE2CoreServiceLocator.Instance.InteractorContainer,
-                new GameObjectFindProvider(),
                 _rigidbodyWrapper,
                 Resources.Load<PhysicsConstants>("PhysicsConstants"));
         }

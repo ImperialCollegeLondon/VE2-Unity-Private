@@ -34,7 +34,6 @@ namespace VE2.Core.VComponents.Internal
         private FreeGrabbableStateConfig _config => (FreeGrabbableStateConfig)Config;
 
         private readonly InteractorContainer _interactorContainer;
-        private readonly IGameObjectFindProvider _gameObjectFindProvider;
         private readonly IRangedGrabInteractionModule _rangedGrabInteractionModule;
 
         internal IInteractor CurrentGrabbingInteractor { get; private set; }
@@ -42,12 +41,10 @@ namespace VE2.Core.VComponents.Internal
         internal event Action OnDropConfirmed;
 
         public FreeGrabbableStateModule(VE2Serializable state, BaseStateConfig config, string id, 
-            WorldStateModulesContainer worldStateModulesContainer, InteractorContainer interactorContainer, 
-            IGameObjectFindProvider gameObjectFindProvider, IRangedGrabInteractionModule rangedGrabInteractionModule) : 
+            WorldStateModulesContainer worldStateModulesContainer, InteractorContainer interactorContainer, IRangedGrabInteractionModule rangedGrabInteractionModule) : 
             base(state, config, id, worldStateModulesContainer)
         {
             _interactorContainer = interactorContainer;
-            _gameObjectFindProvider = gameObjectFindProvider;
             _rangedGrabInteractionModule = rangedGrabInteractionModule;
         }
 

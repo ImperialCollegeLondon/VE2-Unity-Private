@@ -84,29 +84,6 @@ namespace VE2.Core.Tests
     }
 
     [SetUpFixture]
-    public class GameObjectFindProviderSetup
-    {
-        public static IGameObjectFindProvider GameObjectFindProviderStub { get; private set; }
-
-        [OneTimeSetUp]
-        public void GameObjectFindProviderStubSetupOnce()
-        {
-            //Stub out the game object find provider
-            GameObjectFindProviderStub = Substitute.For<IGameObjectFindProvider>();
-        }
-
-        public static void StubFindGameObjectForGameObjectFindProviderStub(GameObject interactorGameObject)
-        {
-            GameObjectFindProviderStub.FindGameObject(MultiplayerSupportSetup.InteractorGameobjectName).Returns(interactorGameObject);
-            GameObjectFindProviderStub.TryGetComponent<IInteractor>(interactorGameObject, out Arg.Any<IInteractor>()).Returns(x =>
-            {
-                x[1] = InteractorSetup.InteractorStub;
-                return true;
-            });
-        }
-    }
-
-    [SetUpFixture]
     public class RayCastProviderSetup
     {
         public static IRaycastProvider RaycastProviderStub { get; private set; }

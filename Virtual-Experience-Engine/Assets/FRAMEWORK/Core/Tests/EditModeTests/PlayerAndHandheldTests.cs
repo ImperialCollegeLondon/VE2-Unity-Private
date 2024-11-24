@@ -28,18 +28,9 @@ namespace VE2.Core.Tests
             multiplayerSupportStub.LocalClientID.Returns(localClientID);
 
             InteractorID interactorID = new(localClientID, InteractorType.Mouse2D);
-            string interactorGameobjectName = $"Interactor{interactorID.ClientID}-{interactorID.InteractorType}";
-
             IInteractor interactorStub = Substitute.For<IInteractor>();
-            GameObject interactorGameObject = new();
-
-            IGameObjectFindProvider findProviderStub = Substitute.For<IGameObjectFindProvider>();
-            findProviderStub.FindGameObject(interactorGameobjectName).Returns(interactorGameObject);
-            findProviderStub.TryGetComponent<IInteractor>(interactorGameObject, out Arg.Any<IInteractor>()).Returns(x =>
-            {
-                x[1] = interactorStub;
-                return true;
-            });
+            InteractorContainer interactorContainerStub = new();
+            interactorContainerStub.RegisterInteractor(interactorID.ToString(), interactorStub);
 
             //Create the activatable with default values
             HandheldActivatableService handheldActivatable = new(new HandheldActivatableConfig(), new SingleInteractorActivatableState(), "debug", Substitute.For<WorldStateModulesContainer>());
@@ -57,8 +48,7 @@ namespace VE2.Core.Tests
                 new FreeGrabbableState(),
                 "debug",
                 Substitute.For<WorldStateModulesContainer>(),
-                Substitute.For<InteractorContainer>(),
-                findProviderStub,
+                interactorContainerStub,
                 Substitute.For<IRigidbodyWrapper>(),
                 new PhysicsConstants());
 
@@ -90,7 +80,7 @@ namespace VE2.Core.Tests
                 false,
                 true,
                 new PlayerStateModuleContainer(),
-                new InteractorContainer(),
+                interactorContainerStub,
                 playerSettingsProviderStub,
                 Substitute.For<IPlayerAppearanceOverridesProvider>(),
                 multiplayerSupportStub,
