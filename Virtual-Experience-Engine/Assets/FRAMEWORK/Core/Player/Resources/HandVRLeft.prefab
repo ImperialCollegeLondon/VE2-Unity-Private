@@ -1335,7 +1335,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7167164542793246743}
   - component: {fileID: 2699536194450399213}
-  - component: {fileID: 1665684572550325534}
   - component: {fileID: 2728237089983844729}
   m_Layer: 6
   m_Name: HandVRLeft
@@ -1357,6 +1356,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 627727185274979275}
   - {fileID: 5986430768577062033}
   - {fileID: 5854277485910502104}
   m_Father: {fileID: 0}
@@ -1373,27 +1373,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04407b4b0f6546f4aad159ec112250ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _lineRenderer: {fileID: 5038925955700674028}
-  _rayOrigin: {fileID: 4664831131562171241}
-  _handVisualGO: {fileID: 6319543161447741280}
-  _collisionDetector: {fileID: 100483419351548477}
---- !u!114 &1665684572550325534
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3041204542129796037}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3a2e16b5a99f9924cb3ffdf09ae525b2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GrabberTransform: {fileID: 7167164542793246743}
-  _LayerMask:
-    serializedVersion: 2
-    m_Bits: 959
-  _RaycastHitDebug: 
+  _interactorVRReferences:
+    _grabberTransform: {fileID: 627727185274979275}
+    _rayOrigin: {fileID: 4664831131562171241}
+    _layerMask:
+      serializedVersion: 2
+      m_Bits: 959
+    _raycastHitDebug:
+      Value: 
+    _lineRenderer: {fileID: 5038925955700674028}
+    _collisionDetector: {fileID: 100483419351548477}
+    _handVisualGO: {fileID: 6319543161447741280}
+  _locomotorVRReferences:
+    _rayOrigin: {fileID: 0}
+    _dragIconHolder: {fileID: 0}
+    _horizontalDragIndicator: {fileID: 0}
+    _verticalDragIndicator: {fileID: 0}
+    _sphereDragIcon: {fileID: 0}
 --- !u!54 &2728237089983844729
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1604,6 +1600,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1997845156553877143}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3905529071060049619
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 627727185274979275}
+  m_Layer: 6
+  m_Name: VirtualGrabber
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &627727185274979275
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3905529071060049619}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7167164542793246743}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4093993131774600116
 GameObject:

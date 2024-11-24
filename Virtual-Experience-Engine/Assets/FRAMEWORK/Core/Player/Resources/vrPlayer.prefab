@@ -5215,8 +5215,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _headTransform: {fileID: 898134213713562171}
-  _rightHandHolder: {fileID: 6942805919433040815}
-  _leftHandHolder: {fileID: 385957545340405095}
+  _leftHandHolder: {fileID: 4996934038395276829}
+  _rightHandHolder: {fileID: 4996934038395276829}
 --- !u!1 &3434280277865962897
 GameObject:
   m_ObjectHideFlags: 0

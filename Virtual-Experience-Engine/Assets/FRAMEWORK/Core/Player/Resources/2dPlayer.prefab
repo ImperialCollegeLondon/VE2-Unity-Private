@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 3392518726431804614}
   - component: {fileID: 3707654882980635841}
   - component: {fileID: 6052082413855687782}
-  - component: {fileID: 5747917256425990879}
   m_Layer: 6
   m_Name: Interactor2D
   m_TagString: Untagged
@@ -110,24 +109,6 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &5747917256425990879
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 231887274758751639}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce28d080e7a39e04b97502790cf427d7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GrabberTransform: {fileID: 2036654600086750462}
-  _LayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  _RaycastHitDebug: 
-  reticuleImage: {fileID: 7207473826304763245}
 --- !u!1 &1921325276597920190
 GameObject:
   m_ObjectHideFlags: 0
@@ -1142,6 +1123,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1782269232077625576}
+  - component: {fileID: 4816594841684212639}
   - component: {fileID: 3051927297588946085}
   - component: {fileID: 5964026973069096774}
   - component: {fileID: 1655137531710687974}
@@ -1170,6 +1152,27 @@ Transform:
   - {fileID: 1976337065367333606}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4816594841684212639
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8454638066961242331}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a480a75f4a908664080dd3f892c9edf3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _interactor2DReferences:
+    _grabberTransform: {fileID: 2036654600086750462}
+    _rayOrigin: {fileID: 1976337065367333606}
+    _layerMask:
+      serializedVersion: 2
+      m_Bits: 959
+    _raycastHitDebug:
+      Value: 
+    _reticuleImage: {fileID: 7207473826304763245}
 --- !u!114 &3051927297588946085
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1184,8 +1187,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _camera2D: {fileID: 8825103087020027289}
   _playerLocomotor2D: {fileID: 5964026973069096774}
-  _interactor2D: {fileID: 5747917256425990879}
   _characterController: {fileID: 1655137531710687974}
+  _player2DReferences: {fileID: 4816594841684212639}
 --- !u!114 &5964026973069096774
 MonoBehaviour:
   m_ObjectHideFlags: 0

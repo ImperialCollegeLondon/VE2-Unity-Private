@@ -6,7 +6,7 @@ namespace VE2.InstanceNetworking
 {
     public class RemoteInteractor : MonoBehaviour, IInteractor
     {
-        public Transform Transform => transform;
+        public Transform GrabberTransform => transform;
         private InteractorContainer _interactorContainer;
         private InteractorID _interactorID;
 

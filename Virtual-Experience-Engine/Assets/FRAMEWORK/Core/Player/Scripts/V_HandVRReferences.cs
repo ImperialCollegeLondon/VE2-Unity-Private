@@ -1,33 +1,50 @@
+using System;
 using UnityEngine;
 using VE2.Core.Player.InteractionFinders;
 
-public class V_HandVRReferences : MonoBehaviour
+namespace VE2.Core.Player
 {
-    public LineRenderer LineRenderer => _lineRenderer;
-    [SerializeField] private LineRenderer _lineRenderer;
+    public class V_HandVRReferences : MonoBehaviour
+    {
+        public InteractorVRReferences InteractorVRReferences => _interactorVRReferences;
+        [SerializeField] private InteractorVRReferences _interactorVRReferences;
 
-    public Transform RayOrigin => _rayOrigin;
-    [SerializeField] private Transform _rayOrigin; 
+        public LocomotorVRReferences LocomotorVRReferences => _locomotorVRReferences;
+        [SerializeField] private LocomotorVRReferences _locomotorVRReferences;
 
-    public GameObject HandVisualGO => _handVisualGO;
-    [SerializeField] private GameObject _handVisualGO;
+        //TODO: AnimationController?
+        //TODO: Tooltips? 
+    }
 
-    public V_CollisionDetector CollisionDetector => _collisionDetector;
-    [SerializeField] private V_CollisionDetector _collisionDetector;
+[Serializable]
+    public class InteractorVRReferences : InteractorReferences
+    {
+        public LineRenderer LineRenderer => _lineRenderer;
+        [SerializeField, IgnoreParent] private LineRenderer _lineRenderer;
 
-    public GameObject DragIconHolder => _dragIconHolder;
-    [SerializeField] public GameObject _dragIconHolder; //Entire icon
+        public V_CollisionDetector CollisionDetector => _collisionDetector;
+        [SerializeField, IgnoreParent] private V_CollisionDetector _collisionDetector;
 
-    public GameObject HorizontalDragIndicator => _horizontalDragIndicator;
-    [SerializeField] public GameObject _horizontalDragIndicator;
+        public GameObject HandVisualGO => _handVisualGO;
+        [SerializeField, IgnoreParent] private GameObject _handVisualGO;
+    }
 
-    public GameObject VerticalDragIndicator => _verticalDragIndicator;
-    [SerializeField] public GameObject _verticalDragIndicator;
+    [Serializable]
+    public class LocomotorVRReferences
+    {
+        public Transform RayOrigin => _rayOrigin;
+        [SerializeField, IgnoreParent] private Transform _rayOrigin;
 
-    public GameObject SphereDragIcon => _sphereDragIcon;
-    [SerializeField] public GameObject _sphereDragIcon;
+        public GameObject DragIconHolder => _dragIconHolder;
+        [SerializeField, IgnoreParent] public GameObject _dragIconHolder; //Entire icon
 
-    //TODO: AnimationController?
-    //TODO: Raycast start pos
-    //TODO: Tooltips? 
+        public GameObject HorizontalDragIndicator => _horizontalDragIndicator;
+        [SerializeField, IgnoreParent] public GameObject _horizontalDragIndicator;
+
+        public GameObject VerticalDragIndicator => _verticalDragIndicator;
+        [SerializeField, IgnoreParent] public GameObject _verticalDragIndicator;
+
+        public GameObject SphereDragIcon => _sphereDragIcon;
+        [SerializeField, IgnoreParent] public GameObject _sphereDragIcon;
+    }
 }

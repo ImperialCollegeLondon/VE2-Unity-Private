@@ -7,18 +7,23 @@ using VE2.Core.VComponents.InteractableInterfaces;
 
 public class InteractorVR : PointerInteractor
 {
-    private V_CollisionDetector _collisionDetector;
-    private GameObject _handVisualGO;
-    private LineRenderer _lineRenderer;
-    private Material _lineMaterial;
+    private readonly V_CollisionDetector _collisionDetector;
+    private readonly GameObject _handVisualGO;
+    private readonly LineRenderer _lineRenderer;
+    private readonly Material _lineMaterial;
     private const float LINE_EMISSION_INTENSITY = 15;
 
-    public void InitializeVR(InteractorContainer interactorContainer, Transform rayOrigin, InteractorType interactorType, IMultiplayerSupport multiplayerSupport, InteractorInputContainer interactorInputContainer, IRaycastProvider raycastProvider,
-        V_CollisionDetector collisionDetector, GameObject handVisualGO, LineRenderer lineRenderer) 
+    public InteractorVR(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
+        Transform grabberTransform, Transform rayOrigin, LayerMask layerMask, StringWrapper raycastHitDebug,
+        InteractorType interactorType, IRaycastProvider raycastProvider, IMultiplayerSupport multiplayerSupport,
+        V_CollisionDetector collisionDetector, GameObject handVisualGO, LineRenderer lineRenderer) :
+        base(interactorContainer, interactorInputContainer, grabberTransform,
+            rayOrigin, layerMask, raycastHitDebug,
+            interactorType, raycastProvider, multiplayerSupport)
     {
-        base.Initialize(interactorContainer, rayOrigin, interactorType, multiplayerSupport, interactorInputContainer, raycastProvider);
         _collisionDetector = collisionDetector;
         _handVisualGO = handVisualGO;
+
         _lineRenderer = lineRenderer;
         _lineMaterial = _lineRenderer.material;
         _lineMaterial.EnableKeyword("_EMISSION");

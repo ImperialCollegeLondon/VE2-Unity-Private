@@ -1,19 +1,28 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using VE2.Common;
 using VE2.Core.Common;
 using static VE2.Common.CommonSerializables;
 
 namespace VE2.Core.Player
 {
+    [Serializable]
+    public class Interactor2DReferences : InteractorReferences
+    {
+        public Image ReticuleImage => _reticuleImage;
+        [SerializeField, IgnoreParent] private Image _reticuleImage;
+    }
+
     public class PlayerController2D : PlayerController
     {
         //TODO: Maybe this can be encompassed in a Player2DReferences object?
         [SerializeField] private Camera _camera2D;
         [SerializeField] private Player2DLocomotor _playerLocomotor2D;
-        [SerializeField] private Interactor2D _interactor2D;
         [SerializeField] private CharacterController _characterController;
+        [SerializeField] private Player2DReferences _player2DReferences;
 
         private Vector3 _rootPosition { 
             get => transform.position + (Vector3.down * _characterController.height / 2); 
@@ -40,13 +49,20 @@ namespace VE2.Core.Player
 
         private Player2DControlConfig _controlConfig;
         private Player2DInputContainer _player2DInputContainer;
+        private Interactor2D _interactor2D;
 
         public void Initialize(InteractorContainer interactorContainer, Player2DControlConfig controlConfig, IMultiplayerSupport multiplayerSupport, Player2DInputContainer player2DInputContainer, IRaycastProvider raycastProvider) 
         {
             _controlConfig = controlConfig;
             _player2DInputContainer = player2DInputContainer;
-            _interactor2D.Initialize(interactorContainer, _camera2D.transform, InteractorType.Mouse2D, multiplayerSupport, player2DInputContainer.InteractorInputContainer2D, raycastProvider);
 
+            Interactor2DReferences _interactor2DReferences = _player2DReferences.Interactor2DReferences;
+            _interactor2D= new(interactorContainer, player2DInputContainer.InteractorInputContainer2D, 
+            _interactor2DReferences.GrabberTransform, _interactor2DReferences.RayOrigin, _interactor2DReferences.LayerMask, _interactor2DReferences.RaycastHitDebug, 
+            InteractorType.Mouse2D, raycastProvider, multiplayerSupport,
+            _interactor2DReferences.ReticuleImage);
+
+            //test
             //TODO: think about inspect mode, does that live in the interactor, or the player controller?
             //If interactor, will need to make the interactor2d constructor take a this as a param, and forward the other params to the base constructor
         }
@@ -65,6 +81,11 @@ namespace VE2.Core.Player
         {
             base.DeactivatePlayer();
             _interactor2D.HandleOnDisable();
+        }
+
+        public void HandleUpdate() 
+        {
+            _interactor2D.HandleUpdate();
         }
     }
 }

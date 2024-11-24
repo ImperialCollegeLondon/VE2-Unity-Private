@@ -92,6 +92,12 @@ namespace VE2.Core.Player
             _handControllerRight.HandleLocalAvatarColorChanged(newColor);
         }
 
+        public void HandleUpdate()
+        {
+            _handControllerLeft.HandleUpdate();
+            _handControllerRight.HandleUpdate();
+        }
+
         private void HandleResetViewPressed()
         {
             //TODO:

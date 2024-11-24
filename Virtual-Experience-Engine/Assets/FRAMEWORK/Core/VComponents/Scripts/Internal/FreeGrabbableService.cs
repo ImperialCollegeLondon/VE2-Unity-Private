@@ -72,8 +72,8 @@ namespace VE2.Core.VComponents.Internal
             _StateModule.HandleFixedUpdate();
             if(_StateModule.IsGrabbed)
             {
-                TrackPosition(_StateModule.CurrentGrabbingInteractor.Transform.position);
-                TrackRotation(_StateModule.CurrentGrabbingInteractor.Transform.rotation);
+                TrackPosition(_StateModule.CurrentGrabbingInteractor.GrabberTransform.position);
+                TrackRotation(_StateModule.CurrentGrabbingInteractor.GrabberTransform.rotation);
             }
         }
 

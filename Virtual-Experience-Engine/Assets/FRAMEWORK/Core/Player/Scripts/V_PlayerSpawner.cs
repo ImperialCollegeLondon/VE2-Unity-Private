@@ -99,6 +99,11 @@ namespace VE2.Core.Player
             _playerService?.HandleFixedUpdate();
         }
 
+        private void Update() 
+        {
+            _playerService?.HandleUpdate();
+        }   
+
         private void OnDisable() 
         {
             Debug.Log("Disabling player spawner, service null? " + (_playerService == null));

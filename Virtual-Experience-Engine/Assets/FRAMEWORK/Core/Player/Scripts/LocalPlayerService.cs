@@ -125,6 +125,14 @@ namespace VE2.Core.Player
 
             _playerStateModule.HandleFixedUpdate();
         }
+
+        public void HandleUpdate() 
+        {
+            if (_playerStateModule.PlayerTransformData.IsVRMode)
+                _playerVR.HandleUpdate();
+            else 
+                _player2D.HandleUpdate();
+        }
         
         public void TearDown() 
         {
