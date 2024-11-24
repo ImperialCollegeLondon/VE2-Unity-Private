@@ -24,9 +24,21 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
 
         public RigidbodySyncableService(RigidbodySyncableStateConfig config, VE2Serializable state, string id, WorldStateModulesContainer worldStateModulesContainer, RigidbodyWrapper rigidbodyWrapper)
         {
+            Debug.Log("Creating Rigidbody Syncable Service");
+
             _StateModule = new(state, config, id, worldStateModulesContainer);
             _rigidbody = rigidbodyWrapper;
             _isKinematicOnStart = _rigidbody.isKinematic;
+
+            Debug.Log($"StateModule {_StateModule}, rb {_rigidbody}, kinematicOnStart {_isKinematicOnStart}, multiplayerSupportPresent {_StateModule.MultiplayerSupportPresent}");
+
+            if (!_StateModule.IsHost)
+            {
+                _rigidbody.isKinematic = true;
+            }
+
+            Debug.Log($"isHost {_StateModule.IsHost}");
+
             _rbStates = new(); // TODO: store received states in a list, including a pseudo arrival-time, for interpolation by non-host
 
             _StateModule.OnReceiveState.AddListener(HandleReceiveRigidbodyState);
@@ -35,6 +47,11 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
         public void HandleFixedUpdate()
         {
             _StateModule.HandleFixedUpdate();
+
+            if (_StateModule.IsHost)
+            {
+                _StateModule.SetState(_rigidbody.position, _rigidbody.rotation);
+            }
         }
 
         public void TearDown()
@@ -44,7 +61,18 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
 
         public void HandleReceiveRigidbodyState(Vector3 Position, Quaternion Rotation)
         {
-            Debug.Log("Received Rigidbody state against all odds!");
+            if (_StateModule.IsHost)
+            {
+                Debug.Log($"Received Rigidbody state as the host against all odds! Position: {Position}, Rotation {Rotation}");
+            }
+            else
+            {
+                _rigidbody.position = Position;
+                _rigidbody.rotation = Rotation;
+
+                Debug.Log($"Received Rigidbody state from the host against all odds! Position: {Position}, Rotation {Rotation}");
+            }
+                
         }
     }
 }

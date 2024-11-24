@@ -11,15 +11,19 @@ using static VE2.Common.CommonSerializables;
 namespace VE2.NonCore.Instancing.VComponents.Internal
 {
     [Serializable]
-    public class RigidbodySyncableStateConfig : BaseStateConfig {
-        [SerializeField] public UnityEvent<Vector3, Quaternion> OnReceiveState = new();
-    }
+    public class RigidbodySyncableStateConfig : BaseStateConfig { }
 
     internal class RigidbodySyncableStateModule : BaseWorldStateModule, IRigidbodySyncableStateModule
     {
-        public UnityEvent<Vector3, Quaternion> OnReceiveState => _config.OnReceiveState;
+        /// <value>
+        /// <see cref="Vector3"/>: Position, <see cref="Quaternion"/>: Rotation
+        /// </value>
+        public UnityEvent<Vector3, Quaternion> OnReceiveState => new();
         private RigidbodySyncableState _state => (RigidbodySyncableState)State;
         private RigidbodySyncableStateConfig _config => (RigidbodySyncableStateConfig)Config;
+
+        public bool MultiplayerSupportPresent => _config.MultiplayerSupportPresent;
+        public bool IsHost => _config.MultiplayerSupport.IsHost;
 
         public RigidbodySyncableStateModule(VE2Serializable state, BaseStateConfig config, string id, WorldStateModulesContainer worldStateModulesContainer) : base(state, config, id, worldStateModulesContainer) { }
 
@@ -29,12 +33,18 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
             State.Bytes = newBytes;
             try
             {
-                _config.OnReceiveState?.Invoke(_state.Position, _state.Rotation);
+                OnReceiveState?.Invoke(_state.Position, _state.Rotation);
             }
             catch (Exception e)
             {
                 Debug.Log($"Error when emitting OnReceiveState from RigidbodySyncable with ID {ID} \n{e.Message}\n{e.StackTrace}");
             }
+        }
+
+        public void SetState(Vector3 position, Quaternion rotation)
+        {
+            _state.Position = position;
+            _state.Rotation = rotation;
         }
 
     }

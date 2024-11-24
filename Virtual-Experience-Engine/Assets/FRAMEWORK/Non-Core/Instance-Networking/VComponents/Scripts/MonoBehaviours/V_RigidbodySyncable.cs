@@ -24,6 +24,7 @@ namespace VE2.NonCore.Instancing.VComponents.MonoBehaviours
             string id = "RBS-" + gameObject.name;
             _rigidbodyWrapper = new(GetComponent<Rigidbody>());
             _service = new RigidbodySyncableService(_config, _state, id, VE2CoreServiceLocator.Instance.WorldStateModulesContainer, _rigidbodyWrapper);
+            Debug.Log($"Hit OnEnable and created service");
         }
 
         private void FixedUpdate()
