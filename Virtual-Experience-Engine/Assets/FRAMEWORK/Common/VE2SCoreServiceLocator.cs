@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using VE2.Core.Common;
 using static VE2.Common.CommonSerializables;
+using VE2.Core.VComponents.InteractableInterfaces;
 
 namespace VE2.Common
 {
@@ -232,5 +233,23 @@ namespace VE2.Common
 
         //Doesn't emit events, used on exit playmode 
         public abstract void Reset();
+    }
+
+    public class InteractorContainer
+    {
+        private Dictionary<InteractorID, IInteractor> _interactors = new();
+        public IReadOnlyDictionary<InteractorID, IInteractor> Interactors => _interactors;
+
+        public void RegisterInteractor(InteractorID interactorID, IInteractor interactor)
+        {
+            _interactors[interactorID] = interactor;
+        }
+
+        public void DeregisterInteractor(InteractorID interactorID)
+        {
+            _interactors.Remove(interactorID);
+        }
+
+        public void Reset() => _interactors.Clear();
     }
 }
