@@ -7,10 +7,24 @@ namespace VE2.InstanceNetworking
     public class RemoteInteractor : MonoBehaviour, IInteractor
     {
         public Transform Transform => transform;
+        private InteractorContainer _interactorContainer;
+        private InteractorID _interactorID;
 
-        public Transform ConfirmGrab(IRangedGrabInteractionModule rangedGrabInteractionModule)
+        public void Initialize(ushort clientID, InteractorType interactorType, InteractorContainer interactorContainer)
         {
-            return transform;
+            _interactorID = new InteractorID(clientID, interactorType);
+
+            _interactorContainer = interactorContainer;
+            _interactorContainer.RegisterInteractor(_interactorID.ToString(), this);
+        }
+
+        public void TearDown() 
+        {
+            _interactorContainer.DeregisterInteractor(_interactorID.ToString());
+        }
+
+        public void ConfirmGrab(IRangedGrabInteractionModule rangedGrabInteractionModule)
+        {
             //TODO: hide
         }
 
@@ -18,10 +32,9 @@ namespace VE2.InstanceNetworking
         {
             //TODO: Show 
         }
-
-        void IInteractor.ConfirmGrab(IRangedGrabInteractionModule rangedGrabInteractionModule)
-        {
-            throw new System.NotImplementedException();
-        }
     }
+
+    //TODO - need to add to InteractorContainer here 
+    //Means we also don't want this being a MB 
+
 }

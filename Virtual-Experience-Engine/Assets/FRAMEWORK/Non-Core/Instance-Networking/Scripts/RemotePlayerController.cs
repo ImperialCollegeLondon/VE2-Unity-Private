@@ -47,11 +47,17 @@ namespace VE2.InstanceNetworking
         /// <summary>
         /// Note, this WON'T set the initial appearance, HandleReceiveAvatarAppearance should be called after initialization
         /// </summary>
-        public void Initialize(ushort clientID, List<GameObject> virseAvatarHeadGameObjects, List<GameObject> virseAvatarTorsoGameObjects, List<GameObject> avatarHeadOverrideGameObjects, List<GameObject> avatarTorsoOverrideGameObjects)
+        public void Initialize(ushort clientID, InteractorContainer interactorContainer, 
+            List<GameObject> virseAvatarHeadGameObjects, List<GameObject> virseAvatarTorsoGameObjects, 
+            List<GameObject> avatarHeadOverrideGameObjects, List<GameObject> avatarTorsoOverrideGameObjects)
         {
             _interactorVRLeftGameObject.name = $"Interactor{clientID}-{InteractorType.LeftHandVR}";
             _interactorVRRightGameObject.name = $"Interactor{clientID}-{InteractorType.RightHandVR}";
             _interactor2DGameObject.name = $"Interactor{clientID}-{InteractorType.Mouse2D}";
+
+            _interactorVRLeftGameObject.GetComponent<RemoteInteractor>().Initialize(clientID, InteractorType.LeftHandVR, interactorContainer);
+            _interactorVRRightGameObject.GetComponent<RemoteInteractor>().Initialize(clientID, InteractorType.RightHandVR, interactorContainer);
+            _interactor2DGameObject.GetComponent<RemoteInteractor>().Initialize(clientID, InteractorType.Mouse2D, interactorContainer);
 
             _virseAvatarHeadGameObjects = virseAvatarHeadGameObjects;
             _virseAvatarTorsoGameObjects = virseAvatarTorsoGameObjects;

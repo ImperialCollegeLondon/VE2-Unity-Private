@@ -57,6 +57,7 @@ namespace VE2.Core.Tests
                 new FreeGrabbableState(),
                 "debug",
                 Substitute.For<WorldStateModulesContainer>(),
+                Substitute.For<InteractorContainer>(),
                 findProviderStub,
                 Substitute.For<IRigidbodyWrapper>(),
                 new PhysicsConstants());
@@ -89,6 +90,7 @@ namespace VE2.Core.Tests
                 false,
                 true,
                 new PlayerStateModuleContainer(),
+                new InteractorContainer(),
                 playerSettingsProviderStub,
                 Substitute.For<IPlayerAppearanceOverridesProvider>(),
                 multiplayerSupportStub,

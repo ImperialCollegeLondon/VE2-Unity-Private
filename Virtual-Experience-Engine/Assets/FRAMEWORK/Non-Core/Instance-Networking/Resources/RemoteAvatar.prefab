@@ -355,6 +355,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8473840053617823969}
+  - component: {fileID: 363573727519359017}
   m_Layer: 0
   m_Name: InteractorVRRight
   m_TagString: Untagged
@@ -378,6 +379,18 @@ Transform:
   - {fileID: 5873125422759819268}
   m_Father: {fileID: 1668494007563671424}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &363573727519359017
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 547645932810410104}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 079d944b42e76b84aaff8ca59660648d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &626482559338537037
 GameObject:
   m_ObjectHideFlags: 0
@@ -3889,6 +3902,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5665946001610465812}
+  - component: {fileID: 2331726103692767052}
   m_Layer: 0
   m_Name: InteractorVRLeft
   m_TagString: Untagged
@@ -3912,6 +3926,18 @@ Transform:
   - {fileID: 1704051095876323982}
   m_Father: {fileID: 1668494007563671424}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2331726103692767052
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5864581236906259765}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 079d944b42e76b84aaff8ca59660648d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5907770311723209782
 GameObject:
   m_ObjectHideFlags: 0

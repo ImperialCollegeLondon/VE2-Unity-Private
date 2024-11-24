@@ -42,7 +42,7 @@ namespace VE2.Core.Player
         private PlayerVRInputContainer _playerVRInputContainer;
 
         //TODO: Ideally, this would be a constructor
-        public void Initialize(PlayerVRControlConfig controlConfig, IMultiplayerSupport multiplayerSupport, PlayerVRInputContainer playerVRInputContainer, IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper)
+        public void Initialize(InteractorContainer interactorContainer, PlayerVRControlConfig controlConfig, IMultiplayerSupport multiplayerSupport, PlayerVRInputContainer playerVRInputContainer, IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper)
         {
             _controlConfig = controlConfig;
             _xrManagerSettingsWrapper = xrManagerSettingsWrapper;
@@ -53,8 +53,8 @@ namespace VE2.Core.Player
             GameObject handVRRightGO = GameObject.Instantiate(handVRLeftPrefab, _rightHandHolder, false);
             handVRRightGO.transform.localScale = new Vector3(-1, 1, 1);
 
-            _handControllerLeft = new V_HandController(transform, handVRLeftGO, playerVRInputContainer.HandVRLeftInputContainer, InteractorType.LeftHandVR, multiplayerSupport, raycastProvider);
-            _handControllerRight = new V_HandController(transform, handVRRightGO, playerVRInputContainer.HandVRRightInputContainer, InteractorType.RightHandVR, multiplayerSupport, raycastProvider);
+            _handControllerLeft = new V_HandController(interactorContainer, transform, handVRLeftGO, playerVRInputContainer.HandVRLeftInputContainer, InteractorType.LeftHandVR, multiplayerSupport, raycastProvider);
+            _handControllerRight = new V_HandController(interactorContainer, transform, handVRRightGO, playerVRInputContainer.HandVRRightInputContainer, InteractorType.RightHandVR, multiplayerSupport, raycastProvider);
         }
 
         public override void ActivatePlayer(PlayerTransformData initTransformData)

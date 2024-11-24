@@ -35,10 +35,12 @@ namespace VE2.Core.VComponents.Internal
         private bool _isKinematicOnStart;
         private PhysicsConstants _physicsConstants;
 
-        public FreeGrabbableService(List<IHandheldInteractionModule> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id, WorldStateModulesContainer worldStateModulesContainer, IGameObjectFindProvider gameObjectFindProvider, IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants)
+        public FreeGrabbableService(List<IHandheldInteractionModule> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id, 
+            WorldStateModulesContainer worldStateModulesContainer, InteractorContainer interactorContainer, 
+            IGameObjectFindProvider gameObjectFindProvider, IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants)
         {
             _RangedGrabInteractionModule = new(handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
-            _StateModule = new(state, config.StateConfig, id, worldStateModulesContainer, gameObjectFindProvider, RangedGrabInteractionModule);
+            _StateModule = new(state, config.StateConfig, id, worldStateModulesContainer, interactorContainer, gameObjectFindProvider, RangedGrabInteractionModule);
             
             _rigidbody  = rigidbody;
             _physicsConstants = physicsConstants;

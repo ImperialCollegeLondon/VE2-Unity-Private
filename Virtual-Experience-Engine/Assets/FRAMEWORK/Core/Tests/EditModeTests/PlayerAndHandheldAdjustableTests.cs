@@ -61,6 +61,7 @@ public class PlayerAndHandheldAdjustableTests
         new FreeGrabbableState(),
         "debug",
         Substitute.For<WorldStateModulesContainer>(),
+        Substitute.For<InteractorContainer>(),
         findProviderStub,
         Substitute.For<IRigidbodyWrapper>(),
         new PhysicsConstants());
@@ -93,6 +94,7 @@ public class PlayerAndHandheldAdjustableTests
             false,
             true,
             new PlayerStateModuleContainer(),
+            new InteractorContainer(),
             playerSettingsProviderStub,
             Substitute.For<IPlayerAppearanceOverridesProvider>(),
             multiplayerSupportStub,

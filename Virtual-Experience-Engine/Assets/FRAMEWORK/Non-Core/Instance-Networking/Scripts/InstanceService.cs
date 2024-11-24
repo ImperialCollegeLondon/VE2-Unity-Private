@@ -17,7 +17,8 @@ namespace VE2.InstanceNetworking
 
             return new InstanceService(commsHandler, localClientIDWrapper, 
             connectionStateDebugWrapper, VE2NonCoreServiceLocator.Instance.InstanceNetworkSettingsProvider,
-            VE2CoreServiceLocator.Instance.WorldStateModulesContainer, VE2CoreServiceLocator.Instance.PlayerStateModuleContainer, VE2CoreServiceLocator.Instance.PlayerAppearanceOverridesProvider,
+            VE2CoreServiceLocator.Instance.WorldStateModulesContainer, VE2CoreServiceLocator.Instance.PlayerStateModuleContainer, 
+            VE2CoreServiceLocator.Instance.InteractorContainer, VE2CoreServiceLocator.Instance.PlayerAppearanceOverridesProvider,
             connectAutomatically);
         }
     }
@@ -40,9 +41,12 @@ namespace VE2.InstanceNetworking
         //WorldState sync dependencies
         private readonly WorldStateModulesContainer _worldStateModulesContainer;
 
-        //PlayerSync dependencies
+        //Local PlayerSync dependencies
         private readonly PlayerStateModuleContainer _playerStateModuleContainer;
         private readonly IPlayerAppearanceOverridesProvider _playerAppearanceOverridesProvider;
+
+        //Remote player sync dependencies 
+        private readonly InteractorContainer _interactorContainer;
 
         //Common dependencies
         internal readonly InstanceInfoContainer _instanceInfoContainer;
@@ -53,7 +57,8 @@ namespace VE2.InstanceNetworking
 
         public InstanceService(IPluginSyncCommsHandler commsHandler, LocalClientIdWrapper localClientIDWrapper, 
         ConnectionStateDebugWrapper connectionStateDebugWrapper, IInstanceNetworkSettingsProvider instanceNetworkSettingsProvider, 
-        WorldStateModulesContainer worldStateModulesContainer, PlayerStateModuleContainer playerStateModuleContainer, IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider, 
+        WorldStateModulesContainer worldStateModulesContainer, PlayerStateModuleContainer playerStateModuleContainer,
+        InteractorContainer interactorContainer, IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider, 
         bool connectAutomatically)
         {
             _commsHandler = commsHandler;
@@ -61,6 +66,7 @@ namespace VE2.InstanceNetworking
             _networkSettingsProvider = instanceNetworkSettingsProvider;
             _worldStateModulesContainer = worldStateModulesContainer;
             _playerStateModuleContainer = playerStateModuleContainer;
+            _interactorContainer = interactorContainer;
             _playerAppearanceOverridesProvider = playerAppearanceOverridesProvider;
 
             _instanceInfoContainer = new(localClientIDWrapper);
@@ -147,7 +153,7 @@ namespace VE2.InstanceNetworking
             _localPlayerSyncer.OnPlayerStateUpdatedLocally += (BytesAndProtocol bytesAndProtocol) => _commsHandler.SendMessage(bytesAndProtocol.Bytes, InstanceNetworkingMessageCodes.PlayerState, bytesAndProtocol.Protocol);
             _localPlayerSyncer.TempDelayedPlayerReg(); //TODO: remove
 
-            _remotePlayerSyncer = new(_instanceInfoContainer, _playerAppearanceOverridesProvider); //only receives
+            _remotePlayerSyncer = new(_instanceInfoContainer, _interactorContainer, _playerAppearanceOverridesProvider); //only receives
             _commsHandler.OnReceiveRemotePlayerState += _remotePlayerSyncer.HandleReceiveRemotePlayerState;
 
             _connectionStateDebugWrapper.ConnectionState = ConnectionState.Connected;

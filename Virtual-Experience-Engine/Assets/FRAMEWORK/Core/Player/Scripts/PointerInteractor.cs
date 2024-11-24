@@ -25,6 +25,7 @@ namespace VE2.Core.Player
         protected InteractorID _InteractorID => new(_multiplayerSupport == null ? (ushort)0 : _multiplayerSupport.LocalClientID, _InteractorType);
         protected bool _WaitingForMultiplayerSupport => _multiplayerSupport != null && !_multiplayerSupport.IsConnectedToServer;
 
+        private InteractorContainer _interactorContainer;
 
         //TODO: maybe these can all be private?
         protected Transform _RayOrigin;
@@ -37,8 +38,9 @@ namespace VE2.Core.Player
 
         // Setup method to initialize the ray origin and max raycast distance
         //TODO: Ideally, this would be a constructor
-        public void Initialize(Transform rayOrigin, InteractorType interactorType, IMultiplayerSupport multiplayerSupport, InteractorInputContainer interactorInputContainer, IRaycastProvider raycastProvider)
+        public void Initialize(InteractorContainer interactorContainer, Transform rayOrigin, InteractorType interactorType, IMultiplayerSupport multiplayerSupport, InteractorInputContainer interactorInputContainer, IRaycastProvider raycastProvider)
         {
+            _interactorContainer = interactorContainer;
             _RayOrigin = rayOrigin;
             _InteractorType = interactorType;
             _multiplayerSupport = multiplayerSupport;
@@ -46,11 +48,6 @@ namespace VE2.Core.Player
             _RaycastProvider = raycastProvider;
 
             _randomID = (ushort)Random.Range(0, ushort.MaxValue);
-
-            if (_WaitingForMultiplayerSupport)
-                _multiplayerSupport.OnConnectedToInstance += RenameInteractorToLocalID;
-            else
-                RenameInteractorToLocalID();
         }
 
         public virtual void HandleOnEnable()
@@ -62,6 +59,11 @@ namespace VE2.Core.Player
             _interactorInputContainer.Grab.OnPressed += HandleGrabPressed;
             _interactorInputContainer.ScrollTickUp.OnTickOver += HandleScrollUp;
             _interactorInputContainer.ScrollTickDown.OnTickOver += HandleScrollDown;
+
+            if (_WaitingForMultiplayerSupport)
+                _multiplayerSupport.OnConnectedToInstance += RegisterWithContainer;
+            else
+                RegisterWithContainer();
         }
 
         public virtual void HandleOnDisable()
@@ -73,19 +75,18 @@ namespace VE2.Core.Player
             _interactorInputContainer.Grab.OnPressed -= HandleGrabPressed;
             _interactorInputContainer.ScrollTickUp.OnTickOver -= HandleScrollUp;
             _interactorInputContainer.ScrollTickDown.OnTickOver -= HandleScrollDown;
-        }
-
-        private void RenameInteractorToLocalID() 
-        {
-            ushort localID = 0;
 
             if (_multiplayerSupport != null)
-            {
-                _multiplayerSupport.OnConnectedToInstance -= RenameInteractorToLocalID;
-                localID = _multiplayerSupport.LocalClientID;
-            }
+                _multiplayerSupport.OnConnectedToInstance -= RegisterWithContainer;
 
-            gameObject.name = $"Interactor{localID}-{_InteractorType}";
+            _interactorContainer.DeregisterInteractor(_InteractorID.ToString());
+        }
+
+        private void RegisterWithContainer() 
+        {
+            Debug.Log("Added to container");
+            _multiplayerSupport.OnConnectedToInstance -= RegisterWithContainer;
+            _interactorContainer.RegisterInteractor(_InteractorID.ToString(), this);
         }
 
         void Update()

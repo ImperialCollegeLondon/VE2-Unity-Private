@@ -41,11 +41,11 @@ namespace VE2.Core.Player
         private Player2DControlConfig _controlConfig;
         private Player2DInputContainer _player2DInputContainer;
 
-        public void Initialize(Player2DControlConfig controlConfig, IMultiplayerSupport multiplayerSupport, Player2DInputContainer player2DInputContainer, IRaycastProvider raycastProvider) 
+        public void Initialize(InteractorContainer interactorContainer, Player2DControlConfig controlConfig, IMultiplayerSupport multiplayerSupport, Player2DInputContainer player2DInputContainer, IRaycastProvider raycastProvider) 
         {
             _controlConfig = controlConfig;
             _player2DInputContainer = player2DInputContainer;
-            _interactor2D.Initialize(_camera2D.transform, InteractorType.Mouse2D, multiplayerSupport, player2DInputContainer.InteractorInputContainer2D, raycastProvider);
+            _interactor2D.Initialize(interactorContainer, _camera2D.transform, InteractorType.Mouse2D, multiplayerSupport, player2DInputContainer.InteractorInputContainer2D, raycastProvider);
 
             //TODO: think about inspect mode, does that live in the interactor, or the player controller?
             //If interactor, will need to make the interactor2d constructor take a this as a param, and forward the other params to the base constructor

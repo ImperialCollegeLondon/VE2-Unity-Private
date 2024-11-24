@@ -39,6 +39,7 @@ namespace VE2.Core.VComponents.Tests
                 new FreeGrabbableState(), 
                 "debug",
                 Substitute.For<WorldStateModulesContainer>(),
+                Substitute.For<InteractorContainer>(),
                 findProviderStub,
                 Substitute.For<IRigidbodyWrapper>(), 
                 new PhysicsConstants());

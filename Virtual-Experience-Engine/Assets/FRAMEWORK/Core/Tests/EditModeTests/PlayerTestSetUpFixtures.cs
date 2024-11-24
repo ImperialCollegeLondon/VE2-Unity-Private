@@ -140,6 +140,7 @@ namespace VE2.Core.Tests
                 false,
                 true,
                 new PlayerStateModuleContainer(),
+                new InteractorContainer(),
                 PlayerSettingsProviderSetup.PlayerSettingsProviderStub,
                 Substitute.For<IPlayerAppearanceOverridesProvider>(),
                 MultiplayerSupportSetup.MultiplayerSupportStub,

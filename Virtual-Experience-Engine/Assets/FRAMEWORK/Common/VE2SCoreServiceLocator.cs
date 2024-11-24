@@ -106,11 +106,12 @@ namespace VE2.Common
             }
         }
 
-        //############################### STATE MODULE CONTAINERS #####################################
+        //############################### RUNTIME CONTAINERS #####################################
         //#############################################################################################
 
         public WorldStateModulesContainer WorldStateModulesContainer {get; private set;} = new();
         public PlayerStateModuleContainer PlayerStateModuleContainer {get; private set;} = new();
+        public InteractorContainer InteractorContainer {get; private set;} = new();
 
         //##################################### INPUT HANDLER #########################################
         //#############################################################################################
@@ -237,15 +238,15 @@ namespace VE2.Common
 
     public class InteractorContainer
     {
-        private Dictionary<InteractorID, IInteractor> _interactors = new();
-        public IReadOnlyDictionary<InteractorID, IInteractor> Interactors => _interactors;
+        private Dictionary<string, IInteractor> _interactors = new();
+        public IReadOnlyDictionary<string, IInteractor> Interactors => _interactors;
 
-        public void RegisterInteractor(InteractorID interactorID, IInteractor interactor)
+        public void RegisterInteractor(string interactorID, IInteractor interactor)
         {
             _interactors[interactorID] = interactor;
         }
 
-        public void DeregisterInteractor(InteractorID interactorID)
+        public void DeregisterInteractor(string interactorID)
         {
             _interactors.Remove(interactorID);
         }

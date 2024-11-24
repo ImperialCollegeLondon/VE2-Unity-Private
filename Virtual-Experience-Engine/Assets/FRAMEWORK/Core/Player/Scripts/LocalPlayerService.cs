@@ -11,6 +11,7 @@ namespace VE2.Core.Player
         {
             return new PlayerService(state, config, enableVR, enable2D, 
                 VE2CoreServiceLocator.Instance.PlayerStateModuleContainer, 
+                VE2CoreServiceLocator.Instance.InteractorContainer,
                 VE2CoreServiceLocator.Instance.PlayerSettingsProvider, 
                 VE2CoreServiceLocator.Instance.PlayerAppearanceOverridesProvider,
                 VE2CoreServiceLocator.Instance.MultiplayerSupport, 
@@ -33,7 +34,8 @@ namespace VE2.Core.Player
         private PlayerController _activePlayer => _playerStateModule.PlayerTransformData.IsVRMode? _playerVR : _player2D;
 
         public PlayerService(PlayerTransformData state, PlayerStateConfig config, bool enableVR, bool enable2D, 
-            PlayerStateModuleContainer playerStateModuleContainer, IPlayerSettingsProvider playerSettingsProvider, IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider, 
+            PlayerStateModuleContainer playerStateModuleContainer, InteractorContainer interactorContainer,
+            IPlayerSettingsProvider playerSettingsProvider, IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider, 
             IMultiplayerSupport multiplayerSupport, PlayerInputContainer playerInputContainer, IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper)
         {
             _playerStateModule = new(state, config, playerStateModuleContainer, playerSettingsProvider, playerAppearanceOverridesProvider);
@@ -44,9 +46,9 @@ namespace VE2.Core.Player
             _playerInputContainer = playerInputContainer;
 
             if (enableVR)
-                _playerVR = SpawnPlayerVR(playerSettingsProvider.UserSettings.PlayerVRControlConfig, multiplayerSupport, _playerInputContainer.PlayerVRInputContainer, raycastProvider, xrManagerSettingsWrapper);
+                _playerVR = SpawnPlayerVR(interactorContainer, playerSettingsProvider.UserSettings.PlayerVRControlConfig, multiplayerSupport, _playerInputContainer.PlayerVRInputContainer, raycastProvider, xrManagerSettingsWrapper);
             if (enable2D)
-                _player2D = SpawnPlayer2D(playerSettingsProvider.UserSettings.Player2DControlConfig, multiplayerSupport, _playerInputContainer.Player2DInputContainer, raycastProvider);
+                _player2D = SpawnPlayer2D(interactorContainer, playerSettingsProvider.UserSettings.Player2DControlConfig, multiplayerSupport, _playerInputContainer.Player2DInputContainer, raycastProvider);
 
             //TODO, figure out what mode to start in? Maybe we need some persistent data to remember the mode in the last scene??
             if (_playerStateModule.PlayerTransformData.IsVRMode)
@@ -59,23 +61,23 @@ namespace VE2.Core.Player
             HandleAvatarAppearanceChanged(_playerStateModule.AvatarAppearance); //Do this now to set the initial color
         }
 
-        private PlayerController2D SpawnPlayer2D(Player2DControlConfig player2DControlConfig, IMultiplayerSupport multiplayerSupport, Player2DInputContainer player2DInputContainer, IRaycastProvider raycastProvider) 
+        private PlayerController2D SpawnPlayer2D(InteractorContainer interactorContainer, Player2DControlConfig player2DControlConfig, IMultiplayerSupport multiplayerSupport, Player2DInputContainer player2DInputContainer, IRaycastProvider raycastProvider) 
         {
             GameObject player2DPrefab = Resources.Load("2dPlayer") as GameObject;
             GameObject instantiated2DPlayer = GameObject.Instantiate(player2DPrefab, null, false);
             instantiated2DPlayer.SetActive(false);
             PlayerController2D playerController2D = instantiated2DPlayer.GetComponent<PlayerController2D>();
-            playerController2D.Initialize(player2DControlConfig, multiplayerSupport, player2DInputContainer, raycastProvider);
+            playerController2D.Initialize(interactorContainer, player2DControlConfig, multiplayerSupport, player2DInputContainer, raycastProvider);
             return playerController2D;
         }
 
-        private PlayerControllerVR SpawnPlayerVR(PlayerVRControlConfig playerVRControlConfig, IMultiplayerSupport multiplayerSupport, PlayerVRInputContainer playerVRInputContainer, IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper)
+        private PlayerControllerVR SpawnPlayerVR(InteractorContainer interactorContainer, PlayerVRControlConfig playerVRControlConfig, IMultiplayerSupport multiplayerSupport, PlayerVRInputContainer playerVRInputContainer, IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper)
         {
             GameObject playerVRPrefab = Resources.Load("vrPlayer") as GameObject;
             GameObject instantiatedVRPlayer = GameObject.Instantiate(playerVRPrefab, null, false);
             instantiatedVRPlayer.SetActive(false);
             PlayerControllerVR playerControllerVR = instantiatedVRPlayer.GetComponent<PlayerControllerVR>();
-            playerControllerVR.Initialize(playerVRControlConfig, multiplayerSupport, playerVRInputContainer, raycastProvider, xrManagerSettingsWrapper);
+            playerControllerVR.Initialize(interactorContainer, playerVRControlConfig, multiplayerSupport, playerVRInputContainer, raycastProvider, xrManagerSettingsWrapper);
             return playerControllerVR;
         }
 

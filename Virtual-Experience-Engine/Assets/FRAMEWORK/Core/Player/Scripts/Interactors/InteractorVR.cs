@@ -13,10 +13,10 @@ public class InteractorVR : PointerInteractor
     private Material _lineMaterial;
     private const float LINE_EMISSION_INTENSITY = 15;
 
-    public void InitializeVR(Transform rayOrigin, InteractorType interactorType, IMultiplayerSupport multiplayerSupport, InteractorInputContainer interactorInputContainer, IRaycastProvider raycastProvider,
+    public void InitializeVR(InteractorContainer interactorContainer, Transform rayOrigin, InteractorType interactorType, IMultiplayerSupport multiplayerSupport, InteractorInputContainer interactorInputContainer, IRaycastProvider raycastProvider,
         V_CollisionDetector collisionDetector, GameObject handVisualGO, LineRenderer lineRenderer) 
     {
-        base.Initialize(rayOrigin, interactorType, multiplayerSupport, interactorInputContainer, raycastProvider);
+        base.Initialize(interactorContainer, rayOrigin, interactorType, multiplayerSupport, interactorInputContainer, raycastProvider);
         _collisionDetector = collisionDetector;
         _handVisualGO = handVisualGO;
         _lineRenderer = lineRenderer;

@@ -9,6 +9,7 @@ namespace VE2.InstanceNetworking
     internal class RemotePlayerSyncer
     {
         private readonly InstanceInfoContainer _instanceInfoContainer;
+        private readonly InteractorContainer _interactorContainer;
         private readonly List<GameObject> _virseAvatarHeadGameObjects;
         private readonly List<GameObject> _virseAvatarTorsoGameObjects;
         private readonly List<GameObject> _avatarHeadOverrideGameObjects;
@@ -16,10 +17,12 @@ namespace VE2.InstanceNetworking
 
         private Dictionary<ushort, RemoteAvatarController> _remoteAvatars = new();
 
-        public RemotePlayerSyncer(InstanceInfoContainer instanceInfoContainer, IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider)
+        public RemotePlayerSyncer(InstanceInfoContainer instanceInfoContainer, InteractorContainer interactorContainer, IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider)
         {
             _instanceInfoContainer = instanceInfoContainer;
             _instanceInfoContainer.OnInstanceInfoChanged += HandleNewInstanceInfo;
+
+            _interactorContainer = interactorContainer;
 
             _virseAvatarHeadGameObjects = new List<GameObject>()
             {
@@ -55,6 +58,7 @@ namespace VE2.InstanceNetworking
                     GameObject remotePlayerGO = GameObject.Instantiate(remotePlayerPrefab);
                     remotePlayerGO.GetComponent<RemoteAvatarController>().Initialize(
                         receivedRemoteClientInfoWithAppearance.ClientID,
+                        _interactorContainer,
                         _virseAvatarHeadGameObjects, 
                         _virseAvatarTorsoGameObjects, 
                         _avatarHeadOverrideGameObjects, 

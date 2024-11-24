@@ -32,6 +32,8 @@ namespace VE2.Core.VComponents.Internal
 
         private FreeGrabbableState _state => (FreeGrabbableState)State;
         private FreeGrabbableStateConfig _config => (FreeGrabbableStateConfig)Config;
+
+        private readonly InteractorContainer _interactorContainer;
         private readonly IGameObjectFindProvider _gameObjectFindProvider;
         private readonly IRangedGrabInteractionModule _rangedGrabInteractionModule;
 
@@ -39,11 +41,14 @@ namespace VE2.Core.VComponents.Internal
         internal event Action OnGrabConfirmed;
         internal event Action OnDropConfirmed;
 
-        public FreeGrabbableStateModule(VE2Serializable state, BaseStateConfig config, string id, WorldStateModulesContainer worldStateModulesContainer, IGameObjectFindProvider gameObjectFindProvider, IRangedGrabInteractionModule rangedGrabInteractionModule) : 
+        public FreeGrabbableStateModule(VE2Serializable state, BaseStateConfig config, string id, 
+            WorldStateModulesContainer worldStateModulesContainer, InteractorContainer interactorContainer, 
+            IGameObjectFindProvider gameObjectFindProvider, IRangedGrabInteractionModule rangedGrabInteractionModule) : 
             base(state, config, id, worldStateModulesContainer)
         {
-            _rangedGrabInteractionModule = rangedGrabInteractionModule;
+            _interactorContainer = interactorContainer;
             _gameObjectFindProvider = gameObjectFindProvider;
+            _rangedGrabInteractionModule = rangedGrabInteractionModule;
         }
 
         public void SetGrabbed(InteractorID interactorID)
@@ -51,7 +56,7 @@ namespace VE2.Core.VComponents.Internal
             if (IsGrabbed)
                 return;
 
-            if (TryGetInteractorWithInteractorID(interactorID, out IInteractor interactor))
+            if (_interactorContainer.Interactors.TryGetValue(interactorID.ToString(), out IInteractor interactor))
             {
                 CurrentGrabbingInteractor = interactor;
                 _state.IsGrabbed = true;
@@ -86,7 +91,7 @@ namespace VE2.Core.VComponents.Internal
             _state.IsGrabbed = false;
             _state.StateChangeNumber++;
 
-            if (TryGetInteractorWithInteractorID(interactorID, out IInteractor interactor))
+            if (_interactorContainer.Interactors.TryGetValue(interactorID.ToString(), out IInteractor interactor))
                 interactor.ConfirmDrop();
 
             OnDropConfirmed?.Invoke();
@@ -99,21 +104,6 @@ namespace VE2.Core.VComponents.Internal
             {
                 Debug.Log($"Error when emitting OnLocalInteractorDrop from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
             }
-        }
-
-        private bool TryGetInteractorWithInteractorID(InteractorID interactorID, out IInteractor interactor)
-        {
-            string interactorGameobjectName = $"Interactor{interactorID.ClientID}-{interactorID.InteractorType}";
-            GameObject interactorGameobject = _gameObjectFindProvider.FindGameObject(interactorGameobjectName);
-            if (interactorGameobject == null)
-            {
-                interactor = null;
-                return false;
-            }
-            else 
-            {
-                return _gameObjectFindProvider.TryGetComponent(interactorGameobject, out interactor);
-            }               
         }
 
         protected override void UpdateBytes(byte[] newBytes)
@@ -145,7 +135,7 @@ namespace VE2.Core.VComponents.Internal
     {
         public ushort StateChangeNumber { get; set; }
         public bool IsGrabbed { get; set; }
-        public InteractorID MostRecentInteractingInteractorID { get; set; }
+        public InteractorID MostRecentInteractingInteractorID { get; set; } //TODO: - maybe this should just be a string? Maybe InteractorID doesn't need to be a VE2Serializable
 
         public FreeGrabbableState()
         {

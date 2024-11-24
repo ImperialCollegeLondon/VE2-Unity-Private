@@ -15,11 +15,11 @@ public class V_HandController
     private readonly DragLocomotor _dragLocomotor;
     private List<Material> _colorMaterials = new();
 
-    public V_HandController(Transform playerTransform, GameObject handGO, HandVRInputContainer handVRInputContainer, InteractorType interactorType, IMultiplayerSupport multiplayerSupport, IRaycastProvider raycastProvider)
+    public V_HandController(InteractorContainer interactorContainer, Transform playerTransform, GameObject handGO, HandVRInputContainer handVRInputContainer, InteractorType interactorType, IMultiplayerSupport multiplayerSupport, IRaycastProvider raycastProvider)
     {
         V_HandVRReferences handVRReferences = handGO.GetComponent<V_HandVRReferences>();
         _interactor = handGO.GetComponent<InteractorVR>(); //TODO: Move to refs, or decouple from MB?
-        _interactor.InitializeVR(handVRReferences.RayOrigin, interactorType, multiplayerSupport, handVRInputContainer.InteractorVRInputContainer, raycastProvider, 
+        _interactor.InitializeVR(interactorContainer, handVRReferences.RayOrigin, interactorType, multiplayerSupport, handVRInputContainer.InteractorVRInputContainer, raycastProvider, 
             handVRReferences.CollisionDetector, handVRReferences.HandVisualGO, handVRReferences.LineRenderer);
 
         _dragLocomotor = new(handVRReferences.DragIconHolder, handVRReferences.HorizontalDragIndicator, handVRReferences.VerticalDragIndicator, handVRReferences.SphereDragIcon, 
