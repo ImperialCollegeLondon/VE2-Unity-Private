@@ -48,6 +48,7 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
         {
             _StateModule.HandleFixedUpdate();
 
+            // Temporary test of host syncing without interpolation
             if (_StateModule.IsHost)
             {
                 _StateModule.SetState(_rigidbody.position, _rigidbody.rotation);
@@ -61,6 +62,8 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
 
         public void HandleReceiveRigidbodyState(Vector3 Position, Quaternion Rotation)
         {
+
+            // Temporary test of host syncing without interpolation
             if (_StateModule.IsHost)
             {
                 Debug.Log($"Received Rigidbody state as the host against all odds! Position: {Position}, Rotation {Rotation}");
