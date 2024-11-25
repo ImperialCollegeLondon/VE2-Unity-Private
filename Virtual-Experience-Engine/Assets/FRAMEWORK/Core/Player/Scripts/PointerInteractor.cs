@@ -51,16 +51,15 @@ namespace VE2.Core.Player
         private readonly IMultiplayerSupport _multiplayerSupport;
 
         public PointerInteractor(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
-            Transform grabberTransform, Transform rayOrigin, LayerMask layerMask, StringWrapper raycastHitDebug,
-            InteractorType interactorType, IRaycastProvider raycastProvider, IMultiplayerSupport multiplayerSupport)
+            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, IMultiplayerSupport multiplayerSupport)
         {
             _interactorContainer = interactorContainer;
             _interactorInputContainer = interactorInputContainer;
 
-            _GrabberTransform = grabberTransform;
-            _RayOrigin = rayOrigin;
-            _layerMask = layerMask;
-            _raycastHitDebug = raycastHitDebug;
+            _GrabberTransform = interactorReferences.GrabberTransform;
+            _RayOrigin = interactorReferences.RayOrigin;
+            _layerMask = interactorReferences.LayerMask;
+            _raycastHitDebug = interactorReferences.RaycastHitDebug;
 
             _InteractorType = interactorType;
             _RaycastProvider = raycastProvider;
@@ -127,8 +126,11 @@ namespace VE2.Core.Player
 
         protected virtual void HandleRaycastDistance(float distance) { } //TODO: Code smell? InteractorVR needs this to set the LineRenderer length
 
-        private RaycastResultWrapper GetRayCastResult() =>
-            _RaycastProvider.Raycast(_RayOrigin.position, _RayOrigin.forward, MAX_RAYCAST_DISTANCE,  _layerMask);
+        private RaycastResultWrapper GetRayCastResult()
+        {
+            if (_RayOrigin == null) return null;
+            return _RaycastProvider.Raycast(_RayOrigin.position, _RayOrigin.forward, MAX_RAYCAST_DISTANCE, _layerMask);
+        }
         
         private void HandleRangedClickPressed()
         {

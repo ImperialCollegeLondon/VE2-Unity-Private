@@ -14,17 +14,16 @@ public class InteractorVR : PointerInteractor
     private const float LINE_EMISSION_INTENSITY = 15;
 
     public InteractorVR(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
-        Transform grabberTransform, Transform rayOrigin, LayerMask layerMask, StringWrapper raycastHitDebug,
-        InteractorType interactorType, IRaycastProvider raycastProvider, IMultiplayerSupport multiplayerSupport,
-        V_CollisionDetector collisionDetector, GameObject handVisualGO, LineRenderer lineRenderer) :
-        base(interactorContainer, interactorInputContainer, grabberTransform,
-            rayOrigin, layerMask, raycastHitDebug,
-            interactorType, raycastProvider, multiplayerSupport)
+        InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, IMultiplayerSupport multiplayerSupport) :
+        base(interactorContainer, interactorInputContainer,
+            interactorReferences, interactorType, raycastProvider, multiplayerSupport)
     {
-        _collisionDetector = collisionDetector;
-        _handVisualGO = handVisualGO;
+        InteractorVRReferences interactorVRReferences = interactorReferences as InteractorVRReferences;
 
-        _lineRenderer = lineRenderer;
+        _collisionDetector = interactorVRReferences.CollisionDetector;
+        _handVisualGO = interactorVRReferences.HandVisualGO;
+
+        _lineRenderer = interactorVRReferences.LineRenderer;
         _lineMaterial = _lineRenderer.material;
         _lineMaterial.EnableKeyword("_EMISSION");
     }

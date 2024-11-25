@@ -16,8 +16,8 @@ public class DragLocomotor
     private readonly Transform _headOffsetTransform; //For vertical drag
     private readonly Transform _handTransform; //For measuring drag delta 
 
-    public DragLocomotor(LocomotorVRReferences locomotorVRReferences, DragLocomotorInputContainer inputContainer,
-     Transform rootTransform, Transform headOffsetTransform, Transform handTransform)
+    public DragLocomotor(DragLocomotorReferences locomotorVRReferences, DragLocomotorInputContainer inputContainer,
+        Transform rootTransform, Transform headOffsetTransform, Transform handTransform)
     {
         _iconHolder = locomotorVRReferences.DragIconHolder;
         _horizontalMoveIndicator = locomotorVRReferences.HorizontalDragIndicator;

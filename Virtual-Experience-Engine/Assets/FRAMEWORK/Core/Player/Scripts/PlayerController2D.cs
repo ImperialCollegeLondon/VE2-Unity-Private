@@ -51,16 +51,12 @@ namespace VE2.Core.Player
 
             Player2DReferences player2DReferences = _playerGO.GetComponent<Player2DReferences>();
 
-            Interactor2DReferences _interactor2DReferences = player2DReferences.Interactor2DReferences;
             _interactor2D = new(
-                interactorContainer, player2DInputContainer.InteractorInputContainer2D, 
-                _interactor2DReferences.GrabberTransform, _interactor2DReferences.RayOrigin, _interactor2DReferences.LayerMask, _interactor2DReferences.RaycastHitDebug, 
-                InteractorType.Mouse2D, raycastProvider, multiplayerSupport,
-                _interactor2DReferences.ReticuleImage);
+                interactorContainer, player2DInputContainer.InteractorInputContainer2D,
+                player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, multiplayerSupport);
 
-            Locomotor2DReferences _locomotor2DReferences = player2DReferences.Locomotor2DReferences;
-            _playerLocomotor2D = new(
-                _locomotor2DReferences.Controller, _locomotor2DReferences.VerticalOffsetTransform, _locomotor2DReferences.CameraTransform, _locomotor2DReferences.GroundLayer);
+            _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences);
+            
             //TODO: think about inspect mode, does that live in the interactor, or the player controller?
             //If interactor, will need to make the interactor2d constructor take a this as a param, and forward the other params to the base constructor
         }

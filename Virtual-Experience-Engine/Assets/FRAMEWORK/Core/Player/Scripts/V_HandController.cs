@@ -6,7 +6,7 @@ using VE2.Core.Common;
 
 namespace VE2.Core.Player
 {
-    public class V_HandController
+    public class V_HandController //TODO: Where does snap turn go? Maybe just in here?
     {
         public Transform GrabberTransform => _interactor.GrabberTransform;
 
@@ -17,28 +17,16 @@ namespace VE2.Core.Player
         private readonly DragLocomotor _dragLocomotor;
         private List<Material> _colorMaterials = new();
 
-        public V_HandController(InteractorContainer interactorContainer, Transform rootTransform, Transform headOffsetTransform, GameObject handGO, HandVRInputContainer handVRInputContainer, InteractorType interactorType, IMultiplayerSupport multiplayerSupport, IRaycastProvider raycastProvider)
+        public V_HandController(GameObject handGO, HandVRInputContainer handVRInputContainer, InteractorVR interactor, DragLocomotor dragLocomotor)
         {
             _handGO = handGO;
+            _colorMaterials = CommonUtils.GetAvatarColorMaterialsForGameObject(handGO);
+
             _positionInput = handVRInputContainer.HandPosition;
             _rotationInput = handVRInputContainer.HandRotation;
 
-            V_HandVRReferences handVRReferences = handGO.GetComponent<V_HandVRReferences>();
-
-            //TODO: Pass references as a single object
-            InteractorVRReferences interactorVRReferences = handVRReferences.InteractorVRReferences;
-            _interactor = new(
-                interactorContainer, handVRInputContainer.InteractorVRInputContainer,
-                interactorVRReferences.GrabberTransform, interactorVRReferences.RayOrigin, interactorVRReferences.LayerMask, interactorVRReferences.RaycastHitDebug,
-                interactorType, raycastProvider, multiplayerSupport, 
-                interactorVRReferences.CollisionDetector, interactorVRReferences.HandVisualGO, interactorVRReferences.LineRenderer);
-
-            _dragLocomotor = new(
-                handVRReferences.LocomotorVRReferences,
-                handVRInputContainer.DragLocomotorInputContainer, 
-                rootTransform, headOffsetTransform, handGO.transform);
-
-            _colorMaterials = CommonUtils.GetAvatarColorMaterialsForGameObject(handGO);
+            _interactor = interactor;
+            _dragLocomotor = dragLocomotor;
         }
 
         public void HandleOnEnable()

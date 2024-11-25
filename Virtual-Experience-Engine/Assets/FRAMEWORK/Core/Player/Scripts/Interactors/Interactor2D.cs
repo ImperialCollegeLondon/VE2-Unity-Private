@@ -5,20 +5,17 @@ using VE2.Core.Common;
 
 namespace VE2.Core.Player
 {
-
     public class Interactor2D : PointerInteractor
     {
         private Image _reticuleImage;
 
         public Interactor2D(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
-            Transform grabberTransform, Transform rayOrigin, LayerMask layerMask, StringWrapper raycastHitDebug,
-            InteractorType interactorType, IRaycastProvider raycastProvider, IMultiplayerSupport multiplayerSupport,
-            Image reticuleImage) : 
-            base(interactorContainer, interactorInputContainer, grabberTransform, 
-                rayOrigin, layerMask, raycastHitDebug, 
-                interactorType, raycastProvider, multiplayerSupport)   
+            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, IMultiplayerSupport multiplayerSupport) : 
+            base(interactorContainer, interactorInputContainer,
+                interactorReferences, interactorType, raycastProvider, multiplayerSupport)   
         {
-            _reticuleImage = reticuleImage;
+            Interactor2DReferences interactor2DReferences = interactorReferences as Interactor2DReferences;
+            _reticuleImage = interactor2DReferences.ReticuleImage;
         }
 
         protected override void SetInteractorState(InteractorState newState)

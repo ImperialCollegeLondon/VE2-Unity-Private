@@ -39,7 +39,6 @@ namespace VE2.Core.Player
         private readonly V_HandController _handControllerLeft;
         private readonly V_HandController _handControllerRight;
 
-        //TODO: Ideally, this would be a constructor
         public PlayerControllerVR(InteractorContainer interactorContainer, PlayerVRInputContainer playerVRInputContainer, PlayerVRControlConfig controlConfig, 
             IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper, IMultiplayerSupport multiplayerSupport)
         {
@@ -61,18 +60,34 @@ namespace VE2.Core.Player
             GameObject handVRRightGO = GameObject.Instantiate(handVRLeftPrefab, _headTransform, false);
             handVRRightGO.transform.localScale = new Vector3(-1, 1, 1);
 
-            _handControllerLeft = new V_HandController(interactorContainer, _rootTransform, _verticalOffsetTransform, handVRLeftGO, playerVRInputContainer.HandVRLeftInputContainer, InteractorType.LeftHandVR, multiplayerSupport, raycastProvider);
-            _handControllerRight = new V_HandController(interactorContainer, _rootTransform, _verticalOffsetTransform, handVRRightGO, playerVRInputContainer.HandVRRightInputContainer, InteractorType.RightHandVR, multiplayerSupport, raycastProvider);
+            _handControllerLeft = CreateHandController(handVRLeftGO, interactorContainer, playerVRInputContainer.HandVRLeftInputContainer, InteractorType.LeftHandVR, raycastProvider, multiplayerSupport);
+            _handControllerRight = CreateHandController(handVRRightGO, interactorContainer, playerVRInputContainer.HandVRRightInputContainer, InteractorType.RightHandVR, raycastProvider, multiplayerSupport);
+        }
+
+        private V_HandController CreateHandController(GameObject handGO, InteractorContainer interactorContainer, HandVRInputContainer handVRInputContainer, InteractorType interactorType, IRaycastProvider raycastProvider, IMultiplayerSupport multiplayerSupport)
+        {
+            V_HandVRReferences handVRReferences = handGO.GetComponent<V_HandVRReferences>();
+
+            InteractorVR interactor = new(
+                interactorContainer, handVRInputContainer.InteractorVRInputContainer,
+                handVRReferences.InteractorVRReferences,
+                interactorType, raycastProvider, multiplayerSupport);
+
+            DragLocomotor dragLocomotor = new(
+                handVRReferences.LocomotorVRReferences,
+                handVRInputContainer.DragLocomotorInputContainer,
+                _rootTransform, _verticalOffsetTransform, handGO.transform);
+
+            return new V_HandController(handGO, handVRInputContainer, interactor, dragLocomotor);
         }
 
         public void ActivatePlayer(PlayerTransformData initTransformData)
         {
             _playerGO.SetActive(true);
 
-            Debug.Log("ActivateVR, pos is " + initTransformData.RootPosition);
             _rootTransform.SetPositionAndRotation(initTransformData.RootPosition, initTransformData.RootRotation);
             _verticalOffsetTransform.localPosition = new Vector3(0, initTransformData.VerticalOffset, 0);
-            _headTransform.transform.SetLocalPositionAndRotation(initTransformData.HeadLocalPosition, initTransformData.HeadLocalRotation);
+            //We don't set head transform here, tracking will override it anyway
 
             _xrManagerSettingsWrapper.InitializeLoader();
             _xrManagerSettingsWrapper.StartSubsystems();

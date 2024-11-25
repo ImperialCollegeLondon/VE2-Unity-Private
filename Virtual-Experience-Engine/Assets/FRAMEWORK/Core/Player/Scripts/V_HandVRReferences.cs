@@ -9,8 +9,8 @@ namespace VE2.Core.Player
         public InteractorVRReferences InteractorVRReferences => _interactorVRReferences;
         [SerializeField] private InteractorVRReferences _interactorVRReferences;
 
-        public LocomotorVRReferences LocomotorVRReferences => _locomotorVRReferences;
-        [SerializeField] private LocomotorVRReferences _locomotorVRReferences;
+        public DragLocomotorReferences LocomotorVRReferences => _locomotorVRReferences;
+        [SerializeField] private DragLocomotorReferences _locomotorVRReferences;
 
         //TODO: AnimationController?
         //TODO: Tooltips? 
@@ -30,12 +30,8 @@ namespace VE2.Core.Player
     }
 
     [Serializable]
-    public class LocomotorVRReferences
+    public class DragLocomotorReferences
     {
-        //TODO: Maybe we can encapsulate the icon stuff into a single class
-        public Transform RayOrigin => _rayOrigin;
-        [SerializeField, IgnoreParent] private Transform _rayOrigin;
-
         public GameObject DragIconHolder => _dragIconHolder;
         [SerializeField, IgnoreParent] public GameObject _dragIconHolder; //Entire icon
 

@@ -67,13 +67,13 @@ namespace VE2.Core.Player
         }
 
         //TODO: Wire in input
-        public Player2DLocomotor(CharacterController controller, Transform verticalOffsetTransform, Transform cameraTransform, LayerMask groundLayer)
+        public Player2DLocomotor(Locomotor2DReferences locomotor2DReferences)
         {
-            _characterController = controller;
-            _verticalOffsetTransform = verticalOffsetTransform;
-            _originalControllerHeight = controller.height;
-            _cameraTransform = cameraTransform;
-            _groundLayer = groundLayer;
+            _characterController = locomotor2DReferences.Controller;
+            _verticalOffsetTransform = locomotor2DReferences.VerticalOffsetTransform;
+            _originalControllerHeight = locomotor2DReferences.Controller.height;
+            _cameraTransform = locomotor2DReferences.CameraTransform;
+            _groundLayer = locomotor2DReferences.GroundLayer;
 
             Application.focusChanged += OnFocusChanged;
             if (Application.isFocused)
@@ -134,7 +134,7 @@ namespace VE2.Core.Player
                 }
 
                 // Crouch
-                if (Keyboard.current.leftCtrlKey.wasReleasedThisFrame)
+                if (Keyboard.current.cKey.wasReleasedThisFrame)
                 {
                     if (isCrouching)
                     {
