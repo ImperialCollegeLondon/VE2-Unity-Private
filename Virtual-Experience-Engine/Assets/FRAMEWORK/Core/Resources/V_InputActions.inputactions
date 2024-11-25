@@ -544,7 +544,7 @@
                 {
                     "name": "",
                     "id": "ca41ef79-4e27-4b90-bbb5-257ceaf37db3",
-                    "path": "<TrackedDevice>/deviceRotation",
+                    "path": "<XRController>{LeftHand}/deviceRotation",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

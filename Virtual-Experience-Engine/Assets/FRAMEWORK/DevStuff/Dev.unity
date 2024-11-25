@@ -3139,7 +3139,7 @@ Transform:
   m_GameObject: {fileID: 798246509}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.22493754, z: -0, w: 0.97437316}
-  m_LocalPosition: {x: -0.47, y: 0, z: 0.26}
+  m_LocalPosition: {x: -0.49, y: 0, z: 0.27}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3157,7 +3157,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea5830b1d78a6804c9c44ba68f3bacd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enableVR: 0
+  enableVR: 1
   enable2D: 1
   playerStateConfig:
     IsNetworked: 1
@@ -3728,7 +3728,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &835746392
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3741,7 +3741,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8995ff54d324b04ea0f50966b2be213, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _connectOnStart: 1
+  _connectOnStart: 0
   _connectionStateDebug:
     ConnectionState: 0
   _localClientIDWrapper:

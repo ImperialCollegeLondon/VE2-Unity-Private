@@ -8,7 +8,7 @@ namespace VE2.Core.Player
 
     public class Interactor2D : PointerInteractor
     {
-        [SerializeField] private Image _reticuleImage;
+        private Image _reticuleImage;
 
         public Interactor2D(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
             Transform grabberTransform, Transform rayOrigin, LayerMask layerMask, StringWrapper raycastHitDebug,

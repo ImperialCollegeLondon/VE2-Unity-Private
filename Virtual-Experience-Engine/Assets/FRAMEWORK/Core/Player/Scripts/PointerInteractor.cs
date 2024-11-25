@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using NUnit.Framework;
 using UnityEngine;
 using VE2.Common;
 using VE2.Core.Common;
@@ -11,13 +9,13 @@ namespace VE2.Core.Player
     public class InteractorReferences 
     {
         public Transform GrabberTransform => _grabberTransform;
-        [SerializeField] private Transform _grabberTransform;
+        [SerializeField, IgnoreParent] private Transform _grabberTransform;
 
         public Transform RayOrigin => _rayOrigin;
-        [SerializeField] private Transform _rayOrigin;
+        [SerializeField, IgnoreParent] private Transform _rayOrigin;
 
         public LayerMask LayerMask => _layerMask;
-        [SerializeField] private LayerMask _layerMask;
+        [SerializeField, IgnoreParent] private LayerMask _layerMask;
 
         [SerializeField] private StringWrapper _raycastHitDebug;
         public StringWrapper RaycastHitDebug => _raycastHitDebug;
@@ -29,11 +27,6 @@ namespace VE2.Core.Player
         [SerializeField, IgnoreParent] public string Value;
     }
 
-    //TODO: DOesn't need to be a MB?
-    //If not an MB, we need to figure out how the state module will find the interactor!!
-    //Through the ServiceLocator, maybe? Hmmn, needs to find remote interactors too though, maybe MB is actually fine here
-    //Actually, maybe we have some base PointerInteractor that can hold some lookup table or something? 
-    //Nah, let's have an InteractorContainer in the ServiceLocator, each interactor will register itself there
     public abstract class PointerInteractor : IInteractor
     {
         public Transform GrabberTransform => _GrabberTransform;
@@ -53,15 +46,10 @@ namespace VE2.Core.Player
         private readonly LayerMask _layerMask;
         private readonly StringWrapper _raycastHitDebug;
 
-        //TODO: maybe these can all be private?
-        protected readonly InteractorType _InteractorType;
-        protected readonly IRaycastProvider _RaycastProvider;
-        protected readonly IMultiplayerSupport _multiplayerSupport;
+        private readonly InteractorType _InteractorType;
+        private readonly IRaycastProvider _RaycastProvider;
+        private readonly IMultiplayerSupport _multiplayerSupport;
 
-        private ushort _randomIDTEMPDEBUG;
-
-        // Setup method to initialize the ray origin and max raycast distance
-        //TODO: Ideally, this would be a constructor
         public PointerInteractor(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
             Transform grabberTransform, Transform rayOrigin, LayerMask layerMask, StringWrapper raycastHitDebug,
             InteractorType interactorType, IRaycastProvider raycastProvider, IMultiplayerSupport multiplayerSupport)
@@ -77,14 +65,10 @@ namespace VE2.Core.Player
             _InteractorType = interactorType;
             _RaycastProvider = raycastProvider;
             _multiplayerSupport = multiplayerSupport;
-
-            _randomIDTEMPDEBUG = (ushort)UnityEngine.Random.Range(0, ushort.MaxValue);
         }
 
         public virtual void HandleOnEnable()
         {
-            Debug.Log("Random ID: " + _randomIDTEMPDEBUG + " subscrived to input");
-
             _interactorInputContainer.RangedClick.OnPressed += HandleRangedClickPressed;
             _interactorInputContainer.HandheldClick.OnPressed += HandleHandheldClickPressed;
             _interactorInputContainer.Grab.OnPressed += HandleGrabPressed;
@@ -99,8 +83,6 @@ namespace VE2.Core.Player
 
         public virtual void HandleOnDisable()
         {
-            Debug.Log("Random ID: " + _randomIDTEMPDEBUG + " unsubscribed from input");
-
             _interactorInputContainer.RangedClick.OnPressed -= HandleRangedClickPressed;
             _interactorInputContainer.HandheldClick.OnPressed -= HandleHandheldClickPressed;
             _interactorInputContainer.Grab.OnPressed -= HandleGrabPressed;
@@ -115,7 +97,6 @@ namespace VE2.Core.Player
 
         private void RegisterWithContainer() 
         {
-            Debug.Log("Added to container");
             if (_multiplayerSupport != null)
                 _multiplayerSupport.OnConnectedToInstance -= RegisterWithContainer;
 

@@ -3,45 +3,77 @@ using UnityEngine.InputSystem;
 
 namespace VE2.Core.Player
 {
-    public class Player2DLocomotor : MonoBehaviour
+    public class Player2DLocomotor
     {
+        //TODO: make private, could be wired in via scriptable object?
         // Public variables
         public float moveSpeed = 5f;
-        public float mouseSensitivity = 2f;
+        public float mouseSensitivity = 0.3f;
         public float jumpForce = 5f;
         public float crouchHeight = 0.7f;
-        public LayerMask groundLayer;
         public float minVerticalAngle = -90f; // Minimum vertical angle (looking down)
         public float maxVerticalAngle = 90f;  // Maximum vertical angle (looking up)
 
-        // Private variables
-        private CharacterController controller;
+        private Transform _transform => _characterController.transform;
+        private readonly CharacterController _characterController;
+        private readonly Transform _verticalOffsetTransform;
+        private readonly Transform _cameraTransform;
+        private readonly LayerMask _groundLayer;
+
         private float _originalControllerHeight;
-        private Transform cameraTransform;
         private float verticalVelocity = 0f;
         private bool isCrouching = false;
         private float verticalRotation = 0f; // To keep track of vertical rotation
         private bool isCursorLocked = true;  // Flag to control camera movement
 
-        //private IInputWrapperPlayer _inputHandler;
-
-        // public void Initialize(IInputWrapperPlayer inputHandler)
-        // {
-        //     _inputHandler = inputHandler;
-        // }
-
-        private void OnEnable()
+        public Vector3 RootPosition
         {
-            
+            get => _transform.position;
+            set
+            {
+                _characterController.enabled = false;
+                _transform.position = value;
+                _characterController.enabled = true;
+            }
         }
 
-        void Start()
+        public Quaternion RootRotation 
         {
-            controller = GetComponent<CharacterController>();
-            _originalControllerHeight = controller.height;
-            cameraTransform = Camera.main.transform;
+            get => _transform.rotation;
+            set => _transform.rotation = value;
+        } 
 
-            //Debug.Log("START " + Application.isFocused);
+        public Vector3 HeadLocalPosition 
+        {
+            get => _cameraTransform.localPosition;
+            set => _cameraTransform.localPosition = value;
+        }
+
+        public Quaternion HeadLocalRotation 
+        {
+            get => _cameraTransform.localRotation;
+            set => _cameraTransform.localRotation = value;
+        }
+
+        public float VerticalOffset 
+        {
+            get => _verticalOffsetTransform.localPosition.y;
+            set 
+            {
+                _verticalOffsetTransform.localPosition = new Vector3(0, value, 0);
+                _characterController.height = value + 0.2f;
+                _characterController.center = new Vector3(0, _characterController.height / 2, 0);
+            }    
+        }
+
+        //TODO: Wire in input
+        public Player2DLocomotor(CharacterController controller, Transform verticalOffsetTransform, Transform cameraTransform, LayerMask groundLayer)
+        {
+            _characterController = controller;
+            _verticalOffsetTransform = verticalOffsetTransform;
+            _originalControllerHeight = controller.height;
+            _cameraTransform = cameraTransform;
+            _groundLayer = groundLayer;
 
             Application.focusChanged += OnFocusChanged;
             if (Application.isFocused)
@@ -50,12 +82,21 @@ namespace VE2.Core.Player
 
         private void OnFocusChanged(bool focus)
         {
-            //Debug.Log("====================GAIN FOCUS " + focus);
             if (focus && isCursorLocked)
                 LockCursor();
         }
 
-        void Update() //TODO: Should listen to InputHandler, this should maybe go in FixedUpdate to keep grabbables happy (they are updated in FixedUpdate)
+        public void HandleOnEnable()
+        {
+            //TODO: listen to input 
+        }
+
+        public void HandleOnDisable()
+        {
+            //TODO: stop listening to input
+        }
+
+        public void HandleUpdate() //TODO: Should listen to InputHandler, this should maybe go in FixedUpdate to keep grabbables happy (they are updated in FixedUpdate) 
         {
             // Handle Escape key to unlock the cursor
             if (Keyboard.current.escapeKey.wasPressedThisFrame)
@@ -73,18 +114,18 @@ namespace VE2.Core.Player
             {
                 // Mouse look
                 float mouseX = Mouse.current.delta.x.ReadValue() * mouseSensitivity;
-                transform.Rotate(Vector3.up * mouseX);
+                _transform.Rotate(Vector3.up * mouseX);
 
                 float mouseY = Mouse.current.delta.y.ReadValue() * mouseSensitivity;
                 verticalRotation -= mouseY;
                 verticalRotation = Mathf.Clamp(verticalRotation, minVerticalAngle, maxVerticalAngle);
-                cameraTransform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
+                _cameraTransform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
 
                 // Movement
                 float moveX = Keyboard.current.dKey.ReadValue() - Keyboard.current.aKey.ReadValue();
                 float moveZ = Keyboard.current.wKey.ReadValue() - Keyboard.current.sKey.ReadValue();
-                Vector3 moveDirection = transform.TransformDirection(new Vector3(moveX, 0, moveZ));
-                controller.Move(moveDirection * moveSpeed * Time.deltaTime);
+                Vector3 moveDirection = _transform.TransformDirection(new Vector3(moveX, 0, moveZ));
+                _characterController.Move(moveDirection * moveSpeed * Time.deltaTime);
 
                 // Jump
                 if (Keyboard.current.spaceKey.wasPressedThisFrame && IsGrounded())
@@ -93,15 +134,15 @@ namespace VE2.Core.Player
                 }
 
                 // Crouch
-                if (Keyboard.current.leftCtrlKey.wasPressedThisFrame)
+                if (Keyboard.current.leftCtrlKey.wasReleasedThisFrame)
                 {
                     if (isCrouching)
                     {
-                        controller.Move(Vector3.up * (_originalControllerHeight - controller.height)); //Bodge so we don't fall through the floort
-                        controller.height = _originalControllerHeight;
+                        _characterController.Move(Vector3.up * (_originalControllerHeight - _characterController.height)); //Bodge so we don't fall through the floor
+                        _characterController.height = _originalControllerHeight;
                     }
                     else
-                        controller.height = crouchHeight;
+                        _characterController.height = crouchHeight;
 
                     isCrouching = !isCrouching;
                 }
@@ -109,7 +150,7 @@ namespace VE2.Core.Player
 
             // Apply gravity
             verticalVelocity += Physics.gravity.y * Time.deltaTime;
-            controller.Move(Vector3.up * verticalVelocity * Time.deltaTime);
+            _characterController.Move(Vector3.up * verticalVelocity * Time.deltaTime);
         }
 
         private void LockCursor()
@@ -126,10 +167,7 @@ namespace VE2.Core.Player
             isCursorLocked = false;
         }
 
-        bool IsGrounded()
-        {
-            RaycastHit hit;
-            return Physics.Raycast(transform.position, Vector3.down, out hit, (controller.height / 2) + 0.1f, groundLayer);
-        }
+        bool IsGrounded() => 
+            Physics.Raycast(_transform.position, Vector3.down, out RaycastHit hit, (_characterController.height / 2) + 0.1f, _groundLayer);
     }
 }

@@ -10,6 +10,7 @@ namespace VE2.InstanceNetworking
     public class RemoteAvatarController : MonoBehaviour
     {
         [SerializeField] private Transform _headHolder;
+        [SerializeField] private Transform _verticalOffsetTransform;
         [SerializeField] private Transform _torsoHolder;
         private float _torsoOffsetFromHead;
 
@@ -68,6 +69,7 @@ namespace VE2.InstanceNetworking
         public void HandleReceiveRemotePlayerState(PlayerTransformData playerState)
         {
             transform.SetPositionAndRotation(playerState.RootPosition, playerState.RootRotation);
+            _verticalOffsetTransform.localPosition = new Vector3(0, playerState.VerticalOffset, 0);
             _headHolder.SetLocalPositionAndRotation(playerState.HeadLocalPosition, playerState.HeadLocalRotation);
             _torsoHolder.position = _headHolder.position + (_torsoOffsetFromHead * Vector3.up);
 

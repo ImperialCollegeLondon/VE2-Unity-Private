@@ -23,6 +23,8 @@ namespace VE2.Core.Player
 
     public class PlayerService  
     {
+        public bool VRModeActive => _playerStateModule.PlayerTransformData.IsVRMode;
+
         private readonly PlayerStateModule _playerStateModule;
         private readonly PlayerController2D _player2D;
         private readonly PlayerControllerVR _playerVR;
@@ -30,8 +32,6 @@ namespace VE2.Core.Player
         private bool _enableVR;
 
         private readonly PlayerInputContainer _playerInputContainer;
-
-        private PlayerController _activePlayer => _playerStateModule.PlayerTransformData.IsVRMode? _playerVR : _player2D;
 
         public PlayerService(PlayerTransformData state, PlayerStateConfig config, bool enableVR, bool enable2D, 
             PlayerStateModuleContainer playerStateModuleContainer, InteractorContainer interactorContainer,
@@ -46,9 +46,19 @@ namespace VE2.Core.Player
             _playerInputContainer = playerInputContainer;
 
             if (enableVR)
-                _playerVR = SpawnPlayerVR(interactorContainer, playerSettingsProvider.UserSettings.PlayerVRControlConfig, multiplayerSupport, _playerInputContainer.PlayerVRInputContainer, raycastProvider, xrManagerSettingsWrapper);
+            {
+                _playerVR = new PlayerControllerVR(
+                    interactorContainer, _playerInputContainer.PlayerVRInputContainer, 
+                    playerSettingsProvider.UserSettings.PlayerVRControlConfig, 
+                    raycastProvider, xrManagerSettingsWrapper, multiplayerSupport);
+            }
             if (enable2D)
-                _player2D = SpawnPlayer2D(interactorContainer, playerSettingsProvider.UserSettings.Player2DControlConfig, multiplayerSupport, _playerInputContainer.Player2DInputContainer, raycastProvider);
+            {
+                _player2D = new PlayerController2D(
+                    interactorContainer, _playerInputContainer.Player2DInputContainer, 
+                    playerSettingsProvider.UserSettings.Player2DControlConfig, 
+                    raycastProvider, multiplayerSupport);
+            }
 
             //TODO, figure out what mode to start in? Maybe we need some persistent data to remember the mode in the last scene??
             if (_playerStateModule.PlayerTransformData.IsVRMode)
@@ -59,26 +69,6 @@ namespace VE2.Core.Player
             _playerInputContainer.ChangeMode.OnPressed += HandleChangeModePressed;
 
             HandleAvatarAppearanceChanged(_playerStateModule.AvatarAppearance); //Do this now to set the initial color
-        }
-
-        private PlayerController2D SpawnPlayer2D(InteractorContainer interactorContainer, Player2DControlConfig player2DControlConfig, IMultiplayerSupport multiplayerSupport, Player2DInputContainer player2DInputContainer, IRaycastProvider raycastProvider) 
-        {
-            GameObject player2DPrefab = Resources.Load("2dPlayer") as GameObject;
-            GameObject instantiated2DPlayer = GameObject.Instantiate(player2DPrefab, null, false);
-            instantiated2DPlayer.SetActive(false);
-            PlayerController2D playerController2D = instantiated2DPlayer.GetComponent<PlayerController2D>();
-            playerController2D.Initialize(interactorContainer, player2DControlConfig, multiplayerSupport, player2DInputContainer, raycastProvider);
-            return playerController2D;
-        }
-
-        private PlayerControllerVR SpawnPlayerVR(InteractorContainer interactorContainer, PlayerVRControlConfig playerVRControlConfig, IMultiplayerSupport multiplayerSupport, PlayerVRInputContainer playerVRInputContainer, IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper)
-        {
-            GameObject playerVRPrefab = Resources.Load("vrPlayer") as GameObject;
-            GameObject instantiatedVRPlayer = GameObject.Instantiate(playerVRPrefab, null, false);
-            instantiatedVRPlayer.SetActive(false);
-            PlayerControllerVR playerControllerVR = instantiatedVRPlayer.GetComponent<PlayerControllerVR>();
-            playerControllerVR.Initialize(interactorContainer, playerVRControlConfig, multiplayerSupport, playerVRInputContainer, raycastProvider, xrManagerSettingsWrapper);
-            return playerControllerVR;
         }
 
         private void HandleChangeModePressed() 
@@ -136,19 +126,16 @@ namespace VE2.Core.Player
         
         public void TearDown() 
         {
-            Debug.Log("Tearing down player service - 2d null? " + (_player2D == null) + " - vr null? " + (_playerVR == null));
-
             //TODO - maybe make these TearDown methods instead?
             if (_player2D != null)
             {
                 _player2D.DeactivatePlayer();
-                GameObject.DestroyImmediate(_player2D.gameObject);
             }
 
             if (_playerVR != null)
             {
                 _playerVR.DeactivatePlayer();
-                GameObject.DestroyImmediate(_playerVR.gameObject);
+                _playerVR.TearDown();
             }
 
             _playerStateModule.TearDown();

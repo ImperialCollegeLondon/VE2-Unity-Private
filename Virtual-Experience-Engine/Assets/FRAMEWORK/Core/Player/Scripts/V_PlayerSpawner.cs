@@ -35,6 +35,7 @@ namespace VE2.Core.Player
             {
                 _playerTransformData.RootPosition = transform.position;
                 _playerTransformData.RootRotation = transform.rotation;
+                _playerTransformData.VerticalOffset = 1.7f;
                 _transformDataSetup = true;
             }
 

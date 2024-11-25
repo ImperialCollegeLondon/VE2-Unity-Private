@@ -1,5 +1,6 @@
 using UnityEngine;
 using VE2.Core.Common;
+using VE2.Core.Player;
 
 public class DragLocomotor
 {
@@ -11,17 +12,22 @@ public class DragLocomotor
     private readonly GameObject _sphereIcon;
 
     private readonly DragLocomotorInputContainer _inputContainer;
-    private readonly Transform _playerTransform;
-    private readonly Transform _handTransform;
+    private readonly Transform _rootTransform; //For horizontal drag
+    private readonly Transform _headOffsetTransform; //For vertical drag
+    private readonly Transform _handTransform; //For measuring drag delta 
 
-    public DragLocomotor(GameObject iconHolder, GameObject horizontalMoveIndicator, GameObject verticalMoveIndicator, GameObject sphereIcon, DragLocomotorInputContainer inputContainer, Transform playerTransform, Transform handTransform)
+    public DragLocomotor(LocomotorVRReferences locomotorVRReferences, DragLocomotorInputContainer inputContainer,
+     Transform rootTransform, Transform headOffsetTransform, Transform handTransform)
     {
-        _iconHolder = iconHolder;
-        _horizontalMoveIndicator = horizontalMoveIndicator;
-        _verticalMoveIndicator = verticalMoveIndicator;
-        _sphereIcon = sphereIcon;
+        _iconHolder = locomotorVRReferences.DragIconHolder;
+        _horizontalMoveIndicator = locomotorVRReferences.HorizontalDragIndicator;
+        _verticalMoveIndicator = locomotorVRReferences.VerticalDragIndicator;
+        _sphereIcon = locomotorVRReferences.SphereDragIcon;
+
         _inputContainer = inputContainer;
-        _playerTransform = playerTransform;
+
+        _rootTransform = rootTransform;
+        _headOffsetTransform = headOffsetTransform;
         _handTransform = handTransform;
     }
 

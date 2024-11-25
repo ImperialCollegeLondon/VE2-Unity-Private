@@ -32,6 +32,7 @@ namespace VE2.Core.Player
     [Serializable]
     public class LocomotorVRReferences
     {
+        //TODO: Maybe we can encapsulate the icon stuff into a single class
         public Transform RayOrigin => _rayOrigin;
         [SerializeField, IgnoreParent] private Transform _rayOrigin;
 

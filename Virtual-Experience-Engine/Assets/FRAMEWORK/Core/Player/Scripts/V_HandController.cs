@@ -17,7 +17,7 @@ namespace VE2.Core.Player
         private readonly DragLocomotor _dragLocomotor;
         private List<Material> _colorMaterials = new();
 
-        public V_HandController(InteractorContainer interactorContainer, Transform playerTransform, GameObject handGO, HandVRInputContainer handVRInputContainer, InteractorType interactorType, IMultiplayerSupport multiplayerSupport, IRaycastProvider raycastProvider)
+        public V_HandController(InteractorContainer interactorContainer, Transform rootTransform, Transform headOffsetTransform, GameObject handGO, HandVRInputContainer handVRInputContainer, InteractorType interactorType, IMultiplayerSupport multiplayerSupport, IRaycastProvider raycastProvider)
         {
             _handGO = handGO;
             _positionInput = handVRInputContainer.HandPosition;
@@ -25,6 +25,7 @@ namespace VE2.Core.Player
 
             V_HandVRReferences handVRReferences = handGO.GetComponent<V_HandVRReferences>();
 
+            //TODO: Pass references as a single object
             InteractorVRReferences interactorVRReferences = handVRReferences.InteractorVRReferences;
             _interactor = new(
                 interactorContainer, handVRInputContainer.InteractorVRInputContainer,
@@ -32,9 +33,10 @@ namespace VE2.Core.Player
                 interactorType, raycastProvider, multiplayerSupport, 
                 interactorVRReferences.CollisionDetector, interactorVRReferences.HandVisualGO, interactorVRReferences.LineRenderer);
 
-            LocomotorVRReferences locomotorVRReferences = handVRReferences.LocomotorVRReferences;
-            _dragLocomotor = new(locomotorVRReferences.DragIconHolder, locomotorVRReferences.HorizontalDragIndicator, locomotorVRReferences.VerticalDragIndicator, locomotorVRReferences.SphereDragIcon,
-                handVRInputContainer.DragLocomotorInputContainer, playerTransform, handGO.transform);
+            _dragLocomotor = new(
+                handVRReferences.LocomotorVRReferences,
+                handVRInputContainer.DragLocomotorInputContainer, 
+                rootTransform, headOffsetTransform, handGO.transform);
 
             _colorMaterials = CommonUtils.GetAvatarColorMaterialsForGameObject(handGO);
         }
