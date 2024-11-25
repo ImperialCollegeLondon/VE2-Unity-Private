@@ -3,6 +3,7 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UIElements;
 using VE2.Common;
 using VE2.Core.Common;
 using VE2.NonCore.Instancing.VComponents.NonInteractableInterfaces;
@@ -16,9 +17,9 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
     internal class RigidbodySyncableStateModule : BaseWorldStateModule, IRigidbodySyncableStateModule
     {
         /// <value>
-        /// <see cref="Vector3"/>: Position, <see cref="Quaternion"/>: Rotation
+        /// <see cref="float"/>: Fixed time sent, <see cref="Vector3"/>: Position, <see cref="Quaternion"/>: Rotation
         /// </value>
-        public UnityEvent<Vector3, Quaternion> OnReceiveState => new();
+        public UnityEvent<float, Vector3, Quaternion> OnReceiveState = new();
         private RigidbodySyncableState _state => (RigidbodySyncableState)State;
         private RigidbodySyncableStateConfig _config => (RigidbodySyncableStateConfig)Config;
 
@@ -30,10 +31,10 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
 
         protected override void UpdateBytes(byte[] newBytes)
         {
-            State.Bytes = newBytes;
+            _state.Bytes = newBytes;
             try
             {
-                OnReceiveState?.Invoke(_state.Position, _state.Rotation);
+                OnReceiveState?.Invoke(_state.FixedTime, _state.Position, _state.Rotation);
             }
             catch (Exception e)
             {
@@ -41,8 +42,9 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
             }
         }
 
-        public void SetState(Vector3 position, Quaternion rotation)
+        public void SetState(float fixedTime, Vector3 position, Quaternion rotation)
         {
+            _state.FixedTime = fixedTime;
             _state.Position = position;
             _state.Rotation = rotation;
         }
@@ -52,6 +54,7 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
     [Serializable]
     public class RigidbodySyncableState : VE2Serializable
     {
+        public float FixedTime;
         public Vector3 Position { get; set; }
         public Quaternion Rotation { get; set; }
 
@@ -62,11 +65,19 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
             Rotation = new();
         }
 
+        public RigidbodySyncableState(float fixedTime, Vector3 position, Quaternion rotation)
+        {
+            FixedTime = fixedTime;
+            Position = position;
+            Rotation = rotation;
+        }
+
         protected override byte[] ConvertToBytes()
         {
             using MemoryStream stream = new();
             using BinaryWriter writer = new(stream);
 
+            writer.Write(FixedTime);
             WriteVector3(writer, Position);
             WriteQuaternion(writer, Rotation);
 
@@ -78,6 +89,7 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
             using MemoryStream stream = new(data);
             using BinaryReader reader = new(stream);
 
+            FixedTime = reader.ReadSingle();
             Position = ReadVector3(reader);
             Rotation = ReadQuaternion(reader);
         }

@@ -36,7 +36,7 @@ namespace VE2.NonCore.Instancing.VComponents.MonoBehaviours
 
         private void FixedUpdate()
         {
-            _service?.HandleFixedUpdate();
+            _service?.HandleFixedUpdate(Time.fixedTime);
         }
 
         private void OnDisable()
