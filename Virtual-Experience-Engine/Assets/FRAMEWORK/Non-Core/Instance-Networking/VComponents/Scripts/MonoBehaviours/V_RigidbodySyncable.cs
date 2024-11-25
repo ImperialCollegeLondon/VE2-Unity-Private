@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using VE2.Common;
 using VE2.NonCore.Instancing.VComponents.Internal;
@@ -21,6 +22,12 @@ namespace VE2.NonCore.Instancing.VComponents.MonoBehaviours
 
         private void OnEnable()
         {
+            StartCoroutine(nameof(DelayedStart));
+        }
+
+        private IEnumerator DelayedStart()
+        {
+            yield return new WaitForSeconds(3);
             string id = "RBS-" + gameObject.name;
             _rigidbodyWrapper = new(GetComponent<Rigidbody>());
             _service = new RigidbodySyncableService(_config, _state, id, VE2CoreServiceLocator.Instance.WorldStateModulesContainer, _rigidbodyWrapper);
@@ -29,7 +36,7 @@ namespace VE2.NonCore.Instancing.VComponents.MonoBehaviours
 
         private void FixedUpdate()
         {
-            _service.HandleFixedUpdate();
+            _service?.HandleFixedUpdate();
         }
 
         private void OnDisable()
