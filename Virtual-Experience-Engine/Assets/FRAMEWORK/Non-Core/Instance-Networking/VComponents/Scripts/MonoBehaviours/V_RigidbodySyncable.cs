@@ -39,6 +39,11 @@ namespace VE2.NonCore.Instancing.VComponents.MonoBehaviours
             _service?.HandleFixedUpdate(Time.fixedTime);
         }
 
+        private void Update()
+        {
+            _service?.HandleUpdate(Time.realtimeSinceStartup);
+        }
+
         private void OnDisable()
         {
             _service.TearDown();

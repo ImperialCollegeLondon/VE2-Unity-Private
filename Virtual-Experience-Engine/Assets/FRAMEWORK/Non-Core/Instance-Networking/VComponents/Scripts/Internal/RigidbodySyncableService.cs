@@ -12,11 +12,11 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
     public class RigidbodySyncableService
     {
         #region Interfaces
-        public IRigidbodySyncableStateModule StateModule => _StateModule;
+        public IRigidbodySyncableStateModule StateModule => _stateModule;
         #endregion
 
         #region Modules
-        private readonly RigidbodySyncableStateModule _StateModule;
+        private readonly RigidbodySyncableStateModule _stateModule;
         #endregion
 
         private IRigidbodyWrapper _rigidbody;
@@ -26,12 +26,14 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
         private float _timeDifferenceFromHost;
 
         private readonly float _timeBehind = 0.04f;
-        private float _localFixedTimeAtUpdate = 0f;
+        private float _localFixedTime = 0f;
+        private float _localRealTime = 0f;
+        private readonly float _fakePing = 0.3f;
 
         public RigidbodySyncableService(RigidbodySyncableStateConfig config, VE2Serializable state, string id, WorldStateModulesContainer worldStateModulesContainer, RigidbodyWrapper rigidbodyWrapper)
         {
 
-            _StateModule = new(state, config, id, worldStateModulesContainer);
+            _stateModule = new(state, config, id, worldStateModulesContainer);
             _rigidbody = rigidbodyWrapper;
             _isKinematicOnStart = _rigidbody.isKinematic;
 
@@ -39,35 +41,44 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
 
             _rbStates = new(); // TODO: store received states in a list, including a pseudo arrival-time, for interpolation by non-host
 
-            _StateModule.OnReceiveState?.AddListener(HandleReceiveRigidbodyState);
+            _stateModule.OnReceiveState?.AddListener(HandleReceiveRigidbodyState);
         }
 
         public void HandleFixedUpdate(float fixedTime)
         {
-            _StateModule.HandleFixedUpdate();
+            _stateModule.HandleFixedUpdate();
 
-            _localFixedTimeAtUpdate = fixedTime;
+            _localFixedTime = fixedTime;
 
             // Temporary test of host syncing without interpolation
-            if (_StateModule.IsHost)
+            if (_stateModule.IsHost)
             {
-                _StateModule.SetState(fixedTime, _rigidbody.position, _rigidbody.rotation);
+                _stateModule.SetState(fixedTime, _rigidbody.position, _rigidbody.rotation);
             }
-            else
+        }
+
+        public void HandleUpdate(float timeSinceStartup)
+        {
+            _stateModule.HandleFixedUpdate();
+
+            _localRealTime = timeSinceStartup;
+
+            // Temporary test of host syncing without interpolation
+            if (!_stateModule.IsHost)
             {
-                InterpolateRigidbody();
+                InterpolateRigidbody(); // Currently just handling interpolation at fixed update - does this work?
             }
         }
 
         public void TearDown()
         {
-            _StateModule.TearDown();
+            _stateModule.TearDown();
         }
 
         public void HandleReceiveRigidbodyState(float FixedTime, Vector3 Position, Quaternion Rotation)
         {
             // Temporary test of host syncing without interpolation
-            if (_StateModule.IsHost)
+            if (_stateModule.IsHost)
             {
 
             }
@@ -75,7 +86,7 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
             {
                 if (_rbStates.Count == 0)
                 {
-                    _timeDifferenceFromHost = FixedTime - _localFixedTimeAtUpdate;
+                    _timeDifferenceFromHost = FixedTime - _localFixedTime;
                 }
                     
                 AddReceivedStateToHistory(new(FixedTime, Position, Rotation));
@@ -84,7 +95,7 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
 
         private void SetNonHostKinematic()
         {
-            if (!_StateModule.IsHost)
+            if (!_stateModule.IsHost)
             {
                 _rigidbody.isKinematic = true;
             }
@@ -115,7 +126,7 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
             else if (_rbStates.Count >= 2)
             {
                 // Find where we sit in the _rbStates arrangement
-                float delayedLocalTime = _localFixedTimeAtUpdate + _timeDifferenceFromHost - _timeBehind;
+                float delayedLocalTime = _localRealTime + _timeDifferenceFromHost - _timeBehind - _fakePing;
                 int index = _rbStates.FindIndex(rbState => rbState.FixedTime > delayedLocalTime);
 
                 RigidbodySyncableState previousState;
