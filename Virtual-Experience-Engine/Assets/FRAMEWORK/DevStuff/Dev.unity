@@ -6146,6 +6146,7 @@ MonoBehaviour:
   _handheldActivatableGO: {fileID: 1542206479}
   _handheldAdjustableGO: {fileID: 1542206479}
   _networkObjectGO: {fileID: 1499303675}
+  _rbSyncableGO: {fileID: 1871746865}
 --- !u!4 &1499303677
 Transform:
   m_ObjectHideFlags: 0
@@ -8798,6 +8799,8 @@ MonoBehaviour:
     RepeatedTransmissionConfig:
       TransmissionType: 0
       TransmissionFrequency: 1
+  _state:
+    FixedTime: 0
 --- !u!54 &1871746868
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -8869,7 +8872,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 0d052e9ac7a45974ba04aa48599414a3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

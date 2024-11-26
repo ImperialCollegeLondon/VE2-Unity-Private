@@ -17,6 +17,7 @@ public class PluginTest : MonoBehaviour
     [SerializeField] private GameObject _handheldActivatableGO;
     [SerializeField] private GameObject _handheldAdjustableGO;
     [SerializeField] private GameObject _networkObjectGO;
+    [SerializeField] private GameObject _rbSyncableGO;
 
 
     private IV_ToggleActivatable _pushActivatable => _pushButtonGO.GetComponent<IV_ToggleActivatable>();
@@ -24,6 +25,7 @@ public class PluginTest : MonoBehaviour
     private IV_HandheldActivatable _handheldActivatable => _handheldActivatableGO.GetComponent<IV_HandheldActivatable>();
     private IV_HandheldAdjustable _handheldAdjustable => _handheldAdjustableGO.GetComponent<IV_HandheldAdjustable>();
     private IV_NetworkObject _networkObject => _networkObjectGO.GetComponent<IV_NetworkObject>();
+    private IV_RigidbodySyncable _rbSyncable => _rbSyncableGO.GetComponent<IV_RigidbodySyncable>();
 
     private int _counter = 0;
 
@@ -91,12 +93,18 @@ public class PluginTest : MonoBehaviour
             _counter++;
             _networkObject.NetworkObject = _counter;
         }
-        else if(Keyboard.current.digit4Key.wasPressedThisFrame)
+        else if (Keyboard.current.digit4Key.wasPressedThisFrame)
             _handheldActivatable.IsActivated = !_handheldActivatable.IsActivated;
-        else if(Keyboard.current.digit5Key.wasPressedThisFrame)
+        else if (Keyboard.current.digit5Key.wasPressedThisFrame)
             _handheldAdjustable.Value--;
         else if (Keyboard.current.digit6Key.wasPressedThisFrame)
             _handheldAdjustable.Value++;
+        else if (Keyboard.current.digit7Key.wasPressedThisFrame)
+        {
+            _rbSyncableGO.GetComponent<Rigidbody>().AddForce(Quaternion.Euler(Random.Range(-30, 30), 0, 0)*Vector3.up*10, ForceMode.Impulse);
+            _rbSyncableGO.GetComponent<Rigidbody>().AddTorque(Random.Range(-30, 30) * Vector3.right);
+        }
+            
 
     }
 
