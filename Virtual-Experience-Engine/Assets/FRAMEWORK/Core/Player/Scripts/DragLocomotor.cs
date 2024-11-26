@@ -37,10 +37,14 @@ public class DragLocomotor
             if horizontal input is pressed, move the player based on the change in position of the handTransform
 
         */
+
+        HandleSphereIconVisibility();
     }
 
     public void HandleOEnable()
     {
+        HandleDragIconVisibilityWhenEnabled();
+
         _inputContainer.HorizontalDrag.OnPressed += HandleHorizontalDragPressed;
         _inputContainer.HorizontalDrag.OnReleased += HandleHorizontalDragReleased;
         _inputContainer.VerticalDrag.OnPressed += HandleVerticalDragPressed;
@@ -61,24 +65,40 @@ public class DragLocomotor
     private void HandleHorizontalDragPressed()
     {
         //Show horizontal icon
+        _horizontalMoveIndicator.SetActive(true);
         Debug.Log("Horizontal drag pressed");
     }
 
     private void HandleHorizontalDragReleased()
     {
         //Hide horizontal icon
+        _horizontalMoveIndicator.SetActive(false);
         Debug.Log("Horizontal drag released");
     }
 
     private void HandleVerticalDragPressed()
     {
         //Show vertical icon
+        _verticalMoveIndicator.SetActive(true);
         Debug.Log("Vertical drag pressed");
     }
 
     private void HandleVerticalDragReleased()
     {
         //Hide vertical icon
+        _verticalMoveIndicator.SetActive(false);
         Debug.Log("Vertical drag released");
+    }
+
+    private void HandleDragIconVisibilityWhenEnabled()
+    {
+        _horizontalMoveIndicator.SetActive(false);
+        _verticalMoveIndicator.SetActive(false);
+        _sphereIcon.SetActive(false);
+    }
+
+    private void HandleSphereIconVisibility()
+    {   
+        _sphereIcon.SetActive(_inputContainer.HorizontalDrag.IsPressed && _inputContainer.VerticalDrag.IsPressed);
     }
 }
