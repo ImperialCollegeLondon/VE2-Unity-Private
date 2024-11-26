@@ -28,7 +28,7 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
         private readonly float _timeBehind = 0.04f;
         private float _localFixedTime = 0f;
         private float _localRealTime = 0f;
-        private readonly float _fakePing = 0.3f;
+        private readonly float _fakePing = 0.0f;
 
         public RigidbodySyncableService(RigidbodySyncableStateConfig config, VE2Serializable state, string id, WorldStateModulesContainer worldStateModulesContainer, RigidbodyWrapper rigidbodyWrapper)
         {
@@ -37,7 +37,7 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
             _rigidbody = rigidbodyWrapper;
             _isKinematicOnStart = _rigidbody.isKinematic;
 
-            SetNonHostKinematic();
+            SetupNonHostRigidbody();
 
             _rbStates = new(); // TODO: store received states in a list, including a pseudo arrival-time, for interpolation by non-host
 
@@ -55,19 +55,18 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
             {
                 _stateModule.SetState(fixedTime, _rigidbody.position, _rigidbody.rotation);
             }
+
         }
 
         public void HandleUpdate(float timeSinceStartup)
         {
-            _stateModule.HandleFixedUpdate();
-
             _localRealTime = timeSinceStartup;
 
-            // Temporary test of host syncing without interpolation
             if (!_stateModule.IsHost)
             {
                 InterpolateRigidbody(); // Currently just handling interpolation at fixed update - does this work?
             }
+
         }
 
         public void TearDown()
@@ -77,23 +76,18 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
 
         public void HandleReceiveRigidbodyState(float FixedTime, Vector3 Position, Quaternion Rotation)
         {
-            // Temporary test of host syncing without interpolation
-            if (_stateModule.IsHost)
-            {
-
-            }
-            else
+            if (!_stateModule.IsHost)
             {
                 if (_rbStates.Count == 0)
                 {
-                    _timeDifferenceFromHost = FixedTime - _localFixedTime;
+                    _timeDifferenceFromHost = FixedTime - _localRealTime;
                 }
                     
                 AddReceivedStateToHistory(new(FixedTime, Position, Rotation));
             }
         }
 
-        private void SetNonHostKinematic()
+        private void SetupNonHostRigidbody()
         {
             if (!_stateModule.IsHost)
             {
@@ -117,46 +111,65 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
             }
         }
 
+        private void LogStates()
+        {
+            string stateString = "rbState times = [";
+            foreach(RigidbodySyncableState rbState in _rbStates)
+            {
+                stateString += rbState.FixedTime.ToString() + " ";
+            }
+
+            stateString += "]";
+            Debug.Log(stateString);
+        }
+
         private void InterpolateRigidbody()
         {
-            if (_rbStates.Count == 1)
+            int numStates = _rbStates.Count;
+
+            if (numStates == 1)
             {
                 SetRigidbodyValues(_rbStates[0]);
             }
-            else if (_rbStates.Count >= 2)
+            else if (numStates >= 2)
             {
                 // Find where we sit in the _rbStates arrangement
                 float delayedLocalTime = _localRealTime + _timeDifferenceFromHost - _timeBehind - _fakePing;
+
                 int index = _rbStates.FindIndex(rbState => rbState.FixedTime > delayedLocalTime);
 
                 RigidbodySyncableState previousState;
                 RigidbodySyncableState nextState;
 
-                if (index == -1 || index == _rbStates.Count-1)
+                if (index == -1)
                 {
                     // In this case we're ahead and need to extrapolate from the last two
                     previousState = _rbStates[^2];
                     nextState = _rbStates[^1];
 
                     // Throw away old _rbStates that we're beyond now
-                    _rbStates.RemoveRange(0, _rbStates.Count - 2);
+                    _rbStates.RemoveRange(0, numStates - 2);
+                }
+                else if (index == 0)
+                {
+                    // In this case we're behind all states and need to extrapolate behind the first two states
+                    previousState = _rbStates[0];
+                    nextState = _rbStates[1];
                 }
                 else
                 {
-                    previousState = _rbStates[index];
-                    nextState = _rbStates[index + 1];
+                    previousState = _rbStates[index-1];
+                    nextState = _rbStates[index];
 
                     // Throw away old _rbStates that we're beyond now
-                    _rbStates.RemoveRange(0, index);
+                    _rbStates.RemoveRange(0, index-1);
                 }
-
-                
 
                 // Calculate interpolation parameter
                 float lerpParameter = InverseLerp(delayedLocalTime, previousState.FixedTime, nextState.FixedTime);
 
                 // Do the interpolation
-                SetRigidbodyValues(Vector3.Lerp(previousState.Position, nextState.Position, lerpParameter), Quaternion.Lerp(previousState.Rotation, nextState.Rotation, lerpParameter));
+                SetRigidbodyValues(Vector3.Lerp(previousState.Position, nextState.Position, lerpParameter), Quaternion.Slerp(previousState.Rotation, nextState.Rotation, lerpParameter));
             }
         }
 
