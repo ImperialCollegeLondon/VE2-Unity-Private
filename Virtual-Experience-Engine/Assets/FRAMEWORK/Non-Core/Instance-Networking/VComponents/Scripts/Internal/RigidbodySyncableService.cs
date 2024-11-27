@@ -1,3 +1,4 @@
+using Codice.Client.Common;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -120,9 +121,12 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
             {
                 // Calculate the time the rigidbody should be displayed at
                 float delayedLocalTime = _localRealTime + _timeDifferenceFromHost - _timeBehind - _fakePing;
+                
+                // Calculate index of next state
+                int index = _receivedRigidbodyStates.FindIndex(rbState => rbState.FixedTime > delayedLocalTime);
 
                 // Get the previous and next states to interpolate betwen
-                (RigidbodySyncableState previous, RigidbodySyncableState next) interpolationStates = GetRelevantRigidbodyStates(delayedLocalTime, out int index);
+                (RigidbodySyncableState previous, RigidbodySyncableState next) interpolationStates = GetRelevantRigidbodyStates(index);
 
                 ClearHistoricalStates(index);
 
@@ -135,14 +139,12 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
             }
         }
 
-        private (RigidbodySyncableState previous, RigidbodySyncableState next) GetRelevantRigidbodyStates(float time, out int index)
+        private (RigidbodySyncableState previous, RigidbodySyncableState next) GetRelevantRigidbodyStates(int indexOfNextState)
         {
-            index = _receivedRigidbodyStates.FindIndex(rbState => rbState.FixedTime > time);
-
             RigidbodySyncableState previousState;
             RigidbodySyncableState nextState;
 
-            switch (index)
+            switch (indexOfNextState)
             {
                 case -1:
                     // In this case we're ahead and need to extrapolate from the last two
@@ -156,8 +158,8 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
                     break;
                 default:
                     // In the typical case we have two states that we can interpolate between
-                    previousState = _receivedRigidbodyStates[index - 1];
-                    nextState = _receivedRigidbodyStates[index];
+                    previousState = _receivedRigidbodyStates[indexOfNextState - 1];
+                    nextState = _receivedRigidbodyStates[indexOfNextState];
                     break;
             }
             return (previousState, nextState);
@@ -167,9 +169,21 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
         {
             if (indexOfNextState == -1)
                 _receivedRigidbodyStates.RemoveRange(0, _receivedRigidbodyStates.Count - 2);
-            else
+            else if (indexOfNextState >= 1)
                 _receivedRigidbodyStates.RemoveRange(0, indexOfNextState - 1);
+            // If index == 0 there are no historical states, so we don't clear them
         }
+
+        private Vector3 GetVelocityFromStates((RigidbodySyncableState previous, RigidbodySyncableState next) statesTuple)
+        {
+            return (statesTuple.next.Position + statesTuple.previous.Position) / 2;
+        }
+
+        private Quaternion GetAngularVelocityFromStates((RigidbodySyncableState previous, RigidbodySyncableState next) statesTuple)
+        {
+            return Quaternion.Slerp(statesTuple.next.Rotation, statesTuple.previous.Rotation, 0.5f);
+        }
+
         private void SetRigidbodyValues(RigidbodySyncableState newState)
         {
             _rigidbody.position = newState.Position;
