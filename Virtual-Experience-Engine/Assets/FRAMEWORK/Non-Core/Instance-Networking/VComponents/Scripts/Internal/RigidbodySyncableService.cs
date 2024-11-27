@@ -51,7 +51,6 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
 
             _localFixedTime = fixedTime;
 
-            // Temporary test of host syncing without interpolation
             if (_stateModule.IsHost)
             {
                 _stateModule.SetState(fixedTime, _rigidbody.position, _rigidbody.rotation);
@@ -65,7 +64,7 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
 
             if (!_stateModule.IsHost)
             {
-                InterpolateRigidbody(); // Currently just handling interpolation at fixed update - does this work?
+                InterpolateRigidbody();
             }
 
         }
