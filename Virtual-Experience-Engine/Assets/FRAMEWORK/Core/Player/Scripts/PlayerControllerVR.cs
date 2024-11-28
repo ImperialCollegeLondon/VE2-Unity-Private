@@ -62,6 +62,8 @@ namespace VE2.Core.Player
 
             _handControllerLeft = CreateHandController(handVRLeftGO, interactorContainer, playerVRInputContainer.HandVRLeftInputContainer, InteractorType.LeftHandVR, raycastProvider, multiplayerSupport);
             _handControllerRight = CreateHandController(handVRRightGO, interactorContainer, playerVRInputContainer.HandVRRightInputContainer, InteractorType.RightHandVR, raycastProvider, multiplayerSupport);
+            _handControllerLeft.ReceiveOtherDragLocomotor(_handControllerRight.ProvideDragLocomotor());
+            _handControllerRight.ReceiveOtherDragLocomotor(_handControllerLeft.ProvideDragLocomotor());
         }
 
         private V_HandController CreateHandController(GameObject handGO, InteractorContainer interactorContainer, HandVRInputContainer handVRInputContainer, InteractorType interactorType, IRaycastProvider raycastProvider, IMultiplayerSupport multiplayerSupport)
