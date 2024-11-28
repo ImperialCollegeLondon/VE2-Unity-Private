@@ -56,15 +56,6 @@ namespace VE2.Core.Player
                 material.color = newColor;
         }
 
-        public DragLocomotor ProvideDragLocomotor() //Allows both hands to keep track of one another
-        {
-            return _dragLocomotor;
-        }
-
-        public void ReceiveOtherDragLocomotor(DragLocomotor otherDragLocomotorReceived)
-        {
-            otherDragLocomotorReceived.HandleOtherDragLocomotor(_dragLocomotor);
-        }
         //TODO:
         /*
             When interactor tells us it's grabbed, we need to hide the hand model 

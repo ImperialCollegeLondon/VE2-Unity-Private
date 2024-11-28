@@ -212,6 +212,9 @@ namespace VE2.Core.Common
         public IPressableInput HorizontalDrag { get; private set; }
         public IPressableInput VerticalDrag { get; private set; }
 
+        public bool IsDraggingHorizontal;
+        public bool IsDraggingVertical;
+
         public DragLocomotorInputContainer(IPressableInput horizontalDrag, IPressableInput verticalDrag)
         {
             HorizontalDrag = horizontalDrag;
