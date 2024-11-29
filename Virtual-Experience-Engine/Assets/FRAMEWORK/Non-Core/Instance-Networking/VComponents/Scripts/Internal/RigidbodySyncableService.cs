@@ -3,6 +3,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 using VE2.Common;
 using VE2.NonCore.Instancing.VComponents.NonInteractableInterfaces;
 using static VE2.Common.CommonSerializables;
@@ -79,7 +80,33 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
 
         private void HandleHostChanged(ushort newHostID)
         {
-            Debug.Log("Host changed!");
+            // Find out who the new host is!
+            if (_stateModule.IsHost)
+            {   
+                if (_receivedRigidbodyStates.Count >= 2)
+                {
+                    // Calculate RB velocities, which we take to be the most recent we received for now
+                    (RigidbodySyncableState previous, RigidbodySyncableState next) latestStates = GetRelevantRigidbodyStates(_receivedRigidbodyStates.Count - 1);
+                    Vector3 linearVelocity = GetVelocityFromStates(latestStates);
+                    Vector3 angularVelocity = GetAngularVelocityFromStates(latestStates);
+
+                    _rigidbody.isKinematic = _isKinematicOnStart;
+                    SetRigidbodyValues(latestStates.next.Position, latestStates.next.Rotation, linearVelocity, angularVelocity);
+                }
+                else if (_receivedRigidbodyStates.Count == 1)
+                {
+                    // If we have fewer states, we have yet to receive many states and can't assume a velocity
+                    // Revert isKinematic
+                    _rigidbody.isKinematic = _isKinematicOnStart;
+                    SetRigidbodyValues(_receivedRigidbodyStates[0].Position, _receivedRigidbodyStates[0].Rotation);
+                }
+                else
+                {
+                    _rigidbody.isKinematic = _isKinematicOnStart;
+                }
+            }
+
+            _receivedRigidbodyStates.Clear();
         }
 
         #region Receive States Logic
@@ -183,12 +210,36 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
 
         private Vector3 GetVelocityFromStates((RigidbodySyncableState previous, RigidbodySyncableState next) statesTuple)
         {
-            return (statesTuple.next.Position + statesTuple.previous.Position) / 2;
+            // Calculate the time difference
+            float deltaTime = statesTuple.next.FixedTime - statesTuple.previous.FixedTime;
+
+            if (Mathf.Approximately(deltaTime, 0f))
+                return Vector3.zero;
+
+            return (statesTuple.next.Position - statesTuple.previous.Position) / deltaTime;
         }
 
-        private Quaternion GetAngularVelocityFromStates((RigidbodySyncableState previous, RigidbodySyncableState next) statesTuple)
+        private Vector3 GetAngularVelocityFromStates((RigidbodySyncableState previous, RigidbodySyncableState next) statesTuple)
         {
-            return Quaternion.Slerp(statesTuple.next.Rotation, statesTuple.previous.Rotation, 0.5f);
+            // Calculate the time difference
+            float deltaTime = statesTuple.next.FixedTime - statesTuple.previous.FixedTime;
+
+            if (Mathf.Approximately(deltaTime, 0f))
+                return Vector3.zero;
+
+            // Calculate the relative rotation
+            Quaternion deltaRotation = statesTuple.next.Rotation * Quaternion.Inverse(statesTuple.previous.Rotation);
+
+            // Extract the angle and axis from the delta rotation
+            deltaRotation.ToAngleAxis(out float angle, out Vector3 axis);
+
+            // Ensure the angle is in radians for velocity calculation
+            angle *= Mathf.Deg2Rad;
+
+            // Calculate the angular velocity vector
+            Vector3 angularVelocity = (axis * angle) / deltaTime;
+
+            return angularVelocity;
         }
 
         private void SetRigidbodyValues(RigidbodySyncableState newState)
@@ -202,6 +253,16 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
             _rigidbody.position = position;
             _rigidbody.rotation = rotation;
         }
+
+        private void SetRigidbodyValues(Vector3 position, Quaternion rotation, Vector3 velocity, Vector3 angularVelocity)
+        {
+            _rigidbody.position = position;
+            _rigidbody.rotation = rotation;
+            _rigidbody.linearVelocity = velocity;
+            _rigidbody.angularVelocity = angularVelocity;
+        }
+
+
         #endregion
 
         private void LogStates()
