@@ -11,6 +11,7 @@ namespace VE2.Common //TODO break into different files
         public bool IsHost { get; }
         public bool IsConnectedToServer { get; }
         public event Action OnConnectedToServer;
+        public event Action<ushort> OnHostChanged;
     }
 
     public interface IBaseStateModule 

@@ -30,6 +30,7 @@ namespace VE2.InstanceNetworking
         public ushort LocalClientID => _localClientIdWrapper.LocalClientID;
         public InstancedInstanceInfo InstanceInfo;
         public event Action<InstancedInstanceInfo> OnInstanceInfoChanged;
+        public event Action<ushort> OnHostChanged;
 
         public bool IsHost => InstanceInfo.HostID == LocalClientID;
 
@@ -140,8 +141,13 @@ namespace VE2.InstanceNetworking
 
         private void HandleReceiveInstanceInfoUpdate(byte[] bytes)
         {
+            ushort previousHost = InstanceInfo.HostID;
+
             if (!bytes.SequenceEqual(InstanceInfo.Bytes))
                 HandleReceiveInstanceInfoUpdate(new InstancedInstanceInfo(bytes));
+
+            if (previousHost != InstanceInfo.HostID)
+                OnHostChanged?.Invoke(InstanceInfo.HostID);
         }
 
         private void HandleReceiveInstanceInfoUpdate(InstancedInstanceInfo newInstanceInfo)

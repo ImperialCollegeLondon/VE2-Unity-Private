@@ -43,6 +43,7 @@ namespace VE2.InstanceNetworking
         public bool IsHost => _instanceService.IsHost;
 
         public event Action<InstancedInstanceInfo> OnInstanceInfoChanged;
+        public event Action<ushort> OnHostChanged;
         public event Action OnDisconnectedFromServer;
         #endregion
 
@@ -68,6 +69,7 @@ namespace VE2.InstanceNetworking
                 _instanceService.OnConnectedToServer += HandleConnectToServer; //TODO, maybe these events can go into the connection debug wrapper thing?
                 _instanceService.OnDisconnectedFromServer += HandleDisconnectFromServer; //TODO, maybe these events can go into the connection debug wrapper thing?
                 _instanceService.OnInstanceInfoChanged += HandleReceiveInstanceInfo;
+                _instanceService.OnHostChanged += HandleHostChanged;
             }
         }
 
@@ -102,6 +104,11 @@ namespace VE2.InstanceNetworking
             OnInstanceInfoChanged?.Invoke(instanceInfo);
         }
 
+        private void HandleHostChanged(ushort hostID)
+        {
+            OnHostChanged?.Invoke(hostID);
+        }
+
         private void HandleDisconnectFromServer()
         {
             if (_connectionStateDebug.ConnectionState == ConnectionState.Connected)
@@ -119,6 +126,7 @@ namespace VE2.InstanceNetworking
             _instanceService.OnConnectedToServer -= HandleConnectToServer; //TODO, maybe these events can go into the connection debug wrapper thing?
             _instanceService.OnDisconnectedFromServer -= HandleDisconnectFromServer; //TODO, maybe these events can go into the connection debug wrapper thing?
             _instanceService.OnInstanceInfoChanged -= HandleReceiveInstanceInfo;
+            _instanceService.OnHostChanged -= HandleHostChanged;
             _instanceService.TearDown();
             _instanceService = null;
             HandleDisconnectFromServer();

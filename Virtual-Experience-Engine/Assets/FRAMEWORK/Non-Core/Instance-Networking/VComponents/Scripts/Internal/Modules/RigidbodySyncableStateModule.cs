@@ -26,7 +26,11 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
         public bool MultiplayerSupportPresent => _config.MultiplayerSupportPresent;
         public bool IsHost => _config.MultiplayerSupport.IsHost;
 
-        public RigidbodySyncableStateModule(VE2Serializable state, BaseStateConfig config, string id, WorldStateModulesContainer worldStateModulesContainer) : base(state, config, id, worldStateModulesContainer) { }
+        public Action<ushort> OnHostChanged;
+
+        public RigidbodySyncableStateModule(VE2Serializable state, BaseStateConfig config, string id, WorldStateModulesContainer worldStateModulesContainer) : base(state, config, id, worldStateModulesContainer) {
+            _config.MultiplayerSupport.OnHostChanged += HandleHostChange;
+        }
 
 
         protected override void UpdateBytes(byte[] newBytes)
@@ -47,6 +51,11 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
             _state.FixedTime = fixedTime;
             _state.Position = position;
             _state.Rotation = rotation;
+        }
+
+        public void HandleHostChange(ushort hostID)
+        {
+            OnHostChanged?.Invoke(hostID);
         }
 
     }

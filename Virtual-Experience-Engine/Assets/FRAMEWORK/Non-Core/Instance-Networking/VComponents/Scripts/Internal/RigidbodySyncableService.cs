@@ -43,6 +43,7 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
             _receivedRigidbodyStates = new();
 
             _stateModule.OnReceiveState?.AddListener(HandleReceiveRigidbodyState);
+            _stateModule.OnHostChanged += HandleHostChanged;
         }
 
         public void HandleFixedUpdate(float fixedTime)
@@ -71,7 +72,14 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
 
         public void TearDown()
         {
+            _stateModule.OnReceiveState?.RemoveListener(HandleReceiveRigidbodyState);
+            _stateModule.OnHostChanged -= HandleHostChanged;
             _stateModule.TearDown();
+        }
+
+        private void HandleHostChanged(ushort newHostID)
+        {
+            Debug.Log("Host changed!");
         }
 
         #region Receive States Logic
