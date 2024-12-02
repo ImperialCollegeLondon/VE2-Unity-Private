@@ -19,7 +19,7 @@ namespace VE2.Core.Tests
     {
         //variables that will be reused in the tests
         private IV_ToggleActivatable _activatablePluginInterface;
-        private PluginScriptMock _customerScript;
+        private PluginActivatableMock _customerScript;
         private V_ToggleActivatableStub _v_activatableStub;
         private IRangedClickPlayerInteractableIntegrator _activatableRaycastInterface;
         private PlayerService _playerServiceStub;
@@ -29,7 +29,7 @@ namespace VE2.Core.Tests
         public void SetUpOnce()
         {
             //Wire up the customer script to receive the events           
-            _customerScript = Substitute.For<PluginScriptMock>();
+            _customerScript = Substitute.For<PluginActivatableMock>();
 
         }
 

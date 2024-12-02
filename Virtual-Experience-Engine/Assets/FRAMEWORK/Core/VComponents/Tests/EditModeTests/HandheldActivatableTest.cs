@@ -11,52 +11,103 @@ using VE2.Core.VComponents.PluginInterfaces;
 
 namespace VE2.Core.VComponents.Tests
 {
+    [TestFixture]
+    [Category("Handheld Activatable Service Tests")]
     public class HandheldActivatableTest
     {
+        private IV_HandheldActivatable _handheldActivatablePluginInterface;
+        private PluginActivatableMock _customerScript;
+        private V_HandheldActivatableStub _v_handheldActivatableStub;
+
+        [OneTimeSetUp]
+        public void SetUpOnce()
+        {
+            _customerScript = Substitute.For<PluginActivatableMock>();
+        }
+
+        [SetUp]
+        public void SetUp()
+        {
+            HandheldActivatableService handheldActivatable = HandheldActivatableServiceStubFactory.Create();
+            _v_handheldActivatableStub = new(handheldActivatable);
+
+            _handheldActivatablePluginInterface = _v_handheldActivatableStub;
+
+            _handheldActivatablePluginInterface.OnActivate.AddListener(_customerScript.HandleActivateReceived);
+            _handheldActivatablePluginInterface.OnDeactivate.AddListener(_customerScript.HandleDeactivateReceived);
+        }
+
         [Test]
         public void HandheldActivatable_WhenActivatedByPlugin_EmitsToPlugin()
         {
-            //Create the activatable with default values
-            HandheldActivatableService handheldActivatable = new(new HandheldActivatableConfig(), new SingleInteractorActivatableState(), "debug", Substitute.For<WorldStateModulesContainer>());
-
-            //Stub out the VC (integration layer) with the activatable
-            V_HandheldActivatableStub v_activatableStub = new(handheldActivatable);
-
-            //Get interfaces
-            IV_HandheldActivatable activatablePluginInterface = v_activatableStub;
-
-            //Wire up the customer script to receive the events
-            PluginScriptMock customerScript = Substitute.For<PluginScriptMock>();
-            activatablePluginInterface.OnActivate.AddListener(customerScript.HandleActivateReceived);
-            activatablePluginInterface.OnDeactivate.AddListener(customerScript.HandleDeactivateReceived);
-
             //Invoke click, Check customer received the activation, and that the interactorID is set
-            activatablePluginInterface.IsActivated = true;
-            customerScript.Received(1).HandleActivateReceived();
-            Assert.IsTrue(activatablePluginInterface.IsActivated);
-            Assert.AreEqual(activatablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
+            _handheldActivatablePluginInterface.IsActivated = true;
+            _customerScript.Received(1).HandleActivateReceived();
+            Assert.IsTrue(_handheldActivatablePluginInterface.IsActivated);
+            Assert.AreEqual(_handheldActivatablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
 
             // Invoke the click to deactivate
-            activatablePluginInterface.IsActivated = false;
-            customerScript.Received(1).HandleDeactivateReceived();
-            Assert.IsFalse(activatablePluginInterface.IsActivated);
-            Assert.AreEqual(activatablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
+            _handheldActivatablePluginInterface.IsActivated = false;
+            _customerScript.Received(1).HandleDeactivateReceived();
+            Assert.IsFalse(_handheldActivatablePluginInterface.IsActivated);
+            Assert.AreEqual(_handheldActivatablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
         }
+        
+        //tear down that runs after every test method in this class
+        [TearDown]
+        public void TearDownAfterEveryTest()
+        {
+            _customerScript.ClearReceivedCalls();
+            _handheldActivatablePluginInterface.OnActivate.RemoveAllListeners();
+            _handheldActivatablePluginInterface.OnDeactivate.RemoveAllListeners();
+
+            _v_handheldActivatableStub.TearDown();
+            _handheldActivatablePluginInterface = null;
+        }
+
+        //tear down that runs once after all the tests in this class
+        [OneTimeTearDown]
+        public void TearDownOnce() { }
     }
 
     public class V_HandheldActivatableStub : IV_HandheldActivatable
     {
         #region Plugin Interfaces
-        ISingleInteractorActivatableStateModule IV_HandheldActivatable._StateModule => _HandheldActivatable.StateModule;
-        IHandheldClickInteractionModule IV_HandheldActivatable._HandheldClickModule => _HandheldActivatable.HandheldClickInteractionModule;
+        ISingleInteractorActivatableStateModule IV_HandheldActivatable._StateModule => _HandheldActivatableService.StateModule;
+        IHandheldClickInteractionModule IV_HandheldActivatable._HandheldClickModule => _HandheldActivatableService.HandheldClickInteractionModule;
         #endregion
 
-        protected HandheldActivatableService _HandheldActivatable = null;
+        protected HandheldActivatableService _HandheldActivatableService = null;
 
         public V_HandheldActivatableStub(HandheldActivatableService HandheldActivatable)
         {
-            _HandheldActivatable = HandheldActivatable;
+            _HandheldActivatableService = HandheldActivatable;
         }
+
+        public void TearDown()
+        {
+            _HandheldActivatableService.TearDown();
+            _HandheldActivatableService = null;
+        }
+    }
+
+    public class HandheldActivatableServiceStubFactory
+    {
+        public static HandheldActivatableService Create(
+            HandheldActivatableConfig config = null,
+            SingleInteractorActivatableState stateModule = null,
+            string debugName = "debug",
+            WorldStateModulesContainer worldStateModulesContainer = null)
+        {
+            config ??= new HandheldActivatableConfig();
+            stateModule ??= new SingleInteractorActivatableState();
+            worldStateModulesContainer ??= new WorldStateModulesContainer();
+
+            HandheldActivatableService handheldActivatable = new HandheldActivatableService(config, stateModule, debugName, worldStateModulesContainer);
+
+            return handheldActivatable;
+        }
+
     }
 }
 

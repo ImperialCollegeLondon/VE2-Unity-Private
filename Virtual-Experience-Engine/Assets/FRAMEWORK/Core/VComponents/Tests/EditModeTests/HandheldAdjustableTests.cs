@@ -24,7 +24,7 @@ namespace VE2.Core.VComponents.Tests
             System.Random random = new();
             float randomValue = (float)random.NextDouble();
 
-            PluginScriptMock customerScript = Substitute.For<PluginScriptMock>();
+            PluginActivatableMock customerScript = Substitute.For<PluginActivatableMock>();
             adjustablePluginInterface.OnValueAdjusted.AddListener( (value) => customerScript.HandleValueAdjusted(value) );
             adjustablePluginInterface.Value = randomValue;
             customerScript.Received(1).HandleValueAdjusted(randomValue);

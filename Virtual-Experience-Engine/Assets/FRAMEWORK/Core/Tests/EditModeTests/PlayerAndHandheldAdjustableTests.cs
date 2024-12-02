@@ -94,7 +94,7 @@ public class PlayerAndHandheldAdjustableTests
         );
 
         //Wire up the customer script to receive the events
-        PluginScriptMock pluginScriptMock = Substitute.For<PluginScriptMock>();
+        PluginActivatableMock pluginScriptMock = Substitute.For<PluginActivatableMock>();
         handheldAdjustablePluginInterface.OnValueAdjusted.AddListener((value) => pluginScriptMock.HandleValueAdjusted(value));
 
         //Invoke grab, check customer received the grab, and that the interactorID is set

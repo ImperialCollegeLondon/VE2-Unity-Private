@@ -16,13 +16,21 @@ namespace VE2.Core.VComponents.Tests
     {
         //variables that will be reused in the tests
         private IV_ToggleActivatable _activatablePluginInterface;
-        private PluginScriptMock _customerScript;
+        private PluginActivatableMock _customerScript;
         private V_ToggleActivatableStub _v_activatableStub;
 
         //Setup Once for every single test in this test class
         [OneTimeSetUp]
         public void SetUpOnce()
         {
+            //Wire up the customer script to receive the events           
+            _customerScript = Substitute.For<PluginActivatableMock>();
+        }
+
+        //setup that runs before every test method in this class
+        [SetUp]
+        public void SetUpBeforeEveryTest() 
+        { 
             //Create the activatable
             ToggleActivatableService toggleActivatable = ToggleActivatableServiceStubFactory.Create();
             _v_activatableStub = new(toggleActivatable);
@@ -30,15 +38,9 @@ namespace VE2.Core.VComponents.Tests
             //Get interfaces
             _activatablePluginInterface = _v_activatableStub;
 
-            //Wire up the customer script to receive the events           
-            _customerScript = Substitute.For<PluginScriptMock>();
             _activatablePluginInterface.OnActivate.AddListener(_customerScript.HandleActivateReceived);
             _activatablePluginInterface.OnDeactivate.AddListener(_customerScript.HandleDeactivateReceived);
         }
-
-        //setup that runs before every test method in this class
-        [SetUp]
-        public void SetUpBeforeEveryTest() { }
 
         //test method to confirm that the activatable emits the correct events when Activated/Deactivated
         [Test]
@@ -62,21 +64,19 @@ namespace VE2.Core.VComponents.Tests
         public void TearDownAfterEveryTest()
         {
             _customerScript.ClearReceivedCalls();
-            _activatablePluginInterface.IsActivated = false;
-        }
-
-        //tear down that runs once after all the tests in this class
-        [OneTimeTearDown]
-        public void TearDownOnce()
-        {
             _activatablePluginInterface.OnActivate.RemoveAllListeners();
             _activatablePluginInterface.OnDeactivate.RemoveAllListeners();
 
             _v_activatableStub.TearDown();
+            _activatablePluginInterface = null;
         }
+
+        //tear down that runs once after all the tests in this class
+        [OneTimeTearDown]
+        public void TearDownOnce() { }
     }
 
-    public class PluginScriptMock
+    public class PluginActivatableMock
     {
         public virtual void HandleActivateReceived() { }
         public virtual void HandleDeactivateReceived() { }

@@ -90,7 +90,7 @@ namespace VE2.Core.Tests
             );
 
             //Wire up the customer script to receive the events
-            PluginScriptMock pluginScriptMock = Substitute.For<PluginScriptMock>();
+            PluginActivatableMock pluginScriptMock = Substitute.For<PluginActivatableMock>();
             handheldActivatablePluginInterface.OnActivate.AddListener(pluginScriptMock.HandleActivateReceived);
             handheldActivatablePluginInterface.OnDeactivate.AddListener(pluginScriptMock.HandleDeactivateReceived);
 
