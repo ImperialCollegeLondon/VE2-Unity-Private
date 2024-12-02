@@ -86,26 +86,26 @@ namespace VE2.Core.VComponents.Tests
     public class V_ToggleActivatableStub : IV_ToggleActivatable, IRangedClickPlayerInteractableIntegrator, ICollidePlayerInteractableIntegrator
     {
         #region Plugin Interfaces
-        ISingleInteractorActivatableStateModule IV_ToggleActivatable._StateModule => _ToggleActivatable.StateModule;
-        IRangedClickInteractionModule IV_ToggleActivatable._RangedClickModule => _ToggleActivatable.RangedClickInteractionModule;
+        ISingleInteractorActivatableStateModule IV_ToggleActivatable._StateModule => _ToggleActivatableService.StateModule;
+        IRangedClickInteractionModule IV_ToggleActivatable._RangedClickModule => _ToggleActivatableService.RangedClickInteractionModule;
         #endregion
 
         #region Player Interfaces
-        ICollideInteractionModule ICollidePlayerInteractableIntegrator.CollideInteractionModule => _ToggleActivatable.ColliderInteractionModule;
-        IRangedInteractionModule IRangedPlayerInteractableIntegrator.RangedInteractionModule => _ToggleActivatable.RangedClickInteractionModule;
+        ICollideInteractionModule ICollidePlayerInteractableIntegrator.CollideInteractionModule => _ToggleActivatableService.ColliderInteractionModule;
+        IRangedInteractionModule IRangedPlayerInteractableIntegrator.RangedInteractionModule => _ToggleActivatableService.RangedClickInteractionModule;
         #endregion
 
-        protected ToggleActivatableService _ToggleActivatable = null;
+        protected ToggleActivatableService _ToggleActivatableService = null;
 
         public V_ToggleActivatableStub(ToggleActivatableService ToggleActivatable)
         {
-            _ToggleActivatable = ToggleActivatable;
+            _ToggleActivatableService = ToggleActivatable;
         }
 
         public void TearDown()
         {
-            _ToggleActivatable.TearDown();
-            _ToggleActivatable = null;
+            _ToggleActivatableService.TearDown();
+            _ToggleActivatableService = null;
         }
     }
 

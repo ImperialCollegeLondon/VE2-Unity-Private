@@ -11,55 +11,78 @@ using VE2.Core.VComponents.Internal;
 
 namespace VE2.Core.VComponents.Tests
 {
+    [TestFixture]
+    [Category("Grabbable Service Tests")]
     public class FreeGrabbableTest
     {
-        [Test]
-        public void FreeGrabbable_WhenGrabbed_EmitsToPlugin()
+        private IV_FreeGrabbable _grabbablePluginInterface;
+        private IRangedGrabInteractionModule _grabbablePlayerInterface;
+        private PluginGrabbableScript _customerScript;
+        private V_FreeGrabbableStub _v_freeGrabbableStub;
+        private InteractorID _interactorID;
+        private InteractorContainer _interactorContainerStub = new();
+
+        [OneTimeSetUp]
+        public void SetUpOnce()
         {
             //Create an ID
             System.Random random = new();
             ushort localClientID = (ushort)random.Next(0, ushort.MaxValue);
-            InteractorID interactorID = new(localClientID, InteractorType.Mouse2D);
+            _interactorID = new(localClientID, InteractorType.Mouse2D);
 
             IInteractor interactorStub = Substitute.For<IInteractor>();
-            InteractorContainer interactorContainerStub = new();
-            interactorContainerStub.RegisterInteractor(interactorID.ToString(), interactorStub);
+            _interactorContainerStub.RegisterInteractor(_interactorID.ToString(), interactorStub);
 
-            FreeGrabbableService freeGrabbable = new( 
-                new List<IHandheldInteractionModule>() {},
-                new FreeGrabbableConfig(),
-                new FreeGrabbableState(), 
-                "debug",
-                Substitute.For<WorldStateModulesContainer>(),
-                interactorContainerStub,
-                Substitute.For<IRigidbodyWrapper>(), 
-                new PhysicsConstants());
+            _customerScript = Substitute.For<PluginGrabbableScript>();
+        }
 
-            //Stub out the VC (integration layer) with the grabbable
-            V_FreeGrabbableStub v_freeGrabbableStub = new(freeGrabbable);
+        [SetUp]
+        public void SetUpBeforeEveryTest() 
+        {
+            FreeGrabbableService freeGrabbableService = FreeGrabbableServiceStubFactory.Create(interactorContainer: _interactorContainerStub);
 
-            //Get interfaces
-            IV_FreeGrabbable grabbablePluginInterface = v_freeGrabbableStub;
-            IRangedGrabPlayerInteractableIntegrator grabbableRaycastInterface = v_freeGrabbableStub;
-            IRangedGrabInteractionModule grabbablePlayerInterface = grabbableRaycastInterface.RangedGrabInteractionModule;
+            _v_freeGrabbableStub = new(freeGrabbableService);
 
-            //Wire up the customer script to receive the events
-            PluginGrabbableScript pluginScript = Substitute.For<PluginGrabbableScript>();
-            grabbablePluginInterface.OnGrab.AddListener(pluginScript.HandleGrabReceived);
-            grabbablePluginInterface.OnDrop.AddListener(pluginScript.HandleDropReceived);
+            _grabbablePluginInterface = _v_freeGrabbableStub;
 
+            IRangedGrabPlayerInteractableIntegrator grabbableRaycastInterface = _v_freeGrabbableStub;
+            _grabbablePlayerInterface = grabbableRaycastInterface.RangedGrabInteractionModule; 
+
+            _grabbablePluginInterface.OnGrab.AddListener(_customerScript.HandleGrabReceived);
+            _grabbablePluginInterface.OnDrop.AddListener(_customerScript.HandleDropReceived);
+        }
+
+        [Test]
+        public void FreeGrabbable_WhenGrabbed_EmitsToPlugin()
+        {
             //Invoke grab, check customer received the grab, and that the interactorID is set
-            grabbablePlayerInterface.RequestLocalGrab(interactorID);
-            pluginScript.Received(1).HandleGrabReceived();
-            Assert.IsTrue(grabbablePluginInterface.IsGrabbed);
-            Assert.AreEqual(grabbablePluginInterface.MostRecentInteractingClientID, localClientID);
+            _grabbablePlayerInterface.RequestLocalGrab(_interactorID);
+            _customerScript.Received(1).HandleGrabReceived();
+            Assert.IsTrue(_grabbablePluginInterface.IsGrabbed);
+            Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID, _interactorID.ClientID);
 
             //Invoke drop, Check customer received the drop, and that the interactorID is set
-            grabbablePlayerInterface.RequestLocalDrop(interactorID);
-            pluginScript.Received(1).HandleDropReceived();
-            Assert.IsFalse(grabbablePluginInterface.IsGrabbed);
-            Assert.AreEqual(grabbablePluginInterface.MostRecentInteractingClientID, localClientID);
+            _grabbablePlayerInterface.RequestLocalDrop(_interactorID);
+            _customerScript.Received(1).HandleDropReceived();
+            Assert.IsFalse(_grabbablePluginInterface.IsGrabbed);
+            Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID, _interactorID.ClientID);
         }
+
+        [TearDown]
+        public void TearDownAfterEveryTest()
+        {
+            _customerScript.ClearReceivedCalls();  
+
+            _v_freeGrabbableStub.TearDown();
+
+            _grabbablePluginInterface.OnGrab.RemoveAllListeners();
+            _grabbablePluginInterface.OnDrop.RemoveAllListeners();
+            _grabbablePlayerInterface = null;
+            _grabbablePluginInterface = null;      
+        }
+
+        [OneTimeTearDown]
+        public void TearDownOnce() { }
     }
 
     public class PluginGrabbableScript
@@ -72,19 +95,60 @@ namespace VE2.Core.VComponents.Tests
     public class V_FreeGrabbableStub : IV_FreeGrabbable, IRangedGrabPlayerInteractableIntegrator
     {
         #region Plugin Interfaces     
-        IFreeGrabbableStateModule IV_FreeGrabbable._StateModule => _service.StateModule;
-        IRangedGrabInteractionModule IV_FreeGrabbable._RangedGrabModule => _service.RangedGrabInteractionModule;
+        IFreeGrabbableStateModule IV_FreeGrabbable._StateModule => _FreeGrabbableService.StateModule;
+        IRangedGrabInteractionModule IV_FreeGrabbable._RangedGrabModule => _FreeGrabbableService.RangedGrabInteractionModule;
         #endregion
 
         #region Player Interfaces
-        IRangedInteractionModule IRangedPlayerInteractableIntegrator.RangedInteractionModule => _service.RangedGrabInteractionModule;
+        IRangedInteractionModule IRangedPlayerInteractableIntegrator.RangedInteractionModule => _FreeGrabbableService.RangedGrabInteractionModule;
         #endregion
 
-        private readonly FreeGrabbableService _service = null;
+        protected FreeGrabbableService _FreeGrabbableService = null;
 
         public V_FreeGrabbableStub(FreeGrabbableService service)
         {
-            _service = service;
+            _FreeGrabbableService = service;
         }
+
+        public void TearDown()
+        {
+            _FreeGrabbableService.TearDown();
+            _FreeGrabbableService = null;
+        }
+    }
+
+    public static class FreeGrabbableServiceStubFactory
+    {
+        public static FreeGrabbableService Create(
+            List<IHandheldInteractionModule> handheldInteractionModules = null,
+            FreeGrabbableConfig config = null,
+            FreeGrabbableState state = null,
+            string debugName = "debug",
+            WorldStateModulesContainer worldStateModulesContainer = null,
+            InteractorContainer interactorContainer = null,
+            IRigidbodyWrapper rigidbodyWrapper = null,
+            PhysicsConstants physicsConstants = null)
+        {
+            handheldInteractionModules ??= new List<IHandheldInteractionModule>();
+            config ??= new FreeGrabbableConfig();
+            state ??= new FreeGrabbableState();
+            worldStateModulesContainer ??= Substitute.For<WorldStateModulesContainer>();
+            interactorContainer ??= new InteractorContainer();
+            rigidbodyWrapper ??= Substitute.For<IRigidbodyWrapper>();
+            physicsConstants ??= new PhysicsConstants();
+
+            FreeGrabbableService freeGrabbableService = new(
+                handheldInteractionModules,
+                config,
+                state,
+                debugName,
+                worldStateModulesContainer,
+                interactorContainer,
+                rigidbodyWrapper,
+                physicsConstants);
+
+            return freeGrabbableService;
+        }
+
     }
 }
