@@ -47,20 +47,18 @@ namespace VE2.Core.Tests
     public class MultiplayerSupportSetup
     {
         public static IMultiplayerSupport MultiplayerSupportStub { get; private set; }
-        public static InteractorID InteractorID { get; private set; }
-        public static string InteractorGameobjectName { get; private set; }
+        public static ushort LocalClientID { get; private set; }
 
         [OneTimeSetUp]
         public void MultiplayerSupportStubSetupOnce()
         {
             //Stub out the multiplayer support
             System.Random random = new();
-            ushort localClientID = (ushort)random.Next(0, ushort.MaxValue);
+            LocalClientID = (ushort)random.Next(0, ushort.MaxValue);
 
             MultiplayerSupportStub = Substitute.For<IMultiplayerSupport>();
             MultiplayerSupportStub.IsConnectedToServer.Returns(true);
-            InteractorID = new(localClientID, InteractorType.Mouse2D);
-            InteractorGameobjectName = $"Interactor{InteractorID.ClientID}-{InteractorID.InteractorType}";
+            StubLocalClientIDForMultiplayerSupportStub(LocalClientID);
         }
 
         public static void StubLocalClientIDForMultiplayerSupportStub(ushort localClientID)
@@ -72,14 +70,21 @@ namespace VE2.Core.Tests
     [SetUpFixture]
     public class InteractorSetup
     {
-        public static IInteractor InteractorStub { get; private set; }
-        public static GameObject InteractorGameObject { get; private set; }
-
+        public static InteractorContainer InteractorContainerStub { get; private set; }
         [OneTimeSetUp]
         public void InteractorStubSetupOnce()
         {
-            InteractorStub = Substitute.For<IInteractor>();
-            InteractorGameObject = new();
+            InteractorContainerStub = new();
+        }
+
+        public static void RegisterInteractor(InteractorID interactorID, IInteractor interactor)
+        {
+            InteractorContainerStub.RegisterInteractor(interactorID.ToString(), interactor);
+        }
+
+        public static void DeregisterInteractor(InteractorID interactorID)
+        {
+            InteractorContainerStub.DeregisterInteractor(interactorID.ToString());
         }
     }
 
@@ -99,32 +104,6 @@ namespace VE2.Core.Tests
             RaycastProviderStub
                 .Raycast(default, default, default, default)
                 .ReturnsForAnyArgs(new RaycastResultWrapper(rangedInteractionModule, 0));
-        }
-    }
-
-    [SetUpFixture]
-    public class PlayerServiceSetup
-    {
-        public static PlayerService PlayerServiceStub { get; private set; }
-
-        [OneTimeSetUp]
-        public void SetUpPlayerServiceStub()
-        {
-            //Create the player (2d)
-            PlayerServiceStub = new(
-                new PlayerTransformData(),
-                new PlayerStateConfig(),
-                false,
-                true,
-                new PlayerStateModuleContainer(),
-                new InteractorContainer(),
-                PlayerSettingsProviderSetup.PlayerSettingsProviderStub,
-                Substitute.For<IPlayerAppearanceOverridesProvider>(),
-                MultiplayerSupportSetup.MultiplayerSupportStub,
-                InputHandlerSetup.PlayerInputContainerStubWrapper.PlayerInputContainer,
-                RayCastProviderSetup.RaycastProviderStub, 
-                Substitute.For<IXRManagerWrapper>()
-            );
         }
     }
 

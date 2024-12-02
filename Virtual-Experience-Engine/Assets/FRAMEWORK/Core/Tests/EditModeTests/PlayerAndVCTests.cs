@@ -7,6 +7,8 @@ using UnityEngine;
 using VE2.Core.VComponents.InteractableFindables;
 using VE2.Core.VComponents.Internal;
 using VE2.Core.Common;
+using VE2.Core.Player;
+using VE2.Common;
 
 
 namespace VE2.Core.Tests
@@ -20,10 +22,20 @@ namespace VE2.Core.Tests
         private PluginScriptMock _customerScript;
         private V_ToggleActivatableStub _v_activatableStub;
         private IRangedClickPlayerInteractableIntegrator _activatableRaycastInterface;
+        private PlayerService _playerServiceStub;
 
         //Setup Once for every single test in this test fixture
         [OneTimeSetUp]
         public void SetUpOnce()
+        {
+            //Wire up the customer script to receive the events           
+            _customerScript = Substitute.For<PluginScriptMock>();
+
+        }
+
+        //setup that runs before every test method in this test fixture
+        [SetUp]
+        public void SetUpBeforeEveryTest()
         {
             //Create the activatable
             ToggleActivatableService toggleActivatableService = ToggleActivatableServiceStubFactory.Create();
@@ -33,22 +45,31 @@ namespace VE2.Core.Tests
             _activatablePluginInterface = _v_activatableStub;
             _activatableRaycastInterface = _v_activatableStub;
 
-            //Wire up the customer script to receive the events           
-            _customerScript = Substitute.For<PluginScriptMock>();
             _activatablePluginInterface.OnActivate.AddListener(_customerScript.HandleActivateReceived);
             _activatablePluginInterface.OnDeactivate.AddListener(_customerScript.HandleDeactivateReceived);
-        }
 
-        //setup that runs before every test method in this test fixture
-        [SetUp]
-        public void SetUpBeforeEveryTest() { }
+            _playerServiceStub = new(
+                new PlayerTransformData(),
+                new PlayerStateConfig(),
+                false,
+                true,
+                new PlayerStateModuleContainer(),
+                InteractorSetup.InteractorContainerStub,
+                PlayerSettingsProviderSetup.PlayerSettingsProviderStub,
+                Substitute.For<IPlayerAppearanceOverridesProvider>(),
+                MultiplayerSupportSetup.MultiplayerSupportStub,
+                InputHandlerSetup.PlayerInputContainerStubWrapper.PlayerInputContainer,
+                RayCastProviderSetup.RaycastProviderStub, 
+                Substitute.For<IXRManagerWrapper>()
+            );
+        }
 
         //test method to confirm that the activatable emits the correct events when the player interacts with it
         [Test]
         public void OnUserClick_WithHoveringActivatable_CustomerScriptReceivesOnActivate( [Random((ushort) 0, ushort.MaxValue, 1)] ushort localClientID)
         {
             RayCastProviderSetup.StubRangedInteractionModuleForRaycastProviderStub(_activatableRaycastInterface.RangedClickInteractionModule);
-            MultiplayerSupportSetup.MultiplayerSupportStub.LocalClientID.Returns(localClientID);
+            MultiplayerSupportSetup.StubLocalClientIDForMultiplayerSupportStub(localClientID);
 
             //Check customer received the activation, and that the interactorID is set
             InputHandlerSetup.PlayerInputContainerStubWrapper.RangedClick2D.OnPressed += Raise.Event<Action>();
@@ -68,17 +89,19 @@ namespace VE2.Core.Tests
         public void TearDownAfterEveryTest()
         {
             _customerScript.ClearReceivedCalls();
-            _activatablePluginInterface.IsActivated = false;
+
+            _activatablePluginInterface.OnActivate.RemoveAllListeners();
+            _activatablePluginInterface.OnDeactivate.RemoveAllListeners();            
+
+            _v_activatableStub.TearDown();
+            _activatablePluginInterface = null;
+            _activatableRaycastInterface = null;
+            
+            _playerServiceStub.TearDown();
         }
 
         //tear down that runs once after all the tests in this class
         [OneTimeTearDown]
-        public void TearDownOnce()
-        {
-            _activatablePluginInterface.OnActivate.RemoveAllListeners();
-            _activatablePluginInterface.OnDeactivate.RemoveAllListeners();
-
-            _v_activatableStub.TearDown();
-        }
+        public void TearDownOnce() { }
     }
 }

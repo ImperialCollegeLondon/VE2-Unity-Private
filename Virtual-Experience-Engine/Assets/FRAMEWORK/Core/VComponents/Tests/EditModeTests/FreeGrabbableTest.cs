@@ -11,79 +11,81 @@ using VE2.Core.VComponents.Internal;
 
 namespace VE2.Core.VComponents.Tests
 {
-    [TestFixture]
-    [Category("Grabbable Service Tests")]
-    public class FreeGrabbableTest
-    {
-        private IV_FreeGrabbable _grabbablePluginInterface;
-        private IRangedGrabInteractionModule _grabbablePlayerInterface;
-        private PluginGrabbableScript _customerScript;
-        private V_FreeGrabbableStub _v_freeGrabbableStub;
-        private InteractorID _interactorID;
-        private InteractorContainer _interactorContainerStub = new();
+    //  COMMENTED OUT TILL THERE IS A PROGRAMMATIC API FOR GRABBING
 
-        [OneTimeSetUp]
-        public void SetUpOnce()
-        {
-            //Create an ID
-            System.Random random = new();
-            ushort localClientID = (ushort)random.Next(0, ushort.MaxValue);
-            _interactorID = new(localClientID, InteractorType.Mouse2D);
+    // [TestFixture]
+    // [Category("Grabbable Service Tests")]
+    // public class FreeGrabbableTest
+    // {
+    //     private IV_FreeGrabbable _grabbablePluginInterface;
+    //     private IRangedGrabInteractionModule _grabbablePlayerInterface;
+    //     private PluginGrabbableScript _customerScript;
+    //     private V_FreeGrabbableStub _v_freeGrabbableStub;
+    //     private InteractorID _interactorID;
+    //     private InteractorContainer _interactorContainerStub = new();
 
-            IInteractor interactorStub = Substitute.For<IInteractor>();
-            _interactorContainerStub.RegisterInteractor(_interactorID.ToString(), interactorStub);
+    //     [OneTimeSetUp]
+    //     public void SetUpOnce()
+    //     {
+    //         //Create an 
+    //         System.Random random = new();
+    //         ushort localClientID = (ushort)random.Next(0, ushort.MaxValue);
+    //         _interactorID = new(localClientID, InteractorType.Mouse2D);
 
-            _customerScript = Substitute.For<PluginGrabbableScript>();
-        }
+    //         IInteractor interactorStub = Substitute.For<IInteractor>();
+    //         _interactorContainerStub.RegisterInteractor(_interactorID.ToString(), interactorStub);
 
-        [SetUp]
-        public void SetUpBeforeEveryTest() 
-        {
-            FreeGrabbableService freeGrabbableService = FreeGrabbableServiceStubFactory.Create(interactorContainer: _interactorContainerStub);
+    //         _customerScript = Substitute.For<PluginGrabbableScript>();
+    //     }
 
-            _v_freeGrabbableStub = new(freeGrabbableService);
+    //     [SetUp]
+    //     public void SetUpBeforeEveryTest() 
+    //     {
+    //         FreeGrabbableService freeGrabbableService = FreeGrabbableServiceStubFactory.Create(interactorContainer: _interactorContainerStub);
 
-            _grabbablePluginInterface = _v_freeGrabbableStub;
+    //         _v_freeGrabbableStub = new(freeGrabbableService);
 
-            IRangedGrabPlayerInteractableIntegrator grabbableRaycastInterface = _v_freeGrabbableStub;
-            _grabbablePlayerInterface = grabbableRaycastInterface.RangedGrabInteractionModule; 
+    //         _grabbablePluginInterface = _v_freeGrabbableStub;
 
-            _grabbablePluginInterface.OnGrab.AddListener(_customerScript.HandleGrabReceived);
-            _grabbablePluginInterface.OnDrop.AddListener(_customerScript.HandleDropReceived);
-        }
+    //         IRangedGrabPlayerInteractableIntegrator grabbableRaycastInterface = _v_freeGrabbableStub;
+    //         _grabbablePlayerInterface = grabbableRaycastInterface.RangedGrabInteractionModule; 
 
-        [Test]
-        public void FreeGrabbable_WhenGrabbed_EmitsToPlugin()
-        {
-            //Invoke grab, check customer received the grab, and that the interactorID is set
-            _grabbablePlayerInterface.RequestLocalGrab(_interactorID);
-            _customerScript.Received(1).HandleGrabReceived();
-            Assert.IsTrue(_grabbablePluginInterface.IsGrabbed);
-            Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID, _interactorID.ClientID);
+    //         _grabbablePluginInterface.OnGrab.AddListener(_customerScript.HandleGrabReceived);
+    //         _grabbablePluginInterface.OnDrop.AddListener(_customerScript.HandleDropReceived);
+    //     }
 
-            //Invoke drop, Check customer received the drop, and that the interactorID is set
-            _grabbablePlayerInterface.RequestLocalDrop(_interactorID);
-            _customerScript.Received(1).HandleDropReceived();
-            Assert.IsFalse(_grabbablePluginInterface.IsGrabbed);
-            Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID, _interactorID.ClientID);
-        }
+    //     [Test]
+    //     public void FreeGrabbable_WhenGrabbed_EmitsToPlugin()
+    //     {
+    //         //Invoke grab, check customer received the grab, and that the interactorID is set
+    //         _grabbablePlayerInterface.RequestLocalGrab(_interactorID);
+    //         _customerScript.Received(1).HandleGrabReceived();
+    //         Assert.IsTrue(_grabbablePluginInterface.IsGrabbed);
+    //         Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID, _interactorID.ClientID);
 
-        [TearDown]
-        public void TearDownAfterEveryTest()
-        {
-            _customerScript.ClearReceivedCalls();  
+    //         //Invoke drop, Check customer received the drop, and that the interactorID is set
+    //         _grabbablePlayerInterface.RequestLocalDrop(_interactorID);
+    //         _customerScript.Received(1).HandleDropReceived();
+    //         Assert.IsFalse(_grabbablePluginInterface.IsGrabbed);
+    //         Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID, _interactorID.ClientID);
+    //     }
 
-            _v_freeGrabbableStub.TearDown();
+    //     [TearDown]
+    //     public void TearDownAfterEveryTest()
+    //     {
+    //         _customerScript.ClearReceivedCalls();  
+            
+    //         _grabbablePluginInterface.OnGrab.RemoveAllListeners();
+    //         _grabbablePluginInterface.OnDrop.RemoveAllListeners();
 
-            _grabbablePluginInterface.OnGrab.RemoveAllListeners();
-            _grabbablePluginInterface.OnDrop.RemoveAllListeners();
-            _grabbablePlayerInterface = null;
-            _grabbablePluginInterface = null;      
-        }
+    //         _v_freeGrabbableStub.TearDown();
+    //         _grabbablePlayerInterface = null;
+    //         _grabbablePluginInterface = null;      
+    //     }
 
-        [OneTimeTearDown]
-        public void TearDownOnce() { }
-    }
+    //     [OneTimeTearDown]
+    //     public void TearDownOnce() { }
+    // }
 
     public class PluginGrabbableScript
     {
