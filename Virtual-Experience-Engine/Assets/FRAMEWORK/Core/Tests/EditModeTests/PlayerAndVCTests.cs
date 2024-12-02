@@ -66,22 +66,21 @@ namespace VE2.Core.Tests
 
         //test method to confirm that the activatable emits the correct events when the player interacts with it
         [Test]
-        public void OnUserClick_WithHoveringActivatable_CustomerScriptReceivesOnActivate( [Random((ushort) 0, ushort.MaxValue, 1)] ushort localClientID)
+        public void WithHoveringActivatable_OnUserClick_CustomerScriptReceivesOnActivate()
         {
             RayCastProviderSetup.StubRangedInteractionModuleForRaycastProviderStub(_activatableRaycastInterface.RangedClickInteractionModule);
-            MultiplayerSupportSetup.StubLocalClientIDForMultiplayerSupportStub(localClientID);
 
             //Check customer received the activation, and that the interactorID is set
             InputHandlerSetup.PlayerInputContainerStubWrapper.RangedClick2D.OnPressed += Raise.Event<Action>();
             _customerScript.Received(1).HandleActivateReceived();
             Assert.IsTrue(_activatablePluginInterface.IsActivated, "Activatable should be activated");
-            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, localClientID);
+            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, MultiplayerSupportSetup.LocalClientID);
 
             // Invoke the click to deactivate
             InputHandlerSetup.PlayerInputContainerStubWrapper.RangedClick2D.OnPressed += Raise.Event<Action>();
             _customerScript.Received(1).HandleDeactivateReceived();
             Assert.IsFalse(_activatablePluginInterface.IsActivated, "Activatable should be deactivated");
-            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, localClientID);
+            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, MultiplayerSupportSetup.LocalClientID);
         }
 
         //tear down that runs after every test method in this test fixture

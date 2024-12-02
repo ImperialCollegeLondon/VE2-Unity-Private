@@ -57,7 +57,7 @@ namespace VE2.Core.Tests
         }
         
         [Test]
-        public void OnUserGrab_WithHoveringGrabbable_CustomerScriptReceivesOnGrab()
+        public void WithHoveringGrabbable_OnUserGrab_CustomerScriptReceivesOnGrab()
         {
             RayCastProviderSetup.StubRangedInteractionModuleForRaycastProviderStub(_grabbableRaycastInterface.RangedGrabInteractionModule);
 
