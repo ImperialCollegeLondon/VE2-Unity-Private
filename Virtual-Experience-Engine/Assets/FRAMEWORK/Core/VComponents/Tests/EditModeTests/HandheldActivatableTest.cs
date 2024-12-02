@@ -101,7 +101,7 @@ namespace VE2.Core.VComponents.Tests
         {
             config ??= new HandheldActivatableConfig();
             stateModule ??= new SingleInteractorActivatableState();
-            worldStateModulesContainer ??= new WorldStateModulesContainer();
+            worldStateModulesContainer ??=  Substitute.For<WorldStateModulesContainer>();
 
             HandheldActivatableService handheldActivatable = new HandheldActivatableService(config, stateModule, debugName, worldStateModulesContainer);
 
