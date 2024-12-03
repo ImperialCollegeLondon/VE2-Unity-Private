@@ -17,7 +17,6 @@ namespace VE2.Core.Tests
     [Category("Player and ToggleActivatable Tests")]
     public class PlayerAndToggleActivatableTests
     {
-        //variables that will be reused in the tests
         private IV_ToggleActivatable _activatablePluginInterface;
         private PluginActivatableMock _customerScript;
         private V_ToggleActivatableStub _v_activatableStub;

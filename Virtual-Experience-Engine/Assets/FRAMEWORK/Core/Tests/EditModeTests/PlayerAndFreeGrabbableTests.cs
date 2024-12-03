@@ -24,12 +24,14 @@ namespace VE2.Core.Tests
         [OneTimeSetUp]
         public void SetUpOnce()
         {
+            //substitute for the customer script
             _customerScript = Substitute.For<PluginGrabbableScript>();
         }
 
         [SetUp]
         public void SetUpBeforeEveryTest()
         {           
+            //Create the free grabbable
             FreeGrabbableService freeGrabbableService = FreeGrabbableServiceStubFactory.Create(interactorContainer: InteractorSetup.InteractorContainerStub);
 
             _v_freeGrabbableStub = new(freeGrabbableService);
@@ -37,9 +39,11 @@ namespace VE2.Core.Tests
             _grabbablePluginInterface = _v_freeGrabbableStub;
             _grabbableRaycastInterface = _v_freeGrabbableStub;
 
+            //hook up the listeners to the IV_grabbable
             _grabbablePluginInterface.OnGrab.AddListener(_customerScript.HandleGrabReceived);
             _grabbablePluginInterface.OnDrop.AddListener(_customerScript.HandleDropReceived);
 
+            //Create the player service
             _playerServiceStub = new(
                 new PlayerTransformData(),
                 new PlayerStateConfig(),
@@ -59,6 +63,7 @@ namespace VE2.Core.Tests
         [Test]
         public void WithHoveringGrabbable_OnUserGrab_CustomerScriptReceivesOnGrab()
         {
+            //stub the result of the raycast to return the grabbable's interaction module
             RayCastProviderSetup.StubRangedInteractionModuleForRaycastProviderStub(_grabbableRaycastInterface.RangedGrabInteractionModule);
 
             //Invoke grab, check customer received the grab, and that the interactorID is set

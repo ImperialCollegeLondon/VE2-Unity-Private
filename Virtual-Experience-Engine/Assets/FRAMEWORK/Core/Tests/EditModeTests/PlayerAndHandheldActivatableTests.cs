@@ -19,25 +19,30 @@ namespace VE2.Core.Tests
     [Category("Player and Handheld Activatable Tests")]
     public class PlayerAndHandheldActivatableTests
     {
+        //handheld activatable
         private IV_HandheldActivatable _handheldActivatablePluginInterface;
         private IHandheldClickInteractionModule _handheldActivatablePlayerInterface;
-        private PluginActivatableMock _customerScript;
         private V_HandheldActivatableStub _v_handheldActivatableStub;
 
+        //free grabbable
         private IV_FreeGrabbable _grabbablePluginInterface;
         private IRangedGrabPlayerInteractableIntegrator _grabbableRaycastInterface;
         private V_FreeGrabbableStub _v_freeGrabbableStub;
+
+        private PluginActivatableMock _customerScript;
         private PlayerService _playerServiceStub;
 
         [OneTimeSetUp]
         public void SetUpOnce()
         {
+            //substitute for the customer script
             _customerScript = Substitute.For<PluginActivatableMock>();
         }
 
         [SetUp]
         public void SetUpBeforeEveryTest()
         {
+            //create the handheld activatable
             HandheldActivatableService handheldActivatable = HandheldActivatableServiceStubFactory.Create();
 
             _v_handheldActivatableStub = new(handheldActivatable);
@@ -48,6 +53,7 @@ namespace VE2.Core.Tests
             _handheldActivatablePluginInterface.OnActivate.AddListener(_customerScript.HandleActivateReceived);
             _handheldActivatablePluginInterface.OnDeactivate.AddListener(_customerScript.HandleDeactivateReceived);
 
+            //create the free grabbable
             FreeGrabbableService freeGrabbableService = FreeGrabbableServiceStubFactory.Create(
                 handheldInteractionModules: new List<IHandheldInteractionModule> {_handheldActivatablePlayerInterface},
                 interactorContainer: InteractorSetup.InteractorContainerStub);
@@ -57,6 +63,7 @@ namespace VE2.Core.Tests
             _grabbablePluginInterface = _v_freeGrabbableStub;
             _grabbableRaycastInterface = _v_freeGrabbableStub;
 
+            //create the player service
             _playerServiceStub = new(
                 new PlayerTransformData(),
                 new PlayerStateConfig(),
@@ -76,6 +83,7 @@ namespace VE2.Core.Tests
         [Test]
         public void WithHandheldActivatable_OnUserClick_CustomerScriptReceivesOnActivate()
         {
+            //stub out the raycast result to return the grabbable's interaction module
             RayCastProviderSetup.StubRangedInteractionModuleForRaycastProviderStub(_grabbableRaycastInterface.RangedGrabInteractionModule);
 
             //Invoke grab, check customer received the grab, and that the interactorID is set
