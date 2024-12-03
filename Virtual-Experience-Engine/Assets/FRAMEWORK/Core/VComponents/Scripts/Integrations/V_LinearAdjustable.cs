@@ -6,6 +6,7 @@ using VE2.Core.VComponents.PluginInterfaces;
 using VE2.Core.VComponents.InteractableInterfaces;
 using VE2.Core.VComponents.Internal;
 using System.Collections.Generic;
+using VE2.Common.TransformWrapper;
 
 namespace VE2.Core.VComponents.Integration
 {
@@ -46,15 +47,15 @@ namespace VE2.Core.VComponents.Integration
             _transformWrapper = new(GetComponent<Transform>());
 
             _service = new LinearAdjustableService(
-                transform,
+                _transformWrapper,
                 handheldInteractions,
                 _config,
                 _adjustableState,
                 _freeGrabbableState,
                 id,
                 VE2CoreServiceLocator.Instance.WorldStateModulesContainer,
-                VE2CoreServiceLocator.Instance.InteractorContainer,
-                _transformWrapper);
+                VE2CoreServiceLocator.Instance.InteractorContainer
+                );
         }
 
         private void FixedUpdate()

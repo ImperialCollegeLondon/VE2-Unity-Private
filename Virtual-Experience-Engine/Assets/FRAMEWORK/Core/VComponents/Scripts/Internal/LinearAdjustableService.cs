@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using VE2.Common;
+using VE2.Common.TransformWrapper;
 using VE2.Core.VComponents.InteractableInterfaces;
 using VE2.Core.VComponents.NonInteractableInterfaces;
 using static VE2.Common.CommonSerializables;
@@ -32,12 +33,12 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         private ITransformWrapper _transformWrapper;
-        public LinearAdjustableService(Transform transform, List<IHandheldInteractionModule> handheldInteractions, LinearAdjustableConfig config, VE2Serializable adjustableState, VE2Serializable grabbableState, string id,
-            WorldStateModulesContainer worldStateModulesContainer, InteractorContainer interactorContainer, ITransformWrapper transformWrapper)
+        public LinearAdjustableService(ITransformWrapper transformWrapper, List<IHandheldInteractionModule> handheldInteractions, LinearAdjustableConfig config, VE2Serializable adjustableState, VE2Serializable grabbableState, string id,
+            WorldStateModulesContainer worldStateModulesContainer, InteractorContainer interactorContainer)
         {
             _AdjustableStateModule = new(adjustableState, config.adjustableStateConfig, id, worldStateModulesContainer);
             _FreeGrabbableStateModule = new(grabbableState, config.grabbableStateConfig, id, worldStateModulesContainer, interactorContainer, RangedAdjustableInteractionModule);
-            _RangedAdjustableInteractionModule = new(transform, handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
+            _RangedAdjustableInteractionModule = new(transformWrapper, handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
 
             _transformWrapper = transformWrapper;
 

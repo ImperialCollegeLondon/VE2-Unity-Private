@@ -1,10 +1,7 @@
 {
-    "name": "VE2.Core.VComponents.InteractableInterfaces",
+    "name": "VE2_Common_TransforWrapper",
     "rootNamespace": "",
-    "references": [
-        "GUID:5188de2cbdf00b3468a0a01134cfce3c",
-        "GUID:a8e08770ed3c42848b5776594ec91366"
-    ],
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

@@ -1,5 +1,5 @@
 using UnityEngine;
-namespace VE2.Common
+namespace VE2.Common.TransformWrapper
 {
     public interface ITransformWrapper
     {
