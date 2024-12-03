@@ -38,6 +38,9 @@ public class PluginTest : MonoBehaviour
         _freeGrabbable.OnGrab.AddListener(OnFreeGrabbableGrab);
         _freeGrabbable.OnDrop.AddListener(OnFreeGrabbableDrop);
 
+        _linearAdjustable.OnGrab.AddListener(OnLinearAdjustableGrab);
+        _linearAdjustable.OnDrop.AddListener(OnLinearAdjustableDrop);
+
         _handheldActivatable.OnActivate.AddListener(OnHandheldActivatableActivate);
         _handheldActivatable.OnDeactivate.AddListener(OnHandheldActivatableDeactivate);
         _handheldAdjustable.OnValueAdjusted.AddListener(OnHandheldAdjustableValueAdjusted);
@@ -81,6 +84,18 @@ public class PluginTest : MonoBehaviour
     {
         Debug.Log("Free Grabbable dropped!");
         Debug.Log($"Free Grabbable State = {_freeGrabbable.IsGrabbed}");
+    }
+
+    public void OnLinearAdjustableGrab()
+    {
+        Debug.Log("Adjustable grabbed!");
+        Debug.Log($"Adjustable State = {_linearAdjustable.IsGrabbed}");
+    }
+
+    public void OnLinearAdjustableDrop()
+    {
+        Debug.Log("Adjustable dropped!");
+        Debug.Log($"Adjustable State = {_linearAdjustable.IsGrabbed}");
     }
 
     // Update is called once per frame
