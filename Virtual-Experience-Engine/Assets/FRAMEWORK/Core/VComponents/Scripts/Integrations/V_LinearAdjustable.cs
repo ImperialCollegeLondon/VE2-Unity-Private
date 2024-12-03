@@ -36,10 +36,11 @@ namespace VE2.Core.VComponents.Integration
             
             List<IHandheldInteractionModule> handheldInteractions = new(); 
 
-            if(TryGetComponent(out V_HandheldActivatable handheldActivatable))
-                handheldInteractions.Add(handheldActivatable.HandheldClickInteractionModule);
-            if (TryGetComponent(out V_HandheldAdjustable handheldAdjustable))
-                handheldInteractions.Add(handheldAdjustable.HandheldScrollInteractionModule);
+            //TODO: THINK ABOUT THIS
+            // if(TryGetComponent(out V_HandheldActivatable handheldActivatable))
+            //     handheldInteractions.Add(handheldActivatable.HandheldClickInteractionModule);
+            // if (TryGetComponent(out V_HandheldAdjustable handheldAdjustable))
+            //     handheldInteractions.Add(handheldAdjustable.HandheldScrollInteractionModule);
 
             _service = new LinearAdjustableService(
                 transform,

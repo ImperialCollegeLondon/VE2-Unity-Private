@@ -17,6 +17,8 @@ namespace VE2.Core.VComponents.PluginInterfaces
 
         public bool IsGrabbed { get { return _FreeGrabbableStateModule.IsGrabbed; } }
         public float Value { get { return _AdjustableStateModule.Value; } set { _AdjustableStateModule.Value = value; } }
+        public float MinimumValue { get => _AdjustableStateModule.MinimumValue; set => _AdjustableStateModule.MinimumValue = value; }
+        public float MaximumValue { get => _AdjustableStateModule.MaximumValue; set => _AdjustableStateModule.MaximumValue = value; }
 
         public ushort MostRecentInteractingClientID => _FreeGrabbableStateModule.MostRecentInteractingClientID;
         #endregion

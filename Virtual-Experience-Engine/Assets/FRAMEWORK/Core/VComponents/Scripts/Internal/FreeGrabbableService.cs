@@ -29,8 +29,6 @@ namespace VE2.Core.VComponents.Internal
         private readonly RangedGrabInteractionModule _RangedGrabInteractionModule;
         #endregion
 
-        public bool IsGrabbed => _StateModule.IsGrabbed;
-
         private IRigidbodyWrapper _rigidbody;
         private bool _isKinematicOnStart;
         private PhysicsConstants _physicsConstants;

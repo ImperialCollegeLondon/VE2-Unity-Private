@@ -12,6 +12,8 @@ namespace VE2.Core.VComponents.PluginInterfaces
 
         public UnityEvent<float> OnValueAdjusted => _StateModule.OnValueAdjusted;
         public float Value { get { return _StateModule.Value; } set { _StateModule.Value = value; } }
+        public float MinimumValue { get => _StateModule.MinimumValue; set => _StateModule.MinimumValue = value; }
+        public float MaximumValue { get => _StateModule.MaximumValue; set => _StateModule.MaximumValue = value; }
         public ushort MostRecentInteractingClientID => _StateModule.MostRecentInteractingClientID;
         #endregion
 
