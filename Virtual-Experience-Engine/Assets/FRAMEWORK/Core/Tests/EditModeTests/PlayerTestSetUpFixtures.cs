@@ -9,15 +9,25 @@ using VE2.Core.Common;
 
 namespace VE2.Core.Tests
 {
-    //public class PlayerSetup { }
-
     [SetUpFixture]
+    public class CoreTestSetUp 
+    {
+        [OneTimeSetUp]
+        public void SetUp()
+        {
+            PlayerSettingsProviderSetup.PlayerSettingsProviderStubSetup();
+            InputHandlerSetup.InputHandlerStubSetup();
+            MultiplayerSupportSetup.MultiplayerSupportStubSetup();
+            InteractorSetup.InteractorStubSetup();
+            RayCastProviderSetup.RayCastProviderStubSetup();
+        }
+    }
+
     public class PlayerSettingsProviderSetup
     {
         public static IPlayerSettingsProvider PlayerSettingsProviderStub { get; private set; }
 
-        [OneTimeSetUp]
-        public void PlayerSettingsProviderStubSetupOnce()
+        public static void PlayerSettingsProviderStubSetup()
         {
             //Stub out the player settings provider with default settings
             PlayerSettingsProviderStub = Substitute.For<IPlayerSettingsProvider>();
@@ -30,27 +40,23 @@ namespace VE2.Core.Tests
         }
     }
 
-    [SetUpFixture]
     public class InputHandlerSetup
     {
         public static PlayerInputContainerStubWrapper PlayerInputContainerStubWrapper { get; private set; }
 
-        [OneTimeSetUp]
-        public void InputHandlerStubSetupOnce()
+        public static void InputHandlerStubSetup()
         {
             //Stub out the input handler    
             PlayerInputContainerStubWrapper = new();
         }
     }
     
-    [SetUpFixture]
     public class MultiplayerSupportSetup
     {
         public static IMultiplayerSupport MultiplayerSupportStub { get; private set; }
         public static ushort LocalClientID { get; private set; }
 
-        [OneTimeSetUp]
-        public void MultiplayerSupportStubSetupOnce()
+        public static void MultiplayerSupportStubSetup()
         {
             //Stub out the multiplayer support
             System.Random random = new();
@@ -67,12 +73,11 @@ namespace VE2.Core.Tests
         }
     }
 
-    [SetUpFixture]
     public class InteractorSetup
     {
         public static InteractorContainer InteractorContainerStub { get; private set; }
-        [OneTimeSetUp]
-        public void InteractorStubSetupOnce()
+
+        public static void InteractorStubSetup()
         {
             InteractorContainerStub = new();
         }
@@ -88,13 +93,11 @@ namespace VE2.Core.Tests
         }
     }
 
-    [SetUpFixture]
     public class RayCastProviderSetup
     {
         public static IRaycastProvider RaycastProviderStub { get; private set; }
 
-        [OneTimeSetUp]
-        public void RayCastProviderStubSetupOnce()
+        public static void RayCastProviderStubSetup()
         {
             RaycastProviderStub = Substitute.For<IRaycastProvider>();
         }
