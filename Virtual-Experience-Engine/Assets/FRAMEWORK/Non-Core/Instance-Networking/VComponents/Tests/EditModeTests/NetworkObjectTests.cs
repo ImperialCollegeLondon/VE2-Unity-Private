@@ -3,6 +3,7 @@ using NUnit.Framework;
 using VE2.NonCore.Instancing.VComponents.PluginInterfaces;
 using VE2.NonCore.Instancing.VComponents.NonInteractableInterfaces;
 using VE2.NonCore.Instancing.VComponents.Internal;
+using VE2.Common;
 
 namespace VE2.NonCore.Instancing.VComponents.Tests
 {
@@ -11,23 +12,35 @@ namespace VE2.NonCore.Instancing.VComponents.Tests
         [Test]
         public void NetworkObject_WhenObjectIsSet_EmitsToPlugin()
         {
-            //Arrange=========
-            //  Create the NetworkObjectService, injecting default configs 
-            //  Create a stub for the VC (MonoBehaviour integration layer), injecting the service (See PushActivatableTests for this)
-            //  Get the plugin-facing interface out of the VC 
-            //  Create a substitute for the PluginScript, wire it up to the plugin interface 
+            // ==========Arrange=========
+            // Create the NetworkObjectService, injecting default configs 
+            NetworkObjectService networkObjectService = new(new NetworkObjectStateConfig(), new NetworkObjectState(), "debug", Substitute.For<WorldStateModulesContainer>());
 
-            //Act=========
-            //  Programmatically set the network object 
+            // Create a stub for the VC (MonoBehaviour integration layer), injecting the service
+            V_NetworkObjectStub v_networkObjectStub = new(networkObjectService);
 
-            //Assert=========
-            //  Check the plugin script mock reveived the same object back 
+            // Get the plugin-facing interface out of the VC 
+            IV_NetworkObject networkObjectInterface = v_networkObjectStub;
 
-            //Later on, we'll think about how to do an intergration test, where we get the syncer to set the value on the network object 
+            // Create a substitute for the PluginScript, wire it up to the plugin interface
+            PluginScriptMock customerScript = Substitute.For<PluginScriptMock>();
+            networkObjectInterface.OnStateChange.AddListener(customerScript.HandleObjectReceived);
+
+            // ===========Act============
+            // Create a serializable object to send, which can be an int for now
+            System.Random random = new();
+            int serializableObject = random.Next(int.MinValue, int.MaxValue);
+
+            // Programmatically set the network object
+            networkObjectInterface.NetworkObject = serializableObject;
+
+            // ===========Assert=========
+            // Check the customer received the same object
+            customerScript.Received(1).HandleObjectReceived(serializableObject);
         }
     }
 
-    public class PluginScript
+    public class PluginScriptMock
     {
         public virtual void HandleObjectReceived(object obj) { } //Virtual so the method can be mocked (so we can assert it was called with the right object)
     }
