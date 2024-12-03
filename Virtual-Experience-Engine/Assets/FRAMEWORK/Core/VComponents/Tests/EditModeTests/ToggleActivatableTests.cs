@@ -14,16 +14,17 @@ namespace VE2.Core.VComponents.Tests
     [Category("Activatable Service Tests")]
     public class ToggleActivatableTests
     {
-        //variables that will be reused in the tests
+        //Toggle activatable
         private IV_ToggleActivatable _activatablePluginInterface;
-        private PluginActivatableMock _customerScript;
         private V_ToggleActivatableStub _v_activatableStub;
+
+        private PluginActivatableMock _customerScript;
 
         //Setup Once for every single test in this test class
         [OneTimeSetUp]
         public void SetUpOnce()
         {
-            //Wire up the customer script to receive the events           
+            //Substitute for the customer script           
             _customerScript = Substitute.For<PluginActivatableMock>();
         }
 

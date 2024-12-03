@@ -47,9 +47,11 @@ namespace VE2.Core.Tests
 
             _v_handheldActivatableStub = new(handheldActivatable);
 
+            //get handheld activatable interfaces
             _handheldActivatablePluginInterface = _v_handheldActivatableStub;
             _handheldActivatablePlayerInterface = handheldActivatable.HandheldClickInteractionModule;
 
+            //wire up the customer script to receive the events
             _handheldActivatablePluginInterface.OnActivate.AddListener(_customerScript.HandleActivateReceived);
             _handheldActivatablePluginInterface.OnDeactivate.AddListener(_customerScript.HandleDeactivateReceived);
 
@@ -60,6 +62,7 @@ namespace VE2.Core.Tests
 
             _v_freeGrabbableStub = new(freeGrabbableService);
 
+            //get free grabbable interfaces
             _grabbablePluginInterface = _v_freeGrabbableStub;
             _grabbableRaycastInterface = _v_freeGrabbableStub;
 

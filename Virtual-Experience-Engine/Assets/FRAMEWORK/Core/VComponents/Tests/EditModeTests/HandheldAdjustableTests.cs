@@ -14,9 +14,11 @@ namespace VE2.Core.VComponents.Tests
     [Category("Handheld Adjustable Tests")]
     public class HandheldAdjustableTests
     {
-        private PluginAdjustableMock _customerScript;
+        //handheld adjustable
         private IV_HandheldAdjustable _handheldAdjustablePluginInterface;
         private V_HandheldAdjustableStub _v_handheldAdjustableStub;
+
+        private PluginAdjustableMock _customerScript;
 
         [OneTimeSetUp]
         public void SetUpOnce()
@@ -28,17 +30,21 @@ namespace VE2.Core.VComponents.Tests
         [SetUp]
         public void SetUpBeforeEveryTest()
         {
+            //create the handheld adjustable
             HandheldAdjustableService handheldAdjustable = HandheldAdjustableServiceStubFactory.Create();
             _v_handheldAdjustableStub = new(handheldAdjustable);
 
+            //hook up interfaces
             _handheldAdjustablePluginInterface = _v_handheldAdjustableStub;
 
+            //wire up the customer script to receive the events
             _handheldAdjustablePluginInterface.OnValueAdjusted.AddListener(_customerScript.HandleValueAdjusted);
         }
 
         [Test]
         public void HandheldAdjustable_WhenAdjustedByPlugin_EmitsToPlugin([Random(0f, 1f, 1)] float randomValue)
         {
+            //set the adjustable value, Check customer received the value adjusted, and that the interactorID is set
             _handheldAdjustablePluginInterface.Value = randomValue;
             _customerScript.Received(1).HandleValueAdjusted(randomValue);
             Assert.IsTrue(_handheldAdjustablePluginInterface.Value == randomValue);

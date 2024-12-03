@@ -15,10 +15,12 @@ namespace VE2.Core.Tests
     [Category("Player and FreeGrabbable Tests")]
     public class PlayerAndFreeGrabbableTests
     {
+        //free grabbable
         private IV_FreeGrabbable _grabbablePluginInterface;
         private IRangedGrabPlayerInteractableIntegrator _grabbableRaycastInterface;
-        private PluginGrabbableScript _customerScript;
         private V_FreeGrabbableStub _v_freeGrabbableStub;
+
+        private PluginGrabbableScript _customerScript;
         private PlayerService _playerServiceStub;
 
         [OneTimeSetUp]
@@ -36,6 +38,7 @@ namespace VE2.Core.Tests
 
             _v_freeGrabbableStub = new(freeGrabbableService);
 
+            //get interfaces
             _grabbablePluginInterface = _v_freeGrabbableStub;
             _grabbableRaycastInterface = _v_freeGrabbableStub;
 

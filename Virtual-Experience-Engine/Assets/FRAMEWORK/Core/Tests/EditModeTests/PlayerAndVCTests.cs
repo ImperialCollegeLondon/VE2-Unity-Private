@@ -17,10 +17,12 @@ namespace VE2.Core.Tests
     [Category("Player and ToggleActivatable Tests")]
     public class PlayerAndToggleActivatableTests
     {
+        //toggle activatable
         private IV_ToggleActivatable _activatablePluginInterface;
-        private PluginActivatableMock _customerScript;
         private V_ToggleActivatableStub _v_activatableStub;
         private IRangedClickPlayerInteractableIntegrator _activatableRaycastInterface;
+
+        private PluginActivatableMock _customerScript;
         private PlayerService _playerServiceStub;
 
         //Setup Once for every single test in this test fixture
@@ -40,10 +42,11 @@ namespace VE2.Core.Tests
             ToggleActivatableService toggleActivatableService = ToggleActivatableServiceStubFactory.Create();
             _v_activatableStub = new(toggleActivatableService);
 
-            //hook up interfaces
+            //get interfaces
             _activatablePluginInterface = _v_activatableStub;
             _activatableRaycastInterface = _v_activatableStub;
 
+            //hook up the listeners to the IV_activatable
             _activatablePluginInterface.OnActivate.AddListener(_customerScript.HandleActivateReceived);
             _activatablePluginInterface.OnDeactivate.AddListener(_customerScript.HandleDeactivateReceived);
 

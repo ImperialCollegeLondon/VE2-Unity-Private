@@ -15,24 +15,30 @@ namespace VE2.Core.VComponents.Tests
     [Category("Handheld Activatable Service Tests")]
     public class HandheldActivatableTest
     {
+        //handheld activatable
         private IV_HandheldActivatable _handheldActivatablePluginInterface;
-        private PluginActivatableMock _customerScript;
         private V_HandheldActivatableStub _v_handheldActivatableStub;
+
+        private PluginActivatableMock _customerScript;
 
         [OneTimeSetUp]
         public void SetUpOnce()
         {
+            //substitute for the customer script
             _customerScript = Substitute.For<PluginActivatableMock>();
         }
 
         [SetUp]
         public void SetUp()
         {
+            //create the handheld activatable
             HandheldActivatableService handheldActivatable = HandheldActivatableServiceStubFactory.Create();
             _v_handheldActivatableStub = new(handheldActivatable);
 
+            //get interfaces
             _handheldActivatablePluginInterface = _v_handheldActivatableStub;
 
+            //wire up the customer script to receive the events
             _handheldActivatablePluginInterface.OnActivate.AddListener(_customerScript.HandleActivateReceived);
             _handheldActivatablePluginInterface.OnDeactivate.AddListener(_customerScript.HandleDeactivateReceived);
         }
