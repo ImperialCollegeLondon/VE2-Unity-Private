@@ -17,6 +17,7 @@ public class PluginTest : MonoBehaviour
     [SerializeField] private GameObject _handheldActivatableGO;
     [SerializeField] private GameObject _handheldAdjustableGO;
     [SerializeField] private GameObject _networkObjectGO;
+    [SerializeField] private GameObject _linearAdjustableGO;
 
 
     private IV_ToggleActivatable _pushActivatable => _pushButtonGO.GetComponent<IV_ToggleActivatable>();
@@ -24,6 +25,7 @@ public class PluginTest : MonoBehaviour
     private IV_HandheldActivatable _handheldActivatable => _handheldActivatableGO.GetComponent<IV_HandheldActivatable>();
     private IV_HandheldAdjustable _handheldAdjustable => _handheldAdjustableGO.GetComponent<IV_HandheldAdjustable>();
     private IV_NetworkObject _networkObject => _networkObjectGO.GetComponent<IV_NetworkObject>();
+    private IV_LinearAdjustable _linearAdjustable => _linearAdjustableGO.GetComponent<IV_LinearAdjustable>();
 
     private int _counter = 0;
 
@@ -39,6 +41,8 @@ public class PluginTest : MonoBehaviour
         _handheldActivatable.OnActivate.AddListener(OnHandheldActivatableActivate);
         _handheldActivatable.OnDeactivate.AddListener(OnHandheldActivatableDeactivate);
         _handheldAdjustable.OnValueAdjusted.AddListener(OnHandheldAdjustableValueAdjusted);
+
+        _linearAdjustable.OnValueAdjusted.AddListener(OnLinearAdjustableValueAdjusted);
 
         _networkObject.OnStateChange.AddListener(HandleNetworkObjectStateChange);
 
@@ -97,6 +101,10 @@ public class PluginTest : MonoBehaviour
             _handheldAdjustable.Value--;
         else if (Keyboard.current.digit6Key.wasPressedThisFrame)
             _handheldAdjustable.Value++;
+        else if(Keyboard.current.digit7Key.wasPressedThisFrame)
+        {
+            _linearAdjustable.Value = Random.Range(_linearAdjustable.MinimumValue, _linearAdjustable.MaximumValue);
+        }
 
     }
 
@@ -116,6 +124,12 @@ public class PluginTest : MonoBehaviour
     {
         Debug.Log("Handheld Adjustable Adjusted!");
         Debug.Log($"Handheld Adjustable Value = {_handheldAdjustable.Value}");
+    }
+
+    private void OnLinearAdjustableValueAdjusted(float value)
+    {
+        Debug.Log("Linear Adjustable Adjusted!");
+        Debug.Log($"Linear Adjustable Value = {_linearAdjustable.Value}");
     }
 
     private void HandleNetworkObjectStateChange(object data)
