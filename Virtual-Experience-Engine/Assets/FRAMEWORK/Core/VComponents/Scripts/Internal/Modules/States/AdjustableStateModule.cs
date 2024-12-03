@@ -9,7 +9,6 @@ using static VE2.Common.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
 {
-
     [Serializable]
     public class AdjustableStateConfig : BaseStateConfig
     {
