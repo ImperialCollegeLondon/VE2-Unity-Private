@@ -35,6 +35,8 @@ namespace VE2.Core.VComponents.Internal
         internal bool IsAtMinimumValue => Value == _config.MinimumValue;
         internal bool IsAtMaximumValue => Value == _config.MaximumValue;
 
+        internal event Action<float> OnValueChanged;
+
         public AdjustableStateModule(CommonSerializables.VE2Serializable state, BaseStateConfig config, string id, WorldStateModulesContainer worldStateModulesContainer) : base(state, config, id, worldStateModulesContainer)
         {
             if (_config.EmitValueOnStart == true)
@@ -65,6 +67,7 @@ namespace VE2.Core.VComponents.Internal
 
             _state.StateChangeNumber++;
 
+            OnValueChanged?.Invoke(value);
             InvokeCustomerOnValueAdjustedEvent(_state.Value);
         }
 

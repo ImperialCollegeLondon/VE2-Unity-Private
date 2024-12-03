@@ -31,18 +31,23 @@ namespace VE2.Core.VComponents.Internal
         private readonly RangedAdjustableInteractionModule _RangedAdjustableInteractionModule;  
         #endregion
 
+        private ITransformWrapper _transformWrapper;
         public LinearAdjustableService(Transform transform, List<IHandheldInteractionModule> handheldInteractions, LinearAdjustableConfig config, VE2Serializable adjustableState, VE2Serializable grabbableState, string id,
-            WorldStateModulesContainer worldStateModulesContainer, InteractorContainer interactorContainer)
+            WorldStateModulesContainer worldStateModulesContainer, InteractorContainer interactorContainer, ITransformWrapper transformWrapper)
         {
             _AdjustableStateModule = new(adjustableState, config.adjustableStateConfig, id, worldStateModulesContainer);
             _FreeGrabbableStateModule = new(grabbableState, config.grabbableStateConfig, id, worldStateModulesContainer, interactorContainer, RangedAdjustableInteractionModule);
             _RangedAdjustableInteractionModule = new(transform, handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
+
+            _transformWrapper = transformWrapper;
 
             _RangedAdjustableInteractionModule.OnLocalInteractorRequestGrab += (InteractorID interactorID) => _FreeGrabbableStateModule.SetGrabbed(interactorID);
             _RangedAdjustableInteractionModule.OnLocalInteractorRequestDrop += (InteractorID interactorID) => _FreeGrabbableStateModule.SetDropped(interactorID);
 
             _FreeGrabbableStateModule.OnGrabConfirmed += OnGrabConfirmed;
             _FreeGrabbableStateModule.OnDropConfirmed += OnDropConfirmed;
+
+            _AdjustableStateModule.OnValueChanged += (float value) => OnStateValueChanged(value);
         }
 
         private void OnGrabConfirmed()
@@ -53,6 +58,11 @@ namespace VE2.Core.VComponents.Internal
         private void OnDropConfirmed()
         {
 
+        }
+
+        private void OnStateValueChanged(float value)
+        {
+            _transformWrapper.localPosition = Vector3.right * value;
         }
 
         public void HandleFixedUpdate()

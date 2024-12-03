@@ -26,6 +26,7 @@ namespace VE2.Core.VComponents.Integration
         #endregion
 
         private LinearAdjustableService _service = null;
+        private TransformWrapper _transformWrapper = null;
 
         private void OnEnable()
         {
@@ -42,6 +43,8 @@ namespace VE2.Core.VComponents.Integration
             // if (TryGetComponent(out V_HandheldAdjustable handheldAdjustable))
             //     handheldInteractions.Add(handheldAdjustable.HandheldScrollInteractionModule);
 
+            _transformWrapper = new(GetComponent<Transform>());
+
             _service = new LinearAdjustableService(
                 transform,
                 handheldInteractions,
@@ -50,7 +53,8 @@ namespace VE2.Core.VComponents.Integration
                 _freeGrabbableState,
                 id,
                 VE2CoreServiceLocator.Instance.WorldStateModulesContainer,
-                VE2CoreServiceLocator.Instance.InteractorContainer);
+                VE2CoreServiceLocator.Instance.InteractorContainer,
+                _transformWrapper);
         }
 
         private void FixedUpdate()
