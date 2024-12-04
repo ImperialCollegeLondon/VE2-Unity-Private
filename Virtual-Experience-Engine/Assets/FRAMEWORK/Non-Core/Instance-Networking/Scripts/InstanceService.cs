@@ -31,6 +31,7 @@ namespace VE2.InstanceNetworking
         public bool IsConnectedToServer => _connectionStateDebugWrapper.ConnectionState == ConnectionState.Connected;
         public event Action OnConnectedToInstance;
         public event Action OnDisconnectedFromInstance;
+        public event Action<ushort> OnHostChanged;
 
         //TODO: Wire in IntertorContainer
         //CommsManager dependencies
@@ -160,7 +161,15 @@ namespace VE2.InstanceNetworking
             OnConnectedToInstance?.Invoke();
         }
 
-        private void HandleReceiveInstanceInfoUpdate(byte[] bytes) =>  _instanceInfoContainer.InstanceInfo = new InstancedInstanceInfo(bytes);
+        private void HandleReceiveInstanceInfoUpdate(byte[] bytes)
+        {
+            ushort previousHostID = _instanceInfoContainer.InstanceInfo.HostID;
+
+            _instanceInfoContainer.InstanceInfo = new InstancedInstanceInfo(bytes);
+
+            if (_instanceInfoContainer.InstanceInfo.HostID != previousHostID)
+                OnHostChanged?.Invoke(_instanceInfoContainer.InstanceInfo.HostID);
+        }
 
         public void NetworkUpdate() 
         {

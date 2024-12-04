@@ -11,6 +11,7 @@ namespace VE2.Common //TODO break into different files
         public bool IsHost { get; }
         public bool IsConnectedToServer { get; }
         public event Action OnConnectedToInstance;
+        public event Action<ushort> OnHostChanged;
 
         //the plugin code always knows whether or not the VCs are actually present, 
         //Which means the VC interface lives in the actual VC

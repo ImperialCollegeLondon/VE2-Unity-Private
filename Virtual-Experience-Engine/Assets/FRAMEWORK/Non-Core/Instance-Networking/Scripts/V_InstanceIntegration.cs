@@ -30,6 +30,7 @@ namespace VE2.InstanceNetworking
         public bool IsConnectedToServer => _connectionStateDebug.ConnectionState == ConnectionState.Connected;
         public event Action OnConnectedToInstance { add => _instanceService.OnConnectedToInstance += value; remove => _instanceService.OnConnectedToInstance -= value; }
         public event Action OnDisconnectedFromInstance { add => _instanceService.OnDisconnectedFromInstance += value; remove => _instanceService.OnDisconnectedFromInstance -= value; }
+        public event Action<ushort> OnHostChanged { add => _instanceService.OnHostChanged += value; remove => _instanceService.OnHostChanged -= value; }
         public ushort LocalClientID => _localClientIDWrapper.LocalClientID;
         public bool IsHost => _instanceService._instanceInfoContainer.IsHost;
         #endregion
