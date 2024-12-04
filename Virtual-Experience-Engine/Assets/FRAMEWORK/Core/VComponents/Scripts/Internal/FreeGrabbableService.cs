@@ -79,12 +79,15 @@ namespace VE2.Core.VComponents.Internal
 
         private void TrackPosition(Vector3 targetPosition)
         {
+            
             Vector3 directionToGrabber = targetPosition - _rigidbody.position;
-            float directionToGrabberMaxVelocityMagnitudeRatio = directionToGrabber.magnitude / _physicsConstants.DefaultMaxAngularVelocity;
+            
+            float directionToGrabberMaxVelocityMagnitudeRatio = directionToGrabber.magnitude / _physicsConstants.DefaultMaxVelocity;
             if (directionToGrabberMaxVelocityMagnitudeRatio > 1)
                 directionToGrabber /= directionToGrabberMaxVelocityMagnitudeRatio;
+
             _rigidbody.linearVelocity *= _physicsConstants.VelocityDamping;
-            _rigidbody.linearVelocity += directionToGrabber / Time.fixedDeltaTime * _physicsConstants.VelocityScale;
+            _rigidbody.linearVelocity += (directionToGrabber / Time.fixedDeltaTime) * _physicsConstants.VelocityScale;
         }
 
         private void TrackRotation(Quaternion targetRotation)
