@@ -65,7 +65,7 @@ public class InstanceSyncSerializables
     public class ServerRegistrationConfirmation : VE2Serializable
     {
         public ushort LocalClientID { get; private set; }
-        public InstancedInstanceInfo InstanceInfo { get; private set; }
+        public InstancedInstanceInfo InstanceInfo { get; private set; } 
 
         public ServerRegistrationConfirmation(byte[] bytes) : base(bytes) { }
 
@@ -165,6 +165,36 @@ public class InstanceSyncSerializables
                 InstancedClientInfo value = new InstancedClientInfo(reader.ReadBytes(length));
                 ClientInfos.Add(key, value);
             }
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is not InstancedInstanceInfo other)
+                return false;
+
+            if (HostID != other.HostID || InstanceMuted != other.InstanceMuted || ClientInfos.Count != other.ClientInfos.Count)
+                return false;
+
+            foreach (var kvp in ClientInfos)
+            {
+                if (!other.ClientInfos.TryGetValue(kvp.Key, out var otherClientInfo) || !kvp.Value.Equals(otherClientInfo))
+                    return false;
+            }
+
+            return true;
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = base.GetHashCode();
+            hashCode = (hashCode * 397) ^ HostID.GetHashCode();
+            hashCode = (hashCode * 397) ^ InstanceMuted.GetHashCode();
+            foreach (var kvp in ClientInfos)
+            {
+                hashCode = (hashCode * 397) ^ kvp.Key.GetHashCode();
+                hashCode = (hashCode * 397) ^ kvp.Value.GetHashCode();
+            }
+            return hashCode;
         }
     }
 

@@ -10,6 +10,7 @@ namespace VE2.InstanceNetworking
     public class RemoteAvatarController : MonoBehaviour
     {
         [SerializeField] private Transform _headHolder;
+        [SerializeField] private Transform _verticalOffsetTransform;
         [SerializeField] private Transform _torsoHolder;
         private float _torsoOffsetFromHead;
 
@@ -41,26 +42,23 @@ namespace VE2.InstanceNetworking
 
         private void RefreshMaterials() 
         {
-            _colorMaterials.Clear();
-
-            foreach (Renderer renderer in GetComponentsInChildren<Renderer>())
-            {
-                for (int i = 0; i < renderer.materials.Length; i++)
-                {
-                    if (renderer.materials[i].name.Contains("V_AvatarPrimary"))
-                        _colorMaterials.Add(renderer.materials[i]);
-                }
-            }
+            _colorMaterials = CommonUtils.GetAvatarColorMaterialsForGameObject(gameObject);
         }
 
         /// <summary>
         /// Note, this WON'T set the initial appearance, HandleReceiveAvatarAppearance should be called after initialization
         /// </summary>
-        public void Initialize(ushort clientID, List<GameObject> virseAvatarHeadGameObjects, List<GameObject> virseAvatarTorsoGameObjects, List<GameObject> avatarHeadOverrideGameObjects, List<GameObject> avatarTorsoOverrideGameObjects)
+        public void Initialize(ushort clientID, InteractorContainer interactorContainer, 
+            List<GameObject> virseAvatarHeadGameObjects, List<GameObject> virseAvatarTorsoGameObjects, 
+            List<GameObject> avatarHeadOverrideGameObjects, List<GameObject> avatarTorsoOverrideGameObjects)
         {
             _interactorVRLeftGameObject.name = $"Interactor{clientID}-{InteractorType.LeftHandVR}";
             _interactorVRRightGameObject.name = $"Interactor{clientID}-{InteractorType.RightHandVR}";
             _interactor2DGameObject.name = $"Interactor{clientID}-{InteractorType.Mouse2D}";
+
+            _interactorVRLeftGameObject.GetComponent<RemoteInteractor>().Initialize(clientID, InteractorType.LeftHandVR, interactorContainer);
+            _interactorVRRightGameObject.GetComponent<RemoteInteractor>().Initialize(clientID, InteractorType.RightHandVR, interactorContainer);
+            _interactor2DGameObject.GetComponent<RemoteInteractor>().Initialize(clientID, InteractorType.Mouse2D, interactorContainer);
 
             _virseAvatarHeadGameObjects = virseAvatarHeadGameObjects;
             _virseAvatarTorsoGameObjects = virseAvatarTorsoGameObjects;
@@ -71,6 +69,7 @@ namespace VE2.InstanceNetworking
         public void HandleReceiveRemotePlayerState(PlayerTransformData playerState)
         {
             transform.SetPositionAndRotation(playerState.RootPosition, playerState.RootRotation);
+            _verticalOffsetTransform.localPosition = new Vector3(0, playerState.VerticalOffset, 0);
             _headHolder.SetLocalPositionAndRotation(playerState.HeadLocalPosition, playerState.HeadLocalRotation);
             _torsoHolder.position = _headHolder.position + (_torsoOffsetFromHead * Vector3.up);
 

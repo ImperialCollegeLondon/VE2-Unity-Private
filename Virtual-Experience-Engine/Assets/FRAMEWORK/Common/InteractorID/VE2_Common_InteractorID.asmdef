@@ -1,0 +1,16 @@
+{
+    "name": "VE2.Common.InteractorID",
+    "rootNamespace": "",
+    "references": [
+        "GUID:db421c8459a01204db8930ebfb7e9a2c"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

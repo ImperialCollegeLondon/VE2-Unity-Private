@@ -35,6 +35,7 @@ namespace VE2.Core.Player
             {
                 _playerTransformData.RootPosition = transform.position;
                 _playerTransformData.RootRotation = transform.rotation;
+                _playerTransformData.VerticalOffset = 1.7f;
                 _transformDataSetup = true;
             }
 
@@ -99,15 +100,16 @@ namespace VE2.Core.Player
             _playerService?.HandleFixedUpdate();
         }
 
+        private void Update() 
+        {
+            _playerService?.HandleUpdate();
+        }   
+
         private void OnDisable() 
         {
+            Debug.Log("Disabling player spawner, service null? " + (_playerService == null));
             _playerService?.TearDown();
-
-            if (enableVR && VE2CoreServiceLocator.Instance.XRManagerWrapper.IsInitializationComplete)
-            {
-                VE2CoreServiceLocator.Instance.XRManagerWrapper.StopSubsystems();
-                VE2CoreServiceLocator.Instance.XRManagerWrapper.DeinitializeLoader();
-            }
+            _playerService = null;
         }
     }
 }

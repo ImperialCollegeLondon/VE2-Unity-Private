@@ -30,16 +30,12 @@ namespace VE2.Core.VComponents.Integration
         {
             string id = "FreeGrabbable-" + gameObject.name;
 
-            List<IHandheldInteractionModule> handheldInteractions = new(); //TODO: perform GetComponent to populate list
+            List<IHandheldInteractionModule> handheldInteractions = new(); 
 
             if(TryGetComponent(out V_HandheldActivatable handheldActivatable))
-            {
                 handheldInteractions.Add(handheldActivatable.HandheldClickInteractionModule);
-            }
             if (TryGetComponent(out V_HandheldAdjustable handheldAdjustable))
-            {
                 handheldInteractions.Add(handheldAdjustable.HandheldScrollInteractionModule);
-            }
 
             _rigidbodyWrapper = new(GetComponent<Rigidbody>());
             _service = new FreeGrabbableService(
@@ -48,28 +44,14 @@ namespace VE2.Core.VComponents.Integration
                 _state, 
                 id, 
                 VE2CoreServiceLocator.Instance.WorldStateModulesContainer,
-                new GameObjectFindProvider(),
+                VE2CoreServiceLocator.Instance.InteractorContainer,
                 _rigidbodyWrapper,
                 Resources.Load<PhysicsConstants>("PhysicsConstants"));
         }
 
-        bool _grabbedLastFixedUpdate = false;
-
         private void FixedUpdate()
         {
-            _service.HandleFixedUpdate();
-
-            if (_service.IsGrabbed && !_grabbedLastFixedUpdate)
-            {
-                _grabbedLastFixedUpdate = true;
-                GetComponent<Collider>().enabled = false;
-            }
-            else if (!_service.IsGrabbed && _grabbedLastFixedUpdate)
-            {
-                _grabbedLastFixedUpdate = false;
-                GetComponent<Collider>().enabled = true;
-            }
-            
+            _service.HandleFixedUpdate();            
         }
 
         private void OnDisable()

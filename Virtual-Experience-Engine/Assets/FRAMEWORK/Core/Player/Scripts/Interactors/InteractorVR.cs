@@ -2,48 +2,86 @@ using UnityEngine;
 using VE2.Common;
 using VE2.Core.Common;
 using VE2.Core.Player;
+using VE2.Core.Player.InteractionFinders;
 using VE2.Core.VComponents.InteractableInterfaces;
 
 public class InteractorVR : PointerInteractor
 {
-    [SerializeField] private bool _isRightHand;
+    private readonly V_CollisionDetector _collisionDetector;
+    private readonly GameObject _handVisualGO;
+    private readonly LineRenderer _lineRenderer;
+    private readonly Material _lineMaterial;
+    private const float LINE_EMISSION_INTENSITY = 15;
 
-    protected override InteractorType InteractorType => _isRightHand ? InteractorType.RightHandVR : InteractorType.LeftHandVR;
-
-    protected override void SubscribeToInputHandler(IInputHandler inputHandler)
+    public InteractorVR(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
+        InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, IMultiplayerSupport multiplayerSupport) :
+        base(interactorContainer, interactorInputContainer,
+            interactorReferences, interactorType, raycastProvider, multiplayerSupport)
     {
-        // if (_isRightHand)
-        //     inputHandler.OnRightTriggerPressed += HandleTriggerPressed;
-        // else
-        //     inputHandler.OnLeftTriggerPressed += HandleTriggerPressed;
+        InteractorVRReferences interactorVRReferences = interactorReferences as InteractorVRReferences;
+
+        _collisionDetector = interactorVRReferences.CollisionDetector;
+        _handVisualGO = interactorVRReferences.HandVisualGO;
+
+        _lineRenderer = interactorVRReferences.LineRenderer;
+        _lineMaterial = _lineRenderer.material;
+        _lineMaterial.EnableKeyword("_EMISSION");
     }
 
-    private void HandleTriggerPressed()
+    public override void HandleOnEnable()
     {
-        if (TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable))
+        base.HandleOnEnable();
+        _collisionDetector.OnCollideStart += HandleCollideStart;
+        _collisionDetector.OnCollideEnd += HandleCollideEnd;
+    }
+
+    public override void HandleOnDisable()
+    {
+        base.HandleOnEnable();
+        _collisionDetector.OnCollideStart += HandleCollideStart;
+        _collisionDetector.OnCollideEnd += HandleCollideEnd;
+    }
+
+    private void HandleCollideStart(ICollideInteractionModule collideInteractionModule)
+    {
+        if (!_WaitingForMultiplayerSupport && !collideInteractionModule.AdminOnly)
+            collideInteractionModule.InvokeOnCollideEnter(_InteractorID.ClientID);
+    }
+
+    private void HandleCollideEnd(ICollideInteractionModule collideInteractionModule)
+    {
+        if (!_WaitingForMultiplayerSupport && !collideInteractionModule.AdminOnly)
+            collideInteractionModule.InvokeOnCollideExit(_InteractorID.ClientID);
+    }
+
+    protected override void HandleRaycastDistance(float distance)
+    {
+        _lineRenderer.SetPosition(1, new Vector3(0, 0, distance / _lineRenderer.transform.lossyScale.z));
+    }
+
+    protected override void SetInteractorState(InteractorState newState)
+    {
+        _handVisualGO.SetActive(newState != InteractorState.Grabbing);
+
+        switch (newState)
         {
-            if (hoveringInteractable is IRangedClickInteractionModule rangedClickInteractable)
-                rangedClickInteractable.Click(_InteractorID.ClientID);
+            case InteractorState.Idle:
+                _lineMaterial.color = StaticColors.Instance.lightBlue;
+                _lineMaterial.SetColor("_EmissionColor", StaticColors.Instance.lightBlue * LINE_EMISSION_INTENSITY);
+                break;
+            case InteractorState.InteractionAvailable:
+
+                _lineMaterial.color = StaticColors.Instance.tangerine;
+                _lineMaterial.SetColor("_EmissionColor", StaticColors.Instance.tangerine * LINE_EMISSION_INTENSITY);
+                break;
+            case InteractorState.InteractionLocked:
+
+                _lineMaterial.color = Color.red;
+                _lineMaterial.SetColor("_EmissionColor", Color.red * LINE_EMISSION_INTENSITY);
+                break;
+            case InteractorState.Grabbing:
+                break;
         }
-    }
-
-    protected override void UnsubscribeFromInputHandler(IInputHandler inputHandler)
-    {
-        // if (_isRightHand)
-        //     inputHandler.OnRightTriggerPressed -= HandleTriggerPressed;
-        // else
-        //     inputHandler.OnLeftTriggerPressed -= HandleTriggerPressed;
-    }
-
-    public override Transform ConfirmGrab(IRangedGrabInteractionModule rangedGrabInteractionModule)
-    {
-        //TODO:
-        return null;
-    }
-
-    public override void ConfirmDrop()
-    {
-        //TODO:
     }
 }
 

@@ -6,7 +6,18 @@ namespace VE2.Core.VComponents.InteractableInterfaces
 {
     public interface IInteractor
     {
-        public Transform ConfirmGrab(IRangedGrabInteractionModule rangedGrabInteractionModule);
-        public void ConfirmDrop();  
+        public Transform GrabberTransform { get; }
+        public void ConfirmGrab(IRangedGrabInteractionModule rangedGrabInteractionModule);
+        public void ConfirmDrop();
+
+    /*
+
+        IInteractor needs to reference IIM for the ConfirmGrab
+        IIM needs to reference IInteractor.. but only the interactorID!! 
+        So why don't we put the interactorID in its own interface 
+        That way, IInteractor can go into core, which can reference IMI
+
+        The core locator needs to be able to reference IInteractor, so we have to separate IInteractor from InteractorID
+    */
     }
 }

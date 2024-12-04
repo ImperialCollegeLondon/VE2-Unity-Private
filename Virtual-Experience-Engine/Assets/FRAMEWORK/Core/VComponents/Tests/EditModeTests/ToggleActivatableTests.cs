@@ -10,42 +10,69 @@ using VE2.Core.VComponents.Internal;
 
 namespace VE2.Core.VComponents.Tests
 {
-    public class PushActivatableTests
+    [TestFixture]
+    [Category("Activatable Service Tests")]
+    public class ToggleActivatableTests
     {
+        //variables that will be reused in the tests
+        private IV_ToggleActivatable _activatablePluginInterface;
+        private PluginScriptMock _customerScript;
+        private V_ToggleActivatableStub _v_activatableStub;
+
+        //Setup Once for every single test in this test class
+        [OneTimeSetUp]
+        public void SetUpOnce()
+        {
+            //Create the activatable
+            ToggleActivatableService toggleActivatable = ToggleActivatableServiceStubFactory.Create();
+            _v_activatableStub = new(toggleActivatable);
+
+            //Get interfaces
+            _activatablePluginInterface = _v_activatableStub;
+
+            //Wire up the customer script to receive the events           
+            _customerScript = Substitute.For<PluginScriptMock>();
+            _activatablePluginInterface.OnActivate.AddListener(_customerScript.HandleActivateReceived);
+            _activatablePluginInterface.OnDeactivate.AddListener(_customerScript.HandleDeactivateReceived);
+        }
+
+        //setup that runs before every test method in this class
+        [SetUp]
+        public void SetUpBeforeEveryTest() { }
+
+        //test method to confirm that the activatable emits the correct events when Activated/Deactivated
         [Test]
         public void PushActivatable_WhenClicked_EmitsToPlugin()
         {
-            //Create the activatable with default values
-            ToggleActivatableService toggleActivatable = new (new ToggleActivatableConfig(), new SingleInteractorActivatableState(), "debug", Substitute.For<WorldStateModulesContainer>());
-
-            //Stub out the VC (integration layer) with the activatable
-            V_ToggleActivatableStub v_activatableStub = new(toggleActivatable);
-
-            //Get interfaces
-            IV_ToggleActivatable activatablePluginInterface = v_activatableStub;
-            IRangedClickPlayerInteractableIntegrator activatableRaycastInterface = v_activatableStub;
-            IRangedClickInteractionModule activatablePlayerInterface = activatableRaycastInterface.RangedClickInteractionModule;
-
-            //Wire up the customer script to receive the events
-            PluginScriptMock customerScript = Substitute.For<PluginScriptMock>();
-            activatablePluginInterface.OnActivate.AddListener(customerScript.HandleActivateReceived);
-            activatablePluginInterface.OnDeactivate.AddListener(customerScript.HandleDeactivateReceived);
-
-            //Create an ID
-            System.Random random = new();
-            ushort localClientID = (ushort)random.Next(0, ushort.MaxValue);
-
             //Invoke click, Check customer received the activation, and that the interactorID is set
-            activatablePlayerInterface.Click(localClientID);
-            customerScript.Received(1).HandleActivateReceived();
-            Assert.IsTrue(activatablePluginInterface.IsActivated);
-            Assert.AreEqual(activatablePluginInterface.MostRecentInteractingClientID, localClientID);
+            _activatablePluginInterface.IsActivated = true;
+            _customerScript.Received(1).HandleActivateReceived();
+            Assert.IsTrue(_activatablePluginInterface.IsActivated, "Activatable should be activated");
+            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
 
             // Invoke the click to deactivate
-            activatablePlayerInterface.Click(localClientID);
-            customerScript.Received(1).HandleDeactivateReceived();
-            Assert.IsFalse(activatablePluginInterface.IsActivated);
-            Assert.AreEqual(activatablePluginInterface.MostRecentInteractingClientID, localClientID);
+            _activatablePluginInterface.IsActivated = false;
+            _customerScript.Received(1).HandleDeactivateReceived();
+            Assert.IsFalse(_activatablePluginInterface.IsActivated, "Activatable should be deactivated");
+            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
+        }
+
+        //tear down that runs after every test method in this class
+        [TearDown]
+        public void TearDownAfterEveryTest()
+        {
+            _customerScript.ClearReceivedCalls();
+            _activatablePluginInterface.IsActivated = false;
+        }
+
+        //tear down that runs once after all the tests in this class
+        [OneTimeTearDown]
+        public void TearDownOnce()
+        {
+            _activatablePluginInterface.OnActivate.RemoveAllListeners();
+            _activatablePluginInterface.OnDeactivate.RemoveAllListeners();
+
+            _v_activatableStub.TearDown();
         }
     }
 
@@ -64,7 +91,7 @@ namespace VE2.Core.VComponents.Tests
         #endregion
 
         #region Player Interfaces
-        ICollideInteractionModule ICollidePlayerInteractableIntegrator._CollideInteractionModule => _ToggleActivatable.ColliderInteractionModule;
+        ICollideInteractionModule ICollidePlayerInteractableIntegrator.CollideInteractionModule => _ToggleActivatable.ColliderInteractionModule;
         IRangedInteractionModule IRangedPlayerInteractableIntegrator.RangedInteractionModule => _ToggleActivatable.RangedClickInteractionModule;
         #endregion
 
@@ -73,6 +100,34 @@ namespace VE2.Core.VComponents.Tests
         public V_ToggleActivatableStub(ToggleActivatableService ToggleActivatable)
         {
             _ToggleActivatable = ToggleActivatable;
+        }
+
+        public void TearDown()
+        {
+            _ToggleActivatable.TearDown();
+            _ToggleActivatable = null;
+        }
+    }
+
+    public static class ToggleActivatableServiceStubFactory
+    {
+        //factory method to create the activatable stub
+        public static ToggleActivatableService Create(
+            ToggleActivatableConfig config = null,
+            SingleInteractorActivatableState interactorState = null,
+            string debugName = "debug",
+            WorldStateModulesContainer worldStateModules = null
+        )
+        {
+            // Use defaults if parameters are not provided
+            config ??= new ToggleActivatableConfig();
+            interactorState ??= new SingleInteractorActivatableState();
+            worldStateModules ??= Substitute.For<WorldStateModulesContainer>();
+
+            //Create the activatable with default values
+            ToggleActivatableService toggleActivatable = new(config, interactorState, debugName, worldStateModules);
+
+            return toggleActivatable;
         }
     }
 }

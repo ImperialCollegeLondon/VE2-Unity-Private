@@ -19,15 +19,15 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     public class HandheldAdjustableServiceConfig
     {
+        [BeginGroup(Style = GroupStyle.Round)]
+        [Title("Scroll Settings")]
         [SerializeField] public bool LoopValues = false;
 
-        [SerializeField] public float StartingValue = 0;
+        [EndGroup, SerializeField] public float IncrementPerScrollTick = 1;
 
-        [SerializeField] public float IncrementPerMouseWheelScroll = 1;
-
-        [SerializeField] public bool SinglePressScroll = false;
-        [ShowIf("SinglePressScroll", false)]
-        [SerializeField] public float IncrementPerSecondVRStickHeld = 4;
+        // [SerializeField] public bool SinglePressScroll = false;
+        // [ShowIf("SinglePressScroll", false)]
+        // [EndGroup, SerializeField] public float IncrementPerSecondVRStickHeld = 4;
     }
     public class HandheldAdjustableService
     {
@@ -60,7 +60,7 @@ namespace VE2.Core.VComponents.Internal
 
         private void HandleScrollUp(ushort clientID)
         {
-            float targetValue = _StateModule.Value + _handheldAdjustableServiceConfig.IncrementPerMouseWheelScroll;
+            float targetValue = _StateModule.Value + _handheldAdjustableServiceConfig.IncrementPerScrollTick;
 
             if (_StateModule.IsAtMaximumValue)
             {
@@ -76,7 +76,7 @@ namespace VE2.Core.VComponents.Internal
 
         private void HandleScrollDown(ushort clientID)
         {
-            float targetValue = _StateModule.Value - _handheldAdjustableServiceConfig.IncrementPerMouseWheelScroll;
+            float targetValue = _StateModule.Value - _handheldAdjustableServiceConfig.IncrementPerScrollTick;
 
             if (_StateModule.IsAtMinimumValue)
             {

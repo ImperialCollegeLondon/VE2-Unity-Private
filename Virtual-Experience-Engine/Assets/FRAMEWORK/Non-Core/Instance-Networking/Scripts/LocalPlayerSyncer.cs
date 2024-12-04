@@ -1,52 +1,53 @@
 using static InstanceSyncSerializables;
 using VE2.Common;
 using static VE2.Common.CommonSerializables;
-
+using System;
+using UnityEngine;
 namespace VE2.InstanceNetworking
 {
-    public static class LocalPlayerSyncerFactory 
+    internal class LocalPlayerSyncer 
     {
-        public static LocalPlayerSyncer Create(InstanceService instanceService)
-        {
-            return new LocalPlayerSyncer(instanceService, VE2CoreServiceLocator.Instance.ViRSEPlayerStateModuleContainer);
-        }
-    }
+        public event Action<BytesAndProtocol> OnPlayerStateUpdatedLocally;
+        public event Action<BytesAndProtocol> OnAvatarAppearanceUpdatedLocally;
 
-    public class LocalPlayerSyncer 
-    {
+        private readonly PlayerStateModuleContainer _localPlayerContainer;
+        private readonly InstanceInfoContainer _instanceInfoContainer;
+
         private int _cycleNumber = 0;
-        private readonly InstanceService _instanceService;
-        private readonly PlayerStateModuleContainer _virsePlayerContainer;
-        private IPlayerStateModule _playerStateModule => _virsePlayerContainer.PlayerStateModule;
+        private IPlayerStateModule _playerStateModule => _localPlayerContainer.PlayerStateModule;
 
-        public LocalPlayerSyncer(InstanceService instanceSevice, PlayerStateModuleContainer virsePlayerContainer)
+        public LocalPlayerSyncer(PlayerStateModuleContainer localPlayerContainer, InstanceInfoContainer instanceInfoContainer)
         {
-            _instanceService = instanceSevice;
+            _localPlayerContainer = localPlayerContainer;
+            _localPlayerContainer.OnPlayerStateModuleRegistered += HandlePlayerStateModuleRegistered;
+            _instanceInfoContainer = instanceInfoContainer;
 
-            _virsePlayerContainer = virsePlayerContainer;
-            _virsePlayerContainer.OnPlayerStateModuleRegistered += HandlePlayerStateModuleRegistered;
-            _virsePlayerContainer.OnPlayerStateModuleDeregistered += HandlePlayerStateModuleDeregistered;
-
-            if (_virsePlayerContainer.PlayerStateModule != null)
-                HandlePlayerStateModuleRegistered(_virsePlayerContainer.PlayerStateModule);
+            _localPlayerContainer.OnPlayerStateModuleDeregistered += HandlePlayerStateModuleDeregistered;
         }
 
-        private void HandleLocalAppearanceChanged(AvatarAppearance appearance)
+        //TODO: do this in constructor once we wire in the comms handler interface
+        public void TempDelayedPlayerReg() 
         {
-            AvatarAppearanceWrapper avatarAppearanceWrapper = new(appearance != null, appearance);
-            _instanceService.SendAvatarAppearanceUpdate(avatarAppearanceWrapper.Bytes);
+            if (_localPlayerContainer.PlayerStateModule != null)
+                HandlePlayerStateModuleRegistered(_localPlayerContainer.PlayerStateModule);
         }
 
         public void HandlePlayerStateModuleRegistered(IPlayerStateModule stateModule)
         {
             stateModule.OnAvatarAppearanceChanged += HandleLocalAppearanceChanged;
-            HandleLocalAppearanceChanged(stateModule.AvatarAppearance);
+            HandleLocalAppearanceChanged(_localPlayerContainer.PlayerStateModule.AvatarAppearance);
         }
 
         public void HandlePlayerStateModuleDeregistered(IPlayerStateModule stateModule)
         {
             stateModule.OnAvatarAppearanceChanged -= HandleLocalAppearanceChanged;
             HandleLocalAppearanceChanged(null);
+        }
+
+        private void HandleLocalAppearanceChanged(AvatarAppearance appearance)
+        {
+            AvatarAppearanceWrapper avatarAppearanceWrapper = new(appearance != null, appearance);
+            OnAvatarAppearanceUpdatedLocally?.Invoke(new BytesAndProtocol(avatarAppearanceWrapper.Bytes, TransmissionProtocol.TCP));
         }
 
         public void NetworkUpdate() 
@@ -60,18 +61,16 @@ namespace VE2.InstanceNetworking
             if (onTransmissionFrame)
             {
                 VE2Serializable playerState = _playerStateModule.State; //Doesn't include appearance
-                PlayerStateWrapper playerStateWrapper = new(_instanceService.LocalClientID, playerState.Bytes);
-
-                _instanceService.SendPlayerState(playerStateWrapper.Bytes, _playerStateModule.TransmissionProtocol);
+                PlayerStateWrapper playerStateWrapper = new(_instanceInfoContainer.LocalClientID, playerState.Bytes);
+                OnPlayerStateUpdatedLocally?.Invoke(new BytesAndProtocol(playerStateWrapper.Bytes, _playerStateModule.TransmissionProtocol));
             }
         }
 
         public void TearDown() 
         {
-            _virsePlayerContainer.OnPlayerStateModuleRegistered -= HandlePlayerStateModuleRegistered;
-            _virsePlayerContainer.OnPlayerStateModuleDeregistered -= HandlePlayerStateModuleDeregistered;
+            _localPlayerContainer.OnPlayerStateModuleRegistered -= HandlePlayerStateModuleRegistered;
+            _localPlayerContainer.OnPlayerStateModuleDeregistered -= HandlePlayerStateModuleDeregistered;
             
-
             if (_playerStateModule != null)
                 _playerStateModule.OnAvatarAppearanceChanged -= HandleLocalAppearanceChanged;
         }

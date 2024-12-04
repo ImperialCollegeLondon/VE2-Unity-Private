@@ -14,6 +14,7 @@ namespace VE2.Common
 
         public Vector3 RootPosition;
         public Quaternion RootRotation;
+        public float VerticalOffset;
         public Vector3 HeadLocalPosition { get; private set; }
         public Quaternion HeadLocalRotation { get; private set; }
         public Vector3 Hand2DLocalPosition { get; private set; }
@@ -27,7 +28,7 @@ namespace VE2.Common
 
         public PlayerTransformData() : base() { }
 
-        public PlayerTransformData(bool IsVRMode, Vector3 rootPosition, Quaternion rootRotation, Vector3 headPosition, Quaternion headRotation, Vector3 hand2DPosition, Quaternion hand2DRotation)
+        public PlayerTransformData(bool IsVRMode, Vector3 rootPosition, Quaternion rootRotation, float verticalOffset, Vector3 headPosition, Quaternion headRotation, Vector3 hand2DPosition, Quaternion hand2DRotation)
         {
             this.IsVRMode = IsVRMode;
             if (IsVRMode)
@@ -35,13 +36,14 @@ namespace VE2.Common
 
             RootPosition = rootPosition;
             RootRotation = rootRotation;
+            VerticalOffset = verticalOffset;
             HeadLocalPosition = headPosition;
             HeadLocalRotation = headRotation;
             Hand2DLocalPosition = hand2DPosition;
             Hand2DLocalRotation = hand2DRotation;
         }
 
-        public PlayerTransformData(bool IsVRMode, Vector3 rootPosition, Quaternion rootRotation, Vector3 headPosition, Quaternion headRotation, Vector3 handVRLeftPosition, Quaternion handVRLeftRotation, Vector3 handVRRightPosition, Quaternion handVRRightRotation)
+        public PlayerTransformData(bool IsVRMode, Vector3 rootPosition, Quaternion rootRotation, float verticalOffset, Vector3 headPosition, Quaternion headRotation, Vector3 handVRLeftPosition, Quaternion handVRLeftRotation, Vector3 handVRRightPosition, Quaternion handVRRightRotation)
         {
             this.IsVRMode = IsVRMode;
             if (!IsVRMode)
@@ -49,6 +51,7 @@ namespace VE2.Common
 
             RootPosition = rootPosition;
             RootRotation = rootRotation;
+            VerticalOffset = verticalOffset;
             HeadLocalPosition = headPosition;
             HeadLocalRotation = headRotation;
             HandVRLeftLocalPosition = handVRLeftPosition;
@@ -73,6 +76,8 @@ namespace VE2.Common
             writer.Write(RootRotation.y);
             writer.Write(RootRotation.z);
             writer.Write(RootRotation.w);
+
+            writer.Write(Mathf.FloatToHalf(VerticalOffset));
 
             writer.Write(HeadLocalPosition.x);
             writer.Write(HeadLocalPosition.y);
@@ -126,6 +131,7 @@ namespace VE2.Common
             IsVRMode = reader.ReadBoolean();
             RootPosition = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
             RootRotation = new Quaternion(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+            VerticalOffset = Mathf.HalfToFloat(reader.ReadUInt16());
             HeadLocalPosition = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
             HeadLocalRotation = new Quaternion(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
 

@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VE2.Core.Common;
 using static VE2.Common.CommonSerializables;
+using VE2.Core.VComponents.InteractableInterfaces;
 
 namespace VE2.Common
 {
@@ -104,11 +106,12 @@ namespace VE2.Common
             }
         }
 
-        //############################### STATE MODULE CONTAINERS #####################################
+        //############################### RUNTIME CONTAINERS #####################################
         //#############################################################################################
 
         public WorldStateModulesContainer WorldStateModulesContainer {get; private set;} = new();
-        public PlayerStateModuleContainer ViRSEPlayerStateModuleContainer {get; private set;} = new();
+        public PlayerStateModuleContainer PlayerStateModuleContainer {get; private set;} = new();
+        public InteractorContainer InteractorContainer {get; private set;} = new();
 
         //##################################### INPUT HANDLER #########################################
         //#############################################################################################
@@ -161,7 +164,7 @@ namespace VE2.Common
         private void OnDestroy() 
         {
             WorldStateModulesContainer.Reset();
-            ViRSEPlayerStateModuleContainer.Reset();
+            PlayerStateModuleContainer.Reset();
         }
     }
 
@@ -175,8 +178,8 @@ namespace VE2.Common
         public void NotifyProviderOfChangeAppearanceOverrides();
         public event Action OnAppearanceOverridesChanged;
 
-        public List<GameObject> GetHeadOverrideGOs();
-        public List<GameObject> GetTorsoOverrideGOs();
+        public List<GameObject> HeadOverrideGOs { get; }
+        public List<GameObject> TorsoOverrideGOs { get; }
     }
 
     public class WorldStateModulesContainer : BaseStateModuleContainer
@@ -231,5 +234,23 @@ namespace VE2.Common
 
         //Doesn't emit events, used on exit playmode 
         public abstract void Reset();
+    }
+
+    public class InteractorContainer
+    {
+        private Dictionary<string, IInteractor> _interactors = new();
+        public IReadOnlyDictionary<string, IInteractor> Interactors => _interactors;
+
+        public void RegisterInteractor(string interactorID, IInteractor interactor)
+        {
+            _interactors[interactorID] = interactor;
+        }
+
+        public void DeregisterInteractor(string interactorID)
+        {
+            _interactors.Remove(interactorID);
+        }
+
+        public void Reset() => _interactors.Clear();
     }
 }

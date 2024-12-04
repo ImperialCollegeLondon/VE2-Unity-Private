@@ -12,6 +12,7 @@ using static VE2.Common.CommonSerializables;
 using VE2.Core.Player;
 using System;
 using VE2.Core.VComponents.Tests;
+using VE2.Core.Common;
 
 namespace VE2.Core.Tests
 {
@@ -28,18 +29,9 @@ namespace VE2.Core.Tests
             multiplayerSupportStub.LocalClientID.Returns(localClientID);
             
             InteractorID interactorID = new(localClientID, InteractorType.Mouse2D);
-            string interactorGameobjectName = $"Interactor{interactorID.ClientID}-{interactorID.InteractorType}";
-
             IInteractor interactorStub = Substitute.For<IInteractor>();
-            GameObject interactorGameObject = new();
-
-            IGameObjectFindProvider findProviderStub = Substitute.For<IGameObjectFindProvider>();
-            findProviderStub.FindGameObject(interactorGameobjectName).Returns(interactorGameObject);
-            findProviderStub.TryGetComponent<IInteractor>(interactorGameObject, out Arg.Any<IInteractor>()).Returns(x =>
-            {
-                x[1] = interactorStub;
-                return true;
-            });
+            InteractorContainer interactorContainerStub = new();
+            interactorContainerStub.RegisterInteractor(interactorID.ToString(), interactorStub);
 
             FreeGrabbableService freeGrabbable = new( 
                 new List<IHandheldInteractionModule>() {},
@@ -47,7 +39,7 @@ namespace VE2.Core.Tests
                 new FreeGrabbableState(), 
                 "debug",
                 Substitute.For<WorldStateModulesContainer>(),
-                findProviderStub,
+                interactorContainerStub,
                 Substitute.For<IRigidbodyWrapper>(), 
                 new PhysicsConstants());
 
@@ -64,17 +56,13 @@ namespace VE2.Core.Tests
             playerSettingsProviderStub.UserSettings.Returns(new UserSettingsPersistable());
 
             //Stub out the input handler    
-            IInputHandler inputHandlerStub = Substitute.For<IInputHandler>();
+            PlayerInputContainerStubWrapper playerInputContainerStubWrapper = new();
 
             //Stub out the raycast provider to hit the activatable GO with 0 range
             IRaycastProvider raycastProviderStub = Substitute.For<IRaycastProvider>();
             raycastProviderStub
-                .TryGetRangedInteractionModule(default, default, out Arg.Any<RaycastResultWrapper>(), default, default)
-                .ReturnsForAnyArgs(x =>
-                {
-                    x[2] = new RaycastResultWrapper(grabbableRaycastInterface.RangedGrabInteractionModule, 0);
-                    return true;
-                });
+                .Raycast(default, default, default, default)
+                .ReturnsForAnyArgs(new RaycastResultWrapper(grabbablePlayerInterface, 0));
 
             //Create the player (2d)
             PlayerService playerService = new(
@@ -83,10 +71,11 @@ namespace VE2.Core.Tests
                 false,
                 true,
                 new PlayerStateModuleContainer(),
+                interactorContainerStub,
                 playerSettingsProviderStub,
                 Substitute.For<IPlayerAppearanceOverridesProvider>(),
                 multiplayerSupportStub,
-                inputHandlerStub,
+                playerInputContainerStubWrapper.PlayerInputContainer,
                 raycastProviderStub, 
                 Substitute.For<IXRManagerWrapper>()
             );
@@ -97,13 +86,13 @@ namespace VE2.Core.Tests
             grabbablePluginInterface.OnDrop.AddListener(pluginScript.HandleDropReceived);
 
             //Invoke grab, check customer received the grab, and that the interactorID is set
-            inputHandlerStub.OnMouseLeftClick += Raise.Event<Action>();
+            playerInputContainerStubWrapper.Grab2D.OnPressed += Raise.Event<Action>();
             pluginScript.Received(1).HandleGrabReceived();
             Assert.IsTrue(grabbablePluginInterface.IsGrabbed);
             Assert.AreEqual(grabbablePluginInterface.MostRecentInteractingClientID, localClientID);
 
             //Invoke drop, Check customer received the drop, and that the interactorID is set
-            inputHandlerStub.OnMouseLeftClick += Raise.Event<Action>();
+            playerInputContainerStubWrapper.Grab2D.OnPressed += Raise.Event<Action>();
             pluginScript.Received(1).HandleDropReceived();
             Assert.IsFalse(grabbablePluginInterface.IsGrabbed);
             Assert.AreEqual(grabbablePluginInterface.MostRecentInteractingClientID, localClientID);

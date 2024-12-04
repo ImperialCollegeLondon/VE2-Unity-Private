@@ -3,19 +3,14 @@ using System.Linq;
 using UnityEngine;
 using static InstanceSyncSerializables;
 using VE2.Common;
+using System;
 
 namespace VE2.InstanceNetworking
 {
-    public static class WorldStateSyncerFactory 
+    internal class WorldStateSyncer 
     {
-        public static WorldStateSyncer Create(InstanceService instanceService) 
-        {
-            return new WorldStateSyncer(instanceService, VE2CoreServiceLocator.Instance.WorldStateModulesContainer);
-        }
-    }
+        public event Action<BytesAndProtocol> OnLocalChangeOrHostBroadcastWorldStateData; 
 
-    public class WorldStateSyncer 
-    {
         private class SyncInfo
         {
             public int HostSyncOffset;
@@ -35,28 +30,28 @@ namespace VE2.InstanceNetworking
         private const int WORLD_STATE_SYNC_INTERVAL_MS = 20;
         public int WorldStateHistoryQueueSize { get; private set; } = 100; //TODO tie this into ping
 
-        private readonly InstanceService _instanceService;
         private readonly WorldStateModulesContainer _worldStateModulesContainer;
+        private readonly InstanceInfoContainer _instanceInfoContainer;
 
-        public WorldStateSyncer(InstanceService instanceService, WorldStateModulesContainer worldStateModulesContainer) 
+        public WorldStateSyncer(WorldStateModulesContainer worldStateModulesContainer, InstanceInfoContainer instanceInfoContainer) 
         {
-            _instanceService = instanceService;
-            _instanceService.OnReceiveWorldStateSyncableBundle += HandleReceiveWorldStateBundle;
-
             _worldStateModulesContainer = worldStateModulesContainer;
+            _instanceInfoContainer = instanceInfoContainer;
+
             _worldStateModulesContainer.OnWorldStateModuleRegistered += RegisterStateModule;
             _worldStateModulesContainer.OnWorldStateModuleDeregistered += DerigsterFromSyncer;
 
-            foreach (IWorldStateModule stateModule in worldStateModulesContainer.WorldstateSyncableModules)
+            foreach (IWorldStateModule stateModule in _worldStateModulesContainer.WorldstateSyncableModules)
                 RegisterStateModule(stateModule);
-        } 
 
-        public void TearDown() 
-        {
-            _instanceService.OnReceiveWorldStateSyncableBundle -= HandleReceiveWorldStateBundle;
-            _worldStateModulesContainer.OnWorldStateModuleRegistered -= RegisterStateModule;
-            _worldStateModulesContainer.OnWorldStateModuleDeregistered -= DerigsterFromSyncer;
-        }
+            //TODO: what exactly is the lifecycle of this? Destroyed between instances?
+            //Maybe even between different connections on the same plugin? 
+            //Seems cleaner to just tear everything down and start again when we reconnect?
+            //That potentially makes interface access difficult though? 
+            //Not really, these modules aren't going to be exposed to the plugin in any way 
+            //And if they are, we just have something wired in the interface to just say "if syncer doesn't exit, return empty rather than null"
+
+        } 
 
         //Happens if we move between instances of the same plugin
         //If changing plugins, this whole syncer will be destroyed and recreated
@@ -90,9 +85,6 @@ namespace VE2.InstanceNetworking
 
         public void NetworkUpdate() //TODO, manage buffer size 
         {
-            if (!_instanceService.IsConnectedToServer)
-                return;
-
             _cycleNumber++;
 
             ProcessReceivedWorldStates();
@@ -116,12 +108,12 @@ namespace VE2.InstanceNetworking
                         if (_syncInfosAgainstIDs.TryGetValue(worldStateWrapper.ID, out SyncInfo syncInfo))
                         {
                             //We only do the hitory check if we're not the host
-                            if (_instanceService.IsHost || !syncInfo.HistoryQueue.DoesStateAppearInStateList(worldStateWrapper.StateBytes))
+                            if (_instanceInfoContainer.IsHost || !syncInfo.HistoryQueue.DoesStateAppearInStateList(worldStateWrapper.StateBytes))
                             {
                                 syncInfo.StateModule.StateAsBytes = worldStateWrapper.StateBytes;
 
                                 //If we're not the host, we want to make sure this state doesn't get broadcasted back out
-                                if (!_instanceService.IsHost)
+                                if (!_instanceInfoContainer.IsHost)
                                     syncInfo.PreviousState = worldStateWrapper.StateBytes;
                             }
                         }
@@ -148,7 +140,7 @@ namespace VE2.InstanceNetworking
                 SyncInfo syncInfo = pair.Value;
                 byte[] newState = syncInfo.StateModule.StateAsBytes;
 
-                bool broadcastFromHost = _instanceService.IsHost && (_cycleNumber + syncInfo.HostSyncOffset) % syncInfo.HostSyncInterval == 0;
+                bool broadcastFromHost = _instanceInfoContainer.IsHost && (_cycleNumber + syncInfo.HostSyncOffset) % syncInfo.HostSyncInterval == 0;
                 bool transmitFromLocalStateChange = syncInfo.PreviousState != null && !newState.SequenceEqual(syncInfo.PreviousState);
                 bool shouldTransmit = broadcastFromHost || transmitFromLocalStateChange;
 
@@ -169,13 +161,13 @@ namespace VE2.InstanceNetworking
             if (outgoingSyncableStateBufferTCP.Count > 0)
             {
                 WorldStateBundle TCPBundle = new(outgoingSyncableStateBufferTCP);
-                _instanceService.SendWorldStateBundle(TCPBundle.Bytes, TransmissionProtocol.TCP);
+                OnLocalChangeOrHostBroadcastWorldStateData?.Invoke(new(TCPBundle.Bytes, TransmissionProtocol.TCP));
             }
 
             if (outgoingSyncableStateBufferUDP.Count > 0)
             {
                 WorldStateBundle UDPBundle = new(outgoingSyncableStateBufferUDP);
-                _instanceService.SendWorldStateBundle(UDPBundle.Bytes, TransmissionProtocol.UDP);
+                OnLocalChangeOrHostBroadcastWorldStateData?.Invoke(new(UDPBundle.Bytes, TransmissionProtocol.UDP));
             }
         }
 
@@ -234,6 +226,15 @@ namespace VE2.InstanceNetworking
                 _numOfSyncablesPerSyncOffsets.Add(newSyncOffset, 1);
 
             return newSyncOffset;
+        }
+
+        public void TearDown()
+        {
+            _worldStateModulesContainer.OnWorldStateModuleRegistered -= RegisterStateModule;
+            _worldStateModulesContainer.OnWorldStateModuleDeregistered -= DerigsterFromSyncer;
+
+            _numOfSyncablesPerSyncOffsets.Clear();
+            _syncInfosAgainstIDs.Clear();
         }
     }
 }

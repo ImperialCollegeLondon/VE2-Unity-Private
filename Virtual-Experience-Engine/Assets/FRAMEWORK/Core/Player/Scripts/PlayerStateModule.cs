@@ -3,11 +3,11 @@ using System.IO;
 using UnityEngine;
 using VE2.Common;
 using VE2.Core.Common;
-using VE2.Common;
 using static VE2.Common.CommonSerializables;
 
 namespace VE2.Core.Player
 {
+    //TODO: Maybe the transform data should live in a different module to the appearance?
     public class PlayerStateModule : BaseStateModule, IPlayerStateModule //TODO - customer interfaces for changing player position/rotation
     {
         public PlayerTransformData PlayerTransformData

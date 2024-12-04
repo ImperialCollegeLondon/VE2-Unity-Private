@@ -18,7 +18,8 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField] public UnityEvent<float> OnValueAdjusted = new();
         [SerializeField] public float MinimumValue = 0;
         [SerializeField] public float MaximumValue = 1;
-        [SerializeField] public bool EmitValueOnStart = true;
+        [SerializeField] public float StartingValue = 0;
+        [EndGroup, SerializeField] public bool EmitValueOnStart = true;
     }
     internal class AdjustableStateModule : BaseWorldStateModule, IAdjustableStateModule
     {

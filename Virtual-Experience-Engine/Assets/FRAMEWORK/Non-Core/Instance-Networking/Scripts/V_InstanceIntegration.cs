@@ -20,32 +20,36 @@ namespace VE2.InstanceNetworking
 
         [SerializeField, Disable, HideLabel, IgnoreParent] private ConnectionStateDebugWrapper _connectionStateDebug;
 
-        [SerializeField, HideInInspector] private LocalClientIdWrapper LocalClientIDWrapper = new();
+        [SerializeField, HideInInspector] private LocalClientIdWrapper _localClientIDWrapper = new();
         [Serializable] public class LocalClientIdWrapper { public ushort LocalClientID = ushort.MaxValue; }
 
-        private InstanceService _instanceService;
-        private WorldStateSyncer _worldStateSyncer;
-        private LocalPlayerSyncer _localPlayerSyncer;
-        private RemotePlayerSyncer _remotePlayerSyncer;
-
-        #region Core-Facing Interfaces
-        //TODO - Could we follow the pattern set out by the VCs? Can we just stick this wiring in an interface?
+        //We do this wiring here rather than the interface as the interface file needs to live in the VE2.common package
+        #region Interfaces
         public bool IsEnabled => enabled && gameObject.activeInHierarchy;
         public string GameObjectName => gameObject.name;
-        public event Action OnConnectedToServer;
-        #endregion
-
-        #region Debug Interfaces 
-        //TODO, think about exactly we want to serve to the customer... OnRemotePlayerConnectd? GetRemotePlayers?
         public bool IsConnectedToServer => _connectionStateDebug.ConnectionState == ConnectionState.Connected;
-        public ushort LocalClientID => LocalClientIDWrapper.LocalClientID;
-        public InstancedInstanceInfo InstanceInfo => _instanceService.InstanceInfo; //TODO, don't want to expose this
-        public bool IsHost => _instanceService.IsHost;
-
-        public event Action<InstancedInstanceInfo> OnInstanceInfoChanged;
-        public event Action<ushort> OnHostChanged;
-        public event Action OnDisconnectedFromServer;
+        public event Action OnConnectedToInstance { add => _instanceService.OnConnectedToInstance += value; remove => _instanceService.OnConnectedToInstance -= value; }
+        public event Action OnDisconnectedFromInstance { add => _instanceService.OnDisconnectedFromInstance += value; remove => _instanceService.OnDisconnectedFromInstance -= value; }
+        public ushort LocalClientID => _localClientIDWrapper.LocalClientID;
+        public bool IsHost => _instanceService._instanceInfoContainer.IsHost;
         #endregion
+
+        #region Temp debug Interfaces //TODO: remove once UI is in 
+        public InstancedInstanceInfo InstanceInfo => _instanceService._instanceInfoContainer.InstanceInfo; //TODO, don't want to expose this
+        public event Action<InstancedInstanceInfo> OnInstanceInfoChanged { 
+            add => _instanceService._instanceInfoContainer.OnInstanceInfoChanged += value; 
+            remove => _instanceService._instanceInfoContainer.OnInstanceInfoChanged -= value; 
+        }
+        #endregion
+
+        /*
+            Maybe we should split the interface up a bit... 
+            One for things that need to be internal facing (or at least, facing core) 
+            And one for things that need to be exposed to the plugin
+            The things that wire into the plugin, can have a standard IV_InstanceIntegration interface 
+        */
+
+        private InstanceService _instanceService;
 
         private void OnEnable()
         {
@@ -63,59 +67,18 @@ namespace VE2.InstanceNetworking
                 return;
             }
 
-            if (_instanceService == null)
-            {
-                _instanceService = InstanceServiceFactory.Create(LocalClientIDWrapper, _connectOnStart, _connectionStateDebug);
-                _instanceService.OnConnectedToServer += HandleConnectToServer; //TODO, maybe these events can go into the connection debug wrapper thing?
-                _instanceService.OnDisconnectedFromServer += HandleDisconnectFromServer; //TODO, maybe these events can go into the connection debug wrapper thing?
-                _instanceService.OnInstanceInfoChanged += HandleReceiveInstanceInfo;
-                _instanceService.OnHostChanged += HandleHostChanged;
-            }
+            _instanceService = InstanceServiceFactory.Create(_localClientIDWrapper, _connectOnStart, _connectionStateDebug);
         }
 
         public void ConnectToServerOnceDetailsReady() 
         {
-            if (!_connectOnStart && !_instanceService.IsConnectedToServer)
-                _instanceService?.ConnectToServer();
+            if (!_connectOnStart)
+                _instanceService?.ConnectToServerWhenReady();
         } 
-
-        private void HandleConnectToServer()
-        {
-            //TODO - these things should be within the service, easier to test?
-            _worldStateSyncer = WorldStateSyncerFactory.Create(_instanceService);
-            _localPlayerSyncer = LocalPlayerSyncerFactory.Create(_instanceService);
-            _remotePlayerSyncer = RemotePlayerSyncerFactory.Create(_instanceService);
-
-            OnConnectedToServer?.Invoke();
-        }
 
         private void FixedUpdate()
         {
-            _instanceService.NetworkUpdate(); 
-
-            //TODO - maybe the service should emit an update event that the others listen to?
-            _worldStateSyncer?.NetworkUpdate();
-            _localPlayerSyncer?.NetworkUpdate();
-            _remotePlayerSyncer?.NetworkUpdate();   
-        }
-
-        private void HandleReceiveInstanceInfo(InstancedInstanceInfo instanceInfo) 
-        {
-            OnInstanceInfoChanged?.Invoke(instanceInfo);
-        }
-
-        private void HandleHostChanged(ushort hostID)
-        {
-            OnHostChanged?.Invoke(hostID);
-        }
-
-        private void HandleDisconnectFromServer()
-        {
-            if (_connectionStateDebug.ConnectionState == ConnectionState.Connected)
-            {
-                _connectionStateDebug.ConnectionState = ConnectionState.LostConnection;
-                OnDisconnectedFromServer?.Invoke();
-            }
+            _instanceService.NetworkUpdate();
         }
 
         private void OnDisable()
@@ -123,22 +86,8 @@ namespace VE2.InstanceNetworking
             if (!Application.isPlaying)
                 return;
 
-            _instanceService.OnConnectedToServer -= HandleConnectToServer; //TODO, maybe these events can go into the connection debug wrapper thing?
-            _instanceService.OnDisconnectedFromServer -= HandleDisconnectFromServer; //TODO, maybe these events can go into the connection debug wrapper thing?
-            _instanceService.OnInstanceInfoChanged -= HandleReceiveInstanceInfo;
-            _instanceService.OnHostChanged -= HandleHostChanged;
             _instanceService.TearDown();
             _instanceService = null;
-            HandleDisconnectFromServer();
-
-            _worldStateSyncer?.TearDown();
-            _worldStateSyncer = null;
-
-            _localPlayerSyncer?.TearDown();
-            _localPlayerSyncer = null;
-
-            _remotePlayerSyncer?.TearDown();
-            _remotePlayerSyncer = null;
         }
     }
 
@@ -148,6 +97,6 @@ namespace VE2.InstanceNetworking
         [SerializeField, Disable, IgnoreParent] public ConnectionState ConnectionState = ConnectionState.NotYetConnected;
     }
 
-    public enum ConnectionState { NotYetConnected, FetchingConnectionSettings, Connecting, Connected, LostConnection }
+    public enum ConnectionState { NotYetConnected, WaitingForConnectionSettings, Connecting, Connected, LostConnection }
 
 }

@@ -27,7 +27,7 @@ namespace VE2.Core.VComponents.Integration
         {
             string id = "HHAdjustable-" + gameObject.name;
             if (_state == null)
-                _state = new AdjustableState(_config.HandheldAdjustableServiceConfig.StartingValue);
+                _state = new AdjustableState(_config.StateConfig.StartingValue);
 
             _service = new(_config, _state, id, VE2CoreServiceLocator.Instance.WorldStateModulesContainer);
         }

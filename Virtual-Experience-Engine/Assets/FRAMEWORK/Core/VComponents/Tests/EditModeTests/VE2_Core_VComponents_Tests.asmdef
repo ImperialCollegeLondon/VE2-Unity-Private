@@ -11,7 +11,9 @@
         "VE2.Core.VComponents.Internal",
         "VE2.Core.VComponents.InteractableInterfaces",
         "VE2_Core_VComponents_InteractableFindables",
-        "VE2.Core.Common"
+        "VE2.Core.Common",
+        "VE2.Common.Serializables",
+        "VE2.Common.InteractorID"
     ],
     "includePlatforms": [
         "Editor"

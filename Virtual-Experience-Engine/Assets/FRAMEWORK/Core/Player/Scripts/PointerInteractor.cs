@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 using VE2.Common;
 using VE2.Core.Common;
@@ -6,82 +6,253 @@ using VE2.Core.VComponents.InteractableInterfaces;
 
 namespace VE2.Core.Player
 {
-    public abstract class PointerInteractor : MonoBehaviour, IInteractor
+    public class InteractorReferences 
     {
-        [SerializeField] public Transform GrabberTransform;
-        [SerializeField] protected LayerMask _LayerMask; // Add a layer mask field
-        [SerializeField] protected string _RaycastHitDebug;
+        public Transform GrabberTransform => _grabberTransform;
+        [SerializeField, IgnoreParent] private Transform _grabberTransform;
 
-        protected Transform _RayOrigin;
+        public Transform RayOrigin => _rayOrigin;
+        [SerializeField, IgnoreParent] private Transform _rayOrigin;
+
+        public LayerMask LayerMask => _layerMask;
+        [SerializeField, IgnoreParent] private LayerMask _layerMask;
+
+        [SerializeField] private StringWrapper _raycastHitDebug;
+        public StringWrapper RaycastHitDebug => _raycastHitDebug;
+    }
+
+    [Serializable]
+    public class StringWrapper
+    {
+        [SerializeField, IgnoreParent] public string Value;
+    }
+
+    public abstract class PointerInteractor : IInteractor
+    {
+        public Transform GrabberTransform => _GrabberTransform;
+
+        protected bool IsCurrentlyGrabbing => _CurrentGrabbingGrabbable != null;
+        protected InteractorID _InteractorID => new(_multiplayerSupport == null ? (ushort)0 : _multiplayerSupport.LocalClientID, _InteractorType);
+        protected bool _WaitingForMultiplayerSupport => _multiplayerSupport != null && !_multiplayerSupport.IsConnectedToServer;
+
         protected const float MAX_RAYCAST_DISTANCE = 10;
         protected IRangedGrabInteractionModule _CurrentGrabbingGrabbable;
-        protected InteractorID _InteractorID => new(_multiplayerSupport == null ? (ushort)0 : _multiplayerSupport.LocalClientID, InteractorType);
-        private bool _waitingForMultiplayerSupport => _multiplayerSupport != null && !_multiplayerSupport.IsConnectedToServer;
 
-        protected abstract InteractorType InteractorType { get; }
+        private readonly InteractorContainer _interactorContainer;
+        private readonly InteractorInputContainer _interactorInputContainer;
 
-        protected IMultiplayerSupport _multiplayerSupport;
-        protected IInputHandler _InputHandler;
-        protected IRaycastProvider _RaycastProvider;
+        protected readonly Transform _GrabberTransform;
+        protected readonly Transform _RayOrigin;
+        private readonly LayerMask _layerMask;
+        private readonly StringWrapper _raycastHitDebug;
 
-        // Setup method to initialize the ray origin and max raycast distance
-        public void Initialize(Camera camera2d, IMultiplayerSupport multiplayerSupport, IInputHandler inputHandler, IRaycastProvider raycastProvider)
+        private readonly InteractorType _InteractorType;
+        private readonly IRaycastProvider _RaycastProvider;
+        private readonly IMultiplayerSupport _multiplayerSupport;
+
+        public PointerInteractor(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
+            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, IMultiplayerSupport multiplayerSupport)
         {
-            _RayOrigin = camera2d.transform;
+            _interactorContainer = interactorContainer;
+            _interactorInputContainer = interactorInputContainer;
 
-            _multiplayerSupport = multiplayerSupport;
-            _InputHandler = inputHandler;
+            _GrabberTransform = interactorReferences.GrabberTransform;
+            _RayOrigin = interactorReferences.RayOrigin;
+            _layerMask = interactorReferences.LayerMask;
+            _raycastHitDebug = interactorReferences.RaycastHitDebug;
+
+            _InteractorType = interactorType;
             _RaycastProvider = raycastProvider;
-
-            if (_multiplayerSupport != null && !_multiplayerSupport.IsConnectedToServer)
-                _multiplayerSupport.OnConnectedToServer += RenameInteractorToLocalID;
-            else
-                RenameInteractorToLocalID();
-
-            SubscribeToInputHandler(_InputHandler);
+            _multiplayerSupport = multiplayerSupport;
         }
 
-        private void RenameInteractorToLocalID() 
+        public virtual void HandleOnEnable()
         {
-            ushort localID = 0;
+            _interactorInputContainer.RangedClick.OnPressed += HandleRangedClickPressed;
+            _interactorInputContainer.HandheldClick.OnPressed += HandleHandheldClickPressed;
+            _interactorInputContainer.Grab.OnPressed += HandleGrabPressed;
+            _interactorInputContainer.ScrollTickUp.OnTickOver += HandleScrollUp;
+            _interactorInputContainer.ScrollTickDown.OnTickOver += HandleScrollDown;
+
+            if (_WaitingForMultiplayerSupport)
+                _multiplayerSupport.OnConnectedToInstance += RegisterWithContainer;
+            else
+                RegisterWithContainer();
+        }
+
+        public virtual void HandleOnDisable()
+        {
+            _interactorInputContainer.RangedClick.OnPressed -= HandleRangedClickPressed;
+            _interactorInputContainer.HandheldClick.OnPressed -= HandleHandheldClickPressed;
+            _interactorInputContainer.Grab.OnPressed -= HandleGrabPressed;
+            _interactorInputContainer.ScrollTickUp.OnTickOver -= HandleScrollUp;
+            _interactorInputContainer.ScrollTickDown.OnTickOver -= HandleScrollDown;
 
             if (_multiplayerSupport != null)
-            {
-                _multiplayerSupport.OnConnectedToServer -= RenameInteractorToLocalID;
-                localID = _multiplayerSupport.LocalClientID;
-            }
+                _multiplayerSupport.OnConnectedToInstance -= RegisterWithContainer;
 
-            gameObject.name = $"Interactor{localID}-{InteractorType}";
+            _interactorContainer.DeregisterInteractor(_InteractorID.ToString());
         }
 
-        protected abstract void SubscribeToInputHandler(IInputHandler inputHandler);
-
-        protected bool TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable)
+        private void RegisterWithContainer() 
         {
-            // Perform the raycast using the layer mask
-            if (!_waitingForMultiplayerSupport && _RaycastProvider.TryGetRangedInteractionModule(_RayOrigin.position, _RayOrigin.transform.forward, out RaycastResultWrapper rangedInteractableHitResult, MAX_RAYCAST_DISTANCE, _LayerMask))
+            if (_multiplayerSupport != null)
+                _multiplayerSupport.OnConnectedToInstance -= RegisterWithContainer;
+
+            _interactorContainer.RegisterInteractor(_InteractorID.ToString(), this);
+        }
+
+        public void HandleUpdate()
+        {
+            if (IsCurrentlyGrabbing)
+                return;
+
+            RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
+
+            if (!_WaitingForMultiplayerSupport && raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange)
             {
-                if (rangedInteractableHitResult.Distance <= rangedInteractableHitResult.RangedInteractable.InteractRange)
-                {
-                    hoveringInteractable = rangedInteractableHitResult.RangedInteractable;
-                    return true;
+                bool isAllowedToInteract = !raycastResultWrapper.RangedInteractable.AdminOnly;
+                SetInteractorState(isAllowedToInteract ? InteractorState.InteractionAvailable : InteractorState.InteractionLocked);
+                _raycastHitDebug.Value = raycastResultWrapper.RangedInteractable.ToString();
+            }
+            else
+            {
+                SetInteractorState(InteractorState.Idle);
+                _raycastHitDebug.Value = "none";
+            }
+
+            HandleRaycastDistance(raycastResultWrapper.HitDistance);
+        }
+
+        protected virtual void HandleRaycastDistance(float distance) { } //TODO: Code smell? InteractorVR needs this to set the LineRenderer length
+
+        private RaycastResultWrapper GetRayCastResult()
+        {
+            if (_RayOrigin == null) return null;
+            return _RaycastProvider.Raycast(_RayOrigin.position, _RayOrigin.forward, MAX_RAYCAST_DISTANCE, _layerMask);
+        }
+        
+        private void HandleRangedClickPressed()
+        {
+            if (_WaitingForMultiplayerSupport || IsCurrentlyGrabbing)
+                return;
+
+            RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
+
+            if (raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange &&
+                raycastResultWrapper.RangedInteractable is IRangedClickInteractionModule rangedClickInteractable)
+            {
+                rangedClickInteractable.Click(_InteractorID.ClientID);
+            }
+        }
+
+        private void HandleGrabPressed()
+        {
+            if (IsCurrentlyGrabbing)
+            {
+                IRangedGrabInteractionModule rangedGrabInteractableToDrop = _CurrentGrabbingGrabbable;
+                rangedGrabInteractableToDrop.RequestLocalDrop(_InteractorID);
+            }
+            else 
+            {
+                RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
+
+                if (!_WaitingForMultiplayerSupport && raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange)
+                {   
+                    if (!raycastResultWrapper.RangedInteractable.AdminOnly)
+                    {
+                        if (raycastResultWrapper.RangedInteractable is IRangedGrabInteractionModule rangedGrabInteractable)
+                        {
+                            rangedGrabInteractable.RequestLocalGrab(_InteractorID);
+                        }
+                    }
+                    else
+                    {
+                        //TODO, maybe play an error sound or something
+                    }
                 }
             }
-
-            hoveringInteractable = null;
-            return false;
         }
 
-        private void OnDestroy()
+        public void ConfirmGrab(IRangedGrabInteractionModule rangedGrabInteractable)
         {
-            UnsubscribeFromInputHandler(_InputHandler);
+            _CurrentGrabbingGrabbable = rangedGrabInteractable;
+            SetInteractorState(InteractorState.Grabbing);
         }
 
-        protected abstract void UnsubscribeFromInputHandler(IInputHandler inputHandler);
+        public void ConfirmDrop()
+        {
+            SetInteractorState(InteractorState.Idle);
+            _CurrentGrabbingGrabbable = null;
+        }
 
-        abstract public Transform ConfirmGrab(IRangedGrabInteractionModule rangedGrabInteractable);
+        private void HandleHandheldClickPressed()
+        {
+            if (!_WaitingForMultiplayerSupport && IsCurrentlyGrabbing)
+            {
+                foreach (IHandheldInteractionModule handheldInteraction in _CurrentGrabbingGrabbable.HandheldInteractions)
+                {
+                    if (handheldInteraction is IHandheldClickInteractionModule handheldClickInteraction)
+                    {
+                        handheldClickInteraction.Click(_InteractorID.ClientID);
+                    }
+                }
+            }
+        }
 
-        abstract public void ConfirmDrop();
+        private void HandleScrollUp()
+        {
+            if (!IsCurrentlyGrabbing)
+                return;
+
+            foreach (IHandheldInteractionModule handheldInteraction in _CurrentGrabbingGrabbable.HandheldInteractions)
+            {
+                if (handheldInteraction is IHandheldScrollInteractionModule handheldScrollInteraction)
+                {
+                    handheldScrollInteraction.ScrollUp(_InteractorID.ClientID);
+                }
+            }
+        }
+        private void HandleScrollDown()
+        {
+            if (!IsCurrentlyGrabbing)
+                return;
+
+            foreach (IHandheldInteractionModule handheldInteraction in _CurrentGrabbingGrabbable.HandheldInteractions)
+            {
+                if (handheldInteraction is IHandheldScrollInteractionModule handheldScrollInteraction)
+                {
+                    handheldScrollInteraction.ScrollDown(_InteractorID.ClientID);
+                }
+            }
+        }
+
+        // protected bool TryGetHoveringRangedInteractable(out IRangedInteractionModule hoveringInteractable)
+        // {
+        //     // Perform the raycast using the layer mask
+        //     if (!_WaitingForMultiplayerSupport && _RaycastProvider.Raycast(_RayOrigin.position, _RayOrigin.transform.forward, MAX_RAYCAST_DISTANCE, _LayerMask))
+        //     {
+        //         if (rangedInteractableHitResult.HitDistance <= rangedInteractableHitResult.RangedInteractable.InteractRange)
+        //         {
+        //             hoveringInteractable = rangedInteractableHitResult.RangedInteractable;
+        //             return true;
+        //         }
+        //     }
+
+        //     hoveringInteractable = null;
+        //     return false;
+        // }
+
+
+        protected abstract void SetInteractorState(InteractorState newState);
+
+        protected enum InteractorState
+        {
+            Idle,
+            InteractionAvailable,
+            InteractionLocked,
+            Grabbing
+        }
     }
 }
 
