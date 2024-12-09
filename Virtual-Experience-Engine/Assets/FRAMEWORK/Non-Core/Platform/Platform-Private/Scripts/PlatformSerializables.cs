@@ -155,18 +155,22 @@ namespace VE2.PlatformNetworking
             public GlobalInfo GlobalInfo { get; private set; }
             public Dictionary<string, WorldDetails> AvailableWorlds { get; private set; }
             public bool CompletedTutorial { get; private set; }
+            public string FTPIPAddress { get; private set; }
+            public ushort FTPPortNumber { get; private set; }
 
             public ServerRegistrationConfirmation() { }
 
             public ServerRegistrationConfirmation(byte[] bytes) : base(bytes) { }
 
-            public ServerRegistrationConfirmation(ushort localClientID, UserSettingsPersistable userSettings, GlobalInfo globalInfo, Dictionary<string, WorldDetails> availableWorlds, bool completedTutporial)
+            public ServerRegistrationConfirmation(ushort localClientID, UserSettingsPersistable userSettings, GlobalInfo globalInfo, Dictionary<string, WorldDetails> availableWorlds, bool completedTutporial, string ftpIPAddress, ushort ftpPortNumber)
             {
                 LocalClientID = localClientID;
                 UserSettings = userSettings;
                 GlobalInfo = globalInfo;
                 AvailableWorlds = availableWorlds;
                 CompletedTutorial = completedTutporial;
+                FTPIPAddress = FTPIPAddress;
+                FTPPortNumber = FTPPortNumber;
             }
 
             protected override byte[] ConvertToBytes()
@@ -198,6 +202,9 @@ namespace VE2.PlatformNetworking
 
                 // Serialize CompletedTutporial
                 writer.Write(CompletedTutorial);
+
+                writer.Write(FTPIPAddress);
+                writer.Write(FTPPortNumber);
 
                 return stream.ToArray();
             }
@@ -233,6 +240,9 @@ namespace VE2.PlatformNetworking
 
                 // Deserialize CompletedTutporial
                 CompletedTutorial = reader.ReadBoolean();
+
+                FTPIPAddress = reader.ReadString();
+                FTPPortNumber = reader.ReadUInt16();
             }
         }
 

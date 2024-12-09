@@ -11,7 +11,7 @@ using static VE2.Common.CommonSerializables;
 namespace VE2.PlatformNetworking
 {
     [ExecuteInEditMode]
-    public class V_PlatformIntegration : MonoBehaviour, IInstanceNetworkSettingsProvider, IPlayerSettingsProvider
+    public class V_PlatformIntegration : MonoBehaviour, IInstanceNetworkSettingsProvider, IPlayerSettingsProvider, IFTPNetworkSettingsProvider
     {
         #region Utlity
         // public bool PlayerSettingsProviderPresent => PlayerSettingsProvider != null;
@@ -32,6 +32,7 @@ namespace VE2.PlatformNetworking
         [Title("Debug Connection Settings")]
         [Help("For mocking the network settings that will be sent to V_InstanceIntegration in the editor. When you export your built world to the platform, the platform will override these settings.")]
         [SerializeField, IgnoreParent] private InstanceNetworkSettings DebugInstanceNetworkSettings = new("127.0.0.1", 4297, "dev-0");
+        [SerializeField, IgnoreParent] private FTPNetworkSettings DebugFTPNetworkSettings = new("127.0.0.1", 21, "testUN", "testPW");
 
         private IPlatformService _platformService;
 
@@ -44,10 +45,17 @@ namespace VE2.PlatformNetworking
             }
         }
 
+        #region Common network interfaces 
+        public bool AreNetworkingSettingsReady => PlatformService.IsConnectedToServer;
+        public event Action OnNetworkSettingsReady { add { PlatformService.OnConnectedToServer += value; } remove { PlatformService.OnConnectedToServer -= value; } }
+        #endregion
+
         #region Instance-Networking Interfaces
-        public bool AreInstanceNetworkingSettingsReady => PlatformService.IsConnectedToServer;
-        public event Action OnInstanceNetworkSettingsReady { add { PlatformService.OnConnectedToServer += value; } remove { PlatformService.OnConnectedToServer -= value; } }
         public InstanceNetworkSettings InstanceNetworkSettings => PlatformService.InstanceNetworkSettings;
+        #endregion
+
+        #region FTP-Networking Interfaces
+        public NetworkSettings FTPNetworkSettings => PlatformService.FTPNetworkSettings;
         #endregion
 
         #region Player Settings Interfaces
@@ -61,6 +69,8 @@ namespace VE2.PlatformNetworking
         #region Shared Interfaces 
         public string GameObjectName => gameObject.name;
         public bool IsEnabled => enabled && gameObject.activeInHierarchy;
+
+        public NetworkSettings NetworkSettings => throw new NotImplementedException();
         #endregion
 
 
@@ -78,14 +88,14 @@ namespace VE2.PlatformNetworking
             if (platformProviderGO != null)
                 _platformService = platformProviderGO.GetComponent<IPlatformServiceProvider>().PlatformService;
             else
-                _platformService = new DebugPlatformService(SceneManager.GetActiveScene().name + "-debug", DebugInstanceNetworkSettings, _debugUserSettings, _exchangeDebugUserSettingsWithPlayerPrefs);
+                _platformService = new DebugPlatformService(DebugInstanceNetworkSettings, DebugFTPNetworkSettings, _debugUserSettings, _exchangeDebugUserSettingsWithPlayerPrefs);
 
             _platformService.SetupForNewInstance(this);
 
             if (_platformService.IsConnectedToServer)
-            HandlePlatformServiceReady();
+                HandlePlatformServiceReady();
             else
-            _platformService.OnConnectedToServer += HandlePlatformServiceReady;
+                _platformService.OnConnectedToServer += HandlePlatformServiceReady;
         }
 
 
@@ -117,17 +127,20 @@ namespace VE2.PlatformNetworking
         //TODO, when the user changes their settings, save to player prefs, also, LOAD from player prefs!
         public InstanceNetworkSettings InstanceNetworkSettings { get; }
         public UserSettingsPersistable UserSettings { get; }
+
+        public FTPNetworkSettings FTPNetworkSettings { get; }
+
         private IPlayerSettingsProvider _playerSettingsProvider;
 
         private readonly bool _exchangeDebugUserSettingsWithPlayerPrefs;
 
         public event Action OnConnectedToServer;
 
-        public DebugPlatformService(string instanceCodeDebug, InstanceNetworkSettings networkSettingsDebug, UserSettingsPersistable userSettingsDebug, bool exchangeDebugUserSettingsWithPlayerPrefs)
+        public DebugPlatformService(InstanceNetworkSettings instanceNetworkSettingsDebug, FTPNetworkSettings ftpNetworkSetingsDebug, UserSettingsPersistable userSettingsDebug, bool exchangeDebugUserSettingsWithPlayerPrefs)
         {
             Debug.LogWarning($"No platform service provider found, using debug platform service. ");
-            InstanceNetworkSettings = new InstanceNetworkSettings("127.0.0.1", 4297, instanceCodeDebug);
-            InstanceNetworkSettings = networkSettingsDebug;
+            InstanceNetworkSettings = instanceNetworkSettingsDebug;
+            FTPNetworkSettings = ftpNetworkSetingsDebug;
             UserSettings = userSettingsDebug;
             _exchangeDebugUserSettingsWithPlayerPrefs = exchangeDebugUserSettingsWithPlayerPrefs;
         }

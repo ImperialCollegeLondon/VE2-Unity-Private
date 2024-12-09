@@ -12,6 +12,8 @@ public interface IPlatformService //TODO, maybe not all of these should live in 
 
     public InstanceNetworkSettings InstanceNetworkSettings { get; }
 
+    public FTPNetworkSettings FTPNetworkSettings { get; }
+
     public void SetupForNewInstance(IPlayerSettingsProvider playerSettingsProvider);
 }
 
