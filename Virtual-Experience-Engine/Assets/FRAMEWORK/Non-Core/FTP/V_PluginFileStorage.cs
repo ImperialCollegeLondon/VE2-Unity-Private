@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class V_PluginFileStorage : MonoBehaviour
 {
@@ -9,11 +10,9 @@ public class V_PluginFileStorage : MonoBehaviour
 
     private void OnEnable()
     {
-        _fileStorageService = FileStorageServiceFactory.CreateFileStorageService(ftpNetworkSettings, "/WorldFiles/Seismics");
+        _fileStorageService = FileStorageServiceFactory.CreateFileStorageService(ftpNetworkSettings, $"PluginFiles/{SceneManager.GetActiveScene().name}");
         _fileStorageService.OnFileStorageServiceReady += HandleFileStorageServiceReady;
     }
-
-    private void OnDisable() => _fileStorageService.TearDown();
 
     private void HandleFileStorageServiceReady()
     {
@@ -25,4 +24,6 @@ public class V_PluginFileStorage : MonoBehaviour
             Debug.Log("Remote file: " + file.Key + " - " + file.Value.fileName + " - " + file.Value.fileSize);
         }
     }
+
+    private void OnDisable() => _fileStorageService.TearDown();
 }

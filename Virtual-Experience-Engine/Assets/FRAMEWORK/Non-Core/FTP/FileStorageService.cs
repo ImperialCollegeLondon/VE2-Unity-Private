@@ -35,16 +35,20 @@ public class FileStorageService
     {
         _ftpService = ftpService;
 
-        _remoteWorkingPath =  workingPath; //      _remoteWorkingPath =  "VE2/" + workingPath;
+        _remoteWorkingPath =  "VE2/" + workingPath;
         _localWorkingPath = Application.persistentDataPath + "\\files" + CorrectLocalPath(workingPath);
+
+        RefreshFileLists();
+    }
+
+    public void RefreshFileLists()
+    {
+        remoteFiles.Clear();
+        localFiles.Clear();
 
         FindRemoteFilesInFolderAndSubFolders(_remoteWorkingPath);
         FindLocalFilesInFolderAndSubFolders(_localWorkingPath);
     }
-
-    public void TearDown() => _ftpService.TearDown();
-
-    //TODO - Should this logic all belong in the FTPService?
 
     private void FindRemoteFilesInFolderAndSubFolders(string remoteFolderPath)
     {
@@ -71,7 +75,7 @@ public class FileStorageService
 
         foreach (string subFolder in folderListTask.FoundFolderNames) //TODO: Does this return the full folder path, like VE2/PluginFiles/WorldName/Folder1/Folder2? or does it just return Folder2?
         {
-            FindRemoteFilesInFolderAndSubFolders($"{_remoteWorkingPath}/{subFolder}");
+            FindRemoteFilesInFolderAndSubFolders($"{folderListTask.RemotePath}/{subFolder}");
 
             //Do we want to create a local folder for each remote folder now?
             //May as well, I suppose? 
@@ -97,7 +101,10 @@ public class FileStorageService
         foreach (FileDetails fileDetails in fileListTask.FoundFilesDetails)
         {
             Debug.Log("Add Remote file: " + fileDetails.fileName + " - " + fileDetails.fileSize);
-            remoteFiles.Add(fileDetails.fileName, fileDetails); //TODO: key should be full path here - confirmed the key is just the file name, we want the full path
+            string fileNameAndPath = $"{fileListTask.RemotePath}/{fileDetails.fileName}";
+            string workingFileNameAndPath = fileNameAndPath.Replace($"{_remoteWorkingPath}/", "");
+
+            remoteFiles.Add(workingFileNameAndPath, fileDetails); //TODO: key should be full path here - confirmed the key is just the file name, we want the full path
         }
 
         Debug.Log("Ready? " + IsFileStorageServiceReady + " Busy? " + _ftpService.IsBusy);
@@ -139,6 +146,8 @@ public class FileStorageService
             Console.WriteLine($"An I/O error occurred: {ex.Message}");
         }
     }
+
+    public void TearDown() => _ftpService.TearDown();
 
     private string CorrectLocalPath(string path) => path.Replace("/", "\\");
 }
