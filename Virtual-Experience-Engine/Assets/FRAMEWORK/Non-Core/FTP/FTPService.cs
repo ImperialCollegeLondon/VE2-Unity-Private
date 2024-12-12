@@ -7,18 +7,31 @@ using UnityEngine;
 
 public static class FTPServiceFactory
 {
-    public static FTPService Create(ConnectionInfo connectionInfo)
+    public static FTPService Create(ConnectionInfo connectionInfo, string workingPath)
     {
         SftpClient sftpClient = new(connectionInfo);
         FTPCommsHandler ftpCommsHandler = new(sftpClient);
-        return new FTPService(ftpCommsHandler);
+        return new FTPService(ftpCommsHandler, workingPath);
     }
 }
 
-public class FTPService // : IFTPService
+public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? 
 {
     #region Higher-level interfaces 
-    public bool IsBusy => _taskQueue.Count > 0 || (_currentTask != null && !_currentTask.IsCompleted && !_currentTask.IsCancelled);
+    public bool IsFTPServiceReady;
+    public event Action OnFTPServiceReady;
+
+    public bool IsWorking => _taskQueue.Count > 0 || (_currentTask != null && !_currentTask.IsCompleted && !_currentTask.IsCancelled);
+
+    public event Action OnRemoteFileListUpdated;
+    public readonly Dictionary<string, FileDetails> RemoteFiles = new();
+
+    public void RefreshRemoteFileList()
+    {
+        RemoteFiles.Clear();
+
+        FindRemoteFilesInFolderAndSubFolders(""); //Root of working path
+    }
 
     /// <summary>
     /// Queue a file for download
@@ -29,6 +42,7 @@ public class FTPService // : IFTPService
     /// <returns>TasK ID (for checking status/progress, or for cancelling)</returns>
     public FTPDownloadTask DownloadFile(string remotePath, string localPath, string filename)
     {
+        remotePath = $"{_remoteWorkingPath}/{remotePath}";
         FTPDownloadTask task = new(_nextQueueEntryID, remotePath, localPath, filename);
         Enqueue(task);
         Debug.Log($"Enqueuing download id {task.TaskID}");
@@ -44,9 +58,23 @@ public class FTPService // : IFTPService
     /// <returns>TasK ID  (for checking status/progress, or for cancelling)</returns>
     public FTPUploadTask UploadFile(string remotePath, string localPath, string filename)
     {
+        remotePath = $"{_remoteWorkingPath}/{remotePath}";
         FTPUploadTask task = new(_nextQueueEntryID, remotePath, localPath, filename);
+        task.OnComplete += OnUploadFileComplete;
         Enqueue(task);
         return task;
+    }
+
+    private void OnUploadFileComplete(FTPFileTransferTask task)
+    {
+        task.OnComplete -= OnUploadFileComplete;
+        if (task.CompletionCode == FTPCompletionCode.Success)
+        {
+            //If we've uploaded a file, we should add it to the list of remote files
+            string correctedFileNameAndPath = task.RemotePath.Replace($"{_remoteWorkingPath}/", "");
+            RemoteFiles.Add(correctedFileNameAndPath, new FileDetails { fileName = task.Name, fileSize = task.TotalFileSizeToTransfer });
+            OnRemoteFileListUpdated?.Invoke();
+        }
     }
 
     /// <summary>
@@ -57,6 +85,7 @@ public class FTPService // : IFTPService
     /// <returns>TasK ID  (for checking status)</returns>
     public FTPRemoteFileListTask GetRemoteFileList(string remotePath)
     {
+        remotePath = $"{_remoteWorkingPath}/{remotePath}";
         FTPRemoteFileListTask task = new(_nextQueueEntryID, remotePath);
         Enqueue(task);
         return task;
@@ -70,6 +99,8 @@ public class FTPService // : IFTPService
     /// <returns>TasK ID  (for checking status)</returns>
     public FTPRemoteFolderListTask GetRemoteFolderList(string remotePath)
     {
+        remotePath = $"{_remoteWorkingPath}/{remotePath}";
+        Debug.Log("Get remote folder list " + remotePath);
         FTPRemoteFolderListTask task = new(_nextQueueEntryID, remotePath);
         Enqueue(task);
         return task;
@@ -83,9 +114,23 @@ public class FTPService // : IFTPService
     /// <returns>TasK ID  (for checking status)</returns>
     public FTPDeleteTask DeleteRemoteFileOrEmptyFolder(string remotePath, string filename)
     {
+        remotePath = $"{_remoteWorkingPath}/{remotePath}";
         FTPDeleteTask task = new(_nextQueueEntryID, remotePath, filename);
+        task.OnComplete += OnDeleteRemoteFileComplete;
         Enqueue(task);
         return task;
+    }
+
+    public void OnDeleteRemoteFileComplete(FTPRemoteTask task)
+    {
+        task.OnComplete -= OnDeleteRemoteFileComplete;
+        if (task.CompletionCode == FTPCompletionCode.Success && RemoteFiles.ContainsKey(task.RemotePath)) 
+        {
+            RemoteFiles.Remove(task.RemotePath);
+            OnRemoteFileListUpdated?.Invoke();
+        }
+
+        //TODO: if this was a folder, we should also delete the directory it was in automatically?
     }
 
     /// <summary>
@@ -96,6 +141,7 @@ public class FTPService // : IFTPService
     /// <returns>TasK ID  (for checking status)</returns>
     public FTPMakeFolderTask MakeRemoteFolder(string remotePath, string folderName)
     {
+        remotePath = $"{_remoteWorkingPath}/{remotePath}";
         FTPMakeFolderTask task = new(_nextQueueEntryID, remotePath, folderName);
         Enqueue(task);
         return task;
@@ -123,122 +169,163 @@ public class FTPService // : IFTPService
     /// cancelling an underway task of another type will have no effect.
     /// </summary>
     /// <param name="taskID">The Task ID returned when task was queued</param>
-    public void CancelTask(int taskID)
+    public void CancelTask(string fileNameAndPath)
     {
-        Status s = GetTaskStatus(taskID);
-        if (s == Status.underway)
+        //If the current task is transferring that file
+        if (_currentTask.RemotePath.Replace($"{_remoteWorkingPath}/", "").Equals(fileNameAndPath))
         {
-            if (_currentTask is FTPExchangeFileOperationTask exchangeTask)
+            if (_currentTask is FTPFileTransferTask exchangeTask)
                 exchangeTask.Cancel();
+            else 
+                Debug.LogWarning($"Tried to cancel a task in progress but that task is not a file transfer task - {fileNameAndPath}");
+
+            return;
         }
-        else if (s == Status.queued)
+
+        foreach (FTPTaskBase queuedTask in _taskQueue)
         {
-            foreach (FTPTaskBase task in _taskQueue)
+            if (queuedTask.RemotePath.Replace($"{_remoteWorkingPath}/", "").Equals(fileNameAndPath))
             {
-                if (task.TaskID == taskID)
-                {
-                    //can't actually remove items from queue - so leave there, marked as cancelled
-                    task.Cancel();
-                    //Debug.Log($"Cancelled {taskID}");
-                }
+                queuedTask.Cancel();
+                return;
             }
         }
+
+        Debug.LogError($"Tried to cancel a task that was not found in the queue or in progress {fileNameAndPath}");
     }
 
     /// <summary>
     /// Get progress of task (as a float 0-100%). Underway tasks will return at most 99%
-    /// Complete tasks will return 100%. Queued or non-existent tasks will return 0%
+    /// Queued will return 0%, and tasks that are not in progress (either completed or not queued) will return -1
     /// An underway task that is not an upload or download will show 0%, until it shows 100%
     /// </summary>
     /// <param name="taskID">The Task ID returned when task was queued</param>
     /// <returns></returns>
-    public float GetTaskPercentageProgress(int taskID)
+    public float GetFileTransferProgress(string fileNameAndPath)
     {
-        Status s = GetTaskStatus(taskID);
-
-        if (s == Status.completed) 
-            return 100f;
-        else if (s == Status.unknown || s == Status.queued)
-            return 0f;
-
-        //Task is underway
-        
-        if (_currentTask is FTPExchangeFileOperationTask exchangeTask)
-            return Mathf.Clamp(exchangeTask.CurrentProgress * 100f, 0f, 99f); //ensure only get 100% on completion
-        else 
-            return 0f;
-    }
-
-    public enum Status { queued, underway, unknown, completed }
-
-    /// <summary>
-    /// Find status of a task (queued, underway, completed, or unknown)
-    /// Task IDs that are not recognised or have been successfully cancelled will give unknown.
-    /// </summary>
-    /// <param name="taskID">The Task ID returned when task was queued</param>
-    /// <returns></returns>
-    public Status GetTaskStatus(int taskID)
-    {
-        if (_completedTasks.Contains(taskID)) 
-            return Status.completed;
-
-        if (_currentTask != null && taskID == _currentTask.TaskID)
-            return Status.underway;
-
-        foreach (FTPTaskBase task in _taskQueue)
+        //If the current task is transferring that file
+        if (_currentTask.RemotePath.Replace($"{_remoteWorkingPath}/", "").Equals(fileNameAndPath))
         {
-            if (task.TaskID == taskID)
+            if (_currentTask is FTPFileTransferTask exchangeTask)
+                return Mathf.Clamp(exchangeTask.CurrentProgress * 100f, 0f, 99f); //ensure only get 100% on completion
+            else
+                throw new Exception($"FTP system found the requested file {fileNameAndPath}, and tried to get its progress, but it is not a file transfer task!");
+        }
+
+        foreach (FTPTaskBase queuedTask in _taskQueue)
+        {
+            if (queuedTask.RemotePath.Replace($"{_remoteWorkingPath}/", "").Equals(fileNameAndPath))
             {
-                if (task.IsCancelled)
-                    return Status.unknown;
+                if (queuedTask is FTPFileTransferTask)
+                    return 0;
                 else
-                    return Status.queued;
+                    throw new Exception($"FTP system found the requested file {fileNameAndPath}, and tried to get its progress, but it is not a file transfer task!");
             }
         }
-        return Status.unknown; //did not find it at all
+
+        return -1;
     }
     #endregion
 
 
     private int _nextQueueEntryID = 0;
 
-    private HashSet<int> _completedTasks = new();  //keep track so we can report their status
     private Queue<FTPTaskBase> _taskQueue = new();
     private FTPTaskBase _currentTask = null;
 
     private readonly FTPCommsHandler _commsHandler;
+    private readonly string _remoteWorkingPath;
 
-    public FTPService(FTPCommsHandler commsHandler)
+    public FTPService(FTPCommsHandler commsHandler, string remoteWorkingPath)
     {
         _commsHandler = commsHandler;
+        _remoteWorkingPath = remoteWorkingPath;
 
         _commsHandler.OnStatusChanged += HandleStatusChanged;
+
+        RefreshRemoteFileList(); //Once this completes, service will be ready
+    }
+
+    private void FindRemoteFilesInFolderAndSubFolders(string remoteFolderPath)
+    {
+        Debug.Log("Searching for remote files in " + remoteFolderPath);
+
+        FTPRemoteFolderListTask subFolderListTask = GetRemoteFolderList(remoteFolderPath);
+        subFolderListTask.OnComplete += HandleGetRemoteFolderListComplete;
+
+        FTPRemoteFileListTask fileListTask = GetRemoteFileList(remoteFolderPath);
+        fileListTask.OnComplete += HandleGetRemoteFileListComplete;
+    }
+
+    private void HandleGetRemoteFolderListComplete(FTPRemoteFolderListTask folderListTask)
+    {
+        folderListTask.OnComplete -= HandleGetRemoteFolderListComplete;
+
+        Debug.Log($"Done get remote folder list for {folderListTask.RemotePath} - {folderListTask.CompletionCode}");
+
+        if (folderListTask.CompletionCode != FTPCompletionCode.Success)
+        {
+            Debug.LogError($"Failed to get remote folder list: {folderListTask.CompletionCode}");
+            return;
+        }
+
+        foreach (string subFolder in folderListTask.FoundFolderNames) //TODO: Does this return the full folder path, like VE2/PluginFiles/WorldName/Folder1/Folder2? or does it just return Folder2?
+        {
+            Debug.Log("Check sub folder " + subFolder);
+            string fileNameAndPath = $"{folderListTask.RemotePath}/{subFolder}";
+            string workingFileNameAndPath = fileNameAndPath.Replace($"{_remoteWorkingPath}/", "");
+            FindRemoteFilesInFolderAndSubFolders(workingFileNameAndPath);
+
+            //Do we want to create a local folder for each remote folder now?
+            //May as well, I suppose? 
+            // if (!Directory.Exists(_localWorkingPath + "\\" + subFolder))
+            // {
+            //     Directory.CreateDirectory(_localWorkingPath + "\\" + subFolder);
+            // }
+        }
+    }
+
+    private void HandleGetRemoteFileListComplete(FTPRemoteFileListTask fileListTask)
+    {
+        fileListTask.OnComplete -= HandleGetRemoteFileListComplete;
+
+        Debug.Log($"Done get remote file list for folder {fileListTask.RemotePath} - {fileListTask.CompletionCode}");
+
+        if (fileListTask.CompletionCode != FTPCompletionCode.Success)
+        {
+            Debug.LogError($"Failed to get remote file list: {fileListTask.CompletionCode}");
+            return;
+        }
+
+        foreach (FileDetails fileDetails in fileListTask.FoundFilesDetails)
+        {
+            Debug.Log("Add Remote file: " + fileDetails.fileName + " - " + fileDetails.fileSize);
+            string fileNameAndPath = $"{fileListTask.RemotePath}/{fileDetails.fileName}";
+            string workingFileNameAndPath = fileNameAndPath.Replace($"{_remoteWorkingPath}/", "");
+
+            RemoteFiles.Add(workingFileNameAndPath, fileDetails); //TODO: key should be full path here - confirmed the key is just the file name, we want the full path
+        }
+
+        Debug.Log("Ready? " + IsFTPServiceReady + " Busy? " + IsWorking);
+        //Once we've found all remote files, the service is ready 
+        if (!IsFTPServiceReady && !IsWorking)
+        {
+            Debug.Log("File storage service is ready!");
+            IsFTPServiceReady = true;
+            OnFTPServiceReady?.Invoke();
+        }
     }
 
     public void TearDown()
     {
         if (_currentTask != null) 
-            CancelTask(_currentTask.TaskID);
+            _currentTask.Cancel();
 
         foreach (FTPTaskBase t in _taskQueue)
-            CancelTask(_currentTask.TaskID);
+            _currentTask.Cancel();
 
         _commsHandler.OnStatusChanged -= HandleStatusChanged;
     }
-
-    // private string GetLocalPath(string path, bool create = false)
-    // {
-    //     string loc = path.Replace("/", "\\");
-    //     if (loc == "")
-    //         loc = Application.persistentDataPath + "\\files";
-    //     else
-    //         loc = Application.persistentDataPath + "\\files\\" + loc;
-
-    //     if (create)
-    //         Directory.CreateDirectory(loc);
-
-    //     return loc;
-    // }
 
     //gets called on startup, when something is added, and whenever client changes status to ready
     //if this gets buggy it could more robustly but less efficiently sit in Update()
@@ -247,9 +334,6 @@ public class FTPService // : IFTPService
         Debug.Log("Processing queue");
         if (_commsHandler.Status == FTPStatus.Busy) 
             return;
-
-        if (_currentTask != null && !_currentTask.IsCancelled)
-            _completedTasks.Add(_currentTask.TaskID); //record it as done
 
         do //keep pulling from queue until we find a task not cancelled, or nothing to do
         {
@@ -333,18 +417,18 @@ public abstract class FTPTask<TCompletedTask> : FTPTaskBase where TCompletedTask
     }
 }
 
-public abstract class FTPExchangeFileOperationTask : FTPTask<FTPExchangeFileOperationTask>
+public abstract class FTPFileTransferTask : FTPTask<FTPFileTransferTask>
 {
     public event Action<float> OnProgressChanged;
-    public float CurrentProgress => _dataTransferred / RemoteFileSize;
-    public ulong RemoteFileSize;
+    public float CurrentProgress => _dataTransferred / TotalFileSizeToTransfer; 
+    public ulong TotalFileSizeToTransfer;
     private ulong _dataTransferred;
     private ulong _lastDataTransferred;
 
     public readonly string LocalPath;
     public readonly string Name;
 
-    public FTPExchangeFileOperationTask(int taskID, string remotePath, string localPath, string name) : base(taskID, remotePath) 
+    public FTPFileTransferTask(int taskID, string remotePath, string localPath, string name) : base(taskID, remotePath) 
     {
         LocalPath = localPath;
         Name = name;
@@ -373,12 +457,12 @@ public abstract class FTPExchangeFileOperationTask : FTPTask<FTPExchangeFileOper
     public override string ToString() => $"ID:{TaskID} Name:{Name}  Rpath:{RemotePath} Lpath:{LocalPath}";
 }
 
-public class FTPDownloadTask : FTPExchangeFileOperationTask
+public class FTPDownloadTask : FTPFileTransferTask
 {
     public FTPDownloadTask(int taskID, string remotePath, string localPath, string name) : base(taskID, remotePath, localPath, name) { }
 }
 
-public class FTPUploadTask : FTPExchangeFileOperationTask
+public class FTPUploadTask : FTPFileTransferTask
 {
     public FTPUploadTask(int taskID, string remotePath, string localPath, string name) : base(taskID, remotePath, localPath, name) { }
 }

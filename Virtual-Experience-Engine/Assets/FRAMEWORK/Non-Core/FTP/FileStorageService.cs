@@ -10,7 +10,7 @@ public static class FileStorageServiceFactory
     {
         SftpClient sftpClient = new(ftpNetworkSettings.IP, ftpNetworkSettings.Port, ftpNetworkSettings.Username, ftpNetworkSettings.Password);
         FTPCommsHandler commsHandler = new(sftpClient);
-        FTPService ftpService = new(commsHandler);
+        FTPService ftpService = new(commsHandler, workingPath);
 
         return new FileStorageService(ftpService, workingPath);
     }
@@ -19,102 +19,38 @@ public static class FileStorageServiceFactory
 public class FileStorageService
 {
     #region higher-level interfaces 
-    public bool IsFileStorageServiceReady;
-    public event Action OnFileStorageServiceReady;
+    public bool IsFileStorageServiceReady => _ftpService.IsFTPServiceReady;
+    public event Action OnFileStorageServiceReady { add { _ftpService.OnFTPServiceReady += value; } remove { _ftpService.OnFTPServiceReady -= value; } }
 
-    public readonly Dictionary<string, FileDetails> remoteFiles = new();
     public readonly Dictionary<string, FileDetails> localFiles = new();
+    //Need to show things in queue, and things in progress
+
+    public Dictionary<string, FTPFileTransferTask> QueuedTransferTasks;
+    public FTPFileTransferTask currentTransferTask;
+
+    public event Action OnFileTransferComplete;
+
+    public Dictionary<string, FileDetails> RemoteFiles => _ftpService.RemoteFiles;
     #endregion
 
 
     private readonly FTPService _ftpService;
-    private readonly string _remoteWorkingPath;
     private readonly string _localWorkingPath;
 
     public FileStorageService(FTPService ftpService, string workingPath) //Path will either be Worlds or e.g PluginFiles/{worldName}
     {
         _ftpService = ftpService;
 
-        _remoteWorkingPath =  "VE2/" + workingPath;
+        //_remoteWorkingPath =  "VE2/" + workingPath;
         _localWorkingPath = Application.persistentDataPath + "\\files" + CorrectLocalPath(workingPath);
 
-        RefreshFileLists();
+        RefreshLocalFiles();
     }
 
-    public void RefreshFileLists()
+    public void RefreshLocalFiles()
     {
-        remoteFiles.Clear();
         localFiles.Clear();
-
-        FindRemoteFilesInFolderAndSubFolders(_remoteWorkingPath);
         FindLocalFilesInFolderAndSubFolders(_localWorkingPath);
-    }
-
-    private void FindRemoteFilesInFolderAndSubFolders(string remoteFolderPath)
-    {
-        Debug.Log("Searching for remote files in " + remoteFolderPath);
-
-        FTPRemoteFolderListTask subFolderListTask = _ftpService.GetRemoteFolderList(remoteFolderPath);
-        subFolderListTask.OnComplete += HandleGetRemoteFolderListComplete;
-
-        FTPRemoteFileListTask fileListTask = _ftpService.GetRemoteFileList(remoteFolderPath);
-        fileListTask.OnComplete += HandleGetRemoteFileListComplete;
-    }
-
-    private void HandleGetRemoteFolderListComplete(FTPRemoteFolderListTask folderListTask)
-    {
-        folderListTask.OnComplete -= HandleGetRemoteFolderListComplete;
-
-        Debug.Log("Done get remote folder list " + folderListTask.CompletionCode + " found folders " + folderListTask.FoundFolderNames.Count);
-
-        if (folderListTask.CompletionCode != FTPCompletionCode.Success)
-        {
-            Debug.LogError($"Failed to get remote folder list: {folderListTask.CompletionCode}");
-            return;
-        }
-
-        foreach (string subFolder in folderListTask.FoundFolderNames) //TODO: Does this return the full folder path, like VE2/PluginFiles/WorldName/Folder1/Folder2? or does it just return Folder2?
-        {
-            FindRemoteFilesInFolderAndSubFolders($"{folderListTask.RemotePath}/{subFolder}");
-
-            //Do we want to create a local folder for each remote folder now?
-            //May as well, I suppose? 
-            // if (!Directory.Exists(_localWorkingPath + "\\" + subFolder))
-            // {
-            //     Directory.CreateDirectory(_localWorkingPath + "\\" + subFolder);
-            // }
-        }
-    }
-
-    private void HandleGetRemoteFileListComplete(FTPRemoteFileListTask fileListTask)
-    {
-        fileListTask.OnComplete -= HandleGetRemoteFileListComplete;
-
-        Debug.Log("Done get remote file list " + fileListTask.CompletionCode + " found files " + fileListTask.FoundFilesDetails.Count); 
-
-        if (fileListTask.CompletionCode != FTPCompletionCode.Success)
-        {
-            Debug.LogError($"Failed to get remote file list: {fileListTask.CompletionCode}");
-            return;
-        }
-
-        foreach (FileDetails fileDetails in fileListTask.FoundFilesDetails)
-        {
-            Debug.Log("Add Remote file: " + fileDetails.fileName + " - " + fileDetails.fileSize);
-            string fileNameAndPath = $"{fileListTask.RemotePath}/{fileDetails.fileName}";
-            string workingFileNameAndPath = fileNameAndPath.Replace($"{_remoteWorkingPath}/", "");
-
-            remoteFiles.Add(workingFileNameAndPath, fileDetails); //TODO: key should be full path here - confirmed the key is just the file name, we want the full path
-        }
-
-        Debug.Log("Ready? " + IsFileStorageServiceReady + " Busy? " + _ftpService.IsBusy);
-        //Once we've found all remote files, the service is ready 
-        if (!IsFileStorageServiceReady && !_ftpService.IsBusy)
-        {
-            Debug.Log("File storage service is ready!");
-            IsFileStorageServiceReady = true;
-            OnFileStorageServiceReady?.Invoke();
-        }
     }
 
     private void FindLocalFilesInFolderAndSubFolders(string path)

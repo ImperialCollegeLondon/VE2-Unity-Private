@@ -437,7 +437,7 @@ public class FTPCommsHandler : IFTPCommsHandler
                 return FTPCompletionCode.RemoteFileError;
             }
 
-            downloadTask.RemoteFileSize = (ulong)attribs.Size;
+            downloadTask.TotalFileSizeToTransfer = (ulong)attribs.Size;
 
             try
             {
@@ -535,7 +535,7 @@ public class FTPCommsHandler : IFTPCommsHandler
                     Debug.LogError("SFTP: Local file does not exist for upload");
                     return FTPCompletionCode.LocalFileError;
                 }
-                uploadTask.RemoteFileSize = (ulong)f.Length;
+                uploadTask.TotalFileSizeToTransfer = (ulong)f.Length;
             }
             catch
             {
