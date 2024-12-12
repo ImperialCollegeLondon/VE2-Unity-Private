@@ -2,22 +2,34 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using Renci.SshNet;
 using UnityEngine;
 
+public static class FTPServiceFactory
+{
+    public static FTPService Create(ConnectionInfo connectionInfo)
+    {
+        SftpClient sftpClient = new(connectionInfo);
+        FTPCommsHandler ftpCommsHandler = new(sftpClient);
+        return new FTPService(ftpCommsHandler);
+    }
+}
 
 public class FTPService // : IFTPService
 {
     #region Higher-level interfaces 
+    public bool IsBusy => _taskQueue.Count > 0 || (_currentTask != null && !_currentTask.IsCompleted && !_currentTask.IsCancelled);
+
     /// <summary>
     /// Queue a file for download
     /// </summary>
-    /// <param name="path">path should use / as separator not \</param>
+    /// <param name="remotePath">path should use / as separator not \</param>
     /// <param name="filename"></param>
     /// <param name="callback">callback on completion or failure</param>
     /// <returns>TasK ID (for checking status/progress, or for cancelling)</returns>
-    public FTPDownloadTask DownloadFile(string path, string filename)
+    public FTPDownloadTask DownloadFile(string remotePath, string localPath, string filename)
     {
-        FTPDownloadTask task = new(_nextQueueEntryID, path, GetLocalPath(path, true), filename);
+        FTPDownloadTask task = new(_nextQueueEntryID, remotePath, localPath, filename);
         Enqueue(task);
         Debug.Log($"Enqueuing download id {task.TaskID}");
         return task;
@@ -26,13 +38,13 @@ public class FTPService // : IFTPService
     /// <summary>
     /// Queue a file for upload
     /// </summary>
-    /// <param name="path">path should use / as separator not \</param>
+    /// <param name="remotePath">path should use / as separator not \</param>
     /// <param name="filename"></param>
     /// <param name="callback">callback on completion or failure</param>
     /// <returns>TasK ID  (for checking status/progress, or for cancelling)</returns>
-    public FTPUploadTask UploadFile(string path, string filename)
+    public FTPUploadTask UploadFile(string remotePath, string localPath, string filename)
     {
-        FTPUploadTask task = new(_nextQueueEntryID, path, GetLocalPath(path), filename);
+        FTPUploadTask task = new(_nextQueueEntryID, remotePath, localPath, filename);
         Enqueue(task);
         return task;
     }
@@ -40,12 +52,12 @@ public class FTPService // : IFTPService
     /// <summary>
     /// Queue a request for list of files in a given remote path
     /// </summary>
-    /// <param name="path">path should use / as separator not \</param>
+    /// <param name="remotePath">path should use / as separator not \</param>
     /// <param name="callback">callback on completion or failure</param>
     /// <returns>TasK ID  (for checking status)</returns>
-    public FTPRemoteFileListTask GetRemoteFileList(string path)
+    public FTPRemoteFileListTask GetRemoteFileList(string remotePath)
     {
-        FTPRemoteFileListTask task = new(_nextQueueEntryID, path);
+        FTPRemoteFileListTask task = new(_nextQueueEntryID, remotePath);
         Enqueue(task);
         return task;
     }
@@ -53,12 +65,12 @@ public class FTPService // : IFTPService
     /// <summary>
     /// Queue a request for list of subfolders in a given remote path
     /// </summary>
-    /// <param name="path">path should use / as separator not \</param>
+    /// <param name="remotePath">path should use / as separator not \</param>
     /// <param name="callback">callback on completion or failure</param>
     /// <returns>TasK ID  (for checking status)</returns>
-    public FTPRemoteFolderListTask GetRemoteFolderList(string path)
+    public FTPRemoteFolderListTask GetRemoteFolderList(string remotePath)
     {
-        FTPRemoteFolderListTask task = new(_nextQueueEntryID, path);
+        FTPRemoteFolderListTask task = new(_nextQueueEntryID, remotePath);
         Enqueue(task);
         return task;
     }
@@ -66,12 +78,12 @@ public class FTPService // : IFTPService
     /// <summary>
     /// Queue a request to delete a remote file (does not delete local file)
     /// </summary>
-    /// <param name="path">path should use / as separator not \</param>
+    /// <param name="remotePath">path should use / as separator not \</param>
     /// <param name="callback">callback on completion or failure</param>
     /// <returns>TasK ID  (for checking status)</returns>
-    public FTPDeleteTask DeleteRemoteFileOrEmptyFolder(string path, string filename)
+    public FTPDeleteTask DeleteRemoteFileOrEmptyFolder(string remotePath, string filename)
     {
-        FTPDeleteTask task = new(_nextQueueEntryID, path, filename);
+        FTPDeleteTask task = new(_nextQueueEntryID, remotePath, filename);
         Enqueue(task);
         return task;
     }
@@ -79,12 +91,12 @@ public class FTPService // : IFTPService
     /// <summary>
     /// Queue a request to create a remote folder (does not create it locally)
     /// </summary>
-    /// <param name="path">path should use / as separator not \</param>
+    /// <param name="remotePath">path should use / as separator not \</param>
     /// <param name="callback">callback on completion or failure</param>
     /// <returns>TasK ID  (for checking status)</returns>
-    public FTPMakeFolderTask MakeRemoteFolder(string path, string folderName)
+    public FTPMakeFolderTask MakeRemoteFolder(string remotePath, string folderName)
     {
-        FTPMakeFolderTask task = new(_nextQueueEntryID, path, folderName);
+        FTPMakeFolderTask task = new(_nextQueueEntryID, remotePath, folderName);
         Enqueue(task);
         return task;
     }
@@ -191,7 +203,6 @@ public class FTPService // : IFTPService
     private int _nextQueueEntryID = 0;
 
     private HashSet<int> _completedTasks = new();  //keep track so we can report their status
-
     private Queue<FTPTaskBase> _taskQueue = new();
     private FTPTaskBase _currentTask = null;
 
@@ -201,15 +212,7 @@ public class FTPService // : IFTPService
     {
         _commsHandler = commsHandler;
 
-        //These logically belong on the layer above, but are here as those are statics
-        string pathWorlds = Application.persistentDataPath + "\\files\\Worlds";
-
-        //create folders if they do not exist
-        if (!Directory.Exists(pathWorlds)) Directory.CreateDirectory(pathWorlds);
-
-        //TODO: Sort out the above 
-
-        //TODO: wire up ProgressChanged and StatusChanged
+        _commsHandler.OnStatusChanged += HandleStatusChanged;
     }
 
     public void TearDown()
@@ -219,26 +222,29 @@ public class FTPService // : IFTPService
 
         foreach (FTPTaskBase t in _taskQueue)
             CancelTask(_currentTask.TaskID);
+
+        _commsHandler.OnStatusChanged -= HandleStatusChanged;
     }
 
-    private string GetLocalPath(string path, bool create = false)
-    {
-        string loc = path.Replace("/", "\\");
-        if (loc == "")
-            loc = Application.persistentDataPath + "\\files";
-        else
-            loc = Application.persistentDataPath + "\\files\\" + loc;
+    // private string GetLocalPath(string path, bool create = false)
+    // {
+    //     string loc = path.Replace("/", "\\");
+    //     if (loc == "")
+    //         loc = Application.persistentDataPath + "\\files";
+    //     else
+    //         loc = Application.persistentDataPath + "\\files\\" + loc;
 
-        if (create)
-            Directory.CreateDirectory(loc);
+    //     if (create)
+    //         Directory.CreateDirectory(loc);
 
-        return loc;
-    }
+    //     return loc;
+    // }
 
     //gets called on startup, when something is added, and whenever client changes status to ready
     //if this gets buggy it could more robustly but less efficiently sit in Update()
-    private void ProcessQueue()
+    private void ProcessQueue() //TODO: Maybe remove task from queue when it's completed?
     {
+        Debug.Log("Processing queue");
         if (_commsHandler.Status == FTPStatus.Busy) 
             return;
 
@@ -286,7 +292,7 @@ public class FTPService // : IFTPService
         ProcessQueue();
     }
 
-    public void HandleStatusChanged(FTPStatus newStatus)
+    private void HandleStatusChanged(FTPStatus newStatus)
     {
         //if client is now ready - process next queue item
         if (newStatus == FTPStatus.Ready)
@@ -298,6 +304,7 @@ public class FTPService // : IFTPService
 
 public abstract class FTPTaskBase
 {
+    public bool IsCompleted { get; protected set; } = false;
     public bool IsCancelled { get; private set; } = false;
     public int TaskID { get; }
     public string RemotePath { get; }
@@ -320,6 +327,7 @@ public abstract class FTPTask<TCompletedTask> : FTPTaskBase where TCompletedTask
 
     public void MarkCompleted(FTPCompletionCode code)
     {
+        IsCompleted = true;
         CompletionCode = code;
         OnComplete?.Invoke((TCompletedTask)this);
     }

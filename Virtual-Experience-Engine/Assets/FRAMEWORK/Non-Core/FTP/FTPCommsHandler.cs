@@ -85,7 +85,7 @@ public class FTPCommsHandler : IFTPCommsHandler
 
             if (completionCode == FTPCompletionCode.Success)
             {
-                List<FileDetails> returnFiles = new List<FileDetails>();
+                List<FileDetails> returnFiles = new();
                 foreach (SftpFile file in files)
                 {
                     if (!file.IsDirectory)
@@ -93,7 +93,7 @@ public class FTPCommsHandler : IFTPCommsHandler
                 }
 
                 fileListTask.FoundFilesDetails = returnFiles;
-                fileListTask.MarkCompleted(FTPCompletionCode.Busy);
+                fileListTask.MarkCompleted(FTPCompletionCode.Success);
             }
             else
             {
@@ -621,17 +621,16 @@ public class FTPCommsHandler : IFTPCommsHandler
 
     private bool FileNameValid(string name)
     {
-        if (name.Contains("/") || name.Contains("\\")) return false; //none of your ../.. jailbreaking!
+        if (name.Contains("/") || name.Contains("\\")) 
+            return false; //none of your ../.. jailbreaking!
 
         //more checks stolen from https://stackoverflow.com/questions/4650462/easiest-way-to-check-if-an-arbitrary-string-is-a-valid-filename
-        if (string.IsNullOrWhiteSpace(name)) return false;
-        if (name.Length > 1 && name[1] == ':')
-        {
-            if (name.Length < 4 || name.ToLower()[0] < 'a' || name.ToLower()[0] > 'z') return false;
-            name = name.Substring(3);
-        }
+        if (string.IsNullOrWhiteSpace(name)) 
+            return false;
+
+        if (name.Length > 1 && name[1] == ':' && (name.Length < 4 || name.ToLower()[0] < 'a' || name.ToLower()[0] > 'z')) 
+                return false;
 
         return true;
-
     }
 }
