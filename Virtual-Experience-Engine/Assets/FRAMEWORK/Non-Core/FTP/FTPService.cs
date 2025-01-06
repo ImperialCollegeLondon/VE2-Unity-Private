@@ -7,11 +7,11 @@ using UnityEngine;
 
 public static class FTPServiceFactory
 {
-    public static FTPService Create(ConnectionInfo connectionInfo, string workingPath)
+    public static FTPService Create(ConnectionInfo connectionInfo, string remoteWorkingPath, string localWorkingPath)
     {
         SftpClient sftpClient = new(connectionInfo);
         FTPCommsHandler ftpCommsHandler = new(sftpClient);
-        return new FTPService(ftpCommsHandler, workingPath);
+        return new FTPService(ftpCommsHandler, remoteWorkingPath, localWorkingPath);
     }
 }
 
@@ -36,13 +36,18 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService?
     /// <summary>
     /// Queue a file for download
     /// </summary>
-    /// <param name="remotePath">path should use / as separator not \</param>
+    /// <param name="relativePath">path should use / as separator not \</param>
     /// <param name="filename"></param>
     /// <param name="callback">callback on completion or failure</param>
     /// <returns>TasK ID (for checking status/progress, or for cancelling)</returns>
-    public FTPDownloadTask DownloadFile(string remotePath, string localPath, string filename)
+    public FTPDownloadTask DownloadFile(string relativePath, string filename)
     {
-        remotePath = $"{_remoteWorkingPath}/{remotePath}";
+        Debug.Log("FTPService Download, relative path = " + relativePath);
+        string remotePath = $"{_remoteWorkingPath}/{relativePath}";
+        string localPath = $"{_localWorkingPath}\\{relativePath}".Replace("/", "\\");
+
+        Debug.Log($"<color=red>Downloading file {filename} from {remotePath} to {localPath}, started with {relativePath}, local working = {_localWorkingPath}</color>");
+
         FTPDownloadTask task = new(_nextQueueEntryID, remotePath, localPath, filename);
         Enqueue(task);
         Debug.Log($"Enqueuing download id {task.TaskID}");
@@ -235,11 +240,13 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService?
 
     private readonly FTPCommsHandler _commsHandler;
     private readonly string _remoteWorkingPath;
+    private readonly string _localWorkingPath;
 
-    public FTPService(FTPCommsHandler commsHandler, string remoteWorkingPath)
+    public FTPService(FTPCommsHandler commsHandler, string remoteWorkingPath, string localWorkingPath)
     {
         _commsHandler = commsHandler;
         _remoteWorkingPath = remoteWorkingPath;
+        _localWorkingPath = localWorkingPath;
 
         _commsHandler.OnStatusChanged += HandleStatusChanged;
 

@@ -13,7 +13,7 @@ public class V_PluginFileStorage : MonoBehaviour
     [DynamicHelp(nameof(_localPathDebug), UnityMessageType.Info, ApplyCondition = true)]
 
     [EditorButton(nameof(RefreshLocalFiles), "Refresh Local Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
-    [SerializeField, Disable] private List<string> _localFilesDebug = new();
+    [SerializeField, Disable] private List<string> _localFilesDebug = new(); //TODO don't show full local path
 
     [EditorButton(nameof(RefreshRemoteFiles), "Refresh Remote Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
     [SerializeField, Disable] private List<string> _remoteFilesDebug = new();
@@ -43,6 +43,11 @@ public class V_PluginFileStorage : MonoBehaviour
     {
         _fileStorageService.OnFileStorageServiceReady -= HandleFileStorageServiceReady;
         HandleLocalFilesRefreshed(); //Happens immediately when service is created 
+
+        Debug.Log("<color=red>Starting download</color>");
+        //_fileStorageService.DownloadFile("DevTestRoot1.txt");
+        _fileStorageService.DownloadFile("SubFolder/DevTest2.txt");
+
     }
 
     private void HandleLocalFilesRefreshed() 

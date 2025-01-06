@@ -387,6 +387,7 @@ public class FTPCommsHandler : IFTPCommsHandler
 
         if (FileNameValid(downloadTask.Name))
         {
+            Debug.Log("Starting download of " + downloadTask.Name);
             Status = FTPStatus.Busy;
 
             FTPCompletionCode completionCode = await DownloadThreaded(downloadTask);
@@ -396,6 +397,7 @@ public class FTPCommsHandler : IFTPCommsHandler
         }
         else
         {
+            Debug.LogError("Invalid file name");
             downloadTask.MarkCompleted(FTPCompletionCode.RemoteFileError);
             Status = FTPStatus.Ready;
         }
@@ -405,6 +407,7 @@ public class FTPCommsHandler : IFTPCommsHandler
     {
         return Task.Run(() =>
         {
+            Debug.Log("=====Starting download - " + downloadTask.LocalPath + " - " + downloadTask.Name);
             string remoteFile = downloadTask.RemotePath + "/" + downloadTask.Name;
             string localFile = downloadTask.LocalPath + "\\" + downloadTask.Name;
 
@@ -412,9 +415,9 @@ public class FTPCommsHandler : IFTPCommsHandler
             {
                 _sftpClient.Connect();
             }
-            catch
+            catch (Exception ex)
             {
-                Debug.LogError("SFTP: Could not connect (is network down?)");
+                Debug.LogError("SFTP: Could not connect (is network down?) - " + ex.Message);
                 return FTPCompletionCode.CouldNotConnect;
             }
 
@@ -423,9 +426,9 @@ public class FTPCommsHandler : IFTPCommsHandler
             {
                 attribs = _sftpClient.GetAttributes(remoteFile);
             }
-            catch
+            catch (Exception ex)
             {
-                Debug.LogError($"attrib error {remoteFile}");
+                Debug.LogError($"attrib error {remoteFile} - {ex.Message}");
                 _sftpClient.Disconnect();
                 return FTPCompletionCode.RemoteFileError;
             }
@@ -443,9 +446,10 @@ public class FTPCommsHandler : IFTPCommsHandler
             {
                 transferStream = File.OpenWrite(localFile);
             }
-            catch
+            catch (Exception ex)
             {
                 _sftpClient.Disconnect();
+                Debug.LogError("SFTP: Could not open local file for download: " + ex.Message + " - " + localFile);
                 return FTPCompletionCode.LocalFileError;
             }
 
