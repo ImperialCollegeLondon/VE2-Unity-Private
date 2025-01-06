@@ -27,14 +27,13 @@ namespace VE2.Core.VComponents.Integration
         #endregion
 
         private LinearAdjustableService _service = null;
-        private TransformWrapper _transformWrapper = null;
 
         private void OnEnable()
         {
             string id = "LinearAdjustable-" + gameObject.name;
 
             if(_adjustableState == null)
-                _adjustableState = new AdjustableState(_config.adjustableStateConfig.StartingValue);  
+                _adjustableState = new AdjustableState(_config.AdjustableStateConfig.StartingValue);  
             
             List<IHandheldInteractionModule> handheldInteractions = new(); 
 
@@ -44,10 +43,8 @@ namespace VE2.Core.VComponents.Integration
             // if (TryGetComponent(out V_HandheldAdjustable handheldAdjustable))
             //     handheldInteractions.Add(handheldAdjustable.HandheldScrollInteractionModule);
 
-            _transformWrapper = new(GetComponent<Transform>());
-
             _service = new LinearAdjustableService(
-                _transformWrapper,
+                new TransformWrapper(GetComponent<Transform>()),
                 handheldInteractions,
                 _config,
                 _adjustableState,

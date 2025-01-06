@@ -89,6 +89,7 @@ namespace VE2.Core.VComponents.Internal
             //Different validation to SetGrabbed. The interactor may have been destroyed (and is thus no longer present), but we still want to set the state to dropped
             CurrentGrabbingInteractor = null;
             _state.IsGrabbed = false;
+            IsLocalGrabbed = false;
             _state.StateChangeNumber++;
 
             if (_interactorContainer.Interactors.TryGetValue(interactorID.ToString(), out IInteractor interactor))
