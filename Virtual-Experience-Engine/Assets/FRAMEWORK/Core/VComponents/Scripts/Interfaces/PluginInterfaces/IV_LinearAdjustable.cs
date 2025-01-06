@@ -20,6 +20,10 @@ namespace VE2.Core.VComponents.PluginInterfaces
         public float MinimumValue { get => _AdjustableStateModule.MinimumValue; set => _AdjustableStateModule.MinimumValue = value; }
         public float MaximumValue { get => _AdjustableStateModule.MaximumValue; set => _AdjustableStateModule.MaximumValue = value; }
 
+        public float MinimumOutputValue { get; set; }
+        public float MaximumOutputValue { get; set; }
+        public float OutputValue { get; set; }
+
         public ushort MostRecentInteractingClientID => _FreeGrabbableStateModule.MostRecentInteractingClientID;
         #endregion
 

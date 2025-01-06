@@ -26,6 +26,10 @@ namespace VE2.Core.VComponents.Integration
         IRangedInteractionModule IRangedPlayerInteractableIntegrator.RangedInteractionModule => _service.RangedAdjustableInteractionModule;
         #endregion
 
+        public float MinimumOutputValue { get => _service.MinimumOutputValue; set => _service.MinimumOutputValue = value; }
+        public float MaximumOutputValue { get => _service.MaximumOutputValue; set => _service.MaximumOutputValue = value; }
+        public float OutputValue { get => _service.OutputValue; set => _service.OutputValue = value; }
+
         private LinearAdjustableService _service = null;
 
         private void OnEnable()
@@ -57,7 +61,7 @@ namespace VE2.Core.VComponents.Integration
 
         private void FixedUpdate()
         {
-            _service.HandleFixedUpdate();            
+            _service.HandleFixedUpdate();         
         }
 
         private void OnDisable()

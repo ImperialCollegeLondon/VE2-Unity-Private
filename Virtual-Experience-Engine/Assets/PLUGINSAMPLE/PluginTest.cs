@@ -120,6 +120,10 @@ public class PluginTest : MonoBehaviour
         {
             _linearAdjustable.Value = Random.Range(_linearAdjustable.MinimumValue, _linearAdjustable.MaximumValue);
         }
+        else if(Keyboard.current.digit8Key.wasPressedThisFrame)
+        {
+            _linearAdjustable.OutputValue = Random.Range(_linearAdjustable.MinimumOutputValue, _linearAdjustable.MaximumOutputValue);
+        }
 
     }
 
@@ -145,6 +149,7 @@ public class PluginTest : MonoBehaviour
     {
         Debug.Log("Linear Adjustable Adjusted!");
         Debug.Log($"Linear Adjustable Value = {_linearAdjustable.Value}");
+        Debug.Log($"Linear Adjustable Output Value = {_linearAdjustable.OutputValue}");
     }
 
     private void HandleNetworkObjectStateChange(object data)
