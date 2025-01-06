@@ -55,13 +55,12 @@ namespace VE2.Core.VComponents.Internal
 
         private void OnGrabConfirmed()
         {
-            Debug.Log("Grab confirmed");
-            //_initialGrabbedposition = _FreeGrabbableStateModule.CurrentGrabbingInteractor.GrabberTransform.position;
+
         }
 
         private void OnDropConfirmed()
         {
-            //_initialGrabbedposition = Vector3.zero;
+
         }
 
         private void OnStateValueChanged(float value)
@@ -85,6 +84,7 @@ namespace VE2.Core.VComponents.Internal
             Vector3 localGrabPosition = _transformWrapper.InverseTransfromPoint(grabberPosition);
             float deltaX = Mathf.Clamp(localGrabPosition.x, _AdjustableStateModule.MinimumValue, _AdjustableStateModule.MaximumValue);
             _transformWrapper.localPosition = new Vector3(deltaX, _transformWrapper.localPosition.y, _transformWrapper.localPosition.z);
+            _AdjustableStateModule.SetValue(deltaX, _FreeGrabbableStateModule.MostRecentInteractingClientID);
         }
 
         public void TearDown()
