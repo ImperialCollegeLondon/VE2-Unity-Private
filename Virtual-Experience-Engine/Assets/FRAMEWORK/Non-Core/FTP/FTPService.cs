@@ -148,7 +148,7 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService?
     }
 
     //for debug
-    private void LogQueue()
+    private void LogQueue() //TODO - wire this into frontend
     {
         string s = "";
         if (_currentTask != null)
@@ -307,6 +307,9 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService?
         }
 
         Debug.Log("Ready? " + IsFTPServiceReady + " Busy? " + IsWorking);
+
+        OnRemoteFileListUpdated?.Invoke();
+
         //Once we've found all remote files, the service is ready 
         if (!IsFTPServiceReady && !IsWorking)
         {

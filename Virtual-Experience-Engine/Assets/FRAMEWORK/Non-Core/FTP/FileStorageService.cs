@@ -21,6 +21,8 @@ public class FileStorageService
     #region higher-level interfaces 
     public bool IsFileStorageServiceReady => _ftpService.IsFTPServiceReady;
     public event Action OnFileStorageServiceReady { add { _ftpService.OnFTPServiceReady += value; } remove { _ftpService.OnFTPServiceReady -= value; } }
+    public event Action OnLocalFilesRefreshed;
+    public event Action OnRemoteFilesRefreshed { add { _ftpService.OnRemoteFileListUpdated += value; } remove { _ftpService.OnRemoteFileListUpdated -= value; } }
 
     public readonly Dictionary<string, FileDetails> localFiles = new();
     //Need to show things in queue, and things in progress
@@ -31,26 +33,29 @@ public class FileStorageService
     public event Action OnFileTransferComplete;
 
     public Dictionary<string, FileDetails> RemoteFiles => _ftpService.RemoteFiles;
+
+    public void RefreshLocalFiles()
+    {
+        localFiles.Clear();
+        FindLocalFilesInFolderAndSubFolders(LocalWorkingPath);
+        OnLocalFilesRefreshed?.Invoke();
+    }
+
+    public void RefreshRemoteFiles() => _ftpService.RefreshRemoteFileList();
     #endregion
 
 
     private readonly FTPService _ftpService;
-    private readonly string _localWorkingPath;
+    public readonly string LocalWorkingPath;
 
     public FileStorageService(FTPService ftpService, string workingPath) //Path will either be Worlds or e.g PluginFiles/{worldName}
     {
         _ftpService = ftpService;
 
         //_remoteWorkingPath =  "VE2/" + workingPath;
-        _localWorkingPath = Application.persistentDataPath + "\\files" + CorrectLocalPath(workingPath);
+        LocalWorkingPath = Application.persistentDataPath + "\\files\\" + CorrectLocalPath(workingPath);
 
         RefreshLocalFiles();
-    }
-
-    public void RefreshLocalFiles()
-    {
-        localFiles.Clear();
-        FindLocalFilesInFolderAndSubFolders(_localWorkingPath);
     }
 
     private void FindLocalFilesInFolderAndSubFolders(string path)
@@ -61,7 +66,9 @@ public class FileStorageService
             throw new ArgumentException("Path cannot be null or empty.", nameof(path));
 
         if (!Directory.Exists(path))
-            return; //No files!
+        {
+            Directory.CreateDirectory(path);
+        }
 
         try
         {
@@ -85,5 +92,5 @@ public class FileStorageService
 
     public void TearDown() => _ftpService.TearDown();
 
-    private string CorrectLocalPath(string path) => path.Replace("/", "\\");
+    private static string CorrectLocalPath(string path) => path.Replace("/", "\\");
 }
