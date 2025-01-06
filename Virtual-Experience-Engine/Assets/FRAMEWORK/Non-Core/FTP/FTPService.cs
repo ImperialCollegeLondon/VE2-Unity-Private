@@ -44,6 +44,8 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService?
     {
         Debug.Log("FTPService Download, relative path = " + relativePath);
         string remotePath = $"{_remoteWorkingPath}/{relativePath}";
+        //remotePath = remotePath.TrimEnd('/');
+
         string localPath = $"{_localWorkingPath}\\{relativePath}".Replace("/", "\\");
 
         Debug.Log($"<color=red>Downloading file {filename} from {remotePath} to {localPath}, started with {relativePath}, local working = {_localWorkingPath}</color>");
@@ -77,7 +79,7 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService?
         {
             //If we've uploaded a file, we should add it to the list of remote files
             string correctedFileNameAndPath = task.RemotePath.Replace($"{_remoteWorkingPath}/", "");
-            RemoteFiles.Add(correctedFileNameAndPath, new FileDetails { fileName = task.Name, fileSize = task.TotalFileSizeToTransfer });
+            RemoteFiles.Add(correctedFileNameAndPath, new FileDetails { fileNameAndWorkingPath = task.Name, fileSize = task.TotalFileSizeToTransfer });
             OnRemoteFileListUpdated?.Invoke();
         }
     }
@@ -306,9 +308,9 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService?
 
         foreach (FileDetails fileDetails in fileListTask.FoundFilesDetails)
         {
-            Debug.Log("Add Remote file: " + fileDetails.fileName + " - " + fileDetails.fileSize);
-            string fileNameAndPath = $"{fileListTask.RemotePath}/{fileDetails.fileName}";
-            string workingFileNameAndPath = fileNameAndPath.Replace($"{_remoteWorkingPath}/", "");
+            Debug.Log("Add Remote file: " + fileDetails.fileNameAndWorkingPath + " - " + fileDetails.fileSize + " path " + fileListTask.RemotePath);
+            string fileNameAndPath = $"{fileListTask.RemotePath}/{fileDetails.fileNameAndWorkingPath}"; 
+            string workingFileNameAndPath = fileNameAndPath.Replace($"{_remoteWorkingPath}/", "").TrimStart('/');
 
             RemoteFiles.Add(workingFileNameAndPath, fileDetails); //TODO: key should be full path here - confirmed the key is just the file name, we want the full path
         }

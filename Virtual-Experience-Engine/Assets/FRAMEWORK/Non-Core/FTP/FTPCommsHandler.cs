@@ -13,7 +13,7 @@ public enum FTPCompletionCode { Waiting, Success, Busy, CouldNotConnect, Cancell
 
 public struct FileDetails
 {
-    public string fileName;
+    public string fileNameAndWorkingPath;
     public ulong fileSize;
 }
 
@@ -89,7 +89,7 @@ public class FTPCommsHandler : IFTPCommsHandler
                 foreach (SftpFile file in files)
                 {
                     if (!file.IsDirectory)
-                        returnFiles.Add(new FileDetails() { fileName = file.Name, fileSize = (ulong)file.Length });
+                        returnFiles.Add(new FileDetails() { fileNameAndWorkingPath = file.Name, fileSize = (ulong)file.Length });
                 }
 
                 fileListTask.FoundFilesDetails = returnFiles;
@@ -444,6 +444,9 @@ public class FTPCommsHandler : IFTPCommsHandler
 
             try
             {
+                if (!Directory.Exists(downloadTask.LocalPath))
+                    Directory.CreateDirectory(downloadTask.LocalPath);
+
                 transferStream = File.OpenWrite(localFile);
             }
             catch (Exception ex)

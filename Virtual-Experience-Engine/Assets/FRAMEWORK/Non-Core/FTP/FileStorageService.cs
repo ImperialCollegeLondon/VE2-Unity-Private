@@ -8,7 +8,7 @@ public static class FileStorageServiceFactory
 {
     public static FileStorageService CreateFileStorageService(FTPNetworkSettings ftpNetworkSettings, string workingPath)
     {
-        string localWorkingPath = Application.persistentDataPath + "\\files\\" + CorrectLocalPath(workingPath);
+        string localWorkingPath = CorrectLocalPath(Application.persistentDataPath + "\\files\\" + workingPath);
         string remoteWorkingPath = workingPath;
 
         SftpClient sftpClient = new(ftpNetworkSettings.IP, ftpNetworkSettings.Port, ftpNetworkSettings.Username, ftpNetworkSettings.Password);
@@ -18,6 +18,7 @@ public static class FileStorageServiceFactory
         return new FileStorageService(ftpService, remoteWorkingPath, localWorkingPath);
     }
 
+    //private static string CorrectLocalPath(string path) => path.Replace("/", "\\");
     private static string CorrectLocalPath(string path) => path.Replace("/", "\\");
 }
 
@@ -44,7 +45,7 @@ public class FileStorageService
         // string localPath = LocalWorkingPath + "\\" + CorrectLocalPath(remotePathFromWorking);
 
         //Debug.Log($"Downloading file {fileName} from {remotePath} to {localPath}, started with {workingFileNameAndPath}");
-        Debug.Log($"Downloading file {fileName} at {remotePathFromWorking}, started with {workingFileNameAndPath}");
+        //Debug.Log($"Downloading file {fileName} at {remotePathFromWorking}, started with {workingFileNameAndPath}");
 
         FTPDownloadTask task = _ftpService.DownloadFile(remotePathFromWorking, fileName);
         task.OnComplete += OnRemoteDownloadComplete;
@@ -64,7 +65,36 @@ public class FileStorageService
     public void RefreshLocalFiles()
     {
         localFiles.Clear();
-        FindLocalFilesInFolderAndSubFolders(LocalWorkingPath);
+
+        //Debug.Log("Searching for local files in " + LocalWorkingPath);
+
+        if (string.IsNullOrWhiteSpace(LocalWorkingPath))
+            throw new ArgumentException("Path cannot be null or empty.", nameof(LocalWorkingPath));
+
+        if (!Directory.Exists(LocalWorkingPath))
+            Directory.CreateDirectory(LocalWorkingPath);
+
+        try
+        {
+            // Get all files recursively
+            string[] files = Directory.GetFiles(LocalWorkingPath, "*", SearchOption.AllDirectories);
+            foreach (string file in files)
+            {
+                FileInfo fileInfo = new(file);
+                //Debug.Log("<color=green>Found local file: " + fileInfo.FullName + " - local working = " + LocalWorkingPath + " contains? " + fileInfo.FullName.Contains(LocalWorkingPath) + "</color>");
+                string workingFileNameAndPath = fileInfo.FullName.Replace($"{LocalWorkingPath}\\", "").TrimStart('\\');
+                localFiles.Add(workingFileNameAndPath, new FileDetails { fileNameAndWorkingPath = workingFileNameAndPath, fileSize = (ulong)fileInfo.Length });
+            }
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            Console.WriteLine($"Access denied to a directory: {ex.Message}");
+        }
+        catch (IOException ex)
+        {
+            Console.WriteLine($"An I/O error occurred: {ex.Message}");
+        }
+
         OnLocalFilesRefreshed?.Invoke();
     }
 
@@ -85,38 +115,6 @@ public class FileStorageService
         LocalWorkingPath = localWorkingPath;
 
         RefreshLocalFiles();
-    }
-
-    private void FindLocalFilesInFolderAndSubFolders(string path)
-    {
-        Debug.Log("Searching for local files in " + path);
-
-        if (string.IsNullOrWhiteSpace(path))
-            throw new ArgumentException("Path cannot be null or empty.", nameof(path));
-
-        if (!Directory.Exists(path))
-        {
-            Directory.CreateDirectory(path);
-        }
-
-        try
-        {
-            // Get all files recursively
-            string[] files = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
-            foreach (string file in files)
-            {
-                FileInfo fileInfo = new(file);
-                localFiles.Add(fileInfo.FullName, new FileDetails{ fileName =  fileInfo.FullName, fileSize = (ulong)fileInfo.Length});
-            }
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            Console.WriteLine($"Access denied to a directory: {ex.Message}");
-        }
-        catch (IOException ex)
-        {
-            Console.WriteLine($"An I/O error occurred: {ex.Message}");
-        }
     }
 
     private void OnRemoteDownloadComplete(FTPFileTransferTask task)

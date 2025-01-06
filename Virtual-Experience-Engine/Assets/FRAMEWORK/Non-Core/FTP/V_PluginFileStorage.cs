@@ -46,8 +46,14 @@ public class V_PluginFileStorage : MonoBehaviour
 
         Debug.Log("<color=red>Starting download</color>");
         //_fileStorageService.DownloadFile("DevTestRoot1.txt");
-        _fileStorageService.DownloadFile("SubFolder/DevTest2.txt");
+        //_fileStorageService.DownloadFile("SubFolder/DevTest2.txt");
+        //_fileStorageService.DownloadFile("SubFolder/SubSubFolder/DevTest3.txt");
 
+        foreach (string fileNameAndPath in _fileStorageService.RemoteFiles.Keys)
+        {
+            Debug.Log("Try download " + fileNameAndPath);
+            _fileStorageService.DownloadFile(fileNameAndPath);
+        }
     }
 
     private void HandleLocalFilesRefreshed() 
@@ -58,7 +64,7 @@ public class V_PluginFileStorage : MonoBehaviour
         _localFilesDebug.Clear();
         foreach (var file in _fileStorageService.localFiles)
         {
-            Debug.Log("Local file: " + file.Key + " - " + file.Value.fileName + " - " + file.Value.fileSize);
+            Debug.Log("Local file: " + file.Key + " - " + file.Value.fileNameAndWorkingPath + " - " + file.Value.fileSize);
             _localFilesDebug.Add(file.Key);
         }
     }
@@ -70,7 +76,7 @@ public class V_PluginFileStorage : MonoBehaviour
         _remoteFilesDebug.Clear();
         foreach (var file in _fileStorageService.RemoteFiles)
         {
-            Debug.Log("Remote file: " + file.Key + " - " + file.Value.fileName + " - " + file.Value.fileSize);
+            Debug.Log("Remote file: " + file.Key + " - " + file.Value.fileNameAndWorkingPath + " - " + file.Value.fileSize);
             _remoteFilesDebug.Add(file.Key);
         }
     }
