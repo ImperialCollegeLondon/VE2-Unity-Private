@@ -1,8 +1,10 @@
 using System;
+using System.Numerics;
 using UnityEngine;
 using VE2.Common;
 using VE2.Core.Common;
 using VE2.Core.VComponents.InteractableInterfaces;
+using Vector3 = UnityEngine.Vector3;
 
 namespace VE2.Core.Player
 {
@@ -40,6 +42,7 @@ namespace VE2.Core.Player
 
         private readonly InteractorContainer _interactorContainer;
         private readonly InteractorInputContainer _interactorInputContainer;
+        private Transform _originalGrabberTransform;
 
         protected readonly Transform _GrabberTransform;
         protected readonly Transform _RayOrigin;
@@ -178,12 +181,20 @@ namespace VE2.Core.Player
         {
             _CurrentGrabbingGrabbable = rangedGrabInteractable;
             SetInteractorState(InteractorState.Grabbing);
+
+            if(_CurrentGrabbingGrabbable is IRangedAdjustableInteractionModule rangedAdjustableInteraction)
+            {
+                _originalGrabberTransform = _GrabberTransform;
+                Vector3 directionToGrabber = _GrabberTransform.position - rangedAdjustableInteraction.Transform.position;
+                GrabberTransform.position -= directionToGrabber; 
+            }
         }
 
         public void ConfirmDrop()
         {
             SetInteractorState(InteractorState.Idle);
-            _CurrentGrabbingGrabbable = null;
+            _CurrentGrabbingGrabbable = null;   
+            _GrabberTransform.localPosition = Vector3.zero;
         }
 
         private void HandleHandheldClickPressed()
