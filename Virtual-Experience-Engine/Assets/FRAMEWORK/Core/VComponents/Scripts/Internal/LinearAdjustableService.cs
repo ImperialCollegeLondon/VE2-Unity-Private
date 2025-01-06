@@ -33,6 +33,7 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         private ITransformWrapper _transformWrapper;
+        private Vector3 _initialGrabbedposition;
         public LinearAdjustableService(ITransformWrapper transformWrapper, List<IHandheldInteractionModule> handheldInteractions, LinearAdjustableConfig config, VE2Serializable adjustableState, VE2Serializable grabbableState, string id,
             WorldStateModulesContainer worldStateModulesContainer, InteractorContainer interactorContainer)
         {
@@ -54,12 +55,13 @@ namespace VE2.Core.VComponents.Internal
 
         private void OnGrabConfirmed()
         {
-
+            Debug.Log("Grab confirmed");
+            //_initialGrabbedposition = _FreeGrabbableStateModule.CurrentGrabbingInteractor.GrabberTransform.position;
         }
 
         private void OnDropConfirmed()
         {
-
+            //_initialGrabbedposition = Vector3.zero;
         }
 
         private void OnStateValueChanged(float value)
@@ -71,6 +73,18 @@ namespace VE2.Core.VComponents.Internal
         {
             _AdjustableStateModule.HandleFixedUpdate();
             _FreeGrabbableStateModule.HandleFixedUpdate();
+
+            if(_FreeGrabbableStateModule.IsGrabbed)
+            {
+                TrackPosition(_FreeGrabbableStateModule.CurrentGrabbingInteractor.GrabberTransform.position);
+            }
+        }
+
+        public void TrackPosition(Vector3 grabberPosition)
+        {
+            Vector3 localGrabPosition = _transformWrapper.InverseTransfromPoint(grabberPosition);
+            float deltaX = Mathf.Clamp(localGrabPosition.x, _AdjustableStateModule.MinimumValue, _AdjustableStateModule.MaximumValue);
+            _transformWrapper.localPosition = new Vector3(deltaX, _transformWrapper.localPosition.y, _transformWrapper.localPosition.z);
         }
 
         public void TearDown()
