@@ -67,15 +67,15 @@ namespace VE2.Core.VComponents.Internal
 
             _state.StateChangeNumber++;
 
-            OnValueChanged?.Invoke(value);
-            InvokeCustomerOnValueAdjustedEvent(_state.Value);
+            InvokeOnValueAdjustedEvents(_state.Value);
         }
 
-        private void InvokeCustomerOnValueAdjustedEvent(float value)
+        private void InvokeOnValueAdjustedEvents(float value)
         {
             try
             {
-                _config.OnValueAdjusted?.Invoke(value);
+                OnValueAdjusted?.Invoke(value);
+                OnValueChanged?.Invoke(value);
             }
             catch (Exception e)
             {
@@ -89,7 +89,7 @@ namespace VE2.Core.VComponents.Internal
             State.Bytes = newBytes;
 
             if (oldValue != _state.Value) 
-                InvokeCustomerOnValueAdjustedEvent(_state.Value);
+                InvokeOnValueAdjustedEvents(_state.Value);
         }
     }
 

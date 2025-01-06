@@ -33,14 +33,14 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         private ITransformWrapper _transformWrapper;
-        private Vector3 _initialGrabbedposition;
+
         public LinearAdjustableService(ITransformWrapper transformWrapper, List<IHandheldInteractionModule> handheldInteractions, LinearAdjustableConfig config, VE2Serializable adjustableState, VE2Serializable grabbableState, string id,
             WorldStateModulesContainer worldStateModulesContainer, InteractorContainer interactorContainer)
         {
             _RangedAdjustableInteractionModule = new(transformWrapper, handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
 
-            _AdjustableStateModule = new(adjustableState, config.adjustableStateConfig, id, worldStateModulesContainer);
-            _FreeGrabbableStateModule = new(grabbableState, config.grabbableStateConfig, id, worldStateModulesContainer, interactorContainer, RangedAdjustableInteractionModule);
+            _AdjustableStateModule = new(adjustableState, config.adjustableStateConfig, $"ADJ-{id}", worldStateModulesContainer);
+            _FreeGrabbableStateModule = new(grabbableState, config.grabbableStateConfig, $"FG-{id}", worldStateModulesContainer, interactorContainer, RangedAdjustableInteractionModule);
 
             _transformWrapper = transformWrapper;
 
@@ -70,21 +70,20 @@ namespace VE2.Core.VComponents.Internal
 
         public void HandleFixedUpdate()
         {
-            _AdjustableStateModule.HandleFixedUpdate();
             _FreeGrabbableStateModule.HandleFixedUpdate();
-
-            if(_FreeGrabbableStateModule.IsGrabbed)
+            if(_FreeGrabbableStateModule.IsLocalGrabbed)
             {
                 TrackPosition(_FreeGrabbableStateModule.CurrentGrabbingInteractor.GrabberTransform.position);
             }
+
+            _AdjustableStateModule.HandleFixedUpdate();
         }
 
         public void TrackPosition(Vector3 grabberPosition)
         {
             Vector3 localGrabPosition = _transformWrapper.InverseTransfromPoint(grabberPosition);
             float deltaX = Mathf.Clamp(localGrabPosition.x, _AdjustableStateModule.MinimumValue, _AdjustableStateModule.MaximumValue);
-            _transformWrapper.localPosition = new Vector3(deltaX, _transformWrapper.localPosition.y, _transformWrapper.localPosition.z);
-            _AdjustableStateModule.SetValue(deltaX, _FreeGrabbableStateModule.MostRecentInteractingClientID);
+            _AdjustableStateModule.Value = deltaX;
         }
 
         public void TearDown()

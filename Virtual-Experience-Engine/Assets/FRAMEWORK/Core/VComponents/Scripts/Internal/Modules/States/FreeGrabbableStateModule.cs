@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using VE2.Common;
 using VE2.Core.Common;
+using VE2.Core.Player;
 using VE2.Core.VComponents.InteractableInterfaces;
 using VE2.Core.VComponents.NonInteractableInterfaces;
 using static VE2.Common.CommonSerializables;
@@ -27,6 +28,7 @@ namespace VE2.Core.VComponents.Internal
         public UnityEvent OnGrab => _config.OnGrab;
         public UnityEvent OnDrop => _config.OnDrop;
         public bool IsGrabbed { get => _state.IsGrabbed; private set => _state.IsGrabbed = value; }
+        public bool IsLocalGrabbed;
         public ushort MostRecentInteractingClientID => _state.MostRecentInteractingInteractorID.ClientID;
         #endregion
 
@@ -57,6 +59,7 @@ namespace VE2.Core.VComponents.Internal
             {
                 CurrentGrabbingInteractor = interactor;
                 _state.IsGrabbed = true;
+                IsLocalGrabbed = CurrentGrabbingInteractor is PointerInteractor;
                 _state.MostRecentInteractingInteractorID = interactorID;
                 _state.StateChangeNumber++;
 
