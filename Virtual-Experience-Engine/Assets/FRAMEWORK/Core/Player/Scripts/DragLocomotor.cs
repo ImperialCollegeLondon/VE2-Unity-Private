@@ -20,7 +20,7 @@ public class DragLocomotor
     private readonly Transform _rootTransform; //For horizontal drag
     private readonly Transform _headOffsetTransform; //For vertical drag
     private readonly Transform _handTransform; //For measuring drag delta 
-
+    private LayerMask groundLayerMask => LayerMask.GetMask("Ground");
 
 
     public DragLocomotor(DragLocomotorReferences locomotorVRReferences, DragLocomotorInputContainer inputContainer, DragLocomotorInputContainer otherVRHandInputContainer,
@@ -176,6 +176,20 @@ public class DragLocomotor
         }
     }
 
+    //private void HandleHorizontalDragMovement(Vector3 dragVector)
+    //{
+    //    if (_otherVRHandInputContainer.IsDraggingHorizontal) return;
+
+    //    if (!_isDraggingHorizontal)
+    //    {
+    //        _isDraggingHorizontal = _inputContainer.IsDraggingHorizontal = true;
+    //    }
+    //    else
+    //    {
+    //        Vector3 moveVector = dragVector * _dragSpeed;
+    //        _rootTransform.position += moveVector;
+    //    }        
+    //}
     private void HandleHorizontalDragMovement(Vector3 dragVector)
     {
         if (_otherVRHandInputContainer.IsDraggingHorizontal) return;
@@ -187,8 +201,45 @@ public class DragLocomotor
         else
         {
             Vector3 moveVector = dragVector * _dragSpeed;
-            _rootTransform.position += moveVector;
-        }        
+            Vector3 currentPosition = _rootTransform.position;
+            Vector3 targetPosition = currentPosition + moveVector;
+
+            // Perform raycast from current position
+            if (Physics.Raycast(currentPosition, Vector3.down, out RaycastHit currentHit, Mathf.Infinity, groundLayerMask))
+            {
+                float currentGroundHeight = currentHit.point.y;
+
+                // Perform raycast from target position
+                if (Physics.Raycast(targetPosition, Vector3.down, out RaycastHit targetHit, Mathf.Infinity, groundLayerMask))
+                {
+                    float targetGroundHeight = targetHit.point.y;
+                    float heightDifference = Mathf.Abs(targetGroundHeight - currentGroundHeight);
+
+                    // Check if the height difference is within the allowable step size
+                    if (heightDifference <= 0.5f)
+                    {
+                        // Adjust vertical position to maintain consistent height above ground
+                        targetPosition.y = targetGroundHeight + (currentPosition.y - currentGroundHeight);
+                        _rootTransform.position = targetPosition;
+                    }
+                    else
+                    {
+                        // Elevation change is too steep; abort movement
+                        Debug.Log("Movement aborted: Elevation change exceeds maximum step size.");
+                    }
+                }
+                else
+                {
+                    // Target position raycast did not hit ground; abort movement
+                    Debug.Log("Movement aborted: Target position is not above ground.");
+                }
+            }
+            else
+            {
+                // Current position raycast did not hit ground; handle accordingly
+                Debug.LogWarning("Current position is not above ground.");
+            }
+        }
     }
 
     private void HandleVerticalDragMovement(Vector3 dragVector)
