@@ -222,6 +222,7 @@ public class FTPCommsHandler : IFTPCommsHandler
         }
         else
         {
+            Debug.LogError("Invalid folder name - " + makeFolderTask.Name + " path is " + makeFolderTask.RemotePath);
             makeFolderTask.MarkCompleted(FTPCompletionCode.RemoteFileError);
             Status = FTPStatus.Ready;
         }
@@ -522,6 +523,7 @@ public class FTPCommsHandler : IFTPCommsHandler
         }
         else
         {
+            Debug.LogError("Invalid file name - " + uploadFileTask.Name);
             uploadFileTask.MarkCompleted(FTPCompletionCode.LocalFileError);
             Status = FTPStatus.Ready;
         }
@@ -581,8 +583,9 @@ public class FTPCommsHandler : IFTPCommsHandler
                 // Perform file upload with progress tracking
                 _sftpClient.UploadFile(transferStream, remoteFile, uploadTask.SetProgress);
             }
-            catch
+            catch (Exception ex)
             {
+                Debug.LogError("SFTP: Upload error to " + remoteFile + " - " + ex.Message);
                 // If upload fails, determine if it was canceled or due to another error
                 completionCode = uploadTask.IsCancelled ? FTPCompletionCode.Cancelled : FTPCompletionCode.RemoteFileError;
             }

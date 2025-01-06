@@ -22,7 +22,7 @@ public static class FileStorageServiceFactory
     private static string CorrectLocalPath(string path) => path.Replace("/", "\\");
 }
 
-public class FileStorageService
+public class FileStorageService //TODO: Rename, FileExchangeService? LocalRemoteFileService?
 {
     #region higher-level interfaces 
     public bool IsFileStorageServiceReady => _ftpService.IsFTPServiceReady;
@@ -32,23 +32,19 @@ public class FileStorageService
 
     public FTPDownloadTask DownloadFile(string workingFileNameAndPath)
     {
-        //Client should just say "test.txt" or "/folder/test.txt"
-
-        // if (!workingFileNameAndPath.StartsWith("/"))
-        //     workingFileNameAndPath = "/" + workingFileNameAndPath;
-
         string fileName = workingFileNameAndPath.Substring(workingFileNameAndPath.LastIndexOf("/") + 1);
-        
         string remotePathFromWorking = workingFileNameAndPath.Contains("/") ? workingFileNameAndPath.Substring(0, workingFileNameAndPath.LastIndexOf("/")) : "";
-
-        // string remotePath = RemoteWorkingPath + "/" + remotePathFromWorking;
-        // string localPath = LocalWorkingPath + "\\" + CorrectLocalPath(remotePathFromWorking);
-
-        //Debug.Log($"Downloading file {fileName} from {remotePath} to {localPath}, started with {workingFileNameAndPath}");
-        //Debug.Log($"Downloading file {fileName} at {remotePathFromWorking}, started with {workingFileNameAndPath}");
-
         FTPDownloadTask task = _ftpService.DownloadFile(remotePathFromWorking, fileName);
         task.OnComplete += OnRemoteDownloadComplete;
+        return task;
+    }
+
+    public FTPUploadTask UploadFile(string workingFileNameAndPath)
+    {
+        string fileName = workingFileNameAndPath.Substring(workingFileNameAndPath.LastIndexOf("\\") + 1);
+        string remoteCorrectedFileNameAndPath = workingFileNameAndPath.Replace("\\", "/");
+        string remotePathFromWorking = remoteCorrectedFileNameAndPath.Contains("/") ? remoteCorrectedFileNameAndPath.Substring(0, remoteCorrectedFileNameAndPath.LastIndexOf("/")) : "";
+        FTPUploadTask task = _ftpService.UploadFile(remotePathFromWorking, fileName); //No need to refresh manually will happen automatically
         return task;
     }
 
