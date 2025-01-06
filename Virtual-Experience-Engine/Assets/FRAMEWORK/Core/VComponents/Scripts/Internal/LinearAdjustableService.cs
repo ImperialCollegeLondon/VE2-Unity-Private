@@ -38,11 +38,12 @@ namespace VE2.Core.VComponents.Internal
             WorldStateModulesContainer worldStateModulesContainer, InteractorContainer interactorContainer)
         {
             _RangedAdjustableInteractionModule = new(transformWrapper, handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
+            
+            _transformWrapper = transformWrapper;
 
             _AdjustableStateModule = new(adjustableState, config.adjustableStateConfig, $"ADJ-{id}", worldStateModulesContainer);
+            OnStateValueChanged(config.adjustableStateConfig.StartingValue);
             _FreeGrabbableStateModule = new(grabbableState, config.grabbableStateConfig, $"FG-{id}", worldStateModulesContainer, interactorContainer, RangedAdjustableInteractionModule);
-
-            _transformWrapper = transformWrapper;
 
             _RangedAdjustableInteractionModule.OnLocalInteractorRequestGrab += (InteractorID interactorID) => _FreeGrabbableStateModule.SetGrabbed(interactorID);
             _RangedAdjustableInteractionModule.OnLocalInteractorRequestDrop += (InteractorID interactorID) => _FreeGrabbableStateModule.SetDropped(interactorID);
@@ -71,7 +72,7 @@ namespace VE2.Core.VComponents.Internal
         public void HandleFixedUpdate()
         {
             _FreeGrabbableStateModule.HandleFixedUpdate();
-            if(_FreeGrabbableStateModule.IsLocalGrabbed)
+            if(_FreeGrabbableStateModule.IsGrabbed && _FreeGrabbableStateModule.IsLocalGrabbed)
             {
                 TrackPosition(_FreeGrabbableStateModule.CurrentGrabbingInteractor.GrabberTransform.position);
             }
