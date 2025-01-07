@@ -118,11 +118,11 @@ public class PluginTest : MonoBehaviour
             _handheldAdjustable.Value++;
         else if(Keyboard.current.digit7Key.wasPressedThisFrame)
         {
-            _linearAdjustable.Value = Random.Range(_linearAdjustable.MinimumValue, _linearAdjustable.MaximumValue);
+            _linearAdjustable.OutputValue = Random.Range(_linearAdjustable.MinimumOutputValue, _linearAdjustable.MaximumOutputValue);
         }
         else if(Keyboard.current.digit8Key.wasPressedThisFrame)
         {
-            _linearAdjustable.OutputValue = Random.Range(_linearAdjustable.MinimumOutputValue, _linearAdjustable.MaximumOutputValue);
+            _linearAdjustable.SpatialValue = Random.Range(_linearAdjustable.MinimumSpatialValue, _linearAdjustable.MaximumSpatialValue);
         }
         else if (Keyboard.current.digit9Key.wasPressedThisFrame)
         {
@@ -152,8 +152,8 @@ public class PluginTest : MonoBehaviour
     private void OnLinearAdjustableValueAdjusted(float value)
     {
         Debug.Log("Linear Adjustable Adjusted!");
-        Debug.Log($"Linear Adjustable Value = {_linearAdjustable.Value}");
-        Debug.Log($"Linear Adjustable Output Value = {_linearAdjustable.OutputValue}");
+        Debug.Log($"Linear Adjustable Value = {_linearAdjustable.OutputValue}");
+        Debug.Log($"Linear Adjustable Output Value = {_linearAdjustable.SpatialValue}");
     }
 
     private void HandleNetworkObjectStateChange(object data)

@@ -36,8 +36,8 @@ public class PlayerAndHandheldAdjustableTests
         float startingValue = handheldAdjustableConfig.StateConfig.StartingValue;
         float increment = handheldAdjustableConfig.HandheldAdjustableServiceConfig.IncrementPerScrollTick;
 
-        handheldAdjustableConfig.StateConfig.MaximumValue = random.Next(0, 100);
-        handheldAdjustableConfig.StateConfig.MinimumValue = random.Next(-100, 0);
+        handheldAdjustableConfig.StateConfig.MaximumOutputValue = random.Next(0, 100);
+        handheldAdjustableConfig.StateConfig.MinimumOutputValue = random.Next(-100, 0);
 
         HandheldAdjustableService handheldAdjustable = new(handheldAdjustableConfig, new AdjustableState(), "debug", Substitute.For<WorldStateModulesContainer>());
 

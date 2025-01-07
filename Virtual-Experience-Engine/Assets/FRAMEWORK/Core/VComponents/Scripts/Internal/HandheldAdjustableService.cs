@@ -60,7 +60,7 @@ namespace VE2.Core.VComponents.Internal
 
         private void HandleScrollUp(ushort clientID)
         {
-            float targetValue = _StateModule.Value + _handheldAdjustableServiceConfig.IncrementPerScrollTick;
+            float targetValue = _StateModule.OutputValue + _handheldAdjustableServiceConfig.IncrementPerScrollTick;
 
             if (_StateModule.IsAtMaximumValue)
             {
@@ -76,7 +76,7 @@ namespace VE2.Core.VComponents.Internal
 
         private void HandleScrollDown(ushort clientID)
         {
-            float targetValue = _StateModule.Value - _handheldAdjustableServiceConfig.IncrementPerScrollTick;
+            float targetValue = _StateModule.OutputValue - _handheldAdjustableServiceConfig.IncrementPerScrollTick;
 
             if (_StateModule.IsAtMinimumValue)
             {

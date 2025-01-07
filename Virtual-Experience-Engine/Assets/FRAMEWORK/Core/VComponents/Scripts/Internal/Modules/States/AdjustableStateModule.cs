@@ -15,25 +15,25 @@ namespace VE2.Core.VComponents.Internal
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Adjustable State Settings", ApplyCondition = true)]
         [SerializeField] public UnityEvent<float> OnValueAdjusted = new();
-        [SerializeField] public float MinimumValue = 0;
-        [SerializeField] public float MaximumValue = 1;
+        [SerializeField] public float MinimumOutputValue = 0;
+        [SerializeField] public float MaximumOutputValue = 1;
         [SerializeField] public float StartingValue = 0;
         [EndGroup, SerializeField] public bool EmitValueOnStart = true;
     }
     internal class AdjustableStateModule : BaseWorldStateModule, IAdjustableStateModule
     {
-        public float Value { get => _state.Value; set => HandleExternalAdjust(value); }
+        public float OutputValue { get => _state.Value; set => HandleExternalAdjust(value); }
         public UnityEvent<float> OnValueAdjusted => _config.OnValueAdjusted;
         public ushort MostRecentInteractingClientID => _state.MostRecentInteractingClientID;
 
-        public float MinimumValue { get => _config.MinimumValue; set => _config.MinimumValue = value; }
-        public float MaximumValue { get => _config.MaximumValue; set => _config.MaximumValue = value; }
+        public float MinimumOutputValue { get => _config.MinimumOutputValue; set => _config.MinimumOutputValue = value; }
+        public float MaximumOutputValue { get => _config.MaximumOutputValue; set => _config.MaximumOutputValue = value; }
         private AdjustableState _state => (AdjustableState)State;
         private AdjustableStateConfig _config => (AdjustableStateConfig)Config;
 
-        internal float Range => (MaximumValue - MinimumValue) + 1;
-        internal bool IsAtMinimumValue => Value == _config.MinimumValue;
-        internal bool IsAtMaximumValue => Value == _config.MaximumValue;
+        internal float Range => (MaximumOutputValue - MinimumOutputValue) + 1;
+        internal bool IsAtMinimumValue => OutputValue == _config.MinimumOutputValue;
+        internal bool IsAtMaximumValue => OutputValue == _config.MaximumOutputValue;
 
         internal event Action<float> OnValueChangedInternal;
 
@@ -41,7 +41,7 @@ namespace VE2.Core.VComponents.Internal
         {
             if (_config.EmitValueOnStart == true)
             {
-                OnValueAdjusted?.Invoke(Value);
+                OnValueAdjusted?.Invoke(OutputValue);
             }
         }
 
@@ -54,7 +54,7 @@ namespace VE2.Core.VComponents.Internal
 
         public void SetValue(float value, ushort clientID)
         {   
-            if (value < _config.MinimumValue || value > _config.MaximumValue)
+            if (value < _config.MinimumOutputValue || value > _config.MaximumOutputValue)
             {
                 Debug.LogError("Value is beyond limits");
                 return;

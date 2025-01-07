@@ -16,13 +16,13 @@ namespace VE2.Core.VComponents.PluginInterfaces
         public UnityEvent OnDrop => _FreeGrabbableStateModule.OnDrop;
 
         public bool IsGrabbed { get { return _FreeGrabbableStateModule.IsGrabbed; } }
-        public float Value { get { return _AdjustableStateModule.Value; } set { _AdjustableStateModule.Value = value; } }
-        public float MinimumValue { get => _AdjustableStateModule.MinimumValue; set => _AdjustableStateModule.MinimumValue = value; }
-        public float MaximumValue { get => _AdjustableStateModule.MaximumValue; set => _AdjustableStateModule.MaximumValue = value; }
+        public float OutputValue { get { return _AdjustableStateModule.OutputValue; } set { _AdjustableStateModule.OutputValue = value; } }
+        public float MinimumOutputValue { get => _AdjustableStateModule.MinimumOutputValue; set => _AdjustableStateModule.MinimumOutputValue = value; }
+        public float MaximumOutputValue { get => _AdjustableStateModule.MaximumOutputValue; set => _AdjustableStateModule.MaximumOutputValue = value; }
 
-        public float MinimumOutputValue { get; set; }
-        public float MaximumOutputValue { get; set; }
-        public float OutputValue { get; set; }
+        public float MinimumSpatialValue { get; set; }
+        public float MaximumSpatialValue { get; set; }
+        public float SpatialValue { get; set; }
         public int NumberOfValues { get; set; }
 
         public ushort MostRecentInteractingClientID => _FreeGrabbableStateModule.MostRecentInteractingClientID;

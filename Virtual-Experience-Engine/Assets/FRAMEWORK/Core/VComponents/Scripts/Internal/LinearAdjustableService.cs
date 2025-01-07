@@ -41,17 +41,17 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField] public LinearAdjustmentType AdjustmentType = LinearAdjustmentType.XAxis;
         [SerializeField] public SpatialAdjustmentProperty AdjustmentProperty = SpatialAdjustmentProperty.Continuous;
         [SerializeField, ShowIf("AdjustmentProperty", SpatialAdjustmentProperty.Discrete)] public int NumberOfValues = 1;
-        [SerializeField] public float MinimumOutputValue = 0f;
-        [EndGroup, SerializeField] public float MaximumOutputValue = 1f;
+        [SerializeField] public float MinimumSpatialValue = 0f;
+        [EndGroup, SerializeField] public float MaximumSpatialValue = 1f;
     }
 
     public class LinearAdjustableService
     {
-        private float _outputValue;
-        public float OutputValue { get => _outputValue; set => SetOutputValue(value); }
-        private float _minimumOutputValue, _maximumOutputValue;
-        public float MinimumOutputValue { get => _minimumOutputValue; set => UpdateMinimumOutputValue(value); }
-        public float MaximumOutputValue { get => _maximumOutputValue; set => UpdateMaximumOutputValue(value); }
+        private float _spatialValue;
+        public float SpatialValue { get => _spatialValue; set => SetSpatialValue(value); }
+        private float _minimumSpatialValue, _maximumSpatialValue;
+        public float MinimumSpatialValue { get => _minimumSpatialValue; set => UpdateMinimumSpatialValue(value); }
+        public float MaximumSpatialValue { get => _maximumSpatialValue; set => UpdateMaximumSpatialValue(value); }
         private int _numberOfValues;
         public int NumberOfValues { get => _numberOfValues; set => UpdateSteps(value); }
 
@@ -84,8 +84,8 @@ namespace VE2.Core.VComponents.Internal
             if (_adjustmentProperty == SpatialAdjustmentProperty.Discrete)
                 _numberOfValues = config.LinearAdjustableServiceConfig.NumberOfValues;
 
-            _minimumOutputValue = config.LinearAdjustableServiceConfig.MinimumOutputValue;
-            _maximumOutputValue = config.LinearAdjustableServiceConfig.MaximumOutputValue;
+            _minimumSpatialValue = config.LinearAdjustableServiceConfig.MinimumSpatialValue;
+            _maximumSpatialValue = config.LinearAdjustableServiceConfig.MaximumSpatialValue;
 
             _AdjustableStateModule = new(adjustableState, config.AdjustableStateConfig, $"ADJ-{id}", worldStateModulesContainer);
             _FreeGrabbableStateModule = new(grabbableState, config.GrabbableStateConfig, $"FG-{id}", worldStateModulesContainer, interactorContainer, RangedAdjustableInteractionModule);
@@ -111,31 +111,37 @@ namespace VE2.Core.VComponents.Internal
 
         }
 
-        private void SetOutputValue(float mappedValue)
+        private void SetSpatialValue(float spatialValue)
         {
-            mappedValue = Mathf.Clamp(mappedValue, _minimumOutputValue, _maximumOutputValue);
-            _outputValue = mappedValue;
-            float rawValue = Mathf.Lerp(_AdjustableStateModule.MinimumValue, _AdjustableStateModule.MaximumValue, Mathf.InverseLerp(_minimumOutputValue, _maximumOutputValue, mappedValue));
+            // mappedValue = Mathf.Clamp(mappedValue, _minimumSpatialValue, _maximumSpatialValue);
+            // _spatialValue = mappedValue;
+            // float rawValue = Mathf.Lerp(_AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue, Mathf.InverseLerp(_minimumSpatialValue, _maximumSpatialValue, mappedValue));
 
-            SetValueOnStateModule(rawValue);
+            // SetValueOnStateModule(rawValue);
+
+            _spatialValue = Mathf.Clamp(spatialValue, _minimumSpatialValue, _maximumSpatialValue);
+            float OutputValue = ConvertToOutputValue(_spatialValue);
+            SetValueOnStateModule(OutputValue);
         }
 
         private void OnStateValueChanged(float value)
         {
+            _spatialValue = ConvertToSpatialValue(value);
+
             switch (_adjustmentType)
             {
                 case LinearAdjustmentType.XAxis:
-                    _transformWrapper.localPosition = Vector3.right * value;
+                    _transformWrapper.localPosition = Vector3.right * _spatialValue;
                     break;
                 case LinearAdjustmentType.YAxis:
-                    _transformWrapper.localPosition = Vector3.up * value;
+                    _transformWrapper.localPosition = Vector3.up * _spatialValue;
                     break;
                 case LinearAdjustmentType.ZAxis:
-                    _transformWrapper.localPosition = Vector3.forward * value;
+                    _transformWrapper.localPosition = Vector3.forward * _spatialValue;
                     break;
             }
 
-            OutputValue = Mathf.Lerp(_minimumOutputValue, _maximumOutputValue, Mathf.InverseLerp(_AdjustableStateModule.MinimumValue, _AdjustableStateModule.MaximumValue, value));
+            //SpatialValue = Mathf.Lerp(_minimumSpatialValue, _maximumSpatialValue, Mathf.InverseLerp(_AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue, value));
         }
 
         public void HandleFixedUpdate()
@@ -156,17 +162,19 @@ namespace VE2.Core.VComponents.Internal
             switch (_adjustmentType)
             {
                 case LinearAdjustmentType.XAxis:
-                    adjustment = Mathf.Clamp(localGrabPosition.x, _AdjustableStateModule.MinimumValue, _AdjustableStateModule.MaximumValue);
+                    adjustment = Mathf.Clamp(localGrabPosition.x, _minimumSpatialValue, _maximumSpatialValue);
                     break;
                 case LinearAdjustmentType.YAxis:
-                    adjustment = Mathf.Clamp(localGrabPosition.y, _AdjustableStateModule.MinimumValue, _AdjustableStateModule.MaximumValue);
+                    adjustment = Mathf.Clamp(localGrabPosition.y, _minimumSpatialValue, _maximumSpatialValue);
                     break;
                 case LinearAdjustmentType.ZAxis:
-                    adjustment = Mathf.Clamp(localGrabPosition.z, _AdjustableStateModule.MinimumValue, _AdjustableStateModule.MaximumValue);
+                    adjustment = Mathf.Clamp(localGrabPosition.z, _minimumSpatialValue, _maximumSpatialValue);
                     break;
             }
 
-            SetValueOnStateModule(adjustment);
+            _spatialValue = adjustment;
+            float OutputValue = ConvertToOutputValue(_spatialValue);
+            SetValueOnStateModule(OutputValue);
         }
 
         private void SetValueOnStateModule(float value)
@@ -174,37 +182,47 @@ namespace VE2.Core.VComponents.Internal
             if (_adjustmentProperty == SpatialAdjustmentProperty.Discrete)
                 SetValueByStep(value);
             else
-                _AdjustableStateModule.Value = value;
+                _AdjustableStateModule.OutputValue = value;
         }
 
         private void UpdateSteps(int steps)
         {
             _numberOfValues = steps;
-            SetValueOnStateModule(_AdjustableStateModule.Value);
+            SetValueOnStateModule(_AdjustableStateModule.OutputValue);
         }
 
-        private void UpdateMinimumOutputValue(float value)
+        private void UpdateMinimumSpatialValue(float value)
         {
-            _minimumOutputValue = value;
-            SetValueOnStateModule(_AdjustableStateModule.Value);
+            _minimumSpatialValue = value;
+            SetValueOnStateModule(_AdjustableStateModule.OutputValue);
         }
 
-        private void UpdateMaximumOutputValue(float value)
+        private void UpdateMaximumSpatialValue(float value)
         {
-            _maximumOutputValue = value;
-            SetValueOnStateModule(_AdjustableStateModule.Value);
+            _maximumSpatialValue = value;
+            SetValueOnStateModule(_AdjustableStateModule.OutputValue);
         }
 
         private void SetValueByStep(float value)
         {
-            value = Mathf.Clamp(value, _AdjustableStateModule.MinimumValue, _AdjustableStateModule.MaximumValue);
+            value = Mathf.Clamp(value, _AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue);
 
-            float stepSize = (_AdjustableStateModule.MaximumValue - _AdjustableStateModule.MinimumValue) / _numberOfValues;
-            int stepIndex = Mathf.RoundToInt((value - _AdjustableStateModule.MinimumValue) / stepSize);
+            float stepSize = (_AdjustableStateModule.MaximumOutputValue - _AdjustableStateModule.MinimumOutputValue) / _numberOfValues;
+            int stepIndex = Mathf.RoundToInt((value - _AdjustableStateModule.MinimumOutputValue) / stepSize);
 
-            float newValue = _AdjustableStateModule.MinimumValue + stepIndex * stepSize;
+            float newValue = _AdjustableStateModule.MinimumOutputValue + stepIndex * stepSize;
 
-            _AdjustableStateModule.Value = newValue;
+            _AdjustableStateModule.OutputValue = newValue;
+        }
+
+        private float ConvertToSpatialValue(float outputValue)
+        {
+            return Mathf.Lerp(_minimumSpatialValue, _maximumSpatialValue, Mathf.InverseLerp(_AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue, outputValue));
+        }
+
+        private float ConvertToOutputValue(float spatialValue)
+        {
+            return Mathf.Lerp(_AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue, Mathf.InverseLerp(_minimumSpatialValue, _maximumSpatialValue, spatialValue));
         }
 
         public void TearDown()
