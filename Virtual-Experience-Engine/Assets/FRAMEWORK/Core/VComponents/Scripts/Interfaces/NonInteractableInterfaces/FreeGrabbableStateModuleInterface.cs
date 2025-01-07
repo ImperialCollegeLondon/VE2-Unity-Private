@@ -11,6 +11,7 @@ namespace VE2.Core.VComponents.NonInteractableInterfaces
         public UnityEvent OnDrop { get; }
 
         public bool IsGrabbed { get; }
+        public bool IsLocalGrabbed { get; }
         public ushort MostRecentInteractingClientID { get; }
     }
 }

@@ -16,6 +16,7 @@ namespace VE2.Core.VComponents.PluginInterfaces
         public UnityEvent OnDrop => _FreeGrabbableStateModule.OnDrop;
 
         public bool IsGrabbed { get { return _FreeGrabbableStateModule.IsGrabbed; } }
+        public bool IsLocallyGrabbed { get { return _FreeGrabbableStateModule.IsLocalGrabbed; } }
         public float OutputValue { get { return _AdjustableStateModule.OutputValue; } set { _AdjustableStateModule.OutputValue = value; } }
         public float MinimumOutputValue { get => _AdjustableStateModule.MinimumOutputValue; set => _AdjustableStateModule.MinimumOutputValue = value; }
         public float MaximumOutputValue { get => _AdjustableStateModule.MaximumOutputValue; set => _AdjustableStateModule.MaximumOutputValue = value; }

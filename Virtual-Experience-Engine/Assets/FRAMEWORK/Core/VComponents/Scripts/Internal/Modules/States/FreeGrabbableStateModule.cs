@@ -28,7 +28,8 @@ namespace VE2.Core.VComponents.Internal
         public UnityEvent OnGrab => _config.OnGrab;
         public UnityEvent OnDrop => _config.OnDrop;
         public bool IsGrabbed { get => _state.IsGrabbed; private set => _state.IsGrabbed = value; }
-        public bool IsLocalGrabbed;
+        public bool IsLocalGrabbed => _isLocalGrabbed;
+        public bool _isLocalGrabbed;
         public ushort MostRecentInteractingClientID => _state.MostRecentInteractingInteractorID.ClientID;
         #endregion
 
@@ -59,7 +60,7 @@ namespace VE2.Core.VComponents.Internal
             {
                 CurrentGrabbingInteractor = interactor;
                 _state.IsGrabbed = true;
-                IsLocalGrabbed = CurrentGrabbingInteractor is PointerInteractor;
+                _isLocalGrabbed = CurrentGrabbingInteractor is PointerInteractor;
                 _state.MostRecentInteractingInteractorID = interactorID;
                 _state.StateChangeNumber++;
 
@@ -89,7 +90,7 @@ namespace VE2.Core.VComponents.Internal
             //Different validation to SetGrabbed. The interactor may have been destroyed (and is thus no longer present), but we still want to set the state to dropped
             CurrentGrabbingInteractor = null;
             _state.IsGrabbed = false;
-            IsLocalGrabbed = false;
+            _isLocalGrabbed = false;
             _state.StateChangeNumber++;
 
             if (_interactorContainer.Interactors.TryGetValue(interactorID.ToString(), out IInteractor interactor))
