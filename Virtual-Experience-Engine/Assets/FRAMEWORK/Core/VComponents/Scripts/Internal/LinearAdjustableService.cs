@@ -113,12 +113,6 @@ namespace VE2.Core.VComponents.Internal
 
         private void SetSpatialValue(float spatialValue)
         {
-            // mappedValue = Mathf.Clamp(mappedValue, _minimumSpatialValue, _maximumSpatialValue);
-            // _spatialValue = mappedValue;
-            // float rawValue = Mathf.Lerp(_AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue, Mathf.InverseLerp(_minimumSpatialValue, _maximumSpatialValue, mappedValue));
-
-            // SetValueOnStateModule(rawValue);
-
             _spatialValue = Mathf.Clamp(spatialValue, _minimumSpatialValue, _maximumSpatialValue);
             float OutputValue = ConvertToOutputValue(_spatialValue);
             SetValueOnStateModule(OutputValue);
@@ -141,8 +135,6 @@ namespace VE2.Core.VComponents.Internal
                     _transformWrapper.localPosition = Vector3.forward * _spatialValue;
                     break;
             }
-
-            //SpatialValue = Mathf.Lerp(_minimumSpatialValue, _maximumSpatialValue, Mathf.InverseLerp(_AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue, value));
         }
 
         public void HandleFixedUpdate()
