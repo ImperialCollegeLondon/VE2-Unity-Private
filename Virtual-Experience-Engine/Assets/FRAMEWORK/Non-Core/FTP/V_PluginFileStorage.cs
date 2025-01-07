@@ -1,14 +1,10 @@
 using System.Collections.Generic;
-using System.ComponentModel;
-using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class V_PluginFileStorage : MonoBehaviour
 {
     [SerializeField] private FTPNetworkSettings ftpNetworkSettings;
-
-    public float MyFloat2 {get; private set;}
 
 
     [Help("Enter play mode to see local and remote files")]
@@ -46,57 +42,40 @@ public class V_PluginFileStorage : MonoBehaviour
         _fileStorageService.OnFileStorageServiceReady -= HandleFileStorageServiceReady;
         HandleLocalFilesRefreshed(); //Happens immediately when service is created 
 
-        DownloadAllFiles();
+        //DownloadAllFiles();
         //UploadAllFiles();
     }
 
     private void DownloadAllFiles() 
     {
-        Debug.Log("<color=red>Starting download</color>");
         //_fileStorageService.DownloadFile("DevTestRoot1.txt");
         //_fileStorageService.DownloadFile("SubFolder/DevTest2.txt");
         //_fileStorageService.DownloadFile("SubFolder/SubSubFolder/DevTest3.txt");
 
         foreach (string fileNameAndPath in _fileStorageService.RemoteFiles.Keys)
-        {
-            Debug.Log("Try download " + fileNameAndPath);
             _fileStorageService.DownloadFile(fileNameAndPath);
-        }
+
     }
 
     private void UploadAllFiles() 
     {
         foreach (string fileNameAndPath in _fileStorageService.localFiles.Keys)
-        {
-            Debug.Log("Try upload " + fileNameAndPath);
             _fileStorageService.UploadFile(fileNameAndPath);
-        }
     }
 
 
     private void HandleLocalFilesRefreshed() 
     {
-        //Debug.Log("LOOKING FOR LOCAL FILES AT " + _fileStorageService.LocalWorkingPath);
-        //Debug.Log("FOUND LOCAL FILES... " + _fileStorageService.localFiles.Count);
-
         _localFilesDebug.Clear();
         foreach (var file in _fileStorageService.localFiles)
-        {
-            //Debug.Log("Local file: " + file.Key + " - " + file.Value.fileNameAndWorkingPath + " - " + file.Value.fileSize);
             _localFilesDebug.Add(file.Key);
-        }
     }
 
     private void HandleRemoteFilesRefreshed() 
     {
-        //Debug.Log("FOUND REMOTE FILES... " + _fileStorageService.RemoteFiles.Count);
-
         _remoteFilesDebug.Clear();
         foreach (var file in _fileStorageService.RemoteFiles)
-        {
-            //Debug.Log("Remote file: " + file.Key + " - " + file.Value.fileNameAndWorkingPath + " - " + file.Value.fileSize);
             _remoteFilesDebug.Add(file.Key);
-        }
     }
 
     private void OnDisable() => _fileStorageService.TearDown();

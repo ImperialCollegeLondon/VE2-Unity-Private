@@ -39,58 +39,38 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
     /// <summary>
     /// Queue a file for download
     /// </summary>
-    /// <param name="relativePath">path should use / as separator not \</param>
+    /// <param name="relativePath">path should use / as separator not \ if file is at root, should be empty string</param>
     /// <param name="filename"></param>
-    /// <param name="callback">callback on completion or failure</param>
-    /// <returns>TasK ID (for checking status/progress, or for cancelling)</returns>
+    /// <returns>Task (for checking status/progress, or for cancelling)</returns>
     public FTPDownloadTask DownloadFile(string relativePath, string filename)
     {
-        Debug.Log("FTPService Download, relative path = " + relativePath);
         string remotePath = $"{_remoteWorkingPath}/{relativePath}";
-        //remotePath = remotePath.TrimEnd('/');
-
         string localPath = $"{_localWorkingPath}\\{relativePath}".Replace("/", "\\");
-
-        Debug.Log($"<color=red>Downloading file {filename} from {remotePath} to {localPath}, started with {relativePath}, local working = {_localWorkingPath}</color>");
 
         FTPDownloadTask task = new(_nextQueueEntryID, remotePath, localPath, filename);
         Enqueue(task);
-        Debug.Log($"Enqueuing download id {task.TaskID}");
         return task;
     }
 
     /// <summary>
     /// Queue a file for upload
     /// </summary>
-    /// <param name="remotePath">path should use / as separator not \</param>
+    /// <param name="relativePath">path should use / as separator not \ if file is at root, should be empty string</param>
     /// <param name="filename"></param>
-    /// <param name="callback">callback on completion or failure</param>
-    /// <returns>TasK ID  (for checking status/progress, or for cancelling)</returns>
+    /// <returns>Task (for checking status/progress, or for cancelling)</returns>
     public FTPUploadTask UploadFile(string relativePath, string filename)
     {
-        string remotePath = $"{_remoteWorkingPath}/{relativePath}";
-        string localPath = $"{_localWorkingPath}\\{relativePath}".Replace("/", "\\");
-
-        Debug.Log($"<color=red>Uploading file {filename} to {remotePath}, started with {relativePath}, local working = {_localWorkingPath}</color>");
-
-        foreach (string dir in _remoteFolders)
-        {
-            Debug.Log("Folder: " + dir);
-        }
-
+        //Need to check if remote folder exists, if not, create it before uploading file 
         if (!_remoteFolders.Contains(relativePath))
         {
-            Debug.Log("<color=green>Make folder</color>");
-            Debug.Log("1. Make folder, path = " + remotePath + " started with " + relativePath); // 1. Make folder, path = VE2/PluginFiles/Dev/LocalSub started with LocalSub //1. Make folder, path = VE2/PluginFiles/Dev/LocalSub/LocalSubSub started with LocalSub/LocalSubSub
-
             string pathToFolder = relativePath.Contains("/") ? relativePath.Substring(0, relativePath.LastIndexOf("/")) : "";
-
-            //string pathToFolder = relativePath.Substring(0, remotePath.LastIndexOf("/")); //SubFolder or SubFolder/SubSubFolder
             string folderName = relativePath.Contains("/") ? relativePath.Substring(relativePath.LastIndexOf("/") + 1) : relativePath; 
 
-            Debug.Log("Make folder, path = " + pathToFolder + "- folder = " + relativePath + " Folder name = " + folderName + " - started with " + remotePath);
             MakeRemoteFolder(pathToFolder, folderName); //Queue a task to make a remote folder
         }
+
+        string remotePath = $"{_remoteWorkingPath}/{relativePath}";
+        string localPath = $"{_localWorkingPath}\\{relativePath}".Replace("/", "\\");
 
         FTPUploadTask task = new(_nextQueueEntryID, remotePath, localPath, filename);
         task.OnComplete += OnUploadFileComplete;
@@ -100,18 +80,16 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
 
     private void OnUploadFileComplete(FTPFileTransferTask task)
     {
-        Debug.Log("Upload complete " + task.RemotePath + " - " + task.Name + " - " + task.CompletionCode);
+        string correctedFileNameAndPath = task.RemotePath.Replace($"{_remoteWorkingPath}/", "") + "/" + task.Name;
+        if (correctedFileNameAndPath.StartsWith("/")) //If starting relative path was ""
+            correctedFileNameAndPath = correctedFileNameAndPath.Substring(1);
+
+        Debug.Log($"Upload {correctedFileNameAndPath} finished. Result = {task.CompletionCode}");
 
         task.OnComplete -= OnUploadFileComplete;
         if (task.CompletionCode == FTPCompletionCode.Success)
         {
             //If we've uploaded a file, we should add it to the list of remote files
-            string correctedFileNameAndPath = task.RemotePath.Replace($"{_remoteWorkingPath}/", "") + "/" + task.Name;
-            if (correctedFileNameAndPath.StartsWith("/")) //If starting relative path was ""
-                correctedFileNameAndPath = correctedFileNameAndPath.Substring(1);
-
-            Debug.Log("Try add " + correctedFileNameAndPath);
-
             if (!RemoteFiles.ContainsKey(correctedFileNameAndPath))
                 RemoteFiles.Add(correctedFileNameAndPath, new FileDetails { fileNameAndWorkingPath = task.Name, fileSize = task.TotalFileSizeToTransfer });
 
@@ -141,9 +119,7 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
     /// <returns>TasK ID  (for checking status)</returns>
     public FTPRemoteFolderListTask GetRemoteFolderList(string remotePath)
     {
-        Debug.Log("PRE Get remote folder list " + remotePath);
         remotePath = remotePath == "" ? _remoteWorkingPath : $"{_remoteWorkingPath}/{remotePath}";
-        Debug.Log("Get remote folder list " + remotePath);
         FTPRemoteFolderListTask task = new(_nextQueueEntryID, remotePath);
         Enqueue(task);
         return task;
@@ -185,6 +161,7 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
     public FTPMakeFolderTask MakeRemoteFolder(string remotePath, string folderName)
     {
         remotePath = $"{_remoteWorkingPath}/{remotePath}";
+        Debug.Log($"Creating remote directory at {remotePath}/{folderName}");
         FTPMakeFolderTask task = new(_nextQueueEntryID, remotePath, folderName);
         task.OnComplete += OnRemoteFolderMade;
         Enqueue(task);
@@ -195,13 +172,8 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
     {
         task.OnComplete -= OnRemoteFolderMade;
 
-        Debug.Log("Folder made " + task.RemotePath + " - " + task.CompletionCode);
-
         if (task.CompletionCode == FTPCompletionCode.Success)
-        {
-            Debug.Log("<color=blue>Add folder to list " + task.RemotePath + "</color>");
             _remoteFolders.Add(task.RemotePath);
-        }
     }
 
     //for debug
@@ -226,7 +198,7 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
     /// cancelling an underway task of another type will have no effect.
     /// </summary>
     /// <param name="taskID">The Task ID returned when task was queued</param>
-    public void CancelTask(string fileNameAndPath)
+    public void CancelTask(string fileNameAndPath) //TODO:
     {
         //If the current task is transferring that file
         if (_currentTask.RemotePath.Replace($"{_remoteWorkingPath}/", "").Equals(fileNameAndPath))
@@ -258,7 +230,7 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
     /// </summary>
     /// <param name="taskID">The Task ID returned when task was queued</param>
     /// <returns></returns>
-    public float GetFileTransferProgress(string fileNameAndPath)
+    public float GetFileTransferProgress(string fileNameAndPath) //TODO:
     {
         //If the current task is transferring that file
         if (_currentTask.RemotePath.Replace($"{_remoteWorkingPath}/", "").Equals(fileNameAndPath))
@@ -307,8 +279,6 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
 
     private void FindRemoteFilesInFolderAndSubFolders(string remoteFolderPath)
     {
-        Debug.Log("Searching for remote files in " + remoteFolderPath);
-
         FTPRemoteFolderListTask subFolderListTask = GetRemoteFolderList(remoteFolderPath);
         subFolderListTask.OnComplete += HandleGetRemoteFolderListComplete;
 
@@ -320,8 +290,6 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
     {
         folderListTask.OnComplete -= HandleGetRemoteFolderListComplete;
 
-        Debug.Log($"Done get remote folder list for {folderListTask.RemotePath} - {folderListTask.CompletionCode}");
-
         if (folderListTask.CompletionCode != FTPCompletionCode.Success)
         {
             Debug.LogError($"Failed to get remote folder list: {folderListTask.CompletionCode}");
@@ -330,27 +298,16 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
 
         foreach (string subFolder in folderListTask.FoundFolderNames) //TODO: Does this return the full folder path, like VE2/PluginFiles/WorldName/Folder1/Folder2? or does it just return Folder2?
         {
-            Debug.Log("Check sub folder " + subFolder + " in " + folderListTask.RemotePath);
-
             _remoteFolders.Add(subFolder);
             string fileNameAndPath = $"{folderListTask.RemotePath}/{subFolder}"; // /LocalSub  LocalSub/SubSub TODO: Slash is already in remotePath
             string workingFileNameAndPath = fileNameAndPath.Replace($"{_remoteWorkingPath}/", "");
             FindRemoteFilesInFolderAndSubFolders(workingFileNameAndPath);
-
-            //Do we want to create a local folder for each remote folder now?
-            //May as well, I suppose? 
-            // if (!Directory.Exists(_localWorkingPath + "\\" + subFolder))
-            // {
-            //     Directory.CreateDirectory(_localWorkingPath + "\\" + subFolder);
-            // }
         }
     }
 
     private void HandleGetRemoteFileListComplete(FTPRemoteFileListTask fileListTask)
     {
         fileListTask.OnComplete -= HandleGetRemoteFileListComplete;
-
-        Debug.Log($"Done get remote file list for folder {fileListTask.RemotePath} - {fileListTask.CompletionCode}");
 
         if (fileListTask.CompletionCode != FTPCompletionCode.Success)
         {
@@ -360,14 +317,10 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
 
         foreach (FileDetails fileDetails in fileListTask.FoundFilesDetails)
         {
-            Debug.Log("Add Remote file: " + fileDetails.fileNameAndWorkingPath + " - " + fileDetails.fileSize + " path " + fileListTask.RemotePath);
             string fileNameAndPath = $"{fileListTask.RemotePath}/{fileDetails.fileNameAndWorkingPath}"; 
             string workingFileNameAndPath = fileNameAndPath.Replace($"{_remoteWorkingPath}/", "").TrimStart('/');
-
-            RemoteFiles.Add(workingFileNameAndPath, fileDetails); //TODO: key should be full path here - confirmed the key is just the file name, we want the full path
+            RemoteFiles.Add(workingFileNameAndPath, fileDetails); 
         }
-
-        Debug.Log("Ready? " + IsFTPServiceReady + " Busy? " + IsWorking);
 
         OnRemoteFileListUpdated?.Invoke();
 

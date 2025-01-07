@@ -130,7 +130,7 @@ public class FTPCommsHandler : IFTPCommsHandler
             List<string> returnFolders = new List<string>();
             foreach (SftpFile file in files)
             {
-                if (file.IsDirectory && file.Name.Substring(0, 1) != ".") //avoid .. and .
+                if (file.IsDirectory && file.Name.Substring(0, 1) != ".") //avoid .. and 
                     returnFolders.Add(file.Name);
             }
 
@@ -408,7 +408,6 @@ public class FTPCommsHandler : IFTPCommsHandler
     {
         return Task.Run(() =>
         {
-            Debug.Log("=====Starting download - " + downloadTask.LocalPath + " - " + downloadTask.Name);
             string remoteFile = downloadTask.RemotePath + "/" + downloadTask.Name;
             string localFile = downloadTask.LocalPath + "\\" + downloadTask.Name;
 

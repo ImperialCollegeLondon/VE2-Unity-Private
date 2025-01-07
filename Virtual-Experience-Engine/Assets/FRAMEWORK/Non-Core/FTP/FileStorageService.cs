@@ -18,7 +18,6 @@ public static class FileStorageServiceFactory
         return new FileStorageService(ftpService, remoteWorkingPath, localWorkingPath);
     }
 
-    //private static string CorrectLocalPath(string path) => path.Replace("/", "\\");
     private static string CorrectLocalPath(string path) => path.Replace("/", "\\");
 }
 
@@ -32,6 +31,7 @@ public class FileStorageService //TODO: Rename, FileExchangeService? LocalRemote
 
     public FTPDownloadTask DownloadFile(string workingFileNameAndPath)
     {
+        Debug.Log($"Queueing file for download: {workingFileNameAndPath}");
         string fileName = workingFileNameAndPath.Substring(workingFileNameAndPath.LastIndexOf("/") + 1);
         string remotePathFromWorking = workingFileNameAndPath.Contains("/") ? workingFileNameAndPath.Substring(0, workingFileNameAndPath.LastIndexOf("/")) : "";
         FTPDownloadTask task = _ftpService.DownloadFile(remotePathFromWorking, fileName);
@@ -41,28 +41,26 @@ public class FileStorageService //TODO: Rename, FileExchangeService? LocalRemote
 
     public FTPUploadTask UploadFile(string workingFileNameAndPath)
     {
+        Debug.Log($"Queueing file for upload: {workingFileNameAndPath}");
         string fileName = workingFileNameAndPath.Substring(workingFileNameAndPath.LastIndexOf("\\") + 1);
         string remoteCorrectedFileNameAndPath = workingFileNameAndPath.Replace("\\", "/");
         string remotePathFromWorking = remoteCorrectedFileNameAndPath.Contains("/") ? remoteCorrectedFileNameAndPath.Substring(0, remoteCorrectedFileNameAndPath.LastIndexOf("/")) : "";
-        FTPUploadTask task = _ftpService.UploadFile(remotePathFromWorking, fileName); //No need to refresh manually will happen automatically
+        FTPUploadTask task = _ftpService.UploadFile(remotePathFromWorking, fileName); //No need to refresh manually, will happen automatically
         return task;
     }
 
     public readonly Dictionary<string, FileDetails> localFiles = new();
     //Need to show things in queue, and things in progress
 
+    //TODO: are we using these?
     public Dictionary<string, FTPFileTransferTask> QueuedTransferTasks;
     public FTPFileTransferTask currentTransferTask;
-
-    public event Action OnFileTransferComplete; //TODO: Do we need this? The file list updates tell us this anyways 
 
     public Dictionary<string, FileDetails> RemoteFiles => _ftpService.RemoteFiles;
 
     public void RefreshLocalFiles()
     {
         localFiles.Clear();
-
-        //Debug.Log("Searching for local files in " + LocalWorkingPath);
 
         if (string.IsNullOrWhiteSpace(LocalWorkingPath))
             throw new ArgumentException("Path cannot be null or empty.", nameof(LocalWorkingPath));
@@ -77,7 +75,6 @@ public class FileStorageService //TODO: Rename, FileExchangeService? LocalRemote
             foreach (string file in files)
             {
                 FileInfo fileInfo = new(file);
-                //Debug.Log("<color=green>Found local file: " + fileInfo.FullName + " - local working = " + LocalWorkingPath + " contains? " + fileInfo.FullName.Contains(LocalWorkingPath) + "</color>");
                 string workingFileNameAndPath = fileInfo.FullName.Replace($"{LocalWorkingPath}\\", "").TrimStart('\\');
                 localFiles.Add(workingFileNameAndPath, new FileDetails { fileNameAndWorkingPath = workingFileNameAndPath, fileSize = (ulong)fileInfo.Length });
             }
@@ -100,13 +97,13 @@ public class FileStorageService //TODO: Rename, FileExchangeService? LocalRemote
 
     private readonly FTPService _ftpService;
     public readonly string LocalWorkingPath;
+
     public readonly string RemoteWorkingPath;
 
-    public FileStorageService(FTPService ftpService, string remoteWorkingPath, string localWorkingPath) //Path will either be Worlds or e.g PluginFiles/{worldName}
+    public FileStorageService(FTPService ftpService, string remoteWorkingPath, string localWorkingPath) 
     {
         _ftpService = ftpService;
 
-        //_remoteWorkingPath =  "VE2/" + workingPath;
         RemoteWorkingPath = remoteWorkingPath;
         LocalWorkingPath = localWorkingPath;
 
@@ -117,10 +114,8 @@ public class FileStorageService //TODO: Rename, FileExchangeService? LocalRemote
     {
         task.OnComplete -= OnRemoteDownloadComplete;
 
-        Debug.Log("Download complete");
-        Debug.Log(task.CompletionCode);
-
-        RefreshLocalFiles(); //TODO, could just add the file rather than searching for it?
+        //Could add file manually rather than refreshing, but local refresh doesn't take long 
+        RefreshLocalFiles(); 
     }
 
     public void TearDown() => _ftpService.TearDown();
