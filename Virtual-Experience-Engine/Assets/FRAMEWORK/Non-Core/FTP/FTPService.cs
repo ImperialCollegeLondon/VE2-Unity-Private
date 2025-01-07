@@ -20,11 +20,8 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
     public bool IsFTPServiceReady;
     public event Action OnFTPServiceReady;
 
-    public bool IsWorking => _taskQueue.Count > 0 || (_currentTask != null && !_currentTask.IsCompleted && !_currentTask.IsCancelled);
-
     public event Action OnRemoteFileListUpdated;
     public readonly Dictionary<string, FileDetails> RemoteFiles = new();
-    private List<string> _remoteFolders = new();
 
     public void RefreshRemoteFileList()
     {
@@ -317,6 +314,8 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
     private FTPTaskBase _currentTask = null;
     private Queue<FTPTaskBase> _taskQueue = new();
     private int _nextQueueEntryID = 0;
+    private bool IsWorking => _taskQueue.Count > 0 || (_currentTask != null && !_currentTask.IsCompleted && !_currentTask.IsCancelled);
+    private List<string> _remoteFolders = new();
 
     private readonly FTPCommsHandler _commsHandler;
     private readonly string _remoteWorkingPath;
