@@ -141,13 +141,19 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
     public void OnDeleteRemoteFileComplete(FTPRemoteTask task)
     {
         task.OnComplete -= OnDeleteRemoteFileComplete;
-        if (task.CompletionCode == FTPCompletionCode.Success && RemoteFiles.ContainsKey(task.RemotePath)) 
+
+        string correctedFileNameAndPath = task.RemotePath.Replace($"{_remoteWorkingPath}/", "") + "/" + task.Name;
+        if (correctedFileNameAndPath.StartsWith("/")) //If starting relative path was ""
+            correctedFileNameAndPath = correctedFileNameAndPath.Substring(1);
+
+        Debug.Log($"Delete {correctedFileNameAndPath} finished. Result = {task.CompletionCode}");
+
+        task.OnComplete -= OnDeleteRemoteFileComplete;
+        if (task.CompletionCode == FTPCompletionCode.Success && RemoteFiles.ContainsKey(correctedFileNameAndPath)) 
         {
-            RemoteFiles.Remove(task.RemotePath);
+            RemoteFiles.Remove(correctedFileNameAndPath);
             OnRemoteFileListUpdated?.Invoke();
         }
-
-        //TODO: if this was a folder, we should also delete the directory it was in automatically?
     }
 
     /// <summary>

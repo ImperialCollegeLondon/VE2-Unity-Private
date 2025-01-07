@@ -14,7 +14,7 @@ public class RemoteFileTaskDetails //TODO: May have to move
     public RemoteFileTaskDetails(string type, float progress, string name, string path, string workingPath)
     {
         Type = type;
-        NameAndPath = (path + name).Replace($"{workingPath}/", "");
+        NameAndPath = (path + name).Replace($"{workingPath}/", ""); //TODO: Isn't quite right
         Progress = progress;
     }
 }
@@ -28,12 +28,14 @@ public class V_PluginFileStorage : MonoBehaviour
 
     [EditorButton(nameof(OpenLocalWorkingFolder), "Open Local Working Folder", activityType: ButtonActivityType.Everything, Order = 2)]
     [EditorButton(nameof(RefreshLocalFiles), "Refresh Local Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
-    [EditorButton(nameof(UploadAllFiles), "Upload all files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
+    [EditorButton(nameof(UploadAllFiles), "Upload All Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
+    [EditorButton(nameof(DeleteAllLocalFiles), "Delete All Local Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
     [SerializeField, Disable, BeginGroup("Local Files"), EndGroup, SpaceArea(spaceBefore: 10)] private List<string> _localFilesAvailable = new(); //TODO don't show full local path
 
 
     [EditorButton(nameof(RefreshRemoteFiles), "Refresh Remote Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
-    [EditorButton(nameof(DownloadAllFiles), "Download all files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
+    [EditorButton(nameof(DownloadAllFiles), "Download all Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
+    [EditorButton(nameof(DeleteAllRemoteFiles), "Delete All Remote Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
     [SerializeField, Disable, BeginGroup("Remote Files"), EndGroup, SpaceArea(spaceBefore: 10)] private List<string> _remoteFilesAvailable = new();
 
 
@@ -129,17 +131,19 @@ public class V_PluginFileStorage : MonoBehaviour
             _fileStorageService.UploadFile(fileNameAndPath);
     }
 
-    // private void DeleteAllLocalFiles() 
-    // {
-    //     foreach (string fileNameAndPath in _fileStorageService.localFiles.Keys)
-    //         _fileStorageService.DeleteLocalFile(fileNameAndPath);
-    // }
+    private void DeleteAllLocalFiles() 
+    {
+        List<string> localFileNames = new List<string>(_fileStorageService.localFiles.Keys);
+        foreach (string fileNameAndPath in localFileNames)
+            _fileStorageService.DeleteLocalFile(fileNameAndPath);
+    }
 
-    // private void DeleteAllRemoteFiles() 
-    // {
-    //     foreach (string fileNameAndPath in _fileStorageService.RemoteFiles.Keys)
-    //         _fileStorageService.DeleteRemoteFile(fileNameAndPath);
-    // }
+    private void DeleteAllRemoteFiles() 
+    {
+        List<string> remoteFileNames = new List<string>(_fileStorageService.RemoteFiles.Keys);
+        foreach (string fileNameAndPath in remoteFileNames)
+            _fileStorageService.DeleteRemoteFile(fileNameAndPath);
+    }
 
     #endregion
 }

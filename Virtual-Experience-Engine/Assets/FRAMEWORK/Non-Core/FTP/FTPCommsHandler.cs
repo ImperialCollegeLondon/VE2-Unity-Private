@@ -347,8 +347,9 @@ public class FTPCommsHandler : IFTPCommsHandler
                 else
                     _sftpClient.DeleteDirectory(remoteFile);
             }
-            catch
+            catch (Exception ex)
             {
+                Debug.LogError($"SFTP: Could not perform delete {remoteFile} - " + ex.Message);
                 result = FTPCompletionCode.RemoteFileError;
             }
 

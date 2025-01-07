@@ -49,6 +49,31 @@ public class FileStorageService //TODO: Rename, FileExchangeService? LocalRemote
         return task;
     }
 
+    public FTPDeleteTask DeleteRemoteFile(string workingFileNameAndPath)
+    {
+        Debug.Log($"Queueing remote file for deletion: {workingFileNameAndPath}");
+        string fileName = workingFileNameAndPath.Substring(workingFileNameAndPath.LastIndexOf("/") + 1);
+        string remotePathFromWorking = workingFileNameAndPath.Contains("/") ? workingFileNameAndPath.Substring(0, workingFileNameAndPath.LastIndexOf("/")) : "";
+        FTPDeleteTask task = _ftpService.DeleteRemoteFileOrEmptyFolder(remotePathFromWorking, fileName);
+        return task;
+    }
+
+    public void DeleteLocalFile(string workingFileNameAndPath)
+    {
+        Debug.Log($"Deleting local file: {workingFileNameAndPath}");
+        string localPath = $"{LocalWorkingPath}\\{workingFileNameAndPath}";
+        
+        if (File.Exists(localPath))
+        {
+            File.Delete(localPath);
+            RefreshLocalFiles();
+        }
+        else 
+        {
+            Debug.LogWarning($"File not found: {localPath}");
+        }
+    }
+
     public List<RemoteFileTaskDetails> GetAllUpcomingFileTransferDetails() => _ftpService.GetAllUpcomingFileTransferDetails();
 
     public readonly Dictionary<string, FileDetails> localFiles = new();
