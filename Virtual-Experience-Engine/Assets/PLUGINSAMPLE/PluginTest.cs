@@ -124,6 +124,10 @@ public class PluginTest : MonoBehaviour
         {
             _linearAdjustable.OutputValue = Random.Range(_linearAdjustable.MinimumOutputValue, _linearAdjustable.MaximumOutputValue);
         }
+        else if (Keyboard.current.digit9Key.wasPressedThisFrame)
+        {
+            _linearAdjustable.NumberOfValues = Random.Range(1, 10);
+        }
 
     }
 

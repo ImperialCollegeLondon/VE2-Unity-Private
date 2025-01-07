@@ -23,6 +23,7 @@ namespace VE2.Core.VComponents.PluginInterfaces
         public float MinimumOutputValue { get; set; }
         public float MaximumOutputValue { get; set; }
         public float OutputValue { get; set; }
+        public int NumberOfValues { get; set; }
 
         public ushort MostRecentInteractingClientID => _FreeGrabbableStateModule.MostRecentInteractingClientID;
         #endregion

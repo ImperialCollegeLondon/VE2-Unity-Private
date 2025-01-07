@@ -49,7 +49,11 @@ namespace VE2.Core.VComponents.Internal
     {
         private float _outputValue;
         public float OutputValue { get => _outputValue; set => SetOutputValue(value); }
-        public float MinimumOutputValue, MaximumOutputValue;
+        private float _minimumOutputValue, _maximumOutputValue;
+        public float MinimumOutputValue { get => _minimumOutputValue; set => UpdateMinimumOutputValue(value); }
+        public float MaximumOutputValue { get => _maximumOutputValue; set => UpdateMaximumOutputValue(value); }
+        private int _numberOfValues;
+        public int NumberOfValues { get => _numberOfValues; set => UpdateSteps(value); }
 
         #region Interfaces
         public IAdjustableStateModule AdjustableStateModule => _AdjustableStateModule;
@@ -64,7 +68,6 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         private readonly SpatialAdjustmentProperty _adjustmentProperty;
-        private readonly int _numberOfValues;
         private readonly ITransformWrapper _transformWrapper;
         private readonly LinearAdjustmentType _adjustmentType;
 
@@ -78,11 +81,11 @@ namespace VE2.Core.VComponents.Internal
             _adjustmentType = config.LinearAdjustableServiceConfig.AdjustmentType;
             _adjustmentProperty = config.LinearAdjustableServiceConfig.AdjustmentProperty;
 
-            if(_adjustmentProperty == SpatialAdjustmentProperty.Discrete)
+            if (_adjustmentProperty == SpatialAdjustmentProperty.Discrete)
                 _numberOfValues = config.LinearAdjustableServiceConfig.NumberOfValues;
 
-            MinimumOutputValue = config.LinearAdjustableServiceConfig.MinimumOutputValue;
-            MaximumOutputValue = config.LinearAdjustableServiceConfig.MaximumOutputValue;
+            _minimumOutputValue = config.LinearAdjustableServiceConfig.MinimumOutputValue;
+            _maximumOutputValue = config.LinearAdjustableServiceConfig.MaximumOutputValue;
 
             _AdjustableStateModule = new(adjustableState, config.AdjustableStateConfig, $"ADJ-{id}", worldStateModulesContainer);
             _FreeGrabbableStateModule = new(grabbableState, config.GrabbableStateConfig, $"FG-{id}", worldStateModulesContainer, interactorContainer, RangedAdjustableInteractionModule);
@@ -110,9 +113,9 @@ namespace VE2.Core.VComponents.Internal
 
         private void SetOutputValue(float mappedValue)
         {
-            mappedValue = Mathf.Clamp(mappedValue, MinimumOutputValue, MaximumOutputValue);
+            mappedValue = Mathf.Clamp(mappedValue, _minimumOutputValue, _maximumOutputValue);
             _outputValue = mappedValue;
-            float rawValue = Mathf.Lerp(_AdjustableStateModule.MinimumValue, _AdjustableStateModule.MaximumValue, Mathf.InverseLerp(MinimumOutputValue, MaximumOutputValue, mappedValue));
+            float rawValue = Mathf.Lerp(_AdjustableStateModule.MinimumValue, _AdjustableStateModule.MaximumValue, Mathf.InverseLerp(_minimumOutputValue, _maximumOutputValue, mappedValue));
 
             SetValueOnStateModule(rawValue);
         }
@@ -132,9 +135,7 @@ namespace VE2.Core.VComponents.Internal
                     break;
             }
 
-
-            OutputValue = Mathf.Lerp(MinimumOutputValue, MaximumOutputValue, Mathf.InverseLerp(_AdjustableStateModule.MinimumValue, _AdjustableStateModule.MaximumValue, value));
-
+            OutputValue = Mathf.Lerp(_minimumOutputValue, _maximumOutputValue, Mathf.InverseLerp(_AdjustableStateModule.MinimumValue, _AdjustableStateModule.MaximumValue, value));
         }
 
         public void HandleFixedUpdate()
@@ -170,10 +171,28 @@ namespace VE2.Core.VComponents.Internal
 
         private void SetValueOnStateModule(float value)
         {
-            if(_adjustmentProperty == SpatialAdjustmentProperty.Discrete)
+            if (_adjustmentProperty == SpatialAdjustmentProperty.Discrete)
                 SetValueByStep(value);
             else
                 _AdjustableStateModule.Value = value;
+        }
+
+        private void UpdateSteps(int steps)
+        {
+            _numberOfValues = steps;
+            SetValueOnStateModule(_AdjustableStateModule.Value);
+        }
+
+        private void UpdateMinimumOutputValue(float value)
+        {
+            _minimumOutputValue = value;
+            SetValueOnStateModule(_AdjustableStateModule.Value);
+        }
+
+        private void UpdateMaximumOutputValue(float value)
+        {
+            _maximumOutputValue = value;
+            SetValueOnStateModule(_AdjustableStateModule.Value);
         }
 
         private void SetValueByStep(float value)
@@ -181,10 +200,10 @@ namespace VE2.Core.VComponents.Internal
             value = Mathf.Clamp(value, _AdjustableStateModule.MinimumValue, _AdjustableStateModule.MaximumValue);
 
             float stepSize = (_AdjustableStateModule.MaximumValue - _AdjustableStateModule.MinimumValue) / _numberOfValues;
-            int stepIndex = Mathf.RoundToInt((value - _AdjustableStateModule.MinimumValue)/stepSize);
+            int stepIndex = Mathf.RoundToInt((value - _AdjustableStateModule.MinimumValue) / stepSize);
 
             float newValue = _AdjustableStateModule.MinimumValue + stepIndex * stepSize;
-            
+
             _AdjustableStateModule.Value = newValue;
         }
 
