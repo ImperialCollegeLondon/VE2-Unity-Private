@@ -29,7 +29,7 @@ namespace VE2.Core.VComponents.Internal
         public UnityEvent OnDrop => _config.OnDrop;
         public bool IsGrabbed { get => _state.IsGrabbed; private set => _state.IsGrabbed = value; }
         public bool IsLocalGrabbed => _isLocalGrabbed;
-        public bool _isLocalGrabbed;
+        private bool _isLocalGrabbed;
         public ushort MostRecentInteractingClientID => _state.MostRecentInteractingInteractorID.ClientID;
         #endregion
 
