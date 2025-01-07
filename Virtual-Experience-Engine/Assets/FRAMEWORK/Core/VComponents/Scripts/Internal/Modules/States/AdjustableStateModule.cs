@@ -17,7 +17,7 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField] public UnityEvent<float> OnValueAdjusted = new();
         [SerializeField] public float MinimumOutputValue = 0;
         [SerializeField] public float MaximumOutputValue = 1;
-        [SerializeField] public float StartingValue = 0;
+        [SerializeField] public float StartingOutputValue = 0;
         [EndGroup, SerializeField] public bool EmitValueOnStart = true;
     }
     internal class AdjustableStateModule : BaseWorldStateModule, IAdjustableStateModule
@@ -45,11 +45,9 @@ namespace VE2.Core.VComponents.Internal
             }
         }
 
-
         private void HandleExternalAdjust(float newValue)
         {
-            if (newValue != _state.Value)
-                SetValue(newValue, ushort.MaxValue);
+            SetValue(newValue, ushort.MaxValue);
         }
 
         public void SetValue(float value, ushort clientID)

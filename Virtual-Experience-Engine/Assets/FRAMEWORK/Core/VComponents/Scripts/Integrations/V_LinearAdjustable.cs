@@ -38,7 +38,7 @@ namespace VE2.Core.VComponents.Integration
             string id = "LinearAdjustable-" + gameObject.name;
 
             if(_adjustableState == null)
-                _adjustableState = new AdjustableState(_config.AdjustableStateConfig.StartingValue);  
+                _adjustableState = new AdjustableState(_config.AdjustableStateConfig.StartingOutputValue);  
             
             List<IHandheldInteractionModule> handheldInteractions = new(); 
 

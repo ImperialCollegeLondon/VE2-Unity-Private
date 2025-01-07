@@ -97,8 +97,8 @@ namespace VE2.Core.VComponents.Internal
             _FreeGrabbableStateModule.OnDropConfirmed += OnDropConfirmed;
 
             _AdjustableStateModule.OnValueChangedInternal += (float value) => OnStateValueChanged(value);
-
-            SetValueOnStateModule(config.AdjustableStateConfig.StartingValue);
+                      
+            SetValueOnStateModule(config.AdjustableStateConfig.StartingOutputValue);
         }
 
         private void OnGrabConfirmed()
@@ -127,6 +127,7 @@ namespace VE2.Core.VComponents.Internal
         private void OnStateValueChanged(float value)
         {
             _spatialValue = ConvertToSpatialValue(value);
+            UnityEngine.Debug.Log($"Spatial Value = {_spatialValue}");
 
             switch (_adjustmentType)
             {
