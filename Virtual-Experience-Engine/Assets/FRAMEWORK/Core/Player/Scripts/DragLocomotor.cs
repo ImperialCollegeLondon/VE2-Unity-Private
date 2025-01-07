@@ -41,11 +41,6 @@ public class DragLocomotor
 
     public void HandleUpdate()
     {
-        /*
-            if horizontal input is pressed, move the player based on the change in position of the handTransform
-
-        */
-
         Vector3 cameraToIcon = _sphereIcon.transform.position - _headOffsetTransform.position;
         Vector3 forwardDirection = Vector3.ProjectOnPlane(cameraToIcon, Vector3.up);
         _horizontalMoveIndicator.transform.forward = forwardDirection;
@@ -64,9 +59,6 @@ public class DragLocomotor
             HandleVerticalDragMovement(verticalDragDirection);
         else
             _isDraggingVertical = _inputContainer.IsDraggingVertical = false;
-
-
-        //HandleIconVisibility();
 
         _previousHandPosition = _handTransform.position; 
     }
@@ -95,9 +87,6 @@ public class DragLocomotor
         _otherVRHandInputContainer.HorizontalDrag.OnReleased -= HandleOtherVRHorizontalDragReleased;
         _otherVRHandInputContainer.VerticalDrag.OnReleased -= HandleOtherVRVerticalDragReleased;
     }
-
-    //Icons can be copied from the ViRSE locomotor, dump them in the HandVRLeft prefab and wire up the references
-    //Should show the sphere icon when both buttons are pressed
 
     private void HandleHorizontalDragPressed()
     {
@@ -176,20 +165,6 @@ public class DragLocomotor
         }
     }
 
-    //private void HandleHorizontalDragMovement(Vector3 dragVector)
-    //{
-    //    if (_otherVRHandInputContainer.IsDraggingHorizontal) return;
-
-    //    if (!_isDraggingHorizontal)
-    //    {
-    //        _isDraggingHorizontal = _inputContainer.IsDraggingHorizontal = true;
-    //    }
-    //    else
-    //    {
-    //        Vector3 moveVector = dragVector * _dragSpeed;
-    //        _rootTransform.position += moveVector;
-    //    }        
-    //}
     private void HandleHorizontalDragMovement(Vector3 dragVector)
     {
         if (_otherVRHandInputContainer.IsDraggingHorizontal) return;
@@ -216,7 +191,7 @@ public class DragLocomotor
                     float heightDifference = Mathf.Abs(targetGroundHeight - currentGroundHeight);
 
                     // Check if the height difference is within the allowable step size
-                    if (heightDifference <= 0.5f)
+                    if (heightDifference <= 0.5f)//TO DO: Make step size configurable
                     {
                         // Adjust vertical position to maintain consistent height above ground
                         targetPosition.y = targetGroundHeight + (currentPosition.y - currentGroundHeight);
@@ -224,23 +199,35 @@ public class DragLocomotor
                     }
                     else
                     {
-                        // Elevation change is too steep; abort movement
                         Debug.Log("Movement aborted: Elevation change exceeds maximum step size.");
                     }
                 }
                 else
                 {
-                    // Target position raycast did not hit ground; abort movement
                     Debug.Log("Movement aborted: Target position is not above ground.");
                 }
             }
             else
             {
-                // Current position raycast did not hit ground; handle accordingly
                 Debug.LogWarning("Current position is not above ground.");
             }
         }
     }
+
+    //private void HandleVerticalDragMovement(Vector3 dragVector)
+    //{
+    //    if (_otherVRHandInputContainer.IsDraggingVertical) return;
+
+    //    if (!_isDraggingVertical)
+    //    {
+    //        _isDraggingVertical = _inputContainer.IsDraggingVertical = true;
+    //    }
+    //    else
+    //    {
+    //        Vector3 moveVector = dragVector * _dragSpeed;
+    //        _headOffsetTransform.position += moveVector;
+    //    }
+    //}
 
     private void HandleVerticalDragMovement(Vector3 dragVector)
     {
@@ -253,7 +240,18 @@ public class DragLocomotor
         else
         {
             Vector3 moveVector = dragVector * _dragSpeed;
-            _headOffsetTransform.position += moveVector;
+            Vector3 targetPosition = _headOffsetTransform.position + moveVector;
+
+            // Perform raycast to check for collisions
+            if (Physics.Raycast(_headOffsetTransform.position, moveVector.normalized, out RaycastHit hit, moveVector.magnitude + 0.5f))//TO DO: Maybe make this into a readonly variable?
+            {
+                Debug.Log("Vertical movement aborted: Collision detected with " + hit.collider.name);
+            }
+            else
+            {
+                _headOffsetTransform.position = targetPosition;
+            }
         }
     }
+
 }
