@@ -49,6 +49,8 @@ public class FileStorageService //TODO: Rename, FileExchangeService? LocalRemote
         return task;
     }
 
+    public List<RemoteFileTaskDetails> GetAllUpcomingFileTransferDetails() => _ftpService.GetAllUpcomingFileTransferDetails();
+
     public readonly Dictionary<string, FileDetails> localFiles = new();
     //Need to show things in queue, and things in progress
 

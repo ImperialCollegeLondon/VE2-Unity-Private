@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using Renci.SshNet;
 using UnityEngine;
 
@@ -254,13 +252,37 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
 
         return -1;
     }
+
+    /// <summary>
+    /// Only shows transfer or delete tasks that are in progress or upcoming
+    /// </summary>
+    /// <returns></returns>
+    public List<RemoteFileTaskDetails> GetAllUpcomingFileTransferDetails()
+    {
+        List<RemoteFileTaskDetails> details = new();
+
+        if (_currentTask == null)
+            return details;
+
+        List<FTPTaskBase> currentAndFutureTasks = new() { _currentTask };
+        foreach (FTPTaskBase ftpTask in _taskQueue)
+            currentAndFutureTasks.Add(ftpTask);
+
+        foreach (FTPTaskBase ftpTask in currentAndFutureTasks)
+        {
+            if (ftpTask is FTPFileTransferTask transferTask)
+                details.Add(new RemoteFileTaskDetails(transferTask is FTPUploadTask ? "Upload" : "Download", transferTask.CurrentProgress, transferTask.Name, transferTask.RemotePath, _remoteWorkingPath));
+            else if (ftpTask is FTPDeleteTask deleteTask)
+                details.Add(new RemoteFileTaskDetails("Delete", 0, deleteTask.Name, deleteTask.RemotePath, _remoteWorkingPath));
+        }
+
+        return details;
+    }
     #endregion
 
-
-    private int _nextQueueEntryID = 0;
-
-    private Queue<FTPTaskBase> _taskQueue = new();
     private FTPTaskBase _currentTask = null;
+    private Queue<FTPTaskBase> _taskQueue = new();
+    private int _nextQueueEntryID = 0;
 
     private readonly FTPCommsHandler _commsHandler;
     private readonly string _remoteWorkingPath;
@@ -296,10 +318,10 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
             return;
         }
 
-        foreach (string subFolder in folderListTask.FoundFolderNames) //TODO: Does this return the full folder path, like VE2/PluginFiles/WorldName/Folder1/Folder2? or does it just return Folder2?
+        foreach (string subFolder in folderListTask.FoundFolderNames)
         {
             _remoteFolders.Add(subFolder);
-            string fileNameAndPath = $"{folderListTask.RemotePath}/{subFolder}"; // /LocalSub  LocalSub/SubSub TODO: Slash is already in remotePath
+            string fileNameAndPath = $"{folderListTask.RemotePath}/{subFolder}"; 
             string workingFileNameAndPath = fileNameAndPath.Replace($"{_remoteWorkingPath}/", "");
             FindRemoteFilesInFolderAndSubFolders(workingFileNameAndPath);
         }
@@ -346,9 +368,8 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
 
     //gets called on startup, when something is added, and whenever client changes status to ready
     //if this gets buggy it could more robustly but less efficiently sit in Update()
-    private void ProcessQueue() //TODO: Maybe remove task from queue when it's completed?
+    private void ProcessQueue() 
     {
-        //Debug.Log("Processing queue");
         if (_commsHandler.Status == FTPStatus.Busy) 
             return;
 
@@ -389,14 +410,12 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
     private void Enqueue(FTPTaskBase task)
     {
         _taskQueue.Enqueue(task);
-
         ProcessQueue();
     }
 
     private void HandleStatusChanged(FTPStatus newStatus)
     {
-        //if client is now ready - process next queue item
-        if (newStatus == FTPStatus.Ready)
+        if (newStatus == FTPStatus.Ready) //If client is ready
             ProcessQueue();
     }
 }
@@ -437,7 +456,7 @@ public abstract class FTPTask<TCompletedTask> : FTPTaskBase where TCompletedTask
 public abstract class FTPFileTransferTask : FTPTask<FTPFileTransferTask>
 {
     public event Action<float> OnProgressChanged;
-    public float CurrentProgress => _dataTransferred / TotalFileSizeToTransfer; 
+    public float CurrentProgress => _dataTransferred / Mathf.Max(TotalFileSizeToTransfer, 1); 
     public ulong TotalFileSizeToTransfer;
     private ulong _dataTransferred;
     private ulong _lastDataTransferred;
