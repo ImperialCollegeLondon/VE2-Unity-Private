@@ -740,12 +740,6 @@ Mesh:
     offset: 0
     size: 0
     path: 
---- !u!1 &123761213 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: a90659158cbe4194c96bd8e01333b271,
-    type: 3}
-  m_PrefabInstance: {fileID: 1234135186}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &123761214 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a90659158cbe4194c96bd8e01333b271,
@@ -764,7 +758,7 @@ GameObject:
   - component: {fileID: 129815992}
   - component: {fileID: 129815991}
   m_Layer: 0
-  m_Name: 100 (9)
+  m_Name: 1000
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7076,7 +7070,7 @@ GameObject:
   - component: {fileID: 488661447}
   - component: {fileID: 488661446}
   m_Layer: 0
-  m_Name: 100 (8)
+  m_Name: 900
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8923,7 +8917,7 @@ GameObject:
   - component: {fileID: 683963507}
   - component: {fileID: 683963506}
   m_Layer: 0
-  m_Name: 100 (2)
+  m_Name: 300
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9099,7 +9093,7 @@ GameObject:
   - component: {fileID: 689116704}
   - component: {fileID: 689116703}
   m_Layer: 0
-  m_Name: 100 (3)
+  m_Name: 400
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9275,7 +9269,7 @@ GameObject:
   - component: {fileID: 707343440}
   - component: {fileID: 707343439}
   m_Layer: 0
-  m_Name: 100 (5)
+  m_Name: 600
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14864,7 +14858,7 @@ GameObject:
   - component: {fileID: 874077840}
   - component: {fileID: 874077839}
   m_Layer: 0
-  m_Name: 100 (4)
+  m_Name: 500
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -23997,7 +23991,7 @@ GameObject:
   - component: {fileID: 1261217404}
   - component: {fileID: 1261217403}
   m_Layer: 0
-  m_Name: 100 (1)
+  m_Name: 200
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -24260,7 +24254,7 @@ GameObject:
   - component: {fileID: 1272529409}
   - component: {fileID: 1272529408}
   m_Layer: 0
-  m_Name: 100 (6)
+  m_Name: 700
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -26026,7 +26020,7 @@ GameObject:
   - component: {fileID: 1427993846}
   - component: {fileID: 1427993845}
   m_Layer: 0
-  m_Name: 100 (10)
+  m_Name: 1100
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -26313,7 +26307,7 @@ MonoBehaviour:
   _handheldActivatableGO: {fileID: 1542206479}
   _handheldAdjustableGO: {fileID: 1542206479}
   _networkObjectGO: {fileID: 1499303675}
-  _linearAdjustableGO: {fileID: 123761213}
+  _linearAdjustableGO: {fileID: 2117595887}
 --- !u!4 &1499303677
 Transform:
   m_ObjectHideFlags: 0
@@ -34006,7 +34000,7 @@ GameObject:
   - component: {fileID: 1969031501}
   - component: {fileID: 1969031500}
   m_Layer: 0
-  m_Name: 100 (7)
+  m_Name: 800
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

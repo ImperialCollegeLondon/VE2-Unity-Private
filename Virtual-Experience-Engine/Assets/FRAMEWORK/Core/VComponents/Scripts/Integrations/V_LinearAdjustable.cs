@@ -33,6 +33,16 @@ namespace VE2.Core.VComponents.Integration
 
         private LinearAdjustableService _service = null;
 
+        private void OnValidate()
+        {
+            _config.AdjustableStateConfig.MinimumOutputValue = Mathf.Min(_config.AdjustableStateConfig.MinimumOutputValue, _config.AdjustableStateConfig.MaximumOutputValue);
+            _config.AdjustableStateConfig.StartingOutputValue = Mathf.Clamp(_config.AdjustableStateConfig.StartingOutputValue, _config.AdjustableStateConfig.MinimumOutputValue, _config.AdjustableStateConfig.MaximumOutputValue);
+            _config.AdjustableStateConfig.MaximumOutputValue = Mathf.Max(_config.AdjustableStateConfig.MinimumOutputValue, _config.AdjustableStateConfig.MaximumOutputValue);
+
+            _config.LinearAdjustableServiceConfig.MinimumSpatialValue = Mathf.Min(_config.LinearAdjustableServiceConfig.MinimumSpatialValue, _config.LinearAdjustableServiceConfig.MaximumSpatialValue);
+            _config.LinearAdjustableServiceConfig.MaximumSpatialValue = Mathf.Max(_config.LinearAdjustableServiceConfig.MinimumSpatialValue, _config.LinearAdjustableServiceConfig.MaximumSpatialValue);
+        }
+
         private void OnEnable()
         {
             string id = "LinearAdjustable-" + gameObject.name;
