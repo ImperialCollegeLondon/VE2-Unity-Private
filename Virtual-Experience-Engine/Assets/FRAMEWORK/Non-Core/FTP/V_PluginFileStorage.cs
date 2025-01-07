@@ -5,16 +5,16 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 [Serializable]
-public class RemoteFileTaskDetails //TODO: May have to move
+public class RemoteFileTaskDetails 
 {
     [BeginHorizontal(ControlFieldWidth = false), SerializeField] public string Type;
     [SerializeField, LabelWidth(110f)] public string NameAndPath; //Relative to working path
     [EndHorizontal, SerializeField] public float Progress;
 
-    public RemoteFileTaskDetails(string type, float progress, string name, string path, string workingPath)
+    public RemoteFileTaskDetails(string type, float progress, string fullNameAndPath)
     {
         Type = type;
-        NameAndPath = (path + name).Replace($"{workingPath}/", ""); //TODO: Isn't quite right
+        NameAndPath = fullNameAndPath; //TODO: Isn't quite right
         Progress = progress;
     }
 }
@@ -38,7 +38,7 @@ public class V_PluginFileStorage : MonoBehaviour
     [EditorButton(nameof(DeleteAllRemoteFiles), "Delete All Remote Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
     [SerializeField, Disable, BeginGroup("Remote Files"), EndGroup, SpaceArea(spaceBefore: 10)] private List<string> _remoteFilesAvailable = new();
 
-
+    [EditorButton(nameof(CancelAllTasks), "Cancel All Tasks", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
     [SerializeField, IgnoreParent, BeginGroup("Remote File Tasks"), EndGroup, SpaceArea(spaceBefore: 10)] private List<RemoteFileTaskDetails> _queuedTaskDetails = new();
 
 
@@ -122,7 +122,6 @@ public class V_PluginFileStorage : MonoBehaviour
     {
         foreach (string fileNameAndPath in _fileStorageService.RemoteFiles.Keys)
             _fileStorageService.DownloadFile(fileNameAndPath);
-
     }
 
     private void UploadAllFiles()
@@ -143,6 +142,13 @@ public class V_PluginFileStorage : MonoBehaviour
         List<string> remoteFileNames = new List<string>(_fileStorageService.RemoteFiles.Keys);
         foreach (string fileNameAndPath in remoteFileNames)
             _fileStorageService.DeleteRemoteFile(fileNameAndPath);
+    }
+
+    private void CancelAllTasks()
+    {
+        List<RemoteFileTaskDetails> tasks = new List<RemoteFileTaskDetails>(_queuedTaskDetails);
+        foreach (RemoteFileTaskDetails task in tasks)
+            _fileStorageService.CancelTask(task.NameAndPath);
     }
 
     #endregion

@@ -62,7 +62,7 @@ public class FileStorageService //TODO: Rename, FileExchangeService? LocalRemote
     {
         Debug.Log($"Deleting local file: {workingFileNameAndPath}");
         string localPath = $"{LocalWorkingPath}\\{workingFileNameAndPath}";
-        
+
         if (File.Exists(localPath))
         {
             File.Delete(localPath);
@@ -73,6 +73,8 @@ public class FileStorageService //TODO: Rename, FileExchangeService? LocalRemote
             Debug.LogWarning($"File not found: {localPath}");
         }
     }
+
+    public void CancelTask(string workingFileNameAndPath) => _ftpService.CancelTask(workingFileNameAndPath);
 
     public List<RemoteFileTaskDetails> GetAllUpcomingFileTransferDetails() => _ftpService.GetAllUpcomingFileTransferDetails();
 

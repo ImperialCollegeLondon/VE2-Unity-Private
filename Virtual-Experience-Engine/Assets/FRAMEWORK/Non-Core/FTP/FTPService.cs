@@ -13,6 +13,7 @@ public static class FTPServiceFactory
     }
 }
 
+//TODO: Needs some reworking, lots of tomfoolery with the path handling, have definetely overcomplicated it!
 public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TODO: review summaries, sigs have now changed 
 {
     #region Higher-level interfaces 
@@ -46,8 +47,20 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
         string localPath = $"{_localWorkingPath}\\{relativePath}".Replace("/", "\\");
 
         FTPDownloadTask task = new(_nextQueueEntryID, remotePath, localPath, filename);
+        task.OnComplete += OnDownloadFileComplete;
+
         Enqueue(task);
         return task;
+    }
+
+    private void OnDownloadFileComplete(FTPFileTransferTask task)
+    {
+        string correctedFileNameAndPath = task.RemotePath.Replace($"{_remoteWorkingPath}/", "") + "/" + task.Name;
+        if (correctedFileNameAndPath.StartsWith("/")) //If starting relative path was ""
+            correctedFileNameAndPath = correctedFileNameAndPath.Substring(1);
+
+        Debug.Log($"Download {correctedFileNameAndPath} finished. Result = {task.CompletionCode}");
+        task.OnComplete -= OnDownloadFileComplete;
     }
 
     /// <summary>
@@ -201,30 +214,40 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
     /// Cancel a task - will cancel any queued task, but once underway only uploads and downloads will be cancelled
     /// cancelling an underway task of another type will have no effect.
     /// </summary>
-    /// <param name="taskID">The Task ID returned when task was queued</param>
-    public void CancelTask(string fileNameAndPath) //TODO:
+    /// <param name="relativePath">The path and name of the file relative to the working directory</param>
+    public void CancelTask(string relativePath) 
     {
-        //If the current task is transferring that file
-        if (_currentTask.RemotePath.Replace($"{_remoteWorkingPath}/", "").Equals(fileNameAndPath))
+        string relativeRemotePath = relativePath.Replace("\\", "/");
+        if (relativeRemotePath.StartsWith("/")) //If starting relative path was ""
+            relativeRemotePath = relativeRemotePath.Substring(1);
+
+        if (_currentTask.FullRemotePath.Replace($"{_remoteWorkingPath}/", "").Equals(relativeRemotePath))
         {
+            //If the current task is transferring that file
             if (_currentTask is FTPFileTransferTask exchangeTask)
+            {
+                Debug.Log($"Cancelling task in progress: {relativePath}");
                 exchangeTask.Cancel();
-            else 
-                Debug.LogWarning($"Tried to cancel a task in progress but that task is not a file transfer task - {fileNameAndPath}");
+            }
+            else
+            {
+                Debug.LogWarning($"Tried to cancel a task in progress but that task is not a file transfer task - {relativePath}");
+            }
 
             return;
         }
 
         foreach (FTPTaskBase queuedTask in _taskQueue)
         {
-            if (queuedTask.RemotePath.Replace($"{_remoteWorkingPath}/", "").Equals(fileNameAndPath))
+            if (queuedTask.FullRemotePath.Replace($"{_remoteWorkingPath}/", "").Equals(relativeRemotePath))
             {
+                Debug.Log($"Cancelling task in progress: {relativePath}");
                 queuedTask.Cancel();
                 return;
             }
         }
 
-        Debug.LogError($"Tried to cancel a task that was not found in the queue or in progress {fileNameAndPath}");
+        Debug.LogError($"Tried to cancel a task that was not found in the queue or in progress {relativePath}");
     }
 
     /// <summary>
@@ -276,10 +299,15 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
 
         foreach (FTPTaskBase ftpTask in currentAndFutureTasks)
         {
-            if (ftpTask is FTPFileTransferTask transferTask)
-                details.Add(new RemoteFileTaskDetails(transferTask is FTPUploadTask ? "Upload" : "Download", transferTask.CurrentProgress, transferTask.Name, transferTask.RemotePath, _remoteWorkingPath));
+            if (ftpTask.IsCancelled)
+                continue;
+
+            if (ftpTask is FTPDownloadTask downloadTask)
+                details.Add(new RemoteFileTaskDetails("Download", downloadTask.CurrentProgress, downloadTask.FullRemotePath.Replace($"{_remoteWorkingPath}/", "").Replace("/", "\\")));
+            else if (ftpTask is FTPUploadTask uploadTask)
+                details.Add(new RemoteFileTaskDetails("Upload", uploadTask.CurrentProgress, uploadTask.FullRemotePath.Replace($"{_remoteWorkingPath}/", "")));
             else if (ftpTask is FTPDeleteTask deleteTask)
-                details.Add(new RemoteFileTaskDetails("Delete", 0, deleteTask.Name, deleteTask.RemotePath, _remoteWorkingPath));
+                details.Add(new RemoteFileTaskDetails("Delete", 0, deleteTask.FullRemotePath.Replace($"{_remoteWorkingPath}/", "")));
         }
 
         return details;
@@ -435,11 +463,17 @@ public abstract class FTPTaskBase
     public int TaskID { get; }
     public string RemotePath { get; }
 
+    /// <summary>
+    /// Includes filename/end folder if applicable. For list operations, will be the same as RemotePath
+    /// </summary>
+    public abstract string FullRemotePath { get; }
+
     protected FTPTaskBase(int taskID, string remotePath)
     {
         TaskID = taskID;
         RemotePath = remotePath;
     }
+
 
     public void Cancel() => IsCancelled = true;
 }
@@ -466,6 +500,8 @@ public abstract class FTPFileTransferTask : FTPTask<FTPFileTransferTask>
     public ulong TotalFileSizeToTransfer;
     private ulong _dataTransferred;
     private ulong _lastDataTransferred;
+
+    public override string FullRemotePath => RemotePath.EndsWith('/') ? $"{RemotePath}{Name}" : $"{RemotePath}/{Name}";
 
     public readonly string LocalPath;
     public readonly string Name;
@@ -511,6 +547,7 @@ public class FTPUploadTask : FTPFileTransferTask
 
 public class FTPRemoteFolderListTask : FTPTask<FTPRemoteFolderListTask>
 {
+    public override string FullRemotePath => RemotePath;
     public List<string> FoundFolderNames;
 
     public FTPRemoteFolderListTask(int taskID, string remotePath) : base(taskID, remotePath) { }
@@ -518,6 +555,7 @@ public class FTPRemoteFolderListTask : FTPTask<FTPRemoteFolderListTask>
 
 public class FTPRemoteFileListTask : FTPTask<FTPRemoteFileListTask>
 {
+    public override string FullRemotePath => RemotePath;
     public List<FileDetails> FoundFilesDetails;
 
     public FTPRemoteFileListTask(int taskID, string remotePath) : base(taskID, remotePath) { }
@@ -525,6 +563,7 @@ public class FTPRemoteFileListTask : FTPTask<FTPRemoteFileListTask>
 
 public abstract class FTPRemoteTask : FTPTask<FTPRemoteTask>
 {
+    public override string FullRemotePath => RemotePath.EndsWith('/') ? $"{RemotePath}{Name}" : $"{RemotePath}/{Name}";
     public readonly string Name;
 
     public FTPRemoteTask(int taskID, string remotePath, string name) : base(taskID, remotePath)
