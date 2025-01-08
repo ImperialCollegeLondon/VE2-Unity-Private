@@ -126,13 +126,13 @@ namespace VE2.Core.VComponents.Internal
             switch (_adjustmentType)
             {
                 case LinearAdjustmentType.XAxis:
-                    _transformWrapper.localPosition = Vector3.right * _spatialValue;
+                    _transformWrapper.localPosition = new Vector3(_spatialValue, _transformWrapper.localPosition.y, _transformWrapper.localPosition.z);
                     break;
                 case LinearAdjustmentType.YAxis:
-                    _transformWrapper.localPosition = Vector3.up * _spatialValue;
+                    _transformWrapper.localPosition = new Vector3(_transformWrapper.localPosition.x, _spatialValue, _transformWrapper.localPosition.z);
                     break;
                 case LinearAdjustmentType.ZAxis:
-                    _transformWrapper.localPosition = Vector3.forward * _spatialValue;
+                    _transformWrapper.localPosition = new Vector3(_transformWrapper.localPosition.x, _transformWrapper.localPosition.y, _spatialValue);
                     break;
             }
         }
