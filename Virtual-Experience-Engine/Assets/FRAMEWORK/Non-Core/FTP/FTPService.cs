@@ -13,7 +13,6 @@ public static class FTPServiceFactory
     }
 }
 
-//TODO: Needs some reworking, lots of tomfoolery with the path handling, have definetely overcomplicated it!
 public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TODO: review summaries, sigs have now changed 
 {
     #region Higher-level interfaces 
@@ -192,131 +191,10 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
         if (task.CompletionCode == FTPCompletionCode.Success)
             _remoteFolders.Add(task.RemotePath);
     }
-
-    //for debug
-    private void LogQueue() //TODO - wire this into frontend
-    {
-        string s = "";
-        if (_currentTask != null)
-            s += "Current: " + _currentTask.ToString() + "\n";
-        else
-            s += "Current: null\n";
-
-        int i = 0;
-        foreach (FTPTask task in _taskQueue)
-        {
-            s += $"Queue {i++}:" + task.ToString() + "\n";
-        }
-        Debug.Log(s);
-    }
-
-    /// <summary>
-    /// Cancel a task - will cancel any queued task, but once underway only uploads and downloads will be cancelled
-    /// cancelling an underway task of another type will have no effect.
-    /// </summary>
-    /// <param name="relativePath">The path and name of the file relative to the working directory</param>
-    public void CancelTask(string relativePath) 
-    {
-        string relativeRemotePath = relativePath;
-        if (relativeRemotePath.StartsWith("/")) //If starting relative path was ""
-            relativeRemotePath = relativeRemotePath.Substring(1);
-
-        if (_currentTask.RemotePathAndName.Replace($"{_remoteWorkingPath}/", "").Equals(relativeRemotePath))
-        {
-            //If the current task is transferring that file
-            if (_currentTask is FTPFileTransferTask exchangeTask)
-            {
-                Debug.Log($"Cancelling task in progress: {relativePath}");
-                exchangeTask.Cancel();
-            }
-            else
-            {
-                Debug.LogWarning($"Tried to cancel a task in progress but that task is not a file transfer task - {relativePath}");
-            }
-
-            return;
-        }
-
-        foreach (FTPTask queuedTask in _taskQueue)
-        {
-            if (queuedTask.RemotePathAndName.Replace($"{_remoteWorkingPath}/", "").Equals(relativeRemotePath))
-            {
-                Debug.Log($"Cancelling task in progress: {relativePath}");
-                queuedTask.Cancel();
-                return;
-            }
-        }
-
-        Debug.LogError($"Tried to cancel a task that was not found in the queue or in progress {relativePath}");
-    }
-
-    /// <summary>
-    /// Get progress of task (as a float 0-100%). Underway tasks will return at most 99%
-    /// Queued will return 0%, and tasks that are not in progress (either completed or not queued) will return -1
-    /// An underway task that is not an upload or download will show 0%, until it shows 100%
-    /// </summary>
-    /// <param name="taskID">The Task ID returned when task was queued</param>
-    /// <returns></returns>
-    public float GetFileTransferProgress(string fileNameAndPath) //TODO:
-    {
-        //If the current task is transferring that file
-        if (_currentTask.RemotePath.Replace($"{_remoteWorkingPath}/", "").Equals(fileNameAndPath))
-        {
-            if (_currentTask is FTPFileTransferTask exchangeTask)
-                return Mathf.Clamp(exchangeTask.CurrentProgress * 100f, 0f, 99f); //ensure only get 100% on completion
-            else
-                throw new Exception($"FTP system found the requested file {fileNameAndPath}, and tried to get its progress, but it is not a file transfer task!");
-        }
-
-        foreach (FTPTask queuedTask in _taskQueue)
-        {
-            if (queuedTask.RemotePath.Replace($"{_remoteWorkingPath}/", "").Equals(fileNameAndPath))
-            {
-                if (queuedTask is FTPFileTransferTask)
-                    return 0;
-                else
-                    throw new Exception($"FTP system found the requested file {fileNameAndPath}, and tried to get its progress, but it is not a file transfer task!");
-            }
-        }
-
-        return -1;
-    }
-
-    /// <summary>
-    /// Only shows transfer or delete tasks that are in progress or upcoming
-    /// </summary>
-    /// <returns></returns>
-    public List<RemoteFileTaskInfo> GetAllUpcomingFileTransferDetails() //TODO: Remove, the integration layer can keep track of this
-    {
-        List<RemoteFileTaskInfo> details = new();
-
-        if (_currentTask == null)
-            return details;
-
-        List<FTPTask> currentAndFutureTasks = new() { _currentTask };
-        foreach (FTPTask ftpTask in _taskQueue)
-            currentAndFutureTasks.Add(ftpTask);
-
-        foreach (FTPTask ftpTask in currentAndFutureTasks)
-        {
-            if (ftpTask.IsCancelled)
-                continue;
-
-            if (ftpTask is FTPDownloadTask downloadTask)
-                details.Add(new RemoteFileTaskInfo(downloadTask, TaskType.Download, downloadTask.CurrentProgress, downloadTask.RemotePathAndName.Replace($"{_remoteWorkingPath}/", "")));
-            else if (ftpTask is FTPUploadTask uploadTask)
-                details.Add(new RemoteFileTaskInfo(uploadTask, TaskType.Upload, uploadTask.CurrentProgress, uploadTask.RemotePathAndName.Replace($"{_remoteWorkingPath}/", "")));
-            else if (ftpTask is FTPDeleteTask deleteTask)
-                details.Add(new RemoteFileTaskInfo(deleteTask, TaskType.Delete, 0, deleteTask.RemotePathAndName.Replace($"{_remoteWorkingPath}/", "")));
-        }
-
-        return details;
-    }
     #endregion
 
     private FTPTask _currentTask = null;
     private Queue<FTPTask> _taskQueue = new();
-    private int _nextQueueEntryID = 0;
     private bool IsWorking => _taskQueue.Count > 0 || (_currentTask != null && !_currentTask.IsCompleted && !_currentTask.IsCancelled);
     private List<string> _remoteFolders = new();
 
@@ -393,17 +271,6 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
         }
     }
 
-    public void TearDown()
-    {
-        if (_currentTask != null) 
-            _currentTask.Cancel();
-
-        foreach (FTPTask t in _taskQueue)
-            _currentTask.Cancel();
-
-        _commsHandler.OnStatusChanged -= HandleStatusChanged;
-    }
-
     //gets called on startup, when something is added, and whenever client changes status to ready
     //if this gets buggy it could more robustly but less efficiently sit in Update()
     private void ProcessQueue() 
@@ -455,6 +322,17 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
     {
         if (newStatus == FTPStatus.Ready) //If client is ready
             ProcessQueue();
+    }
+
+    public void TearDown()
+    {
+        if (_currentTask != null)
+            _currentTask.Cancel();
+
+        foreach (FTPTask t in _taskQueue)
+            _currentTask.Cancel();
+
+        _commsHandler.OnStatusChanged -= HandleStatusChanged;
     }
 }
 

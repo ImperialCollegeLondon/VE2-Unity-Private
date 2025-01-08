@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -23,17 +24,16 @@ public enum RemoteFileTaskStatus
 [Serializable]
 public class RemoteFileTaskInfo //TODO: needs an interface
 {
-    [BeginHorizontal(ControlFieldWidth = false), SerializeField, Disable] private TaskType _type;
+    [BeginHorizontal(ControlFieldWidth = false), SerializeField, LabelWidth(50), Disable] private TaskType _type;
     public TaskType Type => _type;
 
     [SerializeField, LabelWidth(110f), Disable] private string _nameAndPath; //Relative to working path
     public string NameAndPath => _nameAndPath;
 
-    [SerializeField, Disable] private float _progress; //TODO: Progress sometimes show 0 when completed
+    [SerializeField, LabelWidth(75), Disable] private float _progress; //TODO: Progress sometimes show 0 when completed
     public float Progress => _progress;
 
-    [EditorButton(nameof(CancelTask), "Cancel", activityType: ButtonActivityType.OnPlayMode, Order = 1)]  
-    [EndHorizontal, SerializeField, Disable] private RemoteFileTaskStatus _status;
+    [EndHorizontal, SerializeField, LabelWidth(55), Disable] private RemoteFileTaskStatus _status;
     public RemoteFileTaskStatus Status => _status;
 
     public event Action<RemoteFileTaskStatus> OnStatusChanged;
@@ -49,11 +49,12 @@ public class RemoteFileTaskInfo //TODO: needs an interface
         _progress = progress;
     }
 
-    public void CancelTask()
+    public void CancelRemoteFileTask()
     {
-        //Once underway, only uploads and downloads can be cancelled 
-        bool isCancellable = !_status.Equals(RemoteFileTaskStatus.InProgress) && _type.Equals(TaskType.Delete);
-        if (isCancellable)
+        //Once underway, only uploads and downloads can be cancelled.
+        bool _isCancellable = (_status == RemoteFileTaskStatus.InProgress && _type != TaskType.Delete) || _status == RemoteFileTaskStatus.Queued;
+
+        if (_isCancellable)
         {
             _task.Cancel();
             Update();
@@ -74,14 +75,18 @@ public class RemoteFileTaskInfo //TODO: needs an interface
             _progress = 0;
 
         RemoteFileTaskStatus previousStatus = Status;
-        RemoteFileTaskStatus newStatus = _task.CompletionCode switch
-        {
-            FTPCompletionCode.Waiting => RemoteFileTaskStatus.Queued,
-            FTPCompletionCode.Busy => RemoteFileTaskStatus.InProgress,
-            _ when _task.IsCancelled => RemoteFileTaskStatus.Cancelled,
-            _ when _task.IsCompleted && _task.CompletionCode.Equals(FTPCompletionCode.Success) => RemoteFileTaskStatus.Succeeded,
-            _ => RemoteFileTaskStatus.Failed
-        };
+        RemoteFileTaskStatus newStatus;
+
+        if (_task.IsCancelled)
+            newStatus = RemoteFileTaskStatus.Cancelled;
+        else if (_task.CompletionCode == FTPCompletionCode.Waiting)
+            newStatus = RemoteFileTaskStatus.Queued;
+        else if (_task.CompletionCode == FTPCompletionCode.Busy) //TODO: Not right, need some way of checking if it's in progress
+            newStatus = RemoteFileTaskStatus.InProgress;
+        else if (_task.CompletionCode == FTPCompletionCode.Success)
+            newStatus = RemoteFileTaskStatus.Succeeded;
+        else
+            newStatus = RemoteFileTaskStatus.Failed;
 
         _status = newStatus;
 
@@ -173,7 +178,7 @@ public class V_PluginFileStorage : MonoBehaviour
         foreach (RemoteFileTaskInfo task in _queuedTasks)
         {
             task.Update();
-            if (task.Status == RemoteFileTaskStatus.Succeeded || task.Status == RemoteFileTaskStatus.Failed)
+            if (task.Status == RemoteFileTaskStatus.Succeeded || task.Status == RemoteFileTaskStatus.Failed || task.Status == RemoteFileTaskStatus.Cancelled)
                 tasksToMoveToCompleted.Add(task);
         }
 
@@ -266,7 +271,7 @@ public class V_PluginFileStorage : MonoBehaviour
     {
         List<RemoteFileTaskInfo> tasks = new List<RemoteFileTaskInfo>(_queuedTasks);
         foreach (RemoteFileTaskInfo task in tasks)
-            _fileStorageService.CancelTask(task.NameAndPath);
+            task.CancelRemoteFileTask();
     }
     #endregion
 }

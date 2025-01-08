@@ -72,17 +72,7 @@ public class FileStorageService //TODO: Rename, FileExchangeService? LocalRemote
         }
     }
 
-    public void CancelTask(string workingFileNameAndPath) => _ftpService.CancelTask(workingFileNameAndPath);
-
-    public List<RemoteFileTaskInfo> GetAllUpcomingFileTransferDetails() => _ftpService.GetAllUpcomingFileTransferDetails(); //TODO: Remove
-
     public readonly Dictionary<string, FileDetails> localFiles = new();
-    //Need to show things in queue, and things in progress
-
-    //TODO: are we using these?
-    public Dictionary<string, FTPFileTransferTask> QueuedTransferTasks;
-    public FTPFileTransferTask currentTransferTask;
-
     public Dictionary<string, FileDetails> RemoteFiles => _ftpService.RemoteFiles;
 
     public void RefreshLocalFiles()
