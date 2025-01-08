@@ -79,10 +79,10 @@ public class RemoteFileTaskInfo //TODO: needs an interface
 
         if (_task.IsCancelled)
             newStatus = RemoteFileTaskStatus.Cancelled;
+        else if (_task.IsInProgress) 
+            newStatus = RemoteFileTaskStatus.InProgress;
         else if (_task.CompletionCode == FTPCompletionCode.Waiting)
             newStatus = RemoteFileTaskStatus.Queued;
-        else if (_task.CompletionCode == FTPCompletionCode.Busy) //TODO: Not right, need some way of checking if it's in progress
-            newStatus = RemoteFileTaskStatus.InProgress;
         else if (_task.CompletionCode == FTPCompletionCode.Success)
             newStatus = RemoteFileTaskStatus.Succeeded;
         else
@@ -123,7 +123,7 @@ public class V_PluginFileStorage : MonoBehaviour
     [Title("Play mode debug")]
     [Help("Enter play mode to view local and remote files")]
 
-    [EditorButton(nameof(OpenLocalWorkingFolder), "Open Local Working Folder", activityType: ButtonActivityType.Everything, Order = 2)]
+    [EditorButton(nameof(OpenLocalWorkingFolder), "Open Local Working Folder", activityType: ButtonActivityType.Everything, Order = 2)] //TODO: Broke!
     [EditorButton(nameof(RefreshLocalFiles), "Refresh Local Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
     [EditorButton(nameof(UploadAllFiles), "Upload All Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
     [EditorButton(nameof(DeleteAllLocalFiles), "Delete All Local Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]

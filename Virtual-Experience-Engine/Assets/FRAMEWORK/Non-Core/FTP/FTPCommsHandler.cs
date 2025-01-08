@@ -79,6 +79,7 @@ public class FTPCommsHandler : IFTPCommsHandler
 
             Status = FTPStatus.Busy;
 
+            fileListTask.MarkInProgress();
             (IEnumerable<ISftpFile>, FTPCompletionCode) result = await DirectoryThreaded(remotePath);
             IEnumerable<ISftpFile> files = result.Item1;
             FTPCompletionCode completionCode = result.Item2;
@@ -121,7 +122,7 @@ public class FTPCommsHandler : IFTPCommsHandler
 
         Status = FTPStatus.Busy;
 
-        // Start the async folder listing operation
+        folderListTask.MarkInProgress();
         (IEnumerable<ISftpFile> files, FTPCompletionCode completionCode) = await DirectoryThreaded(folderListTask.RemotePath);
 
         // Handle success or failure based on completion code
@@ -215,6 +216,7 @@ public class FTPCommsHandler : IFTPCommsHandler
         {
             Status = FTPStatus.Busy;
 
+            makeFolderTask.MarkInProgress();
             FTPCompletionCode completionCode = await MakeFolderThreaded(makeFolderTask.RemotePath + "/" + makeFolderTask.Name);
             makeFolderTask.MarkCompleted(completionCode);
 
@@ -292,6 +294,7 @@ public class FTPCommsHandler : IFTPCommsHandler
         {
             Status = FTPStatus.Busy;
 
+            deleteTask.MarkInProgress();
             FTPCompletionCode completionCode = await DeleteThreaded(deleteTask.RemotePath + "/" + deleteTask.Name);
             deleteTask.MarkCompleted(completionCode);
 
@@ -392,6 +395,7 @@ public class FTPCommsHandler : IFTPCommsHandler
             Debug.Log("Starting download of " + downloadTask.Name);
             Status = FTPStatus.Busy;
 
+            downloadTask.MarkInProgress();
             FTPCompletionCode completionCode = await DownloadThreaded(downloadTask);
             downloadTask.MarkCompleted(completionCode);
 
@@ -517,6 +521,7 @@ public class FTPCommsHandler : IFTPCommsHandler
         {
             Status = FTPStatus.Busy;
 
+            uploadFileTask.MarkInProgress();
             FTPCompletionCode completionCode = await UploadThreaded(uploadFileTask);
             uploadFileTask.MarkCompleted(completionCode);
             Status = FTPStatus.Ready;

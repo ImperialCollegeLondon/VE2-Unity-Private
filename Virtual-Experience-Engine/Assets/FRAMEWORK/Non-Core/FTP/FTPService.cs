@@ -340,6 +340,7 @@ public abstract class FTPTask
 {
     public bool IsCompleted { get; protected set; } = false;
     public bool IsCancelled { get; private set; } = false;
+    public bool IsInProgress {get; private set; } = false;
     public readonly string RemotePath;
     public FTPCompletionCode CompletionCode;
 
@@ -357,9 +358,12 @@ public abstract class FTPTask
     public void MarkCompleted(FTPCompletionCode code)
     {
         IsCompleted = true;
+        IsInProgress = false;
         CompletionCode = code;
         OnComplete?.Invoke(this);
     }
+
+    public void MarkInProgress() => IsInProgress = true;
 
     public void Cancel() => IsCancelled = true;
 }
