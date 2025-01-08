@@ -4,18 +4,69 @@ using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-[Serializable]
-public class RemoteFileTaskDetails 
+public enum TaskType
 {
-    [BeginHorizontal(ControlFieldWidth = false), SerializeField] public string Type;
+    Download,
+    Upload,
+    Delete
+}
+
+public enum TaskStatus
+{
+    Queued,
+    InProgress,
+    Cancelled,
+    Succeeded,
+    Failed
+}
+
+[Serializable]
+public class RemoteFileTaskDetails //TODO: needs an interface
+{
+    [BeginHorizontal(ControlFieldWidth = false), SerializeField] public TaskType Type;
     [SerializeField, LabelWidth(110f)] public string NameAndPath; //Relative to working path
     [EndHorizontal, SerializeField] public float Progress;
+    public event Action OnTaskCompleted;
 
-    public RemoteFileTaskDetails(string type, float progress, string fullNameAndPath)
+    public TaskStatus Status { 
+        get 
+        {
+            if (_task.CompletionCode.Equals(FTPCompletionCode.Waiting))
+                return TaskStatus.Queued;
+            else if (_task.CompletionCode.Equals(FTPCompletionCode.Busy))
+                return TaskStatus.InProgress;
+            else if (_task.IsCancelled) 
+                return TaskStatus.Cancelled;
+            else if (_task.CompletionCode.Equals(FTPCompletionCode.Busy)) 
+                return TaskStatus.InProgress;
+            else if (_task.IsCompleted && _task.CompletionCode.Equals(FTPCompletionCode.Success)) 
+                return TaskStatus.Succeeded;
+            else  
+                return TaskStatus.Failed;
+        }
+    }
+
+    private FTPTask _task;
+
+    public RemoteFileTaskDetails(TaskType type, float progress, string fullNameAndPath)
     {
         Type = type;
-        NameAndPath = fullNameAndPath; //TODO: Isn't quite right
+        NameAndPath = fullNameAndPath; 
         Progress = progress;
+    }
+    
+    private void HandleTaskCompleted(FTPTask task) 
+    {
+        _task.OnComplete -= HandleTaskCompleted;
+        
+        try 
+        {
+            OnTaskCompleted?.Invoke();
+        }
+        catch (Exception e) 
+        {
+            UnityEngine.Debug.LogError($"Error invoking task completed event: {e.Message}");
+        }
     }
 }
 

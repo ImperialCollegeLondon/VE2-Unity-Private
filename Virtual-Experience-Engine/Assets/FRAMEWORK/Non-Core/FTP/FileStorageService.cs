@@ -97,15 +97,12 @@ public class FileStorageService //TODO: Rename, FileExchangeService? LocalRemote
 
         try
         {
-            Debug.Log("Refresh local - " + LocalWorkingPath);
             // Get all files recursively
             string[] files = Directory.GetFiles(LocalWorkingPath, "*", SearchOption.AllDirectories);
             foreach (string file in files)
             {
-                //string correctedFile = file.Replace("\\", "/");
                 FileInfo fileInfo = new(file);
                 string correctedFileFullName = fileInfo.FullName.Replace("\\", "/"); //System.IO gives us paths with back slashes
-                Debug.Log($"Found file: {correctedFileFullName}");
                 string workingFileNameAndPath = correctedFileFullName.Replace($"{LocalWorkingPath}/", "").TrimStart('/');
                 localFiles.Add(workingFileNameAndPath, new FileDetails { fileNameAndWorkingPath = workingFileNameAndPath, fileSize = (ulong)fileInfo.Length });
             }
@@ -141,7 +138,7 @@ public class FileStorageService //TODO: Rename, FileExchangeService? LocalRemote
         RefreshLocalFiles();
     }
 
-    private void OnRemoteDownloadComplete(FTPFileTransferTask task)
+    private void OnRemoteDownloadComplete(FTPTask task)
     {
         task.OnComplete -= OnRemoteDownloadComplete;
 
