@@ -8,7 +8,7 @@ public static class FileStorageServiceFactory
 {
     public static FileStorageService CreateFileStorageService(FTPNetworkSettings ftpNetworkSettings, string workingPath)
     {
-        string localWorkingPath = Application.persistentDataPath + "/files/" + workingPath; //TODO: path combine?
+        string localWorkingPath = Application.persistentDataPath + "/files/" + workingPath; //TODO: path combine? Do that everywhere actually
         string remoteWorkingPath = workingPath;
 
         SftpClient sftpClient = new(ftpNetworkSettings.IP, ftpNetworkSettings.Port, ftpNetworkSettings.Username, ftpNetworkSettings.Password);
@@ -74,7 +74,7 @@ public class FileStorageService //TODO: Rename, FileExchangeService? LocalRemote
 
     public void CancelTask(string workingFileNameAndPath) => _ftpService.CancelTask(workingFileNameAndPath);
 
-    public List<RemoteFileTaskDetails> GetAllUpcomingFileTransferDetails() => _ftpService.GetAllUpcomingFileTransferDetails();
+    public List<RemoteFileTaskInfo> GetAllUpcomingFileTransferDetails() => _ftpService.GetAllUpcomingFileTransferDetails(); //TODO: Remove
 
     public readonly Dictionary<string, FileDetails> localFiles = new();
     //Need to show things in queue, and things in progress

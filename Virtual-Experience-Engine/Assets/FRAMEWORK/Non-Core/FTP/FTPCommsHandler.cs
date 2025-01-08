@@ -51,7 +51,7 @@ public class FTPCommsHandler : IFTPCommsHandler
 
     private readonly SftpClient _sftpClient;
 
-    public FTPCommsHandler(SftpClient sftpClient) //Client comes already instantiated with network details //TODO: need to inject remote file path?
+    public FTPCommsHandler(SftpClient sftpClient) //Client comes already instantiated with network details
     {
         _sftpClient = sftpClient;
         Status = FTPStatus.Ready;

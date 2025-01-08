@@ -286,9 +286,9 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
     /// Only shows transfer or delete tasks that are in progress or upcoming
     /// </summary>
     /// <returns></returns>
-    public List<RemoteFileTaskDetails> GetAllUpcomingFileTransferDetails()
+    public List<RemoteFileTaskInfo> GetAllUpcomingFileTransferDetails() //TODO: Remove, the integration layer can keep track of this
     {
-        List<RemoteFileTaskDetails> details = new();
+        List<RemoteFileTaskInfo> details = new();
 
         if (_currentTask == null)
             return details;
@@ -303,11 +303,11 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
                 continue;
 
             if (ftpTask is FTPDownloadTask downloadTask)
-                details.Add(new RemoteFileTaskDetails(TaskType.Download, downloadTask.CurrentProgress, downloadTask.RemotePathAndName.Replace($"{_remoteWorkingPath}/", "")));
+                details.Add(new RemoteFileTaskInfo(downloadTask, TaskType.Download, downloadTask.CurrentProgress, downloadTask.RemotePathAndName.Replace($"{_remoteWorkingPath}/", "")));
             else if (ftpTask is FTPUploadTask uploadTask)
-                details.Add(new RemoteFileTaskDetails(TaskType.Upload, uploadTask.CurrentProgress, uploadTask.RemotePathAndName.Replace($"{_remoteWorkingPath}/", "")));
+                details.Add(new RemoteFileTaskInfo(uploadTask, TaskType.Upload, uploadTask.CurrentProgress, uploadTask.RemotePathAndName.Replace($"{_remoteWorkingPath}/", "")));
             else if (ftpTask is FTPDeleteTask deleteTask)
-                details.Add(new RemoteFileTaskDetails(TaskType.Delete, 0, deleteTask.RemotePathAndName.Replace($"{_remoteWorkingPath}/", "")));
+                details.Add(new RemoteFileTaskInfo(deleteTask, TaskType.Delete, 0, deleteTask.RemotePathAndName.Replace($"{_remoteWorkingPath}/", "")));
         }
 
         return details;
@@ -458,13 +458,7 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
     }
 }
 
-
-// public interface IFTPTask
-// {
-//     public event Action<IFTPTask> OnComplete;
-// }
-
-public abstract class FTPTask //: IFTPTask
+public abstract class FTPTask 
 {
     public bool IsCompleted { get; protected set; } = false;
     public bool IsCancelled { get; private set; } = false;

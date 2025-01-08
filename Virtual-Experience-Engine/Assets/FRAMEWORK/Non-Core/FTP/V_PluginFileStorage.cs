@@ -11,7 +11,7 @@ public enum TaskType
     Delete
 }
 
-public enum TaskStatus
+public enum RemoteFileTaskStatus
 {
     Queued,
     InProgress,
@@ -21,51 +21,92 @@ public enum TaskStatus
 }
 
 [Serializable]
-public class RemoteFileTaskDetails //TODO: needs an interface
+public class RemoteFileTaskInfo //TODO: needs an interface
 {
-    [BeginHorizontal(ControlFieldWidth = false), SerializeField] public TaskType Type;
-    [SerializeField, LabelWidth(110f)] public string NameAndPath; //Relative to working path
-    [EndHorizontal, SerializeField] public float Progress;
-    public event Action OnTaskCompleted;
+    [BeginHorizontal(ControlFieldWidth = false), SerializeField, Disable] private TaskType _type;
+    public TaskType Type => _type;
 
-    public TaskStatus Status { 
-        get 
+    [SerializeField, LabelWidth(110f), Disable] private string _nameAndPath; //Relative to working path
+    public string NameAndPath => _nameAndPath;
+
+    [SerializeField, Disable] private float _progress; //TODO: Progress sometimes show 0 when completed
+    public float Progress => _progress;
+
+    [EditorButton(nameof(CancelTask), "Cancel", activityType: ButtonActivityType.OnPlayMode, Order = 1)]  
+    [EndHorizontal, SerializeField, Disable] private RemoteFileTaskStatus _status;
+    public RemoteFileTaskStatus Status => _status;
+
+    public event Action<RemoteFileTaskStatus> OnStatusChanged;
+    public event Action<RemoteFileTaskInfo> OnTaskCompleted;
+
+    private readonly FTPFileTask _task;
+
+    public RemoteFileTaskInfo(FTPFileTask task, TaskType type, float progress, string nameAndPath)
+    {
+        _task = task;
+        _type = type;
+        _nameAndPath = nameAndPath; 
+        _progress = progress;
+    }
+
+    public void CancelTask()
+    {
+        //Once underway, only uploads and downloads can be cancelled 
+        bool isCancellable = !_status.Equals(RemoteFileTaskStatus.InProgress) && _type.Equals(TaskType.Delete);
+        if (isCancellable)
         {
-            if (_task.CompletionCode.Equals(FTPCompletionCode.Waiting))
-                return TaskStatus.Queued;
-            else if (_task.CompletionCode.Equals(FTPCompletionCode.Busy))
-                return TaskStatus.InProgress;
-            else if (_task.IsCancelled) 
-                return TaskStatus.Cancelled;
-            else if (_task.CompletionCode.Equals(FTPCompletionCode.Busy)) 
-                return TaskStatus.InProgress;
-            else if (_task.IsCompleted && _task.CompletionCode.Equals(FTPCompletionCode.Success)) 
-                return TaskStatus.Succeeded;
-            else  
-                return TaskStatus.Failed;
+            _task.Cancel();
+            Update();
+        }
+        else 
+        {
+            UnityEngine.Debug.LogWarning($"Task cannot be cancelled: {_nameAndPath} - cannot cancel a delete task that is already in progress");
         }
     }
 
-    private FTPTask _task;
+    //Why have an explicit update method rather than just having progress/status be properties that point towards the task directly?
+    //Because we want to be able to show the progress/status in the inspector, which means we need a field that gets updated every frame
+    public void Update() 
+    {
+        if (_task is FTPFileTransferTask transferTask)
+            _progress = transferTask.CurrentProgress;
+        else
+            _progress = 0;
 
-    public RemoteFileTaskDetails(TaskType type, float progress, string fullNameAndPath)
-    {
-        Type = type;
-        NameAndPath = fullNameAndPath; 
-        Progress = progress;
-    }
-    
-    private void HandleTaskCompleted(FTPTask task) 
-    {
-        _task.OnComplete -= HandleTaskCompleted;
-        
-        try 
+        RemoteFileTaskStatus previousStatus = Status;
+        RemoteFileTaskStatus newStatus = _task.CompletionCode switch
         {
-            OnTaskCompleted?.Invoke();
-        }
-        catch (Exception e) 
+            FTPCompletionCode.Waiting => RemoteFileTaskStatus.Queued,
+            FTPCompletionCode.Busy => RemoteFileTaskStatus.InProgress,
+            _ when _task.IsCancelled => RemoteFileTaskStatus.Cancelled,
+            _ when _task.IsCompleted && _task.CompletionCode.Equals(FTPCompletionCode.Success) => RemoteFileTaskStatus.Succeeded,
+            _ => RemoteFileTaskStatus.Failed
+        };
+
+        _status = newStatus;
+
+        if (previousStatus != newStatus)
         {
-            UnityEngine.Debug.LogError($"Error invoking task completed event: {e.Message}");
+            try
+            {
+                OnStatusChanged?.Invoke(_status);
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.LogError($"Error invoking task status changed event: {e.Message}");
+            }
+
+            if (newStatus == RemoteFileTaskStatus.Succeeded || newStatus == RemoteFileTaskStatus.Failed)
+            {
+                try
+                {
+                    OnTaskCompleted?.Invoke(this);
+                }
+                catch (Exception e)
+                {
+                    UnityEngine.Debug.LogError($"Error invoking task completed event: {e.Message}");
+                }
+            }
         }
     }
 }
@@ -89,26 +130,33 @@ public class V_PluginFileStorage : MonoBehaviour
     [EditorButton(nameof(DeleteAllRemoteFiles), "Delete All Remote Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
     [SerializeField, Disable, BeginGroup("Remote Files"), EndGroup, SpaceArea(spaceBefore: 10)] private List<string> _remoteFilesAvailable = new();
 
+    [SerializeField, IgnoreParent, BeginGroup("Remote File Tasks"), SpaceArea(spaceBefore: 10)] private List<RemoteFileTaskInfo> _queuedTasks = new();
     [EditorButton(nameof(CancelAllTasks), "Cancel All Tasks", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
-    [SerializeField, IgnoreParent, BeginGroup("Remote File Tasks"), EndGroup, SpaceArea(spaceBefore: 10)] private List<RemoteFileTaskDetails> _queuedTaskDetails = new();
+    [SerializeField, IgnoreParent, EndGroup] private List<RemoteFileTaskInfo> _completedTasks = new();
 
 
     #region interface stuff 
     public void RefreshLocalFiles() => _fileStorageService.RefreshLocalFiles();
     public void RefreshRemoteFiles() => _fileStorageService.RefreshRemoteFiles();
+    public void DownloadFile(string nameAndPath) //TODO: need to return these objs
+    {
+        FTPDownloadTask task = _fileStorageService.DownloadFile(nameAndPath);
+        _queuedTasks.Add(new RemoteFileTaskInfo(task, TaskType.Download, 0, nameAndPath));
+    }
+    public void UploadFile(string nameAndPath) 
+    {
+        FTPUploadTask task = _fileStorageService.UploadFile(nameAndPath);
+        _queuedTasks.Add(new RemoteFileTaskInfo(task, TaskType.Upload, 0, nameAndPath));
+    }
+    public void DeleteRemoteFile(string nameAndPath) 
+    {
+        FTPDeleteTask task = _fileStorageService.DeleteRemoteFile(nameAndPath);
+        _queuedTasks.Add(new RemoteFileTaskInfo(task, TaskType.Delete, 0, nameAndPath));
+    }
     #endregion
 
     private FileStorageService _fileStorageService;
     private string _localWorkingFilePath => $"VE2/PluginFiles/{SceneManager.GetActiveScene().name}";
-
-    private void OnGUI() 
-    {
-        if (_fileStorageService != null)
-        {
-            _queuedTaskDetails.Clear();
-            _queuedTaskDetails = _fileStorageService.GetAllUpcomingFileTransferDetails();
-        }
-    }
 
     private void OnEnable()
     {
@@ -116,6 +164,24 @@ public class V_PluginFileStorage : MonoBehaviour
         _fileStorageService.OnFileStorageServiceReady += HandleFileStorageServiceReady;
         _fileStorageService.OnRemoteFilesRefreshed += HandleRemoteFilesRefreshed;
         _fileStorageService.OnLocalFilesRefreshed += HandleLocalFilesRefreshed;
+    }
+
+    private void Update()
+    {
+        List<RemoteFileTaskInfo> tasksToMoveToCompleted = new();
+
+        foreach (RemoteFileTaskInfo task in _queuedTasks)
+        {
+            task.Update();
+            if (task.Status == RemoteFileTaskStatus.Succeeded || task.Status == RemoteFileTaskStatus.Failed)
+                tasksToMoveToCompleted.Add(task);
+        }
+
+        foreach (RemoteFileTaskInfo task in tasksToMoveToCompleted)
+        {
+            _queuedTasks.Remove(task);
+            _completedTasks.Add(task);
+        }
     }
 
     private void HandleFileStorageServiceReady()
@@ -164,7 +230,8 @@ public class V_PluginFileStorage : MonoBehaviour
     private void OnDisable() 
     {
         _fileStorageService.TearDown();
-        _queuedTaskDetails.Clear();
+        _queuedTasks.Clear();
+        _completedTasks.Clear();
     }
 
     #region TO-REMOVE-DEBUG //TODO:
@@ -172,13 +239,13 @@ public class V_PluginFileStorage : MonoBehaviour
     private void DownloadAllFiles()
     {
         foreach (string fileNameAndPath in _fileStorageService.RemoteFiles.Keys)
-            _fileStorageService.DownloadFile(fileNameAndPath);
+            DownloadFile(fileNameAndPath);
     }
 
     private void UploadAllFiles()
     {
         foreach (string fileNameAndPath in _fileStorageService.localFiles.Keys)
-            _fileStorageService.UploadFile(fileNameAndPath);
+            UploadFile(fileNameAndPath);
     }
 
     private void DeleteAllLocalFiles() 
@@ -192,15 +259,14 @@ public class V_PluginFileStorage : MonoBehaviour
     {
         List<string> remoteFileNames = new List<string>(_fileStorageService.RemoteFiles.Keys);
         foreach (string fileNameAndPath in remoteFileNames)
-            _fileStorageService.DeleteRemoteFile(fileNameAndPath);
+            DeleteRemoteFile(fileNameAndPath);
     }
 
     private void CancelAllTasks()
     {
-        List<RemoteFileTaskDetails> tasks = new List<RemoteFileTaskDetails>(_queuedTaskDetails);
-        foreach (RemoteFileTaskDetails task in tasks)
+        List<RemoteFileTaskInfo> tasks = new List<RemoteFileTaskInfo>(_queuedTasks);
+        foreach (RemoteFileTaskInfo task in tasks)
             _fileStorageService.CancelTask(task.NameAndPath);
     }
-
     #endregion
 }
