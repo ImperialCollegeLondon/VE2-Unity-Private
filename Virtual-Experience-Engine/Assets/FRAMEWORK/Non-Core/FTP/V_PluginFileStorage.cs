@@ -75,7 +75,7 @@ public class V_PluginFileStorage : MonoBehaviour
 
     public void OpenLocalWorkingFolder()
     {
-        string path = (Application.persistentDataPath + "/files/" + _localWorkingFilePath).Replace("/", "\\");
+        string path = Application.persistentDataPath + "/files/" + _localWorkingFilePath;
         UnityEngine.Debug.Log("Try open " + path);
         try
         {

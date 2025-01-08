@@ -410,7 +410,7 @@ public class FTPCommsHandler : IFTPCommsHandler
         return Task.Run(() =>
         {
             string remoteFile = downloadTask.RemotePath + "/" + downloadTask.Name;
-            string localFile = downloadTask.LocalPath + "\\" + downloadTask.Name;
+            string localFile = downloadTask.LocalPath + "/" + downloadTask.Name;
 
             try
             {
@@ -534,7 +534,7 @@ public class FTPCommsHandler : IFTPCommsHandler
         return Task.Run(() =>
         {
             string remoteFile = uploadTask.RemotePath + "/" + uploadTask.Name;
-            string localFile = uploadTask.LocalPath + "\\" + uploadTask.Name;
+            string localFile = uploadTask.LocalPath + "/" + uploadTask.Name;
 
             try
             {

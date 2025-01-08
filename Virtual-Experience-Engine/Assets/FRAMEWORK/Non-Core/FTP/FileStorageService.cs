@@ -8,7 +8,7 @@ public static class FileStorageServiceFactory
 {
     public static FileStorageService CreateFileStorageService(FTPNetworkSettings ftpNetworkSettings, string workingPath)
     {
-        string localWorkingPath = CorrectLocalPath(Application.persistentDataPath + "\\files\\" + workingPath);
+        string localWorkingPath = Application.persistentDataPath + "/files/" + workingPath; //TODO: path combine?
         string remoteWorkingPath = workingPath;
 
         SftpClient sftpClient = new(ftpNetworkSettings.IP, ftpNetworkSettings.Port, ftpNetworkSettings.Username, ftpNetworkSettings.Password);
@@ -17,8 +17,6 @@ public static class FileStorageServiceFactory
 
         return new FileStorageService(ftpService, remoteWorkingPath, localWorkingPath);
     }
-
-    private static string CorrectLocalPath(string path) => path.Replace("/", "\\");
 }
 
 public class FileStorageService //TODO: Rename, FileExchangeService? LocalRemoteFileService?
@@ -42,8 +40,8 @@ public class FileStorageService //TODO: Rename, FileExchangeService? LocalRemote
     public FTPUploadTask UploadFile(string workingFileNameAndPath)
     {
         Debug.Log($"Queueing file for upload: {workingFileNameAndPath}");
-        string fileName = workingFileNameAndPath.Substring(workingFileNameAndPath.LastIndexOf("\\") + 1);
-        string remoteCorrectedFileNameAndPath = workingFileNameAndPath.Replace("\\", "/");
+        string fileName = workingFileNameAndPath.Substring(workingFileNameAndPath.LastIndexOf("/") + 1);
+        string remoteCorrectedFileNameAndPath = workingFileNameAndPath;
         string remotePathFromWorking = remoteCorrectedFileNameAndPath.Contains("/") ? remoteCorrectedFileNameAndPath.Substring(0, remoteCorrectedFileNameAndPath.LastIndexOf("/")) : "";
         FTPUploadTask task = _ftpService.UploadFile(remotePathFromWorking, fileName); //No need to refresh manually, will happen automatically
         return task;
@@ -61,7 +59,7 @@ public class FileStorageService //TODO: Rename, FileExchangeService? LocalRemote
     public void DeleteLocalFile(string workingFileNameAndPath)
     {
         Debug.Log($"Deleting local file: {workingFileNameAndPath}");
-        string localPath = $"{LocalWorkingPath}\\{workingFileNameAndPath}";
+        string localPath = $"{LocalWorkingPath}/{workingFileNameAndPath}"; //TODO: combine
 
         if (File.Exists(localPath))
         {
@@ -99,12 +97,16 @@ public class FileStorageService //TODO: Rename, FileExchangeService? LocalRemote
 
         try
         {
+            Debug.Log("Refresh local - " + LocalWorkingPath);
             // Get all files recursively
             string[] files = Directory.GetFiles(LocalWorkingPath, "*", SearchOption.AllDirectories);
             foreach (string file in files)
             {
+                //string correctedFile = file.Replace("\\", "/");
                 FileInfo fileInfo = new(file);
-                string workingFileNameAndPath = fileInfo.FullName.Replace($"{LocalWorkingPath}\\", "").TrimStart('\\');
+                string correctedFileFullName = fileInfo.FullName.Replace("\\", "/"); //System.IO gives us paths with back slashes
+                Debug.Log($"Found file: {correctedFileFullName}");
+                string workingFileNameAndPath = correctedFileFullName.Replace($"{LocalWorkingPath}/", "").TrimStart('/');
                 localFiles.Add(workingFileNameAndPath, new FileDetails { fileNameAndWorkingPath = workingFileNameAndPath, fileSize = (ulong)fileInfo.Length });
             }
         }

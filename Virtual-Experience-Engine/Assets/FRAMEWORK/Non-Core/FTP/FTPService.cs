@@ -41,7 +41,7 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
     public FTPDownloadTask DownloadFile(string relativePath, string filename)
     {
         string remotePath = $"{_remoteWorkingPath}/{relativePath}";
-        string localPath = $"{_localWorkingPath}\\{relativePath}".Replace("/", "\\");
+        string localPath = $"{_localWorkingPath}/{relativePath}";
 
         FTPDownloadTask task = new(_nextQueueEntryID, remotePath, localPath, filename);
         task.OnComplete += OnDownloadFileComplete;
@@ -78,7 +78,7 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
         }
 
         string remotePath = $"{_remoteWorkingPath}/{relativePath}";
-        string localPath = $"{_localWorkingPath}\\{relativePath}".Replace("/", "\\");
+        string localPath = $"{_localWorkingPath}/{relativePath}";
 
         FTPUploadTask task = new(_nextQueueEntryID, remotePath, localPath, filename);
         task.OnComplete += OnUploadFileComplete;
@@ -214,7 +214,7 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
     /// <param name="relativePath">The path and name of the file relative to the working directory</param>
     public void CancelTask(string relativePath) 
     {
-        string relativeRemotePath = relativePath.Replace("\\", "/");
+        string relativeRemotePath = relativePath;
         if (relativeRemotePath.StartsWith("/")) //If starting relative path was ""
             relativeRemotePath = relativeRemotePath.Substring(1);
 
@@ -300,7 +300,7 @@ public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TO
                 continue;
 
             if (ftpTask is FTPDownloadTask downloadTask)
-                details.Add(new RemoteFileTaskDetails("Download", downloadTask.CurrentProgress, downloadTask.FullRemotePath.Replace($"{_remoteWorkingPath}/", "").Replace("/", "\\")));
+                details.Add(new RemoteFileTaskDetails("Download", downloadTask.CurrentProgress, downloadTask.FullRemotePath.Replace($"{_remoteWorkingPath}/", "")));
             else if (ftpTask is FTPUploadTask uploadTask)
                 details.Add(new RemoteFileTaskDetails("Upload", uploadTask.CurrentProgress, uploadTask.FullRemotePath.Replace($"{_remoteWorkingPath}/", "")));
             else if (ftpTask is FTPDeleteTask deleteTask)
