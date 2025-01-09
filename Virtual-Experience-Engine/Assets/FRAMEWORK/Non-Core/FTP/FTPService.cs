@@ -381,7 +381,24 @@ public abstract class FTPFileTask : FTPTask
 public abstract class FTPFileTransferTask : FTPFileTask
 {
     public event Action<float> OnProgressChanged;
-    public float CurrentProgress => _dataTransferred / Mathf.Max(TotalFileSizeToTransfer, 1); 
+
+    /// <summary>
+    /// Get progress of task (as a float 0-100%). Underway tasks will return at most 99%
+    /// Complete tasks will return 100%. Queued or cancelled tasks will return 0%
+    /// </summary>
+    public float CurrentProgress  { 
+        get 
+        {
+            if (CompletionCode == FTPCompletionCode.CouldNotConnect || CompletionCode == FTPCompletionCode.LocalFileError || CompletionCode == FTPCompletionCode.RemoteFileError || CompletionCode == FTPCompletionCode.Cancelled)
+                return 0;
+            else if (IsCompleted)
+                return 1;
+            else if (IsCancelled)
+                return 0;
+            else 
+                return _dataTransferred / Mathf.Max(TotalFileSizeToTransfer, 1); 
+        }    
+    }
     public ulong TotalFileSizeToTransfer;
     private ulong _dataTransferred;
     private ulong _lastDataTransferred;

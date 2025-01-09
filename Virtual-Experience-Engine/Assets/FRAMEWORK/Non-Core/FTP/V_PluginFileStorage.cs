@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Unity.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -30,7 +29,7 @@ public class RemoteFileTaskInfo //TODO: needs an interface
     [SerializeField, LabelWidth(110f), Disable] private string _nameAndPath; //Relative to working path
     public string NameAndPath => _nameAndPath;
 
-    [SerializeField, LabelWidth(75), Disable] private float _progress; //TODO: Progress sometimes show 0 when completed
+    [SerializeField, LabelWidth(75), Disable] private float _progress;
     public float Progress => _progress;
 
     [EndHorizontal, SerializeField, LabelWidth(55), Disable] private RemoteFileTaskStatus _status;
@@ -69,11 +68,6 @@ public class RemoteFileTaskInfo //TODO: needs an interface
     //Because we want to be able to show the progress/status in the inspector, which means we need a field that gets updated every frame
     public void Update() 
     {
-        if (_task is FTPFileTransferTask transferTask)
-            _progress = transferTask.CurrentProgress;
-        else
-            _progress = 0;
-
         RemoteFileTaskStatus previousStatus = Status;
         RemoteFileTaskStatus newStatus;
 
@@ -89,6 +83,17 @@ public class RemoteFileTaskInfo //TODO: needs an interface
             newStatus = RemoteFileTaskStatus.Failed;
 
         _status = newStatus;
+
+        if (_status == RemoteFileTaskStatus.Succeeded)
+            _progress = 1;
+        else if (_status == RemoteFileTaskStatus.Queued)
+            _progress = 0;
+        else if (_status == RemoteFileTaskStatus.Failed)
+            _progress = 0;
+        else if (_task is FTPFileTransferTask transferTask)
+            _progress = transferTask.CurrentProgress; //Delete tasks don't have progress
+        else
+            _progress = 0; //Cancelled or delete task
 
         if (previousStatus != newStatus)
         {
@@ -127,7 +132,7 @@ public class V_PluginFileStorage : MonoBehaviour
     [EditorButton(nameof(RefreshLocalFiles), "Refresh Local Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
     [EditorButton(nameof(UploadAllFiles), "Upload All Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
     [EditorButton(nameof(DeleteAllLocalFiles), "Delete All Local Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
-    [SerializeField, Disable, BeginGroup("Local Files"), EndGroup, SpaceArea(spaceBefore: 10)] private List<string> _localFilesAvailable = new(); //TODO don't show full local path
+    [SerializeField, Disable, BeginGroup("Local Files"), EndGroup, SpaceArea(spaceBefore: 10)] private List<string> _localFilesAvailable = new(); 
 
 
     [EditorButton(nameof(RefreshRemoteFiles), "Refresh Remote Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
@@ -143,21 +148,26 @@ public class V_PluginFileStorage : MonoBehaviour
     #region interface stuff 
     public void RefreshLocalFiles() => _fileStorageService.RefreshLocalFiles();
     public void RefreshRemoteFiles() => _fileStorageService.RefreshRemoteFiles();
-    public void DownloadFile(string nameAndPath) //TODO: need to return these objs
+    public FTPDownloadTask DownloadFile(string nameAndPath) 
     {
         FTPDownloadTask task = _fileStorageService.DownloadFile(nameAndPath);
         _queuedTasks.Add(new RemoteFileTaskInfo(task, TaskType.Download, 0, nameAndPath));
+        return task;
     }
-    public void UploadFile(string nameAndPath) 
+    public FTPUploadTask UploadFile(string nameAndPath) 
     {
         FTPUploadTask task = _fileStorageService.UploadFile(nameAndPath);
         _queuedTasks.Add(new RemoteFileTaskInfo(task, TaskType.Upload, 0, nameAndPath));
+        return task;
     }
-    public void DeleteRemoteFile(string nameAndPath) 
+    public FTPDeleteTask DeleteRemoteFile(string nameAndPath) 
     {
         FTPDeleteTask task = _fileStorageService.DeleteRemoteFile(nameAndPath);
         _queuedTasks.Add(new RemoteFileTaskInfo(task, TaskType.Delete, 0, nameAndPath));
+        return task;
     }
+    public List<RemoteFileTaskInfo> GetQueuedTasks() => _queuedTasks;
+    public List<RemoteFileTaskInfo> GetCompletedTasks() => _completedTasks;
     #endregion
 
     private FileStorageService _fileStorageService;
