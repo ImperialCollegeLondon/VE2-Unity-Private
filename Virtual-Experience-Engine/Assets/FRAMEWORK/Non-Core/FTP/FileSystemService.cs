@@ -4,9 +4,9 @@ using System.IO;
 using Renci.SshNet;
 using UnityEngine;
 
-public static class FileStorageServiceFactory
+public static class FileSystemServiceFactory
 {
-    public static FileStorageService CreateFileStorageService(FTPNetworkSettings ftpNetworkSettings, string workingPath)
+    public static FileSystemService CreateFileStorageService(FTPNetworkSettings ftpNetworkSettings, string workingPath)
     {
         string localWorkingPath = Application.persistentDataPath + "/files/" + workingPath; //TODO: path combine? Do that everywhere actually
         string remoteWorkingPath = workingPath;
@@ -15,11 +15,11 @@ public static class FileStorageServiceFactory
         FTPCommsHandler commsHandler = new(sftpClient);
         FTPService ftpService = new(commsHandler, remoteWorkingPath, localWorkingPath);
 
-        return new FileStorageService(ftpService, remoteWorkingPath, localWorkingPath);
+        return new FileSystemService(ftpService, remoteWorkingPath, localWorkingPath);
     }
 }
 
-public class FileStorageService //TODO: Rename, FileExchangeService? LocalRemoteFileService?
+public class FileSystemService
 {
     #region higher-level interfaces 
     public bool IsFileStorageServiceReady => _ftpService.IsFTPServiceReady;
@@ -118,7 +118,7 @@ public class FileStorageService //TODO: Rename, FileExchangeService? LocalRemote
 
     public readonly string RemoteWorkingPath;
 
-    public FileStorageService(FTPService ftpService, string remoteWorkingPath, string localWorkingPath) 
+    public FileSystemService(FTPService ftpService, string remoteWorkingPath, string localWorkingPath) 
     {
         _ftpService = ftpService;
 
