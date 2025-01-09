@@ -50,8 +50,8 @@ namespace VE2.Core.VComponents.Internal
         private float _spatialValue;
         public float SpatialValue { get => _spatialValue; set => SetSpatialValue(value); }
         private float _minimumSpatialValue, _maximumSpatialValue;
-        public float MinimumSpatialValue { get => _minimumSpatialValue; set => UpdateMinimumSpatialValue(value); }
-        public float MaximumSpatialValue { get => _maximumSpatialValue; set => UpdateMaximumSpatialValue(value); }
+        public float MinimumSpatialValue { get => _minimumSpatialValue; set => _minimumSpatialValue = value; }
+        public float MaximumSpatialValue { get => _maximumSpatialValue; set => _maximumSpatialValue = value; }
         private int _numberOfValues;
         public int NumberOfValues { get => _numberOfValues; set => UpdateSteps(value); }
 
@@ -181,18 +181,6 @@ namespace VE2.Core.VComponents.Internal
         private void UpdateSteps(int steps)
         {
             _numberOfValues = steps;
-            SetValueOnStateModule(_AdjustableStateModule.OutputValue);
-        }
-
-        private void UpdateMinimumSpatialValue(float value)
-        {
-            _minimumSpatialValue = value;
-            SetValueOnStateModule(_AdjustableStateModule.OutputValue);
-        }
-
-        private void UpdateMaximumSpatialValue(float value)
-        {
-            _maximumSpatialValue = value;
             SetValueOnStateModule(_AdjustableStateModule.OutputValue);
         }
 
