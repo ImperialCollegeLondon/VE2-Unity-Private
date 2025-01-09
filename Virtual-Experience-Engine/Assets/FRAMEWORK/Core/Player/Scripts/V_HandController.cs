@@ -56,7 +56,6 @@ namespace VE2.Core.Player
                 material.color = newColor;
         }
 
-
         //TODO:
         /*
             When interactor tells us it's grabbed, we need to hide the hand model 

@@ -60,11 +60,11 @@ namespace VE2.Core.Player
             GameObject handVRRightGO = GameObject.Instantiate(handVRLeftPrefab, _headTransform, false);
             handVRRightGO.transform.localScale = new Vector3(-1, 1, 1);
 
-            _handControllerLeft = CreateHandController(handVRLeftGO, interactorContainer, playerVRInputContainer.HandVRLeftInputContainer, InteractorType.LeftHandVR, raycastProvider, multiplayerSupport);
-            _handControllerRight = CreateHandController(handVRRightGO, interactorContainer, playerVRInputContainer.HandVRRightInputContainer, InteractorType.RightHandVR, raycastProvider, multiplayerSupport);
+            _handControllerLeft = CreateHandController(handVRLeftGO, interactorContainer, playerVRInputContainer.HandVRLeftInputContainer, playerVRInputContainer.HandVRRightInputContainer.DragLocomotorInputContainer, InteractorType.LeftHandVR, raycastProvider, multiplayerSupport);
+            _handControllerRight = CreateHandController(handVRRightGO, interactorContainer, playerVRInputContainer.HandVRRightInputContainer,playerVRInputContainer.HandVRLeftInputContainer.DragLocomotorInputContainer, InteractorType.RightHandVR, raycastProvider, multiplayerSupport);
         }
 
-        private V_HandController CreateHandController(GameObject handGO, InteractorContainer interactorContainer, HandVRInputContainer handVRInputContainer, InteractorType interactorType, IRaycastProvider raycastProvider, IMultiplayerSupport multiplayerSupport)
+        private V_HandController CreateHandController(GameObject handGO, InteractorContainer interactorContainer, HandVRInputContainer handVRInputContainer, DragLocomotorInputContainer otherHandDragInputContainer, InteractorType interactorType, IRaycastProvider raycastProvider, IMultiplayerSupport multiplayerSupport)
         {
             V_HandVRReferences handVRReferences = handGO.GetComponent<V_HandVRReferences>();
 
@@ -76,6 +76,7 @@ namespace VE2.Core.Player
             DragLocomotor dragLocomotor = new(
                 handVRReferences.LocomotorVRReferences,
                 handVRInputContainer.DragLocomotorInputContainer,
+                otherHandDragInputContainer,
                 _rootTransform, _verticalOffsetTransform, handGO.transform);
 
             return new V_HandController(handGO, handVRInputContainer, interactor, dragLocomotor);
