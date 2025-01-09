@@ -7,10 +7,10 @@ public class DragLocomotor
     private DragLocomotorInputContainer _otherVRHandInputContainer;
 
     private Vector3 _previousHandPosition;
-    protected float _dragSpeed = 2.0f;
-    private bool _isDraggingHorizontal = false;
-    private bool _isDraggingVertical = false;
-    
+    private float _dragSpeed = 2.0f;
+    private bool _isDraggingHorizontal = false; //This is used to check if the other hand is dragging horizontally
+    private bool _isDraggingVertical = false; //This is used to check if the other hand is dragging vertically
+
     private readonly GameObject _iconHolder; //Entire icon
     private readonly GameObject _horizontalMoveIndicator;
     private readonly GameObject _verticalMoveIndicator;
@@ -52,8 +52,6 @@ public class DragLocomotor
         else
             _isDraggingHorizontal = _inputContainer.IsDraggingHorizontal = false;
             
-
-
         Vector3 verticalDragDirection = new Vector3(0, _previousHandPosition.y - _handTransform.position.y, 0);
         if(_inputContainer.VerticalDrag.IsPressed)
             HandleVerticalDragMovement(verticalDragDirection);
@@ -65,7 +63,10 @@ public class DragLocomotor
 
     public void HandleOEnable()
     {
-        HandleDragIconVisibilityWhenEnabled();
+        _horizontalMoveIndicator.SetActive(false);
+        _verticalMoveIndicator.SetActive(false);
+        _sphereIcon.SetActive(false);
+
         _inputContainer.HorizontalDrag.OnPressed += HandleHorizontalDragPressed;
         _inputContainer.HorizontalDrag.OnReleased += HandleHorizontalDragReleased;
         _inputContainer.VerticalDrag.OnPressed += HandleVerticalDragPressed;
@@ -73,8 +74,6 @@ public class DragLocomotor
 
         _otherVRHandInputContainer.HorizontalDrag.OnReleased += HandleOtherVRHorizontalDragReleased;
         _otherVRHandInputContainer.VerticalDrag.OnReleased += HandleOtherVRVerticalDragReleased;
-
-
     }
 
     public void HandleOnDisable()
@@ -91,7 +90,8 @@ public class DragLocomotor
     private void HandleHorizontalDragPressed()
     {
         //Show horizontal icon
-        if (_otherVRHandInputContainer.IsDraggingHorizontal) return;
+        if (_otherVRHandInputContainer.IsDraggingHorizontal) 
+            return;
 
         if (!_otherVRHandInputContainer.HorizontalDrag.IsPressed)
         {
@@ -115,7 +115,8 @@ public class DragLocomotor
     private void HandleVerticalDragPressed()
     {
         //Show vertical icon
-        if (_otherVRHandInputContainer.IsDraggingVertical) return;
+        if (_otherVRHandInputContainer.IsDraggingVertical) 
+            return;
 
         if (!_otherVRHandInputContainer.HorizontalDrag.IsPressed)
         {
@@ -136,17 +137,11 @@ public class DragLocomotor
         Debug.Log("Vertical drag released");
     }
 
-    private void HandleDragIconVisibilityWhenEnabled()
-    {
-        _horizontalMoveIndicator.SetActive(false);
-        _verticalMoveIndicator.SetActive(false);
-        _sphereIcon.SetActive(false);
-    }
-
     private void HandleOtherVRHorizontalDragReleased()
     {
         //Show horizontal icon
-        if (!_inputContainer.HorizontalDrag.IsPressed) return;
+        if (!_inputContainer.HorizontalDrag.IsPressed) 
+            return;
         _horizontalMoveIndicator.SetActive(true);
         if (_verticalMoveIndicator.activeSelf)
         {
@@ -157,7 +152,8 @@ public class DragLocomotor
     private void HandleOtherVRVerticalDragReleased()
     {
         //Show horizontal icon
-        if (!_inputContainer.VerticalDrag.IsPressed) return;
+        if (!_inputContainer.VerticalDrag.IsPressed) 
+            return;
         _verticalMoveIndicator.SetActive(true);
         if (_horizontalMoveIndicator.activeSelf)
         {
@@ -167,7 +163,8 @@ public class DragLocomotor
 
     private void HandleHorizontalDragMovement(Vector3 dragVector)
     {
-        if (_otherVRHandInputContainer.IsDraggingHorizontal) return;
+        if (_otherVRHandInputContainer.IsDraggingHorizontal) 
+            return;
 
         if (!_isDraggingHorizontal)
         {
@@ -227,7 +224,8 @@ public class DragLocomotor
 
     private void HandleVerticalDragMovement(Vector3 dragVector)
     {
-        if (_otherVRHandInputContainer.IsDraggingVertical) return;
+        if (_otherVRHandInputContainer.IsDraggingVertical) 
+            return;
 
         if (!_isDraggingVertical)
         {
