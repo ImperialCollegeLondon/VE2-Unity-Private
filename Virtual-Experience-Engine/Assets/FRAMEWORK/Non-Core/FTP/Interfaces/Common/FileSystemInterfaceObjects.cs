@@ -1,7 +1,44 @@
 using System;
+using UnityEngine;
 
 namespace VE2_NonCore_FileSystem_Interfaces_Common
 {
+    [Serializable]
+    public class LocalFileDetails : FileDetails
+    {
+        [SerializeField, LabelWidth(180)] public string FullLocalNameAndPath;
+
+        public LocalFileDetails(string nameAndPath, ulong size, string fullLocalNameAndPath) : base(nameAndPath, size)
+        {
+            FullLocalNameAndPath = fullLocalNameAndPath;
+        }
+    }
+
+    [Serializable]
+    public class RemoteFileDetails : FileDetails 
+    {
+        public RemoteFileDetails(string nameAndPath, ulong size) : base(nameAndPath, size) { }
+    }
+
+    [Serializable]
+    public abstract class FileDetails 
+    {
+        /// <summary>
+        /// According to the VE2 file system. Pass this string back to the file system to download/upload/delete that file
+        /// </summary>
+        [SerializeField, BeginHorizontal(ControlFieldWidth = true), LabelWidth(125)] public string NameAndPath;
+        /// <summary>
+        /// File size in bytes
+        /// </summary>
+        [SerializeField, EndHorizontal, Suffix("KB"), LabelWidth(60)] public ulong Size;
+
+        protected FileDetails(string nameAndPath, ulong size)
+        {
+            NameAndPath = nameAndPath;
+            Size = size;
+        }
+    }
+
     public enum RemoteTaskType
     {
         Download,

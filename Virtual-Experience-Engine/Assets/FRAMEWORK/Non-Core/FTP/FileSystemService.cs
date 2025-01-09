@@ -10,7 +10,7 @@ namespace VE2_NonCore_FileSystem
     {
         public static FileSystemService CreateFileStorageService(FTPNetworkSettings ftpNetworkSettings, string workingPath)
         {
-            string localWorkingPath = Application.persistentDataPath + "/files/" + workingPath; //TODO: path combine? Do that everywhere actually
+            string localWorkingPath = Application.persistentDataPath + "/files/" + workingPath; 
             string remoteWorkingPath = workingPath;
 
             SftpClient sftpClient = new(ftpNetworkSettings.IP, ftpNetworkSettings.Port, ftpNetworkSettings.Username, ftpNetworkSettings.Password);
@@ -61,11 +61,16 @@ namespace VE2_NonCore_FileSystem
         public void DeleteLocalFile(string workingFileNameAndPath)
         {
             Debug.Log($"Deleting local file: {workingFileNameAndPath}");
-            string localPath = $"{LocalWorkingPath}/{workingFileNameAndPath}"; //TODO: combine
+            string localPath = $"{LocalWorkingPath}/{workingFileNameAndPath}"; 
 
             if (File.Exists(localPath))
             {
                 File.Delete(localPath);
+                
+                string directoryPath = Path.GetDirectoryName(localPath);
+                if (Directory.GetDirectories(directoryPath).Length == 0 && Directory.GetFiles(directoryPath).Length == 0)
+                    Directory.Delete(directoryPath);
+
                 RefreshLocalFiles();
             }
             else
