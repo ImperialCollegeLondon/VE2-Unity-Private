@@ -176,26 +176,37 @@ public class DragLocomotor
         else
         {
             Vector3 moveVector = dragVector * _dragSpeed;
-            Vector3 currentPosition = _rootTransform.position;
-            Vector3 targetPosition = currentPosition + moveVector;
+            float maxStepHeight = 0.5f; // Maximum step height the player can have 
+            float stepHeight = 0.5f; // User-defined step height. TODO: Make it configurable
+            float collisionOffset = 0.5f; // Collision offset to stop player entering into walls
 
-            // Perform raycast from current position
-            if (Physics.Raycast(currentPosition, Vector3.down, out RaycastHit currentHit, Mathf.Infinity, groundLayerMask))
+            Vector3 currentRaycastPosition = _rootTransform.position + new Vector3(0, maxStepHeight, 0);
+            Vector3 targetRaycastPosition = currentRaycastPosition + moveVector;
+
+            // Perform raycast from current raycast position to check for ground
+            if (Physics.Raycast(currentRaycastPosition, Vector3.down, out RaycastHit currentHit, Mathf.Infinity, groundLayerMask))
             {
                 float currentGroundHeight = currentHit.point.y;
 
-                // Perform raycast from target position
-                if (Physics.Raycast(targetPosition, Vector3.down, out RaycastHit targetHit, Mathf.Infinity, groundLayerMask))
+                // Perform raycast from target position to check for ground
+                if (Physics.Raycast(targetRaycastPosition, Vector3.down, out RaycastHit targetHit, Mathf.Infinity, groundLayerMask))
                 {
                     float targetGroundHeight = targetHit.point.y;
                     float heightDifference = Mathf.Abs(targetGroundHeight - currentGroundHeight);
 
                     // Check if the height difference is within the allowable step size
-                    if (heightDifference <= 0.5f)//TO DO: Make step size configurable
+                    if (heightDifference <= stepHeight)
                     {
-                        // Adjust vertical position to maintain consistent height above ground
-                        targetPosition.y = targetGroundHeight + (currentPosition.y - currentGroundHeight);
-                        _rootTransform.position = targetPosition;
+                        // Perform raycast to check for collisions in the direction of movement
+                        if (Physics.Raycast(currentRaycastPosition, moveVector.normalized, out RaycastHit objectHit, moveVector.magnitude + collisionOffset))
+                        {
+                            Debug.Log($"Movement aborted: {objectHit.collider.name} is blocking player movement.");
+                        }
+                        else
+                        {                          
+                            targetRaycastPosition.y = targetGroundHeight + (currentRaycastPosition.y - maxStepHeight - currentGroundHeight);
+                            _rootTransform.position = targetRaycastPosition;
+                        }
                     }
                     else
                     {
@@ -214,21 +225,6 @@ public class DragLocomotor
         }
     }
 
-    //private void HandleVerticalDragMovement(Vector3 dragVector)
-    //{
-    //    if (_otherVRHandInputContainer.IsDraggingVertical) return;
-
-    //    if (!_isDraggingVertical)
-    //    {
-    //        _isDraggingVertical = _inputContainer.IsDraggingVertical = true;
-    //    }
-    //    else
-    //    {
-    //        Vector3 moveVector = dragVector * _dragSpeed;
-    //        _headOffsetTransform.position += moveVector;
-    //    }
-    //}
-
     private void HandleVerticalDragMovement(Vector3 dragVector)
     {
         if (_otherVRHandInputContainer.IsDraggingVertical) return;
@@ -241,9 +237,10 @@ public class DragLocomotor
         {
             Vector3 moveVector = dragVector * _dragSpeed;
             Vector3 targetPosition = _headOffsetTransform.position + moveVector;
+            float collisionOffset = 0.5f; // Collision offset to stop player entering into ceilings/floor
 
             // Perform raycast to check for collisions
-            if (Physics.Raycast(_headOffsetTransform.position, moveVector.normalized, out RaycastHit hit, moveVector.magnitude + 0.5f))//TO DO: Maybe make this into a readonly variable?
+            if (Physics.Raycast(_headOffsetTransform.position, moveVector.normalized, out RaycastHit hit, moveVector.magnitude + collisionOffset))
             {
                 Debug.Log("Vertical movement aborted: Collision detected with " + hit.collider.name);
             }
