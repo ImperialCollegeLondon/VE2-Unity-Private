@@ -157,7 +157,7 @@ namespace VE2.Core.Player
             {
                 RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
 
-                if (!_WaitingForMultiplayerSupport && raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange)
+                if (!_WaitingForMultiplayerSupport && raycastResultWrapper != null && raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange )
                 {   
                     if (!raycastResultWrapper.RangedInteractable.AdminOnly)
                     {

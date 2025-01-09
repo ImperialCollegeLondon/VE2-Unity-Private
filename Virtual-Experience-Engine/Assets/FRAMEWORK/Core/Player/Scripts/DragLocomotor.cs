@@ -8,8 +8,8 @@ public class DragLocomotor
 
     private Vector3 _previousHandPosition;
     private float _dragSpeed = 2.0f;
-    private bool _isDraggingHorizontal = false; //This is used to check if the other hand is dragging horizontally
-    private bool _isDraggingVertical = false; //This is used to check if the other hand is dragging vertically
+    private bool _isDraggingHorizontal = false; //This is used to set the state of the current hand dragging horizontally based on the release/pressed events from the input container.
+    private bool _isDraggingVertical = false; //This is used to set the state of the current hand dragging vertically based on the release/pressed events from the input container.
 
     private readonly GameObject _iconHolder; //Entire icon
     private readonly GameObject _horizontalMoveIndicator;
@@ -47,16 +47,12 @@ public class DragLocomotor
         _verticalMoveIndicator.transform.forward = forwardDirection;
 
         Vector3 horizontalDragDirection = new Vector3(_previousHandPosition.x - _handTransform.position.x, 0, _previousHandPosition.z - _handTransform.position.z);
-        if (_inputContainer.HorizontalDrag.IsPressed)
-            HandleHorizontalDragMovement(horizontalDragDirection);
-        else
-            _isDraggingHorizontal = _inputContainer.IsDraggingHorizontal = false;
+        if (_isDraggingHorizontal)
+            PerformHorizontalDragMovement(horizontalDragDirection);
             
         Vector3 verticalDragDirection = new Vector3(0, _previousHandPosition.y - _handTransform.position.y, 0);
-        if(_inputContainer.VerticalDrag.IsPressed)
+        if(_isDraggingVertical)
             HandleVerticalDragMovement(verticalDragDirection);
-        else
-            _isDraggingVertical = _inputContainer.IsDraggingVertical = false;
 
         _previousHandPosition = _handTransform.position; 
     }
@@ -85,28 +81,30 @@ public class DragLocomotor
 
         _otherVRHandInputContainer.HorizontalDrag.OnReleased -= HandleOtherVRHorizontalDragReleased;
         _otherVRHandInputContainer.VerticalDrag.OnReleased -= HandleOtherVRVerticalDragReleased;
+
+        _isDraggingHorizontal = false;
+        _isDraggingVertical = false;
     }
 
     private void HandleHorizontalDragPressed()
     {
         //Show horizontal icon
-        if (_otherVRHandInputContainer.IsDraggingHorizontal) 
+        if (_otherVRHandInputContainer.HorizontalDrag.IsPressed) 
             return;
 
-        if (!_otherVRHandInputContainer.HorizontalDrag.IsPressed)
+        _horizontalMoveIndicator.SetActive(true);
+        if (_verticalMoveIndicator.activeSelf)
         {
-            _horizontalMoveIndicator.SetActive(true);
-            if (_verticalMoveIndicator.activeSelf)
-            {
-                _sphereIcon.SetActive(true);
-            }            
-        }       
+            _sphereIcon.SetActive(true);
+        }            
+        _isDraggingHorizontal = true;
         Debug.Log("Horizontal drag pressed");
     }
 
     private void HandleHorizontalDragReleased()
     {
         //Hide horizontal icon
+        _isDraggingHorizontal = false;
         _horizontalMoveIndicator.SetActive(false);
         _sphereIcon.SetActive(false);
         Debug.Log("Horizontal drag released");
@@ -115,23 +113,22 @@ public class DragLocomotor
     private void HandleVerticalDragPressed()
     {
         //Show vertical icon
-        if (_otherVRHandInputContainer.IsDraggingVertical) 
+        if (_otherVRHandInputContainer.VerticalDrag.IsPressed) 
             return;
 
-        if (!_otherVRHandInputContainer.HorizontalDrag.IsPressed)
+        _verticalMoveIndicator.SetActive(true);
+        if (_horizontalMoveIndicator.activeSelf)
         {
-            _verticalMoveIndicator.SetActive(true);
-            if (_horizontalMoveIndicator.activeSelf)
-            {
-                _sphereIcon.SetActive(true);
-            }
+            _sphereIcon.SetActive(true);
         }
+        _isDraggingVertical = true;
         Debug.Log("Vertical drag pressed");
     }
 
     private void HandleVerticalDragReleased()
     {
         //Hide vertical icon
+        _isDraggingVertical = false;
         _verticalMoveIndicator.SetActive(false);
         _sphereIcon.SetActive(false);
         Debug.Log("Vertical drag released");
@@ -142,6 +139,8 @@ public class DragLocomotor
         //Show horizontal icon
         if (!_inputContainer.HorizontalDrag.IsPressed) 
             return;
+
+        _isDraggingHorizontal = true;
         _horizontalMoveIndicator.SetActive(true);
         if (_verticalMoveIndicator.activeSelf)
         {
@@ -154,6 +153,8 @@ public class DragLocomotor
         //Show horizontal icon
         if (!_inputContainer.VerticalDrag.IsPressed) 
             return;
+
+        _isDraggingVertical = true;
         _verticalMoveIndicator.SetActive(true);
         if (_horizontalMoveIndicator.activeSelf)
         {
@@ -161,92 +162,71 @@ public class DragLocomotor
         }
     }
 
-    private void HandleHorizontalDragMovement(Vector3 dragVector)
+    private void PerformHorizontalDragMovement(Vector3 dragVector)
     {
-        if (_otherVRHandInputContainer.IsDraggingHorizontal) 
-            return;
+        Vector3 moveVector = dragVector * _dragSpeed;
+        float maxStepHeight = 0.5f; // Maximum step height the player can have 
+        float stepHeight = 0.5f; // User-defined step height. TODO: Make it configurable
+        float collisionOffset = 0.5f; // Collision offset to stop player entering into walls
 
-        if (!_isDraggingHorizontal)
+        Vector3 currentRaycastPosition = _rootTransform.position + new Vector3(0, maxStepHeight, 0);
+        Vector3 targetRaycastPosition = currentRaycastPosition + moveVector;
+
+        // Perform raycast from current raycast position to check for ground
+        if (Physics.Raycast(currentRaycastPosition, Vector3.down, out RaycastHit currentHit, Mathf.Infinity, groundLayerMask))
         {
-            _isDraggingHorizontal = _inputContainer.IsDraggingHorizontal = true;
-        }
-        else
-        {
-            Vector3 moveVector = dragVector * _dragSpeed;
-            float maxStepHeight = 0.5f; // Maximum step height the player can have 
-            float stepHeight = 0.5f; // User-defined step height. TODO: Make it configurable
-            float collisionOffset = 0.5f; // Collision offset to stop player entering into walls
+            float currentGroundHeight = currentHit.point.y;
 
-            Vector3 currentRaycastPosition = _rootTransform.position + new Vector3(0, maxStepHeight, 0);
-            Vector3 targetRaycastPosition = currentRaycastPosition + moveVector;
-
-            // Perform raycast from current raycast position to check for ground
-            if (Physics.Raycast(currentRaycastPosition, Vector3.down, out RaycastHit currentHit, Mathf.Infinity, groundLayerMask))
+            // Perform raycast from target position to check for ground
+            if (Physics.Raycast(targetRaycastPosition, Vector3.down, out RaycastHit targetHit, Mathf.Infinity, groundLayerMask))
             {
-                float currentGroundHeight = currentHit.point.y;
+                float targetGroundHeight = targetHit.point.y;
+                float heightDifference = Mathf.Abs(targetGroundHeight - currentGroundHeight);
 
-                // Perform raycast from target position to check for ground
-                if (Physics.Raycast(targetRaycastPosition, Vector3.down, out RaycastHit targetHit, Mathf.Infinity, groundLayerMask))
+                // Check if the height difference is within the allowable step size
+                if (heightDifference <= stepHeight)
                 {
-                    float targetGroundHeight = targetHit.point.y;
-                    float heightDifference = Mathf.Abs(targetGroundHeight - currentGroundHeight);
-
-                    // Check if the height difference is within the allowable step size
-                    if (heightDifference <= stepHeight)
+                    // Perform raycast to check for collisions in the direction of movement
+                    if (Physics.Raycast(currentRaycastPosition, moveVector.normalized, out RaycastHit objectHit, moveVector.magnitude + collisionOffset))
                     {
-                        // Perform raycast to check for collisions in the direction of movement
-                        if (Physics.Raycast(currentRaycastPosition, moveVector.normalized, out RaycastHit objectHit, moveVector.magnitude + collisionOffset))
-                        {
-                            Debug.Log($"Movement aborted: {objectHit.collider.name} is blocking player movement.");
-                        }
-                        else
-                        {                          
-                            targetRaycastPosition.y = targetGroundHeight + (currentRaycastPosition.y - maxStepHeight - currentGroundHeight);
-                            _rootTransform.position = targetRaycastPosition;
-                        }
+                        Debug.Log($"Movement aborted: {objectHit.collider.name} is blocking player movement.");
                     }
                     else
-                    {
-                        Debug.Log("Movement aborted: Elevation change exceeds maximum step size.");
+                    {                          
+                        targetRaycastPosition.y = targetGroundHeight + (currentRaycastPosition.y - maxStepHeight - currentGroundHeight);
+                        _rootTransform.position = targetRaycastPosition;
                     }
                 }
                 else
                 {
-                    Debug.Log("Movement aborted: Target position is not above ground.");
+                    Debug.Log("Movement aborted: Elevation change exceeds maximum step size.");
                 }
             }
             else
             {
-                Debug.LogWarning("Current position is not above ground.");
+                Debug.Log("Movement aborted: Target position is not above ground.");
             }
+        }
+        else
+        {
+            Debug.LogWarning("Current position is not above ground.");
         }
     }
 
     private void HandleVerticalDragMovement(Vector3 dragVector)
     {
-        if (_otherVRHandInputContainer.IsDraggingVertical) 
-            return;
+        Vector3 moveVector = dragVector * _dragSpeed;
+        Vector3 targetPosition = _headOffsetTransform.position + moveVector;
+        float collisionOffset = 0.5f; // Collision offset to stop player entering into ceilings/floor
 
-        if (!_isDraggingVertical)
+        // Perform raycast to check for collisions
+        if (Physics.Raycast(_headOffsetTransform.position, moveVector.normalized, out RaycastHit hit, moveVector.magnitude + collisionOffset))
         {
-            _isDraggingVertical = _inputContainer.IsDraggingVertical = true;
+            Debug.Log("Vertical movement aborted: Collision detected with " + hit.collider.name);
         }
         else
         {
-            Vector3 moveVector = dragVector * _dragSpeed;
-            Vector3 targetPosition = _headOffsetTransform.position + moveVector;
-            float collisionOffset = 0.5f; // Collision offset to stop player entering into ceilings/floor
-
-            // Perform raycast to check for collisions
-            if (Physics.Raycast(_headOffsetTransform.position, moveVector.normalized, out RaycastHit hit, moveVector.magnitude + collisionOffset))
-            {
-                Debug.Log("Vertical movement aborted: Collision detected with " + hit.collider.name);
-            }
-            else
-            {
-                _headOffsetTransform.position = targetPosition;
-            }
+            _headOffsetTransform.position = targetPosition;
         }
     }
-
 }
