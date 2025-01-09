@@ -89,16 +89,10 @@ public class DragLocomotor
     private void HandleHorizontalDragPressed()
     {
         //Show horizontal icon
-        if (_otherVRHandInputContainer.HorizontalDrag.IsPressed) 
+        if (_otherVRHandInputContainer.HorizontalDrag.IsPressed)
             return;
 
-        _horizontalMoveIndicator.SetActive(true);
-        if (_verticalMoveIndicator.activeSelf)
-        {
-            _sphereIcon.SetActive(true);
-        }            
-        _isDraggingHorizontal = true;
-        Debug.Log("Horizontal drag pressed");
+        SetHorizontalMoveIndicatorVisible();
     }
 
     private void HandleHorizontalDragReleased()
@@ -116,13 +110,7 @@ public class DragLocomotor
         if (_otherVRHandInputContainer.VerticalDrag.IsPressed) 
             return;
 
-        _verticalMoveIndicator.SetActive(true);
-        if (_horizontalMoveIndicator.activeSelf)
-        {
-            _sphereIcon.SetActive(true);
-        }
-        _isDraggingVertical = true;
-        Debug.Log("Vertical drag pressed");
+        SetVerticalMoveIndicatorVisible();
     }
 
     private void HandleVerticalDragReleased()
@@ -140,12 +128,7 @@ public class DragLocomotor
         if (!_inputContainer.HorizontalDrag.IsPressed) 
             return;
 
-        _isDraggingHorizontal = true;
-        _horizontalMoveIndicator.SetActive(true);
-        if (_verticalMoveIndicator.activeSelf)
-        {
-            _sphereIcon.SetActive(true);
-        }
+        SetHorizontalMoveIndicatorVisible();
     }
 
     private void HandleOtherVRVerticalDragReleased()
@@ -154,12 +137,29 @@ public class DragLocomotor
         if (!_inputContainer.VerticalDrag.IsPressed) 
             return;
 
+        SetVerticalMoveIndicatorVisible();
+    }
+
+    private void SetHorizontalMoveIndicatorVisible()
+    {
+        _isDraggingHorizontal = true;
+        _horizontalMoveIndicator.SetActive(true);
+        if (_verticalMoveIndicator.activeSelf)
+        {
+            _sphereIcon.SetActive(true);
+        }
+        Debug.Log("Horizontal drag pressed");
+    }
+
+    private void SetVerticalMoveIndicatorVisible()
+    {
         _isDraggingVertical = true;
         _verticalMoveIndicator.SetActive(true);
         if (_horizontalMoveIndicator.activeSelf)
         {
             _sphereIcon.SetActive(true);
         }
+        Debug.Log("Vertical drag pressed");
     }
 
     private void PerformHorizontalDragMovement(Vector3 dragVector)
