@@ -23,6 +23,9 @@ namespace VE2_NonCore_FileSystem
         public event Action<RemoteFileTaskStatus> OnStatusChanged;
         public event Action<IRemoteFileTaskInfo> OnTaskCompleted;
 
+        //Once underway, only uploads and downloads can be cancelled.
+        public bool IsCancellable => (_status == RemoteFileTaskStatus.InProgress && _type != RemoteTaskType.Delete) || _status == RemoteFileTaskStatus.Queued;
+
         private readonly FTPFileTask _task;
 
         public RemoteFileTaskInfo(FTPFileTask task, RemoteTaskType type, float progress, string nameAndPath)
@@ -35,10 +38,7 @@ namespace VE2_NonCore_FileSystem
 
         public void CancelRemoteFileTask()
         {
-            //Once underway, only uploads and downloads can be cancelled.
-            bool _isCancellable = (_status == RemoteFileTaskStatus.InProgress && _type != RemoteTaskType.Delete) || _status == RemoteFileTaskStatus.Queued;
-
-            if (_isCancellable)
+            if (IsCancellable)
             {
                 _task.Cancel();
                 Update();

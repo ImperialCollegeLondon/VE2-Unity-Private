@@ -33,6 +33,8 @@ namespace VE2_NonCore_FileSystem
 
 
         #region Interfaces 
+        public bool IsFileSystemReady => _fileStorageService.IsFileStorageServiceReady;
+        public event Action OnFileSystemReady;
         public void RefreshLocalFiles() => _fileStorageService.RefreshLocalFiles();
         public void RefreshRemoteFiles() => _fileStorageService.RefreshRemoteFiles();
         public Dictionary<string, LocalFileDetails> GetLocalFiles() 
@@ -68,7 +70,7 @@ namespace VE2_NonCore_FileSystem
             _queuedTasks.Add(taskInfo);
             return taskInfo;
         }
-        public void DeleteLocalFile(string nameAndPath) => _fileStorageService.DeleteLocalFile(nameAndPath);
+        public bool DeleteLocalFile(string nameAndPath) => _fileStorageService.DeleteLocalFile(nameAndPath);
         public Dictionary<string, IRemoteFileTaskInfo> GetQueuedTasks()
         {
             Dictionary<string, IRemoteFileTaskInfo> queuedTasks = new();
@@ -116,6 +118,15 @@ namespace VE2_NonCore_FileSystem
         {
             _fileStorageService.OnFileStorageServiceReady -= HandleFileStorageServiceReady;
             HandleLocalFilesRefreshed(); //Happens immediately when service is created 
+
+            try 
+            {
+                OnFileSystemReady?.Invoke();
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.LogError($"Error invoking OnFileSystemReady: {e.Message}");
+            }
         }
 
         public void OpenLocalWorkingFolder()
@@ -145,7 +156,7 @@ namespace VE2_NonCore_FileSystem
         private void HandleLocalFilesRefreshed()
         {
             _localFilesAvailable.Clear();
-            foreach (var file in _fileStorageService.localFiles)
+            foreach (var file in _fileStorageService.LocalFiles)
                 _localFilesAvailable.Add(new LocalFileDetails(file.Key, file.Value.fileSize, Path.Combine(Application.persistentDataPath, _LocalWorkingFilePath, file.Key).Replace("/", "\\")));
         }
 
@@ -173,13 +184,13 @@ namespace VE2_NonCore_FileSystem
 
         private void UploadAllFiles()
         {
-            foreach (string fileNameAndPath in _fileStorageService.localFiles.Keys)
+            foreach (string fileNameAndPath in _fileStorageService.LocalFiles.Keys)
                 UploadFile(fileNameAndPath);
         }
 
         private void DeleteAllLocalFiles()
         {
-            List<string> localFileNames = new List<string>(_fileStorageService.localFiles.Keys);
+            List<string> localFileNames = new List<string>(_fileStorageService.LocalFiles.Keys);
             foreach (string fileNameAndPath in localFileNames)
                 DeleteLocalFile(fileNameAndPath);
         }

@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace VE2_NonCore_FileSystem_Interfaces_Common
 {
+    //CAUTION - These objects are customer-facing, changing these will break plugins=================================
+    //===============================================================================================================
+
     [Serializable]
     public class LocalFileDetails : FileDetails
     {
@@ -65,6 +68,7 @@ namespace VE2_NonCore_FileSystem_Interfaces_Common
         public event Action<RemoteFileTaskStatus> OnStatusChanged;
         public event Action<IRemoteFileTaskInfo> OnTaskCompleted;
 
+        public bool IsCancellable { get; }
         public void CancelRemoteFileTask();
     }
 }

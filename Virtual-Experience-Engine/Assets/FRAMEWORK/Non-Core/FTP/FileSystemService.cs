@@ -58,7 +58,7 @@ namespace VE2_NonCore_FileSystem
             return task;
         }
 
-        public void DeleteLocalFile(string workingFileNameAndPath)
+        public bool DeleteLocalFile(string workingFileNameAndPath)
         {
             Debug.Log($"Deleting local file: {workingFileNameAndPath}");
             string localPath = $"{LocalWorkingPath}/{workingFileNameAndPath}"; 
@@ -72,19 +72,22 @@ namespace VE2_NonCore_FileSystem
                     Directory.Delete(directoryPath);
 
                 RefreshLocalFiles();
+
+                return true;
             }
             else
             {
                 Debug.LogWarning($"File not found: {localPath}");
+                return false;
             }
         }
 
-        public readonly Dictionary<string, FileDetails> localFiles = new();
+        public readonly Dictionary<string, FileDetails> LocalFiles = new();
         public Dictionary<string, FileDetails> RemoteFiles => _ftpService.RemoteFiles;
 
         public void RefreshLocalFiles()
         {
-            localFiles.Clear();
+            LocalFiles.Clear();
 
             if (string.IsNullOrWhiteSpace(LocalWorkingPath))
                 throw new ArgumentException("Path cannot be null or empty.", nameof(LocalWorkingPath));
@@ -101,7 +104,7 @@ namespace VE2_NonCore_FileSystem
                     FileInfo fileInfo = new(file);
                     string correctedFileFullName = fileInfo.FullName.Replace("\\", "/"); //System.IO gives us paths with back slashes
                     string workingFileNameAndPath = correctedFileFullName.Replace($"{LocalWorkingPath}/", "").TrimStart('/');
-                    localFiles.Add(workingFileNameAndPath, new FileDetails { fileNameAndWorkingPath = workingFileNameAndPath, fileSize = (ulong)fileInfo.Length });
+                    LocalFiles.Add(workingFileNameAndPath, new FileDetails { fileNameAndWorkingPath = workingFileNameAndPath, fileSize = (ulong)fileInfo.Length });
                 }
             }
             catch (UnauthorizedAccessException ex)
