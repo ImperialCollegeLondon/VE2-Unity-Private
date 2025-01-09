@@ -1,7 +1,9 @@
-using System.Collections.Generic;
-using UnityEngine;
+using VE2_NonCore_FileSystem_Interfaces_Internal;
 
-public class V_InternalFileSystem : V_FileSystemIntegrationBase, IInternalFileSystem
+namespace VE2_NonCore_FileSystem
 {
-    protected override string _LocalWorkingFilePath => $"VE2/Worlds";
+    public class V_InternalFileSystem : V_FileSystemIntegrationBase, IInternalFileSystem
+    {
+        protected override string _LocalWorkingFilePath => $"VE2/Worlds";
+    }
 }

@@ -1,30 +1,33 @@
 using System;
 
-public enum RemoteTaskType
+namespace VE2_NonCore_FileSystem_Interfaces_Common
 {
-    Download,
-    Upload,
-    Delete
-}
+    public enum RemoteTaskType
+    {
+        Download,
+        Upload,
+        Delete
+    }
 
-public enum RemoteFileTaskStatus
-{
-    Queued,
-    InProgress,
-    Cancelled,
-    Succeeded,
-    Failed
-}
+    public enum RemoteFileTaskStatus
+    {
+        Queued,
+        InProgress,
+        Cancelled,
+        Succeeded,
+        Failed
+    }
 
-public interface IRemoteFileTaskInfo
-{
-    public RemoteTaskType Type { get; }
-    public string NameAndPath { get; }
-    public float Progress { get; }
-    public RemoteFileTaskStatus Status { get; }
+    public interface IRemoteFileTaskInfo
+    {
+        public RemoteTaskType Type { get; }
+        public string NameAndPath { get; }
+        public float Progress { get; }
+        public RemoteFileTaskStatus Status { get; }
 
-    public event Action<RemoteFileTaskStatus> OnStatusChanged;
-    public event Action<IRemoteFileTaskInfo> OnTaskCompleted;
+        public event Action<RemoteFileTaskStatus> OnStatusChanged;
+        public event Action<IRemoteFileTaskInfo> OnTaskCompleted;
 
-    public void CancelRemoteFileTask();
+        public void CancelRemoteFileTask();
+    }
 }

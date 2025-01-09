@@ -4658,7 +4658,7 @@ GameObject:
   - component: {fileID: 1149381112}
   - component: {fileID: 1149381111}
   m_Layer: 0
-  m_Name: FTPTEST
+  m_Name: PluginFileSystem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4683,7 +4683,8 @@ MonoBehaviour:
     Password: fwf3f3j21r3ed
   _localFilesAvailable: []
   _remoteFilesAvailable: []
-  _queuedTaskDetails: []
+  _queuedTasks: []
+  _completedTasks: []
 --- !u!4 &1149381112
 Transform:
   m_ObjectHideFlags: 0
