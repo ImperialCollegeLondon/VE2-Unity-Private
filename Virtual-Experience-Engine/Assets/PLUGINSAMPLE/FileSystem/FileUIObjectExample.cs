@@ -14,7 +14,7 @@ public class FileUIObjectExample : MonoBehaviour
     [SerializeField] private Button _deleteLocalButton;
 
     [SerializeField] private TMP_Text _availableRemoteText;
-    [SerializeField] private Button _uploadRemoteButton;
+    [SerializeField] private Button _downloadRemoteButton;
     [SerializeField] private Button _deleteRemoteButton;
 
     [SerializeField] private GameObject _taskPanel;
@@ -37,11 +37,13 @@ public class FileUIObjectExample : MonoBehaviour
         _fileSizeText.text = fileDetails.Size.ToString();
 
         _availableLocalText.text = isAvailableLocally ? "Available" : "Not Available";
+        _availableLocalText.color = isAvailableLocally ? Color.green : Color.red;
         _uploadLocalButton.interactable = !isAvailableLocally && isAvailableRemotely;
         _deleteLocalButton.interactable = isAvailableLocally;
 
         _availableRemoteText.text = isAvailableRemotely ? "Available" : "Not Available";
-        _uploadRemoteButton.interactable = !isAvailableRemotely && isAvailableLocally;
+        _availableRemoteText.color = isAvailableRemotely ? Color.green : Color.red;
+        _downloadRemoteButton.interactable = !isAvailableRemotely && isAvailableLocally;
         _deleteRemoteButton.interactable = isAvailableRemotely;
 
         _taskPanel.SetActive(false); //No current tasks!
@@ -74,6 +76,7 @@ public class FileUIObjectExample : MonoBehaviour
         if (task.Status == RemoteFileTaskStatus.Succeeded)
         {
             _availableRemoteText.text = "Available";
+            _availableRemoteText.color = Color.green;
             _uploadLocalButton.interactable = false;
             _deleteLocalButton.interactable = true;
         }
@@ -88,6 +91,12 @@ public class FileUIObjectExample : MonoBehaviour
         _currentTaskTypeText.text = "Delete Local File";
         _currentTaskStatusText.text = success ? "Success" : "Failed";
         _currentTaskProgressText.text = success ? "100%" : "0%";
+
+        if (success)
+        {
+            _availableLocalText.text = "Not Available";
+            _availableLocalText.color = Color.red;
+        }
     }
 
     public void DownloadRemoteFile()
@@ -103,7 +112,8 @@ public class FileUIObjectExample : MonoBehaviour
         if (task.Status == RemoteFileTaskStatus.Succeeded)
         {
             _availableLocalText.text = "Available";
-            _uploadRemoteButton.interactable = false;
+            _availableLocalText.color = Color.green;
+            _downloadRemoteButton.interactable = false;
             _deleteRemoteButton.interactable = true;
         }
     }
@@ -121,7 +131,8 @@ public class FileUIObjectExample : MonoBehaviour
         if (_currentRemoteTask.Status == RemoteFileTaskStatus.Succeeded)
         {
             _availableRemoteText.text = "Not Available";
-            _uploadRemoteButton.interactable = true;
+            _availableRemoteText.color = Color.red;
+            _downloadRemoteButton.interactable = true;
             _deleteRemoteButton.interactable = false;
         }
     }
