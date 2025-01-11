@@ -33,7 +33,7 @@ namespace VE2_NonCore_FileSystem
 
 
         #region Interfaces 
-        public bool IsFileSystemReady => _fileStorageService.IsFileStorageServiceReady;
+        public bool IsFileSystemReady => _fileStorageService != null ? _fileStorageService.IsFileStorageServiceReady : false;
         public event Action OnFileSystemReady;
         public void RefreshLocalFiles() => _fileStorageService.RefreshLocalFiles();
         public void RefreshRemoteFiles() => _fileStorageService.RefreshRemoteFiles();

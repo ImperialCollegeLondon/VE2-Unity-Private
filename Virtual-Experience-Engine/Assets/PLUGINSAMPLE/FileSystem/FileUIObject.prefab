@@ -200,7 +200,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 5769485908356964669}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 5003599014798548336}
+        m_TargetAssemblyTypeName: FileUIObjectExample, VE2_PluginSample_FileSystem
+        m_MethodName: DownloadRemoteFile
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &3082676054121395493
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1737,7 +1749,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7381942447454565612}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 5003599014798548336}
+        m_TargetAssemblyTypeName: FileUIObjectExample, VE2_PluginSample_FileSystem
+        m_MethodName: DeleteRemoteFile
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &8201298445091920121
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1779,8 +1803,8 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5457914445706411026}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 9.3132e-10}
+  m_LocalRotation: {x: -0.000021504256, y: -0.00007189762, z: 0.00048246194, w: 0.9999999}
+  m_LocalPosition: {x: 0, y: 0, z: -0.0000037061097}
   m_LocalScale: {x: 0.81438, y: 0.81438, z: 0.81438}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1792,10 +1816,10 @@ RectTransform:
   - {fileID: 4074631667108677035}
   - {fileID: 4655251597291373605}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -0.002, y: -0.008, z: 0.055}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -0.000030517578}
   m_SizeDelta: {x: 1.4758997, y: 1.3708}
   m_Pivot: {x: 0.5, y: 0.49999997}
 --- !u!222 &3792964928881903147
@@ -1867,7 +1891,7 @@ MonoBehaviour:
   _availableLocalText: {fileID: 1747473397465765708}
   _uploadLocalButton: {fileID: 936733730779850452}
   _deleteLocalButton: {fileID: 7469333079799771374}
-  _availableRemoteText: {fileID: 2963016757141789111}
+  _availableRemoteText: {fileID: 6019883748179855641}
   _downloadRemoteButton: {fileID: 1292355057805347053}
   _deleteRemoteButton: {fileID: 6743127034129835601}
   _taskPanel: {fileID: 3576692887716139587}
@@ -2300,7 +2324,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 715129343087275345}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 5003599014798548336}
+        m_TargetAssemblyTypeName: FileUIObjectExample, VE2_PluginSample_FileSystem
+        m_MethodName: UploadLocalFile
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1472916684920514641
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2409,11 +2445,11 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 10
+  m_fontSize: 12
   m_fontSizeBase: 10
   m_fontWeight: 400
-  m_enableAutoSizing: 0
-  m_fontSizeMin: 8
+  m_enableAutoSizing: 1
+  m_fontSizeMin: 5
   m_fontSizeMax: 12
   m_fontStyle: 0
   m_HorizontalAlignment: 1
@@ -2447,7 +2483,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0.17615698, y: 0.19668138, z: -1.8960953, w: 0}
+  m_margin: {x: 0.17615698, y: 0.19668138, z: -10.792652, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -3108,7 +3144,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 9148749463892780130}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 5003599014798548336}
+        m_TargetAssemblyTypeName: FileUIObjectExample, VE2_PluginSample_FileSystem
+        m_MethodName: CancelTask
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &686471545203941277
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3244,7 +3292,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 6591758352277229202}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 5003599014798548336}
+        m_TargetAssemblyTypeName: FileUIObjectExample, VE2_PluginSample_FileSystem
+        m_MethodName: DeleteLocalFile
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &3203375507435171919
 MonoBehaviour:
   m_ObjectHideFlags: 0
