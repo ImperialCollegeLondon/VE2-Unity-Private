@@ -78,7 +78,6 @@ public class FileHandlerExample : MonoBehaviour
 
             fileUIObject.transform.localPosition = Vector3.zero;
             fileUIObject.transform.localRotation = Quaternion.identity;
-
         }
     }
 
