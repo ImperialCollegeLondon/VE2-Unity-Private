@@ -9,4 +9,6 @@ public class ColorConfiguration : ScriptableObject
     public Color QuaternaryColor;
     public Color AccentPrimaryColor;
     public Color AccentSecondaryColor;
+
+    public Color ButtonDisabledColor;
 }

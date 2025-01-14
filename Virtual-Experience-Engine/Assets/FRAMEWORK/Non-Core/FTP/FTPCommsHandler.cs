@@ -51,6 +51,7 @@ namespace VE2_NonCore_FileSystem
 
         private string remotePath;
         private FileStream transferStream;
+        private FTPFileTransferTask _currentFileTransferTask;
 
         private readonly SftpClient _sftpClient;
 
@@ -416,6 +417,7 @@ namespace VE2_NonCore_FileSystem
         {
             return Task.Run(() =>
             {
+                _currentFileTransferTask = downloadTask;
                 string remoteFile = downloadTask.RemotePath + "/" + downloadTask.Name;
                 string localFile = downloadTask.LocalPath + "/" + downloadTask.Name;
 
@@ -468,7 +470,7 @@ namespace VE2_NonCore_FileSystem
 
                 try
                 {
-                    _sftpClient.DownloadFile(remoteFile, transferStream, downloadTask.SetProgress);
+                    _sftpClient.DownloadFile(remoteFile, transferStream, SetFileTransferTaskProgress);
                 }
                 catch
                 {
@@ -476,6 +478,7 @@ namespace VE2_NonCore_FileSystem
                 }
                 finally
                 {
+
                     transferStream.Close();
                     transferStream.Dispose();
                     transferStream = null;
@@ -541,6 +544,7 @@ namespace VE2_NonCore_FileSystem
         {
             return Task.Run(() =>
             {
+                _currentFileTransferTask = uploadTask;
                 string remoteFile = uploadTask.RemotePath + "/" + uploadTask.Name;
                 string localFile = uploadTask.LocalPath + "/" + uploadTask.Name;
 
@@ -650,6 +654,26 @@ namespace VE2_NonCore_FileSystem
                 return false;
 
             return true;
+        }
+
+        private void SetFileTransferTaskProgress(ulong dataTransferred)
+        {
+            if (!_currentFileTransferTask.IsInProgress)
+            {
+                Debug.LogError("Tried to cancel a task that is not in progress");
+                return;
+            }
+
+            if (transferStream == null)
+            {
+                Debug.LogError("Tried to cancel a task but TransferStream is null");
+                return;
+            }
+
+            if (_currentFileTransferTask.IsCancelled)
+                transferStream.Close();
+            else 
+                _currentFileTransferTask.SetProgress(dataTransferred);
         }
     }
 }

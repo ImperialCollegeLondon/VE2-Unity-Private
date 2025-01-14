@@ -99,7 +99,7 @@ public class V_ColorAssignment : MonoBehaviour
                         highlightedColor = _colorConfiguration.AccentSecondaryColor,
                         pressedColor = _colorConfiguration.AccentSecondaryColor,
                         selectedColor = _colorConfiguration.AccentPrimaryColor,
-                        disabledColor = _colorConfiguration.SecondaryColor,
+                        disabledColor = _colorConfiguration.ButtonDisabledColor,
                         colorMultiplier = 1,
                         fadeDuration = 0.1f
                     };
