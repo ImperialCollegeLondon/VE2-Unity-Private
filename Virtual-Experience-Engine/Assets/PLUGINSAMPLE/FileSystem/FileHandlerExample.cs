@@ -62,17 +62,17 @@ public class FileHandlerExample : MonoBehaviour
             {
                 //Create new horizontal group and add it to the vertical
                 GameObject fileObjectHorizontalGroupGO = Instantiate(_fileObjectHorizontalGroupPrefab, transform);
-                fileObjectHorizontalGroupGO.transform.SetParent(_fileObjectVerticalGroup.transform);
+                fileObjectHorizontalGroupGO.transform.SetParent(_fileObjectVerticalGroup.transform, false);
 
                 //Add the file UI object to the new horizontal group
                 HorizontalLayoutGroup horizontalLayoutGroup = fileObjectHorizontalGroupGO.GetComponent<HorizontalLayoutGroup>();
-                FileUIObjectGO.transform.SetParent(horizontalLayoutGroup.transform);
+                FileUIObjectGO.transform.SetParent(horizontalLayoutGroup.transform, false);
 
                 _fileObjectHorizontalGroups.Add((horizontalLayoutGroup, new List<FileUIObjectExample> { fileUIObject }));
             }
             else
             {
-                FileUIObjectGO.transform.SetParent(lastHorizontalGroup.Item1.transform);
+                FileUIObjectGO.transform.SetParent(lastHorizontalGroup.Item1.transform, false);
                 lastHorizontalGroup.Item2.Add(fileUIObject);
             }
 
