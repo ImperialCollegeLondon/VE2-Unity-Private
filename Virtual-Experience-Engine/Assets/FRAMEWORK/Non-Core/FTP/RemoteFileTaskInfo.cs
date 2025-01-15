@@ -110,34 +110,35 @@ namespace VE2_NonCore_FileSystem
     [Serializable]
     public class RemoteFileSearchInfo : IRemoteFileSearchInfo
     {
+        [SerializeField, LabelWidth(110f), Disable] private string _path; //Relative to working path
+        public string Path => _path;
 
-        [SerializeField, LabelWidth(110f), Disable] private string _nameAndPath; //Relative to working path
-        public string NameAndPath => _nameAndPath;
-
-        public event Action<Dictionary<string, RemoteFileDetails>> OnFilesFound;
+        public Dictionary<string, RemoteFileDetails> FilesFound { get; } = new();
+        public event Action<IRemoteFileSearchInfo> OnSearchComplete;
 
         private readonly FTPRemoteFileListTask _task;
 
-        public RemoteFileSearchInfo(FTPRemoteFileListTask task, string nameAndPath)
+        public RemoteFileSearchInfo(FTPRemoteFileListTask task, string path)
         {
             _task = task;
-            _nameAndPath = nameAndPath;
+            _path = path;
             _task.OnComplete += OnTaskComplete;
         }
 
         private void OnTaskComplete(FTPTask task) 
         {
-            Dictionary<string, RemoteFileDetails> files = new();
-
-            foreach (FileDetails file in _task.FoundFilesDetails)
+            if (_task.FoundFilesDetails != null)
             {
-                RemoteFileDetails remoteFile = new(file.fileNameAndWorkingPath, file.fileSize);
-                files.Add(file.fileNameAndWorkingPath, remoteFile);
+                foreach (FileDetails file in _task.FoundFilesDetails)
+                {
+                    RemoteFileDetails remoteFile = new(file.fileNameAndWorkingPath, file.fileSize);
+                    FilesFound.Add(file.fileNameAndWorkingPath, remoteFile);
+                }
             }
 
             try
             {
-                OnFilesFound?.Invoke(files);
+                OnSearchComplete?.Invoke(this);
             }
             catch (Exception e)
             {
@@ -152,7 +153,8 @@ namespace VE2_NonCore_FileSystem
         [SerializeField, LabelWidth(110f), Disable] private string _path; //Relative to working path
         public string Path => _path;
 
-        public event Action<List<string>> OnFoldersFound;
+        public List<string> FoldersFound => _task.FoundFolderNames;
+        public event Action<IRemoteFolderSearchInfo> OnSearchComplete;
 
         private readonly FTPRemoteFolderListTask _task;
 
@@ -167,7 +169,7 @@ namespace VE2_NonCore_FileSystem
         {
             try
             {
-                OnFoldersFound?.Invoke(_task.FoundFolderNames);
+                OnSearchComplete?.Invoke(this);
             }
             catch (Exception e)
             {

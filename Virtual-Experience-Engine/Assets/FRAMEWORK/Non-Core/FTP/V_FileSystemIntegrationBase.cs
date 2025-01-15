@@ -36,44 +36,36 @@ namespace VE2_NonCore_FileSystem
 
         #region Interfaces 
 
-        public bool IsFileSystemReady => _fileStorageService != null ? _fileStorageService.IsFileStorageServiceReady : false;
+        public bool IsFileSystemReady {get; private set;} = false;
         public event Action OnFileSystemReady;
 
-        public Dictionary<string, LocalFileDetails> GetAllLocalFiles() 
-        {
-            Dictionary<string, LocalFileDetails> localFiles = new();
-
-            foreach (var file in _fileStorageService.GetAllLocalFiles())
-                localFiles.Add(file.Key, new LocalFileDetails(file.Key, file.Value.fileSize, Path.Combine(Application.persistentDataPath, _LocalWorkingFilePath, file.Key).Replace("/", "\\")));
-
-            return localFiles;
-        }
-        public Dictionary<string, LocalFileDetails> GetAllLocalFilesAtPath(string path)
+        public Dictionary<string, LocalFileDetails> GetLocalFilesAtPath(string path)
         {
             Dictionary<string, LocalFileDetails> localFiles = new();
 
             foreach (var file in _fileStorageService.GetAllLocalFilesAtPath(path))
-                localFiles.Add(file.Key, new LocalFileDetails(file.Key, file.Value.fileSize, Path.Combine(Application.persistentDataPath, _LocalWorkingFilePath, file.Key).Replace("/", "\\")));
+                localFiles.Add(file.Key, new LocalFileDetails(file.Key, file.Value.fileSize, Path.Combine(Application.persistentDataPath, LocalWorkingPath, file.Key).Replace("/", "\\")));
 
             return localFiles;
         }
 
-        public List<string> GetAllLocalFoldersAtPath(string path)
+        public List<string> GetLocalFoldersAtPath(string path)
         {
             return _fileStorageService.GetAllLocalFoldersAtPath(path);
         }
 
-        public IRemoteFileSearchInfo GetAllRemoteFiles()
+        public IRemoteFileSearchInfo GetRemoteFilesAtPath(string path)
         {
-
+            FTPRemoteFileListTask task = _fileStorageService.GetRemoteFilesAtPath(path);
+            RemoteFileSearchInfo taskInfo = new(task, path);
+            return taskInfo;
         }
-        public IRemoteFileSearchInfo GetRemoteFilesAtPath()
-        {
 
-        }
-        public IRemoteFolderSearchInfo GetRemoteFoldersAtPath()
+        public IRemoteFolderSearchInfo GetRemoteFoldersAtPath(string path)
         {
-            
+            FTPRemoteFolderListTask task = _fileStorageService.GetRemoteFoldersAtPath(path);
+            RemoteFolderSearchInfo taskInfo = new(task, path);
+            return taskInfo;
         }
 
         public IRemoteFileTaskInfo DownloadFile(string nameAndPath)
@@ -98,13 +90,13 @@ namespace VE2_NonCore_FileSystem
             return taskInfo;
         }
         public bool DeleteLocalFile(string nameAndPath) => _fileStorageService.DeleteLocalFile(nameAndPath);
-        public Dictionary<string, IRemoteFileTaskInfo> GetQueuedTasks()
+        public Dictionary<string, IRemoteFileTaskInfo> GetQueuedFileTasks()
         {
             Dictionary<string, IRemoteFileTaskInfo> queuedTasks = new();
             _queuedTasks.ForEach(task => queuedTasks.Add(task.NameAndPath, task));
             return queuedTasks;
         }
-        public Dictionary<string, IRemoteFileTaskInfo> GetCompletedTasks() 
+        public Dictionary<string, IRemoteFileTaskInfo> GetCompletedFileTasks() 
         {
             Dictionary<string, IRemoteFileTaskInfo> completedTasks = new();
             _completedTasks.ForEach(task => completedTasks.Add(task.NameAndPath, task));
@@ -113,12 +105,21 @@ namespace VE2_NonCore_FileSystem
         #endregion
 
         private FileSystemService _fileStorageService;
-        protected abstract string _LocalWorkingFilePath { get; }
+        public abstract string LocalWorkingPath { get; }
 
         private void OnEnable()
         {
-            _fileStorageService = FileSystemServiceFactory.CreateFileStorageService(ftpNetworkSettings, _LocalWorkingFilePath);
-            _fileStorageService.OnFileStorageServiceReady += HandleFileStorageServiceReady;
+            _fileStorageService = FileSystemServiceFactory.CreateFileStorageService(ftpNetworkSettings, LocalWorkingPath);
+
+            IsFileSystemReady = true;
+            try
+            {
+                OnFileSystemReady?.Invoke();
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.LogError($"Error invoking OnFileSystemReady: {e.Message}");
+            }
         }
 
         private void Update()
@@ -139,23 +140,9 @@ namespace VE2_NonCore_FileSystem
             }
         }
 
-        private void HandleFileStorageServiceReady()
-        {
-            _fileStorageService.OnFileStorageServiceReady -= HandleFileStorageServiceReady;
-
-            try 
-            {
-                OnFileSystemReady?.Invoke();
-            }
-            catch (Exception e)
-            {
-                UnityEngine.Debug.LogError($"Error invoking OnFileSystemReady: {e.Message}");
-            }
-        }
-
         public void OpenLocalWorkingFolder()
         {
-            string path = Application.persistentDataPath + "/files/" + _LocalWorkingFilePath;
+            string path = Application.persistentDataPath + "/files/" + LocalWorkingPath;
             path = path.Replace("/", "\\"); //Systen.IO works with backslashes
             UnityEngine.Debug.Log("Try open " + path);
             try
@@ -177,15 +164,9 @@ namespace VE2_NonCore_FileSystem
             }
         }
 
-        private void HandleRemoteFilesRefreshed()
-        {
-            _remoteFilesAvailable.Clear();
-            foreach (var file in _fileStorageService.GetAllRemoteFiles)
-                _remoteFilesAvailable.Add(new RemoteFileDetails(file.Key, file.Value.fileSize));
-        }
-
         private void OnDisable()
         {
+            IsFileSystemReady = false;
             _fileStorageService.TearDown();
             _queuedTasks.Clear();
             _completedTasks.Clear();
@@ -193,31 +174,31 @@ namespace VE2_NonCore_FileSystem
 
         #region TO-REMOVE-DEBUG //TODO:
 
-        private void DownloadAllFiles()
-        {
-            foreach (string fileNameAndPath in _fileStorageService.GetAllRemoteFiles.Keys)
-                DownloadFile(fileNameAndPath);
-        }
+        // private void DownloadAllFiles()
+        // {
+        //     foreach (string fileNameAndPath in _fileStorageService.GetAllRemoteFiles.Keys)
+        //         DownloadFile(fileNameAndPath);
+        // }
 
-        private void UploadAllFiles()
-        {
-            foreach (string fileNameAndPath in _fileStorageService.LocalFiles.Keys)
-                UploadFile(fileNameAndPath);
-        }
+        // private void UploadAllFiles()
+        // {
+        //     foreach (string fileNameAndPath in _fileStorageService.LocalFiles.Keys)
+        //         UploadFile(fileNameAndPath);
+        // }
 
-        private void DeleteAllLocalFiles()
-        {
-            List<string> localFileNames = new List<string>(_fileStorageService.LocalFiles.Keys);
-            foreach (string fileNameAndPath in localFileNames)
-                DeleteLocalFile(fileNameAndPath);
-        }
+        // private void DeleteAllLocalFiles()
+        // {
+        //     List<string> localFileNames = new List<string>(_fileStorageService.LocalFiles.Keys);
+        //     foreach (string fileNameAndPath in localFileNames)
+        //         DeleteLocalFile(fileNameAndPath);
+        // }
 
-        private void DeleteAllRemoteFiles()
-        {
-            List<string> remoteFileNames = new List<string>(_fileStorageService.GetAllRemoteFiles.Keys);
-            foreach (string fileNameAndPath in remoteFileNames)
-                DeleteRemoteFile(fileNameAndPath);
-        }
+        // private void DeleteAllRemoteFiles()
+        // {
+        //     List<string> remoteFileNames = new List<string>(_fileStorageService.GetAllRemoteFiles.Keys);
+        //     foreach (string fileNameAndPath in remoteFileNames)
+        //         DeleteRemoteFile(fileNameAndPath);
+        // }
 
         private void CancelAllTasks()
         {

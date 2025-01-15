@@ -75,13 +75,15 @@ namespace VE2_NonCore_FileSystem_Interfaces_Common
 
     public interface IRemoteFileSearchInfo
     {
-        public string NameAndPath { get; }
-        public event Action<Dictionary<string, RemoteFileDetails>> OnFilesFound;
+        public string Path { get; }
+        public Dictionary<string, RemoteFileDetails> FilesFound { get; }
+        public event Action<IRemoteFileSearchInfo> OnSearchComplete;
     }
 
     public interface IRemoteFolderSearchInfo
     {
         public string Path { get; }
-        public event Action<List<string>> OnFoldersFound;
+        public List<string> FoldersFound { get; }
+        public event Action<IRemoteFolderSearchInfo> OnSearchComplete;
     }
 }

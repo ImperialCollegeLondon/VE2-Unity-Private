@@ -4,7 +4,9 @@
     "references": [
         "VE2_NonCore_FileSystem_Interfaces_Common",
         "VE2_NonCore_FileSystem_Interfaces_Plugin",
-        "Unity.TextMeshPro"
+        "Unity.TextMeshPro",
+        "Toolbox",
+        "Toolbox.Editor"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

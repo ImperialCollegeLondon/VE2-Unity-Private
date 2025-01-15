@@ -7,6 +7,9 @@ using VE2_NonCore_FileSystem_Interfaces_Plugin;
 
 public class FileHandlerExample : MonoBehaviour
 {
+    [EditorButton(nameof(HandleRefreshFilesButtonClicked), "Refresh Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
+    [SerializeField] private string folderToSearch = "/";
+
     [SerializeField] private GameObject _fileObjectHorizontalGroupPrefab;
     [SerializeField] private VerticalLayoutGroup _fileObjectVerticalGroup;
     [SerializeField] private GameObject _fileUIObjectPrefab;
@@ -26,18 +29,22 @@ public class FileHandlerExample : MonoBehaviour
             _pluginFileSystem.OnFileSystemReady += HandleFileSystemReady;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     private void HandleFileSystemReady() 
     {
         _pluginFileSystem.OnFileSystemReady -= HandleFileSystemReady;
+        StartSearch();
+    }
 
-        Dictionary<string, LocalFileDetails> localFiles = _pluginFileSystem.GetAllLocalFiles();
-        Dictionary<string, RemoteFileDetails> remoteFiles = _pluginFileSystem.GetAllRemoteFiles();
+    private void StartSearch() 
+    {
+        IRemoteFileSearchInfo task = _pluginFileSystem.GetRemoteFilesAtPath(folderToSearch);
+        task.OnSearchComplete += OnGetRemoteFiles;
+    }
+
+    private void OnGetRemoteFiles(IRemoteFileSearchInfo search)
+    {
+        Dictionary<string, RemoteFileDetails> remoteFiles = search.FilesFound;
+        Dictionary<string, LocalFileDetails> localFiles = _pluginFileSystem.GetLocalFilesAtPath(folderToSearch);
 
         Dictionary<string, FileDetails> allFiles = new Dictionary<string, FileDetails>();
         foreach (var file in localFiles)
@@ -81,13 +88,13 @@ public class FileHandlerExample : MonoBehaviour
         }
     }
 
-    public void RefreshLocalFiles() 
+    public void HandleRefreshFilesButtonClicked()
     {
-        //TODO:
-    }
+        foreach (var group in _fileObjectHorizontalGroups)
+                Destroy(group.Item1.gameObject);
 
-    public void RefreshRemoteFiles() 
-    {
-        //TODO: 
+        _fileObjectHorizontalGroups.Clear();
+
+        StartSearch();
     }
 }

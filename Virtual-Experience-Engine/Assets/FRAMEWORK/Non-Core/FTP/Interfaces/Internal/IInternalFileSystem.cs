@@ -13,11 +13,11 @@ namespace VE2_NonCore_FileSystem_Interfaces_Internal
         public bool IsFileSystemReady { get; }
         public event Action OnFileSystemReady;
 
-        public Dictionary<string, LocalFileDetails> GetAllLocalFiles();
+        public string LocalWorkingPath { get; }
+
         public Dictionary<string, LocalFileDetails> GetLocalFilesAtPath(string path);
         public List<string> GetLocalFoldersAtPath(string path);
 
-        public IRemoteFileSearchInfo GetAllRemoteFiles();
         public IRemoteFileSearchInfo GetRemoteFilesAtPath(string path);
         public IRemoteFolderSearchInfo GetRemoteFoldersAtPath(string path);
 
@@ -25,7 +25,7 @@ namespace VE2_NonCore_FileSystem_Interfaces_Internal
         public IRemoteFileTaskInfo UploadFile(string nameAndPath);
         //public IRemoteFileTaskInfo DeleteRemoteFile(string nameAndPath); Internal system shouldn't be able to delete files, at least, not yet!
         //public bool DeleteLocalFile(string nameAndPath)'
-        public Dictionary<string, IRemoteFileTaskInfo> GetQueuedTasks();
-        public Dictionary<string, IRemoteFileTaskInfo> GetCompletedTasks();
+        public Dictionary<string, IRemoteFileTaskInfo> GetQueuedFileTasks();
+        public Dictionary<string, IRemoteFileTaskInfo> GetCompletedFileTasks();
     }
 }

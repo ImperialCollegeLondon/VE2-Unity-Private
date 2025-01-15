@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Renci.SshNet;
 using UnityEngine;
@@ -16,13 +17,9 @@ namespace VE2_NonCore_FileSystem
         }
     }
 
-    public class FTPService // : IFTPService //TODO: Rename to RemoteFileService? TODO: review summaries, sigs have now changed 
+    public class FTPService 
     {
         #region Higher-level interfaces 
-        public bool IsFTPServiceReady;
-        public event Action OnFTPServiceReady;
-
-        public event Action OnRemoteFileListUpdated;
 
         /// <summary>
         /// Queue a request for list of files in a given remote path
@@ -32,6 +29,7 @@ namespace VE2_NonCore_FileSystem
         public FTPRemoteFileListTask GetRemoteFilesAtPath(string remotePath)
         {
             remotePath = $"{_remoteWorkingPath}/{remotePath}";
+            Debug.Log("Getting files 2 at... " + remotePath);
             FTPRemoteFileListTask task = new(remotePath);
             Enqueue(task);
             return task;
@@ -61,6 +59,10 @@ namespace VE2_NonCore_FileSystem
             string remotePath = $"{_remoteWorkingPath}/{relativePath}";
             string localPath = $"{_localWorkingPath}/{relativePath}";
 
+            //Need to create local directory before we can download into it!
+            if (!Directory.Exists(localPath))
+                Directory.CreateDirectory(localPath);
+
             FTPDownloadTask task = new(remotePath, localPath, filename);
             task.OnComplete += OnDownloadFileComplete;
 
@@ -88,14 +90,12 @@ namespace VE2_NonCore_FileSystem
         /// <returns>Task (for checking status/progress, or for cancelling)</returns>
         public FTPUploadTask UploadFile(string relativePath, string filename)
         {
-            //Need to check if remote folder exists, if not, create it before uploading file 
-            if (!_remoteFolders.Contains(relativePath))
-            {
-                string pathToFolder = relativePath.Contains("/") ? relativePath.Substring(0, relativePath.LastIndexOf("/")) : "";
-                string folderName = relativePath.Contains("/") ? relativePath.Substring(relativePath.LastIndexOf("/") + 1) : relativePath;
+            //Need to ensure the remote directory exists. If it already does, this wont do anything
+            string pathToFolder = relativePath.Contains("/") ? relativePath.Substring(0, relativePath.LastIndexOf("/")) : "";
+            string folderName = relativePath.Contains("/") ? relativePath.Substring(relativePath.LastIndexOf("/") + 1) : relativePath;
 
+            if (folderName != "")
                 MakeRemoteFolder(pathToFolder, folderName); //Queue a task to make a remote folder
-            }
 
             string remotePath = $"{_remoteWorkingPath}/{relativePath}";
             string localPath = $"{_localWorkingPath}/{relativePath}";
@@ -168,7 +168,7 @@ namespace VE2_NonCore_FileSystem
         public FTPMakeFolderTask MakeRemoteFolder(string remotePath, string folderName)
         {
             remotePath = $"{_remoteWorkingPath}/{remotePath}";
-            Debug.Log($"Creating remote directory at {remotePath}/{folderName}");
+            Debug.Log($"Creating remote directory at {remotePath}-{folderName}");
             FTPMakeFolderTask task = new(remotePath, folderName);
             //task.OnComplete += OnRemoteFolderMade;
             Enqueue(task);
@@ -299,30 +299,6 @@ namespace VE2_NonCore_FileSystem
                     _commsHandler.MakeFolder(makeFolderTask);
                     break;
             }
-        }
-
-        private void UploadFile(FTPUploadTask task)
-        {
-            List<string> folders = new();
-
-            //Task.RemotePath will be e.g /ve2/worldfiles/dev/folder/subFolder/text.txt
-            string relativePath = task.RemotePath.Replace($"{_remoteWorkingPath}", ""); //relativePath is now e.g /folder/subFolder/text.txt
-            string relativeFolder = relativePath.Substring(0, relativePath.LastIndexOf("/")); //relativeFolder is now e.g /folder/subFolder
-
-            //relativePath will now be folder/subFolder/text.txt
-            //I need an array of folder names in the relative path. e.g above, the array should have "folder", and "folder/subFolder"
-            //If relative path is "", then array should be empty
-
-            int numSlashes = relativeFolder.Count(c => c == '/');
-            if (numSlashes != 1)
-            {
-                for (int i = 1; i < numSlashes; i++)
-                {
-
-                }
-            }
-
-            _commsHandler.UploadFile(task);
         }
 
         private void Enqueue(FTPTask task)

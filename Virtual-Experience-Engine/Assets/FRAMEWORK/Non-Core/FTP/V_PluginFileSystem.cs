@@ -5,6 +5,6 @@ namespace VE2_NonCore_FileSystem
 {
     public class V_PluginFileSystem : V_FileSystemIntegrationBase, IPluginFileSystem
     {
-        protected override string _LocalWorkingFilePath => $"VE2/PluginFiles/{SceneManager.GetActiveScene().name}";
+        public override string LocalWorkingPath => $"VE2/PluginFiles/{SceneManager.GetActiveScene().name}";
     }
 }

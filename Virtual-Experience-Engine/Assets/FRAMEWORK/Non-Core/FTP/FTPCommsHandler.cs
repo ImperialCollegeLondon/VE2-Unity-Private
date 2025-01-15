@@ -49,7 +49,6 @@ namespace VE2_NonCore_FileSystem
         }
         public event Action<FTPStatus> OnStatusChanged;
 
-        private string remotePath;
         private FileStream transferStream;
         private FTPFileTransferTask _currentFileTransferTask;
 
@@ -75,7 +74,7 @@ namespace VE2_NonCore_FileSystem
             }
             else
             {
-                if (remotePath.Contains("..")) //nope!
+                if (fileListTask.RemotePath.Contains("..")) //nope!
                 {
                     fileListTask.MarkCompleted(FTPCompletionCode.RemoteFileError);
                     return;
@@ -84,7 +83,7 @@ namespace VE2_NonCore_FileSystem
                 Status = FTPStatus.Busy;
 
                 fileListTask.MarkInProgress();
-                (IEnumerable<ISftpFile>, FTPCompletionCode) result = await DirectoryThreaded(remotePath);
+                (IEnumerable<ISftpFile>, FTPCompletionCode) result = await DirectoryThreaded(fileListTask.RemotePath);
                 IEnumerable<ISftpFile> files = result.Item1;
                 FTPCompletionCode completionCode = result.Item2;
 
@@ -157,7 +156,6 @@ namespace VE2_NonCore_FileSystem
                 IEnumerable<ISftpFile> files = null;
                 //V_Logger.Message($"SFTP: In DirThreaded {remotePath}");
                 files = new List<SftpFile>();
-                this.remotePath = remotePath; //for return value
 
                 try
                 {
@@ -454,9 +452,6 @@ namespace VE2_NonCore_FileSystem
 
                 try
                 {
-                    if (!Directory.Exists(downloadTask.LocalPath))
-                        Directory.CreateDirectory(downloadTask.LocalPath);
-
                     transferStream = File.OpenWrite(localFile);
                 }
                 catch (Exception ex)

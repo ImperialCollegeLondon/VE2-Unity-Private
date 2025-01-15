@@ -21,14 +21,27 @@ namespace VE2_NonCore_FileSystem
         }
     }
 
-    public class FileSystemService
+    //This layer used to be responsible for building up a tree of remote and local files, since that functionality was removed, this layer doesn't do much!
+    public class FileSystemService //TODO: Either remove this layer and put the code into V_FileSystemIntegrationBase, or remove code from V_FSIB and have it live here instead
     {
         #region higher-level interfaces 
-        public bool IsFileStorageServiceReady => _ftpService.IsFTPServiceReady;
-        public event Action OnFileStorageServiceReady { add { _ftpService.OnFTPServiceReady += value; } remove { _ftpService.OnFTPServiceReady -= value; } }
 
-        public FTPRemoteFileListTask GetAllRemoteFiles => _ftpService.RemoteFiles;
-        
+        public FTPRemoteFileListTask GetRemoteFilesAtPath(string path)  
+        {
+            string correctedPath = path.StartsWith("/") ? path.Substring(1) : path;
+            string remotePathAndNameFromWorking = $"{RemoteWorkingPath}/{correctedPath}";
+
+            Debug.Log("Get remote files at " + remotePathAndNameFromWorking);
+            return _ftpService.GetRemoteFilesAtPath(correctedPath);
+        }
+
+        public FTPRemoteFolderListTask GetRemoteFoldersAtPath(string path)
+        {
+            string correctedPath = path.StartsWith("/") ? path.Substring(1) : path;
+            string remotePathAndNameFromWorking = $"{RemoteWorkingPath}/{correctedPath}";
+
+            return _ftpService.GetRemoteFoldersAtPath(correctedPath);
+        }
 
         public FTPDownloadTask DownloadFile(string workingFileNameAndPath)
         {
@@ -46,6 +59,7 @@ namespace VE2_NonCore_FileSystem
             string fileName = workingFileNameAndPath.Substring(workingFileNameAndPath.LastIndexOf("/") + 1);
             string remoteCorrectedFileNameAndPath = workingFileNameAndPath;
             string remotePathFromWorking = remoteCorrectedFileNameAndPath.Contains("/") ? remoteCorrectedFileNameAndPath.Substring(0, remoteCorrectedFileNameAndPath.LastIndexOf("/")) : "";
+            Debug.Log($"Remote path from working: {remotePathFromWorking}");
             FTPUploadTask task = _ftpService.UploadFile(remotePathFromWorking, fileName); //No need to refresh manually, will happen automatically
             return task;
         }
