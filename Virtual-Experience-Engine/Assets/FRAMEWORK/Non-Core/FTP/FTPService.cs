@@ -29,7 +29,6 @@ namespace VE2_NonCore_FileSystem
         public FTPRemoteFileListTask GetRemoteFilesAtPath(string remotePath)
         {
             remotePath = $"{_remoteWorkingPath}/{remotePath}";
-            Debug.Log("Getting files 2 at... " + remotePath);
             FTPRemoteFileListTask task = new(remotePath);
             Enqueue(task);
             return task;
@@ -116,22 +115,14 @@ namespace VE2_NonCore_FileSystem
             Debug.Log($"Upload {correctedFileNameAndPath} finished. Result = {uploadTask.CompletionCode}");
 
             uploadTask.OnComplete -= OnUploadFileComplete;
-            // if (uploadTask.CompletionCode == FTPCompletionCode.Success)
-            // {
-            //     //If we've uploaded a file, we should add it to the list of remote files
-            //     if (!RemoteFiles.ContainsKey(correctedFileNameAndPath))
-            //         RemoteFiles.Add(correctedFileNameAndPath, new FileDetails { fileNameAndWorkingPath = uploadTask.Name, fileSize = uploadTask.TotalFileSizeToTransfer });
-
-            //     OnRemoteFileListUpdated?.Invoke();
-            // }
         }
 
         /// <summary>
         /// Queue a request to delete a remote file (does not delete local file)
         /// </summary>
         /// <param name="remotePath">path should use / as separator not \</param>
-        /// <param name="callback">callback on completion or failure</param>
-        /// <returns>TasK ID  (for checking status)</returns>
+        /// <param name="filename"></param>
+        /// <returns>Task (for checking status/progress, or for cancelling)</returns>
         public FTPDeleteTask DeleteRemoteFileOrEmptyFolder(string remotePath, string filename)
         {
             remotePath = $"{_remoteWorkingPath}/{remotePath}";
@@ -151,43 +142,26 @@ namespace VE2_NonCore_FileSystem
                 correctedFileNameAndPath = correctedFileNameAndPath.Substring(1);
 
             Debug.Log($"Delete {correctedFileNameAndPath} finished. Result = {task.CompletionCode}");
-
-            // if (task.CompletionCode == FTPCompletionCode.Success && RemoteFiles.ContainsKey(correctedFileNameAndPath))
-            // {
-            //     RemoteFiles.Remove(correctedFileNameAndPath);
-            //     OnRemoteFileListUpdated?.Invoke();
-            // }
         }
 
         /// <summary>
         /// Queue a request to create a remote folder (does not create it locally)
         /// </summary>
         /// <param name="remotePath">path should use / as separator not \</param>
-        /// <param name="callback">callback on completion or failure</param>
-        /// <returns>TasK ID  (for checking status)</returns>
+        /// <param name="filename"></param>
+        /// <returns>Task (for checking status/progress, or for cancelling)</returns>
         public FTPMakeFolderTask MakeRemoteFolder(string remotePath, string folderName)
         {
             remotePath = $"{_remoteWorkingPath}/{remotePath}";
             Debug.Log($"Creating remote directory at {remotePath}-{folderName}");
             FTPMakeFolderTask task = new(remotePath, folderName);
-            //task.OnComplete += OnRemoteFolderMade;
             Enqueue(task);
             return task;
         }
-
-        // private void OnRemoteFolderMade(FTPTask task)
-        // {
-        //     task.OnComplete -= OnRemoteFolderMade;
-
-        //     if (task.CompletionCode == FTPCompletionCode.Success)
-        //         _remoteFolders.Add(task.RemotePath);
-        // }
         #endregion
 
         private FTPTask _currentTask = null;
         private Queue<FTPTask> _taskQueue = new();
-        private bool IsWorking => _taskQueue.Count > 0 || (_currentTask != null && !_currentTask.IsCompleted && !_currentTask.IsCancelled);
-        //private List<string> _remoteFolders = new();
 
         private readonly FTPCommsHandler _commsHandler;
         private readonly string _remoteWorkingPath;
@@ -201,64 +175,6 @@ namespace VE2_NonCore_FileSystem
 
             _commsHandler.OnStatusChanged += HandleStatusChanged;
         }
-
-        // private void FindRemoteFilesInFolderAndSubFolders(string remoteFolderPath)
-        // {
-        //     FTPRemoteFolderListTask subFolderListTask = GetRemoteFolderList(remoteFolderPath);
-        //     subFolderListTask.OnComplete += HandleGetRemoteFolderListComplete;
-
-        //     FTPRemoteFileListTask fileListTask = GetRemoteFileList(remoteFolderPath);
-        //     fileListTask.OnComplete += HandleGetRemoteFileListComplete;
-        // }
-
-        // private void HandleGetRemoteFolderListComplete(FTPTask task)
-        // {
-        //     FTPRemoteFolderListTask folderListTask = task as FTPRemoteFolderListTask;
-        //     folderListTask.OnComplete -= HandleGetRemoteFolderListComplete;
-
-        //     if (folderListTask.CompletionCode != FTPCompletionCode.Success)
-        //     {
-        //         Debug.LogError($"Failed to get remote folder list: {folderListTask.CompletionCode}");
-        //         return;
-        //     }
-
-        //     foreach (string subFolder in folderListTask.FoundFolderNames)
-        //     {
-        //         _remoteFolders.Add(subFolder);
-        //         string fileNameAndPath = $"{folderListTask.RemotePath}/{subFolder}";
-        //         string workingFileNameAndPath = fileNameAndPath.Replace($"{_remoteWorkingPath}/", "");
-        //         FindRemoteFilesInFolderAndSubFolders(workingFileNameAndPath);
-        //     }
-        // }
-
-        // private void HandleGetRemoteFileListComplete(FTPTask task)
-        // {
-        //     FTPRemoteFileListTask fileListTask = task as FTPRemoteFileListTask;
-        //     fileListTask.OnComplete -= HandleGetRemoteFileListComplete;
-
-        //     if (fileListTask.CompletionCode != FTPCompletionCode.Success)
-        //     {
-        //         Debug.LogError($"Failed to get remote file list: {fileListTask.CompletionCode}");
-        //         return;
-        //     }
-
-        //     foreach (FileDetails fileDetails in fileListTask.FoundFilesDetails)
-        //     {
-        //         string fileNameAndPath = $"{fileListTask.RemotePath}/{fileDetails.fileNameAndWorkingPath}";
-        //         string workingFileNameAndPath = fileNameAndPath.Replace($"{_remoteWorkingPath}/", "").TrimStart('/');
-        //         RemoteFiles.Add(workingFileNameAndPath, fileDetails);
-        //     }
-
-        //     OnRemoteFileListUpdated?.Invoke();
-
-        //     //Once we've found all remote files, the service is ready 
-        //     if (!IsFTPServiceReady && !IsWorking)
-        //     {
-        //         Debug.Log("File storage service is ready!");
-        //         IsFTPServiceReady = true;
-        //         OnFTPServiceReady?.Invoke();
-        //     }
-        // }
 
         //gets called on startup, when something is added, and whenever client changes status to ready
         //if this gets buggy it could more robustly but less efficiently sit in Update()

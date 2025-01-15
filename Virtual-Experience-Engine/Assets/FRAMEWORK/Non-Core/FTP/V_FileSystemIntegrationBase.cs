@@ -12,24 +12,8 @@ namespace VE2_NonCore_FileSystem
     {
         [SerializeField, SpaceArea(spaceAfter: 10)] private FTPNetworkSettings ftpNetworkSettings;
 
-        [Title("Play mode debug")]
-        [Help("Enter play mode to view local and remote files")]
-
-        // [EditorButton(nameof(OpenLocalWorkingFolder), "Open Local Working Folder", activityType: ButtonActivityType.Everything, Order = 2)]
-        // //[EditorButton(nameof(RefreshLocalFiles), "Refresh Local Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
-        // [EditorButton(nameof(UploadAllFiles), "Upload All Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
-        // [EditorButton(nameof(DeleteAllLocalFiles), "Delete All Local Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
-        // [SerializeField, Disable, BeginGroup("Local Files"), EndGroup, SpaceArea(spaceBefore: 10)] 
-        // //private List<LocalFileDetails> _localFilesAvailable = new();
-
-
-        // //[EditorButton(nameof(RefreshRemoteFiles), "Refresh Remote Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
-        // [EditorButton(nameof(DownloadAllFiles), "Download all Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
-        // [EditorButton(nameof(DeleteAllRemoteFiles), "Delete All Remote Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
-        // [SerializeField, Disable, BeginGroup("Remote Files"), EndGroup, SpaceArea(spaceBefore: 10)] 
-        //private List<RemoteFileDetails> _remoteFilesAvailable = new();
-
-        [SerializeField, IgnoreParent, BeginGroup("Remote File Tasks"), SpaceArea(spaceBefore: 10)] private List<RemoteFileTaskInfo> _queuedTasks = new();
+        [Title("Play mode debug"), SpaceArea(spaceBefore: 10)]
+        [SerializeField, IgnoreParent, BeginGroup("Remote File Tasks")] private List<RemoteFileTaskInfo> _queuedTasks = new();
         [EditorButton(nameof(CancelAllTasks), "Cancel All Tasks", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
         [SerializeField, IgnoreParent, EndGroup] private List<RemoteFileTaskInfo> _completedTasks = new();
 
@@ -172,40 +156,11 @@ namespace VE2_NonCore_FileSystem
             _completedTasks.Clear();
         }
 
-        #region TO-REMOVE-DEBUG //TODO:
-
-        // private void DownloadAllFiles()
-        // {
-        //     foreach (string fileNameAndPath in _fileStorageService.GetAllRemoteFiles.Keys)
-        //         DownloadFile(fileNameAndPath);
-        // }
-
-        // private void UploadAllFiles()
-        // {
-        //     foreach (string fileNameAndPath in _fileStorageService.LocalFiles.Keys)
-        //         UploadFile(fileNameAndPath);
-        // }
-
-        // private void DeleteAllLocalFiles()
-        // {
-        //     List<string> localFileNames = new List<string>(_fileStorageService.LocalFiles.Keys);
-        //     foreach (string fileNameAndPath in localFileNames)
-        //         DeleteLocalFile(fileNameAndPath);
-        // }
-
-        // private void DeleteAllRemoteFiles()
-        // {
-        //     List<string> remoteFileNames = new List<string>(_fileStorageService.GetAllRemoteFiles.Keys);
-        //     foreach (string fileNameAndPath in remoteFileNames)
-        //         DeleteRemoteFile(fileNameAndPath);
-        // }
-
         private void CancelAllTasks()
         {
             List<IRemoteFileTaskInfo> tasks = new(_queuedTasks);
             foreach (RemoteFileTaskInfo task in tasks)
                 task.CancelRemoteFileTask();
         }
-        #endregion
     }
 }
