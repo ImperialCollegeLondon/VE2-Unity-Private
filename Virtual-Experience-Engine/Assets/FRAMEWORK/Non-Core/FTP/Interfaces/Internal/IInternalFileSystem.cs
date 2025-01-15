@@ -23,9 +23,17 @@ namespace VE2_NonCore_FileSystem_Interfaces_Internal
 
         public IRemoteFileTaskInfo DownloadFile(string nameAndPath);
         public IRemoteFileTaskInfo UploadFile(string nameAndPath);
-        //public IRemoteFileTaskInfo DeleteRemoteFile(string nameAndPath); Internal system shouldn't be able to delete files, at least, not yet!
+
+        //Internal system shouldn't be able to delete files, though this may change in future
+        //public IRemoteFileTaskInfo DeleteRemoteFile(string nameAndPath); 
         //public bool DeleteLocalFile(string nameAndPath)'
-        public Dictionary<string, IRemoteFileTaskInfo> GetQueuedFileTasks();
-        public Dictionary<string, IRemoteFileTaskInfo> GetCompletedFileTasks();
+
+        public List<IRemoteFileTaskInfo> GetQueuedFileTasks();
+        public List<IRemoteFileTaskInfo> GetCompletedFileTasks();
+
+        /// <summary>
+        /// Allows the status of tasks to be updated outside play mode, useful for the plugin uploader
+        /// </summary>
+        public void Update();
     }
 }

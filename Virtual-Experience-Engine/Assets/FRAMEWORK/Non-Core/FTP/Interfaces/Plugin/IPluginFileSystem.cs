@@ -29,7 +29,7 @@ namespace VE2_NonCore_FileSystem_Interfaces_Plugin
         public bool DeleteLocalFile(string nameAndPath);
 
 
-        public Dictionary<string, IRemoteFileTaskInfo> GetQueuedFileTasks();
-        public Dictionary<string, IRemoteFileTaskInfo> GetCompletedFileTasks();
+        public List<IRemoteFileTaskInfo> GetQueuedFileTasks();
+        public List<IRemoteFileTaskInfo> GetCompletedFileTasks();
     }
 }

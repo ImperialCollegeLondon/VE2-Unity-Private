@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using Renci.SshNet;
 using UnityEngine;
+using VE2_NonCore_FileSystem_Interfaces_Common;
+using VE2_NonCore_FileSystem_Interfaces_Internal;
 
 namespace VE2_NonCore_FileSystem
 {
@@ -21,113 +23,38 @@ namespace VE2_NonCore_FileSystem
         }
     }
 
-    //This layer used to be responsible for building up a tree of remote and local files, since that functionality was removed, this layer doesn't do much!
-    public class FileSystemService //TODO: Either remove this layer and put the code into V_FileSystemIntegrationBase, or remove code from V_FSIB and have it live here instead
+    //Has the same interface as V_InternalFileSystem. The PluginBuilder/Exporter needs to use this without going through a MonoBehaviour first
+    public class FileSystemService : IInternalFileSystem 
     {
-        #region higher-level interfaces 
+        #region Interfaces 
+        public bool IsFileSystemReady { get; private set; } = false;
+        public event Action OnFileSystemReady;
+        public string LocalWorkingPath {get; private set; }
 
-        public FTPRemoteFileListTask GetRemoteFilesAtPath(string path)  
+
+        public Dictionary<string, LocalFileDetails> GetLocalFilesAtPath(string path)
         {
-            string correctedPath = path.StartsWith("/") ? path.Substring(1) : path;
-            string remotePathAndNameFromWorking = $"{RemoteWorkingPath}/{correctedPath}";
+            Dictionary<string, LocalFileDetails> localFiles = new();
 
-            Debug.Log("Get remote files at " + remotePathAndNameFromWorking);
-            return _ftpService.GetRemoteFilesAtPath(correctedPath);
-        }
-
-        public FTPRemoteFolderListTask GetRemoteFoldersAtPath(string path)
-        {
-            string correctedPath = path.StartsWith("/") ? path.Substring(1) : path;
-            string remotePathAndNameFromWorking = $"{RemoteWorkingPath}/{correctedPath}";
-
-            return _ftpService.GetRemoteFoldersAtPath(correctedPath);
-        }
-
-        public FTPDownloadTask DownloadFile(string workingFileNameAndPath)
-        {
-            Debug.Log($"Queueing file for download: {workingFileNameAndPath}");
-            string fileName = workingFileNameAndPath.Substring(workingFileNameAndPath.LastIndexOf("/") + 1);
-            string remotePathFromWorking = workingFileNameAndPath.Contains("/") ? workingFileNameAndPath.Substring(0, workingFileNameAndPath.LastIndexOf("/")) : "";
-            FTPDownloadTask task = _ftpService.DownloadFile(remotePathFromWorking, fileName);
-            task.OnComplete += OnRemoteDownloadComplete;
-            return task;
-        }
-
-        public FTPUploadTask UploadFile(string workingFileNameAndPath)
-        {
-            Debug.Log($"Queueing file for upload: {workingFileNameAndPath}");
-            string fileName = workingFileNameAndPath.Substring(workingFileNameAndPath.LastIndexOf("/") + 1);
-            string remoteCorrectedFileNameAndPath = workingFileNameAndPath;
-            string remotePathFromWorking = remoteCorrectedFileNameAndPath.Contains("/") ? remoteCorrectedFileNameAndPath.Substring(0, remoteCorrectedFileNameAndPath.LastIndexOf("/")) : "";
-            Debug.Log($"Remote path from working: {remotePathFromWorking}");
-            FTPUploadTask task = _ftpService.UploadFile(remotePathFromWorking, fileName); //No need to refresh manually, will happen automatically
-            return task;
-        }
-
-        public FTPDeleteTask DeleteRemoteFile(string workingFileNameAndPath)
-        {
-            Debug.Log($"Queueing remote file for deletion: {workingFileNameAndPath}");
-            string fileName = workingFileNameAndPath.Substring(workingFileNameAndPath.LastIndexOf("/") + 1);
-            string remotePathFromWorking = workingFileNameAndPath.Contains("/") ? workingFileNameAndPath.Substring(0, workingFileNameAndPath.LastIndexOf("/")) : "";
-            FTPDeleteTask task = _ftpService.DeleteRemoteFileOrEmptyFolder(remotePathFromWorking, fileName);
-            return task;
-        }
-
-        public bool DeleteLocalFile(string workingFileNameAndPath)
-        {
-            Debug.Log($"Deleting local file: {workingFileNameAndPath}");
-            string localPath = $"{LocalWorkingPath}/{workingFileNameAndPath}"; 
-
-            if (File.Exists(localPath))
-            {
-                File.Delete(localPath);
-                
-                string directoryPath = Path.GetDirectoryName(localPath);
-                if (Directory.GetDirectories(directoryPath).Length == 0 && Directory.GetFiles(directoryPath).Length == 0)
-                    Directory.Delete(directoryPath);
-
-                return true;
-            }
-            else
-            {
-                Debug.LogWarning($"File not found: {localPath}");
-                return false;
-            }
-        }
-
-        public Dictionary<string, FileDetails> GetAllLocalFiles()
-        {
-            return GetLocalFilesAtAbsolutePath(LocalWorkingPath, SearchOption.AllDirectories);
-        }
-
-        public Dictionary<string, FileDetails> GetAllLocalFilesAtPath(string path)
-        {
             string correctedPath = path.StartsWith("/") ? path.Substring(1) : path;
             string localAbsolutePath = $"{LocalWorkingPath}/{correctedPath}";
 
-            return GetLocalFilesAtAbsolutePath(localAbsolutePath, SearchOption.TopDirectoryOnly);
-        }
+            if (string.IsNullOrWhiteSpace(localAbsolutePath))
+                throw new ArgumentException("Path cannot be null or empty.", nameof(localAbsolutePath));
 
-        private Dictionary<string, FileDetails> GetLocalFilesAtAbsolutePath(string absoluteLocalPath, SearchOption searchOption) 
-        {
-            Dictionary<string, FileDetails> localFiles = new();
-
-            if (string.IsNullOrWhiteSpace(absoluteLocalPath))
-                throw new ArgumentException("Path cannot be null or empty.", nameof(absoluteLocalPath));
-
-            if (!Directory.Exists(absoluteLocalPath))
-                Directory.CreateDirectory(absoluteLocalPath);
+            if (!Directory.Exists(localAbsolutePath))
+                Directory.CreateDirectory(localAbsolutePath);
 
             try
             {
                 // Get all files recursively
-                string[] files = Directory.GetFiles(absoluteLocalPath, "*", SearchOption.TopDirectoryOnly);
+                string[] files = Directory.GetFiles(localAbsolutePath, "*", SearchOption.TopDirectoryOnly);
                 foreach (string file in files)
                 {
                     FileInfo fileInfo = new(file);
                     string correctedFileFullName = fileInfo.FullName.Replace("\\", "/"); //System.IO gives us paths with back slashes
                     string workingFileNameAndPath = correctedFileFullName.Replace($"{LocalWorkingPath}/", "").TrimStart('/');
-                    localFiles.Add(workingFileNameAndPath, new FileDetails { fileNameAndWorkingPath = workingFileNameAndPath, fileSize = (ulong)fileInfo.Length });
+                    localFiles.Add(workingFileNameAndPath, new LocalFileDetails(workingFileNameAndPath, (ulong)fileInfo.Length, correctedFileFullName));
                 }
             }
             catch (UnauthorizedAccessException ex)
@@ -142,7 +69,7 @@ namespace VE2_NonCore_FileSystem
             return localFiles;
         }
 
-        public List<string> GetAllLocalFoldersAtPath(string path)
+        public List<string> GetLocalFoldersAtPath(string path)
         {
             List<string> localFolders = new();
             string correctedPath = path.StartsWith("/") ? path.Substring(1) : path;
@@ -177,12 +104,107 @@ namespace VE2_NonCore_FileSystem
             return localFolders;
         }
 
+        public IRemoteFileSearchInfo GetRemoteFilesAtPath(string path)
+        {
+            string correctedPath = path.StartsWith("/") ? path.Substring(1) : path;
+            string remotePathAndNameFromWorking = $"{RemoteWorkingPath}/{correctedPath}";
+
+            Debug.Log("Get remote files at " + remotePathAndNameFromWorking);
+
+            FTPRemoteFileListTask task = _ftpService.GetRemoteFilesAtPath(correctedPath);
+            RemoteFileSearchInfo taskInfo = new(task, path);
+            return taskInfo;
+        }
+
+        public IRemoteFolderSearchInfo GetRemoteFoldersAtPath(string path)
+        {
+            string correctedPathFromWorking = path.StartsWith("/") ? path.Substring(1) : path;
+
+            Debug.Log("Get remote folders at " + correctedPathFromWorking);
+
+            FTPRemoteFolderListTask task = _ftpService.GetRemoteFoldersAtPath(correctedPathFromWorking);
+            RemoteFolderSearchInfo taskInfo = new(task, path);
+            return taskInfo;
+        }
+
+        public IRemoteFileTaskInfo DownloadFile(string workingFileNameAndPath)
+        {
+            Debug.Log($"Queueing file for download: {workingFileNameAndPath}");
+            string fileName = workingFileNameAndPath.Substring(workingFileNameAndPath.LastIndexOf("/") + 1);
+            string remotePathFromWorking = workingFileNameAndPath.Contains("/") ? workingFileNameAndPath.Substring(0, workingFileNameAndPath.LastIndexOf("/")) : "";
+            FTPDownloadTask task = _ftpService.DownloadFile(remotePathFromWorking, fileName);
+
+            RemoteFileTaskInfo taskInfo = new(task, RemoteTaskType.Download, 0, workingFileNameAndPath);
+            _queuedTasks.Add(taskInfo);
+            taskInfo.OnTaskCompleted += OnRemoteFileTaskComplete;
+
+            return taskInfo;
+        }
+        public IRemoteFileTaskInfo UploadFile(string workingFileNameAndPath)
+        {
+            Debug.Log($"Queueing file for upload: {workingFileNameAndPath}");
+            string fileName = workingFileNameAndPath.Substring(workingFileNameAndPath.LastIndexOf("/") + 1);
+            string remoteCorrectedFileNameAndPath = workingFileNameAndPath;
+            string remotePathFromWorking = remoteCorrectedFileNameAndPath.Contains("/") ? remoteCorrectedFileNameAndPath.Substring(0, remoteCorrectedFileNameAndPath.LastIndexOf("/")) : "";
+
+            Debug.Log($"Remote path from working: {remotePathFromWorking}");
+            FTPUploadTask task = _ftpService.UploadFile(remotePathFromWorking, fileName); //No need to refresh manually, will happen automatically
+
+            RemoteFileTaskInfo taskInfo = new(task, RemoteTaskType.Upload, 0, workingFileNameAndPath);
+            _queuedTasks.Add(taskInfo);
+            taskInfo.OnTaskCompleted += OnRemoteFileTaskComplete;
+
+            return taskInfo;
+        }
+        public IRemoteFileTaskInfo DeleteRemoteFile(string workingFileNameAndPath)
+        {
+            Debug.Log($"Queueing remote file for deletion: {workingFileNameAndPath}");
+            string fileName = workingFileNameAndPath.Substring(workingFileNameAndPath.LastIndexOf("/") + 1);
+            string remotePathFromWorking = workingFileNameAndPath.Contains("/") ? workingFileNameAndPath.Substring(0, workingFileNameAndPath.LastIndexOf("/")) : "";
+            FTPDeleteTask task = _ftpService.DeleteRemoteFileOrEmptyFolder(remotePathFromWorking, fileName);
+
+            RemoteFileTaskInfo taskInfo = new(task, RemoteTaskType.Delete, 0, workingFileNameAndPath);
+            _queuedTasks.Add(taskInfo);
+            taskInfo.OnTaskCompleted += OnRemoteFileTaskComplete;
+
+            return taskInfo;
+        }
+        public bool DeleteLocalFile(string workingFileNameAndPath)
+        {
+            Debug.Log($"Deleting local file: {workingFileNameAndPath}");
+            string localPath = $"{LocalWorkingPath}/{workingFileNameAndPath}";
+
+            if (File.Exists(localPath))
+            {
+                File.Delete(localPath);
+
+                string directoryPath = Path.GetDirectoryName(localPath);
+                if (Directory.GetDirectories(directoryPath).Length == 0 && Directory.GetFiles(directoryPath).Length == 0)
+                    Directory.Delete(directoryPath);
+
+                return true;
+            }
+            else
+            {
+                Debug.LogWarning($"File not found: {localPath}");
+                return false;
+            }
+        }
+        public List<IRemoteFileTaskInfo> GetQueuedFileTasks() => _queuedTasks;
+        public List<IRemoteFileTaskInfo> GetCompletedFileTasks() => _completedTasks;
+
+        public void Update()
+        {
+            foreach (RemoteFileTaskInfo task in _queuedTasks)
+                task.Update();
+        }
         #endregion
 
 
-        private readonly FTPService _ftpService;
-        public readonly string LocalWorkingPath;
+        private List<IRemoteFileTaskInfo> _queuedTasks = new();
+        private List<IRemoteFileTaskInfo> _completedTasks = new();
 
+        private readonly FTPService _ftpService;
         public readonly string RemoteWorkingPath;
 
         public FileSystemService(FTPService ftpService, string remoteWorkingPath, string localWorkingPath)
@@ -191,11 +213,25 @@ namespace VE2_NonCore_FileSystem
 
             RemoteWorkingPath = remoteWorkingPath;
             LocalWorkingPath = localWorkingPath;
+
+            IsFileSystemReady = true;
+
+            try
+            {
+                OnFileSystemReady?.Invoke();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Error invoking OnFileSystemReady: {e.Message}");
+            }
         }
 
-        private void OnRemoteDownloadComplete(FTPTask task)
+        private void OnRemoteFileTaskComplete(IRemoteFileTaskInfo taskInfo)
         {
-            task.OnComplete -= OnRemoteDownloadComplete;
+            taskInfo.OnTaskCompleted -= OnRemoteFileTaskComplete;
+
+            _queuedTasks.Remove((RemoteFileTaskInfo)taskInfo);
+            _completedTasks.Add((RemoteFileTaskInfo)taskInfo);
         }
 
         public void TearDown() => _ftpService.TearDown();
