@@ -27,7 +27,7 @@ namespace VE2_NonCore_FileSystem
         public bool IsFileStorageServiceReady => _ftpService.IsFTPServiceReady;
         public event Action OnFileStorageServiceReady { add { _ftpService.OnFTPServiceReady += value; } remove { _ftpService.OnFTPServiceReady -= value; } }
 
-        public IRemoteFileSearchInfo GetAllRemoteFiles => _ftpService.RemoteFiles;
+        public FTPRemoteFileListTask GetAllRemoteFiles => _ftpService.RemoteFiles;
         
 
         public FTPDownloadTask DownloadFile(string workingFileNameAndPath)
@@ -80,8 +80,6 @@ namespace VE2_NonCore_FileSystem
                 return false;
             }
         }
-
-        public Dictionary<string, FileDetails> GetAllRemoteFiles => _ftpService.RemoteFiles;
 
         public Dictionary<string, FileDetails> GetAllLocalFiles()
         {

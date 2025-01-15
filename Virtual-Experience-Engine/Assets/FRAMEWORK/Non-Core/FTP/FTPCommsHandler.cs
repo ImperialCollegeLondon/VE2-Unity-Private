@@ -528,6 +528,9 @@ namespace VE2_NonCore_FileSystem
                 Status = FTPStatus.Busy;
 
                 uploadFileTask.MarkInProgress();
+
+                
+
                 FTPCompletionCode completionCode = await UploadThreaded(uploadFileTask);
                 uploadFileTask.MarkCompleted(completionCode);
                 Status = FTPStatus.Ready;
