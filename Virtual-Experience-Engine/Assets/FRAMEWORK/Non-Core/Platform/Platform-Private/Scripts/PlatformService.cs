@@ -60,6 +60,10 @@ namespace VE2.NonCore.Platform.Private
         }
         #endregion
 
+        #region FTP-Facing Interfaces
+        public FTPNetworkSettings FTPNetworkSettings { get; private set; }
+        #endregion
+
         #region Player Settings Interfaces
         public UserSettingsPersistable UserSettings { get; private set; }
         #endregion
@@ -146,6 +150,8 @@ namespace VE2.NonCore.Platform.Private
             UserSettings = serverRegistrationConfirmation.UserSettings;
 
             IsConnectedToServer = true;
+
+            FTPNetworkSettings = new FTPNetworkSettings(serverRegistrationConfirmation.FTPIPAddress, serverRegistrationConfirmation.FTPPortNumber, serverRegistrationConfirmation.FTPUsername, serverRegistrationConfirmation.FTPPassword);
 
             OnConnectedToServer?.Invoke();
             OnGlobalInfoChanged?.Invoke(GlobalInfo);

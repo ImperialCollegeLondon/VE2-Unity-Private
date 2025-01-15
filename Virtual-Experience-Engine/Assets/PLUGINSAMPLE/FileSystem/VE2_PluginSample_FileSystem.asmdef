@@ -1,0 +1,20 @@
+{
+    "name": "VE2_PluginSample_FileSystem",
+    "rootNamespace": "",
+    "references": [
+        "VE2_NonCore_FileSystem_Interfaces_Common",
+        "VE2_NonCore_FileSystem_Interfaces_Plugin",
+        "Unity.TextMeshPro",
+        "Toolbox",
+        "Toolbox.Editor"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

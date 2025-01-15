@@ -3,28 +3,57 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface IInstanceNetworkSettingsProvider //TODO - should also be exposed to the customer??
+public interface IBaseNetworkSettingsProvider //TODO - should also be exposed to the customer??
 {
-    public bool AreInstanceNetworkingSettingsReady { get; }
-    public event Action OnInstanceNetworkSettingsReady;
-    public InstanceNetworkSettings InstanceNetworkSettings { get; }
+    public bool AreNetworkingSettingsReady { get; }
+    public event Action OnNetworkSettingsReady;
     public string GameObjectName { get; }
     public bool IsEnabled { get; }
 }
 
-[Serializable]
-public class InstanceNetworkSettings
+public interface IInstanceNetworkSettingsProvider : IBaseNetworkSettingsProvider
 {
-    [BeginGroup(Style = GroupStyle.Round)]
+   public InstanceNetworkSettings InstanceNetworkSettings { get; }
+}
+
+public interface IFTPNetworkSettingsProvider : IBaseNetworkSettingsProvider
+{
+    public NetworkSettings NetworkSettings { get; }
+}
+
+[Serializable]
+public class NetworkSettings
+{
     [SerializeField] public string IP;
     [SerializeField] public ushort Port;
-    [EndGroup]
-    [SerializeField] public string InstanceCode;
 
-    public InstanceNetworkSettings(string iP, ushort port, string instanceCode)
+    public NetworkSettings(string iP, ushort port)
     {
         IP = iP;
         Port = port;
+    }
+}
+
+[Serializable]
+public class FTPNetworkSettings : NetworkSettings
+{
+    [SerializeField] public string Username;
+    [SerializeField] public string Password;
+
+    public FTPNetworkSettings(string iP, ushort port, string username, string password) : base(iP, port)
+    {
+        Username = username;
+        Password = password;
+    }
+}
+
+[Serializable]
+public class InstanceNetworkSettings : NetworkSettings
+{
+    [SerializeField] public string InstanceCode;
+
+    public InstanceNetworkSettings(string iP, ushort port, string instanceCode) : base(iP, port)
+    {
         InstanceCode = instanceCode;
     }
 }

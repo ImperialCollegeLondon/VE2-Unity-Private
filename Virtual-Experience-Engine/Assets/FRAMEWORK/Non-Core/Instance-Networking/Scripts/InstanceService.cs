@@ -86,20 +86,20 @@ namespace VE2.InstanceNetworking
                 _connectionStateDebugWrapper.ConnectionState != ConnectionState.LostConnection)
                 return;
 
-            if (_networkSettingsProvider.AreInstanceNetworkingSettingsReady)
+            if (_networkSettingsProvider.AreNetworkingSettingsReady)
             {
                 ConnectToServer();
             }
             else
             {
                 _connectionStateDebugWrapper.ConnectionState = ConnectionState.WaitingForConnectionSettings;
-                _networkSettingsProvider.OnInstanceNetworkSettingsReady += ConnectToServer;
+                _networkSettingsProvider.OnNetworkSettingsReady += ConnectToServer;
             }
         }
 
         private void ConnectToServer() //TODO, encapsulate with the above in a ConnectionManager class 
         {
-            _networkSettingsProvider.OnInstanceNetworkSettingsReady -= ConnectToServer;
+            _networkSettingsProvider.OnNetworkSettingsReady -= ConnectToServer;
             _connectionStateDebugWrapper.ConnectionState = ConnectionState.Connecting;
 
             InstanceNetworkSettings instanceConnectionDetails = _networkSettingsProvider.InstanceNetworkSettings;
