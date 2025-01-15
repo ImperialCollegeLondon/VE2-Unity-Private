@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using VE2_NonCore_FileSystem_Interfaces_Common;
 
@@ -102,6 +103,75 @@ namespace VE2_NonCore_FileSystem
                         Debug.LogError($"Error invoking task completed event: {e.Message}");
                     }
                 }
+            }
+        }
+    }
+
+    [Serializable]
+    public class RemoteFileSearchInfo : IRemoteFileSearchInfo
+    {
+
+        [SerializeField, LabelWidth(110f), Disable] private string _nameAndPath; //Relative to working path
+        public string NameAndPath => _nameAndPath;
+
+        public event Action<Dictionary<string, RemoteFileDetails>> OnFilesFound;
+
+        private readonly FTPRemoteFileListTask _task;
+
+        public RemoteFileSearchInfo(FTPRemoteFileListTask task, string nameAndPath)
+        {
+            _task = task;
+            _nameAndPath = nameAndPath;
+            _task.OnComplete += OnTaskComplete;
+        }
+
+        private void OnTaskComplete(FTPTask task) 
+        {
+            Dictionary<string, RemoteFileDetails> files = new();
+
+            foreach (FileDetails file in _task.FoundFilesDetails)
+            {
+                RemoteFileDetails remoteFile = new(file.fileNameAndWorkingPath, file.fileSize);
+                files.Add(file.fileNameAndWorkingPath, remoteFile);
+            }
+
+            try
+            {
+                OnFilesFound?.Invoke(files);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Error invoking task completed event: {e.Message}");
+            }
+        }
+    }
+
+    [Serializable]
+    public class RemoteFolderSearchInfo : IRemoteFolderSearchInfo
+    {
+        [SerializeField, LabelWidth(110f), Disable] private string _path; //Relative to working path
+        public string Path => _path;
+
+        public event Action<List<string>> OnFoldersFound;
+
+        private readonly FTPRemoteFolderListTask _task;
+
+        public RemoteFolderSearchInfo(FTPRemoteFolderListTask task, string nameAndPath)
+        {
+            _task = task;
+            _path = nameAndPath;
+            _task.OnComplete += OnTaskComplete;
+        }
+
+        private void OnTaskComplete(FTPTask task)
+        {
+            try
+            {
+                OnFoldersFound?.Invoke(_task.FoundFolderNames);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Error invoking task completed event: {e.Message}");
             }
         }
     }

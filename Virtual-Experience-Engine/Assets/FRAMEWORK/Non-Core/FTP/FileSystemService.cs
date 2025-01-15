@@ -26,8 +26,9 @@ namespace VE2_NonCore_FileSystem
         #region higher-level interfaces 
         public bool IsFileStorageServiceReady => _ftpService.IsFTPServiceReady;
         public event Action OnFileStorageServiceReady { add { _ftpService.OnFTPServiceReady += value; } remove { _ftpService.OnFTPServiceReady -= value; } }
-        public event Action OnLocalFilesRefreshed;
-        public event Action OnRemoteFilesRefreshed { add { _ftpService.OnRemoteFileListUpdated += value; } remove { _ftpService.OnRemoteFileListUpdated -= value; } }
+
+        public IRemoteFileSearchInfo GetAllRemoteFiles => _ftpService.RemoteFiles;
+        
 
         public FTPDownloadTask DownloadFile(string workingFileNameAndPath)
         {
@@ -71,8 +72,6 @@ namespace VE2_NonCore_FileSystem
                 if (Directory.GetDirectories(directoryPath).Length == 0 && Directory.GetFiles(directoryPath).Length == 0)
                     Directory.Delete(directoryPath);
 
-                RefreshLocalFiles();
-
                 return true;
             }
             else
@@ -82,29 +81,41 @@ namespace VE2_NonCore_FileSystem
             }
         }
 
-        public readonly Dictionary<string, FileDetails> LocalFiles = new();
-        public Dictionary<string, FileDetails> RemoteFiles => _ftpService.RemoteFiles;
+        public Dictionary<string, FileDetails> GetAllRemoteFiles => _ftpService.RemoteFiles;
 
-        public void RefreshLocalFiles()
+        public Dictionary<string, FileDetails> GetAllLocalFiles()
         {
-            LocalFiles.Clear();
+            return GetLocalFilesAtAbsolutePath(LocalWorkingPath, SearchOption.AllDirectories);
+        }
 
-            if (string.IsNullOrWhiteSpace(LocalWorkingPath))
-                throw new ArgumentException("Path cannot be null or empty.", nameof(LocalWorkingPath));
+        public Dictionary<string, FileDetails> GetAllLocalFilesAtPath(string path)
+        {
+            string correctedPath = path.StartsWith("/") ? path.Substring(1) : path;
+            string localAbsolutePath = $"{LocalWorkingPath}/{correctedPath}";
 
-            if (!Directory.Exists(LocalWorkingPath))
-                Directory.CreateDirectory(LocalWorkingPath);
+            return GetLocalFilesAtAbsolutePath(localAbsolutePath, SearchOption.TopDirectoryOnly);
+        }
+
+        private Dictionary<string, FileDetails> GetLocalFilesAtAbsolutePath(string absoluteLocalPath, SearchOption searchOption) 
+        {
+            Dictionary<string, FileDetails> localFiles = new();
+
+            if (string.IsNullOrWhiteSpace(absoluteLocalPath))
+                throw new ArgumentException("Path cannot be null or empty.", nameof(absoluteLocalPath));
+
+            if (!Directory.Exists(absoluteLocalPath))
+                Directory.CreateDirectory(absoluteLocalPath);
 
             try
             {
                 // Get all files recursively
-                string[] files = Directory.GetFiles(LocalWorkingPath, "*", SearchOption.AllDirectories);
+                string[] files = Directory.GetFiles(absoluteLocalPath, "*", SearchOption.TopDirectoryOnly);
                 foreach (string file in files)
                 {
                     FileInfo fileInfo = new(file);
                     string correctedFileFullName = fileInfo.FullName.Replace("\\", "/"); //System.IO gives us paths with back slashes
                     string workingFileNameAndPath = correctedFileFullName.Replace($"{LocalWorkingPath}/", "").TrimStart('/');
-                    LocalFiles.Add(workingFileNameAndPath, new FileDetails { fileNameAndWorkingPath = workingFileNameAndPath, fileSize = (ulong)fileInfo.Length });
+                    localFiles.Add(workingFileNameAndPath, new FileDetails { fileNameAndWorkingPath = workingFileNameAndPath, fileSize = (ulong)fileInfo.Length });
                 }
             }
             catch (UnauthorizedAccessException ex)
@@ -116,10 +127,44 @@ namespace VE2_NonCore_FileSystem
                 Console.WriteLine($"An I/O error occurred: {ex.Message}");
             }
 
-            OnLocalFilesRefreshed?.Invoke();
+            return localFiles;
         }
 
-        public void RefreshRemoteFiles() => _ftpService.RefreshRemoteFileList();
+        public List<string> GetAllLocalFoldersAtPath(string path)
+        {
+            List<string> localFolders = new();
+            string correctedPath = path.StartsWith("/") ? path.Substring(1) : path;
+            string localPath = $"{LocalWorkingPath}/{correctedPath}";
+
+            if (string.IsNullOrWhiteSpace(localPath))
+                throw new ArgumentException("Path cannot be null or empty.", nameof(localPath));
+
+            if (!Directory.Exists(localPath))
+                Directory.CreateDirectory(localPath);
+
+            try
+            {
+                // Get all files recursively
+                string[] folders = Directory.GetDirectories(localPath, "*", SearchOption.TopDirectoryOnly);
+                foreach (string folder in folders)
+                {
+                    string correctedFolderFullName = folder.Replace("\\", "/"); //System.IO gives us paths with back slashes
+                    string workingFolderNameAndPath = correctedFolderFullName.Replace($"{LocalWorkingPath}/", "").TrimStart('/');
+                    localFolders.Add(workingFolderNameAndPath);
+                }
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Console.WriteLine($"Access denied to a directory: {ex.Message}");
+            }
+            catch (IOException ex)
+            {
+                Console.WriteLine($"An I/O error occurred: {ex.Message}");
+            }
+
+            return localFolders;
+        }
+
         #endregion
 
 
@@ -134,16 +179,11 @@ namespace VE2_NonCore_FileSystem
 
             RemoteWorkingPath = remoteWorkingPath;
             LocalWorkingPath = localWorkingPath;
-
-            RefreshLocalFiles();
         }
 
         private void OnRemoteDownloadComplete(FTPTask task)
         {
             task.OnComplete -= OnRemoteDownloadComplete;
-
-            //Could add file manually rather than refreshing, but local refresh doesn't take long 
-            RefreshLocalFiles();
         }
 
         public void TearDown() => _ftpService.TearDown();

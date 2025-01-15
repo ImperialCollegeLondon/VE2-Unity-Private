@@ -15,17 +15,19 @@ namespace VE2_NonCore_FileSystem
         [Title("Play mode debug")]
         [Help("Enter play mode to view local and remote files")]
 
-        [EditorButton(nameof(OpenLocalWorkingFolder), "Open Local Working Folder", activityType: ButtonActivityType.Everything, Order = 2)]
-        [EditorButton(nameof(RefreshLocalFiles), "Refresh Local Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
-        [EditorButton(nameof(UploadAllFiles), "Upload All Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
-        [EditorButton(nameof(DeleteAllLocalFiles), "Delete All Local Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
-        [SerializeField, Disable, BeginGroup("Local Files"), EndGroup, SpaceArea(spaceBefore: 10)] private List<LocalFileDetails> _localFilesAvailable = new();
+        // [EditorButton(nameof(OpenLocalWorkingFolder), "Open Local Working Folder", activityType: ButtonActivityType.Everything, Order = 2)]
+        // //[EditorButton(nameof(RefreshLocalFiles), "Refresh Local Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
+        // [EditorButton(nameof(UploadAllFiles), "Upload All Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
+        // [EditorButton(nameof(DeleteAllLocalFiles), "Delete All Local Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
+        // [SerializeField, Disable, BeginGroup("Local Files"), EndGroup, SpaceArea(spaceBefore: 10)] 
+        // //private List<LocalFileDetails> _localFilesAvailable = new();
 
 
-        [EditorButton(nameof(RefreshRemoteFiles), "Refresh Remote Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
-        [EditorButton(nameof(DownloadAllFiles), "Download all Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
-        [EditorButton(nameof(DeleteAllRemoteFiles), "Delete All Remote Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
-        [SerializeField, Disable, BeginGroup("Remote Files"), EndGroup, SpaceArea(spaceBefore: 10)] private List<RemoteFileDetails> _remoteFilesAvailable = new();
+        // //[EditorButton(nameof(RefreshRemoteFiles), "Refresh Remote Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
+        // [EditorButton(nameof(DownloadAllFiles), "Download all Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
+        // [EditorButton(nameof(DeleteAllRemoteFiles), "Delete All Remote Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
+        // [SerializeField, Disable, BeginGroup("Remote Files"), EndGroup, SpaceArea(spaceBefore: 10)] 
+        //private List<RemoteFileDetails> _remoteFilesAvailable = new();
 
         [SerializeField, IgnoreParent, BeginGroup("Remote File Tasks"), SpaceArea(spaceBefore: 10)] private List<RemoteFileTaskInfo> _queuedTasks = new();
         [EditorButton(nameof(CancelAllTasks), "Cancel All Tasks", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
@@ -33,22 +35,47 @@ namespace VE2_NonCore_FileSystem
 
 
         #region Interfaces 
+
         public bool IsFileSystemReady => _fileStorageService != null ? _fileStorageService.IsFileStorageServiceReady : false;
         public event Action OnFileSystemReady;
-        public void RefreshLocalFiles() => _fileStorageService.RefreshLocalFiles();
-        public void RefreshRemoteFiles() => _fileStorageService.RefreshRemoteFiles();
-        public Dictionary<string, LocalFileDetails> GetLocalFiles() 
+
+        public Dictionary<string, LocalFileDetails> GetAllLocalFiles() 
         {
             Dictionary<string, LocalFileDetails> localFiles = new();
-            _localFilesAvailable.ForEach(file => localFiles.Add(file.NameAndPath, file));
+
+            foreach (var file in _fileStorageService.GetAllLocalFiles())
+                localFiles.Add(file.Key, new LocalFileDetails(file.Key, file.Value.fileSize, Path.Combine(Application.persistentDataPath, _LocalWorkingFilePath, file.Key).Replace("/", "\\")));
+
             return localFiles;
         }
-        public Dictionary<string, RemoteFileDetails> GetRemoteFiles()
+        public Dictionary<string, LocalFileDetails> GetAllLocalFilesAtPath(string path)
         {
-            Dictionary<string, RemoteFileDetails> remoteFiles = new();
-            _remoteFilesAvailable.ForEach(file => remoteFiles.Add(file.NameAndPath, file));
-            return remoteFiles;
+            Dictionary<string, LocalFileDetails> localFiles = new();
+
+            foreach (var file in _fileStorageService.GetAllLocalFilesAtPath(path))
+                localFiles.Add(file.Key, new LocalFileDetails(file.Key, file.Value.fileSize, Path.Combine(Application.persistentDataPath, _LocalWorkingFilePath, file.Key).Replace("/", "\\")));
+
+            return localFiles;
         }
+
+        public List<string> GetAllLocalFoldersAtPath(string path)
+        {
+            return _fileStorageService.GetAllLocalFoldersAtPath(path);
+        }
+
+        public IRemoteFileSearchInfo GetAllRemoteFiles()
+        {
+
+        }
+        public IRemoteFileSearchInfo GetRemoteFilesAtPath()
+        {
+
+        }
+        public IRemoteFolderSearchInfo GetRemoteFoldersAtPath()
+        {
+            
+        }
+
         public IRemoteFileTaskInfo DownloadFile(string nameAndPath)
         {
             FTPDownloadTask task = _fileStorageService.DownloadFile(nameAndPath);
@@ -92,8 +119,6 @@ namespace VE2_NonCore_FileSystem
         {
             _fileStorageService = FileSystemServiceFactory.CreateFileStorageService(ftpNetworkSettings, _LocalWorkingFilePath);
             _fileStorageService.OnFileStorageServiceReady += HandleFileStorageServiceReady;
-            _fileStorageService.OnRemoteFilesRefreshed += HandleRemoteFilesRefreshed;
-            _fileStorageService.OnLocalFilesRefreshed += HandleLocalFilesRefreshed;
         }
 
         private void Update()
@@ -117,7 +142,6 @@ namespace VE2_NonCore_FileSystem
         private void HandleFileStorageServiceReady()
         {
             _fileStorageService.OnFileStorageServiceReady -= HandleFileStorageServiceReady;
-            HandleLocalFilesRefreshed(); //Happens immediately when service is created 
 
             try 
             {
@@ -153,17 +177,10 @@ namespace VE2_NonCore_FileSystem
             }
         }
 
-        private void HandleLocalFilesRefreshed()
-        {
-            _localFilesAvailable.Clear();
-            foreach (var file in _fileStorageService.LocalFiles)
-                _localFilesAvailable.Add(new LocalFileDetails(file.Key, file.Value.fileSize, Path.Combine(Application.persistentDataPath, _LocalWorkingFilePath, file.Key).Replace("/", "\\")));
-        }
-
         private void HandleRemoteFilesRefreshed()
         {
             _remoteFilesAvailable.Clear();
-            foreach (var file in _fileStorageService.RemoteFiles)
+            foreach (var file in _fileStorageService.GetAllRemoteFiles)
                 _remoteFilesAvailable.Add(new RemoteFileDetails(file.Key, file.Value.fileSize));
         }
 
@@ -178,7 +195,7 @@ namespace VE2_NonCore_FileSystem
 
         private void DownloadAllFiles()
         {
-            foreach (string fileNameAndPath in _fileStorageService.RemoteFiles.Keys)
+            foreach (string fileNameAndPath in _fileStorageService.GetAllRemoteFiles.Keys)
                 DownloadFile(fileNameAndPath);
         }
 
@@ -197,7 +214,7 @@ namespace VE2_NonCore_FileSystem
 
         private void DeleteAllRemoteFiles()
         {
-            List<string> remoteFileNames = new List<string>(_fileStorageService.RemoteFiles.Keys);
+            List<string> remoteFileNames = new List<string>(_fileStorageService.GetAllRemoteFiles.Keys);
             foreach (string fileNameAndPath in remoteFileNames)
                 DeleteRemoteFile(fileNameAndPath);
         }

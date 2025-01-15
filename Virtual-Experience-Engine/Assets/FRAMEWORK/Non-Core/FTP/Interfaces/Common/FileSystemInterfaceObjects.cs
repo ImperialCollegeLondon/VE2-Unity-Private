@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace VE2_NonCore_FileSystem_Interfaces_Common
@@ -70,5 +71,17 @@ namespace VE2_NonCore_FileSystem_Interfaces_Common
 
         public bool IsCancellable { get; }
         public void CancelRemoteFileTask();
+    }
+
+    public interface IRemoteFileSearchInfo
+    {
+        public string NameAndPath { get; }
+        public event Action<Dictionary<string, RemoteFileDetails>> OnFilesFound;
+    }
+
+    public interface IRemoteFolderSearchInfo
+    {
+        public string Path { get; }
+        public event Action<List<string>> OnFoldersFound;
     }
 }

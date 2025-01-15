@@ -36,8 +36,8 @@ public class FileHandlerExample : MonoBehaviour
     {
         _pluginFileSystem.OnFileSystemReady -= HandleFileSystemReady;
 
-        Dictionary<string, LocalFileDetails> localFiles = _pluginFileSystem.GetLocalFiles();
-        Dictionary<string, RemoteFileDetails> remoteFiles = _pluginFileSystem.GetRemoteFiles();
+        Dictionary<string, LocalFileDetails> localFiles = _pluginFileSystem.GetAllLocalFiles();
+        Dictionary<string, RemoteFileDetails> remoteFiles = _pluginFileSystem.GetAllRemoteFiles();
 
         Dictionary<string, FileDetails> allFiles = new Dictionary<string, FileDetails>();
         foreach (var file in localFiles)

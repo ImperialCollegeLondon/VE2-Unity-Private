@@ -8,10 +8,15 @@ namespace VE2_NonCore_FileSystem_Interfaces_Plugin
     {
         public bool IsFileSystemReady { get; }
         public event Action OnFileSystemReady;
-        public void RefreshLocalFiles();
-        public void RefreshRemoteFiles();
-        public Dictionary<string, LocalFileDetails> GetLocalFiles();
-        public Dictionary<string, RemoteFileDetails> GetRemoteFiles();
+
+        public Dictionary<string, LocalFileDetails> GetAllLocalFiles();
+        public Dictionary<string, LocalFileDetails> GetLocalFilesAtPath(string path);
+        public List<string> GetLocalFoldersAtPath(string path);
+
+        public IRemoteFileSearchInfo GetAllRemoteFiles();
+        public IRemoteFileSearchInfo GetRemoteFilesAtPath(string path);
+        public IRemoteFolderSearchInfo GetRemoteFoldersAtPath(string path);
+
         public IRemoteFileTaskInfo DownloadFile(string nameAndPath);
         public IRemoteFileTaskInfo UploadFile(string nameAndPath);
         public IRemoteFileTaskInfo DeleteRemoteFile(string nameAndPath);
