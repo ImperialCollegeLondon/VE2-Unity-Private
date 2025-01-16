@@ -8,8 +8,8 @@
         "VE2_Common",
         "VE2.NonCore.Instancing.VComponents.NonInteractableInterfaces",
         "VE2.NonCore.Instancing.VComponents.PluginInterfaces",
-        "VE2.NonCore.Instancing.VComponents.Internal",
-        "VE2.Core.Common"
+        "VE2.Core.Common",
+        "VE2_NonCore_Instancing_VComponents_Internal"
     ],
     "includePlatforms": [
         "Editor"

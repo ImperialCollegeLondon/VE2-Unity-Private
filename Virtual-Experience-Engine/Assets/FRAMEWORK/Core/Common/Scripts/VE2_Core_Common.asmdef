@@ -1,5 +1,5 @@
 {
-    "name": "VE2.Core.Common",
+    "name": "VE2_Core_Common",
     "rootNamespace": "",
     "references": [
         "GUID:696a0953692949b40bec8730e64e1fdd",

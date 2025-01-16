@@ -24,9 +24,10 @@ public static class Configuration
         "Cinemachine",
         "Toolbox",
         "Toolbox.*",
-        "VE2.Core.*",
-        "VE2.NonCore.*",
-        "VE2.Common.*"
+        "VE2_Core_*",
+        "VE2_NonCore_*",
+        "VE2_Common",
+        "VE2_Common_*",
     };
 
 }

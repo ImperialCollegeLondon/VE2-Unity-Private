@@ -1,5 +1,5 @@
 {
-    "name": "VE2_Platform_Integration",
+    "name": "VE2_NonCore_Platform_Integration",
     "rootNamespace": "",
     "references": [
         "GUID:dfea00931ff9cd040aa39c9f5636d898",

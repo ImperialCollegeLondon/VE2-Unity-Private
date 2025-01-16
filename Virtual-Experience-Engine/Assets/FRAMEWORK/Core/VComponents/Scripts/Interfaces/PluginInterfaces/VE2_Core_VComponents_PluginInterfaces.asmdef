@@ -1,5 +1,5 @@
 {
-    "name": "VE2.Core.VComponents.PluginInterfaces",
+    "name": "VE2_Core_VComponents_PluginInterfaces",
     "rootNamespace": "",
     "references": [
         "GUID:c42ddce3965037f4cb71b24109685180",
