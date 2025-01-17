@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using VE2.Common;
 using VE2.NonCore.Instancing.VComponents.NonInteractableInterfaces;
+using VE2.Core.VComponents.InternalInterfaces;
 using static VE2.Common.CommonSerializables;
 
 namespace VE2.NonCore.Instancing.VComponents.Internal
@@ -15,6 +16,7 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
     {
         #region Interfaces
         public IRigidbodySyncableStateModule StateModule => _stateModule;
+        IGrabbableRigidbody _grabbableRigidbody;
         #endregion
 
         #region Modules
@@ -32,6 +34,8 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
         private float _localRealTime = 0f;
         private readonly float _fakePing = 0.0f;
 
+        private bool _isGrabbed = false;
+
         public RigidbodySyncableService(RigidbodySyncableStateConfig config, VE2Serializable state, string id, WorldStateModulesContainer worldStateModulesContainer, RigidbodyWrapper rigidbodyWrapper)
         {
 
@@ -47,13 +51,31 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
             _stateModule.OnHostChanged += HandleHostChanged;
         }
 
+        public RigidbodySyncableService(RigidbodySyncableStateConfig config, VE2Serializable state, string id, WorldStateModulesContainer worldStateModulesContainer, RigidbodyWrapper rigidbodyWrapper, IGrabbableRigidbody grabbableRigidbody)
+            : this(config, state, id, worldStateModulesContainer, rigidbodyWrapper)
+        {
+            _grabbableRigidbody = grabbableRigidbody;
+            _grabbableRigidbody.InternalOnGrab += HandleOnGrab;
+            _grabbableRigidbody.InternalOnDrop += HandleOnDrop;
+        }
+
+        private void HandleOnGrab(ushort grabberClientID)
+        {
+            _isGrabbed = true;
+        }
+
+        private void HandleOnDrop(ushort grabberClientID)
+        {
+            _isGrabbed = false;
+        }
+
         public void HandleFixedUpdate(float fixedTime)
         {
             _stateModule.HandleFixedUpdate();
 
             _localFixedTime = fixedTime;
 
-            if (_stateModule.IsHost)
+            if (_stateModule.IsHost && !_isGrabbed)
             {
                 _stateModule.SetState(fixedTime, _rigidbody.position, _rigidbody.rotation);
             }
@@ -64,7 +86,7 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
         {
             _localRealTime = timeSinceStartup;
 
-            if (!_stateModule.IsHost)
+            if (!_stateModule.IsHost && !_isGrabbed)
             {
                 InterpolateRigidbody();
             }
