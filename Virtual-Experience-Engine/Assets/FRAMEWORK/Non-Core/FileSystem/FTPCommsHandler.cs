@@ -174,7 +174,7 @@ namespace VE2_NonCore_FileSystem
                 catch
                 {
                     //Could not list contents
-                    //Debug.LogError($"SFTP: Could not list contents of {remotePath}");
+                    Debug.LogError($"SFTP: Could not list contents of {remotePath}");
                     _sftpClient.Disconnect(); //break connection
                     return (files, FTPCompletionCode.RemoteFileError);
                 }

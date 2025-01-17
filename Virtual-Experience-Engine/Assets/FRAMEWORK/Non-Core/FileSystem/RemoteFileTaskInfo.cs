@@ -156,6 +156,8 @@ namespace VE2_NonCore_FileSystem
         public List<string> FoldersFound => _task.FoundFolderNames;
         public event Action<IRemoteFolderSearchInfo> OnSearchComplete;
 
+        public string CompletionCode => _task.CompletionCode.ToString();
+
         private readonly FTPRemoteFolderListTask _task;
 
         public RemoteFolderSearchInfo(FTPRemoteFolderListTask task, string nameAndPath)
@@ -173,7 +175,7 @@ namespace VE2_NonCore_FileSystem
             }
             catch (Exception e)
             {
-                Debug.LogError($"Error invoking task completed event: {e.Message}");
+                Debug.LogError($"Error invoking task completed event: {e.Message} -  {e.StackTrace}");
             }
         }
     }

@@ -85,5 +85,6 @@ namespace VE2_NonCore_FileSystem_Interfaces_Common
         public string Path { get; }
         public List<string> FoldersFound { get; }
         public event Action<IRemoteFolderSearchInfo> OnSearchComplete;
+        public string CompletionCode { get; }
     }
 }

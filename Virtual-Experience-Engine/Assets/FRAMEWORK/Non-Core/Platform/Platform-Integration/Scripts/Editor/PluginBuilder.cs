@@ -10,6 +10,9 @@ using System.Text;
 using System.Security.Cryptography;
 using UnityEditor.SceneManagement;
 using VE2.PlatformNetworking;
+using VE2_NonCore_FileSystem_Interfaces_Internal;
+using VE2_NonCore_FileSystem;
+using VE2_NonCore_FileSystem_Interfaces_Common;
 
 //TODO: Need to check for DLLs (rather than just assemblies) referenced the scene/scripts, and include them in the build. E.G Mathnet.Numerics.dll
 
@@ -59,13 +62,98 @@ class VE2PluginBuilderWindow : EditorWindow
     Assembly[] locatedAssemblies = new Assembly[0];
     bool compressBundles = false;
 
+    string worldCategory = "";
     string studentPassword = "";
     string staffPassword = "";
 
     bool passwordsWereIllegal = false;
 
+    private Scene _sceneToExport;
+
+    private IInternalFileSystem _fileSystem;
+    private int _highestRemoteVersionFound = -1;
+
+    private void OnEnable()
+    {
+        _sceneToExport = SceneManager.GetActiveScene();
+        Debug.Log("OnEnable - " + _sceneToExport.name);
+
+        FTPNetworkSettings ftpNetworkSettings = new("13.87.84.200", 22, "ViRSE", "fwf3f3j21r3ed");
+
+        //TODO: maybe just the factory can move to the internal interface asmdef?
+        _fileSystem = FileSystemServiceFactory.CreateFileStorageService(ftpNetworkSettings, $"VE2/Worlds");
+
+        IRemoteFolderSearchInfo worldsSearch = _fileSystem.GetRemoteFoldersAtPath("");
+        worldsSearch.OnSearchComplete += HandleWorldsSearchComplete;
+    }
+
+    private void HandleWorldsSearchComplete(IRemoteFolderSearchInfo worldSearch)
+    {
+        if (worldSearch.CompletionCode.ToUpper().Contains("ERROR"))
+        {
+            Debug.LogError("Error connecting to remote file system");
+        }
+
+        Debug.Log("Found world folders");
+        foreach (string folder in worldSearch.FoldersFound)
+        {
+            Debug.Log(folder);
+        }
+
+        if (!worldSearch.FoldersFound.Contains(_sceneToExport.name))
+        {
+            Debug.Log("No version found for this world, this version will be V1");
+            _highestRemoteVersionFound = 0;
+        }
+        else 
+        {
+            IRemoteFolderSearchInfo versionSearch = _fileSystem.GetRemoteFoldersAtPath(_sceneToExport.name);
+            versionSearch.OnSearchComplete += HandleVersionSearchComplete;
+        }
+    }
+
+    private void HandleVersionSearchComplete(IRemoteFolderSearchInfo search)
+    {
+        search.OnSearchComplete -= HandleVersionSearchComplete;
+
+        Debug.Log("Found version subfolders... " + search.CompletionCode);
+
+        // A regular expression to match strings that consist of 3 digits only
+        Regex numericRegex = new Regex(@"^\d{3}$");
+
+        foreach (string folder in search.FoldersFound)
+        {
+            Debug.Log(folder);
+
+            // Check if the folder name matches the format
+            if (numericRegex.IsMatch(folder))
+            {
+                // Parse the numeric part of the folder name
+                if (int.TryParse(folder, out int folderNumber))
+                {
+                    // Update the highest number if this one is greater
+                    if (folderNumber > _highestRemoteVersionFound)
+                        _highestRemoteVersionFound = folderNumber;
+                }
+            }
+        }
+
+        if (_highestRemoteVersionFound == -1)
+            Debug.Log("No version found for this world, this version will be V1");
+        else
+            Debug.Log($"Found existing versions for this world, this version will be V{_highestRemoteVersionFound + 1}");
+    }
+
+
+    private void OnDisable()
+    {
+        Debug.Log("OnDisable");
+    }
+
     private void OnGUI()
     {
+        Debug.Log("OnGUI");
+
         UnityEngine.SceneManagement.Scene sceneToExport = SceneManager.GetActiveScene();
 
         if (sceneToExport.name == "") //this happens after it starts - use it!
@@ -140,34 +228,48 @@ class VE2PluginBuilderWindow : EditorWindow
 
         EditorGUI.BeginDisabledGroup(!IsBuildOkay());
 
-        EditorGUILayout.LabelField("Leave passwords blank if not required");
+        worldCategory = EditorGUILayout.TextField(
+            "World Category:",
+            worldCategory);
 
-        studentPassword = EditorGUILayout.TextField(
-            "Student password:",
-            studentPassword);
-
-        staffPassword = EditorGUILayout.TextField(
-            "Staff password:",
-            staffPassword);
-
-        if (studentPassword.Length > 0)
+        if (worldCategory.Length == 0)
         {
-            EditorGUILayout.HelpBox("Student passwords are not currently supported in the VE2 framework. Entering one will do no harm, but (at present) it will have no effect.", (UnityEditor.MessageType)MessageType.Info);
+            EditorGUILayout.HelpBox("Please enter a world category", (UnityEditor.MessageType)MessageType.Info);
         }
+        else 
+        {
+            EditorGUILayout.LabelField("Leave passwords blank if not required");
 
-        if (!ArePasswordsLegal())
-        {
-            EditorGUILayout.HelpBox("Passwords can only contain alphanumeric characters, a-z and 0-9, and must be 15 characters or less. No spaces and no symbols!", (UnityEditor.MessageType)MessageType.Error);
-        }
-        else if (GUILayout.Button("Build"))
-        {
-            ExecuteBuild(locatedAssemblies, Path.Combine(destinationPath, worldName), worldName, false);
-            this.Close();
-        }
-        else if (GUILayout.Button("Build with ECS/Burst"))
-        {
-            ExecuteBuild(locatedAssemblies, Path.Combine(destinationPath, worldName), worldName, true);
-            this.Close();
+            studentPassword = EditorGUILayout.TextField(
+                "Student password:",
+                studentPassword);
+
+            staffPassword = EditorGUILayout.TextField(
+                "Staff password:",
+                staffPassword);
+
+            if (studentPassword.Length > 0)
+            {
+                EditorGUILayout.HelpBox("Student passwords are not currently supported in the VE2 framework. Entering one will do no harm, but (at present) it will have no effect.", (UnityEditor.MessageType)MessageType.Info);
+            }
+
+            if (!ArePasswordsLegal())
+            {
+                EditorGUILayout.HelpBox("Passwords can only contain alphanumeric characters, a-z and 0-9, and must be 15 characters or less. No spaces and no symbols!", (UnityEditor.MessageType)MessageType.Error);
+            }
+            else if (worldCategory != "")
+            {
+                if (GUILayout.Button("Build"))
+                {
+                    ExecuteBuild(locatedAssemblies, Path.Combine(destinationPath, worldName), worldName, false);
+                    this.Close();
+                }
+                else if (GUILayout.Button("Build with ECS/Burst"))
+                {
+                    ExecuteBuild(locatedAssemblies, Path.Combine(destinationPath, worldName), worldName, true);
+                    this.Close();
+                }
+            }
         }
 
         EditorGUI.EndDisabledGroup();
