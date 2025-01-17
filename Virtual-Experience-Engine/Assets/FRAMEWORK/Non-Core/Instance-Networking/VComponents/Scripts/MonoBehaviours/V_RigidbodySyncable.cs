@@ -5,6 +5,7 @@ using VE2.Common;
 using VE2.NonCore.Instancing.VComponents.Internal;
 using VE2.NonCore.Instancing.VComponents.NonInteractableInterfaces;
 using VE2.NonCore.Instancing.VComponents.PluginInterfaces;
+using VE2.Core.VComponents.InternalInterfaces;
 
 namespace VE2.NonCore.Instancing.VComponents.MonoBehaviours
 {
@@ -22,16 +23,34 @@ namespace VE2.NonCore.Instancing.VComponents.MonoBehaviours
 
         private void OnEnable()
         {
-            StartCoroutine(nameof(DelayedStart));
+            if (_config.MultiplayerSupport.IsConnectedToServer)
+            {
+                CreateService();
+            }
+            else
+            {
+                _config.MultiplayerSupport.OnConnectedToInstance += CreateService;
+            }
+
+            // StartCoroutine(nameof(DelayedStart));
         }
 
-        private IEnumerator DelayedStart()
+        private void CreateService()
         {
-            yield return new WaitForSeconds(3);
+            _config.MultiplayerSupport.OnConnectedToInstance -= CreateService;
+
             string id = "RBS-" + gameObject.name;
             _rigidbodyWrapper = new(GetComponent<Rigidbody>());
-            _service = new RigidbodySyncableService(_config, _state, id, VE2CoreServiceLocator.Instance.WorldStateModulesContainer, _rigidbodyWrapper);
-            Debug.Log($"Hit OnEnable and created service");
+
+            if (TryGetComponent(out IGrabbableRigidbody grabbableRigidbody))
+            {
+                _service = new RigidbodySyncableService(_config, _state, id, VE2CoreServiceLocator.Instance.WorldStateModulesContainer, _rigidbodyWrapper, grabbableRigidbody);
+            }
+            else
+            {
+                _service = new RigidbodySyncableService(_config, _state, id, VE2CoreServiceLocator.Instance.WorldStateModulesContainer, _rigidbodyWrapper);
+            }
+
         }
 
         private void FixedUpdate()
