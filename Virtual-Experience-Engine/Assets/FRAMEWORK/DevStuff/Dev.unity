@@ -9185,6 +9185,7 @@ MonoBehaviour:
     RepeatedTransmissionConfig:
       TransmissionType: 0
       TransmissionFrequency: 1
+    LogDebugMessages: 1
   _state:
     FixedTime: 0
 --- !u!54 &1871746868

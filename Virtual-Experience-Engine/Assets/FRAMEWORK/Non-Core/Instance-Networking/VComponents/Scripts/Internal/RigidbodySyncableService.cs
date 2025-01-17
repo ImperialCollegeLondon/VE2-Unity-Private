@@ -21,6 +21,7 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
 
         #region Modules
         private readonly RigidbodySyncableStateModule _stateModule;
+        private readonly RigidbodySyncableStateConfig _config;
         #endregion
 
         private IRigidbodyWrapper _rigidbody;
@@ -38,7 +39,7 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
 
         public RigidbodySyncableService(RigidbodySyncableStateConfig config, VE2Serializable state, string id, WorldStateModulesContainer worldStateModulesContainer, RigidbodyWrapper rigidbodyWrapper)
         {
-
+            _config = config;
             _stateModule = new(state, config, id, worldStateModulesContainer);
             _rigidbody = rigidbodyWrapper;
             _isKinematicOnStart = _rigidbody.isKinematic;
@@ -77,6 +78,10 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
 
             if (_stateModule.IsHost && !_isGrabbed)
             {
+                if (_config.LogDebugMessages)
+                {
+                    Debug.Log($"Setting state fixed time {fixedTime}, position {_rigidbody.position}, rotation {_rigidbody.rotation}");
+                }
                 _stateModule.SetState(fixedTime, _rigidbody.position, _rigidbody.rotation);
             }
 
@@ -132,16 +137,21 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
         }
 
         #region Receive States Logic
-        public void HandleReceiveRigidbodyState(float FixedTime, Vector3 Position, Quaternion Rotation)
+        public void HandleReceiveRigidbodyState(float fixedTime, Vector3 position, Quaternion rotation)
         {
             if (!_stateModule.IsHost)
             {
+                if (_config.LogDebugMessages)
+                {
+                    Debug.Log($"Received state fixed time {fixedTime}, position {position}, rotation {rotation}");
+                }
+
                 if (_receivedRigidbodyStates.Count == 0)
                 {
-                    _timeDifferenceFromHost = FixedTime - _localRealTime;
+                    _timeDifferenceFromHost = fixedTime - _localRealTime;
                 }
                     
-                AddReceivedStateToHistory(new(FixedTime, Position, Rotation));
+                AddReceivedStateToHistory(new(fixedTime, position, rotation));
             }
         }
 
@@ -182,16 +192,16 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
                 int index = _receivedRigidbodyStates.FindIndex(rbState => rbState.FixedTime > delayedLocalTime);
 
                 // Get the previous and next states to interpolate betwen
-                (RigidbodySyncableState previous, RigidbodySyncableState next) interpolationStates = GetRelevantRigidbodyStates(index);
+                (RigidbodySyncableState previousState, RigidbodySyncableState nextState) = GetRelevantRigidbodyStates(index);
 
                 ClearHistoricalStates(index);
 
                 // Calculate interpolation parameter
-                float lerpParameter = Mathf.InverseLerp(interpolationStates.previous.FixedTime, interpolationStates.next.FixedTime, delayedLocalTime);
+                float lerpParameter = Mathf.InverseLerp(previousState.FixedTime, nextState.FixedTime, delayedLocalTime);
 
                 // Do the interpolation
-                SetRigidbodyValues(Vector3.Lerp(interpolationStates.previous.Position, interpolationStates.next.Position, lerpParameter),
-                    Quaternion.Slerp(interpolationStates.previous.Rotation, interpolationStates.next.Rotation, lerpParameter));
+                SetRigidbodyValues(Vector3.Lerp(previousState.Position, nextState.Position, lerpParameter),
+                    Quaternion.Slerp(previousState.Rotation, nextState.Rotation, lerpParameter));
             }
         }
 
