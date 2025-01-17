@@ -6,11 +6,12 @@ using VE2.Core.VComponents.InteractableFindables;
 using VE2.Core.VComponents.PluginInterfaces;
 using VE2.Core.VComponents.InteractableInterfaces;
 using VE2.Core.VComponents.Internal;
+using VE2.Core.VComponents.InternalInterfaces;
 using System.Collections.Generic;
 
 namespace VE2.Core.VComponents.Integration
 {
-    internal class V_FreeGrabbable : MonoBehaviour, IV_FreeGrabbable, IRangedGrabPlayerInteractableIntegrator
+    internal class V_FreeGrabbable : MonoBehaviour, IV_FreeGrabbable, IRangedGrabPlayerInteractableIntegrator, IGrabbableRigidbody
     {
         [SerializeField, HideLabel, IgnoreParent] private FreeGrabbableConfig _config = new();
         [SerializeField, HideInInspector] private FreeGrabbableState _state = new();
@@ -26,11 +27,26 @@ namespace VE2.Core.VComponents.Integration
 
         private FreeGrabbableService _service = null;
         private RigidbodyWrapper _rigidbodyWrapper = null;
+
+        private Action<ushort> _internalOnGrab;
+        event Action<ushort> IGrabbableRigidbody.InternalOnGrab
+        {
+            add { _internalOnGrab += value; }
+            remove {  _internalOnGrab -= value; }
+        }
+
+        private Action<ushort> _internalOnDrop;
+        event Action<ushort> IGrabbableRigidbody.InternalOnDrop
+        {
+            add { _internalOnDrop += value; }
+            remove { _internalOnDrop -= value; }
+        }
+
         private void OnEnable()
         {
             string id = "FreeGrabbable-" + gameObject.name;
 
-            List<IHandheldInteractionModule> handheldInteractions = new(); 
+            List<IHandheldInteractionModule> handheldInteractions = new();
 
             if(TryGetComponent(out V_HandheldActivatable handheldActivatable))
                 handheldInteractions.Add(handheldActivatable.HandheldClickInteractionModule);
@@ -47,6 +63,9 @@ namespace VE2.Core.VComponents.Integration
                 VE2CoreServiceLocator.Instance.InteractorContainer,
                 _rigidbodyWrapper,
                 Resources.Load<PhysicsConstants>("PhysicsConstants"));
+
+            _service.OnGrabConfirmed += HandleGrabConfirmed;
+            _service.OnDropConfirmed += HandleDropConfirmed;
         }
 
         private void FixedUpdate()
@@ -56,8 +75,22 @@ namespace VE2.Core.VComponents.Integration
 
         private void OnDisable()
         {
+            _service.OnGrabConfirmed -= HandleGrabConfirmed;
+            _service.OnDropConfirmed -= HandleDropConfirmed;
+
             _service.TearDown();
             _service = null;
         }
+
+        private void HandleGrabConfirmed(ushort grabberID)
+        {
+            _internalOnGrab?.Invoke(grabberID);
+        }
+
+        private void HandleDropConfirmed(ushort grabberID)
+        {
+            _internalOnDrop?.Invoke(grabberID);
+        }
+
     }
 }

@@ -35,6 +35,9 @@ namespace VE2.Core.VComponents.Internal
         private bool _isKinematicOnStart;
         private PhysicsConstants _physicsConstants;
 
+        public event Action<ushort> OnGrabConfirmed;
+        public event Action<ushort> OnDropConfirmed;
+
         public FreeGrabbableService(List<IHandheldInteractionModule> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id, 
             WorldStateModulesContainer worldStateModulesContainer, InteractorContainer interactorContainer, 
             IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants)
@@ -53,18 +56,22 @@ namespace VE2.Core.VComponents.Internal
             _StateModule.OnDropConfirmed += HandleDropConfirmed;
         }
 
+
+
         // private void HandleLocalInteractorRequestGrab(InteractorID interactorID) =>  _StateModule.SetGrabbed(interactorID);
 
         // private void HandleLocalInteractorRequestDrop(InteractorID interactorID) => _StateModule.SetDropped(interactorID);
-        
-        private void HandleGrabConfirmed()
+
+        private void HandleGrabConfirmed(ushort grabberClientID)
         {
             _rigidbody.isKinematic = false;
+            OnGrabConfirmed?.Invoke(grabberClientID);
         }
     
-        private void HandleDropConfirmed()
+        private void HandleDropConfirmed(ushort dropperClientID)
         {
             _rigidbody.isKinematic = _isKinematicOnStart;
+            OnDropConfirmed?.Invoke(dropperClientID);
         } 
 
         public void HandleFixedUpdate()

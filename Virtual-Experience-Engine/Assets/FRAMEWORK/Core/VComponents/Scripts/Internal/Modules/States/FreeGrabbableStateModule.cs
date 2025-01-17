@@ -37,8 +37,8 @@ namespace VE2.Core.VComponents.Internal
         private readonly IRangedGrabInteractionModule _rangedGrabInteractionModule;
 
         internal IInteractor CurrentGrabbingInteractor { get; private set; }
-        internal event Action OnGrabConfirmed;
-        internal event Action OnDropConfirmed;
+        internal event Action<ushort> OnGrabConfirmed;
+        internal event Action<ushort> OnDropConfirmed;
 
         public FreeGrabbableStateModule(VE2Serializable state, BaseStateConfig config, string id, 
             WorldStateModulesContainer worldStateModulesContainer, InteractorContainer interactorContainer, IRangedGrabInteractionModule rangedGrabInteractionModule) : 
@@ -61,7 +61,7 @@ namespace VE2.Core.VComponents.Internal
                 _state.StateChangeNumber++;
 
                 interactor.ConfirmGrab(_rangedGrabInteractionModule);
-                OnGrabConfirmed?.Invoke();
+                OnGrabConfirmed?.Invoke(interactorID.ClientID);
 
                 try
                 {
@@ -91,7 +91,7 @@ namespace VE2.Core.VComponents.Internal
             if (_interactorContainer.Interactors.TryGetValue(interactorID.ToString(), out IInteractor interactor))
                 interactor.ConfirmDrop();
 
-            OnDropConfirmed?.Invoke();
+            OnDropConfirmed?.Invoke(interactorID.ClientID);
 
             try
             {
