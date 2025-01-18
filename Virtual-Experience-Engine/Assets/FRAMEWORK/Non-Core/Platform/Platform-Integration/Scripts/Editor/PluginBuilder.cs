@@ -308,7 +308,7 @@ class VE2PluginBuilderWindow : EditorWindow
         //BUILD ##########################################################################
         //################################################################################
 
-        string destinationPath = Path.Combine(Application.persistentDataPath, "VE2", "Worlds", _worldFolderName, (_highestRemoteVersionFound + 1).ToString("D3"));
+        string destinationPath = Path.Combine(Application.persistentDataPath, "files", "VE2", "Worlds", _worldFolderName, (_highestRemoteVersionFound + 1).ToString("D3"));
 
         if (GUILayout.Button("Build"))
         {
@@ -347,7 +347,7 @@ class VE2PluginBuilderWindow : EditorWindow
     {
         BuildBundle(bundleName, destinationFolder); //editor script problems here
 
-        //DoScriptOnlyBuild(destinationFolder, assembliesToInclude.Select(ExtractFileName), bundleName, ecsOrBurst); //AND here!
+        DoScriptOnlyBuild(destinationFolder, assembliesToInclude.Select(ExtractFileName), bundleName, ecsOrBurst); //AND here!
 
         MakeMetadata(destinationFolder);
         // if (BuildExists) DoScriptOnlyBuild();
@@ -380,7 +380,7 @@ class VE2PluginBuilderWindow : EditorWindow
         string metadata = "studentPassword=" + GetSHA256Hash(studentPassword) + "\n";
         metadata += "staffPassword=" + GetSHA256Hash(staffPassword) + "\n";
 
-        File.WriteAllText(destinationFolder + "/export/metadata.txt", metadata);
+        File.WriteAllText(destinationFolder + "/metadata.txt", metadata);
     }
 
     // if you select C:\bundle\ as bundle location, then it will create two folders:
@@ -404,7 +404,7 @@ class VE2PluginBuilderWindow : EditorWindow
         foreach (var name in managedAssemblyNames)
         {
             var finalName = Path.Combine(managedAssembliesDirectory, name);
-            FileUtil.CopyFileOrDirectory(finalName, Path.Combine(destination, "export", name));
+            FileUtil.CopyFileOrDirectory(finalName, Path.Combine(destination, name));
             Debug.Log("Added managed DLL " + finalName + " to export");
         }
 
@@ -413,10 +413,12 @@ class VE2PluginBuilderWindow : EditorWindow
             var burstAssemblyName = Path.Combine(destination, "__build", "plugin_Data", "Plugins", "x86_64", "lib_burst_generated.dll");
             if (File.Exists(burstAssemblyName))
             {
-                FileUtil.CopyFileOrDirectory(burstAssemblyName, Path.Combine(destination, "export", $"lib_burst_generated_{bundleName}.dll"));
+                FileUtil.CopyFileOrDirectory(burstAssemblyName, Path.Combine(destination, $"lib_burst_generated_{bundleName}.dll"));
                 Debug.Log("Added burst DLL " + burstAssemblyName + " to export");
             }
         }
+
+        CleanupScriptBuild(destination);
     }
 
     private string ExtractFileName(Assembly assembly)
@@ -428,7 +430,7 @@ class VE2PluginBuilderWindow : EditorWindow
     {
         name = name.ToLowerInvariant();
 
-        destinationFolder = Path.Combine(destinationFolder, "export"); //TODO: Do we want this to be export? Everything gets dumped in one folder, but export is what we want here?
+        //destinationFolder = Path.Combine(destinationFolder, "export"); //TODO: Do we want this to be export? Everything gets dumped in one folder, but export is what we want here?
 
         if (Directory.Exists(destinationFolder))
             FileUtil.DeleteFileOrDirectory(destinationFolder);
@@ -454,33 +456,10 @@ class VE2PluginBuilderWindow : EditorWindow
         //manfiest.
         Debug.Log(destinationFolder);
 
-        CleanupBuild(destinationFolder, new[] { $"{name}.bundle" });
+        CleanupBundleBuild(destinationFolder, new[] { $"{name}.bundle" });
     }
 
-    private IEnumerable<string> GetSubscenePaths()
-    {
-        var subscenePaths = new List<string>();
-
-        // Get the directory path for subscenes
-        var subsceneDirectory = Path.GetDirectoryName(scenePath) + "/subscenes";
-
-        // Check if the subscenes directory exists
-        if (Directory.Exists(subsceneDirectory))
-        {
-            // Search for scenes in the subscenes directory
-            var subsceneFiles = Directory.GetFiles(subsceneDirectory, "*.unity");
-
-            // Add the paths of found subscenes
-            foreach (var subsceneFile in subsceneFiles)
-            {
-                subscenePaths.Add(subsceneFile);
-            }
-        }
-
-        return subscenePaths;
-    }
-
-    private void CleanupBuild(string destinationFolder, IEnumerable<string> allowedNames)
+    private void CleanupBundleBuild(string destinationFolder, IEnumerable<string> allowedNames)
     {
         var set = new HashSet<string>(allowedNames);
         // remove unnecessary bundle files:
@@ -493,6 +472,15 @@ class VE2PluginBuilderWindow : EditorWindow
                 FileUtil.DeleteFileOrDirectory(file.FullName);
             }
         }
+    }
+
+    private void CleanupScriptBuild(string destinationFolder)
+    {
+        string buildFolderPath = Path.Combine(destinationFolder, "__build");
+        Debug.Log($"PRE Delete build folder {buildFolderPath}");
+
+        bool deleteSuccess = FileUtil.DeleteFileOrDirectory(buildFolderPath);
+        Debug.Log($"Delete build folder {buildFolderPath} success: {deleteSuccess}");
     }
 
     private void GetSceneDataAndScripts(UnityEngine.SceneManagement.Scene sceneToExport)
