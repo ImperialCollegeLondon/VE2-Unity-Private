@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -11,3 +13,5 @@ public class DebugPlayerThings : MonoBehaviour
             EditorUtility.RequestScriptReload();
     }
 }
+
+#endif

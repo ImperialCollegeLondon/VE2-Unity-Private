@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -51,7 +53,7 @@ class VE2PluginBuilderWindow : EditorWindow
 {
     bool isSceneDirty = true;
     string scenePath = "";
-    string destinationPath = "";
+    //string destinationPath = "";
 
 #pragma warning disable 0414 // private field assigned but not used.
     bool pathContainsFiles = false;
@@ -170,8 +172,6 @@ class VE2PluginBuilderWindow : EditorWindow
 
     private void OnGUI()
     {
-        Debug.Log("OnGUI");
-
         UnityEngine.SceneManagement.Scene sceneToExport = SceneManager.GetActiveScene();
 
         if (sceneToExport.name == "") //this happens after it starts - use it!
@@ -211,11 +211,6 @@ class VE2PluginBuilderWindow : EditorWindow
             return;
         }
 
-        // PATH SELECTOR?
-        destinationPath = Application.persistentDataPath + "/build";
-        Directory.CreateDirectory(destinationPath);
-
-
         if (isSceneDirty)
         {
             EditorGUILayout.HelpBox("Your scene has unsaved changes - please save your scene to continue", (UnityEditor.MessageType)MessageType.Error);
@@ -244,7 +239,7 @@ class VE2PluginBuilderWindow : EditorWindow
             EditorGUILayout.HelpBox(assemblyDiagnostics, (UnityEditor.MessageType)MessageType.Info);
         }
 
-        EditorGUI.BeginDisabledGroup(!IsBuildOkay());
+        EditorGUI.BeginDisabledGroup(!assembliesValid);
 
         EditorGUILayout.Separator();
 
@@ -313,14 +308,16 @@ class VE2PluginBuilderWindow : EditorWindow
         //BUILD ##########################################################################
         //################################################################################
 
+        string destinationPath = Path.Combine(Application.persistentDataPath, "VE2", "Worlds", _worldFolderName, (_highestRemoteVersionFound + 1).ToString("D3"));
+
         if (GUILayout.Button("Build"))
         {
-            ExecuteBuild(locatedAssemblies, Path.Combine(destinationPath, worldName), worldName, false);
+            ExecuteBuild(locatedAssemblies, destinationPath, worldName, false);
             this.Close();
         }
         else if (GUILayout.Button("Build with ECS/Burst"))
         {
-            ExecuteBuild(locatedAssemblies, Path.Combine(destinationPath, worldName), worldName, true);
+            ExecuteBuild(locatedAssemblies, destinationPath, worldName, true);
             this.Close();
         }
         
@@ -340,17 +337,17 @@ class VE2PluginBuilderWindow : EditorWindow
     }
 
 
-    bool IsBuildOkay()
-    {
-        return !string.IsNullOrEmpty(destinationPath) && assembliesValid;
-    }
+    // bool IsBuildOkay()
+    // {
+    //     return !string.IsNullOrEmpty(destinationPath) && assembliesValid;
+    // }
 
 
     private void ExecuteBuild(IEnumerable<Assembly> assembliesToInclude, string destinationFolder, string bundleName, bool ecsOrBurst)
     {
-        BuildBundle(bundleName, destinationFolder);
+        BuildBundle(bundleName, destinationFolder); //editor script problems here
 
-        DoScriptOnlyBuild(destinationFolder, assembliesToInclude.Select(ExtractFileName), bundleName, ecsOrBurst);
+        //DoScriptOnlyBuild(destinationFolder, assembliesToInclude.Select(ExtractFileName), bundleName, ecsOrBurst); //AND here!
 
         MakeMetadata(destinationFolder);
         // if (BuildExists) DoScriptOnlyBuild();
@@ -431,38 +428,18 @@ class VE2PluginBuilderWindow : EditorWindow
     {
         name = name.ToLowerInvariant();
 
-        destinationFolder = Path.Combine(destinationFolder, "export");
+        destinationFolder = Path.Combine(destinationFolder, "export"); //TODO: Do we want this to be export? Everything gets dumped in one folder, but export is what we want here?
 
         if (Directory.Exists(destinationFolder))
             FileUtil.DeleteFileOrDirectory(destinationFolder);
 
-        List<string> assetPaths = new List<string>();
 
-        // Include main scene path
-        assetPaths.Add(scenePath);
-
-        // Include paths of subscenes
-        foreach (var subscenePath in GetSubscenePaths())
-        {
-            // Explicitly load the subscene and add it as a dependency
-            var subscene = EditorSceneManager.OpenScene(subscenePath, OpenSceneMode.Additive);
-            if (subscene.IsValid())
-            {
-                assetPaths.Add(subscenePath);
-                SceneManager.MergeScenes(subscene, SceneManager.GetActiveScene());
-            }
-            else
-            {
-                Debug.LogError("Failed to load subscene: " + subscenePath);
-            }
-        }
-
-        var buildMap = new AssetBundleBuild[]
-        {
-            new AssetBundleBuild()
-            {
+        var buildMap = new AssetBundleBuild[] {
+            new AssetBundleBuild() {
                 assetBundleName = $"{name}.bundle",
-                assetNames = assetPaths.ToArray(),
+                assetNames = new[] {
+                    scenePath,
+                },
             },
         };
 
@@ -635,3 +612,4 @@ class VE2PluginBuilderWindow : EditorWindow
     // }
 }
 
+#endif
