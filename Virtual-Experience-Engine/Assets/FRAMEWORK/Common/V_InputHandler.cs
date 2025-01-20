@@ -116,26 +116,21 @@ namespace VE2.Core.Common
         private readonly InputAction _inputAction;
         private float _minThreshold;
         private bool _isTurnRight;
-        private float _delay;
-        private float _lastTurnTime;
+        private bool _hasTurned;
 
-        public SnapTurnInput(InputAction inputAction, float minThreshold, float delay = 0.5f) //TODO: Find a way to set the delay in a config file
+        public SnapTurnInput(InputAction inputAction, float minThreshold) //TODO: Find a way to set the delay in a config file
         {
             _inputAction = inputAction;
             _inputAction.Enable();
             _minThreshold = minThreshold;
-            _delay = delay;
-            _lastTurnTime = -delay; 
+            _inputAction.canceled += ctx => _hasTurned = false;
         }
 
         public void HandleUpdate()
         {
             float inputValue = _inputAction.ReadValue<Vector2>().x;
 
-            if (!(inputValue < -_minThreshold || inputValue > _minThreshold))
-                return;
-
-            if (Time.time - _lastTurnTime < _delay)
+            if (_hasTurned || !(inputValue < -_minThreshold || inputValue > _minThreshold))
                 return;
 
             _isTurnRight = inputValue > 0;
@@ -143,15 +138,13 @@ namespace VE2.Core.Common
             if (_isTurnRight)
             {
                 OnSnapTurnRight?.Invoke();
-                Debug.Log("Snap Turn Right Invoked");
             }
             else
             {
                 OnSnapTurnLeft?.Invoke();
-                Debug.Log("Snap Turn Left Invoked");
             }
 
-            _lastTurnTime = Time.time;
+            _hasTurned = true;
         }
     }
     #endregion
