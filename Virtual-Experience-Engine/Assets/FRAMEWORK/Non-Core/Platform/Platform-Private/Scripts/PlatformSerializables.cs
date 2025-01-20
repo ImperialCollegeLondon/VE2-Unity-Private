@@ -247,10 +247,10 @@ namespace VE2.PlatformNetworking
                 // Deserialize CompletedTutporial
                 CompletedTutorial = reader.ReadBoolean();
 
-                FTPIPAddress = reader.ReadString();
-                FTPPortNumber = reader.ReadUInt16();
-                FTPUsername = reader.ReadString();
-                FTPPassword = reader.ReadString();
+                // FTPIPAddress = reader.ReadString();
+                // FTPPortNumber = reader.ReadUInt16();
+                // FTPUsername = reader.ReadString();
+                // FTPPassword = reader.ReadString();
             }
         }
 

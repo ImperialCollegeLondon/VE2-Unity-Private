@@ -1,8 +1,10 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using VE2_NonCore_FileSystem_Interfaces_Common;
+using VE2_NonCore_FileSystem_Interfaces_Internal;
 using VE2_NonCore_FileSystem_Interfaces_Plugin;
 
 public class HubFileHandlerExample : MonoBehaviour
@@ -15,55 +17,61 @@ public class HubFileHandlerExample : MonoBehaviour
     [SerializeField] private GameObject _fileUIObjectPrefab;
 
     [SerializeField] private GameObject _fileSystemGameObject;
-    private IPluginFileSystem _pluginFileSystem => _fileSystemGameObject.GetComponent<IPluginFileSystem>();
+    private IInternalFileSystem _fileSystem => _fileSystemGameObject.GetComponent<IInternalFileSystem>();
 
     // private List<VerticalLayoutGroup> _fileUIObjectVerticalGroups = new List<VerticalLayoutGroup>();
     // private List<FileUIObjectExample> _fileUIObjects = new List<FileUIObjectExample>();
-    private List<(HorizontalLayoutGroup, List<FileUIObjectExample>)> _fileObjectHorizontalGroups = new();
+    private List<(HorizontalLayoutGroup, List<HubFileUIObjectExample>)> _fileObjectHorizontalGroups = new();
 
     void OnEnable()
     {
-        if (_pluginFileSystem.IsFileSystemReady)
+        if (_fileSystem.IsFileSystemReady)
             HandleFileSystemReady();
         else
-            _pluginFileSystem.OnFileSystemReady += HandleFileSystemReady;
+            _fileSystem.OnFileSystemReady += HandleFileSystemReady;
     }
 
     private void HandleFileSystemReady() 
     {
-        _pluginFileSystem.OnFileSystemReady -= HandleFileSystemReady;
+        _fileSystem.OnFileSystemReady -= HandleFileSystemReady;
         StartSearch();
     }
 
     private void StartSearch() 
     {
-        IRemoteFileSearchInfo task = _pluginFileSystem.GetRemoteFilesAtPath(folderToSearch); //TODO: This needs to be folders instead!
-        task.OnSearchComplete += OnGetRemoteFiles;
+        IRemoteFolderSearchInfo task = _fileSystem.GetRemoteFoldersAtPath(folderToSearch); //TODO: This needs to be folders instead!
+        task.OnSearchComplete += HandleGetRemoteFolders;
     }
 
-    private void OnGetRemoteFiles(IRemoteFileSearchInfo search)
+    private void HandleGetRemoteFolders(IRemoteFolderSearchInfo search)
     {
-        Dictionary<string, RemoteFileDetails> remoteFiles = search.FilesFound;
-        Dictionary<string, LocalFileDetails> localFiles = _pluginFileSystem.GetLocalFilesAtPath(folderToSearch);
+        Debug.Log("Got remote folders! " + search.CompletionCode + " - " + search.FoldersFound.Count);
 
-        Dictionary<string, FileDetails> allFiles = new Dictionary<string, FileDetails>();
-        foreach (var file in localFiles)
-            allFiles.Add(file.Key, file.Value);
+        /*
+            Get list of worlds from server. Foreach world, make a UI for it, that's it!
+        */
+        List<string> localWorlds = _fileSystem.GetLocalFoldersAtPath(folderToSearch);
 
-        foreach (var file in remoteFiles)
-            if (!allFiles.ContainsKey(file.Key))
-                allFiles.Add(file.Key, file.Value);
-
-        foreach (var file in allFiles)
+        foreach (string remoteWorldFolder in search.FoldersFound)
         {
-            bool isAvailableLocally = localFiles.ContainsKey(file.Key);
-            bool isAvailableRemotely = remoteFiles.ContainsKey(file.Key);
+            //TODO: FOR VE2===================================================================
+            //================================================================================
+
+            //We can look here to check if we have something locally. 
+            //If we know the world folder isn't there, we can tell the ui object, and save it from
+            //Making a request to the server to check if it's there so it does the first run faster 
+            bool isAvailableLocally = localWorlds.Contains(remoteWorldFolder);
+
+            //================================================================================
+            //TODO: FOR VE2===================================================================
+
+
 
             GameObject FileUIObjectGO = Instantiate(_fileUIObjectPrefab, null);
-            FileUIObjectExample fileUIObject = FileUIObjectGO.GetComponent<FileUIObjectExample>();
-            fileUIObject.Setup(_pluginFileSystem, file.Value, isAvailableLocally, isAvailableRemotely);
+            HubFileUIObjectExample hubFileUIObject = FileUIObjectGO.GetComponent<HubFileUIObjectExample>();
+            hubFileUIObject.Setup(_fileSystem, remoteWorldFolder);
 
-            (HorizontalLayoutGroup, List<FileUIObjectExample>) lastHorizontalGroup = _fileObjectHorizontalGroups.Count > 0 ? _fileObjectHorizontalGroups[_fileObjectHorizontalGroups.Count - 1] : (null, null);
+            (HorizontalLayoutGroup, List<HubFileUIObjectExample>) lastHorizontalGroup = _fileObjectHorizontalGroups.Count > 0 ? _fileObjectHorizontalGroups[_fileObjectHorizontalGroups.Count - 1] : (null, null);
 
             if (lastHorizontalGroup.Item1 == null || lastHorizontalGroup.Item2.Count == 3) //We need a new horizontal group!
             {
@@ -75,16 +83,16 @@ public class HubFileHandlerExample : MonoBehaviour
                 HorizontalLayoutGroup horizontalLayoutGroup = fileObjectHorizontalGroupGO.GetComponent<HorizontalLayoutGroup>();
                 FileUIObjectGO.transform.SetParent(horizontalLayoutGroup.transform, false);
 
-                _fileObjectHorizontalGroups.Add((horizontalLayoutGroup, new List<FileUIObjectExample> { fileUIObject }));
+                _fileObjectHorizontalGroups.Add((horizontalLayoutGroup, new List<HubFileUIObjectExample> { hubFileUIObject }));
             }
             else
             {
                 FileUIObjectGO.transform.SetParent(lastHorizontalGroup.Item1.transform, false);
-                lastHorizontalGroup.Item2.Add(fileUIObject);
+                lastHorizontalGroup.Item2.Add(hubFileUIObject);
             }
 
-            fileUIObject.transform.localPosition = Vector3.zero;
-            fileUIObject.transform.localRotation = Quaternion.identity;
+            hubFileUIObject.transform.localPosition = Vector3.zero;
+            hubFileUIObject.transform.localRotation = Quaternion.identity;
         }
     }
 

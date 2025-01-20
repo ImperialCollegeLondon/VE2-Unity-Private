@@ -15,7 +15,7 @@ namespace VE2_NonCore_FileSystem
 
     public struct FileDetails
     {
-        public string fileNameAndWorkingPath;
+        public string fileName;
         public ulong fileSize;
     }
 
@@ -93,7 +93,7 @@ namespace VE2_NonCore_FileSystem
                     foreach (SftpFile file in files)
                     {
                         if (!file.IsDirectory)
-                            returnFiles.Add(new FileDetails() { fileNameAndWorkingPath = file.Name, fileSize = (ulong)file.Length });
+                            returnFiles.Add(new FileDetails() { fileName = file.Name, fileSize = (ulong)file.Length });
                     }
 
                     fileListTask.FoundFilesDetails = returnFiles;

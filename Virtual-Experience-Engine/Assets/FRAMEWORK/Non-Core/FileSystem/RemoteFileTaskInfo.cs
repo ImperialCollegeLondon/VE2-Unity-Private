@@ -131,8 +131,8 @@ namespace VE2_NonCore_FileSystem
             {
                 foreach (FileDetails file in _task.FoundFilesDetails)
                 {
-                    RemoteFileDetails remoteFile = new(file.fileNameAndWorkingPath, file.fileSize);
-                    FilesFound.Add(file.fileNameAndWorkingPath, remoteFile);
+                    RemoteFileDetails remoteFile = new(file.fileName, file.fileSize);
+                    FilesFound.Add($"{_path}/{file.fileName}", remoteFile);
                 }
             }
 

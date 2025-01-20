@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.RegularExpressions;
 using TMPro;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
 using VE2_NonCore_FileSystem_Interfaces_Common;
+using VE2_NonCore_FileSystem_Interfaces_Internal;
 using VE2_NonCore_FileSystem_Interfaces_Plugin;
 
 public class HubFileUIObjectExample : MonoBehaviour
@@ -29,45 +31,50 @@ public class HubFileUIObjectExample : MonoBehaviour
     [SerializeField] private Button _playButton;
 
     private IRemoteFileTaskInfo _currentRemoteTask;
+    private int _activeRemoteVersion;
 
-    private IPluginFileSystem _fileSystem;
-    private FileDetails _fileDetails;
+    private IInternalFileSystem _fileSystem;
+    private string _worldFolder;
 
-    public void Setup(IPluginFileSystem fileSystem, FileDetails fileDetails)
+    public void Setup(IInternalFileSystem fileSystem, string worldFolder)
     {
         _fileSystem = fileSystem;
 
-        _fileDetails = fileDetails;
+        _worldFolder = worldFolder;
 
-        string worldFolderName = fileDetails.NameAndPath.Substring(fileDetails.NameAndPath.IndexOf('/') + 1);
+        string worldFolderName = _worldFolder.Substring(_worldFolder.IndexOf('/') + 1);
         _categoryText.text = worldFolderName.Substring(0, worldFolderName.IndexOf('-'));
-        _fileNameText.text = worldFolderName.Substring(fileDetails.NameAndPath.LastIndexOf('-') + 1);
+        _fileNameText.text = worldFolderName.Substring(_worldFolder.LastIndexOf('-') + 1);
 
         _taskPanel.SetActive(false); //No current tasks!
         _cancelTaskButton.gameObject.SetActive(false);
 
         _loadingText.SetActive(true);
         _loadedPanel.SetActive(false);
+        _downloadRemoteButton.gameObject.SetActive(false);
+        _playButton.gameObject.SetActive(false);
 
-        IRemoteFolderSearchInfo searchInfo = _fileSystem.GetRemoteFoldersAtPath(fileDetails.NameAndPath);
-        searchInfo.OnSearchComplete += HandleSearchComplete;
+        IRemoteFolderSearchInfo searchInfo = _fileSystem.GetRemoteFoldersAtPath(_worldFolder);
+        searchInfo.OnSearchComplete += HandleVersionSearchComplete;
     }
 
-    private void HandleSearchComplete(IRemoteFolderSearchInfo info)
+    private void HandleVersionSearchComplete(IRemoteFolderSearchInfo info)
     {
-        info.OnSearchComplete -= HandleSearchComplete;
+        info.OnSearchComplete -= HandleVersionSearchComplete;
 
-        int highestFoundRemoteVersion = GetHighestVersionNumberFromFoldersList(info.FoldersFound);
+        _activeRemoteVersion = GetHighestVersionNumberFromFoldersList(info.FoldersFound);
         
-        List<string> localWorldVersions = _fileSystem.GetLocalFoldersAtPath(_fileDetails.NameAndPath);
+        List<string> localWorldVersions = _fileSystem.GetLocalFoldersAtPath(_worldFolder);
         int _highestLocalVersionFound = GetHighestVersionNumberFromFoldersList(localWorldVersions);
 
-        bool isAvailableLocally = _highestLocalVersionFound >= highestFoundRemoteVersion;
+        bool isAvailableLocally = _highestLocalVersionFound >= _activeRemoteVersion;
 
+        _loadingText.SetActive(false);
+        _loadedPanel.SetActive(true);
         _downloadRemoteButton.gameObject.SetActive(!isAvailableLocally);
         _playButton.gameObject.SetActive(isAvailableLocally);
 
-        _versionNumberText.text = $"V{math.max(highestFoundRemoteVersion, _highestLocalVersionFound)}";
+        _versionNumberText.text = $"V{_activeRemoteVersion}";
     }
 
     private void Update()
@@ -86,9 +93,59 @@ public class HubFileUIObjectExample : MonoBehaviour
 
     public void DownloadRemoteFile()
     {
-        _currentRemoteTask = _fileSystem.DownloadFile(_fileDetails.NameAndPath);
-        _currentRemoteTask.OnTaskCompleted += HandleDownloadRemoteFileComplete;
+        IRemoteFileSearchInfo searchInfo = _fileSystem.GetRemoteFilesAtPath($"{_worldFolder}/{_activeRemoteVersion.ToString("D3")}");
+        searchInfo.OnSearchComplete += HandleWorldFilesSearchComplete;
+    }
+
+    List<string> _filesToDownload;
+    int _curentFileDownloadIndex;
+
+    private void HandleWorldFilesSearchComplete(IRemoteFileSearchInfo info)
+    {
+        info.OnSearchComplete -= HandleWorldFilesSearchComplete;
+        _filesToDownload = new List<string>(info.FilesFound.Keys);
+
+        Debug.Log("FOUND WORLD FILES");
+        foreach (string file in _filesToDownload)
+        {
+            Debug.Log(file);
+        }
+
+        if (_filesToDownload.Count < 3)
+        {
+            Debug.LogError("Couldn't find remote files...");
+            return;
+        }
+
         _taskPanel.SetActive(true);
+
+        _curentFileDownloadIndex = 0;
+        _currentRemoteTask = _fileSystem.DownloadFile(_filesToDownload[_curentFileDownloadIndex]);
+        _currentRemoteTask.OnTaskCompleted += HandleDownloadWorldFileComplete;
+    }
+
+    private void HandleDownloadWorldFileComplete(IRemoteFileTaskInfo task)
+    {
+        _currentRemoteTask.OnTaskCompleted -= HandleDownloadWorldFileComplete;
+
+        if (task.Status == RemoteFileTaskStatus.Succeeded)
+        {
+            _curentFileDownloadIndex++;
+            if (_curentFileDownloadIndex < _filesToDownload.Count)
+            {
+                _currentRemoteTask = _fileSystem.DownloadFile(_filesToDownload[_curentFileDownloadIndex]);
+                _currentRemoteTask.OnTaskCompleted += HandleDownloadWorldFileComplete;
+            }
+            else
+            {
+                _downloadRemoteButton.gameObject.SetActive(false);
+                _playButton.gameObject.SetActive(true);
+            }
+        }
+        else 
+        {
+            Debug.LogError("Failed to download file!");
+        }
     }
 
     public void HandleDownloadRemoteFileComplete(IRemoteFileTaskInfo task)
@@ -134,5 +191,10 @@ public class HubFileUIObjectExample : MonoBehaviour
         }
 
         return highestFolderFound;
+    }
+
+    public void HandlePlayButtonPressed() 
+    {
+        Debug.Log("Play button pressed!");
     }
 }

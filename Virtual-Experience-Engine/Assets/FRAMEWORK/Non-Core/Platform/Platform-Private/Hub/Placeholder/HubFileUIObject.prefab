@@ -122,8 +122,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5003599014798548336}
-        m_TargetAssemblyTypeName: FileUIObjectExample, VE2_PluginSample_FileSystem
+      - m_Target: {fileID: 5304195240366519350}
+        m_TargetAssemblyTypeName: HubFileUIObjectExample, Assembly-CSharp
         m_MethodName: DownloadRemoteFile
         m_Mode: 1
         m_Arguments:
@@ -407,9 +407,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5003599014798548336}
-        m_TargetAssemblyTypeName: FileUIObjectExample, VE2_PluginSample_FileSystem
-        m_MethodName: DownloadRemoteFile
+      - m_Target: {fileID: 5304195240366519350}
+        m_TargetAssemblyTypeName: HubFileUIObjectExample, Assembly-CSharp
+        m_MethodName: HandlePlayButtonPressed
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1411,7 +1411,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3650751228695070957
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1605,7 +1605,6 @@ GameObject:
   - component: {fileID: 3792964928881903147}
   - component: {fileID: 2975085080008822403}
   - component: {fileID: 3818202647989405630}
-  - component: {fileID: 5003599014798548336}
   - component: {fileID: 5304195240366519350}
   m_Layer: 5
   m_Name: HubFileUIObject
@@ -1694,31 +1693,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _colorType: 3
   _buttonType: 0
---- !u!114 &5003599014798548336
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5457914445706411026}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 87aeb6975712a7b488db1897a96e9348, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _fileNameText: {fileID: 5639126721466800386}
-  _fileSizeText: {fileID: 1642853749650670419}
-  _availableLocalText: {fileID: 0}
-  _uploadLocalButton: {fileID: 0}
-  _deleteLocalButton: {fileID: 0}
-  _availableRemoteText: {fileID: 0}
-  _downloadRemoteButton: {fileID: 1292355057805347053}
-  _deleteRemoteButton: {fileID: 0}
-  _taskPanel: {fileID: 3576692887716139587}
-  _currentTaskTypeText: {fileID: 4735988501437789340}
-  _currentTaskProgressText: {fileID: 4636321462319940686}
-  _currentTaskStatusText: {fileID: 4375198279578750551}
-  _cancelTaskButton: {fileID: 7820630425518248630}
 --- !u!114 &5304195240366519350
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1731,19 +1705,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99610e8039df8f0489fa6250a6bbbd2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _fileNameText: {fileID: 0}
-  _fileSizeText: {fileID: 0}
-  _availableLocalText: {fileID: 0}
-  _uploadLocalButton: {fileID: 0}
-  _deleteLocalButton: {fileID: 0}
-  _availableRemoteText: {fileID: 0}
-  _downloadRemoteButton: {fileID: 0}
-  _deleteRemoteButton: {fileID: 0}
-  _taskPanel: {fileID: 0}
-  _currentTaskTypeText: {fileID: 0}
-  _currentTaskProgressText: {fileID: 0}
-  _currentTaskStatusText: {fileID: 0}
-  _cancelTaskButton: {fileID: 0}
+  _fileNameText: {fileID: 5639126721466800386}
+  _categoryText: {fileID: 673086860180251852}
+  _versionNumberText: {fileID: 2878939782330903475}
+  _taskPanel: {fileID: 3576692887716139587}
+  _currentTaskTypeText: {fileID: 4735988501437789340}
+  _currentTaskProgressText: {fileID: 4636321462319940686}
+  _currentTaskStatusText: {fileID: 4375198279578750551}
+  _cancelTaskButton: {fileID: 7820630425518248630}
+  _loadingText: {fileID: 8180412674678115088}
+  _loadedPanel: {fileID: 4771309176766856477}
+  _downloadRemoteButton: {fileID: 1292355057805347053}
+  _playButton: {fileID: 2540999377165814931}
 --- !u!1 &5940034746466169488
 GameObject:
   m_ObjectHideFlags: 0
@@ -2870,7 +2843,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5003599014798548336}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: FileUIObjectExample, VE2_PluginSample_FileSystem
         m_MethodName: CancelTask
         m_Mode: 1
