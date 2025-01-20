@@ -64,7 +64,7 @@ class VE2PluginBuilderWindow : EditorWindow
     Assembly[] locatedAssemblies = new Assembly[0];
     bool compressBundles = false;
 
-    private enum WorldCategory
+    public enum WorldCategory
     {
         ESE,
         Aero, 

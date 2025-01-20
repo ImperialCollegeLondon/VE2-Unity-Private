@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Renci.SshNet;
 using UnityEngine;
 using VE2_NonCore_FileSystem_Interfaces_Common;
@@ -195,7 +196,11 @@ namespace VE2_NonCore_FileSystem
 
         public void Update()
         {
-            foreach (RemoteFileTaskInfo task in _queuedTasks)
+            //Calling update may invoke OnTaskCompleted, which will cause a task to be removed from _queuedTasks
+            //This means we need to copy the list to avoid a concurrent modification exception
+            List<IRemoteFileTaskInfo> tasksToUpdate = _queuedTasks.ToList();
+
+            foreach (RemoteFileTaskInfo task in tasksToUpdate)
                 task.Update();
         }
         #endregion
