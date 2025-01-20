@@ -671,15 +671,6 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
-                },
-                {
-                    "name": "New action",
-                    "type": "Button",
-                    "id": "76f86e79-0791-4ece-ae4f-fe962da51f2c",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -704,15 +695,60 @@
                     "action": "VerticalDrag",
                     "isComposite": false,
                     "isPartOfComposite": false
-                },
+                }
+            ]
+        },
+        {
+            "name": "InputSnapTurnVRLeft",
+            "id": "77a22473-2b8b-42fb-997e-f7a6e373ede4",
+            "actions": [
+                {
+                    "name": "SnapTurn",
+                    "type": "Value",
+                    "id": "2b15e316-e7c9-4aa6-8978-8e17464a29e9",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
                 {
                     "name": "",
-                    "id": "b0de6386-3565-4a04-95aa-dc99d5209c7d",
-                    "path": "",
+                    "id": "ebee4681-407c-4d0c-b124-924e134ead21",
+                    "path": "<XRController>{LeftHand}/thumbstick",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "New action",
+                    "action": "SnapTurn",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "InputSnapTurnVRRight",
+            "id": "b6ef6be0-67a4-4038-9239-8cab0386c436",
+            "actions": [
+                {
+                    "name": "SnapTurn",
+                    "type": "Value",
+                    "id": "15b4afea-31fe-4639-a259-53103ebdd3e0",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "fcbc57df-f168-4ea1-91b0-c10c7f54d7d6",
+                    "path": "<XRController>{RightHand}/thumbstick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SnapTurn",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -166,6 +166,8 @@ namespace VE2.Core.Tests
         public IScrollInput ScrollTickDownVRRight { get; private set; } = Substitute.For<IScrollInput>();
         public IPressableInput HorizontalDragVRRight { get; private set; } = Substitute.For<IPressableInput>();
         public IPressableInput VerticalDragVRRight { get; private set; } = Substitute.For<IPressableInput>();
+        public ISnapTurnInput SnapTurnVRLeft { get; private set; } = Substitute.For<ISnapTurnInput>();
+        public ISnapTurnInput SnapTurnVRRight { get; private set; } = Substitute.For<ISnapTurnInput>();
 
         public PlayerInputContainerStubWrapper()
         {
@@ -195,7 +197,9 @@ namespace VE2.Core.Tests
                 scrollTickUpVRRight: ScrollTickUpVRRight,
                 scrollTickDownVRRight: ScrollTickDownVRRight,
                 horizontalDragVRRight: HorizontalDragVRRight,
-                verticalDragVRRight: VerticalDragVRRight
+                verticalDragVRRight: VerticalDragVRRight,
+                snapTurnVRLeft: SnapTurnVRLeft,
+                snapTurnVRRight: SnapTurnVRRight
             );
         }
     }

@@ -102,6 +102,58 @@ namespace VE2.Core.Common
         }
     }
 
+    public interface ISnapTurnInput
+    {
+        public event Action OnSnapTurnLeft;
+        public event Action OnSnapTurnRight;
+    }
+
+    public class SnapTurnInput : ISnapTurnInput
+    {
+        public event Action OnSnapTurnLeft;
+        public event Action OnSnapTurnRight;
+
+        private readonly InputAction _inputAction;
+        private float _minThreshold;
+        private bool _isTurnRight;
+        private float _delay;
+        private float _lastTurnTime;
+
+        public SnapTurnInput(InputAction inputAction, float minThreshold, float delay = 0.5f) //TODO: Find a way to set the delay in a config file
+        {
+            _inputAction = inputAction;
+            _inputAction.Enable();
+            _minThreshold = minThreshold;
+            _delay = delay;
+            _lastTurnTime = -delay; 
+        }
+
+        public void HandleUpdate()
+        {
+            float inputValue = _inputAction.ReadValue<Vector2>().x;
+
+            if (!(inputValue < -_minThreshold || inputValue > _minThreshold))
+                return;
+
+            if (Time.time - _lastTurnTime < _delay)
+                return;
+
+            _isTurnRight = inputValue > 0;
+
+            if (_isTurnRight)
+            {
+                OnSnapTurnRight?.Invoke();
+                Debug.Log("Snap Turn Right Invoked");
+            }
+            else
+            {
+                OnSnapTurnLeft?.Invoke();
+                Debug.Log("Snap Turn Left Invoked");
+            }
+
+            _lastTurnTime = Time.time;
+        }
+    }
     #endregion
 
     #region Input Containers
@@ -121,7 +173,8 @@ namespace VE2.Core.Common
             IPressableInput horizontalDragVRLeft, IPressableInput verticalDragVRLeft,
             IValueInput<Vector3> handVRRightPosition, IValueInput<Quaternion> handVRRightRotation,
             IPressableInput rangedClickVRRight, IPressableInput grabVRRight, IPressableInput handheldClickVRRight, IScrollInput scrollTickUpVRRight, IScrollInput scrollTickDownVRRight,
-            IPressableInput horizontalDragVRRight, IPressableInput verticalDragVRRight)
+            IPressableInput horizontalDragVRRight, IPressableInput verticalDragVRRight,
+            ISnapTurnInput snapTurnVRLeft, ISnapTurnInput snapTurnVRRight)
         {
             ChangeMode = changeMode2D;
 
@@ -134,10 +187,12 @@ namespace VE2.Core.Common
                 resetViewVR,
                 new HandVRInputContainer(handVRLeftPosition, handVRLeftRotation, 
                     new InteractorInputContainer(rangedClickVRLeft, grabVRLeft, handheldClickVRLeft, scrollTickUpVRLeft, scrollTickDownVRLeft),
-                    new DragLocomotorInputContainer(horizontalDragVRLeft, verticalDragVRLeft)),
+                    new DragLocomotorInputContainer(horizontalDragVRLeft, verticalDragVRLeft),
+                    new SnapTurnInputContainer(snapTurnVRLeft)),
                 new HandVRInputContainer(handVRRightPosition, handVRRightRotation, 
                     new InteractorInputContainer(rangedClickVRRight, grabVRRight, handheldClickVRRight, scrollTickUpVRRight, scrollTickDownVRRight),
-                    new DragLocomotorInputContainer(horizontalDragVRRight, verticalDragVRRight))
+                    new DragLocomotorInputContainer(horizontalDragVRRight, verticalDragVRRight),
+                    new SnapTurnInputContainer(snapTurnVRRight))
             );
         }
 
@@ -179,13 +234,15 @@ namespace VE2.Core.Common
         public IValueInput<Quaternion> HandRotation { get; private set; }
         public InteractorInputContainer InteractorVRInputContainer { get; private set; }
         public DragLocomotorInputContainer DragLocomotorInputContainer { get; private set; }
+        public SnapTurnInputContainer SnapTurnInputContainer { get; private set; }
 
-        public HandVRInputContainer(IValueInput<Vector3> handPosition, IValueInput<Quaternion> handRotation, InteractorInputContainer interactorVRInputContainer, DragLocomotorInputContainer dragLocomotorInputContainer = null)
+        public HandVRInputContainer(IValueInput<Vector3> handPosition, IValueInput<Quaternion> handRotation, InteractorInputContainer interactorVRInputContainer, DragLocomotorInputContainer dragLocomotorInputContainer = null, SnapTurnInputContainer snapTurnInputContainer = null)
         {
             HandPosition = handPosition;
             HandRotation = handRotation;
             InteractorVRInputContainer = interactorVRInputContainer;
             DragLocomotorInputContainer = dragLocomotorInputContainer;
+            SnapTurnInputContainer = snapTurnInputContainer;
         }
     }
 
@@ -216,6 +273,16 @@ namespace VE2.Core.Common
         {
             HorizontalDrag = horizontalDrag;
             VerticalDrag = verticalDrag;
+        }
+    }
+
+    public class SnapTurnInputContainer
+    {
+        public ISnapTurnInput SnapTurn { get; private set; }
+
+        public SnapTurnInputContainer(ISnapTurnInput snapTurn)
+        {
+            SnapTurn = snapTurn;
         }
     }
     #endregion
@@ -262,6 +329,9 @@ namespace VE2.Core.Common
         private const float MIN_SCROLL_TICKS_PER_SECOND_VR = 0.5f;
         private const float MAX_SCROLL_TICKS_PER_SECOND_VR = 5f;
 
+        //Minimum threshold to detext thumbstick movement to process snap turn input
+        private const float MIN_SNAPTURN_THRESHOLD = 0.7f;
+        private List<SnapTurnInput> _snapTurnInputs;
         private void CreateInputs()
         {
             InputActionAsset inputActionAsset = Resources.Load<InputActionAsset>("V_InputActions");
@@ -326,6 +396,13 @@ namespace VE2.Core.Common
             InputActionMap actionMapUI = inputActionAsset.FindActionMap("InputUI");
             ToggleMenu = new PressableInput(actionMapUI.FindAction("ToggleMenu"));
 
+            // VR Snap Turn Left Action Map
+            InputActionMap actionMapSnapTurnVRLeft = inputActionAsset.FindActionMap("InputSnapTurnVRLeft");
+            SnapTurnInput snapTurnVRLeft = new(actionMapSnapTurnVRLeft.FindAction("SnapTurn"), MIN_SNAPTURN_THRESHOLD);
+
+            // VR Snap Turn Right Action Map
+            InputActionMap actionMapSnapTurnVRRight = inputActionAsset.FindActionMap("InputSnapTurnVRRight");
+            SnapTurnInput snapTurnVRRight = new(actionMapSnapTurnVRRight.FindAction("SnapTurn"), MIN_SNAPTURN_THRESHOLD);
             // Initialize the PlayerInputContainer
             PlayerInputContainer = new(
                 changeMode2D: changeMode2D,
@@ -353,16 +430,23 @@ namespace VE2.Core.Common
                 scrollTickUpVRRight: scrollTickUpVRRight,
                 scrollTickDownVRRight: scrollTickDownVRRight,
                 horizontalDragVRRight: horizontalDragVRRight,
-                verticalDragVRRight: verticalDragVRRight
+                verticalDragVRRight: verticalDragVRRight,
+                snapTurnVRLeft: snapTurnVRLeft,
+                snapTurnVRRight: snapTurnVRRight
+
             );
 
             _scrollInputs = new List<ScrollInput> { scrollTickUp2D, scrollTickDown2D, scrollTickUpVRLeft, scrollTickDownVRLeft, scrollTickUpVRRight, scrollTickDownVRRight };
+            _snapTurnInputs = new List<SnapTurnInput> { snapTurnVRLeft, snapTurnVRRight };
         }
 
         private void Update()
         {
             foreach (ScrollInput scrollInput in _scrollInputs)
                 scrollInput.HandleUpdate();
+
+            foreach (SnapTurnInput snapTurnInput in _snapTurnInputs)
+                snapTurnInput.HandleUpdate();
         }
     }
 }

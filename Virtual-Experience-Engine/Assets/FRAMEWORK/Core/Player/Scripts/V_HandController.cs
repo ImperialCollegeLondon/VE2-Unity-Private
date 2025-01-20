@@ -15,9 +15,10 @@ namespace VE2.Core.Player
         private readonly IValueInput<Quaternion> _rotationInput;
         private readonly InteractorVR _interactor;
         private readonly DragLocomotor _dragLocomotor;
+        private readonly SnapTurn _snapTurn;
         private List<Material> _colorMaterials = new();
 
-        public V_HandController(GameObject handGO, HandVRInputContainer handVRInputContainer, InteractorVR interactor, DragLocomotor dragLocomotor)
+        public V_HandController(GameObject handGO, HandVRInputContainer handVRInputContainer, InteractorVR interactor, DragLocomotor dragLocomotor, SnapTurn snapTurn)
         {
             _handGO = handGO;
             _colorMaterials = CommonUtils.GetAvatarColorMaterialsForGameObject(handGO);
@@ -27,18 +28,21 @@ namespace VE2.Core.Player
 
             _interactor = interactor;
             _dragLocomotor = dragLocomotor;
+            _snapTurn = snapTurn;
         }
 
         public void HandleOnEnable()
         {
             _interactor.HandleOnEnable();
             _dragLocomotor.HandleOEnable();
+            _snapTurn.HandleOEnable();
         }
 
         public void HandleOnDisable()
         {
             _interactor.HandleOnDisable();
             _dragLocomotor.HandleOnDisable();
+            _snapTurn.HandleOnDisable();
         }
 
         public void HandleUpdate()
@@ -47,7 +51,7 @@ namespace VE2.Core.Player
             _handGO.transform.localRotation = _rotationInput.Value;
 
             _interactor.HandleUpdate();
-            _dragLocomotor.HandleUpdate();
+            _dragLocomotor.HandleUpdate(); 
         }
 
         public void HandleLocalAvatarColorChanged(Color newColor)

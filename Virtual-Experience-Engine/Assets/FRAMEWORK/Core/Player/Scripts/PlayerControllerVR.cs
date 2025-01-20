@@ -79,7 +79,11 @@ namespace VE2.Core.Player
                 otherHandDragInputContainer,
                 _rootTransform, _verticalOffsetTransform, handGO.transform);
 
-            return new V_HandController(handGO, handVRInputContainer, interactor, dragLocomotor);
+            SnapTurn snapTurn = new(
+                handVRInputContainer.SnapTurnInputContainer,
+                _rootTransform);
+
+            return new V_HandController(handGO, handVRInputContainer, interactor, dragLocomotor, snapTurn);
         }
 
         public void ActivatePlayer(PlayerTransformData initTransformData)
