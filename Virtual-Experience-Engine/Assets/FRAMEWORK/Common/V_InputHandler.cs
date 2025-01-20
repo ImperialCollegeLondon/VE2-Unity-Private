@@ -102,49 +102,75 @@ namespace VE2.Core.Common
         }
     }
 
-    public interface ISnapTurnInput
+    public interface IStickPressInput
     {
-        public event Action OnSnapTurnLeft;
-        public event Action OnSnapTurnRight;
+        public event Action<bool> OnStickPressed; //True if positive, false if negative
+        public event Action<bool> OnStickReleased; //True if positive, false if negative
     }
 
-    public class SnapTurnInput : ISnapTurnInput
+    public class StickPressInput : IStickPressInput
     {
-        public event Action OnSnapTurnLeft;
-        public event Action OnSnapTurnRight;
+        public event Action<bool> OnStickPressed;
+        public event Action<bool> OnStickReleased;
 
         private readonly InputAction _inputAction;
         private float _minThreshold;
-        private bool _isTurnRight;
-        private bool _hasTurned;
+        private bool _isHorizontalStickPress;
+        private bool _wasPressed;
 
-        public SnapTurnInput(InputAction inputAction, float minThreshold) //TODO: Find a way to set the delay in a config file
+        public StickPressInput(InputAction inputAction, float minThreshold, bool isHorizontalStickPress)
         {
             _inputAction = inputAction;
             _inputAction.Enable();
             _minThreshold = minThreshold;
-            _inputAction.canceled += ctx => _hasTurned = false;
+            _isHorizontalStickPress = isHorizontalStickPress;
+            _wasPressed = false;
         }
 
         public void HandleUpdate()
         {
-            float inputValue = _inputAction.ReadValue<Vector2>().x;
+            float inputValue;
 
-            if (_hasTurned || !(inputValue < -_minThreshold || inputValue > _minThreshold))
-                return;
-
-            _isTurnRight = inputValue > 0;
-
-            if (_isTurnRight)
+            if (_isHorizontalStickPress)
             {
-                OnSnapTurnRight?.Invoke();
+                inputValue = _inputAction.ReadValue<Vector2>().x;
+                if (inputValue < -_minThreshold || inputValue > _minThreshold)
+                {
+                    if (!_wasPressed)
+                    {
+                        OnStickPressed?.Invoke(inputValue > 0);
+                        _wasPressed = true;
+                    }
+                }
+                else
+                {
+                    if (_wasPressed)
+                    {
+                        OnStickReleased?.Invoke(inputValue > 0);
+                        _wasPressed = false;
+                    }
+                }
             }
             else
             {
-                OnSnapTurnLeft?.Invoke();
+                inputValue = _inputAction.ReadValue<Vector2>().y;
+                if (inputValue > _minThreshold)
+                {
+                    if (!_wasPressed)
+                    {
+                        OnStickPressed?.Invoke(inputValue > 0);
+                        _wasPressed = true;
+                    }
+                }
+                else
+                {
+                    if (_wasPressed)
+                    {
+                        OnStickReleased?.Invoke(inputValue > 0);
+                        _wasPressed = false;
+                    }
+                }
             }
-
-            _hasTurned = true;
         }
     }
     #endregion
@@ -167,7 +193,8 @@ namespace VE2.Core.Common
             IValueInput<Vector3> handVRRightPosition, IValueInput<Quaternion> handVRRightRotation,
             IPressableInput rangedClickVRRight, IPressableInput grabVRRight, IPressableInput handheldClickVRRight, IScrollInput scrollTickUpVRRight, IScrollInput scrollTickDownVRRight,
             IPressableInput horizontalDragVRRight, IPressableInput verticalDragVRRight,
-            ISnapTurnInput snapTurnVRLeft, ISnapTurnInput snapTurnVRRight)
+            IStickPressInput stickPressHorizontalVRLeft, IStickPressInput stickPressVerticalVRLeft,
+            IStickPressInput stickPressHorizontalVRRight, IStickPressInput stickPressVerticalVRRight)
         {
             ChangeMode = changeMode2D;
 
@@ -181,11 +208,11 @@ namespace VE2.Core.Common
                 new HandVRInputContainer(handVRLeftPosition, handVRLeftRotation, 
                     new InteractorInputContainer(rangedClickVRLeft, grabVRLeft, handheldClickVRLeft, scrollTickUpVRLeft, scrollTickDownVRLeft),
                     new DragLocomotorInputContainer(horizontalDragVRLeft, verticalDragVRLeft),
-                    new SnapTurnInputContainer(snapTurnVRLeft)),
+                    new SnapTurnInputContainer(stickPressHorizontalVRLeft)),
                 new HandVRInputContainer(handVRRightPosition, handVRRightRotation, 
                     new InteractorInputContainer(rangedClickVRRight, grabVRRight, handheldClickVRRight, scrollTickUpVRRight, scrollTickDownVRRight),
                     new DragLocomotorInputContainer(horizontalDragVRRight, verticalDragVRRight),
-                    new SnapTurnInputContainer(snapTurnVRRight))
+                    new SnapTurnInputContainer(stickPressHorizontalVRRight))
             );
         }
 
@@ -271,13 +298,23 @@ namespace VE2.Core.Common
 
     public class SnapTurnInputContainer
     {
-        public ISnapTurnInput SnapTurn { get; private set; }
+        public IStickPressInput SnapTurn { get; private set; }
 
-        public SnapTurnInputContainer(ISnapTurnInput snapTurn)
+        public SnapTurnInputContainer(IStickPressInput snapTurn)
         {
             SnapTurn = snapTurn;
         }
     }
+    public class TeleportInputContainer
+    {
+        public IStickPressInput Teleport { get; private set; }
+
+        public TeleportInputContainer(IStickPressInput teleport)
+        {
+            Teleport = teleport;
+        }
+    }
+
     #endregion
 
     public interface IInputHandler
@@ -322,9 +359,9 @@ namespace VE2.Core.Common
         private const float MIN_SCROLL_TICKS_PER_SECOND_VR = 0.5f;
         private const float MAX_SCROLL_TICKS_PER_SECOND_VR = 5f;
 
-        //Minimum threshold to detext thumbstick movement to process snap turn input
-        private const float MIN_SNAPTURN_THRESHOLD = 0.7f;
-        private List<SnapTurnInput> _snapTurnInputs;
+        //Minimum threshold to detext thumbstick movement to process stick press input
+        private const float MIN_STICKPRESS_THRESHOLD = 0.7f;
+        private List<StickPressInput> _stickPressInputs;
         private void CreateInputs()
         {
             InputActionAsset inputActionAsset = Resources.Load<InputActionAsset>("V_InputActions");
@@ -389,13 +426,16 @@ namespace VE2.Core.Common
             InputActionMap actionMapUI = inputActionAsset.FindActionMap("InputUI");
             ToggleMenu = new PressableInput(actionMapUI.FindAction("ToggleMenu"));
 
-            // VR Snap Turn Left Action Map
-            InputActionMap actionMapSnapTurnVRLeft = inputActionAsset.FindActionMap("InputSnapTurnVRLeft");
-            SnapTurnInput snapTurnVRLeft = new(actionMapSnapTurnVRLeft.FindAction("SnapTurn"), MIN_SNAPTURN_THRESHOLD);
+            // VR Stick Press Left Action Map
+            InputActionMap actionMapStickPressVRLeft = inputActionAsset.FindActionMap("StickPressVRLeft");
+            StickPressInput stickPressHorizontalVRLeft = new(actionMapStickPressVRLeft.FindAction("StickPress"), MIN_STICKPRESS_THRESHOLD, true);
+            StickPressInput stickPressVerticalVRLeft = new(actionMapStickPressVRLeft.FindAction("StickPress"), MIN_STICKPRESS_THRESHOLD, false);
 
-            // VR Snap Turn Right Action Map
-            InputActionMap actionMapSnapTurnVRRight = inputActionAsset.FindActionMap("InputSnapTurnVRRight");
-            SnapTurnInput snapTurnVRRight = new(actionMapSnapTurnVRRight.FindAction("SnapTurn"), MIN_SNAPTURN_THRESHOLD);
+            // VR Stick Press Right Action Map
+            InputActionMap actionMapStickPressVRRight = inputActionAsset.FindActionMap("StickPressVRRight");
+            StickPressInput stickPressHorizontalVRRight = new(actionMapStickPressVRRight.FindAction("StickPress"), MIN_STICKPRESS_THRESHOLD, true);
+            StickPressInput stickPressVerticalVRRight = new(actionMapStickPressVRLeft.FindAction("StickPress"), MIN_STICKPRESS_THRESHOLD, false);
+
             // Initialize the PlayerInputContainer
             PlayerInputContainer = new(
                 changeMode2D: changeMode2D,
@@ -424,13 +464,14 @@ namespace VE2.Core.Common
                 scrollTickDownVRRight: scrollTickDownVRRight,
                 horizontalDragVRRight: horizontalDragVRRight,
                 verticalDragVRRight: verticalDragVRRight,
-                snapTurnVRLeft: snapTurnVRLeft,
-                snapTurnVRRight: snapTurnVRRight
-
+                stickPressHorizontalVRLeft: stickPressHorizontalVRLeft,
+                stickPressVerticalVRLeft: stickPressVerticalVRLeft,
+                stickPressHorizontalVRRight: stickPressHorizontalVRRight,
+                stickPressVerticalVRRight: stickPressVerticalVRRight
             );
 
             _scrollInputs = new List<ScrollInput> { scrollTickUp2D, scrollTickDown2D, scrollTickUpVRLeft, scrollTickDownVRLeft, scrollTickUpVRRight, scrollTickDownVRRight };
-            _snapTurnInputs = new List<SnapTurnInput> { snapTurnVRLeft, snapTurnVRRight };
+            _stickPressInputs = new List<StickPressInput> { stickPressHorizontalVRLeft, stickPressVerticalVRLeft, stickPressHorizontalVRRight, stickPressVerticalVRRight };
         }
 
         private void Update()
@@ -438,8 +479,8 @@ namespace VE2.Core.Common
             foreach (ScrollInput scrollInput in _scrollInputs)
                 scrollInput.HandleUpdate();
 
-            foreach (SnapTurnInput snapTurnInput in _snapTurnInputs)
-                snapTurnInput.HandleUpdate();
+            foreach (StickPressInput stickPressInput in _stickPressInputs)
+                stickPressInput.HandleUpdate();
         }
     }
 }

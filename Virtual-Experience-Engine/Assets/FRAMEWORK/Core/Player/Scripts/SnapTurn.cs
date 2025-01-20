@@ -15,24 +15,28 @@ public class SnapTurn
 
     public void HandleOEnable()
     {
-        _inputContainer.SnapTurn.OnSnapTurnLeft += HandleSnapTurnLeft;
-        _inputContainer.SnapTurn.OnSnapTurnRight += HandleSnapTurnRight;
+        _inputContainer.SnapTurn.OnStickPressed += HandleSnapTurn;
     }
 
     public void HandleOnDisable()
     {
-        _inputContainer.SnapTurn.OnSnapTurnLeft -= HandleSnapTurnLeft;
-        _inputContainer.SnapTurn.OnSnapTurnRight -= HandleSnapTurnRight;
+        _inputContainer.SnapTurn.OnStickPressed -= HandleSnapTurn;
     }
 
-    private void HandleSnapTurnLeft()
+    private void HandleSnapTurn(bool isRightMovement)
     {
-        // Rotate the player by 45 degrees
-        _rootTransform.rotation *= Quaternion.Euler(0, -_snapTurnAmount, 0);
-    }
-    private void HandleSnapTurnRight()
-    {
-        // Rotate the player by 45 degrees
-        _rootTransform.rotation *= Quaternion.Euler(0, _snapTurnAmount, 0);
+        if (isRightMovement)
+        {
+            // Rotate the player by 45 degrees
+            _rootTransform.rotation *= Quaternion.Euler(0, _snapTurnAmount, 0);
+            Debug.Log("Snap Turn Left");
+        }
+        else
+        {
+            // Rotate the player by 45 degrees
+            _rootTransform.rotation *= Quaternion.Euler(0, -_snapTurnAmount, 0);
+            Debug.Log("Snap Turn Right");
+        }
+
     }
 }

@@ -699,11 +699,11 @@
             ]
         },
         {
-            "name": "InputSnapTurnVRLeft",
+            "name": "StickPressVRLeft",
             "id": "77a22473-2b8b-42fb-997e-f7a6e373ede4",
             "actions": [
                 {
-                    "name": "SnapTurn",
+                    "name": "StickPress",
                     "type": "Value",
                     "id": "2b15e316-e7c9-4aa6-8978-8e17464a29e9",
                     "expectedControlType": "Vector2",
@@ -720,18 +720,18 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "SnapTurn",
+                    "action": "StickPress",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
             ]
         },
         {
-            "name": "InputSnapTurnVRRight",
+            "name": "StickPressVRRight",
             "id": "b6ef6be0-67a4-4038-9239-8cab0386c436",
             "actions": [
                 {
-                    "name": "SnapTurn",
+                    "name": "StickPress",
                     "type": "Value",
                     "id": "15b4afea-31fe-4639-a259-53103ebdd3e0",
                     "expectedControlType": "Vector2",
@@ -748,7 +748,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "SnapTurn",
+                    "action": "StickPress",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

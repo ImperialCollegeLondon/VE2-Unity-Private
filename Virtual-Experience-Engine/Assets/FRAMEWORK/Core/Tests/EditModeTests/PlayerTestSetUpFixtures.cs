@@ -166,8 +166,10 @@ namespace VE2.Core.Tests
         public IScrollInput ScrollTickDownVRRight { get; private set; } = Substitute.For<IScrollInput>();
         public IPressableInput HorizontalDragVRRight { get; private set; } = Substitute.For<IPressableInput>();
         public IPressableInput VerticalDragVRRight { get; private set; } = Substitute.For<IPressableInput>();
-        public ISnapTurnInput SnapTurnVRLeft { get; private set; } = Substitute.For<ISnapTurnInput>();
-        public ISnapTurnInput SnapTurnVRRight { get; private set; } = Substitute.For<ISnapTurnInput>();
+        public IStickPressInput StickPressHorizontalVRLeft { get; private set; } = Substitute.For<IStickPressInput>();
+        public IStickPressInput StickPressVerticalVRLeft { get; private set; } = Substitute.For<IStickPressInput>();
+        public IStickPressInput StickPressHorizontalVRRight { get; private set; } = Substitute.For<IStickPressInput>();
+        public IStickPressInput StickPressVerticalVRRight { get; private set; } = Substitute.For<IStickPressInput>();
 
         public PlayerInputContainerStubWrapper()
         {
@@ -198,8 +200,10 @@ namespace VE2.Core.Tests
                 scrollTickDownVRRight: ScrollTickDownVRRight,
                 horizontalDragVRRight: HorizontalDragVRRight,
                 verticalDragVRRight: VerticalDragVRRight,
-                snapTurnVRLeft: SnapTurnVRLeft,
-                snapTurnVRRight: SnapTurnVRRight
+                stickPressHorizontalVRLeft: StickPressHorizontalVRLeft,
+                stickPressVerticalVRLeft: StickPressVerticalVRLeft,
+                stickPressHorizontalVRRight: StickPressHorizontalVRRight,
+                stickPressVerticalVRRight: StickPressVerticalVRRight
             );
         }
     }
