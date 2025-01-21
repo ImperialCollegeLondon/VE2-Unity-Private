@@ -17,13 +17,27 @@ public class RaycastProvider : IRaycastProvider
 
         if (Physics.Raycast(rayOrigin, raycastDirection, out RaycastHit raycastHit, maxRaycastDistance, layerMask)) 
         {
-            //Debug.Log("Raycast hit: " + raycastHit.collider.name + " - pos " + raycastHit.point);
-            if (raycastHit.collider.TryGetComponent(out IRangedPlayerInteractableIntegrator rangedPlayerInteractableIntegrator)) 
+            //TODO: Find a better way to get a ranged interactable integrator
+            Transform currentTransform = raycastHit.collider.transform;
+            IRangedPlayerInteractableIntegrator rangedPlayerInteractableIntegrator = null;
+
+            while (currentTransform != null) 
+            {
+                if (currentTransform.TryGetComponent(out rangedPlayerInteractableIntegrator)) 
+                {
+                    break;
+                }
+                currentTransform = currentTransform.parent;
+            }
+
+            if (rangedPlayerInteractableIntegrator != null) 
             {
                 result = new(rangedPlayerInteractableIntegrator.RangedInteractionModule, raycastHit.distance);
             }
             else 
+            {
                 result = new(null, raycastHit.distance);
+            }
         }
         else 
         {

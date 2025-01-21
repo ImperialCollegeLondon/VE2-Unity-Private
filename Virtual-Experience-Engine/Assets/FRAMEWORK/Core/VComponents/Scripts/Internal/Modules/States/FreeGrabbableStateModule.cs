@@ -16,6 +16,7 @@ namespace VE2.Core.VComponents.Internal
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Grab State Settings", ApplyCondition = true)]
+        [SerializeField] public Transform AttachPoint = null;
         [SerializeField] public UnityEvent OnGrab = new();
 
         [EndGroup(Order = 1)]

@@ -50,7 +50,9 @@ namespace VE2.Core.VComponents.Internal
         public RotationalAdjustableService(ITransformWrapper transformWrapper, List<IHandheldInteractionModule> handheldInteractions, RotationalAdjustableConfig config, VE2Serializable adjustableState, VE2Serializable grabbableState, string id,
             WorldStateModulesContainer worldStateModulesContainer, InteractorContainer interactorContainer)
         {
-            _RangedAdjustableInteractionModule = new(transformWrapper, handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
+            ITransformWrapper attachPointTransform = config.GrabbableStateConfig.AttachPoint == null ? transformWrapper : new TransformWrapper(config.GrabbableStateConfig.AttachPoint);
+
+            _RangedAdjustableInteractionModule = new(attachPointTransform, handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
 
             _transformWrapper = transformWrapper;
 
