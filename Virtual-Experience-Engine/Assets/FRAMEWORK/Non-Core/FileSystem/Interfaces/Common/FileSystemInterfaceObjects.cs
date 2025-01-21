@@ -10,6 +10,9 @@ namespace VE2_NonCore_FileSystem_Interfaces_Common
     [Serializable]
     public class LocalFileDetails : FileDetails
     {
+        /// <summary>
+        /// Full local name and path of the file on this machine
+        /// </summary>
         [SerializeField, LabelWidth(180)] public string FullLocalNameAndPath;
 
         public LocalFileDetails(string nameAndPath, ulong size, string fullLocalNameAndPath) : base(nameAndPath, size)

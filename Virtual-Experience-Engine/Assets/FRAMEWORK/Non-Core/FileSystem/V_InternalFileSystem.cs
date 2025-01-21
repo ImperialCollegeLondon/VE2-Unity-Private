@@ -8,3 +8,6 @@ namespace VE2_NonCore_FileSystem
         public override string LocalWorkingPath => $"VE2/Worlds";
     }
 }
+
+//TODO: If user tries to upload a world that already exists but under a different category, don't let them 
+//Need to remember all world folders, strip their category, and make sure our world name doesn't match

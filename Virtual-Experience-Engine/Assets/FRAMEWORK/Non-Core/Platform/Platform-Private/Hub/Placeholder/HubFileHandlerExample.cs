@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using VE2.PlatformNetworking;
 using VE2_NonCore_FileSystem_Interfaces_Common;
 using VE2_NonCore_FileSystem_Interfaces_Internal;
 using VE2_NonCore_FileSystem_Interfaces_Plugin;
@@ -47,6 +48,8 @@ public class HubFileHandlerExample : MonoBehaviour
     {
         Debug.Log("Got remote folders! " + search.CompletionCode + " - " + search.FoldersFound.Count);
 
+        V_PlatformIntegration platformIntegration = GameObject.FindObjectOfType<V_PlatformIntegration>();
+
         /*
             Get list of worlds from server. Foreach world, make a UI for it, that's it!
         */
@@ -69,7 +72,7 @@ public class HubFileHandlerExample : MonoBehaviour
 
             GameObject FileUIObjectGO = Instantiate(_fileUIObjectPrefab, null);
             HubFileUIObjectExample hubFileUIObject = FileUIObjectGO.GetComponent<HubFileUIObjectExample>();
-            hubFileUIObject.Setup(_fileSystem, remoteWorldFolder);
+            hubFileUIObject.Setup((VE2.NonCore.Platform.Private.PlatformService)platformIntegration.PlatformService, _fileSystem, remoteWorldFolder);
 
             (HorizontalLayoutGroup, List<HubFileUIObjectExample>) lastHorizontalGroup = _fileObjectHorizontalGroups.Count > 0 ? _fileObjectHorizontalGroups[_fileObjectHorizontalGroups.Count - 1] : (null, null);
 

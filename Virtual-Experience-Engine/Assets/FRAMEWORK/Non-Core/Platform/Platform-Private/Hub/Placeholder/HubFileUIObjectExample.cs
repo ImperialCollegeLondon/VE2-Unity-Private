@@ -6,6 +6,7 @@ using TMPro;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
+using VE2.NonCore.Platform.Private;
 using VE2_NonCore_FileSystem_Interfaces_Common;
 using VE2_NonCore_FileSystem_Interfaces_Internal;
 using VE2_NonCore_FileSystem_Interfaces_Plugin;
@@ -33,11 +34,13 @@ public class HubFileUIObjectExample : MonoBehaviour
     private IRemoteFileTaskInfo _currentRemoteTask;
     private int _activeRemoteVersion;
 
+    private PlatformService _platformService;
     private IInternalFileSystem _fileSystem;
     private string _worldFolder;
 
-    public void Setup(IInternalFileSystem fileSystem, string worldFolder)
+    public void Setup(PlatformService platformService, IInternalFileSystem fileSystem, string worldFolder)
     {
+        _platformService = platformService;
         _fileSystem = fileSystem;
 
         _worldFolder = worldFolder;
@@ -195,6 +198,27 @@ public class HubFileUIObjectExample : MonoBehaviour
 
     public void HandlePlayButtonPressed() 
     {
-        Debug.Log("Play button pressed!");
+        //We should request an allocation to the instance here
+
+        //Should we have to though, for single player plugins?
+        //Or even if you're trying to run virse offline 
+        //Does feel like the single player option shouldn't even require a connection to the platform server 
+        /*
+            Basically, the hub needs a way of launching the plugin directly without making a request to the platform server
+            Hub can just talk to PluginLoader explicitly?
+        */
+
+        //Should we really be supporting a fully offline mode? 
+        //So V_PlatformIntegration's DebugPlayerSettings become FallbackPlayerSettings
+        //We're getting rid of player settings anyway, what does the platform even provide? Just the IP 
+
+        //Ok, what will inform this decision? Just getting the standalone mode working! 
+        //for now, we can just have the hub talk to the plugin loader directly, and the plugin loader can just load the plugin
+        //We shouldn't need to think about the server at this stage? If all is working, we should get instance sync anyway
+        //Ah actually, no, flow to the hub wont work 
+        //Ok, fine, let's start with just making the request via platform service
+
+        //Request allocation to that world, stripping out the category prefix
+        _platformService.RequestInstanceAllocation(_worldFolder, _activeRemoteVersion.ToString());
     }
 }
