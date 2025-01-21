@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using UnityEngine;
 using VE2.Common;
 using VE2.Common.TransformWrapper;
@@ -10,42 +9,17 @@ using static VE2.Common.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
 {
-    public enum SpatialAdjustmentType
-    {
-        XAxis,
-        YAxis,
-        ZAxis
-    }
-
-    public enum SpatialAdjustmentProperty
-    {
-        Discrete,
-        Continuous
-    }
-
     [Serializable]
-    public class LinearAdjustableConfig
+    public class RotationalAdjustableConfig
     {
-        [SerializeField, IgnoreParent] public SpatialAdjustableServiceConfig LinearAdjustableServiceConfig = new();
+        [SerializeField, IgnoreParent] public SpatialAdjustableServiceConfig RotationalAdjustableServiceConfig = new();
         [SerializeField, IgnoreParent] public AdjustableStateConfig AdjustableStateConfig = new();
         [SerializeField, IgnoreParent] public FreeGrabbableStateConfig GrabbableStateConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfig = new();
         [SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
     }
 
-    [Serializable]
-    public class SpatialAdjustableServiceConfig
-    {
-        [BeginGroup(Style = GroupStyle.Round)]
-        [Title("Spatial Adjustable Settings", ApplyCondition = true)]
-        [SerializeField] public SpatialAdjustmentType AdjustmentType = SpatialAdjustmentType.XAxis;
-        [SerializeField] public SpatialAdjustmentProperty AdjustmentProperty = SpatialAdjustmentProperty.Continuous;
-        [SerializeField, ShowIf("AdjustmentProperty", SpatialAdjustmentProperty.Discrete)] public int NumberOfValues = 1;
-        [SerializeField] public float MinimumSpatialValue = 0f;
-        [EndGroup, SerializeField] public float MaximumSpatialValue = 1f;
-    }
-
-    public class LinearAdjustableService
+    public class RotationalAdjustableService
     {
         private float _spatialValue;
         public float SpatialValue { get => _spatialValue; set => SetSpatialValue(value); }
@@ -70,22 +44,24 @@ namespace VE2.Core.VComponents.Internal
         private readonly SpatialAdjustmentProperty _adjustmentProperty;
         private readonly ITransformWrapper _transformWrapper;
         private readonly SpatialAdjustmentType _adjustmentType;
+        private float _oldRotationalValue;
+        private int numberOfRevolutions = 0;
 
-        public LinearAdjustableService(ITransformWrapper transformWrapper, List<IHandheldInteractionModule> handheldInteractions, LinearAdjustableConfig config, VE2Serializable adjustableState, VE2Serializable grabbableState, string id,
+        public RotationalAdjustableService(ITransformWrapper transformWrapper, List<IHandheldInteractionModule> handheldInteractions, RotationalAdjustableConfig config, VE2Serializable adjustableState, VE2Serializable grabbableState, string id,
             WorldStateModulesContainer worldStateModulesContainer, InteractorContainer interactorContainer)
         {
             _RangedAdjustableInteractionModule = new(transformWrapper, handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
 
             _transformWrapper = transformWrapper;
 
-            _adjustmentType = config.LinearAdjustableServiceConfig.AdjustmentType;
-            _adjustmentProperty = config.LinearAdjustableServiceConfig.AdjustmentProperty;
+            _adjustmentType = config.RotationalAdjustableServiceConfig.AdjustmentType;
+            _adjustmentProperty = config.RotationalAdjustableServiceConfig.AdjustmentProperty;
 
             if (_adjustmentProperty == SpatialAdjustmentProperty.Discrete)
-                _numberOfValues = config.LinearAdjustableServiceConfig.NumberOfValues;
+                _numberOfValues = config.RotationalAdjustableServiceConfig.NumberOfValues;
 
-            _minimumSpatialValue = config.LinearAdjustableServiceConfig.MinimumSpatialValue;
-            _maximumSpatialValue = config.LinearAdjustableServiceConfig.MaximumSpatialValue;
+            _minimumSpatialValue = config.RotationalAdjustableServiceConfig.MinimumSpatialValue;
+            _maximumSpatialValue = config.RotationalAdjustableServiceConfig.MaximumSpatialValue;
 
             _AdjustableStateModule = new(adjustableState, config.AdjustableStateConfig, $"ADJ-{id}", worldStateModulesContainer);
             _FreeGrabbableStateModule = new(grabbableState, config.GrabbableStateConfig, $"FG-{id}", worldStateModulesContainer, interactorContainer, RangedAdjustableInteractionModule);
@@ -97,13 +73,14 @@ namespace VE2.Core.VComponents.Internal
             _FreeGrabbableStateModule.OnDropConfirmed += OnDropConfirmed;
 
             _AdjustableStateModule.OnValueChangedInternal += (float value) => OnStateValueChanged(value);
-                      
+
             SetValueOnStateModule(config.AdjustableStateConfig.StartingOutputValue);
+            _oldRotationalValue = ConvertToSpatialValue(config.AdjustableStateConfig.StartingOutputValue);
         }
 
         private void OnGrabConfirmed()
         {
-
+            //_initialGrabberPosition = _FreeGrabbableStateModule.CurrentGrabbingInteractor.GrabberTransform.position;
         }
 
         private void OnDropConfirmed()
@@ -121,18 +98,17 @@ namespace VE2.Core.VComponents.Internal
         private void OnStateValueChanged(float value)
         {
             _spatialValue = ConvertToSpatialValue(value);
-            UnityEngine.Debug.Log($"Spatial Value = {_spatialValue}");
 
             switch (_adjustmentType)
             {
                 case SpatialAdjustmentType.XAxis:
-                    _transformWrapper.localPosition = new Vector3(_spatialValue, _transformWrapper.localPosition.y, _transformWrapper.localPosition.z);
+                    _transformWrapper.localRotation = Quaternion.Euler(_spatialValue, _transformWrapper.localRotation.y, _transformWrapper.localRotation.z);
                     break;
                 case SpatialAdjustmentType.YAxis:
-                    _transformWrapper.localPosition = new Vector3(_transformWrapper.localPosition.x, _spatialValue, _transformWrapper.localPosition.z);
+                    _transformWrapper.localRotation = Quaternion.Euler(_transformWrapper.localRotation.x, _spatialValue, _transformWrapper.localRotation.z);
                     break;
                 case SpatialAdjustmentType.ZAxis:
-                    _transformWrapper.localPosition = new Vector3(_transformWrapper.localPosition.x, _transformWrapper.localPosition.y, _spatialValue);
+                    _transformWrapper.localRotation = Quaternion.Euler(_transformWrapper.localRotation.x, _transformWrapper.localRotation.y, _spatialValue);
                     break;
             }
         }
@@ -150,22 +126,47 @@ namespace VE2.Core.VComponents.Internal
 
         private void TrackPosition(Vector3 grabberPosition)
         {
-            Vector3 localGrabPosition = _transformWrapper.InverseTransfromPoint(grabberPosition);
-            float adjustment = 0f;
+            Vector3 directionToGrabber = grabberPosition - _transformWrapper.position;
+            Vector3 localDirectionToGrabber;
+            float angle = 0f;
             switch (_adjustmentType)
             {
                 case SpatialAdjustmentType.XAxis:
-                    adjustment = Mathf.Clamp(localGrabPosition.x, _minimumSpatialValue, _maximumSpatialValue);
+                    localDirectionToGrabber = Vector3.ProjectOnPlane(directionToGrabber, _transformWrapper.up);
+                    localDirectionToGrabber.Normalize();
+                    angle = Vector3.SignedAngle(-Vector3.forward, localDirectionToGrabber, _transformWrapper.up);
+                    if (angle < 0)
+                        angle += 360;
                     break;
                 case SpatialAdjustmentType.YAxis:
-                    adjustment = Mathf.Clamp(localGrabPosition.y, _minimumSpatialValue, _maximumSpatialValue);
+                    localDirectionToGrabber = Vector3.ProjectOnPlane(directionToGrabber, _transformWrapper.right);
+                    localDirectionToGrabber.Normalize();
+                    angle = Vector3.SignedAngle(Vector3.up, localDirectionToGrabber, _transformWrapper.right);
+                    if (angle < 0)
+                        angle += 360;
                     break;
                 case SpatialAdjustmentType.ZAxis:
-                    adjustment = Mathf.Clamp(localGrabPosition.z, _minimumSpatialValue, _maximumSpatialValue);
+                    localDirectionToGrabber = Vector3.ProjectOnPlane(directionToGrabber, _transformWrapper.forward);
+                    localDirectionToGrabber.Normalize();
+                    Quaternion rotation = Quaternion.FromToRotation(-Vector3.right, localDirectionToGrabber);
+
+                    Debug.Log($"Current: {rotation.eulerAngles.y} | Old: {_oldRotationalValue} | Difference: {rotation.eulerAngles.y - _oldRotationalValue}");
+
+                    if(rotation.eulerAngles.y - _oldRotationalValue < -180)
+                        numberOfRevolutions++;
+                    else if(rotation.eulerAngles.y - _oldRotationalValue > 180)
+                        numberOfRevolutions--;
+                    
+                    _oldRotationalValue = rotation.eulerAngles.y;
+
+                    angle = rotation.eulerAngles.y + (numberOfRevolutions * 360);
+                    angle = Mathf.Clamp(angle, _minimumSpatialValue, _maximumSpatialValue);
+                    Debug.Log($"Angle: {angle} | Revolutions: {numberOfRevolutions}");
                     break;
             }
 
-            _spatialValue = adjustment;
+            float angularAdjustment = angle;
+            _spatialValue = angularAdjustment;
             float OutputValue = ConvertToOutputValue(_spatialValue);
             SetValueOnStateModule(OutputValue);
         }
@@ -214,5 +215,6 @@ namespace VE2.Core.VComponents.Internal
             _FreeGrabbableStateModule.OnGrabConfirmed -= OnGrabConfirmed;
             _FreeGrabbableStateModule.OnDropConfirmed -= OnDropConfirmed;
         }
+
     }
 }
