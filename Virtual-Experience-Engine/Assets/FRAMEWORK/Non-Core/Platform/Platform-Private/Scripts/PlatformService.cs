@@ -93,6 +93,8 @@ namespace VE2.NonCore.Platform.Private
         }   
         #endregion
 
+        private readonly PluginLoader _pluginLoader;
+
         public PlatformService(IPlatformCommsHandler commsHandler, UserIdentity userIdentity, IPAddress ipAddress, ushort portNumber, string startingInstanceCode)
         {
             _userIdentity = userIdentity;
@@ -107,6 +109,8 @@ namespace VE2.NonCore.Platform.Private
             //{
             //    //TODO - start local server
             //}
+
+            _pluginLoader = new PluginLoader();
 
             _commsHandler.ConnectToServer(ipAddress, portNumber);
         }
@@ -132,8 +136,8 @@ namespace VE2.NonCore.Platform.Private
             } 
             else
             {
-                string correctedInstanceCode = CurrentInstanceCode.Contains("Hub") ? "Hub-Solo-0" : CurrentInstanceCode;
-                ServerRegistrationRequest serverRegistrationRequest = new(_userIdentity, correctedInstanceCode);
+                //string correctedInstanceCode = CurrentInstanceCode.Contains("Hub") ? "Hub-Solo" : CurrentInstanceCode;
+                ServerRegistrationRequest serverRegistrationRequest = new(_userIdentity, CurrentInstanceCode);
                 _commsHandler.SendMessage(serverRegistrationRequest.Bytes, PlatformNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
             }
         }
@@ -188,7 +192,7 @@ namespace VE2.NonCore.Platform.Private
             //TODO, should be talking to the plugin loader instead here 
             else 
             {
-                V_PluginLoader.LoadPlugin(newInstanceInfo.WorldName, int.Parse(newInstanceInfo.InstanceSuffix));
+                _pluginLoader.LoadPlugin(newInstanceInfo.WorldName, int.Parse(newInstanceInfo.InstanceSuffix));
             }
             // else if (newInstanceInfo.InstanceCode.StartsWith("Dev"))
             // {

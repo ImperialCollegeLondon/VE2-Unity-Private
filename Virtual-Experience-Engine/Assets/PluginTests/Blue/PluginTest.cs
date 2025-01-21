@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -18,6 +19,8 @@ public class PluginTest : MonoBehaviour
     [SerializeField] private GameObject _handheldAdjustableGO;
     [SerializeField] private GameObject _networkObjectGO;
 
+    [SerializeField] private TMP_Text _roomColorText;
+
 
     private IV_ToggleActivatable _pushActivatable => _pushButtonGO.GetComponent<IV_ToggleActivatable>();
     private IV_FreeGrabbable _freeGrabbable => _freeGrabbableGO.GetComponent<IV_FreeGrabbable>();
@@ -30,6 +33,9 @@ public class PluginTest : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        _roomColorText.text = "Blue Room";
+        _roomColorText.color = Color.blue;
+
         //_pushActivatable.OnActivate.AddListener(OnButtonActivate);
         //_pushActivatable.OnDeactivate.AddListener(OnButtonDeactivate);
 

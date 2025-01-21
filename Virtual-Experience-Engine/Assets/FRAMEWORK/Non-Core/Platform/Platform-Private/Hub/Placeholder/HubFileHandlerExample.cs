@@ -46,7 +46,7 @@ public class HubFileHandlerExample : MonoBehaviour
 
     private void HandleGetRemoteFolders(IRemoteFolderSearchInfo search)
     {
-        Debug.Log("Got remote folders! " + search.CompletionCode + " - " + search.FoldersFound.Count);
+        //Debug.Log("Got remote folders! " + search.CompletionCode + " - " + search.FoldersFound.Count);
 
         V_PlatformIntegration platformIntegration = GameObject.FindObjectOfType<V_PlatformIntegration>();
 

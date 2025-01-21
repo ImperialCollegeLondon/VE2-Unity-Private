@@ -1,12 +1,13 @@
 {
-    "name": "VE2_Plugin_Sample",
+    "name": "VE2_Plugin_Sample_Green",
     "rootNamespace": "",
     "references": [
         "GUID:27761945d4a599347997de06d94a1ae9",
         "GUID:75469ad4d38634e559750d17036d5f7c",
         "GUID:696a0953692949b40bec8730e64e1fdd",
         "GUID:1b845e2499b39be4aab3e6ac2c8aa02a",
-        "GUID:900c56e6476a3ce429a487ed3db97752"
+        "GUID:900c56e6476a3ce429a487ed3db97752",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

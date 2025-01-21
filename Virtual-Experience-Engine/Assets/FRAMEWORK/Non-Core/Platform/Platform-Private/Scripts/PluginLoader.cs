@@ -13,22 +13,17 @@ using VE2_NonCore_FileSystem;
 using VE2_NonCore_FileSystem_Interfaces_Common;
 
 //TODO needs some looking at, we're no longer instantiating a GameObject 
-public static class V_PluginLoader
+public class PluginLoader
 {
-    private static GameObject currentPluginObject = null;
+    public PluginLoader() {}
+
     /// <summary>
     /// Finds the bundle and dlls at the given folder path, loads the dll into the assembly, unpacks the bundle, and instantiates GameObjects as children of the given transform
     /// Will delete the current plugin GameObjects if there are any
     /// </summary>
     /// <param name="pluginName"></param>
-    public static void LoadPlugin(string pluginName, int pluginVersion)
+    public void LoadPlugin(string pluginName, int pluginVersion)
     {
-        // destroys and reinstantiates the plugin object.
-        if (currentPluginObject != null)
-        {
-            GameObject.Destroy(currentPluginObject);
-        }
-
         Debug.Log("Instantiate plugin - " + pluginName + " V" + pluginVersion);
 
         /*
@@ -61,13 +56,14 @@ public static class V_PluginLoader
         {
             if (localFile.FullLocalNameAndPath.EndsWith(".bundle"))
             {
-                bundle = BundleUtility.getBundle(localFile.FullLocalNameAndPath);
+                bundle = GetBundle(localFile.FullLocalNameAndPath);
+                Debug.Log("Registered bundle - " + localFile.FullLocalNameAndPath + " success? " + (bundle != null));
             }
             else if (localFile.FullLocalNameAndPath.EndsWith(".dll"))
             {
                 if (!localFile.FullLocalNameAndPath.Contains("lib_burst_generated"))
                 {
-                    AssemblyUtility.registerAssembly(localFile.FullLocalNameAndPath);
+                    RegisterAssembly(localFile.FullLocalNameAndPath);
                     Debug.Log("Registered managed assembly - " + localFile.FullLocalNameAndPath);
                 }
                 else
@@ -89,14 +85,8 @@ public static class V_PluginLoader
         SceneManager.LoadScene(scenePath[0], LoadSceneMode.Single);
     }
 
-}
-
-//TODO maybe move the below classes into a different file 
-
-public static class AssemblyUtility
-{
-    static Dictionary<string, Assembly> registeredAssemblies = new Dictionary<string, Assembly>();
-    public static void registerAssembly(string path)
+    Dictionary<string, Assembly> registeredAssemblies = new Dictionary<string, Assembly>();
+    private void RegisterAssembly(string path)
     {
         string name = Path.GetFileName(path);
         if (registeredAssemblies.TryGetValue(name, out Assembly result))
@@ -104,13 +94,11 @@ public static class AssemblyUtility
         Assembly assembly = Assembly.LoadFile(path);
         registeredAssemblies.Add(name, assembly);
     }
-}
 
-public static class BundleUtility
-{
-    static Dictionary<string, AssetBundle> cachedBundles = new Dictionary<string, AssetBundle>();
-    public static AssetBundle getBundle(string bundleFilePath)
+    Dictionary<string, AssetBundle> cachedBundles = new Dictionary<string, AssetBundle>();
+    private AssetBundle GetBundle(string bundleFilePath)
     {
+        Debug.Log($"GETTING BUNDLE {bundleFilePath}, cached? {cachedBundles.ContainsKey(bundleFilePath)}");
         if (!cachedBundles.TryGetValue(bundleFilePath, out AssetBundle bundle))
         {
             Debug.Log(($"LOADING BUNDLE {bundleFilePath}"));
@@ -123,4 +111,5 @@ public static class BundleUtility
         }
         return bundle;
     }
+
 }

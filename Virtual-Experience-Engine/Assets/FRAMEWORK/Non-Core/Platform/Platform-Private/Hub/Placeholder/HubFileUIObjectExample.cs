@@ -178,7 +178,7 @@ public class HubFileUIObjectExample : MonoBehaviour
         {
             string folderName = folderPathAndName.Contains("/") ? folderPathAndName.Substring(folderPathAndName.LastIndexOf("/") + 1) : folderPathAndName;
 
-            Debug.Log(folderName);
+            //Debug.Log(folderName);
 
             // Check if the folder name matches the format
             if (numericRegex.IsMatch(folderName))
