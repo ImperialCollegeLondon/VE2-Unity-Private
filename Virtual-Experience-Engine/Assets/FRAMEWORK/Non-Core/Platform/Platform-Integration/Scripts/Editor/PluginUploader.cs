@@ -50,7 +50,7 @@ class PluginUploaderWindow : EditorWindow
     private WorldCategory _worldCategory = WorldCategory.Undefined;
 
     private Scene _sceneToExport;
-    private string _worldFolderName => $"{_worldCategory}-{_sceneToExport.name}";
+    private string _worldFolderName => $"{_worldCategory}_{_sceneToExport.name}";
 
     private IInternalFileSystem _fileSystem;
 

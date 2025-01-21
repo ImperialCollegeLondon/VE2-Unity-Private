@@ -46,8 +46,8 @@ public class HubFileUIObjectExample : MonoBehaviour
         _worldFolder = worldFolder;
 
         string worldFolderName = _worldFolder.Substring(_worldFolder.IndexOf('/') + 1);
-        _categoryText.text = worldFolderName.Substring(0, worldFolderName.IndexOf('-'));
-        _fileNameText.text = worldFolderName.Substring(_worldFolder.LastIndexOf('-') + 1);
+        _categoryText.text = worldFolderName.Substring(0, worldFolderName.IndexOf('_'));
+        _fileNameText.text = worldFolderName.Substring(_worldFolder.IndexOf('_') + 1);
 
         _taskPanel.SetActive(false); //No current tasks!
         _cancelTaskButton.gameObject.SetActive(false);
