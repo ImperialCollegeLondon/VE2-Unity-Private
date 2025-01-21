@@ -130,44 +130,44 @@ namespace VE2.Core.VComponents.Internal
         {
             Vector3 directionToGrabber = grabberPosition - _transformWrapper.position;
             Vector3 localDirectionToGrabber;
-            float angle = 0f;
+            float angularAdjustment = 0f;
             switch (_adjustmentType)
             {
                 case SpatialAdjustmentType.XAxis:
                     localDirectionToGrabber = Vector3.ProjectOnPlane(directionToGrabber, _transformWrapper.up);
                     localDirectionToGrabber.Normalize();
-                    angle = Vector3.SignedAngle(-Vector3.forward, localDirectionToGrabber, _transformWrapper.up);
-                    if (angle < 0)
-                        angle += 360;
+                    angularAdjustment = Vector3.SignedAngle(-Vector3.forward, localDirectionToGrabber, _transformWrapper.up);
+                    if (angularAdjustment < 0)
+                        angularAdjustment += 360;
                     break;
                 case SpatialAdjustmentType.YAxis:
                     localDirectionToGrabber = Vector3.ProjectOnPlane(directionToGrabber, _transformWrapper.right);
                     localDirectionToGrabber.Normalize();
-                    angle = Vector3.SignedAngle(Vector3.up, localDirectionToGrabber, _transformWrapper.right);
-                    if (angle < 0)
-                        angle += 360;
+                    angularAdjustment = Vector3.SignedAngle(Vector3.up, localDirectionToGrabber, _transformWrapper.right);
+                    if (angularAdjustment < 0)
+                        angularAdjustment += 360;
                     break;
                 case SpatialAdjustmentType.ZAxis:
                     localDirectionToGrabber = Vector3.ProjectOnPlane(directionToGrabber, _transformWrapper.forward);
                     localDirectionToGrabber.Normalize();
-                    Quaternion rotation = Quaternion.FromToRotation(-Vector3.right, localDirectionToGrabber);
+                    float signedAngle = Vector3.SignedAngle(-Vector3.right, localDirectionToGrabber, _transformWrapper.forward);
+                    if (signedAngle < 0)
+                        signedAngle += 360;
 
-                    Debug.Log($"Current: {rotation.eulerAngles.y} | Old: {_oldRotationalValue} | Difference: {rotation.eulerAngles.y - _oldRotationalValue}");
+                    Debug.Log($"Current: {signedAngle} | Old: {_oldRotationalValue} | Difference: {signedAngle - _oldRotationalValue}");
 
-                    if(rotation.eulerAngles.y - _oldRotationalValue < -180)
+                    if (signedAngle - _oldRotationalValue < -180 && !_AdjustableStateModule.IsAtMaximumValue)
                         numberOfRevolutions++;
-                    else if(rotation.eulerAngles.y - _oldRotationalValue > 180)
+                    else if (signedAngle - _oldRotationalValue > 180 && !_AdjustableStateModule.IsAtMinimumValue)
                         numberOfRevolutions--;
-                    
-                    _oldRotationalValue = rotation.eulerAngles.y;
 
-                    angle = rotation.eulerAngles.y + (numberOfRevolutions * 360);
-                    angle = Mathf.Clamp(angle, _minimumSpatialValue, _maximumSpatialValue);
-                    Debug.Log($"Angle: {angle} | Revolutions: {numberOfRevolutions}");
+                    _oldRotationalValue = signedAngle;
+
+                    angularAdjustment = signedAngle + (numberOfRevolutions * 360);
+                    Debug.Log($"Angle: {angularAdjustment} | Revolutions: {numberOfRevolutions}");
                     break;
             }
 
-            float angularAdjustment = angle;
             _spatialValue = angularAdjustment;
             float OutputValue = ConvertToOutputValue(_spatialValue);
             SetValueOnStateModule(OutputValue);
