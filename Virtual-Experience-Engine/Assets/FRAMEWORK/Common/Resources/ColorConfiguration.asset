@@ -19,3 +19,5 @@ MonoBehaviour:
   AccentPrimaryColor: {r: 0, g: 0.9725491, b: 0.78823537, a: 1}
   AccentSecondaryColor: {r: 0.9215687, g: 0.45098042, b: 0, a: 1}
   ButtonDisabledColor: {r: 0.31719467, g: 0.3848606, b: 0.41509432, a: 1}
+  PointerIdleColor: {r: 0.82745105, g: 0.9333334, b: 0.9843138, a: 1}
+  PointerHighlightColor: {r: 0.9215687, g: 0.45098042, b: 0, a: 1}
