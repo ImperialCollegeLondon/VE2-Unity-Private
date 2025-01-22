@@ -18,6 +18,7 @@ public class PluginTest : MonoBehaviour
     [SerializeField] private GameObject _handheldAdjustableGO;
     [SerializeField] private GameObject _networkObjectGO;
     [SerializeField] private GameObject _linearAdjustableGO;
+    [SerializeField] private GameObject _rotationalAdjustableGO;
 
 
     private IV_ToggleActivatable _pushActivatable => _pushButtonGO.GetComponent<IV_ToggleActivatable>();
@@ -26,6 +27,7 @@ public class PluginTest : MonoBehaviour
     private IV_HandheldAdjustable _handheldAdjustable => _handheldAdjustableGO.GetComponent<IV_HandheldAdjustable>();
     private IV_NetworkObject _networkObject => _networkObjectGO.GetComponent<IV_NetworkObject>();
     private IV_LinearAdjustable _linearAdjustable => _linearAdjustableGO.GetComponent<IV_LinearAdjustable>();
+    private IV_RotationalAdjustable _rotationalAdjustable => _rotationalAdjustableGO.GetComponent<IV_RotationalAdjustable>();
 
     private int _counter = 0;
 
@@ -46,6 +48,7 @@ public class PluginTest : MonoBehaviour
         _handheldAdjustable.OnValueAdjusted.AddListener(OnHandheldAdjustableValueAdjusted);
 
         _linearAdjustable.OnValueAdjusted.AddListener(OnLinearAdjustableValueAdjusted);
+        _rotationalAdjustable.OnValueAdjusted.AddListener(OnRotationalAdjustableValueAdjusted);
 
         _networkObject.OnStateChange.AddListener(HandleNetworkObjectStateChange);
 
@@ -154,6 +157,13 @@ public class PluginTest : MonoBehaviour
         Debug.Log("Linear Adjustable Adjusted!");
         Debug.Log($"Linear Adjustable Value = {_linearAdjustable.OutputValue}");
         Debug.Log($"Linear Adjustable Output Value = {_linearAdjustable.SpatialValue}");
+    }
+
+    private void OnRotationalAdjustableValueAdjusted(float value)
+    {
+        Debug.Log("Rotational Adjustable Adjusted!");
+        Debug.Log($"Rotational Adjustable Value = {_rotationalAdjustable.OutputValue}");
+        Debug.Log($"Rotational Adjustable Output Value = {_rotationalAdjustable.SpatialValue}");
     }
 
     private void HandleNetworkObjectStateChange(object data)

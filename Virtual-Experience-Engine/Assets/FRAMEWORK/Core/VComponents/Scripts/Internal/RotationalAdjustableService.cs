@@ -43,16 +43,18 @@ namespace VE2.Core.VComponents.Internal
 
         private readonly SpatialAdjustmentProperty _adjustmentProperty;
         private readonly ITransformWrapper _transformWrapper;
+        private readonly ITransformWrapper _attachPointTransform;
         private readonly SpatialAdjustmentType _adjustmentType;
+        private Vector3 _vectorToHandle;
         private float _oldRotationalValue;
         private int numberOfRevolutions = 0;
 
         public RotationalAdjustableService(ITransformWrapper transformWrapper, List<IHandheldInteractionModule> handheldInteractions, RotationalAdjustableConfig config, VE2Serializable adjustableState, VE2Serializable grabbableState, string id,
             WorldStateModulesContainer worldStateModulesContainer, InteractorContainer interactorContainer)
         {
-            ITransformWrapper attachPointTransform = config.GrabbableStateConfig.AttachPoint == null ? transformWrapper : new TransformWrapper(config.GrabbableStateConfig.AttachPoint);
+            _attachPointTransform = config.GrabbableStateConfig.AttachPoint == null ? transformWrapper : new TransformWrapper(config.GrabbableStateConfig.AttachPoint);
 
-            _RangedAdjustableInteractionModule = new(attachPointTransform, handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
+            _RangedAdjustableInteractionModule = new(_attachPointTransform, handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
 
             _transformWrapper = transformWrapper;
 
@@ -78,6 +80,8 @@ namespace VE2.Core.VComponents.Internal
 
             SetValueOnStateModule(config.AdjustableStateConfig.StartingOutputValue);
             _oldRotationalValue = ConvertToSpatialValue(config.AdjustableStateConfig.StartingOutputValue);
+
+            _vectorToHandle = _attachPointTransform.position - _transformWrapper.position;
         }
 
         private void OnGrabConfirmed()
@@ -129,44 +133,43 @@ namespace VE2.Core.VComponents.Internal
         private void TrackPosition(Vector3 grabberPosition)
         {
             Vector3 directionToGrabber = grabberPosition - _transformWrapper.position;
-            Vector3 localDirectionToGrabber;
-            float angularAdjustment = 0f;
+            Vector3 localDirectionToGrabber, localDirectionToHandle;
+            float signedAngle = 0f;
+
             switch (_adjustmentType)
             {
                 case SpatialAdjustmentType.XAxis:
-                    localDirectionToGrabber = Vector3.ProjectOnPlane(directionToGrabber, _transformWrapper.up);
-                    localDirectionToGrabber.Normalize();
-                    angularAdjustment = Vector3.SignedAngle(-Vector3.forward, localDirectionToGrabber, _transformWrapper.up);
-                    if (angularAdjustment < 0)
-                        angularAdjustment += 360;
+                    localDirectionToGrabber = Vector3.ProjectOnPlane(directionToGrabber, _transformWrapper.right);
+                    localDirectionToHandle = Vector3.ProjectOnPlane(_vectorToHandle, _transformWrapper.right); 
+                    signedAngle = Vector3.SignedAngle(localDirectionToHandle.normalized, localDirectionToGrabber.normalized, _transformWrapper.right);
                     break;
                 case SpatialAdjustmentType.YAxis:
-                    localDirectionToGrabber = Vector3.ProjectOnPlane(directionToGrabber, _transformWrapper.right);
-                    localDirectionToGrabber.Normalize();
-                    angularAdjustment = Vector3.SignedAngle(Vector3.up, localDirectionToGrabber, _transformWrapper.right);
-                    if (angularAdjustment < 0)
-                        angularAdjustment += 360;
+                    localDirectionToGrabber = Vector3.ProjectOnPlane(directionToGrabber, _transformWrapper.up);
+                    localDirectionToHandle = Vector3.ProjectOnPlane(_vectorToHandle, _transformWrapper.up);
+                    signedAngle = Vector3.SignedAngle(localDirectionToHandle.normalized, localDirectionToGrabber.normalized, _transformWrapper.up);
                     break;
                 case SpatialAdjustmentType.ZAxis:
                     localDirectionToGrabber = Vector3.ProjectOnPlane(directionToGrabber, _transformWrapper.forward);
-                    localDirectionToGrabber.Normalize();
-                    float signedAngle = Vector3.SignedAngle(-Vector3.right, localDirectionToGrabber, _transformWrapper.forward);
-                    if (signedAngle < 0)
-                        signedAngle += 360;
-
-                    Debug.Log($"Current: {signedAngle} | Old: {_oldRotationalValue} | Difference: {signedAngle - _oldRotationalValue}");
-
-                    if (signedAngle - _oldRotationalValue < -180 && !_AdjustableStateModule.IsAtMaximumValue)
-                        numberOfRevolutions++;
-                    else if (signedAngle - _oldRotationalValue > 180 && !_AdjustableStateModule.IsAtMinimumValue)
-                        numberOfRevolutions--;
-
-                    _oldRotationalValue = signedAngle;
-
-                    angularAdjustment = signedAngle + (numberOfRevolutions * 360);
-                    Debug.Log($"Angle: {angularAdjustment} | Revolutions: {numberOfRevolutions}");
+                    localDirectionToHandle = Vector3.ProjectOnPlane(_vectorToHandle, _transformWrapper.forward);
+                    signedAngle = Vector3.SignedAngle(localDirectionToHandle.normalized, localDirectionToGrabber.normalized, _transformWrapper.forward);
                     break;
             }
+
+            if (signedAngle < 0)
+                signedAngle += 360;
+
+            Debug.Log($"Current: {signedAngle} | Old: {_oldRotationalValue} | Difference: {signedAngle - _oldRotationalValue} |");
+            Debug.Log($"IsAtMax: {_AdjustableStateModule.IsAtMaximumValue} | IsAtMin: {_AdjustableStateModule.IsAtMinimumValue}");
+
+            if (signedAngle - _oldRotationalValue < -180 && numberOfRevolutions < _maximumSpatialValue / 360)
+                numberOfRevolutions++;
+            else if (signedAngle - _oldRotationalValue > 180 && numberOfRevolutions >= _minimumSpatialValue / 360)
+                numberOfRevolutions--;
+
+            _oldRotationalValue = signedAngle;
+
+            float angularAdjustment = signedAngle + (numberOfRevolutions * 360);
+            Debug.Log($"Angle: {angularAdjustment} | Revolutions: {numberOfRevolutions}");
 
             _spatialValue = angularAdjustment;
             float OutputValue = ConvertToOutputValue(_spatialValue);
