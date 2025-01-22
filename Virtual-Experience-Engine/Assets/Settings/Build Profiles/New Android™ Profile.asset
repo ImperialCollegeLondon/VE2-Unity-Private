@@ -192,7 +192,7 @@ MonoBehaviour:
     - line: '|   androidMaxAspectRatio: 2.1'
     - line: '|   androidMinAspectRatio: 1'
     - line: '|   applicationIdentifier:'
-    - line: '|     Android: com.ImperialCollegeLondon.VE2Test20'
+    - line: '|     Android: com.ImperialCollegeLondon.VE2Test21'
     - line: '|     Standalone: com.Unity-Technologies.com.unity.template.urp-blank'
     - line: '|     iPhone: com.Unity-Technologies.com.unity.template.urp-blank'
     - line: '|   buildNumber:'
@@ -987,7 +987,7 @@ MonoBehaviour:
     - rid: 2780094747114733568
       type: {class: AndroidPlatformBuildSettings, ns: UnityEditor.Android, asm: UnityEditor.Android.Extensions}
       data:
-        m_Development: 0
+        m_Development: 1
         m_ConnectProfiler: 0
         m_BuildWithDeepProfilingSupport: 0
         m_AllowDebugging: 0
@@ -1004,7 +1004,7 @@ MonoBehaviour:
         m_DebugSymbolLevel: 1
         m_DebugSymbolFormat: 5
         m_CurrentDeploymentTargetId: __builtin__target_default
-        m_BuildType: 2
+        m_BuildType: 1
         m_BuildAppBundle: 0
         m_IPAddressToConnect: 
         m_SymlinkSources: 0
