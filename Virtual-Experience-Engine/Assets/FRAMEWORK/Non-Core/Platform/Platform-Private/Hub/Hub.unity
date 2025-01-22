@@ -956,7 +956,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4832776686e2e1f40b2d0ae7e7ddcc58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _exchangeDebugUserSettingsWithPlayerPrefs: 1
+  _exchangeDebugUserSettingsWithPlayerPrefs: 0
   _debugUserSettings:
     Player2DControlConfig:
       MouseSensitivity: 1
@@ -24316,8 +24316,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 5446078106991619965}
   m_HandleRect: {fileID: 1218663160943845413}
   m_Direction: 2
-  m_Value: 1
-  m_Size: 1
+  m_Value: 0
+  m_Size: 0.50000006
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

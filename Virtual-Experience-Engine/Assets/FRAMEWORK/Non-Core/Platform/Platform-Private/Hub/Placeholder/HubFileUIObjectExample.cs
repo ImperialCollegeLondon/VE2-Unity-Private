@@ -34,11 +34,11 @@ public class HubFileUIObjectExample : MonoBehaviour
     private IRemoteFileTaskInfo _currentRemoteTask;
     private int _activeRemoteVersion;
 
-    private PlatformService _platformService;
+    private IPlatformService _platformService;
     private IInternalFileSystem _fileSystem;
     private string _worldFolder;
 
-    public void Setup(PlatformService platformService, IInternalFileSystem fileSystem, string worldFolder)
+    public void Setup(IPlatformService platformService, IInternalFileSystem fileSystem, string worldFolder)
     {
         _platformService = platformService;
         _fileSystem = fileSystem;

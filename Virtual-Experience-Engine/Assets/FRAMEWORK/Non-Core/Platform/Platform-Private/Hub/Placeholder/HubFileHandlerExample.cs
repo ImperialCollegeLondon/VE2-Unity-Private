@@ -72,7 +72,7 @@ public class HubFileHandlerExample : MonoBehaviour
 
             GameObject FileUIObjectGO = Instantiate(_fileUIObjectPrefab, null);
             HubFileUIObjectExample hubFileUIObject = FileUIObjectGO.GetComponent<HubFileUIObjectExample>();
-            hubFileUIObject.Setup((VE2.NonCore.Platform.Private.PlatformService)platformIntegration.PlatformService, _fileSystem, remoteWorldFolder);
+            hubFileUIObject.Setup(platformIntegration.PlatformService, _fileSystem, remoteWorldFolder);
 
             (HorizontalLayoutGroup, List<HubFileUIObjectExample>) lastHorizontalGroup = _fileObjectHorizontalGroups.Count > 0 ? _fileObjectHorizontalGroups[_fileObjectHorizontalGroups.Count - 1] : (null, null);
 
