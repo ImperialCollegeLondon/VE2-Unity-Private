@@ -23,6 +23,8 @@ MonoBehaviour:
   - m_enabled: 1
     m_path: Assets/FRAMEWORK/Non-Core/Platform/Platform-Private/Hub/Hub.unity
   - m_enabled: 0
+    m_path: Assets/FRAMEWORK/DevStuff/Dev.unity
+  - m_enabled: 0
     m_path: Assets/PluginTests/Green/DevGreen.unity
   m_ScriptingDefines: []
   m_PlayerSettingsYaml:
@@ -192,7 +194,7 @@ MonoBehaviour:
     - line: '|   androidMaxAspectRatio: 2.1'
     - line: '|   androidMinAspectRatio: 1'
     - line: '|   applicationIdentifier:'
-    - line: '|     Android: com.ImperialCollegeLondon.VE2Test21'
+    - line: '|     Android: com.ImperialCollegeLondon.VE2Test31'
     - line: '|     Standalone: com.Unity-Technologies.com.unity.template.urp-blank'
     - line: '|     iPhone: com.Unity-Technologies.com.unity.template.urp-blank'
     - line: '|   buildNumber:'

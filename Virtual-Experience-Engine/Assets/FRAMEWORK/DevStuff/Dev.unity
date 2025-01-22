@@ -794,7 +794,7 @@ MonoBehaviour:
       AvatarGreen: 40
       AvatarBlue: 40
   DebugInstanceNetworkSettings:
-    IP: 127.0.0.1
+    IP: 51.142.90.253
     Port: 4297
     InstanceCode: dev-0
   DebugFTPNetworkSettings:
@@ -3746,7 +3746,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8995ff54d324b04ea0f50966b2be213, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _connectOnStart: 0
+  _connectOnStart: 1
   _connectionStateDebug:
     ConnectionState: 0
   _localClientIDWrapper:
