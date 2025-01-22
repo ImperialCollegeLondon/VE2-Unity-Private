@@ -18,11 +18,11 @@ MonoBehaviour:
   m_PlatformId: b9b35072a6f44c2e863f17467ea3dc13
   m_PlatformBuildProfile:
     rid: 2780094747114733568
-  m_OverrideGlobalSceneList: 0
+  m_OverrideGlobalSceneList: 1
   m_Scenes:
   - m_enabled: 1
     m_path: Assets/FRAMEWORK/Non-Core/Platform/Platform-Private/Hub/Hub.unity
-  - m_enabled: 1
+  - m_enabled: 0
     m_path: Assets/PluginTests/Green/DevGreen.unity
   m_ScriptingDefines: []
   m_PlayerSettingsYaml:
@@ -192,7 +192,7 @@ MonoBehaviour:
     - line: '|   androidMaxAspectRatio: 2.1'
     - line: '|   androidMinAspectRatio: 1'
     - line: '|   applicationIdentifier:'
-    - line: '|     Android: com.ImperialCollegeLondon.VE2Test10'
+    - line: '|     Android: com.ImperialCollegeLondon.VE2Test20'
     - line: '|     Standalone: com.Unity-Technologies.com.unity.template.urp-blank'
     - line: '|     iPhone: com.Unity-Technologies.com.unity.template.urp-blank'
     - line: '|   buildNumber:'
@@ -202,7 +202,7 @@ MonoBehaviour:
     - line: '|     tvOS: 0'
     - line: '|   overrideDefaultApplicationIdentifier: 1'
     - line: '|   AndroidBundleVersionCode: 1'
-    - line: '|   AndroidMinSdkVersion: 29'
+    - line: '|   AndroidMinSdkVersion: 32'
     - line: '|   AndroidTargetSdkVersion: 0'
     - line: '|   AndroidPreferredInstallLocation: 0'
     - line: '|   aotOptions: '
@@ -284,7 +284,7 @@ MonoBehaviour:
     - line: '|   clonedFromGUID: 3c72c65a16f0acb438eed22b8b16c24a'
     - line: '|   templatePackageId: com.unity.template.urp-blank@14.0.0'
     - line: '|   templateDefaultScene: Assets/Scenes/SampleScene.unity'
-    - line: '|   useCustomMainManifest: 1'
+    - line: '|   useCustomMainManifest: 0'
     - line: '|   useCustomLauncherManifest: 0'
     - line: '|   useCustomMainGradleTemplate: 0'
     - line: '|   useCustomLauncherGradleManifest: 0'
@@ -854,7 +854,8 @@ MonoBehaviour:
     - line: '|     Standalone: ODIN_INSPECTOR_EDITOR_ONLY;ODIN_INSPECTOR;ODIN_INSPECTOR_3;ODIN_INSPECTOR_3_1;ODIN_INSPECTOR_3_2;ODIN_INSPECTOR_3_3'
     - line: '|   additionalCompilerArguments: {}'
     - line: '|   platformArchitecture: {}'
-    - line: '|   scriptingBackend: {}'
+    - line: '|   scriptingBackend:'
+    - line: '|     Android: 1'
     - line: '|   il2cppCompilerConfiguration: {}'
     - line: '|   il2cppCodeGeneration: {}'
     - line: '|   il2cppStacktraceInformation:'
@@ -907,8 +908,7 @@ MonoBehaviour:
     - line: '|   metroTileBackgroundColor: {r: 0.13333334, g: 0.17254902, b: 0.21568628,
         a: 0}'
     - line: '|   metroSplashScreenBackgroundColor: {r: 0.12941177, g: 0.17254902,
-        b: 0.21568628,'
-    - line: '|     a: 1}'
+        b: 0.21568628,    a: 1}'
     - line: '|   metroSplashScreenUseBackgroundColor: 0'
     - line: '|   syncCapabilities: 0'
     - line: '|   platformCapabilities: {}'
@@ -965,7 +965,7 @@ MonoBehaviour:
     - line: '|   qnxGraphicConfPath: '
     - line: '|   apiCompatibilityLevel: 6'
     - line: '|   captureStartupLogs: {}'
-    - line: '|   activeInputHandler: 2'
+    - line: '|   activeInputHandler: 1'
     - line: '|   windowsGamepadBackendHint: 0'
     - line: '|   cloudProjectId: '
     - line: '|   framebufferDepthMemorylessMode: 0'
@@ -987,7 +987,7 @@ MonoBehaviour:
     - rid: 2780094747114733568
       type: {class: AndroidPlatformBuildSettings, ns: UnityEditor.Android, asm: UnityEditor.Android.Extensions}
       data:
-        m_Development: 1
+        m_Development: 0
         m_ConnectProfiler: 0
         m_BuildWithDeepProfilingSupport: 0
         m_AllowDebugging: 0
@@ -1003,8 +1003,8 @@ MonoBehaviour:
         m_ExportAsGoogleAndroidProject: 0
         m_DebugSymbolLevel: 1
         m_DebugSymbolFormat: 5
-        m_CurrentDeploymentTargetId: 1WMHHB620D2101
-        m_BuildType: 1
+        m_CurrentDeploymentTargetId: __builtin__target_default
+        m_BuildType: 2
         m_BuildAppBundle: 0
         m_IPAddressToConnect: 
         m_SymlinkSources: 0

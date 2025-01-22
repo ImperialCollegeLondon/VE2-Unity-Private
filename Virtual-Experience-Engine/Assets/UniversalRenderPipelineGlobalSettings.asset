@@ -54,6 +54,7 @@ MonoBehaviour:
       - rid: 2780094751112429588
       - rid: 2780094751112429589
       - rid: 2985128283687092247
+      - rid: 2780094758944505856
     m_RuntimeSettings:
       m_List:
       - rid: 2985128283687092227
@@ -164,6 +165,8 @@ MonoBehaviour:
           type: 2}
         m_DefaultDecalMaterial: {fileID: 2100000, guid: 31d0dcc6f2dd4e4408d18036a2c93862,
           type: 2}
+        m_DefaultSpriteMaterial: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40,
+          type: 2}
     - rid: 2780094751112429583
       type: {class: GPUResidentDrawerResources, ns: UnityEngine.Rendering, asm: Unity.RenderPipelines.GPUDriven.Runtime}
       data:
@@ -252,6 +255,12 @@ MonoBehaviour:
       data:
         m_Version: 1
         m_ProbeVolumeDisableStreamingAssets: 0
+    - rid: 2780094758944505856
+      type: {class: UniversalRenderPipelineEditorAssets, ns: UnityEngine.Rendering.Universal,
+        asm: Unity.RenderPipelines.Universal.Runtime}
+      data:
+        m_DefaultSettingsVolumeProfile: {fileID: 11400000, guid: eda47df5b85f4f249abf7abd73db2cb2,
+          type: 2}
     - rid: 2985128283687092227
       type: {class: UniversalRenderPipelineDebugShaders, ns: UnityEngine.Rendering.Universal,
         asm: Unity.RenderPipelines.Universal.Runtime}

@@ -19,9 +19,6 @@ public class PluginTest : MonoBehaviour
     [SerializeField] private GameObject _handheldAdjustableGO;
     [SerializeField] private GameObject _networkObjectGO;
 
-    [SerializeField] private TMP_Text _roomColorText;
-
-
     private IV_ToggleActivatable _pushActivatable => _pushButtonGO.GetComponent<IV_ToggleActivatable>();
     private IV_FreeGrabbable _freeGrabbable => _freeGrabbableGO.GetComponent<IV_FreeGrabbable>();
     private IV_HandheldActivatable _handheldActivatable => _handheldActivatableGO.GetComponent<IV_HandheldActivatable>();
@@ -33,12 +30,6 @@ public class PluginTest : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (_roomColorText != null)
-        {
-            _roomColorText.text = "Green Room";
-            _roomColorText.color = Color.green;
-        }
-
         //_pushActivatable.OnActivate.AddListener(OnButtonActivate);
         //_pushActivatable.OnDeactivate.AddListener(OnButtonDeactivate);
 

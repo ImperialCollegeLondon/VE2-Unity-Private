@@ -11,4 +11,7 @@ public class ColorConfiguration : ScriptableObject
     public Color AccentSecondaryColor;
 
     public Color ButtonDisabledColor;
+
+    public Color PointerIdleColor; 
+    public Color PointerHighlightColor;
 }
