@@ -10,27 +10,51 @@ using VE2.Core.VComponents.PluginInterfaces;
 
 namespace VE2.Core.VComponents.Tests
 {
+    [TestFixture]
+    [Category("Handheld Adjustable Tests")]
     public class HandheldAdjustableTests
     {
-        [Test]
-        public void HandheldAdjustable_WhenAdjustedByPlugin_EmitsToPlugin()
+        //handheld adjustable
+        private IV_HandheldAdjustable _handheldAdjustablePluginInterface;
+        private V_HandheldAdjustableStub _v_handheldAdjustableStub;
+
+        private PluginAdjustableMock _customerScript;
+
+        [OneTimeSetUp]
+        public void SetUpOnce()
         {
-            HandheldAdjustableService handheldAdjustable = new(new HandheldAdjustableConfig(), new AdjustableState(), "debug", Substitute.For<WorldStateModulesContainer>());
-
-            V_HandheldAdjustableStub v_adjustableStub = new(handheldAdjustable);
-
-            IV_HandheldAdjustable adjustablePluginInterface = v_adjustableStub;
-
-            System.Random random = new();
-            float randomValue = (float)random.NextDouble();
-
-            PluginScriptMock customerScript = Substitute.For<PluginScriptMock>();
-            adjustablePluginInterface.OnValueAdjusted.AddListener( (value) => customerScript.HandleValueAdjusted(value) );
-            adjustablePluginInterface.Value = randomValue;
-            customerScript.Received(1).HandleValueAdjusted(randomValue);
-            Assert.IsTrue(adjustablePluginInterface.Value == randomValue);
-            Assert.AreEqual(adjustablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
+            //Wire up the customer script to receive the events           
+            _customerScript = Substitute.For<PluginAdjustableMock>();
         }
+
+        [SetUp]
+        public void SetUpBeforeEveryTest()
+        {
+            //create the handheld adjustable
+            HandheldAdjustableService handheldAdjustable = HandheldAdjustableServiceStubFactory.Create();
+            _v_handheldAdjustableStub = new(handheldAdjustable);
+
+            //hook up interfaces
+            _handheldAdjustablePluginInterface = _v_handheldAdjustableStub;
+
+            //wire up the customer script to receive the events
+            _handheldAdjustablePluginInterface.OnValueAdjusted.AddListener(_customerScript.HandleValueAdjusted);
+        }
+
+        [Test]
+        public void HandheldAdjustable_WhenAdjustedByPlugin_EmitsToPlugin([Random(0f, 1f, 1)] float randomValue)
+        {
+            //set the adjustable value, Check customer received the value adjusted, and that the interactorID is set
+            _handheldAdjustablePluginInterface.Value = randomValue;
+            _customerScript.Received(1).HandleValueAdjusted(randomValue);
+            Assert.IsTrue(_handheldAdjustablePluginInterface.Value == randomValue);
+            Assert.AreEqual(_handheldAdjustablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
+        }
+    }
+
+    public class PluginAdjustableMock
+    {
+        public void HandleValueAdjusted(float value) { }
     }
 
     public class V_HandheldAdjustableStub : IV_HandheldAdjustable
@@ -46,6 +70,32 @@ namespace VE2.Core.VComponents.Tests
         {
             _HandheldAdjustable = HandheldAdjustable;
         }
+
+        public void TearDown()
+        {
+            _HandheldAdjustable.TearDown();
+            _HandheldAdjustable = null;
+        }
+    }
+
+    public class HandheldAdjustableServiceStubFactory
+    {
+        public static HandheldAdjustableService Create(
+            HandheldAdjustableConfig config = null,
+            AdjustableState state = null,
+            string debugName = "debug",
+            WorldStateModulesContainer worldStateModulesContainer = null
+        )
+        {
+            config ??= new HandheldAdjustableConfig();
+            state ??= new AdjustableState();
+            worldStateModulesContainer ??= Substitute.For<WorldStateModulesContainer>();
+
+            HandheldAdjustableService handheldAdjustable = new(config, state, debugName, worldStateModulesContainer);
+
+            return handheldAdjustable;
+        }
+
     }
 }
 
