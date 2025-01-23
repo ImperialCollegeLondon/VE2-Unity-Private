@@ -50,6 +50,19 @@ namespace VE2.Core.VComponents.Tests
             Assert.IsTrue(_handheldAdjustablePluginInterface.Value == randomValue);
             Assert.AreEqual(_handheldAdjustablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
         }
+
+        [TearDown]
+        public void TearDownAfterEveryTest()
+        {
+            _customerScript.ClearReceivedCalls();
+            _handheldAdjustablePluginInterface.OnValueAdjusted.RemoveAllListeners();
+
+            _v_handheldAdjustableStub.TearDown();
+            _handheldAdjustablePluginInterface = null;
+        }
+
+        [OneTimeTearDown]
+        public void TearDownOnce() { }
     }
 
     public class PluginAdjustableMock
