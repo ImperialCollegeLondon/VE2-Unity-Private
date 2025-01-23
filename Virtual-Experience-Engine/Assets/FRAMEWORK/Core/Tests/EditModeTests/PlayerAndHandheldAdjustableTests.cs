@@ -88,15 +88,15 @@ namespace VE2.Core.Tests
         }
 
         [Test]
-        public void WithHandheldAdjustable_OnUserScroll_CustomerScriptReceiveOnValueAdjusted([Random(-100f, 0f, 1)] float minValue, [Random(0f, 100f, 1)] float maxValue)
+        public void WithHandheldAdjustable_OnUserScroll_CustomerScriptReceiveOnValueAdjusted([Random(-100f, -1, 1)] float minValue, [Random(1f, 100f, 1)] float maxValue)
         {
             //get starting and increment values
-            float startingValue = _handheldAdjustableConfig.StateConfig.StartingValue;
+            float startingValue = _handheldAdjustableConfig.StateConfig.StartingOutputValue;
             float increment = _handheldAdjustableConfig.HandheldAdjustableServiceConfig.IncrementPerScrollTick;
             
             //assign min and max values
-            _handheldAdjustableStateModule.MinimumValue = minValue;
-            _handheldAdjustableStateModule.MaximumValue = maxValue;
+            _handheldAdjustableStateModule.MinimumOutputValue = minValue;
+            _handheldAdjustableStateModule.MaximumOutputValue = maxValue;
 
             //stub out the raycast result to return the grabbable's interaction module
             RayCastProviderSetup.StubRangedInteractionModuleForRaycastProviderStub(_grabbableRaycastInterface.RangedGrabInteractionModule);
