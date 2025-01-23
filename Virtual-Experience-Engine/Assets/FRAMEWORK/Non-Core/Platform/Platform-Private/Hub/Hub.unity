@@ -22971,9 +22971,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13ae6c1282f25bc4a9a3374c34f322b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _serverType: 1
+  _serverType: 2
   _localServerIP: 127.0.0.1
-  _remoteServerIP: 
+  _remoteServerIP: 51.142.90.253
   _portNumber: 4298
   _instanceCode: 
   UseSpoofUserIdentity: 1

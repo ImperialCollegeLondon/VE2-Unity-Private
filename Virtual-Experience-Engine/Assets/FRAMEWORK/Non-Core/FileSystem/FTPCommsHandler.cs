@@ -1,5 +1,6 @@
 
 using Renci.SshNet;
+using Renci.SshNet.Common;
 using Renci.SshNet.Sftp;
 using System;
 using System.Collections.Generic;
@@ -171,12 +172,20 @@ namespace VE2_NonCore_FileSystem
                 {
                     files = _sftpClient.ListDirectory(remotePath);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    //Could not list contents
-                    Debug.LogError($"SFTP: Could not list contents of {remotePath}");
                     _sftpClient.Disconnect(); //break connection
-                    return (files, FTPCompletionCode.RemoteFileError);
+
+                    if (ex is SftpPathNotFoundException)
+                    {
+                        files = new List<SftpFile>();
+                        return (files, FTPCompletionCode.Success);
+                    }
+                    else 
+                    {
+                        Debug.LogError($"SFTP: Could not list contents of {remotePath} - {ex.Message}-{ex.StackTrace}");
+                        return (files, FTPCompletionCode.RemoteFileError);
+                    }
                 }
 
                 try

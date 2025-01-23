@@ -69,8 +69,9 @@ class PluginUploaderWindow : EditorWindow
 
         FTPNetworkSettings ftpNetworkSettings = new("13.87.84.200", 22, "ViRSE", "fwf3f3j21r3ed"); //TODO: Load in from SO
 
+        EnvironmentConfig environmentConfig = Resources.Load<EnvironmentConfig>("EnvironmentConfig"); //TODO: Pull this from FileSys interface
         //TODO: maybe just the factory can move to the internal interface asmdef?
-        _fileSystem = FileSystemServiceFactory.CreateFileStorageService(ftpNetworkSettings, $"VE2/Worlds");
+        _fileSystem = FileSystemServiceFactory.CreateFileStorageService(ftpNetworkSettings, $"VE2/Worlds/{environmentConfig.EnvironmentName}");
 
         List<string> localWorldVersions = _fileSystem.GetLocalFoldersAtPath(_worldFolderName);
         Debug.Log("Searched for local folders, found " + localWorldVersions.Count);

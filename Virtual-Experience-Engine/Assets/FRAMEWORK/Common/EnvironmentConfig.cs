@@ -6,7 +6,8 @@ public class EnvironmentConfig : ScriptableObject
     public enum EnvironmentType
     {
         Windows, 
-        Android
+        Android, 
+        Undefined,
     }
 
     public EnvironmentType Environment;
