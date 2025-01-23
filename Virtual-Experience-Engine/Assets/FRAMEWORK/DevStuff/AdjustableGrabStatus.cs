@@ -6,7 +6,8 @@ public class AdjustableGrabStatus : MonoBehaviour
 {
     private TMP_Text _text => GetComponent<TMP_Text>();
     [SerializeField] private GameObject Adjustable;
-    private IV_LinearAdjustable _adjustable => Adjustable.GetComponent<IV_LinearAdjustable>();
+    private IV_LinearAdjustable _linearAdjustable => Adjustable.GetComponent<IV_LinearAdjustable>();
+    private IV_RotationalAdjustable _rotationalAdjustable => Adjustable.GetComponent<IV_RotationalAdjustable>();
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void OnEnable()
@@ -17,9 +18,16 @@ public class AdjustableGrabStatus : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(_adjustable.IsGrabbed)
+        if (_linearAdjustable != null && _linearAdjustable.IsGrabbed)
         {
-            if(_adjustable.IsLocallyGrabbed)
+            if (_linearAdjustable.IsLocallyGrabbed)
+                UpdateValue("Grabbed Locally", Color.green);
+            else
+                UpdateValue("Grabbed Remotely", Color.yellow);
+        }
+        else if (_rotationalAdjustable != null && _rotationalAdjustable.IsGrabbed)
+        {
+            if (_rotationalAdjustable.IsLocallyGrabbed)
                 UpdateValue("Grabbed Locally", Color.green);
             else
                 UpdateValue("Grabbed Remotely", Color.yellow);

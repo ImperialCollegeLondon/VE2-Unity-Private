@@ -125,11 +125,7 @@ public class PluginTest : MonoBehaviour
         }
         else if(Keyboard.current.digit8Key.wasPressedThisFrame)
         {
-            _linearAdjustable.SpatialValue = Random.Range(_linearAdjustable.MinimumSpatialValue, _linearAdjustable.MaximumSpatialValue);
-        }
-        else if (Keyboard.current.digit9Key.wasPressedThisFrame)
-        {
-            _linearAdjustable.NumberOfValues = Random.Range(1, 10);
+            _rotationalAdjustable.OutputValue = Random.Range(_rotationalAdjustable.MinimumOutputValue, _rotationalAdjustable.MaximumOutputValue);
         }
 
     }
