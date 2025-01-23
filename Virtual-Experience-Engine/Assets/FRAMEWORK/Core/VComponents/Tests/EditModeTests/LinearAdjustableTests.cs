@@ -13,7 +13,7 @@ using VE2.Core.VComponents.InteractableFindables;
 namespace VE2.Core.VComponents.Tests
 {
     [TestFixture]
-    [Category("Handheld Adjustable Tests")]
+    [Category("Linear Adjustable Tests")]
     public class LinearAdjustableTests
     {
         private IV_LinearAdjustable _linearAdjustablePluginInterface;

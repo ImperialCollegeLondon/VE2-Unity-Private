@@ -13,7 +13,7 @@ using VE2.Core.VComponents.InteractableFindables;
 namespace VE2.Core.VComponents.Tests
 {
     [TestFixture]
-    [Category("Handheld Adjustable Tests")]
+    [Category("Rotational Adjustable Tests")]
     public class RotationalAdjustableTests
     {
         private IV_RotationalAdjustable _rotationAdjustmentPluginInterface;
