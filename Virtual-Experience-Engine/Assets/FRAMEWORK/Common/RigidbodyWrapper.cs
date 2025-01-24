@@ -1,9 +1,10 @@
+using System;
 using UnityEngine;
 
 namespace VE2.Common
 {
     public interface IRigidbodyWrapper
-    {
+    { 
         protected Rigidbody _Rigidbody { get; }
 
         public bool isKinematic { get => _Rigidbody.isKinematic; set => _Rigidbody.isKinematic = value; }
@@ -11,6 +12,12 @@ namespace VE2.Common
         public Vector3 angularVelocity { get => _Rigidbody.angularVelocity; set => _Rigidbody.angularVelocity = value; }
         public Vector3 position { get => _Rigidbody.position; set => _Rigidbody.position = value; }
         public Quaternion rotation { get => _Rigidbody.rotation; set => _Rigidbody.rotation = value; }
+
+        public bool Equals (Rigidbody other)
+        {
+            return _Rigidbody == other;
+        }
+
     }
     public class RigidbodyWrapper : IRigidbodyWrapper
     {

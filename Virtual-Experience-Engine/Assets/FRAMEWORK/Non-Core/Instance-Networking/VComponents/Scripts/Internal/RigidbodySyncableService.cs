@@ -33,9 +33,10 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
         private readonly float _timeBehind = 0.04f;
         private float _localFixedTime = 0f;
         private float _localRealTime = 0f;
-        private readonly float _fakePing = 0.0f;
+        private readonly float _estimatedPing = 0.02f;
 
         private bool _isGrabbed = false;
+        private bool _recentlyDropped = false;
 
         public RigidbodySyncableService(RigidbodySyncableStateConfig config, VE2Serializable state, string id, WorldStateModulesContainer worldStateModulesContainer, RigidbodyWrapper rigidbodyWrapper)
         {
@@ -63,11 +64,60 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
         private void HandleOnGrab(ushort grabberClientID)
         {
             _isGrabbed = true;
+
+            if (!_stateModule.IsHost)
+            {
+                _receivedRigidbodyStates.Clear();
+            }
         }
 
         private void HandleOnDrop(ushort grabberClientID)
         {
             _isGrabbed = false;
+
+            // Non hosts use this flag to continue simulating for themselves until they receive states from the host
+            _recentlyDropped = true;
+
+            if (_stateModule.IsHost)
+            {
+                PerformLagCompensationForDroppedGrabbable();
+                _recentlyDropped = false;
+            }
+        }
+
+        private void PerformLagCompensationForDroppedGrabbable()
+        {
+            // Make all rigidbodys in the scene, apart from this one, kinematic
+            Dictionary<IRigidbodyWrapper, bool> kinematicStates = new();
+
+            foreach (Rigidbody rigidbodyInScene in GameObject.FindObjectsByType<Rigidbody>(FindObjectsSortMode.None))
+            {
+                if (_rigidbody.Equals(rigidbodyInScene))
+                {
+                    Debug.Log("Found rigidbody to not make kinematic");
+                    continue;
+                }
+
+                IRigidbodyWrapper rigidbodyInSceneWrapper = new RigidbodyWrapper(rigidbodyInScene);
+                kinematicStates.Add(rigidbodyInSceneWrapper, rigidbodyInSceneWrapper.isKinematic);
+                rigidbodyInSceneWrapper.isKinematic = true;
+            }
+
+            float lagCompensationTime = _timeBehind + _estimatedPing;
+            int cyclesToSimulate = Mathf.CeilToInt(lagCompensationTime / UnityEngine.Time.fixedDeltaTime) + 1;
+
+            // Simulate physics in full steps
+            Physics.simulationMode = SimulationMode.Script;
+
+            for (int i = 0; i < cyclesToSimulate; i++)
+                Physics.Simulate(UnityEngine.Time.fixedDeltaTime);
+
+            Physics.simulationMode = SimulationMode.FixedUpdate;
+
+            foreach (KeyValuePair<IRigidbodyWrapper, bool> kinematicState in kinematicStates) //Unlock the RBs that we just locked
+                kinematicState.Key.isKinematic = kinematicState.Value;
+
+            
         }
 
         public void HandleFixedUpdate(float fixedTime)
@@ -76,7 +126,7 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
 
             _localFixedTime = fixedTime;
 
-            if (_stateModule.IsHost && !_isGrabbed)
+            if (_stateModule.IsHost && !_isGrabbed && !_recentlyDropped)
             {
                 if (_config.LogDebugMessages)
                 {
@@ -91,7 +141,7 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
         {
             _localRealTime = timeSinceStartup;
 
-            if (!_stateModule.IsHost && !_isGrabbed)
+            if (!_stateModule.IsHost && !_isGrabbed && !_recentlyDropped)
             {
                 InterpolateRigidbody();
             }
@@ -141,6 +191,9 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
         {
             if (!_stateModule.IsHost)
             {
+                // When we start receiving rigidbody states again, we stop doing our own simulation
+                _recentlyDropped = false;
+
                 if (_config.LogDebugMessages)
                 {
                     Debug.Log($"Received state fixed time {fixedTime}, position {position}, rotation {rotation}");
@@ -186,7 +239,7 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
             else if (numStates >= 2)
             {
                 // Calculate the time the rigidbody should be displayed at
-                float delayedLocalTime = _localRealTime + _timeDifferenceFromHost - _timeBehind - _fakePing;
+                float delayedLocalTime = _localRealTime + _timeDifferenceFromHost - _timeBehind;
                 
                 // Calculate index of next state
                 int index = _receivedRigidbodyStates.FindIndex(rbState => rbState.FixedTime > delayedLocalTime);
