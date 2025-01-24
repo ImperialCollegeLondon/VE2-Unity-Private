@@ -32,11 +32,15 @@ namespace VE2.Core.VComponents.Internal
         public bool IsGrabbed => _StateModule.IsGrabbed;
 
         private IRigidbodyWrapper _rigidbody;
-        private bool _isKinematicOnStart;
+        private bool _isKinematicOnGrab;
         private PhysicsConstants _physicsConstants;
 
         public event Action<ushort> OnGrabConfirmed;
         public event Action<ushort> OnDropConfirmed;
+
+        private FreeGrabbableStateConfig _stateConfig;
+
+        private Vector3 positionOnGrab = new();
 
         public FreeGrabbableService(List<IHandheldInteractionModule> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id, 
             WorldStateModulesContainer worldStateModulesContainer, InteractorContainer interactorContainer, 
@@ -44,10 +48,11 @@ namespace VE2.Core.VComponents.Internal
         {
             _RangedGrabInteractionModule = new(handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
             _StateModule = new(state, config.StateConfig, id, worldStateModulesContainer, interactorContainer, RangedGrabInteractionModule);
-            
+            _stateConfig = config.StateConfig;
+
             _rigidbody  = rigidbody;
             _physicsConstants = physicsConstants;
-            _isKinematicOnStart = _rigidbody.isKinematic;
+            _isKinematicOnGrab = _rigidbody.isKinematic;
 
             _RangedGrabInteractionModule.OnLocalInteractorRequestGrab += (InteractorID interactorID) => _StateModule.SetGrabbed(interactorID);
             _RangedGrabInteractionModule.OnLocalInteractorRequestDrop += (InteractorID interactorID) => _StateModule.SetDropped(interactorID);
@@ -64,13 +69,29 @@ namespace VE2.Core.VComponents.Internal
 
         private void HandleGrabConfirmed(ushort grabberClientID)
         {
+            _isKinematicOnGrab = _rigidbody.isKinematic;
             _rigidbody.isKinematic = false;
+            positionOnGrab = _rigidbody.position;
             OnGrabConfirmed?.Invoke(grabberClientID);
         }
     
         private void HandleDropConfirmed(ushort dropperClientID)
         {
-            _rigidbody.isKinematic = _isKinematicOnStart;
+            _rigidbody.isKinematic = _isKinematicOnGrab;
+
+            // Handle drop behaviours
+            if (_stateConfig.dropBehaviour == DropBehaviour.IgnoreMomentum)
+            {
+                _rigidbody.linearVelocity = Vector3.zero;
+                _rigidbody.angularVelocity = Vector3.zero;
+            }
+            else if (_stateConfig.dropBehaviour == DropBehaviour.ReturnToPositionOnGrab)
+            {
+                _rigidbody.position = positionOnGrab;
+                _rigidbody.linearVelocity = Vector3.zero;
+                _rigidbody.angularVelocity = Vector3.zero;
+            }
+
             OnDropConfirmed?.Invoke(dropperClientID);
         } 
 

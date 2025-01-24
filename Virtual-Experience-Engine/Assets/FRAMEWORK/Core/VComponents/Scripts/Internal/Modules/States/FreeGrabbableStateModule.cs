@@ -15,10 +15,21 @@ namespace VE2.Core.VComponents.Internal
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Grab State Settings", ApplyCondition = true)]
+        [SpaceArea(spaceAfter: 10, Order = -1)]
+        public DropBehaviour dropBehaviour = new();
+
         [SerializeField] public UnityEvent OnGrab = new();
 
         [EndGroup(Order = 1)]
-        [SpaceArea(spaceAfter: 10, Order = -1), SerializeField] public UnityEvent OnDrop = new();
+        [SerializeField] public UnityEvent OnDrop = new();
+
+    }
+
+    public enum DropBehaviour
+    {
+        KeepMomentum,
+        IgnoreMomentum,
+        ReturnToPositionOnGrab
     }
 
     internal class FreeGrabbableStateModule : BaseWorldStateModule, IFreeGrabbableStateModule
