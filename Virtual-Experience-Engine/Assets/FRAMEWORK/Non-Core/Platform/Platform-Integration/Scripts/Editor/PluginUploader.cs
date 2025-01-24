@@ -13,6 +13,7 @@ using VE2_NonCore_FileSystem;
 using VE2_NonCore_FileSystem_Interfaces_Common;
 using System.Text.RegularExpressions;
 using System.Linq;
+using static EnvironmentConfig;
 
 public class PluginUploader
 {
@@ -51,6 +52,9 @@ class PluginUploaderWindow : EditorWindow
     private WorldCategory _lastWorldCategory = WorldCategory.Undefined;
     private WorldCategory _worldCategory = WorldCategory.Undefined;
 
+    private EnvironmentType _environmentType = EnvironmentType.Undefined;
+    private EnvironmentType _lastEnvironmentType = EnvironmentType.Undefined;
+
     private Scene _sceneToExport;
     private string _worldFolderName => $"{_worldCategory}_{_sceneToExport.name}";
 
@@ -69,9 +73,8 @@ class PluginUploaderWindow : EditorWindow
 
         FTPNetworkSettings ftpNetworkSettings = new("13.87.84.200", 22, "ViRSE", "fwf3f3j21r3ed"); //TODO: Load in from SO
 
-        EnvironmentConfig environmentConfig = Resources.Load<EnvironmentConfig>("EnvironmentConfig"); //TODO: Pull this from FileSys interface
         //TODO: maybe just the factory can move to the internal interface asmdef?
-        _fileSystem = FileSystemServiceFactory.CreateFileStorageService(ftpNetworkSettings, $"VE2/Worlds/{environmentConfig.EnvironmentName}");
+        _fileSystem = FileSystemServiceFactory.CreateFileStorageService(ftpNetworkSettings, $"VE2/Worlds/{_environmentType}");
 
         List<string> localWorldVersions = _fileSystem.GetLocalFoldersAtPath(_worldFolderName);
         Debug.Log("Searched for local folders, found " + localWorldVersions.Count);
@@ -194,6 +197,25 @@ class PluginUploaderWindow : EditorWindow
             EditorGUILayout.HelpBox("World name cannot be blank!", (UnityEditor.MessageType)MessageType.Error);
             return;
         }
+
+        //BUILD TYHPE## ##################################################################
+        //################################################################################
+
+        _environmentType = (EnvironmentType)EditorGUILayout.EnumPopup("Build type", _environmentType);
+
+        if (_environmentType == EnvironmentType.Undefined)
+        {
+            EditorGUILayout.HelpBox("Please enter a build type", (UnityEditor.MessageType)MessageType.Info);
+            EditorGUI.EndDisabledGroup();
+            return;
+        }
+
+        if (_environmentType != _lastEnvironmentType)
+            _highestRemoteVersionFound = -1;
+
+        _lastEnvironmentType = _environmentType;
+
+        EditorGUILayout.Separator();
 
         //WORLD VERSION ##################################################################
         //################################################################################

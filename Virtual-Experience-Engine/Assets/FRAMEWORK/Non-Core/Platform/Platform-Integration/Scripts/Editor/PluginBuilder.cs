@@ -412,12 +412,16 @@ class VE2PluginBuilderWindow : EditorWindow
 
     private void DoScriptOnlyBuild(string destination, IEnumerable<string> managedAssemblyNames, string bundleName, bool ecsOrBurst)
     {
-        var exportDir = Path.Combine(destination, "export");
+        if (_environmentType == EnvironmentType.Undefined)
+        {
+            Debug.LogError("Environment type is undefined");
+            return;
+        }
 
         var bpo = new BuildPlayerOptions()
         {
             locationPathName = Path.Combine(destination, "__build", "plugin"),
-            target = BuildTarget.StandaloneWindows64,
+            target = _environmentType == EnvironmentType.Windows ? BuildTarget.StandaloneWindows64 : BuildTarget.Android,
             options = ecsOrBurst ? BuildOptions.None : BuildOptions.BuildScriptsOnly,
         };
 
@@ -451,6 +455,12 @@ class VE2PluginBuilderWindow : EditorWindow
 
     private void BuildBundle(string name, string destinationFolder)
     {
+        if (_environmentType == EnvironmentType.Undefined)
+        {
+            Debug.LogError("Environment type is undefined");
+            return;
+        }
+
         name = name.ToLowerInvariant();
 
         //destinationFolder = Path.Combine(destinationFolder, "export"); //TODO: Do we want this to be export? Everything gets dumped in one folder, but export is what we want here?
@@ -475,7 +485,8 @@ class VE2PluginBuilderWindow : EditorWindow
 
         if (!compressBundles) bundleBuildOptions |= BuildAssetBundleOptions.UncompressedAssetBundle;
 
-        var manfiest = BuildPipeline.BuildAssetBundles(destinationFolder, buildMap, bundleBuildOptions, BuildTarget.StandaloneWindows64);
+        var manfiest = BuildPipeline.BuildAssetBundles(destinationFolder, buildMap, bundleBuildOptions, 
+            _environmentType == EnvironmentType.Windows ? BuildTarget.StandaloneWindows64 : BuildTarget.Android);
         //manfiest.
         Debug.Log(destinationFolder);
 
