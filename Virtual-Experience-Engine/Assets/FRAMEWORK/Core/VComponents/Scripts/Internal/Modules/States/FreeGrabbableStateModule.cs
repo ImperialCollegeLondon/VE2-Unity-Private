@@ -15,12 +15,12 @@ namespace VE2.Core.VComponents.Internal
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Grab State Settings", ApplyCondition = true)]
-        [SpaceArea(spaceAfter: 10, Order = -1)]
-        public DropBehaviour dropBehaviour = new();
+        [SpaceArea(spaceAfter: 10)]
+        [SerializeField] public DropBehaviour dropBehaviour = new();
 
         [SerializeField] public UnityEvent OnGrab = new();
 
-        [EndGroup(Order = 1)]
+        [EndGroup]
         [SerializeField] public UnityEvent OnDrop = new();
 
     }
@@ -29,7 +29,7 @@ namespace VE2.Core.VComponents.Internal
     {
         KeepMomentum,
         IgnoreMomentum,
-        ReturnToPositionOnGrab
+        ReturnToPositionBeforeGrab
     }
 
     internal class FreeGrabbableStateModule : BaseWorldStateModule, IFreeGrabbableStateModule

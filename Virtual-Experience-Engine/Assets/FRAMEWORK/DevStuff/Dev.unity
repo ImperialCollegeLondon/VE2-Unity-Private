@@ -502,6 +502,7 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls: []
@@ -7464,6 +7465,7 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls: []
@@ -9307,6 +9309,7 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls: []

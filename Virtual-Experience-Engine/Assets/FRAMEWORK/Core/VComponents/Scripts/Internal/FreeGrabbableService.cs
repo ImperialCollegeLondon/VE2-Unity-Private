@@ -85,7 +85,7 @@ namespace VE2.Core.VComponents.Internal
                 _rigidbody.linearVelocity = Vector3.zero;
                 _rigidbody.angularVelocity = Vector3.zero;
             }
-            else if (_stateConfig.dropBehaviour == DropBehaviour.ReturnToPositionOnGrab)
+            else if (_stateConfig.dropBehaviour == DropBehaviour.ReturnToPositionBeforeGrab)
             {
                 _rigidbody.position = positionOnGrab;
                 _rigidbody.linearVelocity = Vector3.zero;
