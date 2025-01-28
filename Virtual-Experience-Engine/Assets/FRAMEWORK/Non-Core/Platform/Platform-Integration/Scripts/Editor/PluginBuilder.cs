@@ -331,7 +331,7 @@ class VE2PluginBuilderWindow : EditorWindow
         //BUILD ##########################################################################
         //################################################################################
 
-        string destinationPath = Path.Combine(Application.persistentDataPath, "files", "VE2", "Worlds", _worldFolderName, (_highestRemoteVersionFound + 1).ToString("D3"));
+        string destinationPath = Path.Combine(Application.persistentDataPath, "files", "VE2", "Worlds", _environmentType.ToString(), _worldFolderName, (_highestRemoteVersionFound + 1).ToString("D3"));
 
         if (GUILayout.Button("Build"))
         {
