@@ -355,7 +355,7 @@ namespace VE2_NonCore_FileSystem
     public class FTPRemoteFolderListTask : FTPTask
     {
         public override string RemotePathAndName => RemotePath;
-        public List<string> FoundFolderNames;
+        public List<string> FoundFolderNames = new();
 
         public FTPRemoteFolderListTask(string remotePath) : base(remotePath) { }
     }
@@ -363,7 +363,7 @@ namespace VE2_NonCore_FileSystem
     public class FTPRemoteFileListTask : FTPTask
     {
         public override string RemotePathAndName => RemotePath;
-        public List<FileDetails> FoundFilesDetails;
+        public List<FileDetails> FoundFilesDetails = new();
 
         public FTPRemoteFileListTask(string remotePath) : base(remotePath) { }
     }

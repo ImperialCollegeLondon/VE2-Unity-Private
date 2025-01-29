@@ -15,6 +15,7 @@ using VE2.PlatformNetworking;
 using VE2_NonCore_FileSystem_Interfaces_Internal;
 using VE2_NonCore_FileSystem;
 using VE2_NonCore_FileSystem_Interfaces_Common;
+using static EnvironmentConfig;
 
 //TODO: Need to check for DLLs (rather than just assemblies) referenced the scene/scripts, and include them in the build. E.G Mathnet.Numerics.dll
 
@@ -83,6 +84,9 @@ class VE2PluginBuilderWindow : EditorWindow
 
     private Scene _sceneToExport;
     private string _worldFolderName => $"{_worldCategory}_{_sceneToExport.name}";
+    private EnvironmentType _environmentType = EnvironmentType.Undefined;
+    private EnvironmentType _lastEnvironmentType = EnvironmentType.Undefined;
+
 
     private IInternalFileSystem _fileSystem;
 
@@ -99,7 +103,7 @@ class VE2PluginBuilderWindow : EditorWindow
         FTPNetworkSettings ftpNetworkSettings = new("13.87.84.200", 22, "ViRSE", "fwf3f3j21r3ed"); //TODO: Load in from SO
 
         //TODO: maybe just the factory can move to the internal interface asmdef?
-        _fileSystem = FileSystemServiceFactory.CreateFileStorageService(ftpNetworkSettings, $"VE2/Worlds");
+        _fileSystem = FileSystemServiceFactory.CreateFileStorageService(ftpNetworkSettings, $"VE2/Worlds/{_environmentType}");
 
         IRemoteFolderSearchInfo worldsSearch = _fileSystem.GetRemoteFoldersAtPath("");
         worldsSearch.OnSearchComplete += HandleWorldsSearchComplete;
@@ -243,6 +247,25 @@ class VE2PluginBuilderWindow : EditorWindow
 
         EditorGUILayout.Separator();
 
+        //BUILD TYHPE## ##################################################################
+        //################################################################################
+
+        _environmentType = (EnvironmentType)EditorGUILayout.EnumPopup("Build type", _environmentType);
+
+        if (_environmentType == EnvironmentType.Undefined)
+        {
+            EditorGUILayout.HelpBox("Please enter a build type", (UnityEditor.MessageType)MessageType.Info);
+            EditorGUI.EndDisabledGroup();
+            return;
+        }
+
+        if (_environmentType != _lastEnvironmentType)
+            _highestRemoteVersionFound = -1;
+
+        _lastEnvironmentType = _environmentType;
+
+        EditorGUILayout.Separator();
+
         //WORLD VERSION ##################################################################
         //################################################################################
 
@@ -308,7 +331,7 @@ class VE2PluginBuilderWindow : EditorWindow
         //BUILD ##########################################################################
         //################################################################################
 
-        string destinationPath = Path.Combine(Application.persistentDataPath, "files", "VE2", "Worlds", _worldFolderName, (_highestRemoteVersionFound + 1).ToString("D3"));
+        string destinationPath = Path.Combine(Application.persistentDataPath, "files", "VE2", "Worlds", _environmentType.ToString(), _worldFolderName, (_highestRemoteVersionFound + 1).ToString("D3"));
 
         if (GUILayout.Button("Build"))
         {
@@ -389,12 +412,16 @@ class VE2PluginBuilderWindow : EditorWindow
 
     private void DoScriptOnlyBuild(string destination, IEnumerable<string> managedAssemblyNames, string bundleName, bool ecsOrBurst)
     {
-        var exportDir = Path.Combine(destination, "export");
+        if (_environmentType == EnvironmentType.Undefined)
+        {
+            Debug.LogError("Environment type is undefined");
+            return;
+        }
 
         var bpo = new BuildPlayerOptions()
         {
             locationPathName = Path.Combine(destination, "__build", "plugin"),
-            target = BuildTarget.StandaloneWindows64,
+            target = _environmentType == EnvironmentType.Windows ? BuildTarget.StandaloneWindows64 : BuildTarget.Android,
             options = ecsOrBurst ? BuildOptions.None : BuildOptions.BuildScriptsOnly,
         };
 
@@ -428,6 +455,12 @@ class VE2PluginBuilderWindow : EditorWindow
 
     private void BuildBundle(string name, string destinationFolder)
     {
+        if (_environmentType == EnvironmentType.Undefined)
+        {
+            Debug.LogError("Environment type is undefined");
+            return;
+        }
+
         name = name.ToLowerInvariant();
 
         //destinationFolder = Path.Combine(destinationFolder, "export"); //TODO: Do we want this to be export? Everything gets dumped in one folder, but export is what we want here?
@@ -452,7 +485,8 @@ class VE2PluginBuilderWindow : EditorWindow
 
         if (!compressBundles) bundleBuildOptions |= BuildAssetBundleOptions.UncompressedAssetBundle;
 
-        var manfiest = BuildPipeline.BuildAssetBundles(destinationFolder, buildMap, bundleBuildOptions, BuildTarget.StandaloneWindows64);
+        var manfiest = BuildPipeline.BuildAssetBundles(destinationFolder, buildMap, bundleBuildOptions, 
+            _environmentType == EnvironmentType.Windows ? BuildTarget.StandaloneWindows64 : BuildTarget.Android);
         //manfiest.
         Debug.Log(destinationFolder);
 

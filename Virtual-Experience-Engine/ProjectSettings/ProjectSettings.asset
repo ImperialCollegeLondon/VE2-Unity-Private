@@ -13,7 +13,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: ImperialCollegeLondon
-  productName: Virtual-Experience-Engine-Mod-Loader
+  productName: Virtual-Experience-Engine
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -143,7 +143,6 @@ PlayerSettings:
   bundleVersion: 0.1.0
   preloadedAssets:
   - {fileID: 11400000, guid: ed9ac8f257b31dc48a8294571cd0a702, type: 2}
-  - {fileID: -5763108147677317115, guid: 5e0362137df543d43a3e036dbe1c242a, type: 2}
   - {fileID: 11400000, guid: 8c492c7685fbaad408a7f0353bf4a90c, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
@@ -166,8 +165,8 @@ PlayerSettings:
   androidMaxAspectRatio: 2.1
   androidMinAspectRatio: 1
   applicationIdentifier:
-    Android: com.ImperialCollegeLondon.VE2AppLauncher3
-    Standalone: com.Unity-Technologies.com.unity.template.urp-blank
+    Android: com.ImperialCollegeLondon.VE2
+    Standalone: com.ImperialCollegeLondon.VE2
     iPhone: com.Unity-Technologies.com.unity.template.urp-blank
   buildNumber:
     Standalone: 0
@@ -183,8 +182,8 @@ PlayerSettings:
   stripEngineCode: 1
   iPhoneStrippingLevel: 0
   iPhoneScriptCallOptimization: 0
-  ForceInternetPermission: 1
-  ForceSDCardPermission: 1
+  ForceInternetPermission: 0
+  ForceSDCardPermission: 0
   CreateWallpaper: 0
   androidSplitApplicationBinary: 0
   keepLoadedShadersAlive: 0
@@ -258,7 +257,7 @@ PlayerSettings:
   clonedFromGUID: 3c72c65a16f0acb438eed22b8b16c24a
   templatePackageId: com.unity.template.urp-blank@14.0.0
   templateDefaultScene: Assets/Scenes/SampleScene.unity
-  useCustomMainManifest: 1
+  useCustomMainManifest: 0
   useCustomLauncherManifest: 0
   useCustomMainGradleTemplate: 0
   useCustomLauncherGradleManifest: 0
@@ -825,7 +824,7 @@ PlayerSettings:
   webGLCloseOnQuit: 0
   webWasm2023: 0
   scriptingDefineSymbols:
-    Standalone: ODIN_INSPECTOR_EDITOR_ONLY;ODIN_INSPECTOR;ODIN_INSPECTOR_3;ODIN_INSPECTOR_3_1;ODIN_INSPECTOR_3_2;ODIN_INSPECTOR_3_3
+    Standalone: 
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend: {}
