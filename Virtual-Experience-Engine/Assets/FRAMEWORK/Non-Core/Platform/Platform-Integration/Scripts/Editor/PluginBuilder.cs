@@ -16,6 +16,7 @@ using VE2_NonCore_FileSystem_Interfaces_Internal;
 using VE2_NonCore_FileSystem;
 using VE2_NonCore_FileSystem_Interfaces_Common;
 using static EnvironmentConfig;
+using UnityEditor.Build.Reporting;
 
 //TODO: Need to check for DLLs (rather than just assemblies) referenced the scene/scripts, and include them in the build. E.G Mathnet.Numerics.dll
 
@@ -368,9 +369,15 @@ class VE2PluginBuilderWindow : EditorWindow
 
     private void ExecuteBuild(IEnumerable<Assembly> assembliesToInclude, string destinationFolder, string bundleName, bool ecsOrBurst)
     {
-        BuildBundle(bundleName, destinationFolder); //editor script problems here
-
-        DoScriptOnlyBuild(destinationFolder, assembliesToInclude.Select(ExtractFileName), bundleName, ecsOrBurst); //AND here!
+        if (_environmentType == EnvironmentType.Windows)
+        {
+            BuildWindowsBundle(bundleName, destinationFolder); //editor script problems here
+            DoWindowsScriptOnlyBuild(destinationFolder, assembliesToInclude.Select(ExtractFileName), bundleName, ecsOrBurst); //AND here!
+        }
+        else if (_environmentType == EnvironmentType.Android)
+        {
+            DoAPKBuild(bundleName, destinationFolder);
+        }
 
         MakeMetadata(destinationFolder);
         // if (BuildExists) DoScriptOnlyBuild();
@@ -410,7 +417,7 @@ class VE2PluginBuilderWindow : EditorWindow
     // c:\bundle\__build\, for project build
     // c:\bundle\export\ , for items.
 
-    private void DoScriptOnlyBuild(string destination, IEnumerable<string> managedAssemblyNames, string bundleName, bool ecsOrBurst)
+    private void DoWindowsScriptOnlyBuild(string destination, IEnumerable<string> managedAssemblyNames, string bundleName, bool ecsOrBurst)
     {
         if (_environmentType == EnvironmentType.Undefined)
         {
@@ -453,7 +460,7 @@ class VE2PluginBuilderWindow : EditorWindow
         return new FileInfo(assembly.Location).Name;
     }
 
-    private void BuildBundle(string name, string destinationFolder)
+    private void BuildWindowsBundle(string name, string destinationFolder)
     {
         if (_environmentType == EnvironmentType.Undefined)
         {
@@ -462,8 +469,6 @@ class VE2PluginBuilderWindow : EditorWindow
         }
 
         name = name.ToLowerInvariant();
-
-        //destinationFolder = Path.Combine(destinationFolder, "export"); //TODO: Do we want this to be export? Everything gets dumped in one folder, but export is what we want here?
 
         if (Directory.Exists(destinationFolder))
             FileUtil.DeleteFileOrDirectory(destinationFolder);
@@ -483,11 +488,10 @@ class VE2PluginBuilderWindow : EditorWindow
 
         var bundleBuildOptions = BuildAssetBundleOptions.None;
 
-        if (!compressBundles) bundleBuildOptions |= BuildAssetBundleOptions.UncompressedAssetBundle;
+        if (!compressBundles) 
+            bundleBuildOptions |= BuildAssetBundleOptions.UncompressedAssetBundle;
 
-        var manfiest = BuildPipeline.BuildAssetBundles(destinationFolder, buildMap, bundleBuildOptions, 
-            _environmentType == EnvironmentType.Windows ? BuildTarget.StandaloneWindows64 : BuildTarget.Android);
-        //manfiest.
+        var manfiest = BuildPipeline.BuildAssetBundles(destinationFolder, buildMap, bundleBuildOptions, BuildTarget.StandaloneWindows64);
         Debug.Log(destinationFolder);
 
         CleanupBundleBuild(destinationFolder, new[] { $"{name}.bundle" });
@@ -515,6 +519,42 @@ class VE2PluginBuilderWindow : EditorWindow
 
         bool deleteSuccess = FileUtil.DeleteFileOrDirectory(buildFolderPath);
         Debug.Log($"Delete build folder {buildFolderPath} success: {deleteSuccess}");
+    }
+
+    private void DoAPKBuild(string name, string destinationFolder) 
+    {
+        // Get scenes from the Build Settings
+        string[] scenes = GetEnabledScenes();
+
+        // Define build options
+        BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions
+        {
+            scenes = scenes,
+            locationPathName = $"{destinationFolder}/{name}.apk",
+            target = BuildTarget.Android,
+            options = BuildOptions.None
+        };
+
+        // Execute build process
+        BuildReport report = BuildPipeline.BuildPlayer(buildPlayerOptions);
+        BuildSummary summary = report.summary;
+
+        if (summary.result == UnityEditor.Build.Reporting.BuildResult.Succeeded)
+        {
+            Debug.Log("APK Build succeeded: " + summary.totalSize + " bytes");
+        }
+        else
+        {
+            Debug.LogError("APK Build failed: " + summary.result);
+        }
+    }
+
+    private static string[] GetEnabledScenes()
+    {
+        return EditorBuildSettings.scenes
+            .Where(scene => scene.enabled)
+            .Select(scene => scene.path)
+            .ToArray();
     }
 
     private void GetSceneDataAndScripts(UnityEngine.SceneManagement.Scene sceneToExport)

@@ -257,7 +257,7 @@ class PluginUploaderWindow : EditorWindow
             EditorGUILayout.HelpBox("Remote version number is ahead of local version, please rebuild your plugin", (UnityEditor.MessageType)MessageType.Warning);
             return;
         }
-        else if (exportFiles.Count < 3)
+        else if ((_environmentType == EnvironmentType.Windows && exportFiles.Count < 3) || (_environmentType == EnvironmentType.Android && exportFiles.Count < 2))
         {
             EditorGUILayout.HelpBox($"Local build {_worldFolderName}V{_highestLocalVersionFound} is missing files. Please rebuild", (UnityEditor.MessageType)MessageType.Error);
             return;
