@@ -25,13 +25,6 @@ namespace VE2.Core.VComponents.Internal
 
     }
 
-    public enum DropBehaviour
-    {
-        KeepMomentum,
-        IgnoreMomentum,
-        ReturnToPositionBeforeGrab
-    }
-
     internal class FreeGrabbableStateModule : BaseWorldStateModule, IFreeGrabbableStateModule
     {
         #region Interfaces
