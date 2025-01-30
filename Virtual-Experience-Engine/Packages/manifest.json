@@ -2,7 +2,6 @@
   "dependencies": {
     "com.browar.editor-toolbox": "https://github.com/arimger/Unity-Editor-Toolbox.git#upm",
     "com.github-glitchenzo.nugetforunity": "https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity",
-    "com.meta.xr.sdk.core": "69.0.1",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.collab-proxy": "2.6.0",
     "com.unity.ide.rider": "3.0.31",
@@ -16,7 +15,7 @@
     "com.unity.ugui": "2.0.0",
     "com.unity.visualscripting": "1.9.5",
     "com.unity.xr.management": "4.5.0",
-    "com.unity.xr.oculus": "4.4.0",
+    "com.unity.xr.meta-openxr": "2.0.1",
     "net.tnrd.nsubstitute": "https://github.com/Thundernerd/Unity3D-NSubstitute.git",
     "com.unity.modules.accessibility": "1.0.0",
     "com.unity.modules.ai": "1.0.0",
