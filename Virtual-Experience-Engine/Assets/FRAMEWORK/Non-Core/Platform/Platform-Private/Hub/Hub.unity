@@ -23922,8 +23922,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea5830b1d78a6804c9c44ba68f3bacd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enableVR: 0
-  enable2D: 1
+  enableVR: 1
+  enable2D: 0
   playerStateConfig:
     IsNetworked: 1
     RepeatedTransmissionConfig:
@@ -24849,7 +24849,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 15281, y: 5697.1943}
+  m_AnchoredPosition: {x: 15281, y: 5697.194}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!1 &7129766439557370346

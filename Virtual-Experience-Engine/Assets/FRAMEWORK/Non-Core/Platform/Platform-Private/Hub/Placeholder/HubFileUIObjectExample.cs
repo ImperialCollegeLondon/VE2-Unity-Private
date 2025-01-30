@@ -37,13 +37,15 @@ public class HubFileUIObjectExample : MonoBehaviour
     private IPlatformService _platformService;
     private IInternalFileSystem _fileSystem;
     private string _worldFolder;
+    private EnvironmentConfig _environmentConfig;
 
-    public void Setup(IPlatformService platformService, IInternalFileSystem fileSystem, string worldFolder)
+    public void Setup(IPlatformService platformService, IInternalFileSystem fileSystem, string worldFolder, EnvironmentConfig environmentConfig)
     {
         _platformService = platformService;
         _fileSystem = fileSystem;
 
         _worldFolder = worldFolder;
+        _environmentConfig = environmentConfig;
 
         string worldFolderName = _worldFolder.Substring(_worldFolder.IndexOf('/') + 1);
         _categoryText.text = worldFolderName.Substring(0, worldFolderName.IndexOf('_'));
@@ -108,13 +110,9 @@ public class HubFileUIObjectExample : MonoBehaviour
         info.OnSearchComplete -= HandleWorldFilesSearchComplete;
         _filesToDownload = new List<string>(info.FilesFound.Keys);
 
-        Debug.Log("FOUND WORLD FILES");
-        foreach (string file in _filesToDownload)
-        {
-            Debug.Log(file);
-        }
+        int minNumFiles = _environmentConfig.Environment == EnvironmentConfig.EnvironmentType.Windows ? 3 : 2;
 
-        if (_filesToDownload.Count < 3)
+        if (_filesToDownload.Count < minNumFiles)
         {
             Debug.LogError("Couldn't find remote files...");
             return;

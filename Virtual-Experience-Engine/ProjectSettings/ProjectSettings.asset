@@ -142,9 +142,11 @@ PlayerSettings:
   tvOSBundleVersion: 1.0
   bundleVersion: 0.1.0
   preloadedAssets:
-  - {fileID: 11400000, guid: ed9ac8f257b31dc48a8294571cd0a702, type: 2}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 11400000, guid: 53bfa925fbdb5b348b417e529453627b, type: 2}
   - {fileID: -5763108147677317115, guid: 5e0362137df543d43a3e036dbe1c242a, type: 2}
-  - {fileID: 11400000, guid: 8c492c7685fbaad408a7f0353bf4a90c, type: 2}
+  - {fileID: -2095455582303345462, guid: 0c96d855d7c225e418cf22f5437c1dc1, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -166,7 +168,7 @@ PlayerSettings:
   androidMaxAspectRatio: 2.1
   androidMinAspectRatio: 1
   applicationIdentifier:
-    Android: com.ImperialCollegeLondon.hub
+    Android: com.ImperialCollegeLondon.VirtualExperienceEngineJan301
     Standalone: com.ImperialCollegeLondon.VE2
     iPhone: com.Unity-Technologies.com.unity.template.urp-blank
   buildNumber:
