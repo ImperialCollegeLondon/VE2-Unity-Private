@@ -1,4 +1,8 @@
+using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 using VE2.Core.VComponents.InteractableFindables;
 using VE2.Core.VComponents.InteractableInterfaces;
 
@@ -17,33 +21,60 @@ public class RaycastProvider : IRaycastProvider
 
         if (Physics.Raycast(rayOrigin, raycastDirection, out RaycastHit raycastHit, maxRaycastDistance, layerMask)) 
         {
-            //Debug.Log("Raycast hit: " + raycastHit.collider.name + " - pos " + raycastHit.point);
-            if (raycastHit.collider.TryGetComponent(out IRangedPlayerInteractableIntegrator rangedPlayerInteractableIntegrator)) 
-            {
-                result = new(rangedPlayerInteractableIntegrator.RangedInteractionModule, raycastHit.distance);
-            }
+            //ProcessUIHover(raycastHit.collider.gameObject);
+            Button button = GetUIButton(raycastHit);
+
+            if (button != null) 
+                result = new(null, button, raycastHit.distance);
+            else if (raycastHit.collider.TryGetComponent(out IRangedPlayerInteractableIntegrator rangedPlayerInteractableIntegrator)) 
+                result = new(rangedPlayerInteractableIntegrator.RangedInteractionModule, button, raycastHit.distance);
             else 
-                result = new(null, raycastHit.distance);
+                result = new(null, button, raycastHit.distance);
         }
         else 
         {
-            result = new(null, maxRaycastDistance);
+            result = new(null, null, maxRaycastDistance);
         }
 
         return result;
+    }
+
+    private Button GetUIButton(RaycastHit hit)
+    {
+        PointerEventData pointerData = new PointerEventData(EventSystem.current);
+
+        // Convert the hit point to screen space
+        Camera camera = Camera.main; // Or assign your specific camera
+        pointerData.position = camera.WorldToScreenPoint(hit.point); // Convert to screen space
+
+        // Perform the raycast against the UI
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(pointerData, results);
+
+        foreach (var result in results)
+        {
+            if (result.gameObject.TryGetComponent(out Button button)) 
+                return button;
+        }
+
+        return null;
     }
 }
 
 public class RaycastResultWrapper 
 {
     public IRangedInteractionModule RangedInteractable { get; private set; }
+    public Button UIButton;
     public float HitDistance { get; private set; }
+    public bool HitInteractableOrUI => HitInteractable || HitUI;
     public bool HitInteractable => RangedInteractable != null;
+    public bool HitUI => UIButton != null;
     public bool RangedInteractableIsInRange => RangedInteractable != null && HitDistance <= RangedInteractable.InteractRange;
 
-    public RaycastResultWrapper(IRangedInteractionModule rangedInteractable, float distance) 
+    public RaycastResultWrapper(IRangedInteractionModule rangedInteractable, Button uiButton, float distance) 
     {
         RangedInteractable = rangedInteractable;
+        UIButton = uiButton;
         HitDistance = distance;
     }
 }
