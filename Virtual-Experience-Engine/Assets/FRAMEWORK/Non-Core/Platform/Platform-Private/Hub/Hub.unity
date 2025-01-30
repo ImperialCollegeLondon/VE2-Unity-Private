@@ -25102,8 +25102,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: FileHandlerExample, VE2_PluginSample_FileSystem
+      - m_Target: {fileID: 7129766439557370348}
+        m_TargetAssemblyTypeName: HubFileHandlerExample, Assembly-CSharp
         m_MethodName: HandleRefreshFilesButtonClicked
         m_Mode: 1
         m_Arguments:

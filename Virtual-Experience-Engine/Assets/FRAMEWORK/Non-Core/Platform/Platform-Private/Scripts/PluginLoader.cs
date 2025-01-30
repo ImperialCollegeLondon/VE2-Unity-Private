@@ -58,7 +58,7 @@ public class PluginLoader
         }
         else if (environmentConfig.Environment == EnvironmentConfig.EnvironmentType.Android)
         {
-            
+            LaunchAndroidAPK(pluginName);
         }
         else 
         {
@@ -106,7 +106,6 @@ public class PluginLoader
 
     private void LaunchAndroidAPK(string apkName)
     {
-        EnvironmentConfig environmentConfig = Resources.Load<EnvironmentConfig>("EnvironmentConfig");
         string packageName = $"{EnvironmentConfig.CompanyName}.{apkName}";
 
         Debug.Log($"Try launch {packageName}");

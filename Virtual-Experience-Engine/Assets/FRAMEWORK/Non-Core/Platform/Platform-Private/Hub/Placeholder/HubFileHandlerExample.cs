@@ -40,7 +40,7 @@ public class HubFileHandlerExample : MonoBehaviour
 
     private void StartSearch() 
     {
-        IRemoteFolderSearchInfo task = _fileSystem.GetRemoteFoldersAtPath(folderToSearch); //TODO: This needs to be folders instead!
+        IRemoteFolderSearchInfo task = _fileSystem.GetRemoteFoldersAtPath(folderToSearch);
         task.OnSearchComplete += HandleGetRemoteFolders;
     }
 

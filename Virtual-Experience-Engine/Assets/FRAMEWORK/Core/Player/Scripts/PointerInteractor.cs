@@ -142,8 +142,6 @@ namespace VE2.Core.Player
 
         private void HandleHoverOverUIGameObject(GameObject go)
         {
-            Debug.Log("<color=green>Hovering over UI object: " + go.name + "</color>");
-
             if (go == lastHoveredUIObject)
                 return;
 
