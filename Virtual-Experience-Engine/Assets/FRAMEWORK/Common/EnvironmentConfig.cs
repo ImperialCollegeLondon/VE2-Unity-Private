@@ -13,4 +13,6 @@ public class EnvironmentConfig : ScriptableObject
     public EnvironmentType Environment;
 
     public string EnvironmentName => Environment.ToString();
+
+    [HideInInspector] public const string CompanyName = "com.ImperialCollegeLondon";
 }

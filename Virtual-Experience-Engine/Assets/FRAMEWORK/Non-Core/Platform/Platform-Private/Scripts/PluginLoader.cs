@@ -50,6 +50,26 @@ public class PluginLoader
             Debug.Log(localFile.FullLocalNameAndPath);
         }
 
+        EnvironmentConfig environmentConfig = Resources.Load<EnvironmentConfig>("EnvironmentConfig");
+
+        if (environmentConfig.Environment == EnvironmentConfig.EnvironmentType.Windows)
+        {
+            LoadWindowsPlugin(localFiles);
+        }
+        else if (environmentConfig.Environment == EnvironmentConfig.EnvironmentType.Android)
+        {
+            
+        }
+        else 
+        {
+            Debug.LogError("Could not load plugin as environment is not supported");
+        }
+
+
+    }
+
+    private void LoadWindowsPlugin(List<LocalFileDetails> localFiles) 
+    {
         AssetBundle bundle = null;
 
         foreach (LocalFileDetails localFile in localFiles)
@@ -72,7 +92,6 @@ public class PluginLoader
                     Debug.Log("Registered burst assembly - " + localFile.FullLocalNameAndPath);
                 }
             }
-
         }
 
         if (bundle == null)
@@ -83,6 +102,28 @@ public class PluginLoader
 
         string[] scenePath = bundle.GetAllScenePaths();
         SceneManager.LoadScene(scenePath[0], LoadSceneMode.Single);
+    }
+
+    private void LaunchAndroidAPK(string apkName)
+    {
+        EnvironmentConfig environmentConfig = Resources.Load<EnvironmentConfig>("EnvironmentConfig");
+        string packageName = $"{EnvironmentConfig.CompanyName}.{apkName}";
+
+        Debug.Log($"Try launch {packageName}");
+        var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+        var currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+        var packageManager = currentActivity.Call<AndroidJavaObject>("getPackageManager");
+        var launchIntent = packageManager.Call<AndroidJavaObject>("getLaunchIntentForPackage", packageName);
+
+        if (launchIntent != null)
+        {
+            currentActivity.Call("startActivity", launchIntent);
+            Debug.Log("App launched successfully");
+        }
+        else
+        {
+            Debug.LogError("Launch intent is null. The app might not be installed.");
+        }
     }
 
     Dictionary<string, Assembly> registeredAssemblies = new Dictionary<string, Assembly>();
