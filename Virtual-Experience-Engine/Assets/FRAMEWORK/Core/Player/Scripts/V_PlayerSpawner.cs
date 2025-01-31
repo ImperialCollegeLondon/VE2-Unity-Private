@@ -95,7 +95,10 @@ namespace VE2.Core.Player
             //TODO: Should move into the service itself, inject config SO through constructor
             EnvironmentConfig environmentConfig = Resources.Load<EnvironmentConfig>("EnvironmentConfig");
             if (environmentConfig.Environment == EnvironmentConfig.EnvironmentType.Android)
+            {
+                enableVR = true;
                 enable2D = false;
+            }
 
             _playerService = VE2PlayerServiceFactory.Create(_playerTransformData, playerStateConfig, enableVR, enable2D);
         }

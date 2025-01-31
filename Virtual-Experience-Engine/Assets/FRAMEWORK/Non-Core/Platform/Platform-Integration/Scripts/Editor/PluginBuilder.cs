@@ -523,7 +523,7 @@ class VE2PluginBuilderWindow : EditorWindow
 
     private void DoAPKBuild(string name, string destinationFolder) 
     {
-        PlayerSettings.productName = $"VE2 - {name}";
+        //PlayerSettings.productName = $"VE2 - {name}";
         PlayerSettings.applicationIdentifier = "com.ImperialCollegeLondon." + name.ToLower();
 
         // Get scenes from the Build Settings

@@ -168,8 +168,8 @@ PlayerSettings:
   androidMaxAspectRatio: 2.1
   androidMinAspectRatio: 1
   applicationIdentifier:
-    Android: com.ImperialCollegeLondon.VirtualExperienceEngineJan301
-    Standalone: com.ImperialCollegeLondon.VE2
+    Android: com.ImperialCollegeLondon.VirtualExperienceEngineJan313
+    Standalone: com.ImperialCollegeLondon.VirtualExperienceEngine311
     iPhone: com.Unity-Technologies.com.unity.template.urp-blank
   buildNumber:
     Standalone: 0

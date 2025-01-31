@@ -139,6 +139,12 @@ public class HubFileUIObjectExample : MonoBehaviour
             }
             else
             {
+                if (_environmentConfig.Environment == EnvironmentConfig.EnvironmentType.Android)
+                {
+                    string filepath = $"{Application.persistentDataPath}/Worlds/Android{_worldFolder}/{_activeRemoteVersion.ToString("D3")}/{_fileNameText.text}.apk";
+                    InstallAPK(filepath);
+                }
+
                 _downloadRemoteButton.gameObject.SetActive(false);
                 _playButton.gameObject.SetActive(true);
             }
@@ -149,14 +155,20 @@ public class HubFileUIObjectExample : MonoBehaviour
         }
     }
 
-    public void HandleDownloadRemoteFileComplete(IRemoteFileTaskInfo task)
+    //Installing APK: /storage/emulated/0/Android/data/com.ImperialCollegeLondon.VirtualExperienceEngineJan313/files/Worlds/AndroidAero_DevGreen/001/DevGreen.apk<br> UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)<br>HubFileUIObjectExample:InstallAPK(String)<br>HubFileUIObjectExample:HandleDownloadWorldFileComplete(IRemoteFileTaskInfo)<br>VE2_NonCore_FileSystem.RemoteFileTaskInfo:Update()<br>VE2_NonCore_FileSystem.FileSystemService:Update()<br><br>
+    //Fri Jan 31 2025 12:21:23 GMT+0000 (Greenwich Mean Time):error9579/9542 Unity
+    //Error invoking task completed event: android.os.FileUriExposedException: file:///storage/emulated/0/Android/data/com.ImperialCollegeLondon.VirtualExperienceEngineJan313/files/Worlds/AndroidAero_DevGreen/001/DevGreen.apk exposed beyond app through Intent.getData()<br>UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)<br>VE2_NonCore_FileSystem.FileSystemService:Update()<br><br>
+    public void InstallAPK(string filePath) 
     {
-        _currentRemoteTask.OnTaskCompleted -= HandleDownloadRemoteFileComplete;
-
-        if (task.Status == RemoteFileTaskStatus.Succeeded)
+        Debug.Log("Installing APK: " + filePath);
+        using (AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+        using (AndroidJavaObject currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
+        using (AndroidJavaObject intent = new AndroidJavaObject("android.content.Intent", "android.intent.action.VIEW"))
+        using (AndroidJavaObject uri = new AndroidJavaClass("android.net.Uri").CallStatic<AndroidJavaObject>("parse", "file://" + filePath))
         {
-            _downloadRemoteButton.gameObject.SetActive(false);
-            _playButton.gameObject.SetActive(true);
+            intent.Call<AndroidJavaObject>("setDataAndType", uri, "application/vnd.android.package-archive");
+            intent.Call<AndroidJavaObject>("setFlags", 268435456); // FLAG_ACTIVITY_NEW_TASK
+            currentActivity.Call("startActivity", intent);
         }
     }
 
