@@ -141,7 +141,8 @@ public class HubFileUIObjectExample : MonoBehaviour
             {
                 if (_environmentConfig.Environment == EnvironmentConfig.EnvironmentType.Android)
                 {
-                    string filepath = $"{Application.persistentDataPath}/Worlds/Android{_worldFolder}/{_activeRemoteVersion.ToString("D3")}/{_fileNameText.text}.apk";
+                    //TODO - need a proper way to get the file path, should come from filesystem
+                    string filepath = $"{Application.persistentDataPath}/files/VE2/Worlds/Android/{_worldFolder}/{_activeRemoteVersion.ToString("D3")}/{_fileNameText.text}.apk";
                     InstallAPK(filepath);
                 }
 
@@ -155,9 +156,11 @@ public class HubFileUIObjectExample : MonoBehaviour
         }
     }
 
-    //Installing APK: /storage/emulated/0/Android/data/com.ImperialCollegeLondon.VirtualExperienceEngineJan313/files/Worlds/AndroidAero_DevGreen/001/DevGreen.apk<br> UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)<br>HubFileUIObjectExample:InstallAPK(String)<br>HubFileUIObjectExample:HandleDownloadWorldFileComplete(IRemoteFileTaskInfo)<br>VE2_NonCore_FileSystem.RemoteFileTaskInfo:Update()<br>VE2_NonCore_FileSystem.FileSystemService:Update()<br><br>
-    //Fri Jan 31 2025 12:21:23 GMT+0000 (Greenwich Mean Time):error9579/9542 Unity
-    //Error invoking task completed event: android.os.FileUriExposedException: file:///storage/emulated/0/Android/data/com.ImperialCollegeLondon.VirtualExperienceEngineJan313/files/Worlds/AndroidAero_DevGreen/001/DevGreen.apk exposed beyond app through Intent.getData()<br>UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)<br>VE2_NonCore_FileSystem.FileSystemService:Update()<br><br>
+    //Installing APK: /storage/emulated/0/Android/data/com.ImperialCollegeLondon.VirtualExperienceEngineJan316/files/VE2/Worlds/Android/Aero_DevGreen/001/DevGreen.apk<br> UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)<br>HubFileUIObjectExample:InstallAPK(String)<br>HubFileUIObjectExample:HandleDownloadWorldFileComplete(IRemoteFileTaskInfo)<br>VE2_NonCore_FileSystem.RemoteFileTaskInfo:Update()<br>VE2_NonCore_FileSystem.FileSystemService:Update()<br><br>
+    //Fri Jan 31 2025 12:41:54 GMT+0000 (Greenwich Mean Time):info2141/1687 JniUtils-inl
+    //Creating temporary JNIEnv.This is a heavy operation and should be infrequent.To optimize, use JNI AttachCurrentThread on calling thread
+    //Fri Jan 31 2025 12:41:54 GMT+0000 (Greenwich Mean Time):error19984/19956 Unity
+    //Error invoking task completed event: android.os.FileUriExposedException: file:///storage/emulated/0/Android/data/com.ImperialCollegeLondon.VirtualExperienceEngineJan316/files/VE2/Worlds/Android/Aero_DevGreen/001/DevGreen.apk exposed beyond app through Intent.getData()<br>UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)<br>VE2_NonCore_FileSystem.FileSystemService:Update()<br><br>
     public void InstallAPK(string filePath) 
     {
         Debug.Log("Installing APK: " + filePath);
