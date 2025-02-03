@@ -161,17 +161,23 @@ public class HubFileUIObjectExample : MonoBehaviour
     //Creating temporary JNIEnv.This is a heavy operation and should be infrequent.To optimize, use JNI AttachCurrentThread on calling thread
     //Fri Jan 31 2025 12:41:54 GMT+0000 (Greenwich Mean Time):error19984/19956 Unity
     //Error invoking task completed event: android.os.FileUriExposedException: file:///storage/emulated/0/Android/data/com.ImperialCollegeLondon.VirtualExperienceEngineJan316/files/VE2/Worlds/Android/Aero_DevGreen/001/DevGreen.apk exposed beyond app through Intent.getData()<br>UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)<br>VE2_NonCore_FileSystem.FileSystemService:Update()<br><br>
-    public void InstallAPK(string filePath) 
+    public void InstallAPK(string filePath)
     {
         Debug.Log("Installing APK: " + filePath);
         using (AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
         using (AndroidJavaObject currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
-        using (AndroidJavaObject intent = new AndroidJavaObject("android.content.Intent", "android.intent.action.VIEW"))
-        using (AndroidJavaObject uri = new AndroidJavaClass("android.net.Uri").CallStatic<AndroidJavaObject>("parse", "file://" + filePath))
+        using (AndroidJavaObject fileProvider = new AndroidJavaClass("androidx.core.content.FileProvider"))
         {
-            intent.Call<AndroidJavaObject>("setDataAndType", uri, "application/vnd.android.package-archive");
-            intent.Call<AndroidJavaObject>("setFlags", 268435456); // FLAG_ACTIVITY_NEW_TASK
-            currentActivity.Call("startActivity", intent);
+            string authority = "com.ImperialCollegeLondon.VirtualExperienceEngineFeb44.fileprovider";
+            using (AndroidJavaObject file = new AndroidJavaObject("java.io.File", filePath))
+            using (AndroidJavaObject uri = fileProvider.CallStatic<AndroidJavaObject>("getUriForFile", currentActivity, authority, file))
+            using (AndroidJavaObject intent = new AndroidJavaObject("android.content.Intent", "android.intent.action.VIEW"))
+            {
+                intent.Call<AndroidJavaObject>("setDataAndType", uri, "application/vnd.android.package-archive");
+                intent.Call<AndroidJavaObject>("addFlags", 268435456); // FLAG_ACTIVITY_NEW_TASK
+                intent.Call<AndroidJavaObject>("addFlags", 1); // FLAG_GRANT_READ_URI_PERMISSION
+                currentActivity.Call("startActivity", intent);
+            }
         }
     }
 
@@ -232,6 +238,6 @@ public class HubFileUIObjectExample : MonoBehaviour
         //Ok, fine, let's start with just making the request via platform service
 
         //Request allocation to that world, stripping out the category prefix
-        _platformService.RequestInstanceAllocation(_worldFolder, _activeRemoteVersion.ToString());
+        _platformService.RequestInstanceAllocation(_fileNameText.text, _activeRemoteVersion.ToString());
     }
 }

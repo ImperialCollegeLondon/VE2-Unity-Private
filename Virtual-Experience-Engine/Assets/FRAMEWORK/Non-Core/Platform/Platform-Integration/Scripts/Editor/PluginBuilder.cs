@@ -523,8 +523,13 @@ class VE2PluginBuilderWindow : EditorWindow
 
     private void DoAPKBuild(string name, string destinationFolder) 
     {
-        //PlayerSettings.productName = $"VE2 - {name}";
-        PlayerSettings.applicationIdentifier = "com.ImperialCollegeLondon." + name.ToLower();
+        //TODO: need to change builder to only build this scene - should then switch scene settings back(?)
+
+        string oldProductName = PlayerSettings.productName;
+        string oldAppIdentifier = PlayerSettings.applicationIdentifier;
+
+        PlayerSettings.productName = $"VE2 - {name}";
+        PlayerSettings.applicationIdentifier = "com.ImperialCollegeLondon." + name;
 
         // Get scenes from the Build Settings
         string[] scenes = GetEnabledScenes();
@@ -550,6 +555,9 @@ class VE2PluginBuilderWindow : EditorWindow
         {
             Debug.LogError("APK Build failed: " + summary.result);
         }
+
+        PlayerSettings.productName = oldProductName;
+        PlayerSettings.applicationIdentifier = oldAppIdentifier;
     }
 
     private static string[] GetEnabledScenes()
