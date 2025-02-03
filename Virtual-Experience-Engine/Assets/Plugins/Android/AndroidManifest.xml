@@ -19,7 +19,7 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.ImperialCollegeLondon.VirtualExperienceEngineFeb44.fileprovider"
+            android:authorities="com.ImperialCollegeLondon.VirtualExperienceEngine.fileprovider"
             android:grantUriPermissions="true"
             android:exported="false">
             <meta-data

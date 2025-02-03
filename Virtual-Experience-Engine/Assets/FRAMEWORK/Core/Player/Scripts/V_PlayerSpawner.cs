@@ -94,7 +94,7 @@ namespace VE2.Core.Player
         {
             //TODO: Should move into the service itself, inject config SO through constructor
             EnvironmentConfig environmentConfig = Resources.Load<EnvironmentConfig>("EnvironmentConfig");
-            if (environmentConfig.Environment == EnvironmentConfig.EnvironmentType.Android)
+            if (environmentConfig.Environment == EnvironmentConfig.EnvironmentType.Android && !Application.isEditor)
             {
                 enableVR = true;
                 enable2D = false;

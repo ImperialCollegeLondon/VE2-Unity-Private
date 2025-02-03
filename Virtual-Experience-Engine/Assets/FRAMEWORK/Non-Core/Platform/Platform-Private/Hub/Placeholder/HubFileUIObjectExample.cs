@@ -168,7 +168,7 @@ public class HubFileUIObjectExample : MonoBehaviour
         using (AndroidJavaObject currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
         using (AndroidJavaObject fileProvider = new AndroidJavaClass("androidx.core.content.FileProvider"))
         {
-            string authority = "com.ImperialCollegeLondon.VirtualExperienceEngineFeb44.fileprovider";
+            string authority = "com.ImperialCollegeLondon.VirtualExperienceEngine.fileprovider";
             using (AndroidJavaObject file = new AndroidJavaObject("java.io.File", filePath))
             using (AndroidJavaObject uri = fileProvider.CallStatic<AndroidJavaObject>("getUriForFile", currentActivity, authority, file))
             using (AndroidJavaObject intent = new AndroidJavaObject("android.content.Intent", "android.intent.action.VIEW"))

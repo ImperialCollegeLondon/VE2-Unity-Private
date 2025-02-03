@@ -8,10 +8,10 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
-  - enabled: 0
+  - enabled: 1
     path: Assets/FRAMEWORK/Non-Core/Platform/Platform-Private/Hub/Hub.unity
     guid: 7535069ead0163b45bc8b984118fbf92
-  - enabled: 1
+  - enabled: 0
     path: Assets/PluginTests/Green/DevGreen.unity
     guid: b7800568d36ba0d4886037b9127fbbe9
   m_configObjects:
