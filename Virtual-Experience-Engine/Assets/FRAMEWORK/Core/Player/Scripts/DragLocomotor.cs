@@ -20,7 +20,7 @@ public class DragLocomotor
     private readonly Transform _rootTransform; //For horizontal drag
     private readonly Transform _headOffsetTransform; //For vertical drag
     private readonly Transform _handTransform; //For measuring drag delta 
-    private LayerMask groundLayerMask => LayerMask.GetMask("Ground");
+    private LayerMask _groundLayerMask => LayerMask.GetMask("Ground");
 
 
     public DragLocomotor(DragLocomotorReferences locomotorVRReferences, DragLocomotorInputContainer inputContainer, DragLocomotorInputContainer otherVRHandInputContainer,
@@ -86,8 +86,8 @@ public class DragLocomotor
         _otherVRHandInputContainer.HorizontalDrag.OnReleased -= HandleOtherVRHorizontalDragReleased;
         _otherVRHandInputContainer.VerticalDrag.OnReleased -= HandleOtherVRVerticalDragReleased;
 
-        SetIsDraggingHorizontal(false);
-        SetIsDraggingVertical(false);
+        //SetIsDraggingHorizontal(false);
+        //SetIsDraggingVertical(false);
     }
 
     private void HandleHorizontalDragPressed()
@@ -189,12 +189,12 @@ public class DragLocomotor
         Vector3 targetRaycastPosition = currentRaycastPosition + moveVector;
 
         // Perform raycast from current raycast position to check for ground
-        if (Physics.Raycast(currentRaycastPosition, Vector3.down, out RaycastHit currentHit, Mathf.Infinity, groundLayerMask))
+        if (Physics.Raycast(currentRaycastPosition, Vector3.down, out RaycastHit currentHit, Mathf.Infinity, _groundLayerMask))
         {
             float currentGroundHeight = currentHit.point.y;
 
             // Perform raycast from target position to check for ground
-            if (Physics.Raycast(targetRaycastPosition, Vector3.down, out RaycastHit targetHit, Mathf.Infinity, groundLayerMask))
+            if (Physics.Raycast(targetRaycastPosition, Vector3.down, out RaycastHit targetHit, Mathf.Infinity, _groundLayerMask))
             {
                 float targetGroundHeight = targetHit.point.y;
                 float heightDifference = Mathf.Abs(targetGroundHeight - currentGroundHeight);

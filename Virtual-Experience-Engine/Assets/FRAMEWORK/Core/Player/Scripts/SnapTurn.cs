@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using VE2.Core.Common;
 using VE2.Core.Player;
@@ -12,31 +13,32 @@ public class SnapTurn
         _inputContainer = inputContainer;
         _rootTransform = rootTransform;
     }
+    public void HandleUpdate()
+    {
 
+    }
     public void HandleOEnable()
     {
-        _inputContainer.SnapTurn.OnStickPressed += HandleSnapTurn;
+        _inputContainer.SnapTurnLeft.OnStickPressed += HandleSnapTurnLeft;
+        _inputContainer.SnapTurnRight.OnStickPressed += HandleSnapTurnRight;
     }
 
     public void HandleOnDisable()
     {
-        _inputContainer.SnapTurn.OnStickPressed -= HandleSnapTurn;
+        _inputContainer.SnapTurnLeft.OnStickPressed -= HandleSnapTurnLeft;
+        _inputContainer.SnapTurnRight.OnStickPressed -= HandleSnapTurnRight;
     }
 
-    private void HandleSnapTurn(bool isRightMovement)
+    private void HandleSnapTurnLeft()
     {
-        if (isRightMovement)
-        {
-            // Rotate the player by 45 degrees
-            _rootTransform.rotation *= Quaternion.Euler(0, _snapTurnAmount, 0);
-            Debug.Log("Snap Turn Left");
-        }
-        else
-        {
-            // Rotate the player by 45 degrees
-            _rootTransform.rotation *= Quaternion.Euler(0, -_snapTurnAmount, 0);
-            Debug.Log("Snap Turn Right");
-        }
-
+        // Rotate the player by 45 degrees
+        _rootTransform.rotation *= Quaternion.Euler(0, -_snapTurnAmount, 0);
+        Debug.Log("Snap Turn Left");
+    }
+    private void HandleSnapTurnRight()
+    {
+        // Rotate the player by 45 degrees
+        _rootTransform.rotation *= Quaternion.Euler(0, _snapTurnAmount, 0);
+        Debug.Log("Snap Turn Right");
     }
 }

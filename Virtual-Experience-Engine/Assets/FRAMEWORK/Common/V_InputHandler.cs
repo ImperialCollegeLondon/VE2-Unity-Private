@@ -104,72 +104,136 @@ namespace VE2.Core.Common
 
     public interface IStickPressInput
     {
-        public event Action<bool> OnStickPressed; //True if positive, false if negative
-        public event Action<bool> OnStickReleased; //True if positive, false if negative
+        public event Action OnStickPressed;
+        public event Action OnStickReleased;
     }
 
     public class StickPressInput : IStickPressInput
     {
-        public event Action<bool> OnStickPressed;
-        public event Action<bool> OnStickReleased;
+        public event Action OnStickPressed;
+        public event Action OnStickReleased;
 
         private readonly InputAction _inputAction;
         private float _minThreshold;
         private bool _isHorizontalStickPress;
         private bool _wasPressed;
+        private bool _isNegativeDirection;
 
-        public StickPressInput(InputAction inputAction, float minThreshold, bool isHorizontalStickPress)
+        public StickPressInput(InputAction inputAction, float minThreshold, bool isHorizontalStickPress, bool isNegativeDirection)
         {
             _inputAction = inputAction;
             _inputAction.Enable();
             _minThreshold = minThreshold;
             _isHorizontalStickPress = isHorizontalStickPress;
             _wasPressed = false;
+            _isNegativeDirection = isNegativeDirection;
+            _inputAction.canceled += ctx => 
+            {
+                OnStickReleased?.Invoke();
+                _wasPressed = false; 
+            };
         }
 
         public void HandleUpdate()
         {
-            float inputValue;
-
-            if (_isHorizontalStickPress)
+            Vector2 inputValue = _inputAction.ReadValue<Vector2>();
+            if (_isHorizontalStickPress) //Handle horizontal stick press
             {
-                inputValue = _inputAction.ReadValue<Vector2>().x;
-                if (inputValue < -_minThreshold || inputValue > _minThreshold)
+                if (_isNegativeDirection)
                 {
-                    if (!_wasPressed)
+                    if (inputValue.x < -_minThreshold && inputValue.y < _minThreshold) //Checking if the Y axis stick is not being moved too much
                     {
-                        OnStickPressed?.Invoke(inputValue > 0);
-                        _wasPressed = true;
+                        if (!_wasPressed)
+                        {
+                            OnStickPressed?.Invoke();
+                            _wasPressed = true;
+                            return;
+                        }
                     }
                 }
                 else
                 {
-                    if (_wasPressed)
+                    if (inputValue.x > _minThreshold && inputValue.y < _minThreshold) //Checking if the Y axis stick is not being moved too much
                     {
-                        OnStickReleased?.Invoke(inputValue > 0);
-                        _wasPressed = false;
+                        if (!_wasPressed)
+                        {
+                            OnStickPressed?.Invoke();
+                            _wasPressed = true;
+                            return;
+                        }
                     }
                 }
             }
-            else
+            else //Handle vertical stick press
             {
-                inputValue = _inputAction.ReadValue<Vector2>().y;
-                if (inputValue > _minThreshold)
+                if (_isNegativeDirection)
                 {
-                    if (!_wasPressed)
+                    if (inputValue.y < -_minThreshold)
                     {
-                        OnStickPressed?.Invoke(inputValue > 0);
-                        _wasPressed = true;
+                        if (!_wasPressed)
+                        {
+                            OnStickPressed?.Invoke();
+                            _wasPressed = true;
+                            return;
+                        }
                     }
                 }
                 else
                 {
-                    if (_wasPressed)
+                    if (inputValue.y > _minThreshold)
                     {
-                        OnStickReleased?.Invoke(inputValue > 0);
-                        _wasPressed = false;
+                        if (!_wasPressed)
+                        {
+                            OnStickPressed?.Invoke();
+                            _wasPressed = true;
+                            return;
+                        }
                     }
                 }
+            }
+        }
+    }
+
+    public class TeleportInput : IPressableInput, IValueInput<Vector2>
+    {
+        public event Action OnPressed;
+        public event Action OnReleased;
+
+        private readonly InputAction _inputAction;
+        private float _minThreshold;
+        private float _maxNeutralThreshold;
+        private bool _wasPressed;
+
+        public bool IsPressed => _wasPressed;
+
+        public Vector2 Value => _inputAction.ReadValue<Vector2>();
+
+        public TeleportInput(InputAction inputAction, float minThreshold, float maxNeutralThreshold)
+        {
+            _inputAction = inputAction;
+            _inputAction.Enable();
+            _minThreshold = minThreshold;
+            _maxNeutralThreshold = maxNeutralThreshold;
+        }
+
+        public void HandleUpdate()
+        {
+            Vector2 inputValue = _inputAction.ReadValue<Vector2>();
+
+            if (inputValue.y > _minThreshold)
+            {
+                if (!_wasPressed)
+                {
+                    OnPressed?.Invoke();
+                    Debug.Log("Teleport Pressed Invoke");
+                    _wasPressed = true;
+                }
+            }
+            else if (Mathf.Abs(inputValue.x) < _maxNeutralThreshold && Mathf.Abs(inputValue.y) < _maxNeutralThreshold && _wasPressed)
+            {
+                OnReleased?.Invoke();
+                Debug.Log("Teleport Released Invoke");
+                _wasPressed = false;
             }
         }
     }
@@ -193,8 +257,9 @@ namespace VE2.Core.Common
             IValueInput<Vector3> handVRRightPosition, IValueInput<Quaternion> handVRRightRotation,
             IPressableInput rangedClickVRRight, IPressableInput grabVRRight, IPressableInput handheldClickVRRight, IScrollInput scrollTickUpVRRight, IScrollInput scrollTickDownVRRight,
             IPressableInput horizontalDragVRRight, IPressableInput verticalDragVRRight,
-            IStickPressInput stickPressHorizontalVRLeft, IStickPressInput stickPressVerticalVRLeft,
-            IStickPressInput stickPressHorizontalVRRight, IStickPressInput stickPressVerticalVRRight)
+            IStickPressInput stickPressHorizontalLeftDirectionVRLeft, IStickPressInput stickPressHorizontalRightDirectionVRLeft, 
+            IStickPressInput stickPressHorizontalLeftDirectionVRRight, IStickPressInput stickPressHorizontalRightDirectionVRRight,
+            IPressableInput stickPressVerticalVRLeft, IValueInput<Vector2> teleportDirectionVRLeft, IPressableInput stickPressVerticalVRRight, IValueInput<Vector2> teleportDirectionVRRight)
         {
             ChangeMode = changeMode2D;
 
@@ -208,11 +273,13 @@ namespace VE2.Core.Common
                 new HandVRInputContainer(handVRLeftPosition, handVRLeftRotation, 
                     new InteractorInputContainer(rangedClickVRLeft, grabVRLeft, handheldClickVRLeft, scrollTickUpVRLeft, scrollTickDownVRLeft),
                     new DragLocomotorInputContainer(horizontalDragVRLeft, verticalDragVRLeft),
-                    new SnapTurnInputContainer(stickPressHorizontalVRLeft)),
+                    new SnapTurnInputContainer(stickPressHorizontalLeftDirectionVRLeft, stickPressHorizontalRightDirectionVRLeft),
+                    new TeleportInputContainer(stickPressVerticalVRLeft, teleportDirectionVRLeft)),
                 new HandVRInputContainer(handVRRightPosition, handVRRightRotation, 
                     new InteractorInputContainer(rangedClickVRRight, grabVRRight, handheldClickVRRight, scrollTickUpVRRight, scrollTickDownVRRight),
                     new DragLocomotorInputContainer(horizontalDragVRRight, verticalDragVRRight),
-                    new SnapTurnInputContainer(stickPressHorizontalVRRight))
+                    new SnapTurnInputContainer(stickPressHorizontalLeftDirectionVRRight, stickPressHorizontalRightDirectionVRRight),
+                    new TeleportInputContainer(stickPressVerticalVRRight, teleportDirectionVRRight))
             );
         }
 
@@ -255,14 +322,16 @@ namespace VE2.Core.Common
         public InteractorInputContainer InteractorVRInputContainer { get; private set; }
         public DragLocomotorInputContainer DragLocomotorInputContainer { get; private set; }
         public SnapTurnInputContainer SnapTurnInputContainer { get; private set; }
+        public TeleportInputContainer TeleportInputContainer { get; private set; }
 
-        public HandVRInputContainer(IValueInput<Vector3> handPosition, IValueInput<Quaternion> handRotation, InteractorInputContainer interactorVRInputContainer, DragLocomotorInputContainer dragLocomotorInputContainer = null, SnapTurnInputContainer snapTurnInputContainer = null)
+        public HandVRInputContainer(IValueInput<Vector3> handPosition, IValueInput<Quaternion> handRotation, InteractorInputContainer interactorVRInputContainer, DragLocomotorInputContainer dragLocomotorInputContainer = null, SnapTurnInputContainer snapTurnInputContainer = null, TeleportInputContainer teleportInputContainer = null)
         {
             HandPosition = handPosition;
             HandRotation = handRotation;
             InteractorVRInputContainer = interactorVRInputContainer;
             DragLocomotorInputContainer = dragLocomotorInputContainer;
             SnapTurnInputContainer = snapTurnInputContainer;
+            TeleportInputContainer = teleportInputContainer;
         }
     }
 
@@ -298,20 +367,24 @@ namespace VE2.Core.Common
 
     public class SnapTurnInputContainer
     {
-        public IStickPressInput SnapTurn { get; private set; }
+        public IStickPressInput SnapTurnLeft { get; private set; }
+        public IStickPressInput SnapTurnRight { get; private set; }
 
-        public SnapTurnInputContainer(IStickPressInput snapTurn)
+        public SnapTurnInputContainer(IStickPressInput snapTurnLeft, IStickPressInput snapTurnRight)
         {
-            SnapTurn = snapTurn;
+            SnapTurnLeft = snapTurnLeft;
+            SnapTurnRight = snapTurnRight;
         }
     }
     public class TeleportInputContainer
     {
-        public IStickPressInput Teleport { get; private set; }
+        public IPressableInput Teleport { get; private set; }
 
-        public TeleportInputContainer(IStickPressInput teleport)
+        public IValueInput<Vector2> TeleportDirection { get; private set; }
+        public TeleportInputContainer(IPressableInput teleport, IValueInput<Vector2> teleportDirection)
         {
             Teleport = teleport;
+            TeleportDirection = teleportDirection;
         }
     }
 
@@ -359,9 +432,12 @@ namespace VE2.Core.Common
         private const float MIN_SCROLL_TICKS_PER_SECOND_VR = 0.5f;
         private const float MAX_SCROLL_TICKS_PER_SECOND_VR = 5f;
 
-        //Minimum threshold to detext thumbstick movement to process stick press input
-        private const float MIN_STICKPRESS_THRESHOLD = 0.7f;
+        //Minimum threshold to detect thumbstick movement to process stick press input and teleport input
+        private const float MIN_STICKPRESS_THRESHOLD = 0.8f;
+        private const float MIN_TELEPORT_STICKPRESS_THRESHOLD = 0.8f;
+        private const float MAX_TELEPORT_NEUTRAL_THRESHOLD = 0.3f;
         private List<StickPressInput> _stickPressInputs;
+        private List<TeleportInput> _teleportInputs;
         private void CreateInputs()
         {
             InputActionAsset inputActionAsset = Resources.Load<InputActionAsset>("V_InputActions");
@@ -428,14 +504,15 @@ namespace VE2.Core.Common
 
             // VR Stick Press Left Action Map
             InputActionMap actionMapStickPressVRLeft = inputActionAsset.FindActionMap("StickPressVRLeft");
-            StickPressInput stickPressHorizontalVRLeft = new(actionMapStickPressVRLeft.FindAction("StickPress"), MIN_STICKPRESS_THRESHOLD, true);
-            StickPressInput stickPressVerticalVRLeft = new(actionMapStickPressVRLeft.FindAction("StickPress"), MIN_STICKPRESS_THRESHOLD, false);
+            StickPressInput stickPressHorizontalLeftDirectionVRLeft = new(actionMapStickPressVRLeft.FindAction("StickPress"), MIN_STICKPRESS_THRESHOLD, true, true);
+            StickPressInput stickPressHorizontalRightDirectionVRLeft = new(actionMapStickPressVRLeft.FindAction("StickPress"), MIN_STICKPRESS_THRESHOLD, true, false);
+            TeleportInput stickPressVerticalVRLeft = new(actionMapStickPressVRLeft.FindAction("StickPress"), MIN_TELEPORT_STICKPRESS_THRESHOLD, MAX_TELEPORT_NEUTRAL_THRESHOLD);
 
             // VR Stick Press Right Action Map
             InputActionMap actionMapStickPressVRRight = inputActionAsset.FindActionMap("StickPressVRRight");
-            StickPressInput stickPressHorizontalVRRight = new(actionMapStickPressVRRight.FindAction("StickPress"), MIN_STICKPRESS_THRESHOLD, true);
-            StickPressInput stickPressVerticalVRRight = new(actionMapStickPressVRLeft.FindAction("StickPress"), MIN_STICKPRESS_THRESHOLD, false);
-
+            StickPressInput stickPressHorizontalLeftDirectionVRRight = new(actionMapStickPressVRRight.FindAction("StickPress"), MIN_STICKPRESS_THRESHOLD, true, true);
+            StickPressInput stickPressHorizontalRightDirectionVRRight = new(actionMapStickPressVRRight.FindAction("StickPress"), MIN_STICKPRESS_THRESHOLD, true, false);
+            TeleportInput stickPressVerticalVRRight = new(actionMapStickPressVRRight.FindAction("StickPress"), MIN_TELEPORT_STICKPRESS_THRESHOLD, MAX_TELEPORT_NEUTRAL_THRESHOLD);
             // Initialize the PlayerInputContainer
             PlayerInputContainer = new(
                 changeMode2D: changeMode2D,
@@ -464,14 +541,20 @@ namespace VE2.Core.Common
                 scrollTickDownVRRight: scrollTickDownVRRight,
                 horizontalDragVRRight: horizontalDragVRRight,
                 verticalDragVRRight: verticalDragVRRight,
-                stickPressHorizontalVRLeft: stickPressHorizontalVRLeft,
+                stickPressHorizontalLeftDirectionVRLeft: stickPressHorizontalLeftDirectionVRLeft,
+                stickPressHorizontalRightDirectionVRLeft: stickPressHorizontalRightDirectionVRLeft,
+                stickPressHorizontalLeftDirectionVRRight: stickPressHorizontalLeftDirectionVRRight,
+                stickPressHorizontalRightDirectionVRRight: stickPressHorizontalRightDirectionVRRight,
                 stickPressVerticalVRLeft: stickPressVerticalVRLeft,
-                stickPressHorizontalVRRight: stickPressHorizontalVRRight,
-                stickPressVerticalVRRight: stickPressVerticalVRRight
+                teleportDirectionVRLeft: stickPressVerticalVRLeft,
+                stickPressVerticalVRRight: stickPressVerticalVRRight,
+                teleportDirectionVRRight: stickPressVerticalVRRight
             );
 
             _scrollInputs = new List<ScrollInput> { scrollTickUp2D, scrollTickDown2D, scrollTickUpVRLeft, scrollTickDownVRLeft, scrollTickUpVRRight, scrollTickDownVRRight };
-            _stickPressInputs = new List<StickPressInput> { stickPressHorizontalVRLeft, stickPressVerticalVRLeft, stickPressHorizontalVRRight, stickPressVerticalVRRight };
+            _stickPressInputs = new List<StickPressInput> { stickPressHorizontalLeftDirectionVRLeft, stickPressHorizontalRightDirectionVRLeft, stickPressHorizontalLeftDirectionVRRight, stickPressHorizontalRightDirectionVRRight };
+            _teleportInputs = new List<TeleportInput> { stickPressVerticalVRLeft, stickPressVerticalVRRight };    
+
         }
 
         private void Update()
@@ -481,6 +564,9 @@ namespace VE2.Core.Common
 
             foreach (StickPressInput stickPressInput in _stickPressInputs)
                 stickPressInput.HandleUpdate();
+
+            foreach (TeleportInput teleportInput in _teleportInputs)
+                teleportInput.HandleUpdate();
         }
     }
 }

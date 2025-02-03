@@ -155,6 +155,10 @@ namespace VE2.Core.Tests
         public IScrollInput ScrollTickDownVRLeft { get; private set; } = Substitute.For<IScrollInput>();
         public IPressableInput HorizontalDragVRLeft { get; private set; } = Substitute.For<IPressableInput>();
         public IPressableInput VerticalDragVRLeft { get; private set; } = Substitute.For<IPressableInput>();
+        public IStickPressInput StickPressHorizontalLeftDirectionVRLeft { get; private set; } = Substitute.For<IStickPressInput>();
+        public IStickPressInput StickPressHorizontalRightDirectionVRLeft { get; private set; } = Substitute.For<IStickPressInput>();
+        public IPressableInput StickPressVerticalVRLeft { get; private set; } = Substitute.For<IPressableInput>();
+        public IValueInput<Vector2> TeleportDirectionVRLeft { get; private set; } = Substitute.For<IValueInput<Vector2>>();
 
         // Right-hand VR
         public IValueInput<Vector3> HandVRRightPosition { get; private set; } = Substitute.For<IValueInput<Vector3>>();
@@ -165,11 +169,11 @@ namespace VE2.Core.Tests
         public IScrollInput ScrollTickUpVRRight { get; private set; } = Substitute.For<IScrollInput>();
         public IScrollInput ScrollTickDownVRRight { get; private set; } = Substitute.For<IScrollInput>();
         public IPressableInput HorizontalDragVRRight { get; private set; } = Substitute.For<IPressableInput>();
-        public IPressableInput VerticalDragVRRight { get; private set; } = Substitute.For<IPressableInput>();
-        public IStickPressInput StickPressHorizontalVRLeft { get; private set; } = Substitute.For<IStickPressInput>();
-        public IStickPressInput StickPressVerticalVRLeft { get; private set; } = Substitute.For<IStickPressInput>();
-        public IStickPressInput StickPressHorizontalVRRight { get; private set; } = Substitute.For<IStickPressInput>();
-        public IStickPressInput StickPressVerticalVRRight { get; private set; } = Substitute.For<IStickPressInput>();
+        public IPressableInput VerticalDragVRRight { get; private set; } = Substitute.For<IPressableInput>(); 
+        public IStickPressInput StickPressHorizontalLeftDirectionVRRight { get; private set; } = Substitute.For<IStickPressInput>();
+        public IStickPressInput StickPressHorizontalRightDirectionVRRight { get; private set; } = Substitute.For<IStickPressInput>();
+        public IPressableInput StickPressVerticalVRRight { get; private set; } = Substitute.For<IPressableInput>();
+        public IValueInput<Vector2> TeleportDirectionVRRight { get; private set; } = Substitute.For<IValueInput<Vector2>>();
 
         public PlayerInputContainerStubWrapper()
         {
@@ -200,10 +204,14 @@ namespace VE2.Core.Tests
                 scrollTickDownVRRight: ScrollTickDownVRRight,
                 horizontalDragVRRight: HorizontalDragVRRight,
                 verticalDragVRRight: VerticalDragVRRight,
-                stickPressHorizontalVRLeft: StickPressHorizontalVRLeft,
+                stickPressHorizontalLeftDirectionVRLeft: StickPressHorizontalLeftDirectionVRLeft,
+                stickPressHorizontalRightDirectionVRLeft: StickPressHorizontalRightDirectionVRLeft,
+                stickPressHorizontalLeftDirectionVRRight: StickPressHorizontalLeftDirectionVRRight,
+                stickPressHorizontalRightDirectionVRRight: StickPressHorizontalRightDirectionVRRight,
                 stickPressVerticalVRLeft: StickPressVerticalVRLeft,
-                stickPressHorizontalVRRight: StickPressHorizontalVRRight,
-                stickPressVerticalVRRight: StickPressVerticalVRRight
+                teleportDirectionVRLeft: TeleportDirectionVRLeft,
+                stickPressVerticalVRRight: StickPressVerticalVRRight,
+                teleportDirectionVRRight: TeleportDirectionVRRight
             );
         }
     }
