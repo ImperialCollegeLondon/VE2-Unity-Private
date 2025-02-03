@@ -86,8 +86,8 @@ public class DragLocomotor
         _otherVRHandInputContainer.HorizontalDrag.OnReleased -= HandleOtherVRHorizontalDragReleased;
         _otherVRHandInputContainer.VerticalDrag.OnReleased -= HandleOtherVRVerticalDragReleased;
 
-        SetIsDraggingHorizontal(false);
-        SetIsDraggingVertical(false);
+        // SetIsDraggingHorizontal(false);
+        // SetIsDraggingVertical(false);
     }
 
     private void HandleHorizontalDragPressed()

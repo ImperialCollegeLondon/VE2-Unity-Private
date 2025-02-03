@@ -1,5 +1,5 @@
 {
-    "name": "VE2.Core.VComponents.Internal",
+    "name": "VE2_Core_VComponents_Internal",
     "rootNamespace": "",
     "references": [
         "GUID:8b39aeabfc189e24783534bdcdf45069",

@@ -1,5 +1,5 @@
 {
-    "name": "VE2.Common.Serializables",
+    "name": "VE2_Common_Serializables",
     "rootNamespace": "",
     "references": [
         "GUID:696a0953692949b40bec8730e64e1fdd",

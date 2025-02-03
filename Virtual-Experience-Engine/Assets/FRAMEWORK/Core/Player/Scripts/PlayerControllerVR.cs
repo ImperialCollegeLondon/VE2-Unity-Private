@@ -56,9 +56,10 @@ namespace VE2.Core.Player
             _headTransform = playerVRReferences.HeadTransform;
 
             GameObject handVRLeftPrefab = Resources.Load<GameObject>("HandVRLeft");
-            GameObject handVRLeftGO = GameObject.Instantiate(handVRLeftPrefab, _headTransform, false);
-            GameObject handVRRightGO = GameObject.Instantiate(handVRLeftPrefab, _headTransform, false);
+            GameObject handVRLeftGO = GameObject.Instantiate(handVRLeftPrefab, _verticalOffsetTransform, false);
+            GameObject handVRRightGO = GameObject.Instantiate(handVRLeftPrefab, _verticalOffsetTransform, false);
             handVRRightGO.transform.localScale = new Vector3(-1, 1, 1);
+            handVRRightGO.name = "HandVRRight";
 
             _handControllerLeft = CreateHandController(handVRLeftGO, interactorContainer, playerVRInputContainer.HandVRLeftInputContainer, playerVRInputContainer.HandVRRightInputContainer.DragLocomotorInputContainer, InteractorType.LeftHandVR, raycastProvider, multiplayerSupport);
             _handControllerRight = CreateHandController(handVRRightGO, interactorContainer, playerVRInputContainer.HandVRRightInputContainer,playerVRInputContainer.HandVRLeftInputContainer.DragLocomotorInputContainer, InteractorType.RightHandVR, raycastProvider, multiplayerSupport);

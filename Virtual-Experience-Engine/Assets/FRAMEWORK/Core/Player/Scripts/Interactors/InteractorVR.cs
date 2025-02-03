@@ -11,6 +11,7 @@ public class InteractorVR : PointerInteractor
     private readonly GameObject _handVisualGO;
     private readonly LineRenderer _lineRenderer;
     private readonly Material _lineMaterial;
+    private readonly ColorConfiguration _colorConfig;
     private const float LINE_EMISSION_INTENSITY = 15;
 
     public InteractorVR(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
@@ -26,6 +27,8 @@ public class InteractorVR : PointerInteractor
         _lineRenderer = interactorVRReferences.LineRenderer;
         _lineMaterial = _lineRenderer.material;
         _lineMaterial.EnableKeyword("_EMISSION");
+
+        _colorConfig = Resources.Load<ColorConfiguration>("ColorConfiguration"); //TODO: Inject
     }
 
     public override void HandleOnEnable()
@@ -66,13 +69,13 @@ public class InteractorVR : PointerInteractor
         switch (newState)
         {
             case InteractorState.Idle:
-                _lineMaterial.color = StaticColors.Instance.lightBlue;
-                _lineMaterial.SetColor("_EmissionColor", StaticColors.Instance.lightBlue * LINE_EMISSION_INTENSITY);
+                _lineMaterial.color = _colorConfig.PointerIdleColor;
+                _lineMaterial.SetColor("_EmissionColor", _colorConfig.PointerIdleColor * LINE_EMISSION_INTENSITY);
                 break;
             case InteractorState.InteractionAvailable:
 
-                _lineMaterial.color = StaticColors.Instance.tangerine;
-                _lineMaterial.SetColor("_EmissionColor", StaticColors.Instance.tangerine * LINE_EMISSION_INTENSITY);
+                _lineMaterial.color = _colorConfig.PointerHighlightColor;
+                _lineMaterial.SetColor("_EmissionColor", _colorConfig.PointerHighlightColor * LINE_EMISSION_INTENSITY);
                 break;
             case InteractorState.InteractionLocked:
 

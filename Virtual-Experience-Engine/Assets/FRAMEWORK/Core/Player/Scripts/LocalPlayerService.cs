@@ -60,6 +60,11 @@ namespace VE2.Core.Player
                     raycastProvider, multiplayerSupport);
             }
 
+            if (enableVR && !enable2D)
+                _playerStateModule.PlayerTransformData.IsVRMode = true;
+            else if (enable2D && !enableVR)
+                _playerStateModule.PlayerTransformData.IsVRMode = false;
+
             //TODO, figure out what mode to start in? Maybe we need some persistent data to remember the mode in the last scene??
             if (_playerStateModule.PlayerTransformData.IsVRMode)
                 _playerVR.ActivatePlayer(_playerStateModule.PlayerTransformData);

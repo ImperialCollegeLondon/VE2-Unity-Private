@@ -71,7 +71,7 @@ namespace VE2.Core.Tests
             IRaycastProvider raycastProviderStub = Substitute.For<IRaycastProvider>();
             raycastProviderStub
                 .Raycast(default, default, default, default)
-                .ReturnsForAnyArgs(new RaycastResultWrapper(grabbablePlayerInterface, 0));
+                .ReturnsForAnyArgs(new RaycastResultWrapper(grabbablePlayerInterface, null, 0));
 
             //Create the player (2d)
             PlayerService playerService = new(

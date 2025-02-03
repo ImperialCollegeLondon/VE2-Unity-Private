@@ -247,15 +247,17 @@ namespace VE2.PlatformNetworking
                 // Deserialize CompletedTutporial
                 CompletedTutorial = reader.ReadBoolean();
 
-                FTPIPAddress = reader.ReadString();
-                FTPPortNumber = reader.ReadUInt16();
-                FTPUsername = reader.ReadString();
-                FTPPassword = reader.ReadString();
+                // FTPIPAddress = reader.ReadString();
+                // FTPPortNumber = reader.ReadUInt16();
+                // FTPUsername = reader.ReadString();
+                // FTPPassword = reader.ReadString();
             }
         }
 
 
-        public class WorldDetails : VE2Serializable
+        //The servershould give us a list of WorldConnectionDetails "activeWorldConnectionDetails" 
+        //And also a single WorldDetails "inactiveWorldConnectionDetails"
+        public class WorldDetails : VE2Serializable //TODO: This should maybe come from the the file's metadata?? Apart from IP/Port
         {
             public string Name { get; private set; }
             public string Subtitle { get; private set; }
