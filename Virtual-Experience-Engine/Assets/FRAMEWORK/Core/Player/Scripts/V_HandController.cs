@@ -54,6 +54,9 @@ namespace VE2.Core.Player
             _handGO.transform.localPosition = _positionInput.Value;
             _handGO.transform.localRotation = _rotationInput.Value;
 
+            //Rotate the hand 90 degrees along its local x axis to match the controller 
+            _handGO.transform.Rotate(Vector3.right, 90, Space.Self);
+
             _interactor.HandleUpdate();
             _dragLocomotor.HandleUpdate();
             _snapTurn.HandleUpdate();

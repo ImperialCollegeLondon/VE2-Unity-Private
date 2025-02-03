@@ -15,6 +15,8 @@ public interface IPlatformService //TODO, maybe not all of these should live in 
     public FTPNetworkSettings FTPNetworkSettings { get; }
 
     public void SetupForNewInstance(IPlayerSettingsProvider playerSettingsProvider);
+
+    public void RequestInstanceAllocation(string worldName, string instanceSuffix);
 }
 
 /*

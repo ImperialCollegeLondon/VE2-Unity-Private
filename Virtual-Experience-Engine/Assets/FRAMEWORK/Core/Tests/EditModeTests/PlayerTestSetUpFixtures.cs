@@ -98,7 +98,7 @@ namespace VE2.Core.Tests
         {
             RaycastProviderStub
                 .Raycast(default, default, default, default)
-                .ReturnsForAnyArgs(new RaycastResultWrapper(rangedInteractionModule, 0));
+                .ReturnsForAnyArgs(new RaycastResultWrapper(rangedInteractionModule, null, 0));
         }
     }
 

@@ -32,7 +32,7 @@ namespace VE2.NonCore.Platform.Private
         public string CurrentInstanceCode { get; private set; }
         public GlobalInfo GlobalInfo { get; private set; }
         public event Action<GlobalInfo> OnGlobalInfoChanged;
-        public Dictionary<string, WorldDetails> AvailableWorlds { get; private set; }
+        public Dictionary<string, WorldDetails> ActiveWorlds { get; private set; }
         public event Action<string> OnInstanceCodeChange;
 
         /*
@@ -52,7 +52,7 @@ namespace VE2.NonCore.Platform.Private
         public InstanceNetworkSettings InstanceNetworkSettings {
             get {
                 string currentWorldName = PlatformInstanceInfo.SplitInstanceCode(CurrentInstanceCode).Item1;
-                if (!AvailableWorlds.TryGetValue(currentWorldName, out WorldDetails worldDetails))
+                if (!ActiveWorlds.TryGetValue(currentWorldName, out WorldDetails worldDetails))
                     return null;
                 else
                     return new InstanceNetworkSettings(worldDetails.IPAddress, worldDetails.PortNumber, CurrentInstanceCode);
@@ -75,15 +75,12 @@ namespace VE2.NonCore.Platform.Private
         {
             if (IsConnectedToServer)
             {
-                if (worldName.ToUpper().Equals("HUB") || AvailableWorlds.ContainsKey(worldName))
-                {
-                    InstanceAllocationRequest instanceAllocationRequest = new(worldName, instanceSuffix);
-                    _commsHandler.SendMessage(instanceAllocationRequest.Bytes, PlatformNetworkingMessageCodes.InstanceAllocationRequest, TransmissionProtocol.TCP);
-                }
-                else
-                {
-                    Debug.LogError($"Could not find world details for world {worldName}");
-                }
+                //TODO: If not in "active worlds", use inactiveWorldConnectionSettings
+                //Also, why do we even need the IP addresses? Why doesn't the server just keep them until it allocates us?
+                //Server could just send IP and port as part of the allocation message?
+                Debug.Log($"Requesting instance allocation to {worldName}-{instanceSuffix}");
+                InstanceAllocationRequest instanceAllocationRequest = new(worldName, instanceSuffix);
+                _commsHandler.SendMessage(instanceAllocationRequest.Bytes, PlatformNetworkingMessageCodes.InstanceAllocationRequest, TransmissionProtocol.TCP);
             }
             else
             {
@@ -95,6 +92,8 @@ namespace VE2.NonCore.Platform.Private
             RequestInstanceAllocation("Hub", "Solo");
         }   
         #endregion
+
+        private readonly PluginLoader _pluginLoader;
 
         public PlatformService(IPlatformCommsHandler commsHandler, UserIdentity userIdentity, IPAddress ipAddress, ushort portNumber, string startingInstanceCode)
         {
@@ -110,6 +109,8 @@ namespace VE2.NonCore.Platform.Private
             //{
             //    //TODO - start local server
             //}
+
+            _pluginLoader = new PluginLoader();
 
             _commsHandler.ConnectToServer(ipAddress, portNumber);
         }
@@ -135,6 +136,7 @@ namespace VE2.NonCore.Platform.Private
             } 
             else
             {
+                //string correctedInstanceCode = CurrentInstanceCode.Contains("Hub") ? "Hub-Solo" : CurrentInstanceCode;
                 ServerRegistrationRequest serverRegistrationRequest = new(_userIdentity, CurrentInstanceCode);
                 _commsHandler.SendMessage(serverRegistrationRequest.Bytes, PlatformNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
             }
@@ -146,7 +148,7 @@ namespace VE2.NonCore.Platform.Private
 
             LocalClientID = serverRegistrationConfirmation.LocalClientID;
             GlobalInfo = serverRegistrationConfirmation.GlobalInfo;
-            AvailableWorlds = serverRegistrationConfirmation.AvailableWorlds;
+            ActiveWorlds = serverRegistrationConfirmation.AvailableWorlds;
             UserSettings = serverRegistrationConfirmation.UserSettings;
 
             IsConnectedToServer = true;
@@ -188,14 +190,18 @@ namespace VE2.NonCore.Platform.Private
                 SceneManager.LoadScene("Hub");
             }
             //TODO, should be talking to the plugin loader instead here 
-            else if (newInstanceInfo.InstanceCode.StartsWith("Dev"))
+            else 
             {
-                SceneManager.LoadScene("Dev");
+                _pluginLoader.LoadPlugin(newInstanceInfo.WorldName, int.Parse(newInstanceInfo.InstanceSuffix));
             }
-            else
-            {
-                Debug.LogError("Couldn't go to scene");
-            }
+            // else if (newInstanceInfo.InstanceCode.StartsWith("Dev"))
+            // {
+            //     SceneManager.LoadScene("Dev");
+            // }
+            // else
+            // {
+            //     Debug.LogError("Couldn't go to scene");
+            // }
         }
 
         public void MainThreadUpdate()

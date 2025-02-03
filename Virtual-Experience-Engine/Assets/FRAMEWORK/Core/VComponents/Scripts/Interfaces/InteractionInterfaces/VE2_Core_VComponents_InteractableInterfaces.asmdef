@@ -1,5 +1,5 @@
 {
-    "name": "VE2.Core.VComponents.InteractableInterfaces",
+    "name": "VE2_Core_VComponents_InteractableInterfaces",
     "rootNamespace": "",
     "references": [
         "GUID:5188de2cbdf00b3468a0a01134cfce3c"

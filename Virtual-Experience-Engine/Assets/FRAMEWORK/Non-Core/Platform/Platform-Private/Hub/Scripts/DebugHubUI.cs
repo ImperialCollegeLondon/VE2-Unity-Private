@@ -28,7 +28,7 @@ public class DebugHubUI : MonoBehaviour
     {
         string availableWorldList = "";
 
-        foreach (WorldDetails worldDetails in _platformService.AvailableWorlds.Values)
+        foreach (WorldDetails worldDetails in _platformService.ActiveWorlds.Values)
         {
             availableWorldList += $"{worldDetails.Name} - <i><color=yellow>{worldDetails.IPAddress}:{worldDetails.PortNumber}</color></i>\n";
         }

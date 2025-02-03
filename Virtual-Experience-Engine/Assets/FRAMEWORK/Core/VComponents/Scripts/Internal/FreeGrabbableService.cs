@@ -4,7 +4,6 @@ using VE2.Common;
 using VE2.Core.VComponents.NonInteractableInterfaces;
 using VE2.Core.VComponents.InteractableInterfaces;
 using static VE2.Common.CommonSerializables;
-using log4net.Util;
 using System.Collections.Generic;
 
 namespace VE2.Core.VComponents.Internal

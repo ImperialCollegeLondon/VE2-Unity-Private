@@ -794,7 +794,7 @@ MonoBehaviour:
       AvatarGreen: 40
       AvatarBlue: 40
   DebugInstanceNetworkSettings:
-    IP: 127.0.0.1
+    IP: 51.142.90.253
     Port: 4297
     InstanceCode: dev-0
   DebugFTPNetworkSettings:
@@ -3162,8 +3162,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea5830b1d78a6804c9c44ba68f3bacd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enableVR: 0
-  enable2D: 1
+  enableVR: 1
+  enable2D: 0
   playerStateConfig:
     IsNetworked: 1
     RepeatedTransmissionConfig:
@@ -3746,7 +3746,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8995ff54d324b04ea0f50966b2be213, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _connectOnStart: 0
+  _connectOnStart: 1
   _connectionStateDebug:
     ConnectionState: 0
   _localClientIDWrapper:
@@ -5206,8 +5206,8 @@ MonoBehaviour:
       OnActivate:
         m_PersistentCalls:
           m_Calls:
-          - m_Target: {fileID: 1499303676}
-            m_TargetAssemblyTypeName: PluginTest, ViRSE_Plugin_Sample
+          - m_Target: {fileID: 1499303679}
+            m_TargetAssemblyTypeName: PluginTest, Assembly-CSharp
             m_MethodName: OnButtonActivate
             m_Mode: 1
             m_Arguments:
@@ -5221,8 +5221,8 @@ MonoBehaviour:
       OnDeactivate:
         m_PersistentCalls:
           m_Calls:
-          - m_Target: {fileID: 1499303676}
-            m_TargetAssemblyTypeName: PluginTest, ViRSE_Plugin_Sample
+          - m_Target: {fileID: 1499303679}
+            m_TargetAssemblyTypeName: PluginTest, Assembly-CSharp
             m_MethodName: OnButtonDeactivate
             m_Mode: 1
             m_Arguments:
@@ -5989,8 +5989,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1499303677}
-  - component: {fileID: 1499303676}
   - component: {fileID: 1499303678}
+  - component: {fileID: 1499303679}
   m_Layer: 0
   m_Name: PluginTest
   m_TagString: Untagged
@@ -5998,25 +5998,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
   m_IsActive: 1
---- !u!114 &1499303676
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1499303675}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5b3edd363d73a2945be8d78cb1d64128, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _lightOn: {fileID: 548330449}
-  _lightOff: {fileID: 1865241996}
-  _pushButtonGO: {fileID: 1250561189}
-  _freeGrabbableGO: {fileID: 227671773}
-  _handheldActivatableGO: {fileID: 1542206479}
-  _handheldAdjustableGO: {fileID: 1542206479}
-  _networkObjectGO: {fileID: 1499303675}
 --- !u!4 &1499303677
 Transform:
   m_ObjectHideFlags: 0
@@ -6064,6 +6045,25 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
+--- !u!114 &1499303679
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1499303675}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adfdcc31471e02e40860dcd8cd809d9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _lightOn: {fileID: 548330449}
+  _lightOff: {fileID: 1865241996}
+  _pushButtonGO: {fileID: 1250561189}
+  _freeGrabbableGO: {fileID: 227671773}
+  _handheldActivatableGO: {fileID: 1542206479}
+  _handheldAdjustableGO: {fileID: 1542206479}
+  _networkObjectGO: {fileID: 1499303675}
 --- !u!1 &1521567705
 GameObject:
   m_ObjectHideFlags: 0
@@ -7307,7 +7307,7 @@ MonoBehaviour:
         m_PersistentCalls:
           m_Calls:
           - m_Target: {fileID: 1542206488}
-            m_TargetAssemblyTypeName: HandleAdjustableTest, VE2_Plugin_Sample
+            m_TargetAssemblyTypeName: HandleAdjustableTest, Assembly-CSharp
             m_MethodName: OnColourChanged
             m_Mode: 0
             m_Arguments:
@@ -7338,7 +7338,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1542206479}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be3660df2c1d1b3428bf915cc3b1d611, type: 3}
+  m_Script: {fileID: 11500000, guid: 8b3d40541f6444341b4aa02b5cf8fe15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   torch: {fileID: 344576807}

@@ -7,7 +7,8 @@ namespace VE2.Core.Player
 {
     public class Interactor2D : PointerInteractor
     {
-        private Image _reticuleImage;
+        private readonly Image _reticuleImage;
+        private readonly ColorConfiguration _colorConfig;
 
         public Interactor2D(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
             InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, IMultiplayerSupport multiplayerSupport) : 
@@ -16,6 +17,8 @@ namespace VE2.Core.Player
         {
             Interactor2DReferences interactor2DReferences = interactorReferences as Interactor2DReferences;
             _reticuleImage = interactor2DReferences.ReticuleImage;
+
+            _colorConfig = Resources.Load<ColorConfiguration>("ColorConfiguration"); //TODO: Inject, can probably actually go into the base class
         }
 
         protected override void SetInteractorState(InteractorState newState)
@@ -25,10 +28,10 @@ namespace VE2.Core.Player
             switch (newState)
             {
                 case InteractorState.Idle:
-                    _reticuleImage.color = StaticColors.Instance.lightBlue;
+                    _reticuleImage.color = _colorConfig.PointerIdleColor;
                     break;
                 case InteractorState.InteractionAvailable:
-                    _reticuleImage.color = StaticColors.Instance.tangerine;
+                    _reticuleImage.color = _colorConfig.PointerHighlightColor;
                     break;
                 case InteractorState.InteractionLocked:
                     _reticuleImage.color = Color.red;
