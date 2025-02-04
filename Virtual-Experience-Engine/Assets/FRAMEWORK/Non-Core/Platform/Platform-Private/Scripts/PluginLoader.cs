@@ -109,14 +109,19 @@ public class PluginLoader
         string packageName = $"{EnvironmentConfig.CompanyName}.{apkName}";
 
         Debug.Log($"Try launch {packageName}");
-        var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-        var currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-        var packageManager = currentActivity.Call<AndroidJavaObject>("getPackageManager");
-        var launchIntent = packageManager.Call<AndroidJavaObject>("getLaunchIntentForPackage", packageName);
+        AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+        AndroidJavaObject currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+        AndroidJavaObject intent = new AndroidJavaObject("android.content.Intent");
 
-        if (launchIntent != null)
+        // Set the target package and activity
+        intent.Call<AndroidJavaObject>("setClassName", packageName, "com.unity3d.player.UnityPlayerGameActivity");
+
+        if (intent != null)
         {
-            currentActivity.Call("startActivity", launchIntent);
+            intent.Call<AndroidJavaObject>("putExtra", $"arg0", "TestArg0");
+            intent.Call<AndroidJavaObject>("putExtra", $"arg1", "TestArg1");
+
+            currentActivity.Call("startActivity", intent);
             Debug.Log("App launched successfully");
         }
         else

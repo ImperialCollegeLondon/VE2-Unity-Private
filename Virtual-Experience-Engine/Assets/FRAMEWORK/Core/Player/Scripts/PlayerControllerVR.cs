@@ -61,6 +61,10 @@ namespace VE2.Core.Player
             handVRRightGO.transform.localScale = new Vector3(-1, 1, 1);
             handVRRightGO.name = "HandVRRight";
 
+            //So the hands don't block the camera before they start tracking
+            handVRLeftGO.transform.position -= Vector3.down;
+            handVRRightGO.transform.position -= Vector3.down;
+
             _handControllerLeft = CreateHandController(handVRLeftGO, interactorContainer, playerVRInputContainer.HandVRLeftInputContainer, playerVRInputContainer.HandVRRightInputContainer.DragLocomotorInputContainer, InteractorType.LeftHandVR, raycastProvider, multiplayerSupport);
             _handControllerRight = CreateHandController(handVRRightGO, interactorContainer, playerVRInputContainer.HandVRRightInputContainer,playerVRInputContainer.HandVRLeftInputContainer.DragLocomotorInputContainer, InteractorType.RightHandVR, raycastProvider, multiplayerSupport);
         }

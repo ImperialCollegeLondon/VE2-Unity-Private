@@ -156,11 +156,6 @@ public class HubFileUIObjectExample : MonoBehaviour
         }
     }
 
-    //Installing APK: /storage/emulated/0/Android/data/com.ImperialCollegeLondon.VirtualExperienceEngineJan316/files/VE2/Worlds/Android/Aero_DevGreen/001/DevGreen.apk<br> UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)<br>HubFileUIObjectExample:InstallAPK(String)<br>HubFileUIObjectExample:HandleDownloadWorldFileComplete(IRemoteFileTaskInfo)<br>VE2_NonCore_FileSystem.RemoteFileTaskInfo:Update()<br>VE2_NonCore_FileSystem.FileSystemService:Update()<br><br>
-    //Fri Jan 31 2025 12:41:54 GMT+0000 (Greenwich Mean Time):info2141/1687 JniUtils-inl
-    //Creating temporary JNIEnv.This is a heavy operation and should be infrequent.To optimize, use JNI AttachCurrentThread on calling thread
-    //Fri Jan 31 2025 12:41:54 GMT+0000 (Greenwich Mean Time):error19984/19956 Unity
-    //Error invoking task completed event: android.os.FileUriExposedException: file:///storage/emulated/0/Android/data/com.ImperialCollegeLondon.VirtualExperienceEngineJan316/files/VE2/Worlds/Android/Aero_DevGreen/001/DevGreen.apk exposed beyond app through Intent.getData()<br>UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)<br>VE2_NonCore_FileSystem.FileSystemService:Update()<br><br>
     public void InstallAPK(string filePath)
     {
         Debug.Log("Installing APK: " + filePath);
@@ -176,6 +171,9 @@ public class HubFileUIObjectExample : MonoBehaviour
                 intent.Call<AndroidJavaObject>("setDataAndType", uri, "application/vnd.android.package-archive");
                 intent.Call<AndroidJavaObject>("addFlags", 268435456); // FLAG_ACTIVITY_NEW_TASK
                 intent.Call<AndroidJavaObject>("addFlags", 1); // FLAG_GRANT_READ_URI_PERMISSION
+                intent.Call<AndroidJavaObject>("addFlags", 1073741824); // FLAG_ACTIVITY_NO_HISTORY
+                intent.Call<AndroidJavaObject>("addFlags", 8388608); // FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+
                 currentActivity.Call("startActivity", intent);
             }
         }
