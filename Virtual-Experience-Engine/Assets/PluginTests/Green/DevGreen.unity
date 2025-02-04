@@ -794,7 +794,7 @@ MonoBehaviour:
       AvatarGreen: 40
       AvatarBlue: 40
   DebugInstanceNetworkSettings:
-    IP: 127.0.0.1
+    IP: 51.142.90.253
     Port: 4297
     InstanceCode: dev-0
   DebugFTPNetworkSettings:
