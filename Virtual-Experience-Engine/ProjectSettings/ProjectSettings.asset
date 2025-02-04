@@ -13,7 +13,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: ImperialCollegeLondon
-  productName: 'VE2: Virtual-Experience-Engine'
+  productName: VE2 - DevGreen
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -144,6 +144,9 @@ PlayerSettings:
   preloadedAssets:
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 11400000, guid: 53bfa925fbdb5b348b417e529453627b, type: 2}
+  - {fileID: -5763108147677317115, guid: 5e0362137df543d43a3e036dbe1c242a, type: 2}
+  - {fileID: -2095455582303345462, guid: 0c96d855d7c225e418cf22f5437c1dc1, type: 2}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -165,7 +168,7 @@ PlayerSettings:
   androidMaxAspectRatio: 2.1
   androidMinAspectRatio: 1
   applicationIdentifier:
-    Android: com.ImperialCollegeLondon.VirtualExperienceEngine
+    Android: com.ImperialCollegeLondon.DevGreen
     Standalone: com.ImperialCollegeLondon.VirtualExperienceEngine311
     iPhone: com.Unity-Technologies.com.unity.template.urp-blank
   buildNumber:
