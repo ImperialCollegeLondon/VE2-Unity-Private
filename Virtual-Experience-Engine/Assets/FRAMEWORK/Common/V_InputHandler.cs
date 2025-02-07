@@ -202,9 +202,22 @@ namespace VE2.Core.Common
         private readonly InputAction _inputAction;
         private float _minThreshold;
         private float _maxNeutralThreshold;
-        private bool _wasPressed;
+        private bool _wasPressedLastFrame;
 
-        public bool IsPressed => _wasPressed;
+        private bool _isPressed;
+        public bool IsPressed 
+        { 
+            get
+            {
+                HandleUpdate(); //TO DO: Add a better way to handle this, InputHandler to execution order?
+                return _isPressed;
+            } 
+            
+            private set
+            {
+                _isPressed = value;
+            }
+        }
 
         public Vector2 Value => _inputAction.ReadValue<Vector2>();
 
@@ -218,22 +231,23 @@ namespace VE2.Core.Common
 
         public void HandleUpdate()
         {
+            _wasPressedLastFrame = _isPressed;
             Vector2 inputValue = _inputAction.ReadValue<Vector2>();
 
             if (inputValue.y > _minThreshold)
             {
-                if (!_wasPressed)
+                if (!_wasPressedLastFrame)
                 {
                     OnPressed?.Invoke();
                     Debug.Log("Teleport Pressed Invoke");
-                    _wasPressed = true;
+                    IsPressed = true;
                 }
             }
-            else if (Mathf.Abs(inputValue.x) < _maxNeutralThreshold && Mathf.Abs(inputValue.y) < _maxNeutralThreshold && _wasPressed)
+            else if (Mathf.Abs(inputValue.x) < _maxNeutralThreshold && Mathf.Abs(inputValue.y) < _maxNeutralThreshold && _wasPressedLastFrame)
             {
                 OnReleased?.Invoke();
                 Debug.Log("Teleport Released Invoke");
-                _wasPressed = false;
+                IsPressed = false;
             }
         }
     }

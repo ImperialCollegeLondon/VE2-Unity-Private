@@ -8,10 +8,12 @@ public class SnapTurn
 
     private readonly SnapTurnInputContainer _inputContainer;
     private readonly Transform _rootTransform; //For rotating the player
-    public SnapTurn(SnapTurnInputContainer inputContainer, Transform rootTransform)
+    private readonly TeleportInputContainer _teleportInputContainer;
+    public SnapTurn(SnapTurnInputContainer inputContainer, Transform rootTransform, TeleportInputContainer teleportInputContainer)
     {
         _inputContainer = inputContainer;
         _rootTransform = rootTransform;
+        _teleportInputContainer = teleportInputContainer;
     }
     public void HandleUpdate()
     {
@@ -30,13 +32,19 @@ public class SnapTurn
     }
 
     private void HandleSnapTurnLeft()
-    {
+    {   
+        if(_teleportInputContainer.Teleport.IsPressed)
+            return;
+
         // Rotate the player by 45 degrees
         _rootTransform.rotation *= Quaternion.Euler(0, -_snapTurnAmount, 0);
         Debug.Log("Snap Turn Left");
     }
     private void HandleSnapTurnRight()
     {
+        if (_teleportInputContainer.Teleport.IsPressed)
+            return;
+
         // Rotate the player by 45 degrees
         _rootTransform.rotation *= Quaternion.Euler(0, _snapTurnAmount, 0);
         Debug.Log("Snap Turn Right");

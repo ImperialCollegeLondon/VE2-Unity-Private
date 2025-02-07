@@ -82,7 +82,8 @@ namespace VE2.Core.Player
 
             SnapTurn snapTurn = new(
                 handVRInputContainer.SnapTurnInputContainer,
-                _rootTransform);
+                _rootTransform,
+                handVRInputContainer.TeleportInputContainer);
             Teleport teleport = new(
                 handVRInputContainer.TeleportInputContainer,
                 _rootTransform, handVRReferences.InteractorVRReferences.RayOrigin);
