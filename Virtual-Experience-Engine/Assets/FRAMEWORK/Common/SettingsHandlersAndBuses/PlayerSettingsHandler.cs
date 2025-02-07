@@ -21,6 +21,8 @@ internal class PlayerSettingsHandler : MonoBehaviour, IPlayerSettingsHandler //T
     public static string PlayerGreenArgName => "playerGreen";
     public static string PlayerBlueArgName => "playerBlue";
 
+    //TODO: Also need RememberMeDefault and RememberMeCurrent
+
     [SerializeField, IgnoreParent, DisableInPlayMode, BeginGroup("Default Player Presentation"), EndGroup, InLineEditor] private PlayerPresentationConfig _defaultPlayerPresentationConfig = new();
     public PlayerPresentationConfig DefaultPlayerPresentationConfig {
         get {
@@ -30,9 +32,31 @@ internal class PlayerSettingsHandler : MonoBehaviour, IPlayerSettingsHandler //T
 
     private bool _isPlaying => Application.isPlaying;
     private bool _playerPresentationSetup = false;
-    [EditorButton("MarkPlayerSettingsUpdated", nameof(MarkPlayerSettingsUpdated), ApplyCondition = true)]
     [SpaceArea(10)]
-    [SerializeField, IgnoreParent, DisableIf(nameof(_isPlaying), false), BeginGroup("Current Player Presentation"), EndGroup] private PlayerPresentationConfig _playerPresentationConfig = new();
+    [SerializeField, IgnoreParent, DisableIf(nameof(_isPlaying), false), BeginGroup("Current Player Presentation")] private bool _rememberPlayerSettings = false;
+    public bool RememberPlayerSettings
+    {
+        get => _rememberPlayerSettings;
+        set
+        {
+            _rememberPlayerSettings = value;
+
+            if (_rememberPlayerSettings == false)
+            {
+                PlayerPrefs.DeleteKey(PlayerNameArgName);
+                PlayerPrefs.DeleteKey(PlayerHeadTypeArgName);
+                PlayerPrefs.DeleteKey(PlayerTorsoTypeArgName);
+                PlayerPrefs.DeleteKey(PlayerRedArgName);
+                PlayerPrefs.DeleteKey(PlayerGreenArgName);
+                PlayerPrefs.DeleteKey(PlayerBlueArgName);
+            }
+
+            PlayerPrefs.SetInt(RememberPlayerSettingsArgName, value ? 1 : 0);
+        }
+    }
+
+    [EditorButton("MarkPlayerSettingsUpdated", nameof(MarkPlayerSettingsUpdated), ApplyCondition = true)]
+    [SerializeField, IgnoreParent, DisableIf(nameof(_isPlaying), false), EndGroup] private PlayerPresentationConfig _playerPresentationConfig = new();
 
     /// <summary>
     /// call MarkPlayerSettingsUpdated after modifying this property
@@ -59,8 +83,10 @@ internal class PlayerSettingsHandler : MonoBehaviour, IPlayerSettingsHandler //T
                                 avatarRed: (ushort)intent.Call<int>("getIntExtra", PlayerRedArgName, 0),
                                 avatarGreen: (ushort)intent.Call<int>("getIntExtra", PlayerGreenArgName, 0),
                                 avatarBlue: (ushort)intent.Call<int>("getIntExtra", PlayerBlueArgName, 0));
+                        else if (_rememberPlayerSettings)
+                            _playerPresentationConfig = GetPlayerPresentationFromPlayerPrefs();
                         else
-                            _playerPresentationConfig = _defaultPlayerPresentationConfig;
+                            _playerPresentationConfig = _defaultPlayerPresentationConfig; 
                     }
 
                     _playerPresentationSetup = true;
@@ -69,6 +95,8 @@ internal class PlayerSettingsHandler : MonoBehaviour, IPlayerSettingsHandler //T
                 {
                     if (PlayerArgsDesktopBus.Instance.HasArgs)
                         _playerPresentationConfig = PlayerArgsDesktopBus.Instance.PlayerPresentationConfig;
+                    else if (_rememberPlayerSettings)
+                        _playerPresentationConfig = GetPlayerPresentationFromPlayerPrefs();
                     else
                         _playerPresentationConfig = new PlayerPresentationConfig(_defaultPlayerPresentationConfig); //Don't want to copy the reference, just the values
                 }
@@ -85,12 +113,25 @@ internal class PlayerSettingsHandler : MonoBehaviour, IPlayerSettingsHandler //T
         }
     }
 
+    private PlayerPresentationConfig GetPlayerPresentationFromPlayerPrefs()
+    {
+        return
+            _playerPresentationConfig = new PlayerPresentationConfig(
+                playerName: PlayerPrefs.GetString(PlayerNameArgName, _defaultPlayerPresentationConfig.PlayerName),
+                avatarHeadType: (ViRSEAvatarHeadAppearanceType)PlayerPrefs.GetInt(PlayerHeadTypeArgName, (int)_defaultPlayerPresentationConfig.AvatarHeadType),
+                avatarBodyType: (ViRSEAvatarTorsoAppearanceType)PlayerPrefs.GetInt(PlayerTorsoTypeArgName, (int)_defaultPlayerPresentationConfig.AvatarTorsoType),
+                avatarRed: (ushort)PlayerPrefs.GetInt(PlayerRedArgName, _defaultPlayerPresentationConfig.AvatarRed),
+                avatarGreen: (ushort)PlayerPrefs.GetInt(PlayerGreenArgName, _defaultPlayerPresentationConfig.AvatarGreen),
+                avatarBlue: (ushort)PlayerPrefs.GetInt(PlayerBlueArgName, _defaultPlayerPresentationConfig.AvatarBlue));
+    }
+
     public event Action<PlayerPresentationConfig> OnPlayerPresentationConfigChanged;
 
     public void MarkPlayerSettingsUpdated()
     {
-        Debug.Log("NMark player settings updated");
         OnPlayerPresentationConfigChanged?.Invoke(_playerPresentationConfig);
+
+        PlayerPrefs.SetInt(RememberPlayerSettingsArgName, _rememberPlayerSettings ? 1 : 0);
         
         if (_rememberPlayerSettings) //TODO: On android, this will save in plugins playerprefs, not in the ve2.apk playerprefs.. don't do it if we're android, and not the hub? But how best to tell if in hub?
         {
@@ -103,31 +144,10 @@ internal class PlayerSettingsHandler : MonoBehaviour, IPlayerSettingsHandler //T
         }
     }
 
-    private static bool _rememberPlayerSettings = false; //Assigned on instance creation
-    public static bool RememberPlayerSettings
-    {
-        get => _rememberPlayerSettings; 
-        set
-        {
-            _rememberPlayerSettings = value;
-
-            if (_rememberPlayerSettings == false)
-            {
-                PlayerPrefs.DeleteKey(PlayerNameArgName);
-                PlayerPrefs.DeleteKey(PlayerHeadTypeArgName);
-                PlayerPrefs.DeleteKey(PlayerTorsoTypeArgName);
-                PlayerPrefs.DeleteKey(PlayerRedArgName);
-                PlayerPrefs.DeleteKey(PlayerGreenArgName);
-                PlayerPrefs.DeleteKey(PlayerBlueArgName);
-            }
-
-            PlayerPrefs.SetInt(RememberPlayerSettingsArgName, value ? 1 : 0); 
-        }
-    }
-
     private void Awake()
     {
         _playerPresentationSetup = false;
+        _rememberPlayerSettings = PlayerPrefs.GetInt(RememberPlayerSettingsArgName) == 1 ? true: false;
 
         if (Application.isPlaying)
         {
