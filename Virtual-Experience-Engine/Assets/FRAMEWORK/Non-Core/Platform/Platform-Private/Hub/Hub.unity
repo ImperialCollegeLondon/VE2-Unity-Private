@@ -440,7 +440,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _multiplayerSupportGOName: 
-  PlayerSettingsProviderGOName: PlatformIntegration
+  PlayerSettingsHandlerGOName: 
   PlayerOverridesProviderGOName: PlayerSpawner
 --- !u!4 &167777612
 Transform:
@@ -664,6 +664,64 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 463467098}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &486772128
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 486772130}
+  - component: {fileID: 486772129}
+  m_Layer: 0
+  m_Name: PlayerSettingsHandlerHub
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &486772129
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 486772128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c808e3fb5aabcb145a48f997f94ed3e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _defaultPresentationConfig:
+    PlayerName: asdasda
+    AvatarHeadType: 1
+    AvatarTorsoType: 0
+    AvatarRed: 255
+    AvatarGreen: 60
+    AvatarBlue: 60
+  _playerPresentationConfig:
+    PlayerName: Unknown
+    AvatarHeadType: 0
+    AvatarTorsoType: 0
+    AvatarRed: 255
+    AvatarGreen: 60
+    AvatarBlue: 60
+--- !u!4 &486772130
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 486772128}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &500199265
 GameObject:
   m_ObjectHideFlags: 0
@@ -816,7 +874,6 @@ Transform:
   m_Children:
   - {fileID: 905670231}
   - {fileID: 1627529181}
-  - {fileID: 2040201057}
   - {fileID: 578416554}
   - {fileID: 647161245}
   - {fileID: 565699216}
@@ -977,7 +1034,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &647161245
 Transform:
   m_ObjectHideFlags: 0
@@ -1005,36 +1062,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4832776686e2e1f40b2d0ae7e7ddcc58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _exchangeDebugUserSettingsWithPlayerPrefs: 0
-  _debugUserSettings:
-    Player2DControlConfig:
-      MouseSensitivity: 1
-      CrouchHold: 1
-    PlayerVRControlConfig:
-      DragSpeed: 1
-      TurnAmount: 45
-      ControllerVibration: 1
-      ControllerLabels: 1
-      WristLookPrecision: 1
-      DragDarkening: 0
-      TeleportBlink: 0
-      SnapTurnBlink: 0
-    PresentationConfig:
-      PlayerName: Unknown
-      AvatarHeadType: 0
-      AvatarTorsoType: 0
-      AvatarRed: 255
-      AvatarGreen: 60
-      AvatarBlue: 60
-  DebugInstanceNetworkSettings:
-    IP: 127.0.0.1
-    Port: 4297
-    InstanceCode: dev
-  DebugFTPNetworkSettings:
-    IP: 127.0.0.1
-    Port: 21
-    Username: testUN
-    Password: testPW
+  OfflineMode: 0
+  PlatformIP: 127.0.0.1
+  PlatformPort: 4298
+  CustomerID: 
+  CustomerKey: 
+  FallbackPlatformInstanceSuffix: dev
 --- !u!1 &670374466
 GameObject:
   m_ObjectHideFlags: 0
@@ -23026,12 +23059,6 @@ MonoBehaviour:
   _portNumber: 4298
   _instanceCode: 
   UseSpoofUserIdentity: 1
-  spoofUserIdentity:
-    domain: ImperialCollegeLondon
-    accountID: ftoveyan
-    firstName: Fred
-    lastName: T.A
-    machineName: Unknown
 --- !u!4 &1627529181
 Transform:
   m_ObjectHideFlags: 0
@@ -23525,6 +23552,64 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1746377927}
   m_CullTransparentMesh: 1
+--- !u!1 &1869795901
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1869795903}
+  - component: {fileID: 1869795902}
+  m_Layer: 0
+  m_Name: Spaner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1869795902
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1869795901}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea5830b1d78a6804c9c44ba68f3bacd3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enableVR: 0
+  enable2D: 1
+  playerStateConfig:
+    IsNetworked: 1
+    RepeatedTransmissionConfig:
+      TransmissionType: 0
+      TransmissionFrequency: 1
+  _defaultPresentationConfig:
+    PlayerName: asdasda
+    AvatarHeadType: 1
+    AvatarTorsoType: 0
+    AvatarRed: 255
+    AvatarGreen: 60
+    AvatarBlue: 60
+--- !u!4 &1869795903
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1869795901}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1899409715
 GameObject:
   m_ObjectHideFlags: 0
@@ -23969,57 +24054,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2039317418}
   m_CullTransparentMesh: 1
---- !u!1 &2040201055
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2040201057}
-  - component: {fileID: 2040201056}
-  m_Layer: 0
-  m_Name: PlayerSpawner
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &2040201056
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2040201055}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea5830b1d78a6804c9c44ba68f3bacd3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  enableVR: 1
-  enable2D: 0
-  playerStateConfig:
-    IsNetworked: 1
-    RepeatedTransmissionConfig:
-      TransmissionType: 0
-      TransmissionFrequency: 1
---- !u!4 &2040201057
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2040201055}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.048999995, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 536828534}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!224 &135162650478693166
 RectTransform:
   m_ObjectHideFlags: 0
@@ -24925,7 +24959,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 15281, y: 5697.1943}
+  m_AnchoredPosition: {x: 15281, y: 5697.194}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!1 &7129766439557370346
@@ -24963,8 +24997,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ftpNetworkSettings:
-    IP: 13.87.84.200
-    Port: 22
+    IPAddress: 127.0.0.1
+    PortNumber: 21
     Username: ViRSE
     Password: fwf3f3j21r3ed
   _queuedTasks: []
@@ -25336,3 +25370,5 @@ SceneRoots:
   - {fileID: 676680399}
   - {fileID: 3547829359982803146}
   - {fileID: 1920699326}
+  - {fileID: 1869795903}
+  - {fileID: 486772130}

@@ -220,7 +220,7 @@ namespace VE2.Common //TODO - Need to expose to customer
                 public class PlayerPresentationConfig : VE2Serializable //TODO - this should just be a wrapper, don't like these attributes in here
                 {
 #if UNITY_EDITOR
-                        [BeginIndent, SerializeField]
+                        [BeginIndent, SerializeField, IgnoreParent]
 #endif
                         public string PlayerName = "Unknown";
 
@@ -261,6 +261,16 @@ namespace VE2.Common //TODO - Need to expose to customer
                                 AvatarRed = avatarRed;
                                 AvatarGreen = avatarGreen;
                                 AvatarBlue = avatarBlue;
+                        }
+
+                        public PlayerPresentationConfig(PlayerPresentationConfig other)
+                        {
+                                PlayerName = other.PlayerName;
+                                AvatarHeadType = other.AvatarHeadType;
+                                AvatarTorsoType = other.AvatarTorsoType;
+                                AvatarRed = other.AvatarRed;
+                                AvatarGreen = other.AvatarGreen;
+                                AvatarBlue = other.AvatarBlue;
                         }
 
                         protected override byte[] ConvertToBytes()
@@ -378,7 +388,7 @@ namespace VE2.Common //TODO - Need to expose to customer
                         Three
                 }
 
-                public class PlayerStateWrapper : VE2Serializable
+                public class PlayerStateWrapper : VE2Serializable //Accessed by the player spawner
                 {
                         public ushort ID { get; private set; }
                         public byte[] StateBytes { get; private set; }

@@ -68,11 +68,9 @@ public class HubFileHandlerExample : MonoBehaviour
             //================================================================================
             //TODO: FOR VE2===================================================================
 
-            EnvironmentConfig environmentConfig = Resources.Load<EnvironmentConfig>("EnvironmentConfig");
-
             GameObject FileUIObjectGO = Instantiate(_fileUIObjectPrefab, null);
             HubFileUIObjectExample hubFileUIObject = FileUIObjectGO.GetComponent<HubFileUIObjectExample>();
-            hubFileUIObject.Setup(platformIntegration.PlatformService, _fileSystem, remoteWorldFolder, environmentConfig);
+            hubFileUIObject.Setup(platformIntegration.PlatformService, _fileSystem, remoteWorldFolder);
 
             (HorizontalLayoutGroup, List<HubFileUIObjectExample>) lastHorizontalGroup = _fileObjectHorizontalGroups.Count > 0 ? _fileObjectHorizontalGroups[_fileObjectHorizontalGroups.Count - 1] : (null, null);
 

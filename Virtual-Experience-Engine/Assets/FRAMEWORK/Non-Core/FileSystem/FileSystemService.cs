@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Renci.SshNet;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using VE2_NonCore_FileSystem_Interfaces_Common;
 using VE2_NonCore_FileSystem_Interfaces_Internal;
+using static NonCoreCommonSerializables;
 
 namespace VE2_NonCore_FileSystem
 {
@@ -16,7 +18,7 @@ namespace VE2_NonCore_FileSystem
             string localWorkingPath = Application.persistentDataPath + "/files/" + workingPath; 
             string remoteWorkingPath = workingPath;
 
-            SftpClient sftpClient = new(ftpNetworkSettings.IP, ftpNetworkSettings.Port, ftpNetworkSettings.Username, ftpNetworkSettings.Password);
+            SftpClient sftpClient = new(ftpNetworkSettings.IPAddress, int.Parse(ftpNetworkSettings.PortNumber), ftpNetworkSettings.Username, ftpNetworkSettings.Password);
             FTPCommsHandler commsHandler = new(sftpClient);
             FTPService ftpService = new(commsHandler, remoteWorkingPath, localWorkingPath);
 

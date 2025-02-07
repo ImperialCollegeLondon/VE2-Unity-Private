@@ -17,27 +17,97 @@ namespace VE2.PlatformNetworking
     {
         public static readonly int PlatformNetcodeVersion = 1;
 
-
         public enum PlatformNetworkingMessageCodes
         {
             NetcodeVersionConfirmation,
+            FirstTimeAuthCheckRequest,
+            FirstTimeAuthCheckResponse,
             ServerRegistrationRequest,
             ServerRegistrationConfirmation,
             GlobalInfo,
             InstanceAllocationRequest,
-            UpdateUserSettings,
+            UpdatePlayerPresentation,
         }
 
+        public class FirstTimeAuthCheckRequest : VE2Serializable
+        {
+            public string CustomerID;
+            public string CustomerKey;
 
+            public FirstTimeAuthCheckRequest(byte[] bytes) : base(bytes) { }
+
+            public FirstTimeAuthCheckRequest(string customerID, string customerKey)
+            {
+                CustomerID = customerID;
+                CustomerKey = customerKey;
+            }
+
+            protected override byte[] ConvertToBytes()
+            {
+                using MemoryStream stream = new();
+                using BinaryWriter writer = new(stream);
+
+                writer.Write(CustomerID);
+                writer.Write(CustomerKey);
+
+                return stream.ToArray();
+            }
+
+            protected override void PopulateFromBytes(byte[] data)
+            {
+                using MemoryStream stream = new(data);
+                using BinaryReader reader = new(stream);
+
+                CustomerID = reader.ReadString();
+                CustomerKey = reader.ReadString();
+            }
+        }
+
+        public class FirstTimeAuthCheckResponse : VE2Serializable
+        {
+            public bool AuthSuccess { get; private set; }
+
+            public FirstTimeAuthCheckResponse(byte[] bytes) : base(bytes) { }
+
+            public FirstTimeAuthCheckResponse(bool authSuccess)
+            {
+                AuthSuccess = authSuccess;
+            }
+
+            protected override byte[] ConvertToBytes()
+            {
+                using MemoryStream stream = new();
+                using BinaryWriter writer = new(stream);
+
+                writer.Write(AuthSuccess);
+
+                return stream.ToArray();
+            }
+
+            protected override void PopulateFromBytes(byte[] data)
+            {
+                using MemoryStream stream = new(data);
+                using BinaryReader reader = new(stream);
+
+                AuthSuccess = reader.ReadBoolean();
+            }
+        }
+
+        //If auto-connect, should send this message 
+        //If manual-connect (which needs an API on the platform interface), just connect with id and key
         public class ServerRegistrationRequest : VE2Serializable
         {
-            public UserIdentity UserIdentity { get; private set; }
+            public string CustomerID;
+            private string CustomerKey;
             public string StartingInstanceCode { get; private set; }
+            public PlayerPresentationConfig PlayerPresentationConfig;
 
-            public ServerRegistrationRequest(UserIdentity userIdentity, string startingInstanceCode)
+            public ServerRegistrationRequest(string customerID, string customerKey, string startingInstanceCode, PlayerPresentationConfig playerPresentationConfig)
             {
-                UserIdentity = userIdentity;
+                CustomerID = customerID;
+                CustomerKey = customerKey;
                 StartingInstanceCode = startingInstanceCode;
+                PlayerPresentationConfig = playerPresentationConfig;
             }
 
             public ServerRegistrationRequest(byte[] bytes) : base(bytes) { }
@@ -47,11 +117,14 @@ namespace VE2.PlatformNetworking
                 using MemoryStream stream = new();
                 using BinaryWriter writer = new(stream);
 
-                byte[] userIdentityBytes = UserIdentity.Bytes;
-                writer.Write((ushort)userIdentityBytes.Length);
-                writer.Write(userIdentityBytes);
+                writer.Write(CustomerID);
+                writer.Write(CustomerKey);
                 writer.Write(StartingInstanceCode);
 
+                byte[] playerPresentationConfigBytes = PlayerPresentationConfig.Bytes;
+                writer.Write((ushort)playerPresentationConfigBytes.Length);
+                writer.Write(playerPresentationConfigBytes);
+
                 return stream.ToArray();
             }
             protected override void PopulateFromBytes(byte[] data)
@@ -59,122 +132,38 @@ namespace VE2.PlatformNetworking
                 using MemoryStream stream = new(data);
                 using BinaryReader reader = new(stream);
 
-                int userIdentityLength = reader.ReadUInt16();
-                byte[] userIdentityBytes = reader.ReadBytes(userIdentityLength);
-                UserIdentity = new UserIdentity(userIdentityBytes);
-
+                CustomerID = reader.ReadString();
+                CustomerKey = reader.ReadString();
                 StartingInstanceCode = reader.ReadString();
+
+                ushort playerPresentationConfigLength = reader.ReadUInt16();
+                byte[] playerPresentationConfigBytes = reader.ReadBytes(playerPresentationConfigLength);
+                PlayerPresentationConfig = new PlayerPresentationConfig(playerPresentationConfigBytes);
             }
         }
-
-
-        [Serializable]
-        public class UserIdentity : VE2Serializable
-        {
-#if UNITY_EDITOR
-            [SerializeField, NotNull]
-#endif
-            private string domain;
-
-#if UNITY_EDITOR
-            [SerializeField, NotNull]
-#endif
-            private string accountID;
-
-#if UNITY_EDITOR
-            [SerializeField, NotNull]
-#endif
-            private string firstName;
-
-#if UNITY_EDITOR
-            [SerializeField, NotNull]
-#endif
-            private string lastName;
-
-#if UNITY_EDITOR
-            [SerializeField, NotNull]
-#endif
-            private string machineName;
-
-            public string Domain => domain;
-            public string AccountID => accountID;
-            public string FirstName => firstName;
-            public string LastName => lastName;
-            public string MachineName => machineName;
-
-            public const string GuestID = "GUEST";
-
-            public UserIdentity(string domain, string accountID, string firstName, string lastName, string machineName)
-            {
-                this.domain = domain;
-                this.accountID = accountID;
-                this.firstName = firstName;
-                this.lastName = lastName;
-                this.machineName = machineName;
-            }
-
-            public UserIdentity(byte[] bytes) : base(bytes) { }
-
-            protected override byte[] ConvertToBytes()
-            {
-                using MemoryStream stream = new();
-                using BinaryWriter writer = new(stream);
-
-                writer.Write(Domain);
-                writer.Write(AccountID);
-                writer.Write(FirstName);
-                writer.Write(LastName);
-                writer.Write(MachineName);
-
-                return stream.ToArray();
-            }
-
-            protected override void PopulateFromBytes(byte[] data)
-            {
-                using MemoryStream stream = new(data);
-                using BinaryReader reader = new(stream);
-
-                this.domain = reader.ReadString();
-                this.accountID = reader.ReadString();
-                this.firstName = reader.ReadString();
-                this.lastName = reader.ReadString();
-                this.machineName = reader.ReadString();
-            }
-
-            public override string ToString()
-            {
-                return $"Domain: {domain}, AccountID: {accountID}, FirstName: {firstName}, LastName: {lastName} MachineName: {machineName})";
-            }
-        }
-
 
         public class ServerRegistrationConfirmation : VE2Serializable
         {
             public ushort LocalClientID { get; private set; }
-            public UserSettingsPersistable UserSettings { get; private set; }
             public GlobalInfo GlobalInfo { get; private set; }
             public Dictionary<string, WorldDetails> AvailableWorlds { get; private set; }
-            public bool CompletedTutorial { get; private set; }
-            public string FTPIPAddress { get; private set; }
-            public ushort FTPPortNumber { get; private set; }
-            public string FTPUsername { get; private set; }
-            public string FTPPassword { get; private set; }
+            public FTPNetworkSettings WorldsStoreFTPNetworkSettings;
+            public string InactiveWorldsInstancingIPAddress { get; private set; }
+            public ushort InactiveWorldsInstancingPortNumber { get; private set; }
 
             public ServerRegistrationConfirmation() { }
 
             public ServerRegistrationConfirmation(byte[] bytes) : base(bytes) { }
 
-            public ServerRegistrationConfirmation(ushort localClientID, UserSettingsPersistable userSettings, GlobalInfo globalInfo, Dictionary<string, WorldDetails> availableWorlds, bool completedTutporial, string ftpIPAddress, ushort ftpPortNumber, string ftpUsername, string ftpPassword)
+            public ServerRegistrationConfirmation(ushort localClientID, GlobalInfo globalInfo, Dictionary<string, WorldDetails> availableWorlds, 
+                FTPNetworkSettings worldsStoreFTPNetworkSettings, string inactiveWorldsInstancingIPAddress, ushort inactiveWorldsInstancingPortNumber)
             {
                 LocalClientID = localClientID;
-                UserSettings = userSettings;
                 GlobalInfo = globalInfo;
                 AvailableWorlds = availableWorlds;
-                CompletedTutorial = completedTutporial;
-                FTPIPAddress = ftpIPAddress;
-                FTPPortNumber = ftpPortNumber;
-                FTPUsername = ftpUsername;
-                FTPPassword = ftpPassword;
+                WorldsStoreFTPNetworkSettings = worldsStoreFTPNetworkSettings;
+                InactiveWorldsInstancingIPAddress = inactiveWorldsInstancingIPAddress;
+                InactiveWorldsInstancingPortNumber = inactiveWorldsInstancingPortNumber;
             }
 
             protected override byte[] ConvertToBytes()
@@ -184,17 +173,10 @@ namespace VE2.PlatformNetworking
 
                 writer.Write(LocalClientID);
 
-                // Serialize PlayerPresentationConfig
-                byte[] userSettingsBytes = UserSettings.Bytes;
-                writer.Write((ushort)userSettingsBytes.Length);
-                writer.Write(userSettingsBytes);
-
-                // Serialize GlobalInfo
                 byte[] globalInfoBytes = GlobalInfo.Bytes;
                 writer.Write((ushort)globalInfoBytes.Length);
                 writer.Write(globalInfoBytes);
 
-                // Serialize AvailableWorlds
                 writer.Write((ushort)AvailableWorlds.Count);
                 foreach (var kvp in AvailableWorlds)
                 {
@@ -204,13 +186,9 @@ namespace VE2.PlatformNetworking
                     writer.Write(worldDetailsBytes);
                 }
 
-                // Serialize CompletedTutporial
-                writer.Write(CompletedTutorial);
-
-                writer.Write(FTPIPAddress);
-                writer.Write(FTPPortNumber);
-                writer.Write(FTPUsername);
-                writer.Write(FTPPassword);
+                byte[] worldsStoreFTPNetworkSettingsBytes = WorldsStoreFTPNetworkSettings.Bytes;
+                writer.Write((ushort)worldsStoreFTPNetworkSettingsBytes.Length);
+                writer.Write(worldsStoreFTPNetworkSettingsBytes);
 
                 return stream.ToArray();
             }
@@ -222,17 +200,10 @@ namespace VE2.PlatformNetworking
 
                 LocalClientID = reader.ReadUInt16();
 
-                // Deserialize PlayerPresentationConfig
-                int userSettingsBytesLength = reader.ReadUInt16();
-                byte[] userSettingsBytes = reader.ReadBytes(userSettingsBytesLength);
-                UserSettings = new UserSettingsPersistable(userSettingsBytes);
-
-                // Deserialize GlobalInfo
                 int globalInfoLength = reader.ReadUInt16();
                 byte[] globalInfoBytes = reader.ReadBytes(globalInfoLength);
                 GlobalInfo = new GlobalInfo(globalInfoBytes);
 
-                // Deserialize AvailableWorlds
                 int availableWorldsCount = reader.ReadUInt16();
                 AvailableWorlds = new Dictionary<string, WorldDetails>();
                 for (int i = 0; i < availableWorldsCount; i++)
@@ -244,51 +215,31 @@ namespace VE2.PlatformNetworking
                     AvailableWorlds[key] = worldDetails;
                 }
 
-                // Deserialize CompletedTutporial
-                CompletedTutorial = reader.ReadBoolean();
-
-                // FTPIPAddress = reader.ReadString();
-                // FTPPortNumber = reader.ReadUInt16();
-                // FTPUsername = reader.ReadString();
-                // FTPPassword = reader.ReadString();
+                ushort worldsStoreFTPNetworkSettingsLength = reader.ReadUInt16();
+                byte[] worldsStoreFTPNetworkSettingsBytes = reader.ReadBytes(worldsStoreFTPNetworkSettingsLength);
+                WorldsStoreFTPNetworkSettings = new FTPNetworkSettings(worldsStoreFTPNetworkSettingsBytes);
             }
         }
 
-
-        //The servershould give us a list of WorldConnectionDetails "activeWorldConnectionDetails" 
-        //And also a single WorldDetails "inactiveWorldConnectionDetails"
-        public class WorldDetails : VE2Serializable //TODO: This should maybe come from the the file's metadata?? Apart from IP/Port
+        public class WorldDetails : VE2Serializable 
         {
             public string Name { get; private set; }
-            public string Subtitle { get; private set; }
-            public string Authors { get; private set; }
-            public string DateOfPublish { get; private set; }
             public int VersionNumber { get; private set; }
-            public bool VREnabled { get; private set; }
-            public bool TwoDEnabled { get; private set; }
-            public bool MultiplayerEnabled { get; private set; }
-            public string Path { get; private set; }
-            public string IPAddress { get; private set; }
-            public ushort PortNumber { get; private set; }
-            public byte[] Thumbnail { get; private set; }
-
-            public WorldDetails(string name, string subtitle, string authors, string dateOfPublish, int versionNumber, bool vrEnabled, bool twoDEnabled, bool multiplayerEnabled, string path, string ipAddress, ushort portNumber, byte[] thumbnail)
-            {
-                Name = name;
-                Subtitle = subtitle;
-                Authors = authors;
-                DateOfPublish = dateOfPublish;
-                VersionNumber = versionNumber;
-                VREnabled = vrEnabled;
-                TwoDEnabled = twoDEnabled;
-                MultiplayerEnabled = multiplayerEnabled;
-                Path = path;
-                IPAddress = ipAddress;
-                PortNumber = portNumber;
-                Thumbnail = thumbnail;
-            }
+            public string InstancingIPAddress { get; private set; }
+            public ushort InstancingPortNumber { get; private set; }
+            public FTPNetworkSettings WorldSubStoreFTPNetworkSettings { get; private set; }
 
             public WorldDetails(byte[] bytes) : base(bytes) { }
+
+            public WorldDetails(string name, int versionNumber, string instancingIPAddress, ushort instancingPortNumber, FTPNetworkSettings worldSubStoreFTPNetworkSettings)
+            {
+                Name = name;
+                VersionNumber = versionNumber;
+                InstancingIPAddress = instancingIPAddress;
+                InstancingPortNumber = instancingPortNumber;
+                WorldSubStoreFTPNetworkSettings = worldSubStoreFTPNetworkSettings;
+            }
+
 
             protected override byte[] ConvertToBytes()
             {
@@ -296,18 +247,13 @@ namespace VE2.PlatformNetworking
                 using BinaryWriter writer = new(stream);
 
                 writer.Write(Name);
-                writer.Write(Subtitle);
-                writer.Write(Authors);
-                writer.Write(DateOfPublish);
                 writer.Write(VersionNumber);
-                writer.Write(VREnabled);
-                writer.Write(TwoDEnabled);
-                writer.Write(MultiplayerEnabled);
-                writer.Write(Path);
-                writer.Write(IPAddress);
-                writer.Write(PortNumber);
-                writer.Write(Thumbnail.Length);
-                writer.Write(Thumbnail);
+                writer.Write(InstancingIPAddress);
+                writer.Write(InstancingPortNumber);
+                
+                byte[] worldFTPNetworkSettingsBytes = WorldSubStoreFTPNetworkSettings.Bytes;
+                writer.Write((ushort)worldFTPNetworkSettingsBytes.Length);
+                writer.Write(worldFTPNetworkSettingsBytes);
 
                 return stream.ToArray();
             }
@@ -318,18 +264,13 @@ namespace VE2.PlatformNetworking
                 using BinaryReader reader = new(stream);
 
                 Name = reader.ReadString();
-                Subtitle = reader.ReadString();
-                Authors = reader.ReadString();
-                DateOfPublish = reader.ReadString();
                 VersionNumber = reader.ReadInt32();
-                VREnabled = reader.ReadBoolean();
-                TwoDEnabled = reader.ReadBoolean();
-                MultiplayerEnabled = reader.ReadBoolean();
-                Path = reader.ReadString();
-                IPAddress = reader.ReadString();
-                PortNumber = reader.ReadUInt16();
-                int thumbnailLength = reader.ReadInt32();
-                Thumbnail = reader.ReadBytes(thumbnailLength);
+                InstancingIPAddress = reader.ReadString();
+                InstancingPortNumber = reader.ReadUInt16();
+                
+                ushort worldFTPNetworkSettingsLength = reader.ReadUInt16();
+                byte[] worldFTPNetworkSettingsBytes = reader.ReadBytes(worldFTPNetworkSettingsLength);
+                WorldSubStoreFTPNetworkSettings = new FTPNetworkSettings(worldFTPNetworkSettingsBytes);
             }
         }
 

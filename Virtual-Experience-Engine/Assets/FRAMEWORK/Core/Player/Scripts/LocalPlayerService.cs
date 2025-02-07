@@ -12,7 +12,7 @@ namespace VE2.Core.Player
             return new PlayerService(state, config, enableVR, enable2D, 
                 VE2CoreServiceLocator.Instance.PlayerStateModuleContainer, 
                 VE2CoreServiceLocator.Instance.InteractorContainer,
-                VE2CoreServiceLocator.Instance.PlayerSettingsProvider, 
+                VE2CoreServiceLocator.Instance.PlayerSettingsHandler, 
                 VE2CoreServiceLocator.Instance.PlayerAppearanceOverridesProvider,
                 VE2CoreServiceLocator.Instance.MultiplayerSupport, 
                 VE2CoreServiceLocator.Instance.InputHandler.PlayerInputContainer,
@@ -32,31 +32,33 @@ namespace VE2.Core.Player
         private bool _enableVR;
 
         private readonly PlayerInputContainer _playerInputContainer;
+        private readonly IPlayerSettingsHandler _playerSettingsHandler;
 
         public PlayerService(PlayerTransformData state, PlayerStateConfig config, bool enableVR, bool enable2D, 
             PlayerStateModuleContainer playerStateModuleContainer, InteractorContainer interactorContainer,
-            IPlayerSettingsProvider playerSettingsProvider, IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider, 
+            IPlayerSettingsHandler playerSettingsHandler, IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider, 
             IMultiplayerSupport multiplayerSupport, PlayerInputContainer playerInputContainer, IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper)
         {
-            _playerStateModule = new(state, config, playerStateModuleContainer, playerSettingsProvider, playerAppearanceOverridesProvider);
-            _playerStateModule.OnAvatarAppearanceChanged += HandleAvatarAppearanceChanged;
+            _playerStateModule = new(state, config, playerStateModuleContainer);
+            playerSettingsHandler.OnPlayerPresentationConfigChanged += HandlePlayerPresentationChanged;
 
             _enable2D = enable2D;
             _enableVR = enableVR;
             _playerInputContainer = playerInputContainer;
+            _playerSettingsHandler = playerSettingsHandler;
 
             if (enableVR)
             {
                 _playerVR = new PlayerControllerVR(
-                    interactorContainer, _playerInputContainer.PlayerVRInputContainer, 
-                    playerSettingsProvider.UserSettings.PlayerVRControlConfig, 
+                    interactorContainer, _playerInputContainer.PlayerVRInputContainer,
+                    playerSettingsHandler, new PlayerVRControlConfig(), //TODO: 
                     raycastProvider, xrManagerSettingsWrapper, multiplayerSupport);
             }
             if (enable2D)
             {
                 _player2D = new PlayerController2D(
-                    interactorContainer, _playerInputContainer.Player2DInputContainer, 
-                    playerSettingsProvider.UserSettings.Player2DControlConfig, 
+                    interactorContainer, _playerInputContainer.Player2DInputContainer,
+                    playerSettingsHandler, new Player2DControlConfig(), //TODO:
                     raycastProvider, multiplayerSupport);
             }
 
@@ -73,7 +75,7 @@ namespace VE2.Core.Player
 
             _playerInputContainer.ChangeMode.OnPressed += HandleChangeModePressed;
 
-            HandleAvatarAppearanceChanged(_playerStateModule.AvatarAppearance); //Do this now to set the initial color
+            //HandleAvatarAppearanceChanged(_playerStateModule.AvatarAppearance); //Do this now to set the initial color
         }
 
         private void HandleChangeModePressed() 
@@ -102,14 +104,13 @@ namespace VE2.Core.Player
             }
         }
 
-        private void HandleAvatarAppearanceChanged(AvatarAppearance appearance)
+        private void HandlePlayerPresentationChanged(PlayerPresentationConfig presentationConfig)
         {
-            //TOOD: Handle head and torso changes 
             _playerVR?.HandleLocalAvatarColorChanged(new Color(
-                appearance.PresentationConfig.AvatarRed, 
-                appearance.PresentationConfig.AvatarGreen, 
-                appearance.PresentationConfig.AvatarBlue) / 255f);
-        }   
+                presentationConfig.AvatarRed,
+                presentationConfig.AvatarGreen,
+                presentationConfig.AvatarBlue) / 255f);
+        }
 
         public void HandleFixedUpdate()
         {
@@ -145,6 +146,7 @@ namespace VE2.Core.Player
 
             _playerStateModule.TearDown();
             _playerInputContainer.ChangeMode.OnPressed -= HandleChangeModePressed;
+            _playerSettingsHandler.OnPlayerPresentationConfigChanged += HandlePlayerPresentationChanged;
         }
     }
 

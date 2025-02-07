@@ -65,8 +65,8 @@ public class PlayerAndHandheldAdjustableTests
         IRangedGrabInteractionModule grabbablePlayerInterface = grabbableRaycastInterface.RangedGrabInteractionModule;
 
         //Stub out the player settings provider with default settings
-        IPlayerSettingsProvider playerSettingsProviderStub = Substitute.For<IPlayerSettingsProvider>();
-        playerSettingsProviderStub.UserSettings.Returns(new UserSettingsPersistable());
+        IPlayerSettingsHandler playerSettingsProviderStub = Substitute.For<IPlayerSettingsHandler>();
+        playerSettingsProviderStub.PlayerPresentationConfig.Returns(new PlayerPresentationConfig());
 
         //Stub out the input handler    
         PlayerInputContainerStubWrapper playerInputContainerStubWrapper = new();

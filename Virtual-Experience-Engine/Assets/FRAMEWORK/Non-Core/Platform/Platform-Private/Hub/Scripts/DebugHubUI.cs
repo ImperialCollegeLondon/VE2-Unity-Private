@@ -12,16 +12,16 @@ public class DebugHubUI : MonoBehaviour
 
     void OnEnable()
     {
-        _platformService = (PlatformService)FindFirstObjectByType<PlatformServiceProvider>().PlatformService;
+        // _platformService = (PlatformService)FindFirstObjectByType<PlatformServiceProvider>().PlatformService;
 
-        if (_platformService.IsConnectedToServer)
-        {
-            HandlePlatformReady();
-        }
-        else
-        {
-            _platformService.OnConnectedToServer += HandlePlatformReady;
-        }
+        // if (_platformService.IsConnectedToServer)
+        // {
+        //     HandlePlatformReady();
+        // }
+        // else
+        // {
+        //     _platformService.OnConnectedToServer += HandlePlatformReady;
+        // }
     }
 
     private void HandlePlatformReady()
@@ -30,7 +30,7 @@ public class DebugHubUI : MonoBehaviour
 
         foreach (WorldDetails worldDetails in _platformService.ActiveWorlds.Values)
         {
-            availableWorldList += $"{worldDetails.Name} - <i><color=yellow>{worldDetails.IPAddress}:{worldDetails.PortNumber}</color></i>\n";
+            availableWorldList += $"{worldDetails.Name} - <i><color=yellow>{worldDetails.InstancingIPAddress}:{worldDetails.InstancingPortNumber}</color></i>\n";
         }
 
         instancesListText.text = availableWorldList;

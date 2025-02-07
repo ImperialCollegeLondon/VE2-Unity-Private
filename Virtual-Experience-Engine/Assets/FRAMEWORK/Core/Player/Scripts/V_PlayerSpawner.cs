@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 using VE2.Common;
 using VE2.Core.Common;
+using static VE2.Common.CommonSerializables;
 
 namespace VE2.Core.Player
 {
@@ -10,17 +11,14 @@ namespace VE2.Core.Player
     public class PlayerStateConfig : BaseStateConfig
     {
         //Events for state change (2d/vr)
-        //Maybe also an event for appearance changed?
-        //The state module should probably also have methods for moving the player
-
     }
 
-    //TODO, consolidate all this into one config class?
+    [ExecuteAlways]
     public class V_PlayerSpawner : MonoBehaviour//, IPlayerSpawner //Should this be called "PlayerIntegration"?
     {
         //TODO, configs for each player, OnTeleport, DragHeight, FreeFlyMode, etc
-        [SerializeField] public bool enableVR;
-        [SerializeField] public bool enable2D;
+        [SerializeField] public bool enableVR = false;
+        [SerializeField] public bool enable2D = true;
         [SerializeField, IgnoreParent] public PlayerStateConfig playerStateConfig = new();
 
         private bool _transformDataSetup = false;
@@ -31,6 +29,9 @@ namespace VE2.Core.Player
 
         private void OnEnable() 
         {
+            if (!Application.isPlaying)
+                return;
+
             if (!_transformDataSetup)
             {
                 _playerTransformData.RootPosition = transform.position;
@@ -39,22 +40,19 @@ namespace VE2.Core.Player
                 _transformDataSetup = true;
             }
 
-            if (VE2CoreServiceLocator.Instance.PlayerSettingsProvider == null) 
+            if (VE2CoreServiceLocator.Instance.PlayerSettingsHandler == null) 
             {
-                Debug.LogError("Error, V_PlayerSpawner cannot spawn player, no player settings provider found");
+                Debug.LogError("Error, V_PlayerSpawner cannot spawn player, no player settings provider found.");
                 return;
             }
 
             if (enableVR)
                 StartCoroutine(InitializeXR());
 
-            //TODO, maybe we have the service in charge of this async stuff, then its easier to test
-            //Although, the service is doing a lot already, the integration maybe isn't the worst place for this..
-            //its not like we CAN'T test a Monobehaviour, we can just mock the service locator singleton
-            if (VE2CoreServiceLocator.Instance.PlayerSettingsProvider.ArePlayerSettingsReady)
-                HandlePlayerSettingsReady();
+            if (enableVR && !_xrInitialized)
+                StartCoroutine(InitializePlayerServiceAfterXRInit());
             else
-                VE2CoreServiceLocator.Instance.PlayerSettingsProvider.OnPlayerSettingsReady += HandlePlayerSettingsReady; //TODO- Maybe just wire this into the PlayerService?
+                InitializePlayerService();
         }
 
         private IEnumerator InitializeXR()
@@ -72,16 +70,6 @@ namespace VE2.Core.Player
             }
         }
 
-        private void HandlePlayerSettingsReady()
-        {
-            VE2CoreServiceLocator.Instance.PlayerSettingsProvider.OnPlayerSettingsReady -= HandlePlayerSettingsReady;
-
-            if (enableVR && !_xrInitialized)
-                StartCoroutine(InitializePlayerServiceAfterXRInit());
-            else
-                InitializePlayerService();
-        }
-
         private IEnumerator InitializePlayerServiceAfterXRInit()
         {
             while (!_xrInitialized)
@@ -92,9 +80,7 @@ namespace VE2.Core.Player
 
         private void InitializePlayerService()
         {
-            //TODO: Should move into the service itself, inject config SO through constructor
-            EnvironmentConfig environmentConfig = Resources.Load<EnvironmentConfig>("EnvironmentConfig");
-            if (environmentConfig.Environment == EnvironmentConfig.EnvironmentType.Android && !Application.isEditor)
+            if (Application.platform == RuntimePlatform.Android && !Application.isEditor)
             {
                 enableVR = true;
                 enable2D = false;
@@ -105,16 +91,25 @@ namespace VE2.Core.Player
 
         private void FixedUpdate() 
         {
+            if (!Application.isPlaying)
+                return;
+
             _playerService?.HandleFixedUpdate();
         }
 
         private void Update() 
         {
+            if (!Application.isPlaying)
+                return;
+
             _playerService?.HandleUpdate();
         }   
 
         private void OnDisable() 
         {
+            if (!Application.isPlaying)
+                return;
+                
             Debug.Log("Disabling player spawner, service null? " + (_playerService == null));
             _playerService?.TearDown();
             _playerService = null;

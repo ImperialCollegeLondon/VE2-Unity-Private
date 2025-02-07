@@ -7,8 +7,9 @@ namespace VE2_NonCore_FileSystem
     public class V_InternalFileSystem : V_FileSystemIntegrationBase, IInternalFileSystem
     {
         public override string LocalWorkingPath{ get {
-            EnvironmentConfig environmentConfig = Resources.Load<EnvironmentConfig>("EnvironmentConfig");
-               return $"VE2/Worlds/{environmentConfig.EnvironmentName}";
+               string platformName = Application.platform == RuntimePlatform.Android ? "Android" : "Windows";
+
+               return $"VE2/Worlds/{platformName}";
             }
         }
     }

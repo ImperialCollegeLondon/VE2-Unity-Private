@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using VE2_NonCore_FileSystem_Interfaces_Common;
+using static NonCoreCommonSerializables;
 
 namespace VE2_NonCore_FileSystem
 {

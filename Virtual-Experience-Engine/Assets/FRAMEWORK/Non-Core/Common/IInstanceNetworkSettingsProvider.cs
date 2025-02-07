@@ -35,19 +35,6 @@ public class NetworkSettings
 }
 
 [Serializable]
-public class FTPNetworkSettings : NetworkSettings
-{
-    [SerializeField] public string Username;
-    [SerializeField] public string Password;
-
-    public FTPNetworkSettings(string iP, ushort port, string username, string password) : base(iP, port)
-    {
-        Username = username;
-        Password = password;
-    }
-}
-
-[Serializable]
 public class InstanceNetworkSettings : NetworkSettings
 {
     [SerializeField] public string InstanceCode;

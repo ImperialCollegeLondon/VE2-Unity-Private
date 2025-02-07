@@ -15,10 +15,12 @@ namespace VE2.NonCore.Platform.Private
 {
     public static class PlatformServiceFactory
     {
-        public static IPlatformService Create(UserIdentity userIdentity, IPAddress ipAddress, ushort portNumber, string startingInstanceCode)
+        //Shouldn't pass these details,
+        //Should pass these in the "Connect" method
+        public static PlatformService Create()
         {
             PlatformCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
-            return new PlatformService(commsHandler, userIdentity, ipAddress, portNumber, startingInstanceCode);
+            return new PlatformService(commsHandler, new PluginLoader(), VE2CoreServiceLocator.Instance.PlayerSettingsHandler);
         }
     }
 
@@ -26,10 +28,8 @@ namespace VE2.NonCore.Platform.Private
     //Ehhh.. there's really not much duplicate code here, not sure we it's worth coupling these two things together
     public class PlatformService : IPlatformService
     {
-        private UserIdentity _userIdentity;
-
         public ushort LocalClientID { get; private set; }
-        public string CurrentInstanceCode { get; private set; }
+        public string CurrentInstanceCode { get; private set; } //Remove, comes from settingshandler?
         public GlobalInfo GlobalInfo { get; private set; }
         public event Action<GlobalInfo> OnGlobalInfoChanged;
         public Dictionary<string, WorldDetails> ActiveWorlds { get; private set; }
@@ -41,43 +41,16 @@ namespace VE2.NonCore.Platform.Private
 
         */
 
-        private IPlatformCommsHandler _commsHandler;
-
         #region Common-Interfaces
         public bool IsConnectedToServer { get; private set; }
         public event Action OnConnectedToServer;
         #endregion
-
-        #region Instance-Sync-Facing Interfaces
-        public InstanceNetworkSettings InstanceNetworkSettings {
-            get {
-                string currentWorldName = PlatformInstanceInfo.SplitInstanceCode(CurrentInstanceCode).Item1;
-                if (!ActiveWorlds.TryGetValue(currentWorldName, out WorldDetails worldDetails))
-                    return null;
-                else
-                    return new InstanceNetworkSettings(worldDetails.IPAddress, worldDetails.PortNumber, CurrentInstanceCode);
-            }
-        }
-        #endregion
-
-        #region FTP-Facing Interfaces
-        public FTPNetworkSettings FTPNetworkSettings { get; private set; }
-        #endregion
-
-        #region Player Settings Interfaces
-        public UserSettingsPersistable UserSettings { get; private set; }
-        #endregion
-
-        private IPlayerSettingsProvider _playerSettingsProvider;
 
         #region Platform-Private Interfaces
         public void RequestInstanceAllocation(string worldName, string instanceSuffix)
         {
             if (IsConnectedToServer)
             {
-                //TODO: If not in "active worlds", use inactiveWorldConnectionSettings
-                //Also, why do we even need the IP addresses? Why doesn't the server just keep them until it allocates us?
-                //Server could just send IP and port as part of the allocation message?
                 Debug.Log($"Requesting instance allocation to {worldName}-{instanceSuffix}");
                 InstanceAllocationRequest instanceAllocationRequest = new(worldName, instanceSuffix);
                 _commsHandler.SendMessage(instanceAllocationRequest.Bytes, PlatformNetworkingMessageCodes.InstanceAllocationRequest, TransmissionProtocol.TCP);
@@ -90,41 +63,47 @@ namespace VE2.NonCore.Platform.Private
         public void RequestHubAllocation()
         {
             RequestInstanceAllocation("Hub", "Solo");
-        }   
+        }
         #endregion
 
+        private IPlatformCommsHandler _commsHandler;
         private readonly PluginLoader _pluginLoader;
+        private readonly IPlayerSettingsHandler _playerSettingsProvider;
 
-        public PlatformService(IPlatformCommsHandler commsHandler, UserIdentity userIdentity, IPAddress ipAddress, ushort portNumber, string startingInstanceCode)
+        public PlatformService(IPlatformCommsHandler commsHandler, PluginLoader pluginLoader, IPlayerSettingsHandler playerSettingsProvider)
         {
-            _userIdentity = userIdentity;
             _commsHandler = commsHandler;
-            CurrentInstanceCode = startingInstanceCode;
+            _pluginLoader = pluginLoader;
+            _playerSettingsProvider = playerSettingsProvider;
+            _playerSettingsProvider.OnPlayerPresentationConfigChanged += HandlePlayerPresentationConfigChanged;
 
             commsHandler.OnReceiveNetcodeConfirmation += HandleReceiveNetcodeVersion;
             commsHandler.OnReceiveServerRegistrationConfirmation += HandleReceiveServerRegistrationConfirmation;
             commsHandler.OnReceiveGlobalInfoUpdate += HandleReceiveGlobalInfoUpdate;
 
-            //if (_serverType == ServerType.Local)
-            //{
-            //    //TODO - start local server
-            //}
 
-            _pluginLoader = new PluginLoader();
+            if (_playerSettingsProvider != null)
+                _playerSettingsProvider.OnPlayerPresentationConfigChanged += HandlePlayerPresentationConfigChanged;
 
+            //_commsHandler.ConnectToServer(ipAddress, portNumber);
+        }
+
+        public void ConnectToPlatform(IPAddress ipAddress, ushort portNumber, string startingInstanceCode)
+        {
+            CurrentInstanceCode = startingInstanceCode;
             _commsHandler.ConnectToServer(ipAddress, portNumber);
         }
 
-        public void SetupForNewInstance(IPlayerSettingsProvider playerSettingsProvider)
-        {
-            if (_playerSettingsProvider != null)
-                _playerSettingsProvider.OnLocalChangeToPlayerSettings -= HandleUserSettingsChanged;
+        // public void SetupForNewInstance(IPlayerSettingsProvider playerSettingsProvider)
+        // {
+        //     if (_playerSettingsProvider != null)
+        //         _playerSettingsProvider.OnLocalChangeToPlayerSettings -= HandleUserSettingsChanged;
 
-            _playerSettingsProvider = playerSettingsProvider;
+        //     _playerSettingsProvider = playerSettingsProvider;
 
-            if (_playerSettingsProvider != null)
-                _playerSettingsProvider.OnLocalChangeToPlayerSettings += HandleUserSettingsChanged;
-        }
+        //     if (_playerSettingsProvider != null)
+        //         _playerSettingsProvider.OnLocalChangeToPlayerSettings += HandleUserSettingsChanged;
+        // }
 
         private void HandleReceiveNetcodeVersion(byte[] bytes)
         {
@@ -136,9 +115,12 @@ namespace VE2.NonCore.Platform.Private
             } 
             else
             {
+                //if first time auth connect, do nothing? 
+                //Otherwise, send reg request to platform
+
                 //string correctedInstanceCode = CurrentInstanceCode.Contains("Hub") ? "Hub-Solo" : CurrentInstanceCode;
-                ServerRegistrationRequest serverRegistrationRequest = new(_userIdentity, CurrentInstanceCode);
-                _commsHandler.SendMessage(serverRegistrationRequest.Bytes, PlatformNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
+                //ServerRegistrationRequest serverRegistrationRequest = new(_userIdentity, CurrentInstanceCode);
+                //_commsHandler.SendMessage(serverRegistrationRequest.Bytes, PlatformNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
             }
         }
 
@@ -148,12 +130,23 @@ namespace VE2.NonCore.Platform.Private
 
             LocalClientID = serverRegistrationConfirmation.LocalClientID;
             GlobalInfo = serverRegistrationConfirmation.GlobalInfo;
+
             ActiveWorlds = serverRegistrationConfirmation.AvailableWorlds;
-            UserSettings = serverRegistrationConfirmation.UserSettings;
+            //How do we get the FTP settings into the next scene?
+            //Don't really want to have to ask the server for them each time?
+            //Really, it should come in through arguments.. but, we also need to be able to start in that scene?
+
+            //No, just have hasArgs = false by default, if so, fall back to that scenes default settings
+            //BUT - that means when we do connect to prod from editor, it'll go to fallback settings, even if the server WOULD give us real ones, if we waited 
+
+            //Let's just say the framework ftp settings get populated in the introscene, same with the customer key 
+            //The worlds can come from the request from the hub - although, we need these in plugins too? so maybe world FTP and IPs come from the server each time?
+
+            //No, let's actually get the worldSubStore FTP and instancing IP from the hub only, explicit request 
 
             IsConnectedToServer = true;
 
-            FTPNetworkSettings = new FTPNetworkSettings(serverRegistrationConfirmation.FTPIPAddress, serverRegistrationConfirmation.FTPPortNumber, serverRegistrationConfirmation.FTPUsername, serverRegistrationConfirmation.FTPPassword);
+            
 
             OnConnectedToServer?.Invoke();
             OnGlobalInfoChanged?.Invoke(GlobalInfo);
@@ -231,14 +224,17 @@ namespace VE2.NonCore.Platform.Private
          * 
          */
 
-         private void HandleUserSettingsChanged()
+         private void HandlePlayerPresentationConfigChanged(PlayerPresentationConfig playerPresentationConfig)
          {
-             _commsHandler.SendMessage(UserSettings.Bytes, PlatformNetworkingMessageCodes.UpdateUserSettings, TransmissionProtocol.TCP);
+             _commsHandler.SendMessage(playerPresentationConfig.Bytes, PlatformNetworkingMessageCodes.UpdatePlayerPresentation, TransmissionProtocol.TCP);
          }
 
         public void TearDown()
         {
             _commsHandler?.DisconnectFromServer();
+
+            if (_playerSettingsProvider != null)
+                _playerSettingsProvider.OnPlayerPresentationConfigChanged += HandlePlayerPresentationConfigChanged;
         }
     }
 

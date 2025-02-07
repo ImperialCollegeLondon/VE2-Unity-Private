@@ -13,21 +13,21 @@ public class DebugGlobalInfoUI : MonoBehaviour
 
     void OnEnable()
     {
-        PlatformServiceProvider provider = FindFirstObjectByType<PlatformServiceProvider>();
-        if (provider != null)
-        {
-            _platformService = (PlatformService)provider.PlatformService;
+        // PlatformServiceProvider provider = FindFirstObjectByType<PlatformServiceProvider>();
+        // if (provider != null)
+        // {
+        //     _platformService = (PlatformService)provider.PlatformService;
 
-            //If we're already connected to the server, display initial global info rather than waiting for an update
-            if (_platformService.IsConnectedToServer)
-                HandleGlobalInfoChanged(_platformService.GlobalInfo);
+        //     //If we're already connected to the server, display initial global info rather than waiting for an update
+        //     if (_platformService.IsConnectedToServer)
+        //         HandleGlobalInfoChanged(_platformService.GlobalInfo);
 
-            _platformService.OnGlobalInfoChanged += HandleGlobalInfoChanged;
-        }
-        else
-        {
-            globalInfoText.text = "No platform service provider found";
-        }
+        //     _platformService.OnGlobalInfoChanged += HandleGlobalInfoChanged;
+        // }
+        // else
+        // {
+        //     globalInfoText.text = "No platform service provider found";
+        // }
     }
 
     private void HandleGlobalInfoChanged(GlobalInfo globalInfo)

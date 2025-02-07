@@ -34,14 +34,14 @@ namespace VE2.InstanceNetworking
 
         public void HandlePlayerStateModuleRegistered(IPlayerStateModule stateModule)
         {
-            stateModule.OnAvatarAppearanceChanged += HandleLocalAppearanceChanged;
-            HandleLocalAppearanceChanged(_localPlayerContainer.PlayerStateModule.AvatarAppearance);
+            // stateModule.OnAvatarAppearanceChanged += HandleLocalAppearanceChanged;
+            // HandleLocalAppearanceChanged(_localPlayerContainer.PlayerStateModule.AvatarAppearance);
         }
 
         public void HandlePlayerStateModuleDeregistered(IPlayerStateModule stateModule)
         {
-            stateModule.OnAvatarAppearanceChanged -= HandleLocalAppearanceChanged;
-            HandleLocalAppearanceChanged(null);
+            // stateModule.OnAvatarAppearanceChanged -= HandleLocalAppearanceChanged;
+            // HandleLocalAppearanceChanged(null);
         }
 
         private void HandleLocalAppearanceChanged(AvatarAppearance appearance)
@@ -71,8 +71,8 @@ namespace VE2.InstanceNetworking
             _localPlayerContainer.OnPlayerStateModuleRegistered -= HandlePlayerStateModuleRegistered;
             _localPlayerContainer.OnPlayerStateModuleDeregistered -= HandlePlayerStateModuleDeregistered;
             
-            if (_playerStateModule != null)
-                _playerStateModule.OnAvatarAppearanceChanged -= HandleLocalAppearanceChanged;
+            // if (_playerStateModule != null)
+            //     _playerStateModule.OnAvatarAppearanceChanged -= HandleLocalAppearanceChanged;
         }
     }
 }

@@ -2,19 +2,23 @@ using System;
 using VE2.Common;
 using static VE2.Common.CommonSerializables;
 
+//Needs to be called by hub ui 
+//Maybe plugins need access to return to hub? 
+
+
 public interface IPlatformService //TODO, maybe not all of these should live in the same interface?
 {
     public bool IsConnectedToServer { get; }
     public event Action OnConnectedToServer;
 
-    public UserSettingsPersistable UserSettings { get; }
-    //public void NotifyPlatformOfChangeToUserSettings();
+    // public UserSettingsPersistable UserSettings { get; }
+    // //public void NotifyPlatformOfChangeToUserSettings();
 
-    public InstanceNetworkSettings InstanceNetworkSettings { get; }
+    // public InstanceNetworkSettings InstanceNetworkSettings { get; }
 
-    public FTPNetworkSettings FTPNetworkSettings { get; }
+    // public FTPNetworkSettings FTPNetworkSettings { get; }
 
-    public void SetupForNewInstance(IPlayerSettingsProvider playerSettingsProvider);
+    //public void SetupForNewInstance(IPlayerSettingsProvider playerSettingsProvider);
 
     public void RequestInstanceAllocation(string worldName, string instanceSuffix);
 }

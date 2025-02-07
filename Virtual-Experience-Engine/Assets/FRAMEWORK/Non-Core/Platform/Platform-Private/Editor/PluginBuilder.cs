@@ -15,8 +15,8 @@ using VE2.PlatformNetworking;
 using VE2_NonCore_FileSystem_Interfaces_Internal;
 using VE2_NonCore_FileSystem;
 using VE2_NonCore_FileSystem_Interfaces_Common;
-using static EnvironmentConfig;
 using UnityEditor.Build.Reporting;
+using static NonCoreCommonSerializables;
 
 //TODO: Need to check for DLLs (rather than just assemblies) referenced the scene/scripts, and include them in the build. E.G Mathnet.Numerics.dll
 
@@ -53,6 +53,13 @@ public class VE2PluginBuilder
 
 class VE2PluginBuilderWindow : EditorWindow
 {
+    public enum EnvironmentType
+    {
+        Undefined,
+        Windows,
+        Android
+    }
+
     bool isSceneDirty = true;
     string scenePath = "";
     //string destinationPath = "";

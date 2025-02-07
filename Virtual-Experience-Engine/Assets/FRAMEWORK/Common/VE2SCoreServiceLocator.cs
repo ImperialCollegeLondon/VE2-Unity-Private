@@ -6,6 +6,8 @@ using VE2.Core.Common;
 using static VE2.Common.CommonSerializables;
 using VE2.Core.VComponents.InteractableInterfaces;
 
+//TODO - InputHandler, SettingsHandlers should all be internal, but have public interfaces that can be accessed by the service locator
+
 namespace VE2.Common
 {
     /* A number of these service references should exist at editor time, so inspectors can respond to their presence 
@@ -53,37 +55,28 @@ namespace VE2.Common
             }
         }
 
-        //############################## PLAYER SETTINGS PROVIDER #####################################
+        //############################## PLAYER SETTINGS HANDLER #####################################
         //#############################################################################################
 
-        [SerializeField, HideInInspector] public string PlayerSettingsProviderGOName; //{ get; private set; }
-        private IPlayerSettingsProvider _playerSettingsProvider;
-        public IPlayerSettingsProvider PlayerSettingsProvider {
-            get {
-
-                if (_playerSettingsProvider == null && !string.IsNullOrEmpty(PlayerSettingsProviderGOName))
-                    _playerSettingsProvider = GameObject.Find(PlayerSettingsProviderGOName)?.GetComponent<IPlayerSettingsProvider>();
-
-                if (_playerSettingsProvider == null || !_playerSettingsProvider.IsEnabled)
-                    return null;
-                else 
-                    return _playerSettingsProvider;
-            }
-            set //Will need to be called externally
+        [SerializeField, HideInInspector] public string PlayerSettingsHandlerGOName; 
+        private static PlayerSettingsHandler _playerSettingsHandler;
+        public IPlayerSettingsHandler PlayerSettingsHandler {
+            get
             {
-                _playerSettingsProvider = value;
+                if (_playerSettingsHandler == null)
+                    _playerSettingsHandler = FindFirstObjectByType<PlayerSettingsHandler>();
 
-                if (value != null)
-                {
-                    PlayerSettingsProviderGOName = value.GameObjectName;
-                }
+                if (_playerSettingsHandler == null && !Application.isPlaying)
+                    _playerSettingsHandler = new GameObject($"PlayerSettingsHandler{SceneManager.GetActiveScene().name}").AddComponent<PlayerSettingsHandler>();
+
+                return _playerSettingsHandler;
             }
         }
 
         //############################## PLAYER OVERRIDES PROVIDER ####################################
         //#############################################################################################
 
-        [SerializeField, HideInInspector] public string PlayerOverridesProviderGOName; // { get; private set; }
+        [SerializeField, HideInInspector] public string PlayerOverridesProviderGOName; 
         private IPlayerAppearanceOverridesProvider _playerOverridesProvider;
         public IPlayerAppearanceOverridesProvider PlayerAppearanceOverridesProvider
         {
@@ -167,6 +160,8 @@ namespace VE2.Common
             PlayerStateModuleContainer.Reset();
         }
     }
+
+    //TODO: The below should move to a different file
 
     public interface IPlayerAppearanceOverridesProvider
     {

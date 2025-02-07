@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.IO;
 using static VE2.Common.CommonSerializables;
 
+#if UNITY_EDITOR
+using UnityEngine;
+#endif
 public class NonCoreCommonSerializables
 {
     public class NetcodeVersionConfirmation : VE2Serializable
@@ -117,6 +120,64 @@ public class NonCoreCommonSerializables
             //DisplayName = reader.ReadString();
             IsAdmin = reader.ReadBoolean();
             MachineName = reader.ReadString();
+        }
+    }
+
+    [Serializable]
+    public class FTPNetworkSettings : VE2Serializable
+    {
+#if UNITY_EDITOR
+        [SerializeField]
+#endif
+        public string IPAddress;
+
+#if UNITY_EDITOR
+        [SerializeField]
+#endif
+        public string PortNumber;
+
+#if UNITY_EDITOR
+        [SerializeField]
+#endif
+        public string Username;
+
+#if UNITY_EDITOR
+        [SerializeField]
+#endif
+        public string Password;
+
+        public FTPNetworkSettings(string ip, ushort port, string username, string password)
+        {
+            IPAddress = ip;
+            PortNumber = port.ToString();
+            Username = username;
+            Password = password;
+        }
+
+        public FTPNetworkSettings(byte[] bytes) : base(bytes) { }
+
+        protected override byte[] ConvertToBytes()
+        {
+            using MemoryStream stream = new();
+            using BinaryWriter writer = new(stream);
+
+            writer.Write(IPAddress);
+            writer.Write(PortNumber);
+            writer.Write(Username);
+            writer.Write(Password);
+
+            return stream.ToArray();
+        }
+
+        protected override void PopulateFromBytes(byte[] bytes)
+        {
+            using MemoryStream stream = new(bytes);
+            using BinaryReader reader = new(stream);
+
+            IPAddress = reader.ReadString();
+            PortNumber = reader.ReadString();
+            Username = reader.ReadString();
+            Password = reader.ReadString();
         }
     }
 }

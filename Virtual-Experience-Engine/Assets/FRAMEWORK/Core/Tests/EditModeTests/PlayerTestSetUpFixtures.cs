@@ -14,19 +14,19 @@ namespace VE2.Core.Tests
     [SetUpFixture]
     public class PlayerSettingsProviderSetup
     {
-        public static IPlayerSettingsProvider PlayerSettingsProviderStub { get; private set; }
+        public static IPlayerSettingsHandler PlayerSettingsProviderStub { get; private set; }
 
         [OneTimeSetUp]
         public void PlayerSettingsProviderStubSetupOnce()
         {
             //Stub out the player settings provider with default settings
-            PlayerSettingsProviderStub = Substitute.For<IPlayerSettingsProvider>();
-            PlayerSettingsProviderStub.UserSettings.Returns(new UserSettingsPersistable());
+            PlayerSettingsProviderStub = Substitute.For<IPlayerSettingsHandler>();
+            PlayerSettingsProviderStub.PlayerPresentationConfig.Returns(new PlayerPresentationConfig());
         }
 
-        public static void StubUserSettingsValueForPlayerSettingsProviderStub(UserSettingsPersistable userSettings)
+        public static void StubUserSettingsValueForPlayerSettingsProviderStub(PlayerPresentationConfig playerPresentationConfig)
         {
-            PlayerSettingsProviderStub.UserSettings.Returns(userSettings);
+            PlayerSettingsProviderStub.PlayerPresentationConfig.Returns(playerPresentationConfig);
         }
     }
 

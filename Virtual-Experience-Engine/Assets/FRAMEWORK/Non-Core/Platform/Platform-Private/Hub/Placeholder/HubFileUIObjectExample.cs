@@ -37,15 +37,13 @@ public class HubFileUIObjectExample : MonoBehaviour
     private IPlatformService _platformService;
     private IInternalFileSystem _fileSystem;
     private string _worldFolder;
-    private EnvironmentConfig _environmentConfig;
 
-    public void Setup(IPlatformService platformService, IInternalFileSystem fileSystem, string worldFolder, EnvironmentConfig environmentConfig)
+    public void Setup(IPlatformService platformService, IInternalFileSystem fileSystem, string worldFolder)
     {
         _platformService = platformService;
         _fileSystem = fileSystem;
 
         _worldFolder = worldFolder;
-        _environmentConfig = environmentConfig;
 
         string worldFolderName = _worldFolder.Substring(_worldFolder.IndexOf('/') + 1);
         _categoryText.text = worldFolderName.Substring(0, worldFolderName.IndexOf('_'));
@@ -110,7 +108,7 @@ public class HubFileUIObjectExample : MonoBehaviour
         info.OnSearchComplete -= HandleWorldFilesSearchComplete;
         _filesToDownload = new List<string>(info.FilesFound.Keys);
 
-        int minNumFiles = _environmentConfig.Environment == EnvironmentConfig.EnvironmentType.Windows ? 3 : 2;
+        int minNumFiles = Application.platform == RuntimePlatform.Android ? 2 : 3;
 
         if (_filesToDownload.Count < minNumFiles)
         {
@@ -139,7 +137,7 @@ public class HubFileUIObjectExample : MonoBehaviour
             }
             else
             {
-                if (_environmentConfig.Environment == EnvironmentConfig.EnvironmentType.Android)
+                if (Application.platform == RuntimePlatform.Android)
                 {
                     //TODO - need a proper way to get the file path, should come from filesystem
                     string filepath = $"{Application.persistentDataPath}/files/VE2/Worlds/Android/{_worldFolder}/{_activeRemoteVersion.ToString("D3")}/{_fileNameText.text}.apk";

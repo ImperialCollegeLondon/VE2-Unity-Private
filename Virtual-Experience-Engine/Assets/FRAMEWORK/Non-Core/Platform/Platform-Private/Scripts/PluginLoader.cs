@@ -13,7 +13,7 @@ using VE2_NonCore_FileSystem;
 using VE2_NonCore_FileSystem_Interfaces_Common;
 
 //TODO needs some looking at, we're no longer instantiating a GameObject 
-public class PluginLoader
+public class PluginLoader //TODO: Needs an interface
 {
     public PluginLoader() {}
 
@@ -50,26 +50,20 @@ public class PluginLoader
             Debug.Log(localFile.FullLocalNameAndPath);
         }
 
-        EnvironmentConfig environmentConfig = Resources.Load<EnvironmentConfig>("EnvironmentConfig");
-
-        if (environmentConfig.Environment == EnvironmentConfig.EnvironmentType.Windows)
-        {
-            LoadWindowsPlugin(localFiles);
-        }
-        else if (environmentConfig.Environment == EnvironmentConfig.EnvironmentType.Android)
+        if (Application.platform == RuntimePlatform.Android)
         {
             LaunchAndroidAPK(pluginName);
         }
         else 
         {
-            Debug.LogError("Could not load plugin as environment is not supported");
+            LoadWindowsPlugin(localFiles);
         }
-
-
     }
 
     private void LoadWindowsPlugin(List<LocalFileDetails> localFiles) 
     {
+        //TODO: Need to make sure the DesktopSettingsBus objects are populated with their data
+
         AssetBundle bundle = null;
 
         foreach (LocalFileDetails localFile in localFiles)
@@ -106,7 +100,7 @@ public class PluginLoader
 
     private void LaunchAndroidAPK(string apkName)
     {
-        string packageName = $"{EnvironmentConfig.CompanyName}.{apkName}";
+        string packageName = $"{"com.ImperialCollegeLondon"}.{apkName}";
 
         Debug.Log($"Try launch {packageName}");
         AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
@@ -118,6 +112,8 @@ public class PluginLoader
 
         if (intent != null)
         {
+            //TODO: Need all settings handlers, need to inject command args here
+
             intent.Call<AndroidJavaObject>("putExtra", $"arg0", "TestArg0");
             intent.Call<AndroidJavaObject>("putExtra", $"arg1", "TestArg1");
 

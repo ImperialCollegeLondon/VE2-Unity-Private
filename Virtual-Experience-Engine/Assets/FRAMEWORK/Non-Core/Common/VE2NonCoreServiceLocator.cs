@@ -46,7 +46,6 @@ public class VE2NonCoreServiceLocator : MonoBehaviour
         }
     }
 
-
     private void Awake()
     {
         _instance = this;

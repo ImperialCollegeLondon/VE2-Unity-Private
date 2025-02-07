@@ -13,7 +13,7 @@ using VE2_NonCore_FileSystem;
 using VE2_NonCore_FileSystem_Interfaces_Common;
 using System.Text.RegularExpressions;
 using System.Linq;
-using static EnvironmentConfig;
+using static NonCoreCommonSerializables;
 
 public class PluginUploader
 {

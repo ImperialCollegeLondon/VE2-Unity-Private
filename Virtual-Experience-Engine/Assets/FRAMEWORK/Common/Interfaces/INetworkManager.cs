@@ -37,8 +37,9 @@ namespace VE2.Common //TODO break into different files
 
     public interface IPlayerStateModule : IBaseStateModule
     {
-        public AvatarAppearance AvatarAppearance {get;}
-        public event Action<AvatarAppearance> OnAvatarAppearanceChanged;
+        //Removing - this now comes from PlayerSettingsHandler
+        // public AvatarAppearance AvatarAppearance {get;}
+        // public event Action<AvatarAppearance> OnAvatarAppearanceChanged;
     }
 
     public enum TransmissionProtocol //TODO - move
