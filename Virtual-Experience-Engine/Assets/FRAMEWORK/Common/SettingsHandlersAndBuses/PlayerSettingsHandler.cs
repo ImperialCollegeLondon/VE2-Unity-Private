@@ -7,6 +7,17 @@ using static VE2.Common.CommonSerializables;
 //E.G the launcher passing customerID and customerKey... 
 //If android, look using the SettingsHandler, if desktop, read cmd args explicitly
 
+/*
+    This should be internal to Player - if a different service needs access to these settings, it should go via the player API
+    The reason we have this whole "Settingshandler" thing is to try and share inspector things between different services 
+    Hold on, what about settings that don't really fit to a service?
+    e.g - the starting instance code
+    That could be in some kind "ServerRegistrationSettingsHandler"? is that not then inconsistent?
+    it _should_ come from the platform, but instancing doesn't might still need this data even if PlatformService isn't preseant (i.e, load just a plugin)
+    Maybe platform and instancing should just give come in the same package?
+    If you want instancing off-platform, then just make sure arguments come into the system... wont platform still try to connect to platform server 
+*/
+
 //If we create this from PlayerController, where do we create the CustomerLoginSettingsHandler?
 //In the classes that need them, just don't make a second one
 [ExecuteAlways]

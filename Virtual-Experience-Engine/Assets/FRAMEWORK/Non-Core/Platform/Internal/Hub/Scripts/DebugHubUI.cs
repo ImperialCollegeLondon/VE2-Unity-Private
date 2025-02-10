@@ -60,6 +60,7 @@ public class DebugHubUI : MonoBehaviour
 
     private void OnDisable()
     {
-        _platformService.OnConnectedToServer -= HandlePlatformReady;
+        if (_platformService != null)
+            _platformService.OnConnectedToServer -= HandlePlatformReady;
     }
 }

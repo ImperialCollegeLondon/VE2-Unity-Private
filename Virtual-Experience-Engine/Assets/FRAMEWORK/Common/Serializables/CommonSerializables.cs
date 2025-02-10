@@ -358,11 +358,6 @@ namespace VE2.Common //TODO - Need to expose to customer
                                 }
                                 return false;
                         }
-
-                        public override int GetHashCode()
-                        {
-                                return HashCode.Combine(PresentationConfig, HeadOverrideType, TorsoOverrideType);
-                        }
                 }
 
                 public enum AvatarAppearanceOverrideType

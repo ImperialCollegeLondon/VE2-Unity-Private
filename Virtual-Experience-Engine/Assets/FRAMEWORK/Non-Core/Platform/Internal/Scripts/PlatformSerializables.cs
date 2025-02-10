@@ -5,6 +5,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using static NonCoreCommonSerializables;
 using static VE2.Common.CommonSerializables;
+using static PlatformPublicSerializables;
+
 
 
 #if UNITY_EDITOR
@@ -20,78 +22,76 @@ namespace VE2.PlatformNetworking
         public enum PlatformNetworkingMessageCodes
         {
             NetcodeVersionConfirmation,
-            FirstTimeAuthCheckRequest,
-            FirstTimeAuthCheckResponse,
             ServerRegistrationRequest,
-            ServerRegistrationConfirmation,
+            ServerRegistrationResponse,
             GlobalInfo,
             InstanceAllocationRequest,
             UpdatePlayerPresentation,
         }
 
-        public class FirstTimeAuthCheckRequest : VE2Serializable
-        {
-            public string CustomerID;
-            public string CustomerKey;
+        // public class FirstTimeAuthCheckRequest : VE2Serializable
+        // {
+        //     public string CustomerID;
+        //     public string CustomerKey;
 
-            public FirstTimeAuthCheckRequest(byte[] bytes) : base(bytes) { }
+        //     public FirstTimeAuthCheckRequest(byte[] bytes) : base(bytes) { }
 
-            public FirstTimeAuthCheckRequest(string customerID, string customerKey)
-            {
-                CustomerID = customerID;
-                CustomerKey = customerKey;
-            }
+        //     public FirstTimeAuthCheckRequest(string customerID, string customerKey)
+        //     {
+        //         CustomerID = customerID;
+        //         CustomerKey = customerKey;
+        //     }
 
-            protected override byte[] ConvertToBytes()
-            {
-                using MemoryStream stream = new();
-                using BinaryWriter writer = new(stream);
+        //     protected override byte[] ConvertToBytes()
+        //     {
+        //         using MemoryStream stream = new();
+        //         using BinaryWriter writer = new(stream);
 
-                writer.Write(CustomerID);
-                writer.Write(CustomerKey);
+        //         writer.Write(CustomerID);
+        //         writer.Write(CustomerKey);
 
-                return stream.ToArray();
-            }
+        //         return stream.ToArray();
+        //     }
 
-            protected override void PopulateFromBytes(byte[] data)
-            {
-                using MemoryStream stream = new(data);
-                using BinaryReader reader = new(stream);
+        //     protected override void PopulateFromBytes(byte[] data)
+        //     {
+        //         using MemoryStream stream = new(data);
+        //         using BinaryReader reader = new(stream);
 
-                CustomerID = reader.ReadString();
-                CustomerKey = reader.ReadString();
-            }
-        }
+        //         CustomerID = reader.ReadString();
+        //         CustomerKey = reader.ReadString();
+        //     }
+        // }
 
-        public class FirstTimeAuthCheckResponse : VE2Serializable
-        {
-            public bool AuthSuccess { get; private set; }
+        // public class FirstTimeAuthCheckResponse : VE2Serializable
+        // {
+        //     public bool AuthSuccess { get; private set; }
 
-            public FirstTimeAuthCheckResponse(byte[] bytes) : base(bytes) { }
+        //     public FirstTimeAuthCheckResponse(byte[] bytes) : base(bytes) { }
 
-            public FirstTimeAuthCheckResponse(bool authSuccess)
-            {
-                AuthSuccess = authSuccess;
-            }
+        //     public FirstTimeAuthCheckResponse(bool authSuccess)
+        //     {
+        //         AuthSuccess = authSuccess;
+        //     }
 
-            protected override byte[] ConvertToBytes()
-            {
-                using MemoryStream stream = new();
-                using BinaryWriter writer = new(stream);
+        //     protected override byte[] ConvertToBytes()
+        //     {
+        //         using MemoryStream stream = new();
+        //         using BinaryWriter writer = new(stream);
 
-                writer.Write(AuthSuccess);
+        //         writer.Write(AuthSuccess);
 
-                return stream.ToArray();
-            }
+        //         return stream.ToArray();
+        //     }
 
-            protected override void PopulateFromBytes(byte[] data)
-            {
-                using MemoryStream stream = new(data);
-                using BinaryReader reader = new(stream);
+        //     protected override void PopulateFromBytes(byte[] data)
+        //     {
+        //         using MemoryStream stream = new(data);
+        //         using BinaryReader reader = new(stream);
 
-                AuthSuccess = reader.ReadBoolean();
-            }
-        }
+        //         AuthSuccess = reader.ReadBoolean();
+        //     }
+        // }
 
         //If auto-connect, should send this message 
         //If manual-connect (which needs an API on the platform interface), just connect with id and key
@@ -142,8 +142,9 @@ namespace VE2.PlatformNetworking
             }
         }
 
-        public class ServerRegistrationConfirmation : VE2Serializable
+        public class ServerRegistrationResponse : VE2Serializable
         {
+            public bool AuthSuccess { get; private set; }
             public ushort LocalClientID { get; private set; }
             public GlobalInfo GlobalInfo { get; private set; }
             public Dictionary<string, WorldDetails> AvailableWorlds { get; private set; }
@@ -151,13 +152,14 @@ namespace VE2.PlatformNetworking
             public string InactiveWorldsInstancingIPAddress { get; private set; }
             public ushort InactiveWorldsInstancingPortNumber { get; private set; }
 
-            public ServerRegistrationConfirmation() { }
+            public ServerRegistrationResponse() { }
 
-            public ServerRegistrationConfirmation(byte[] bytes) : base(bytes) { }
+            public ServerRegistrationResponse(byte[] bytes) : base(bytes) { }
 
-            public ServerRegistrationConfirmation(ushort localClientID, GlobalInfo globalInfo, Dictionary<string, WorldDetails> availableWorlds, 
+            public ServerRegistrationResponse(bool authSuccess, ushort localClientID, GlobalInfo globalInfo, Dictionary<string, WorldDetails> availableWorlds, 
                 FTPNetworkSettings worldsStoreFTPNetworkSettings, string inactiveWorldsInstancingIPAddress, ushort inactiveWorldsInstancingPortNumber)
             {
+                authSuccess = AuthSuccess;
                 LocalClientID = localClientID;
                 GlobalInfo = globalInfo;
                 AvailableWorlds = availableWorlds;
@@ -170,6 +172,10 @@ namespace VE2.PlatformNetworking
             {
                 using MemoryStream stream = new();
                 using BinaryWriter writer = new(stream);
+
+                writer.Write(AuthSuccess);
+                if (!AuthSuccess)
+                    return stream.ToArray(); ;
 
                 writer.Write(LocalClientID);
 
@@ -198,6 +204,10 @@ namespace VE2.PlatformNetworking
                 using MemoryStream stream = new(data);
                 using BinaryReader reader = new(stream);
 
+                AuthSuccess = reader.ReadBoolean();
+                if (!AuthSuccess)
+                    return;
+
                 LocalClientID = reader.ReadUInt16();
 
                 int globalInfoLength = reader.ReadUInt16();
@@ -221,7 +231,15 @@ namespace VE2.PlatformNetworking
             }
         }
 
-        public class WorldDetails : VE2Serializable 
+        //The hub has to be able to see worlds 
+        //But hub code needs to be in a different package to the actual platform integration code, so we can ship PI and not HUB 
+        //THIS means the hub has to be able to see the WorldDetails
+        //The hub should be in non-core hub
+        //That means the WorldDetails should be in non-core common somewhere.. we don't want the instancing server to see it though...
+        //So we need PublicPlatformSerializables and PrivatePlatformSerializables
+        //NO IT DOESN'T! Hub just needs names and versions, not the whole object
+
+        public class WorldDetails : VE2Serializable //TODO: We don't actually need to send this all via the interface, its just world names and versions we need 
         {
             public string Name { get; private set; }
             public int VersionNumber { get; private set; }
@@ -250,7 +268,7 @@ namespace VE2.PlatformNetworking
                 writer.Write(VersionNumber);
                 writer.Write(InstancingIPAddress);
                 writer.Write(InstancingPortNumber);
-                
+
                 byte[] worldFTPNetworkSettingsBytes = WorldSubStoreFTPNetworkSettings.Bytes;
                 writer.Write((ushort)worldFTPNetworkSettingsBytes.Length);
                 writer.Write(worldFTPNetworkSettingsBytes);
@@ -267,7 +285,7 @@ namespace VE2.PlatformNetworking
                 VersionNumber = reader.ReadInt32();
                 InstancingIPAddress = reader.ReadString();
                 InstancingPortNumber = reader.ReadUInt16();
-                
+
                 ushort worldFTPNetworkSettingsLength = reader.ReadUInt16();
                 byte[] worldFTPNetworkSettingsBytes = reader.ReadBytes(worldFTPNetworkSettingsLength);
                 WorldSubStoreFTPNetworkSettings = new FTPNetworkSettings(worldFTPNetworkSettingsBytes);

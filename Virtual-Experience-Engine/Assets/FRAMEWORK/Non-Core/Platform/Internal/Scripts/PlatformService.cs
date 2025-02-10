@@ -26,7 +26,7 @@ namespace VE2.NonCore.Platform.Private
 
     //TODO, we might want to consider cutting down the duplicate code with the instance sync stuff
     //Ehhh.. there's really not much duplicate code here, not sure we it's worth coupling these two things together
-    public class PlatformService : IPlatformService
+    public class PlatformService //: IPlatformService
     {
         public ushort LocalClientID { get; private set; }
         public string CurrentInstanceCode { get; private set; } //Remove, comes from settingshandler?
@@ -41,12 +41,13 @@ namespace VE2.NonCore.Platform.Private
 
         */
 
-        #region Common-Interfaces
+        #region Interfaces
         public bool IsConnectedToServer { get; private set; }
         public event Action OnConnectedToServer;
-        #endregion
+        
+        public bool IsAuthFailed { get; private set; }
+        public event Action OnAuthFailed;
 
-        #region Platform-Private Interfaces
         public void RequestInstanceAllocation(string worldName, string instanceSuffix)
         {
             if (IsConnectedToServer)
@@ -68,42 +69,28 @@ namespace VE2.NonCore.Platform.Private
 
         private IPlatformCommsHandler _commsHandler;
         private readonly PluginLoader _pluginLoader;
-        private readonly IPlayerSettingsHandler _playerSettingsProvider;
+        private readonly IPlayerSettingsHandler _playerSettingsHandler;
 
         public PlatformService(IPlatformCommsHandler commsHandler, PluginLoader pluginLoader, IPlayerSettingsHandler playerSettingsProvider)
         {
             _commsHandler = commsHandler;
             _pluginLoader = pluginLoader;
-            _playerSettingsProvider = playerSettingsProvider;
-            _playerSettingsProvider.OnPlayerPresentationConfigChanged += HandlePlayerPresentationConfigChanged;
+            _playerSettingsHandler = playerSettingsProvider;
+
+            if (_playerSettingsHandler != null)
+                _playerSettingsHandler.OnPlayerPresentationConfigChanged += HandlePlayerPresentationConfigChanged;
 
             commsHandler.OnReceiveNetcodeConfirmation += HandleReceiveNetcodeVersion;
-            commsHandler.OnReceiveServerRegistrationConfirmation += HandleReceiveServerRegistrationConfirmation;
+            commsHandler.OnReceiveServerRegistrationConfirmation += HandleReceiveServerRegistrationResponse;
             commsHandler.OnReceiveGlobalInfoUpdate += HandleReceiveGlobalInfoUpdate;
-
-
-            if (_playerSettingsProvider != null)
-                _playerSettingsProvider.OnPlayerPresentationConfigChanged += HandlePlayerPresentationConfigChanged;
-
-            //_commsHandler.ConnectToServer(ipAddress, portNumber);
         }
 
         public void ConnectToPlatform(IPAddress ipAddress, ushort portNumber, string startingInstanceCode)
         {
+            Debug.Log("Connecting to platform");
             CurrentInstanceCode = startingInstanceCode;
             _commsHandler.ConnectToServer(ipAddress, portNumber);
         }
-
-        // public void SetupForNewInstance(IPlayerSettingsProvider playerSettingsProvider)
-        // {
-        //     if (_playerSettingsProvider != null)
-        //         _playerSettingsProvider.OnLocalChangeToPlayerSettings -= HandleUserSettingsChanged;
-
-        //     _playerSettingsProvider = playerSettingsProvider;
-
-        //     if (_playerSettingsProvider != null)
-        //         _playerSettingsProvider.OnLocalChangeToPlayerSettings += HandleUserSettingsChanged;
-        // }
 
         private void HandleReceiveNetcodeVersion(byte[] bytes)
         {
@@ -112,41 +99,34 @@ namespace VE2.NonCore.Platform.Private
             if (netcodeVersionConfirmation.NetcodeVersion != PlatformNetcodeVersion)
             {
                 Debug.LogError($"Bad platform netcode version, received version {netcodeVersionConfirmation.NetcodeVersion} but we are on {PlatformNetcodeVersion}");
-            } 
+            }
             else
             {
                 //if first time auth connect, do nothing? 
                 //Otherwise, send reg request to platform
 
-                //string correctedInstanceCode = CurrentInstanceCode.Contains("Hub") ? "Hub-Solo" : CurrentInstanceCode;
-                //ServerRegistrationRequest serverRegistrationRequest = new(_userIdentity, CurrentInstanceCode);
-                //_commsHandler.SendMessage(serverRegistrationRequest.Bytes, PlatformNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
+                string correctedInstanceCode = CurrentInstanceCode.Contains("Hub") ? "Hub-Solo" : CurrentInstanceCode; //TODO: Figure out instance code
+                string customerID = "test", customerKey = "test"; //TODO - figure out these too!
+
+                ServerRegistrationRequest serverRegistrationRequest = new(customerID, customerKey, CurrentInstanceCode, _playerSettingsHandler.PlayerPresentationConfig);
+                _commsHandler.SendMessage(serverRegistrationRequest.Bytes, PlatformNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
             }
         }
 
-        private void HandleReceiveServerRegistrationConfirmation(byte[] bytes)
+        private void HandleReceiveServerRegistrationResponse(byte[] bytes)
         {
-            ServerRegistrationConfirmation serverRegistrationConfirmation = new(bytes);
+            ServerRegistrationResponse serverRegistrationConfirmation = new(bytes);
+
+            //TODO: Check if auth success
 
             LocalClientID = serverRegistrationConfirmation.LocalClientID;
             GlobalInfo = serverRegistrationConfirmation.GlobalInfo;
 
             ActiveWorlds = serverRegistrationConfirmation.AvailableWorlds;
-            //How do we get the FTP settings into the next scene?
-            //Don't really want to have to ask the server for them each time?
-            //Really, it should come in through arguments.. but, we also need to be able to start in that scene?
-
-            //No, just have hasArgs = false by default, if so, fall back to that scenes default settings
-            //BUT - that means when we do connect to prod from editor, it'll go to fallback settings, even if the server WOULD give us real ones, if we waited 
-
-            //Let's just say the framework ftp settings get populated in the introscene, same with the customer key 
-            //The worlds can come from the request from the hub - although, we need these in plugins too? so maybe world FTP and IPs come from the server each time?
-
-            //No, let's actually get the worldSubStore FTP and instancing IP from the hub only, explicit request 
 
             IsConnectedToServer = true;
 
-            
+            Debug.Log("Receive reg response from server " + LocalClientID);
 
             OnConnectedToServer?.Invoke();
             OnGlobalInfoChanged?.Invoke(GlobalInfo);
@@ -156,13 +136,24 @@ namespace VE2.NonCore.Platform.Private
         {
             GlobalInfo newGlobalInfo = new(bytes);
 
-            if (newGlobalInfo.Bytes.SequenceEqual(GlobalInfo.Bytes)) 
+            Debug.Log("Rec global update 1");
+
+            if (GlobalInfo != null && newGlobalInfo.Bytes.SequenceEqual(GlobalInfo.Bytes))
                 return;
 
             //TODO - might be better to have the instance allocation be a specific message, rather than being ended implicitely in the global info update?
             //Are we then worried about missing the message?
             PlatformInstanceInfo newLocalInstanceInfo = newGlobalInfo.InstanceInfoForClient(LocalClientID);
-            if (newLocalInstanceInfo.InstanceCode != CurrentInstanceCode) 
+            Debug.Log("Received global info update... our ID " + LocalClientID);
+            foreach (PlatformInstanceInfo instanceInfo in newGlobalInfo.InstanceInfos.Values)
+            {
+                Debug.Log($"Instance {instanceInfo.InstanceCode} has {instanceInfo.ClientInfos.Count}");
+                foreach (PlatformClientInfo platformClientInfo in instanceInfo.ClientInfos.Values)
+                {
+                    Debug.Log($"clients id {platformClientInfo.ClientID} name = {platformClientInfo.PlayerPresentationConfig.PlayerName}");
+                }
+            }
+            if (newLocalInstanceInfo.InstanceCode != CurrentInstanceCode)
             {
                 HandleInstanceAllocation(newLocalInstanceInfo);
             }
@@ -183,7 +174,7 @@ namespace VE2.NonCore.Platform.Private
                 SceneManager.LoadScene("Hub");
             }
             //TODO, should be talking to the plugin loader instead here 
-            else 
+            else
             {
                 _pluginLoader.LoadPlugin(newInstanceInfo.WorldName, int.Parse(newInstanceInfo.InstanceSuffix));
             }
@@ -224,17 +215,18 @@ namespace VE2.NonCore.Platform.Private
          * 
          */
 
-         private void HandlePlayerPresentationConfigChanged(PlayerPresentationConfig playerPresentationConfig)
-         {
-             _commsHandler.SendMessage(playerPresentationConfig.Bytes, PlatformNetworkingMessageCodes.UpdatePlayerPresentation, TransmissionProtocol.TCP);
-         }
+        private void HandlePlayerPresentationConfigChanged(PlayerPresentationConfig playerPresentationConfig)
+        {
+            Debug.Log("Sending player presentation config to server - " + LocalClientID);
+            _commsHandler.SendMessage(playerPresentationConfig.Bytes, PlatformNetworkingMessageCodes.UpdatePlayerPresentation, TransmissionProtocol.TCP);
+        }
 
         public void TearDown()
         {
             _commsHandler?.DisconnectFromServer();
 
-            if (_playerSettingsProvider != null)
-                _playerSettingsProvider.OnPlayerPresentationConfigChanged += HandlePlayerPresentationConfigChanged;
+            if (_playerSettingsHandler != null)
+                _playerSettingsHandler.OnPlayerPresentationConfigChanged -= HandlePlayerPresentationConfigChanged;
         }
     }
 

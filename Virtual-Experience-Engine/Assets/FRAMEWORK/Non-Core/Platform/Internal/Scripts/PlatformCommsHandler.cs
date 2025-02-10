@@ -85,7 +85,7 @@ namespace VE2.PlatformNetworking
                         case PlatformSerializables.PlatformNetworkingMessageCodes.NetcodeVersionConfirmation:
                             OnReceiveNetcodeConfirmation?.Invoke(bytes);
                             break;
-                        case PlatformSerializables.PlatformNetworkingMessageCodes.ServerRegistrationConfirmation:
+                        case PlatformSerializables.PlatformNetworkingMessageCodes.ServerRegistrationResponse:
                             IsReadyToTransmit = true;
                             OnReceiveServerRegistrationConfirmation?.Invoke(bytes);
                             break;

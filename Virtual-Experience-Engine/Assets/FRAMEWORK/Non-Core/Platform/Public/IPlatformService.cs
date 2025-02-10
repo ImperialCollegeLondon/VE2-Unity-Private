@@ -1,24 +1,23 @@
 using System;
+using System.Collections.Generic;
 using VE2.Common;
+using static PlatformPublicSerializables;
 using static VE2.Common.CommonSerializables;
 
 //Needs to be called by hub ui 
 //Maybe plugins need access to return to hub? 
 
-
+//Used by hub UI, and platform player browser UI
+//TODO: Should be IPlatformIntegration?
 public interface IPlatformService //TODO, maybe not all of these should live in the same interface?
 {
     public bool IsConnectedToServer { get; }
     public event Action OnConnectedToServer;
 
-    // public UserSettingsPersistable UserSettings { get; }
-    // //public void NotifyPlatformOfChangeToUserSettings();
+    public bool IsAuthFailed { get; }
+    public event Action OnAuthFailed;
 
-    // public InstanceNetworkSettings InstanceNetworkSettings { get; }
-
-    // public FTPNetworkSettings FTPNetworkSettings { get; }
-
-    //public void SetupForNewInstance(IPlayerSettingsProvider playerSettingsProvider);
+    public List<(string, int)> ActiveWorldsNamesAndVersions { get; }
 
     public void RequestInstanceAllocation(string worldName, string instanceSuffix);
 }

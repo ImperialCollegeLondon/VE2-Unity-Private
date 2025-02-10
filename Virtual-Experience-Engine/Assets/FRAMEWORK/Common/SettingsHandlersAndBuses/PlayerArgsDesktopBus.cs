@@ -20,7 +20,6 @@ public class PlayerArgsDesktopBus : MonoBehaviour //TODO: Move to service locato
             if (_instance == null)
             {
                 GameObject go = new GameObject($"PlayerArgsDesktopBus{SceneManager.GetActiveScene().name}");
-                DontDestroyOnLoad(go);
                 _instance = go.AddComponent<PlayerArgsDesktopBus>();
             }
 

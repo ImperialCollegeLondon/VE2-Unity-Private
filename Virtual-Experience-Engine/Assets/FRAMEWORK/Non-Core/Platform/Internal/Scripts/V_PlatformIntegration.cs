@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
@@ -12,8 +13,20 @@ using static VE2.PlatformNetworking.PlatformSerializables;
 
 namespace VE2.PlatformNetworking
 {
+
+    /*
+        Should we have an interface for this?
+        The hub UI needs it, and the player browser needs it...
+        Do we really want to ship all this code to windows customers? Seems unnecessary
+        This probably _should_ go through the service locator. V_PlatformIntegration should implement IPlatformIntegration 
+        V_PlatformIntegration, on edit-mode awake, should set the service locator's IPlatformIntegration to itself
+        Then, when anything needs to talk to the platform, it should go through the service locator
+        This means we don't need ship the hub code to the customer - the hub code should be a different assembly to everything else 
+
+    */
+
     [ExecuteInEditMode]
-    public class V_PlatformIntegration : MonoBehaviour //TODO: Some interface for instance allocation, IInstanceNetworkSettingsProvider, IPlayerSettingsProvider, IFTPNetworkSettingsProvider
+    public class V_PlatformIntegration : MonoBehaviour, IPlatformService
     {
 
         [Title("Debug Connection Settings")]
@@ -21,53 +34,80 @@ namespace VE2.PlatformNetworking
         [BeginGroup("Fallback settings"), SerializeField] private bool OfflineMode = false;
         [SerializeField, HideIf(nameof(OfflineMode), true)] private string PlatformIP = "127.0.0.1";
         [SerializeField, HideIf(nameof(OfflineMode), true)] private ushort PlatformPort = 4298;
+
+        //TODO: these three should come from a settings object
         [SerializeField, HideIf(nameof(OfflineMode), true)] private string CustomerID;
         [SerializeField, HideIf(nameof(OfflineMode), true)] private string CustomerKey;
-        [SerializeField] private string FallbackPlatformInstanceSuffix = "dev";
+        [SerializeField] private string FallbackPlatformInstanceNumber = "dev";
 
-        private PlatformService _platformService;
 
-        public IPlatformService PlatformService {
-            get {
-                if (_platformService == null)
-                    OnEnable();
+        #region Hub-Facing interfaces 
+        public bool IsConnectedToServer { get; private set;}
+        public event Action OnConnectedToServer;
+        
+        public bool IsAuthFailed { get; private set; }
+        public event Action OnAuthFailed;
 
-                return _platformService;
+        public ushort LocalClientID => _platformService.LocalClientID;
+
+        public List<(string, int)> ActiveWorldsNamesAndVersions { //TODO< probably should be async
+            get 
+            {
+                List<(string, int)> activeWorldNamesAndVersions = new();
+
+                foreach(WorldDetails worldDetails in _platformService.ActiveWorlds.Values)
+                    activeWorldNamesAndVersions.Add((worldDetails.Name, worldDetails.VersionNumber));
+
+                return activeWorldNamesAndVersions;
             }
         }
 
-        #region Shared Interfaces 
+        public void RequestInstanceAllocation(string worldName, string instanceSuffix)
+        {
+            throw new NotImplementedException();
+        }
+
+        public GlobalInfo GlobalInfo => _platformService.GlobalInfo;
+        public event Action<GlobalInfo> OnGlobalInfoChanged { add => _platformService.OnGlobalInfoChanged += value; remove => _platformService.OnGlobalInfoChanged -= value; }
+
+        #endregion
+
+        private PlatformService _platformService;
+
+
+        #region Shared Interfaces OLD
         public string GameObjectName => gameObject.name;
         public bool IsEnabled => enabled && gameObject.activeInHierarchy;
-
-        public NetworkSettings NetworkSettings => throw new NotImplementedException();
         #endregion
 
 
         private void OnEnable() //TODO - handle reconnect
         {
-            // if (platformProviderGO != null)
-            //     _platformService = platformProviderGO.GetComponent<IPlatformServiceProvider>().PlatformService;
-            // else
-            //     _platformService = new DebugPlatformService(DebugInstanceNetworkSettings, DebugFTPNetworkSettings, _debugUserSettings, _exchangeDebugUserSettingsWithPlayerPrefs);
+            if (!Application.isPlaying)
+            {
+                //Maybe find the settings handlers and show their inspectors, if possible
+                return;
+            }
 
-            string ipAddress;
-            ushort portNumber;
-            string customerID;
-            string customerKey;
-            string instanceCode;
+            _platformService = PlatformServiceFactory.Create();
+
+            string ipAddress = PlatformIP;
+            ushort portNumber = PlatformPort;
+            string customerID = CustomerID;
+            string customerKey = CustomerKey;
+            string instanceCode = $"{SceneManager.GetActiveScene().name}-{FallbackPlatformInstanceNumber}";
 
             //Get customerLogin settings 
             //Get instance settings
             //InstanceService will also need those two, PLUS instance IP address settings
             PlayerPresentationConfig playerPresentationConfig = VE2CoreServiceLocator.Instance.PlayerSettingsHandler.PlayerPresentationConfig;
 
-           
+            //False if we're in the hub for the first time. 
+            bool customerSettingsFound = true;
+            if (customerSettingsFound)
+                _platformService.ConnectToPlatform(IPAddress.Parse(ipAddress), portNumber, instanceCode);
+            // else, wait for the hub to tell us to, after we've logged in.
 
-
-            _platformService = PlatformServiceFactory.Create();
-
-            //_platformService.SetupForNewInstance(this);
 
             if (_platformService.IsConnectedToServer)
                 HandlePlatformServiceReady();
@@ -78,10 +118,17 @@ namespace VE2.PlatformNetworking
 
         private void HandlePlatformServiceReady()
         {
-            //Allows us to fake the UI in the inspector
-            //We need to be sure to set the inspector's version of UserSettings to point towards the PlatformService's version
-            //Otherwise, changing the settings in the inspector wont change the settings in the platform
-           // _debugUserSettings = _platformService.UserSettings;
+            //Invoke events? 
+            IsAuthFailed = false;
+            IsConnectedToServer = true;
+            OnConnectedToServer?.Invoke();
+        }
+
+        private void HandleAuthFailed()
+        {
+            IsConnectedToServer = false;
+            IsAuthFailed = true;
+            OnAuthFailed?.Invoke();
         }
 
         private void FixedUpdate()
@@ -96,6 +143,8 @@ namespace VE2.PlatformNetworking
                 //ViRSENonCoreServiceLocator.Instance.InstanceNetworkSettingsProvider = null;
                 return;
             }
+
+            _platformService?.TearDown();
 
             //if (_platformService != null)
             //    _platformService.OnConnectedToServer -= HandlePlatformServiceReady;
