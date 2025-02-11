@@ -10,16 +10,19 @@ namespace VE2.Core.Common
     {
         [BeginGroup(Style = GroupStyle.Round, ApplyCondition = true)]
         [Title("Transmission Settings", ApplyCondition = true)]
-        [HideIf(nameof(MultiplayerSupportPresent), false)]
+        //[HideIf(nameof(MultiplayerSupportPresent), false)]
         [SerializeField] public bool IsNetworked = true;
 
-        [HideIf(nameof(MultiplayerSupportPresent), false)]
+        //[HideIf(nameof(MultiplayerSupportPresent), false)]
         [DisableIf(nameof(IsNetworked), false)]
         [EndGroup(ApplyCondition = true, Order = 5)]
         [SpaceArea(spaceAfter: 10, Order = -1), SerializeField, IgnoreParent] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new();
 
-        [SerializeField, HideInInspector] public bool MultiplayerSupportPresent => MultiplayerSupport != null;
-        public IMultiplayerSupport MultiplayerSupport => VE2CoreServiceLocator.Instance.MultiplayerSupport;
+        //TODO: Find another way of doing this
+        //Maybe the ServiceLocator has some Indicator object we can pass down, that can be turned on from the outside?
+        //It may make more sense to split VC state from player state, no parent BaseState
+        //Instancing has to tick this flag on every module's locator that needs it - bit annoying, but only VC and Player, not deep 
+        //[SerializeField, HideInInspector] public bool MultiplayerSupportPresent => MultiplayerSupport != null;
     }
 
     public abstract class BaseStateModule : IBaseStateModule
@@ -59,15 +62,12 @@ namespace VE2.Core.Common
         public virtual void TearDown() => _baseStateContainer.DeregisterStateModule(this);
     }
 
-    public abstract class BaseWorldStateModule : BaseStateModule, IWorldStateModule
+    public abstract class BaseStateModuleContainer
     {
-        public string ID { get; private set; }
-        public byte[] StateAsBytes { get => State.Bytes; set => UpdateBytes(value); }
-        protected abstract void UpdateBytes(byte[] newBytes);
+        public abstract void RegisterStateModule(IBaseStateModule module);
+        public abstract void DeregisterStateModule(IBaseStateModule module);
 
-        public BaseWorldStateModule(VE2Serializable state, BaseStateConfig config, string id, WorldStateModulesContainer worldStateModulesContainer) : base(state, config, worldStateModulesContainer)
-        {
-            ID = id;
-        }
+        //Doesn't emit events, used on exit playmode 
+        public abstract void Reset();
     }
 }

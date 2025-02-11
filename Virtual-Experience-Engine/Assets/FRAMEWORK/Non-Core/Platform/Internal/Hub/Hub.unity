@@ -693,13 +693,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c808e3fb5aabcb145a48f997f94ed3e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _defaultPresentationConfig:
-    PlayerName: asdasda
-    AvatarHeadType: 1
+  _defaultPlayerPresentationConfig:
+    PlayerName: Unknown
+    AvatarHeadType: 0
     AvatarTorsoType: 0
     AvatarRed: 255
     AvatarGreen: 60
     AvatarBlue: 60
+  _rememberPlayerSettings: 1
   _playerPresentationConfig:
     PlayerName: Unknown
     AvatarHeadType: 0
@@ -873,7 +874,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 905670231}
-  - {fileID: 1627529181}
   - {fileID: 578416554}
   - {fileID: 647161245}
   - {fileID: 565699216}
@@ -1034,7 +1034,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &647161245
 Transform:
   m_ObjectHideFlags: 0
@@ -1065,9 +1065,9 @@ MonoBehaviour:
   OfflineMode: 0
   PlatformIP: 127.0.0.1
   PlatformPort: 4298
-  CustomerID: 
-  CustomerKey: 
-  FallbackPlatformInstanceSuffix: dev
+  CustomerID: test
+  CustomerKey: test
+  FallbackPlatformInstanceNumber: dev
 --- !u!1 &670374466
 GameObject:
   m_ObjectHideFlags: 0
@@ -15202,6 +15202,59 @@ Transform:
   - {fileID: 1547792595}
   m_Father: {fileID: 174232867}
   m_LocalEulerAnglesHint: {x: 0, y: 92.972, z: 0}
+--- !u!1 &676125834
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 676125836}
+  - component: {fileID: 676125835}
+  m_Layer: 0
+  m_Name: PlayerArgsDesktopBusHub
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &676125835
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 676125834}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19b9482dded497e48bd66525cdeee03f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  HasArgs: 0
+  PlayerPresentationConfig:
+    PlayerName: Unknown
+    AvatarHeadType: 0
+    AvatarTorsoType: 0
+    AvatarRed: 255
+    AvatarGreen: 60
+    AvatarBlue: 60
+  RememberPlayerSettings: 0
+--- !u!4 &676125836
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 676125834}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &676680397
 GameObject:
   m_ObjectHideFlags: 1
@@ -23024,56 +23077,6 @@ RectTransform:
   m_AnchoredPosition: {x: 4.98, y: 2.1430001}
   m_SizeDelta: {x: 6.5685, y: 3.0288}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!1 &1627529179
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1627529181}
-  - component: {fileID: 1627529180}
-  m_Layer: 0
-  m_Name: PlatformServiceProvider
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1627529180
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1627529179}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 13ae6c1282f25bc4a9a3374c34f322b0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _serverType: 2
-  _localServerIP: 127.0.0.1
-  _remoteServerIP: 51.142.90.253
-  _portNumber: 4298
-  _instanceCode: 
-  UseSpoofUserIdentity: 1
---- !u!4 &1627529181
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1627529179}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 536828534}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1675459407
 GameObject:
   m_ObjectHideFlags: 0
@@ -23588,13 +23591,6 @@ MonoBehaviour:
     RepeatedTransmissionConfig:
       TransmissionType: 0
       TransmissionFrequency: 1
-  _defaultPresentationConfig:
-    PlayerName: asdasda
-    AvatarHeadType: 1
-    AvatarTorsoType: 0
-    AvatarRed: 255
-    AvatarGreen: 60
-    AvatarBlue: 60
 --- !u!4 &1869795903
 Transform:
   m_ObjectHideFlags: 0
@@ -24959,7 +24955,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 15281, y: 5697.194}
+  m_AnchoredPosition: {x: 15281, y: 5697.1943}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!1 &7129766439557370346
@@ -25372,3 +25368,4 @@ SceneRoots:
   - {fileID: 1920699326}
   - {fileID: 1869795903}
   - {fileID: 486772130}
+  - {fileID: 676125836}

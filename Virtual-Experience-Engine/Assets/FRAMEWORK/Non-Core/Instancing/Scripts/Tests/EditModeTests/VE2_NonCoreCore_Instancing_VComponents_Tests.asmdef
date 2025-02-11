@@ -1,0 +1,27 @@
+{
+    "name": "VE2.NonCore.Instancing.VComponents.Tests",
+    "rootNamespace": "",
+    "references": [
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "TNRD.NSubstitute",
+        "VE2.NonCore.Instancing.VComponents.NonInteractableInterfaces",
+        "VE2.NonCore.Instancing.VComponents.PluginInterfaces",
+        "VE2.NonCore.Instancing.Internal"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
