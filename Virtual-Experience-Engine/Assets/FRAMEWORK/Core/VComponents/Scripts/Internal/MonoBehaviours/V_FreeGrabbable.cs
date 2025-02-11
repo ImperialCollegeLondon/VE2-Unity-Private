@@ -42,9 +42,9 @@ namespace VE2.Core.VComponents.Integration
                 handheldInteractions,
                 _config, 
                 _state, 
-                id, 
-                VE2CoreServiceLocator.Instance.WorldStateModulesContainer,
-                VE2CoreServiceLocator.Instance.InteractorContainer,
+                id,
+                VComponents_Locator.Instance.WorldStateModulesContainer,
+                PlayerLocator.Instance.InteractorContainer,
                 _rigidbodyWrapper,
                 Resources.Load<PhysicsConstants>("PhysicsConstants"));
         }

@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using VE2.Common;
+using VE2.NonCore.Instancing.VComponents.Internal;
 using VE2.NonCore.Instancing.VComponents.NonInteractableInterfaces;
 using VE2.NonCore.Instancing.VComponents.PluginInterfaces;
 
@@ -20,7 +21,7 @@ namespace VE2.NonCore.Instancing.VComponents.MonoBehaviours
         private void OnEnable()
         {
             string id = "NetObj-" + gameObject.name;
-            _service = new NetworkObjectService(_config, _state, id, VE2CoreServiceLocator.Instance.WorldStateModulesContainer);
+            _service = new NetworkObjectService(_config, _state, id, VComponents_Locator.Instance.WorldStateModulesContainer);
         }
 
         private void FixedUpdate()

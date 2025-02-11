@@ -23,9 +23,9 @@ namespace VE2.Core.Tests
             //Create an ID
             System.Random random = new();
             ushort localClientID = (ushort)random.Next(0, ushort.MaxValue);
-            IMultiplayerSupport multiplayerSupportStub = Substitute.For<IMultiplayerSupport>();
-            multiplayerSupportStub.IsConnectedToServer.Returns(true);
-            multiplayerSupportStub.LocalClientID.Returns(localClientID);
+            IPlayerSyncer playerSyncerStub = Substitute.For<IPlayerSyncer>();
+            playerSyncerStub.IsConnectedToServer.Returns(true);
+            playerSyncerStub.LocalClientID.Returns(localClientID);
 
             InteractorID interactorID = new(localClientID, InteractorType.Mouse2D);
             IInteractor interactorStub = Substitute.For<IInteractor>();
@@ -83,7 +83,7 @@ namespace VE2.Core.Tests
                 interactorContainerStub,
                 playerSettingsProviderStub,
                 Substitute.For<IPlayerAppearanceOverridesProvider>(),
-                multiplayerSupportStub,
+                playerSyncerStub,
                 playerInputContainerStubWrapper.PlayerInputContainer,
                 raycastProviderStub,
                 Substitute.For<IXRManagerWrapper>()

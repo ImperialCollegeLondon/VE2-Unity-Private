@@ -34,8 +34,8 @@ namespace VE2.Core.Player
         public Transform GrabberTransform => _GrabberTransform;
 
         protected bool IsCurrentlyGrabbing => _CurrentGrabbingGrabbable != null;
-        protected InteractorID _InteractorID => new(_multiplayerSupport == null ? (ushort)0 : _multiplayerSupport.LocalClientID, _InteractorType);
-        protected bool _WaitingForMultiplayerSupport => _multiplayerSupport != null && !_multiplayerSupport.IsConnectedToServer;
+        protected InteractorID _InteractorID => new(_playerSyncer == null ? (ushort)0 : _playerSyncer.LocalClientID, _InteractorType);
+        protected bool _WaitingForMultiplayerSupport => _playerSyncer != null && !_playerSyncer.IsConnectedToServer;
 
         protected const float MAX_RAYCAST_DISTANCE = 10;
         protected IRangedGrabInteractionModule _CurrentGrabbingGrabbable;
@@ -52,10 +52,33 @@ namespace VE2.Core.Player
 
         private readonly InteractorType _InteractorType;
         private readonly IRaycastProvider _RaycastProvider;
-        private readonly IMultiplayerSupport _multiplayerSupport;
+        private readonly IPlayerSyncer _playerSyncer;
+
+        /*
+            The interactor has to know its ID, since it has to send the ID to the VComponents 
+            But this ID comes from the instancing server...
+            So we need the instancing service to put itself, by interface, into the PlayerLocator
+            What do we need? 
+                - an interface reference that's set at edit-time 
+                - a way to get the client ID out of that interface
+            So basically, we're passing IInstancingSupport into the Player? 
+            AND we have to pass the PlayerStateContainer, and InteractorContainer? Where should these live?
+            So IInstancing lives on the PlayerAPI... but, we do need something similar for the VC too... 
+            Maybe we just have INetworkSupport live in Core.Common?
+                - a bool for if its there 
+                - a playerStateModule container 
+                - a worldStateModule container 
+                - a way to get the client ID
+                - an interactor container
+            So we'd need a CoreServicesLocator? 
+            TBH, the PlayerSync interface doesn't really overlap with the VComponentsSync interface, so maybe no need to couple them
+
+            InteractorContainer NEEDS to live on Player.API, VCs need to see it too
+            Unless it lives on VC.API
+        */
 
         public PointerInteractor(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
-            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, IMultiplayerSupport multiplayerSupport)
+            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, IPlayerSyncer playerSyncer)
         {
             _interactorContainer = interactorContainer;
             _interactorInputContainer = interactorInputContainer;
@@ -67,7 +90,7 @@ namespace VE2.Core.Player
 
             _InteractorType = interactorType;
             _RaycastProvider = raycastProvider;
-            _multiplayerSupport = multiplayerSupport;
+            _playerSyncer = playerSyncer;
         }
 
         public virtual void HandleOnEnable()
@@ -79,7 +102,7 @@ namespace VE2.Core.Player
             _interactorInputContainer.ScrollTickDown.OnTickOver += HandleScrollDown;
 
             if (_WaitingForMultiplayerSupport)
-                _multiplayerSupport.OnConnectedToInstance += RegisterWithContainer;
+                _playerSyncer.OnConnectedToServer += RegisterWithContainer;
             else
                 RegisterWithContainer();
         }
@@ -92,16 +115,16 @@ namespace VE2.Core.Player
             _interactorInputContainer.ScrollTickUp.OnTickOver -= HandleScrollUp;
             _interactorInputContainer.ScrollTickDown.OnTickOver -= HandleScrollDown;
 
-            if (_multiplayerSupport != null)
-                _multiplayerSupport.OnConnectedToInstance -= RegisterWithContainer;
+            if (_playerSyncer != null)
+                _playerSyncer.OnConnectedToServer -= RegisterWithContainer;
 
             _interactorContainer.DeregisterInteractor(_InteractorID.ToString());
         }
 
         private void RegisterWithContainer() 
         {
-            if (_multiplayerSupport != null)
-                _multiplayerSupport.OnConnectedToInstance -= RegisterWithContainer;
+            if (_playerSyncer != null)
+                _playerSyncer.OnConnectedToServer -= RegisterWithContainer;
 
             _interactorContainer.RegisterInteractor(_InteractorID.ToString(), this);
         }

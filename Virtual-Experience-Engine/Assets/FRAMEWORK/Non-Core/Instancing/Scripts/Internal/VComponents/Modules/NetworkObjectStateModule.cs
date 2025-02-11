@@ -16,8 +16,11 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
         [SerializeField] public UnityEvent<object> OnStateChange = new();
     }
 
-    internal class NetworkObjectStateModule : BaseWorldStateModule, INetworkObjectStateModule
+    internal class NetworkObjectStateModule : BaseStateModule, IWorldStateModule, INetworkObjectStateModule
     {
+        public string ID { get; private set; }
+        public byte[] StateAsBytes { get => State.Bytes; set => UpdateBytes(value); }
+
         public UnityEvent<object> OnStateChange => _config.OnStateChange;
 
         public object NetworkObject { get => DeserializedNetworkObject(); set => SerializeNetworkObject(value); }
@@ -25,7 +28,10 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
         private NetworkObjectState _state => (NetworkObjectState)State;
         private NetworkObjectStateConfig _config => (NetworkObjectStateConfig)Config;
 
-        public NetworkObjectStateModule(VE2Serializable state, BaseStateConfig config, string id, WorldStateModulesContainer worldStateModulesContainer) : base(state, config, id, worldStateModulesContainer) { }
+        public NetworkObjectStateModule(VE2Serializable state, BaseStateConfig config, string id, WorldStateModulesContainer worldStateModulesContainer) : base(state, config, worldStateModulesContainer) 
+        {
+            ID = id;
+        }
 
         private void SerializeNetworkObject(object unserializedNetworkObject)
         {
@@ -64,7 +70,7 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
             }
         }
 
-        protected override void UpdateBytes(byte[] newBytes)
+        protected void UpdateBytes(byte[] newBytes)
         {
             State.Bytes = newBytes;
             InvokeCustomerOnStateChangeEvent();

@@ -40,7 +40,7 @@ namespace VE2.Core.Player
         private readonly Interactor2D _interactor2D;
 
         public PlayerController2D(InteractorContainer interactorContainer, Player2DInputContainer player2DInputContainer, IPlayerSettingsHandler playerSettingsHandler,
-            Player2DControlConfig controlConfig, IRaycastProvider raycastProvider, IMultiplayerSupport multiplayerSupport) 
+            Player2DControlConfig controlConfig, IRaycastProvider raycastProvider, IPlayerSyncer multiplayerSupport) 
         {
             GameObject player2DPrefab = Resources.Load("2dPlayer") as GameObject;
             _playerGO = GameObject.Instantiate(player2DPrefab, null, false);

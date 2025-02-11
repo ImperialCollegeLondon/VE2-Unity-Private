@@ -1,12 +1,13 @@
 using System;
 using UnityEngine;
 using VE2.Common;
+using VE2.Core.VComponents.InteractableInterfaces;
 using static InstanceSyncSerializables;
 
 namespace VE2.InstanceNetworking
 {
     [ExecuteInEditMode]
-    public class V_InstanceIntegration : MonoBehaviour, IMultiplayerSupport 
+    public class V_InstanceIntegration : MonoBehaviour, IPlayerSyncer 
     {
         #region Inspector Fields
         // [DynamicHelp(nameof(_settingsMessage))]
@@ -51,11 +52,13 @@ namespace VE2.InstanceNetworking
 
         private InstanceService _instanceService;
 
+        public event Action OnConnectedToServer;
+
         private void OnEnable()
         {
             if (!Application.isPlaying)
             {
-                VE2CoreServiceLocator.Instance.MultiplayerSupport = this;  
+                PlayerLocator.Instance.PlayerSyncer = this;  
                 return;
             }
 
@@ -89,6 +92,30 @@ namespace VE2.InstanceNetworking
             _instanceService.TearDown();
             _instanceService = null;
         }
+
+        #region PlayerSyncer interfaces
+
+        public void RegisterPlayerStateModule(IBaseStateModule module)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DeregisterPlayerStateModule(IBaseStateModule module)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RegisterInteractor(IInteractor interactor)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DeregisterInteractor(IInteractor interactor)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 
     [Serializable]

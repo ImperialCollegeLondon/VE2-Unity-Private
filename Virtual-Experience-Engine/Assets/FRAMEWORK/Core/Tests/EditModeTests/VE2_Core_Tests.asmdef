@@ -6,18 +6,12 @@
         "UnityEditor.TestRunner",
         "TNRD.NSubstitute",
         "Unity.XR.Management",
-        "VE2_Common",
-        "VE2_Core_VComponents_InteractableFindables",
-        "VE2_Core_Player_Internal",
-        "VE2_Core_Player_InteractionFinders",
-        "VE2_Core_VComponents_InteractableInterfaces",
-        "VE2_Core_VComponents_NonInteractableInterfaces",
-        "VE2_Core_VComponents_PluginInterfaces",
         "VE2_Core_VComponents_Tests",
-        "VE2_Core_VComponents_Internal",
+        "VE2.Core.VComponents.API",
         "VE2_Core_Common",
-        "VE2_Common_Serializables",
-        "VE2_Common_InteractorID"
+        "VE2.Core.Player.Internal",
+        "VE2.Core.VComponents.Internal",
+        "VE2.Core.Player.API"
     ],
     "includePlatforms": [
         "Editor"

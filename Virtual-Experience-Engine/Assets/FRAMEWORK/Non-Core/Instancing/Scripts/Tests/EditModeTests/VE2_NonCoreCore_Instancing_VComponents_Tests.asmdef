@@ -5,9 +5,8 @@
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "TNRD.NSubstitute",
-        "VE2.NonCore.Instancing.VComponents.NonInteractableInterfaces",
-        "VE2.NonCore.Instancing.VComponents.PluginInterfaces",
-        "VE2.NonCore.Instancing.Internal"
+        "VE2.NonCore.Instancing.Internal",
+        "VE2.NonCore.Instancing.API"
     ],
     "includePlatforms": [
         "Editor"

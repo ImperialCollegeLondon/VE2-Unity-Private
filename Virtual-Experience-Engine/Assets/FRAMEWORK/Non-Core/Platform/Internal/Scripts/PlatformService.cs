@@ -20,7 +20,7 @@ namespace VE2.NonCore.Platform.Private
         public static PlatformService Create()
         {
             PlatformCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
-            return new PlatformService(commsHandler, new PluginLoader(), VE2CoreServiceLocator.Instance.PlayerSettingsHandler);
+            return new PlatformService(commsHandler, new PluginLoader(), PlayerLocator.Instance.PlayerSettingsHandler);
         }
     }
 

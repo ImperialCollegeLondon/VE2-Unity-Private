@@ -5,7 +5,7 @@ namespace VE2.Common //TODO break into different files
 {
     public interface IPlayerStateModule : IBaseStateModule
     {
-        public AvatarAppearance AvatarAppearance { get; }
-        public event Action<AvatarAppearance> OnAvatarAppearanceChanged;
+        // public AvatarAppearance AvatarAppearance { get; }
+        // public event Action<AvatarAppearance> OnAvatarAppearanceChanged;
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VE2.Common;
 using static VE2.Common.CommonSerializables;
 
 //TODO: Think about how these args will work for args passed in from the very start 
@@ -18,6 +19,11 @@ using static VE2.Common.CommonSerializables;
     If you want instancing off-platform, then just make sure arguments come into the system... wont platform still try to connect to platform server 
 */
 
+//TODO: NEW - do we even want to expose this in the API assembly at all? PluginLoader needs it I suppose...
+//Basically, the API needs to expose read access for these settings 
+//We want a IPlayerSettingsReadable, and a IPlayerSettingsReadWritable? Pass ReadWritable to the UI, Readable to platform?
+
+
 //If we create this from PlayerController, where do we create the CustomerLoginSettingsHandler?
 //In the classes that need them, just don't make a second one
 [ExecuteAlways]
@@ -31,6 +37,8 @@ internal class PlayerSettingsHandler : MonoBehaviour, IPlayerSettingsHandler //T
     public static string PlayerRedArgName => "playerRed";
     public static string PlayerGreenArgName => "playerGreen";
     public static string PlayerBlueArgName => "playerBlue";
+
+    public string GameObjectName => gameObject.name;
 
     //TODO: Also need RememberMeDefault and RememberMeCurrent
 

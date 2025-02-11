@@ -15,7 +15,7 @@ public class InteractorVR : PointerInteractor
     private const float LINE_EMISSION_INTENSITY = 15;
 
     public InteractorVR(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
-        InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, IMultiplayerSupport multiplayerSupport) :
+        InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, IPlayerSyncer multiplayerSupport) :
         base(interactorContainer, interactorInputContainer,
             interactorReferences, interactorType, raycastProvider, multiplayerSupport)
     {

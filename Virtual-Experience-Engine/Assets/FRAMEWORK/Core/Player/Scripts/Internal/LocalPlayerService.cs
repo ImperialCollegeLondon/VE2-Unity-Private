@@ -10,14 +10,14 @@ namespace VE2.Core.Player
         public static PlayerService Create(PlayerTransformData state, PlayerStateConfig config, bool enableVR, bool enable2D)
         {
             return new PlayerService(state, config, enableVR, enable2D, 
-                VE2CoreServiceLocator.Instance.PlayerStateModuleContainer, 
-                VE2CoreServiceLocator.Instance.InteractorContainer,
-                VE2CoreServiceLocator.Instance.PlayerSettingsHandler, 
-                VE2CoreServiceLocator.Instance.PlayerAppearanceOverridesProvider,
-                VE2CoreServiceLocator.Instance.MultiplayerSupport, 
-                VE2CoreServiceLocator.Instance.InputHandler.PlayerInputContainer,
+            PlayerLocator.Instance.PlayerStateModuleContainer,
+            PlayerLocator.Instance.InteractorContainer,
+            PlayerLocator.Instance.PlayerSettingsHandler,
+            PlayerLocator.Instance.PlayerAppearanceOverridesProvider,
+            PlayerLocator.Instance.PlayerSyncer,
+            PlayerLocator.Instance.InputHandler.PlayerInputContainer,
                 new RaycastProvider(),
-                VE2CoreServiceLocator.Instance.XRManagerWrapper);
+                new XRManagerWrapper());
         }
     }
 
@@ -37,7 +37,7 @@ namespace VE2.Core.Player
         public PlayerService(PlayerTransformData state, PlayerStateConfig config, bool enableVR, bool enable2D, 
             PlayerStateModuleContainer playerStateModuleContainer, InteractorContainer interactorContainer,
             IPlayerSettingsHandler playerSettingsHandler, IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider, 
-            IMultiplayerSupport multiplayerSupport, PlayerInputContainer playerInputContainer, IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper)
+            IPlayerSyncer playerSyncer, PlayerInputContainer playerInputContainer, IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper)
         {
             _playerStateModule = new(state, config, playerStateModuleContainer);
             playerSettingsHandler.OnPlayerPresentationConfigChanged += HandlePlayerPresentationChanged;
@@ -52,14 +52,14 @@ namespace VE2.Core.Player
                 _playerVR = new PlayerControllerVR(
                     interactorContainer, _playerInputContainer.PlayerVRInputContainer,
                     playerSettingsHandler, new PlayerVRControlConfig(), //TODO: 
-                    raycastProvider, xrManagerSettingsWrapper, multiplayerSupport);
+                    raycastProvider, xrManagerSettingsWrapper, playerSyncer);
             }
             if (enable2D)
             {
                 _player2D = new PlayerController2D(
                     interactorContainer, _playerInputContainer.Player2DInputContainer,
                     playerSettingsHandler, new Player2DControlConfig(), //TODO:
-                    raycastProvider, multiplayerSupport);
+                    raycastProvider, playerSyncer);
             }
 
             if (enableVR && !enable2D)

@@ -44,9 +44,9 @@ namespace VE2.Core.Tests
     }
     
     [SetUpFixture]
-    public class MultiplayerSupportSetup
+    public class PlayerSyncerSetup
     {
-        public static IMultiplayerSupport MultiplayerSupportStub { get; private set; }
+        public static IPlayerSyncer PlayerSyncerStub { get; private set; }
         public static InteractorID InteractorID { get; private set; }
         public static string InteractorGameobjectName { get; private set; }
 
@@ -57,15 +57,15 @@ namespace VE2.Core.Tests
             System.Random random = new();
             ushort localClientID = (ushort)random.Next(0, ushort.MaxValue);
 
-            MultiplayerSupportStub = Substitute.For<IMultiplayerSupport>();
-            MultiplayerSupportStub.IsConnectedToServer.Returns(true);
+            PlayerSyncerStub = Substitute.For<IPlayerSyncer>();
+            PlayerSyncerStub.IsConnectedToServer.Returns(true);
             InteractorID = new(localClientID, InteractorType.Mouse2D);
             InteractorGameobjectName = $"Interactor{InteractorID.ClientID}-{InteractorID.InteractorType}";
         }
 
         public static void StubLocalClientIDForMultiplayerSupportStub(ushort localClientID)
         {
-            MultiplayerSupportStub.LocalClientID.Returns(localClientID);
+            PlayerSyncerStub.LocalClientID.Returns(localClientID);
         }
     }
 
@@ -120,7 +120,7 @@ namespace VE2.Core.Tests
                 new InteractorContainer(),
                 PlayerSettingsProviderSetup.PlayerSettingsProviderStub,
                 Substitute.For<IPlayerAppearanceOverridesProvider>(),
-                MultiplayerSupportSetup.MultiplayerSupportStub,
+                PlayerSyncerSetup.PlayerSyncerStub,
                 InputHandlerSetup.PlayerInputContainerStubWrapper.PlayerInputContainer,
                 RayCastProviderSetup.RaycastProviderStub, 
                 Substitute.For<IXRManagerWrapper>()

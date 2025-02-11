@@ -15,11 +15,16 @@ namespace VE2.InstanceNetworking
             InstanceNetworkingCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
             //TODO - maybe we should get avatar prefab GOs here too?
 
-            return new InstanceService(commsHandler, localClientIDWrapper, 
-            connectionStateDebugWrapper, VE2NonCoreServiceLocator.Instance.InstanceNetworkSettingsProvider,
-            VE2CoreServiceLocator.Instance.WorldStateModulesContainer, VE2CoreServiceLocator.Instance.PlayerStateModuleContainer, 
-            VE2CoreServiceLocator.Instance.InteractorContainer, VE2CoreServiceLocator.Instance.PlayerAppearanceOverridesProvider,
-            connectAutomatically);
+            return new InstanceService(
+                commsHandler, 
+                localClientIDWrapper, 
+                connectionStateDebugWrapper, 
+                VE2NonCoreServiceLocator.Instance.InstanceNetworkSettingsProvider,
+                VComponents_Locator.Instance.WorldStateModulesContainer,
+                PlayerLocator.Instance.PlayerStateModuleContainer,
+                PlayerLocator.Instance.InteractorContainer,
+                PlayerLocator.Instance.PlayerAppearanceOverridesProvider,
+                connectAutomatically);
         }
     }
 

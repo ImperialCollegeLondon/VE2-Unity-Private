@@ -29,7 +29,7 @@ namespace VE2.Core.VComponents.Integration
             if (_state == null)
                 _state = new AdjustableState(_config.StateConfig.StartingValue);
 
-            _service = new(_config, _state, id, VE2CoreServiceLocator.Instance.WorldStateModulesContainer);
+            _service = new(_config, _state, id, VComponents_Locator.Instance.WorldStateModulesContainer);
         }
 
         private void FixedUpdate()

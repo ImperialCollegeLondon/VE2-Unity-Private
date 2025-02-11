@@ -80,6 +80,49 @@ public class PlayerLocator : MonoBehaviour
         }
     }
 
+    [SerializeField, HideInInspector] public string playerSyncerGameObjectName;
+    private IPlayerSyncer _playerSyncer;
+    public IPlayerSyncer PlayerSyncer{
+        get 
+        {
+            if (_playerSyncer == null && !string.IsNullOrEmpty(playerSyncerGameObjectName))
+                _playerSyncer = GameObject.Find(playerSyncerGameObjectName)?.GetComponent<IPlayerSyncer>();
+
+            return _playerSyncer;
+        }
+        set
+        {
+            _playerSyncer = value;
+
+            if (value != null)
+                playerSyncerGameObjectName = value.GameObjectName;
+        }
+    }
+
+    //So, we need V_PlayerSpawner to make this at edit-time, at the same time it puts itself into the locator
+    [SerializeField, HideInInspector] private string playerSettingsHandlerGOName;
+    private IPlayerSettingsHandler _playerSettingsHandler;
+    public IPlayerSettingsHandler PlayerSettingsHandler
+    {
+        get
+        {
+            if (_playerSettingsHandler == null && !string.IsNullOrEmpty(PlayerOverridesProviderGOName))
+                _playerSettingsHandler = GameObject.Find(PlayerOverridesProviderGOName)?.GetComponent<IPlayerSettingsHandler>();
+
+            if (_playerSettingsHandler == null)
+                return null;
+            else
+                return _playerSettingsHandler;
+        }
+        set //Will need to be called externally
+        {
+            _playerSettingsHandler = value;
+
+            if (value != null)
+                PlayerOverridesProviderGOName = value.GameObjectName;
+        }
+    }
+
     public PlayerStateModuleContainer PlayerStateModuleContainer { get; private set; } = new();
     public InteractorContainer InteractorContainer { get; private set; } = new();
 

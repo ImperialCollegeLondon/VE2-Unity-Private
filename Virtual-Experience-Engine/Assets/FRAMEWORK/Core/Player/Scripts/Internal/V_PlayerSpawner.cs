@@ -24,6 +24,8 @@ namespace VE2.Core.Player
         private bool _transformDataSetup = false;
         private PlayerTransformData _playerTransformData = new();
 
+        private IXRManagerWrapper _xrManagerWrapper;
+
         private PlayerService _playerService;
         private bool _xrInitialized = false;
 
@@ -31,6 +33,8 @@ namespace VE2.Core.Player
         {
             if (!Application.isPlaying)
                 return;
+
+            _xrManagerWrapper = new XRManagerWrapper();
 
             if (!_transformDataSetup)
             {
@@ -40,7 +44,7 @@ namespace VE2.Core.Player
                 _transformDataSetup = true;
             }
 
-            if (VE2CoreServiceLocator.Instance.PlayerSettingsHandler == null) 
+            if (PlayerLocator.Instance.PlayerSettingsHandler == null) 
             {
                 Debug.LogError("Error, V_PlayerSpawner cannot spawn player, no player settings provider found.");
                 return;
@@ -57,9 +61,9 @@ namespace VE2.Core.Player
 
         private IEnumerator InitializeXR()
         {
-            yield return VE2CoreServiceLocator.Instance.XRManagerWrapper.InitializeLoader();
+            yield return _xrManagerWrapper.InitializeLoader();
 
-            if (VE2CoreServiceLocator.Instance.XRManagerWrapper.ActiveLoader == null)
+            if (_xrManagerWrapper.ActiveLoader == null)
             {
                 Debug.LogError("Failed to initialize XR Loader.");
             }

@@ -9,10 +9,10 @@ using VE2.Core.VComponents.NonInteractableInterfaces;
 using VE2.Core.VComponents.InteractableFindables;
 using VE2.Core.VComponents.Internal;
 using static VE2.Common.CommonSerializables;
-using VE2.Core.Player;
 using System;
 using VE2.Core.VComponents.Tests;
 using VE2.Core.Common;
+using VE2.Core.Player;
 
 namespace VE2.Core.Tests
 {
@@ -24,7 +24,7 @@ namespace VE2.Core.Tests
             //Create an ID
             System.Random random = new();
             ushort localClientID = (ushort)random.Next(0, ushort.MaxValue);
-            IMultiplayerSupport multiplayerSupportStub = Substitute.For<IMultiplayerSupport>();
+            IPlayerSyncer multiplayerSupportStub = Substitute.For<IPlayerSyncer>();
             multiplayerSupportStub.IsConnectedToServer.Returns(true);
             multiplayerSupportStub.LocalClientID.Returns(localClientID);
             

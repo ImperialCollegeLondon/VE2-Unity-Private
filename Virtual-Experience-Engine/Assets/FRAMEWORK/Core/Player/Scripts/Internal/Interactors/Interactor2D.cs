@@ -11,9 +11,9 @@ namespace VE2.Core.Player
         private readonly ColorConfiguration _colorConfig;
 
         public Interactor2D(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
-            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, IMultiplayerSupport multiplayerSupport) : 
+            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, IPlayerSyncer playerSyncer) : 
             base(interactorContainer, interactorInputContainer,
-                interactorReferences, interactorType, raycastProvider, multiplayerSupport)   
+                interactorReferences, interactorType, raycastProvider, playerSyncer)   
         {
             Interactor2DReferences interactor2DReferences = interactorReferences as Interactor2DReferences;
             _reticuleImage = interactor2DReferences.ReticuleImage;

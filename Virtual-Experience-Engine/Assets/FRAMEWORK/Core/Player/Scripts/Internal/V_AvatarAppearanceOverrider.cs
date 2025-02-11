@@ -46,7 +46,7 @@ namespace VE2.Core.Player
         {
             if (!Application.isPlaying)
             {
-                VE2CoreServiceLocator.Instance.PlayerAppearanceOverridesProvider = this;
+                PlayerLocator.Instance.PlayerAppearanceOverridesProvider = this;
                 return;
             }
         }

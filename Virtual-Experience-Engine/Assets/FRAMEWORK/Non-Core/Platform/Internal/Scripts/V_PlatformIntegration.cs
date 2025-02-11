@@ -100,7 +100,7 @@ namespace VE2.PlatformNetworking
             //Get customerLogin settings 
             //Get instance settings
             //InstanceService will also need those two, PLUS instance IP address settings
-            PlayerPresentationConfig playerPresentationConfig = VE2CoreServiceLocator.Instance.PlayerSettingsHandler.PlayerPresentationConfig;
+            PlayerPresentationConfig playerPresentationConfig = PlayerLocator.Instance.PlayerSettingsHandler.PlayerPresentationConfig;
 
             //False if we're in the hub for the first time. 
             bool customerSettingsFound = true;
