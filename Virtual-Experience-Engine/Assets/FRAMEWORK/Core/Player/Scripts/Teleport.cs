@@ -15,9 +15,10 @@ public class Teleport
     private Vector3 _hitPoint;
     private float _teleportRayDistance = 50f;
     private Quaternion _teleportTargetRotation;
-    private LayerMask _groundLayerMask => LayerMask.GetMask("Ground");
+    private LayerMask _groundLayerMask => LayerMask.GetMask("Traversible");
     private Vector2 _currentTeleportDirection;
     private int _lineSegmentCount = 20; // Number of segments in the Bezier curve
+    private float _maxSlopeAngle = 45f; // Maximum slope angle in degrees
 
     public Teleport(TeleportInputContainer inputContainer, Transform rootTransform, Transform teleportRaycastOrigin)
     {
@@ -61,7 +62,6 @@ public class Teleport
         // Teleport User
         Debug.Log("Teleport Deactivated");
         _rootTransform.position = _hitPoint;
-       // _rootTransform.rotation = _teleportTargetRotation;
         _rootTransform.rotation = _arrowObject.transform.rotation;
         Debug.Log($"Teleporting to: {_hitPoint} with Rotation of {_teleportTargetRotation.eulerAngles}");
         CancelTeleport();
@@ -75,37 +75,49 @@ public class Teleport
 
         if (Physics.Raycast(startPosition, direction, out RaycastHit hit, _teleportRayDistance, _groundLayerMask))
         {
-            _hitPoint = hit.point;
-            _reticle.transform.position = _hitPoint;
-            Vector3 arrowDirection = _teleportRaycastOrigin.forward;
-            arrowDirection.y = 0;
-            if(arrowDirection != Vector3.zero)
+            if (IsValidSurface(hit.normal))
             {
-                arrowDirection.Normalize();
+                _hitPoint = hit.point;
+                _reticle.transform.position = _hitPoint;
+                Vector3 arrowDirection = _teleportRaycastOrigin.forward;
+                arrowDirection.y = 0;
+                if (arrowDirection != Vector3.zero)
+                {
+                    arrowDirection.Normalize();
+                }
+                _arrowObject.transform.rotation = Quaternion.LookRotation(arrowDirection, Vector3.up);
+                _arrowObject.transform.position = _hitPoint + direction * (_arrowObject.transform.localScale.z / 2) + Vector3.up * (_arrowObject.transform.localScale.y / 2);
+
+                // Update the line renderer positions
+                DrawBezierCurve(startPosition, _hitPoint);
+                _lineRenderer.material.color = Color.green;
+
+                _reticle.SetActive(true);
+                _arrowObject.SetActive(true);
+                UpdateTargetRotation();
             }
-            _arrowObject.transform.rotation = Quaternion.LookRotation(arrowDirection, Vector3.up);
-            _arrowObject.transform.position = _hitPoint + direction * (_arrowObject.transform.localScale.z / 2) + Vector3.up * (_arrowObject.transform.localScale.y / 2);
+            else
+            {
+                DrawBezierCurve(startPosition, hit.point);
+                // Surface is not valid for teleportation
+                _reticle.SetActive(false);
+                _arrowObject.SetActive(false);
+                _lineRenderer.material.color = Color.red;
 
-            // Update the line renderer positions
-            DrawBezierCurve(startPosition, _hitPoint);
-            _lineRenderer.material.color = Color.green;
-
-            _reticle.SetActive(true);
-            _arrowObject.SetActive(true);
-            UpdateTargetRotation();
+            }
         }
         else
         {
             // Update the line renderer positions
             if (Physics.Raycast(startPosition, direction, out RaycastHit otherhit, _teleportRayDistance))
-	        {
+            {
                 DrawBezierCurve(startPosition, otherhit.point);
             }
             else
-	        {
+            {
                 DrawBezierCurve(startPosition, direction * _teleportRayDistance);
             }
-            
+
             _reticle.SetActive(false);
             _arrowObject.SetActive(false);
             _lineRenderer.material.color = Color.red;
@@ -113,11 +125,17 @@ public class Teleport
         _lineRendererObject.SetActive(true);
     }
 
+    private bool IsValidSurface(Vector3 normal)
+    {
+        // Check if the surface normal is within the acceptable slope angle
+        float angle = Vector3.Angle(Vector3.up, normal);
+        return angle <= _maxSlopeAngle;
+    }
+
     private void CancelTeleport()
     {
         _reticle.SetActive(false);
         _lineRendererObject.SetActive(false);
-        //_arrowObject.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
         _arrowObject.SetActive(false);
         _teleportRaycastOrigin.gameObject.SetActive(true);
     }
