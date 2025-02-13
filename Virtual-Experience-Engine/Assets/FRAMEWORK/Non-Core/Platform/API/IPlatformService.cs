@@ -14,9 +14,9 @@ public interface IPlatformService //TODO, maybe not all of these should live in 
     public bool IsAuthFailed { get; }
     public event Action OnAuthFailed;
 
-    public List<(string, int)> ActiveWorldsNamesAndVersions { get; }
+    public string GameObjectName { get; }
 
-    public void RequestInstanceAllocation(string worldName, string instanceSuffix);
+    public string CurrentInstanceCode { get; }
 }
 
 /*

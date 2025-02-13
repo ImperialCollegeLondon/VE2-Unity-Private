@@ -1,14 +1,11 @@
 using TMPro;
 using UnityEngine;
-using VE2.Core;
-using VE2.NonCore.Platform.Private;
-using VE2.PlatformNetworking;
-using static VE2.Platform.Internal.PlatformSerializables;
+using static VE2.Platform.API.PlatformPublicSerializables;
 
 public class DebugHubUI : MonoBehaviour
 {
     [SerializeField] private TMP_Text instancesListText;
-    private PlatformService _platformService;
+    private IPlatformServiceInternal _platformService;
 
     void OnEnable()
     {

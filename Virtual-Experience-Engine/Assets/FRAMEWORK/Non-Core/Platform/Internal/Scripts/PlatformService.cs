@@ -14,14 +14,14 @@ using static VE2.Platform.API.PlatformPublicSerializables;
 
 namespace VE2.NonCore.Platform.Private
 {
-    public static class PlatformServiceFactory
+    internal static class PlatformServiceFactory
     {
         //Shouldn't pass these details,
         //Should pass these in the "Connect" method
-        public static PlatformService Create()
+        internal static PlatformService Create()
         {
             PlatformCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
-            return new PlatformService(commsHandler, new PluginLoader(), PlayerLocator.Instance.PlayerSettingsHandler);
+            return new PlatformService(commsHandler, new PluginLoader(), PlayerLocator.Instance.PlayerService);
         }
     }
 
@@ -30,19 +30,18 @@ namespace VE2.NonCore.Platform.Private
     //Goes into ServiceLocator by IPlatformAPI
     //The hub finds it, and casts it to IPlatformAPIPrivate 
 
-    public class PlatformService //: IPlatformService
+    internal class PlatformService
     {
-        public ushort LocalClientID { get; private set; }
-        public string CurrentInstanceCode { get; private set; } //TODO: Remove, comes from settingshandler?
-        public GlobalInfo GlobalInfo { get; private set; }
-        public event Action<GlobalInfo> OnGlobalInfoChanged;
-        public Dictionary<string, WorldDetails> ActiveWorlds { get; private set; }
+        internal ushort LocalClientID { get; private set; }
+        internal string CurrentInstanceCode { get; private set; } //TODO: Remove, comes from settingshandler?
+        internal GlobalInfo GlobalInfo { get; private set; }
+        internal event Action<GlobalInfo> OnGlobalInfoChanged;
+        internal Dictionary<string, WorldDetails> ActiveWorlds { get; private set; }
+        internal ServerConnectionSettings WorldBuildsFTPServerSettings { get; private set; }
+        internal ServerConnectionSettings DefaultWorldSubStoreFTPServerSettings { get; private set; }
+        internal ServerConnectionSettings DefaultInstancingServerSettings { get; private set; }
 
-        private ServerConnectionSettings _worldBuildsFTPServerSettings;
-        private ServerConnectionSettings _defaultWorldSubStoreFTPServerSettings;
-        private ServerConnectionSettings __defaultInstancingServerSettings;
-
-        public event Action<string> OnInstanceCodeChange;
+        internal event Action<string> OnInstanceCodeChange;
 
         /*
                 We should probably just be hiding UserSettingsDebug when there IS a platform service?
@@ -51,13 +50,14 @@ namespace VE2.NonCore.Platform.Private
         */
 
         #region Interfaces
-        public bool IsConnectedToServer { get; private set; }
-        public event Action OnConnectedToServer;
-        
-        public bool IsAuthFailed { get; private set; }
-        public event Action OnAuthFailed;
+        internal bool IsConnectedToServer { get; private set; }
+        internal event Action OnConnectedToServer;
 
-        public void RequestInstanceAllocation(string worldName, string instanceSuffix)
+        internal bool IsAuthFailed { get; private set; }
+
+        internal event Action OnAuthFailed;
+
+        internal void RequestInstanceAllocation(string worldName, string instanceSuffix)
         {
             if (IsConnectedToServer)
             {
@@ -70,41 +70,41 @@ namespace VE2.NonCore.Platform.Private
                 Debug.LogError("Not yet connected to server");
             }
         }
-        public void RequestHubAllocation()
+        internal void RequestHubAllocation()
         {
             RequestInstanceAllocation("Hub", "Solo");
         }
 
-        public ServerConnectionSettings GetInstanceServerSettingsForWorld(string worldName)
+        internal ServerConnectionSettings GetInstanceServerSettingsForWorld(string worldName)
         {
             if (ActiveWorlds == null || !ActiveWorlds.ContainsKey(worldName) || !ActiveWorlds[worldName].HasCustomInstanceServer)
-                return __defaultInstancingServerSettings;
+                return DefaultInstancingServerSettings;
             else
                 return ActiveWorlds[worldName].CustomInstanceServerSettings;
         }
 
-        public ServerConnectionSettings GetInstanceServerSettingsForCurrentWorld() => GetInstanceServerSettingsForWorld(SceneManager.GetActiveScene().name); //TODO: Should come from settings?
+        internal ServerConnectionSettings GetInstanceServerSettingsForCurrentWorld() => GetInstanceServerSettingsForWorld(SceneManager.GetActiveScene().name); //TODO: Should come from settings?
         #endregion
 
         private IPlatformCommsHandler _commsHandler;
         private readonly PluginLoader _pluginLoader;
-        private readonly IPlayerSettingsHandler _playerSettingsHandler;
+        private readonly IPlayerService _playerService;
 
-        public PlatformService(IPlatformCommsHandler commsHandler, PluginLoader pluginLoader, IPlayerSettingsHandler playerSettingsProvider)
+        internal PlatformService(IPlatformCommsHandler commsHandler, PluginLoader pluginLoader, IPlayerService playerService)
         {
             _commsHandler = commsHandler;
             _pluginLoader = pluginLoader;
-            _playerSettingsHandler = playerSettingsProvider;
+            _playerService = playerService;
 
-            if (_playerSettingsHandler != null)
-                _playerSettingsHandler.OnPlayerPresentationConfigChanged += HandlePlayerPresentationConfigChanged;
+            if (_playerService != null)
+                _playerService.OnPlayerPresentationConfigChanged += HandlePlayerPresentationConfigChanged;
 
             commsHandler.OnReceiveNetcodeConfirmation += HandleReceiveNetcodeVersion;
             commsHandler.OnReceiveServerRegistrationConfirmation += HandleReceiveServerRegistrationResponse;
             commsHandler.OnReceiveGlobalInfoUpdate += HandleReceiveGlobalInfoUpdate;
         }
 
-        public void ConnectToPlatform(IPAddress ipAddress, ushort portNumber, string startingInstanceCode)
+        internal void ConnectToPlatform(IPAddress ipAddress, ushort portNumber, string startingInstanceCode)
         {
             Debug.Log("Connecting to platform");
             CurrentInstanceCode = startingInstanceCode;
@@ -127,7 +127,7 @@ namespace VE2.NonCore.Platform.Private
                 string correctedInstanceCode = CurrentInstanceCode.Contains("Hub") ? "Hub-Solo" : CurrentInstanceCode; //TODO: Figure out instance code
                 string customerID = "test", customerKey = "test"; //TODO - figure out these too!
 
-                ServerRegistrationRequest serverRegistrationRequest = new(customerID, customerKey, CurrentInstanceCode, _playerSettingsHandler.PlayerPresentationConfig);
+                ServerRegistrationRequest serverRegistrationRequest = new(customerID, customerKey, CurrentInstanceCode, _playerService.PlayerPresentationConfig);
                 _commsHandler.SendMessage(serverRegistrationRequest.Bytes, PlatformNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
             }
         }
@@ -206,12 +206,12 @@ namespace VE2.NonCore.Platform.Private
             // }
         }
 
-        public void MainThreadUpdate()
+        internal void MainThreadUpdate()
         {
             _commsHandler.MainThreadUpdate();
         }
 
-        public void NetworkUpdate()
+        internal void NetworkUpdate()
         {
             //if (ConnectedToServer)
             //{
@@ -239,12 +239,12 @@ namespace VE2.NonCore.Platform.Private
             _commsHandler.SendMessage(playerPresentationConfig.Bytes, PlatformNetworkingMessageCodes.UpdatePlayerPresentation, TransmissionProtocol.TCP);
         }
 
-        public void TearDown()
+        internal void TearDown()
         {
             _commsHandler?.DisconnectFromServer();
 
-            if (_playerSettingsHandler != null)
-                _playerSettingsHandler.OnPlayerPresentationConfigChanged -= HandlePlayerPresentationConfigChanged;
+            if (_playerService != null)
+                _playerService.OnPlayerPresentationConfigChanged -= HandlePlayerPresentationConfigChanged;
         }
     }
 

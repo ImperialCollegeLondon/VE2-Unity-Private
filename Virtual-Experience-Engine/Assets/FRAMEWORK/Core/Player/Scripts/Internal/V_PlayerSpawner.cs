@@ -14,12 +14,14 @@ namespace VE2.Core.Player
     }
 
     [ExecuteAlways]
-    public class V_PlayerSpawner : MonoBehaviour//, IPlayerSpawner //Should this be called "PlayerIntegration"?
+    public class V_PlayerSpawner : MonoBehaviour, IPlayerService
     {
         //TODO, configs for each player, OnTeleport, DragHeight, FreeFlyMode, etc
         [SerializeField] public bool enableVR = false;
         [SerializeField] public bool enable2D = true;
         [SerializeField, IgnoreParent] public PlayerStateConfig playerStateConfig = new();
+
+        [SerializeField, IgnoreParent, DisableInPlayMode, BeginGroup("Default Player Presentation"), EndGroup, InLineEditor] private PlayerPresentationConfig _defaultPlayerPresentationConfig = new();
 
         private bool _transformDataSetup = false;
         private PlayerTransformData _playerTransformData = new();
@@ -29,10 +31,20 @@ namespace VE2.Core.Player
         private PlayerService _playerService;
         private bool _xrInitialized = false;
 
+        #region public interfaces
+        public event Action<PlayerPresentationConfig> OnPlayerPresentationConfigChanged {add {_playerService.OnPlayerPresentationConfigChanged += value;} remove {_playerService.OnPlayerPresentationConfigChanged -= value;}}
+        public PlayerPresentationConfig PlayerPresentationConfig => _playerService.PlayerPresentationConfig;
+        #endregion
+
+        #region private interfaces
+        public string GameObjectName => gameObject.name;
+        public bool VRModeActive => _playerService.VRModeActive;
+        #endregion
+
         private void OnEnable() 
         {
-            if (PlayerLocator.Instance.PlayerSettingsHandler == null)
-                PlayerLocator.Instance.PlayerSettingsHandler = new GameObject("PlayerSettings").AddComponent<PlayerSettingsHandler>();
+            // if (PlayerLocator.Instance.PlayerSettingsHandler == null)
+            //     PlayerLocator.Instance.PlayerSettingsHandler = new GameObject("PlayerSettings").AddComponent<PlayerSettingsHandler>();
 
             if (!Application.isPlaying)
                 return;
@@ -45,12 +57,6 @@ namespace VE2.Core.Player
                 _playerTransformData.RootRotation = transform.rotation;
                 _playerTransformData.VerticalOffset = 1.7f;
                 _transformDataSetup = true;
-            }
-
-            if (PlayerLocator.Instance.PlayerSettingsHandler == null) 
-            {
-                Debug.LogError("Error, V_PlayerSpawner cannot spawn player, no player settings provider found.");
-                return;
             }
 
             if (enableVR)
@@ -93,7 +99,20 @@ namespace VE2.Core.Player
                 enable2D = false;
             }
 
-            _playerService = VE2PlayerServiceFactory.Create(_playerTransformData, playerStateConfig, enableVR, enable2D);
+            //If there is no existing settings provider, create one with the defaults in this inspector 
+            PlayerSettingsHandler playerSettingsHandler = FindFirstObjectByType<PlayerSettingsHandler>();
+            if (playerSettingsHandler == null)
+            {
+                playerSettingsHandler = new GameObject("PlayerSettings").AddComponent<PlayerSettingsHandler>();
+                playerSettingsHandler.DefaultPlayerPresentationConfig = _defaultPlayerPresentationConfig;
+            }
+
+            _playerService = VE2PlayerServiceFactory.Create(
+                _playerTransformData, 
+                playerStateConfig, 
+                enableVR, 
+                enable2D,
+                playerSettingsHandler);
         }
 
         private void FixedUpdate() 

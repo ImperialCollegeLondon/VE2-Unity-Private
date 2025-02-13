@@ -1,5 +1,5 @@
 {
-    "name": "VE2_Platform_Common",
+    "name": "VE2.NonCore.Platforn.API",
     "rootNamespace": "",
     "references": [
         "GUID:dfea00931ff9cd040aa39c9f5636d898",

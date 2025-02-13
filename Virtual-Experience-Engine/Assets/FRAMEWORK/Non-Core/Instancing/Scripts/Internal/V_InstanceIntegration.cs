@@ -64,9 +64,9 @@ namespace VE2.InstanceNetworking
 
             //But if we expose this to the customer... how does it go into the service locator???
             //Ok, we cam just make some base class for the settings provider that we can expose to the plugin, the plugin-defined settings provider can just inherit from that. The base can worry about putting itself into the service locator 
-            if (VE2NonCoreServiceLocator.Instance.InstanceNetworkSettingsProvider == null)
+            if (PlatformServiceLocator.Instance.PlatformService == null)
             {
-                Debug.LogError("Can't boot instance integration, no network settings provider found");
+                Debug.LogError("Can't boot instance integration, no platform service found");
                 return;
             }
 

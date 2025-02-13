@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using TMPro;
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
-using VE2.NonCore.Platform.Private;
 using VE2_NonCore_FileSystem_Interfaces_Common;
 using VE2_NonCore_FileSystem_Interfaces_Internal;
 using VE2_NonCore_FileSystem_Interfaces_Plugin;
@@ -34,11 +32,11 @@ public class HubFileUIObjectExample : MonoBehaviour
     private IRemoteFileTaskInfo _currentRemoteTask;
     private int _activeRemoteVersion;
 
-    private IPlatformService _platformService;
+    private IPlatformServiceInternal _platformService;
     private IInternalFileSystem _fileSystem;
     private string _worldFolder;
 
-    public void Setup(IPlatformService platformService, IInternalFileSystem fileSystem, string worldFolder)
+    internal void Setup(IPlatformServiceInternal platformService, IInternalFileSystem fileSystem, string worldFolder)
     {
         _platformService = platformService;
         _fileSystem = fileSystem;

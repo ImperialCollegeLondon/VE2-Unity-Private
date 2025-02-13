@@ -42,12 +42,7 @@ internal class PlayerSettingsHandler : MonoBehaviour, IPlayerSettingsHandler //T
 
     //TODO: Also need RememberMeDefault and RememberMeCurrent
 
-    [SerializeField, IgnoreParent, DisableInPlayMode, BeginGroup("Default Player Presentation"), EndGroup, InLineEditor] private PlayerPresentationConfig _defaultPlayerPresentationConfig = new();
-    public PlayerPresentationConfig DefaultPlayerPresentationConfig {
-        get {
-            return _defaultPlayerPresentationConfig;
-        }
-    }
+    public PlayerPresentationConfig DefaultPlayerPresentationConfig;
 
     private bool _isPlaying => Application.isPlaying;
     private bool _playerPresentationSetup = false;
@@ -105,7 +100,7 @@ internal class PlayerSettingsHandler : MonoBehaviour, IPlayerSettingsHandler //T
                         else if (_rememberPlayerSettings)
                             _playerPresentationConfig = GetPlayerPresentationFromPlayerPrefs();
                         else
-                            _playerPresentationConfig = _defaultPlayerPresentationConfig; 
+                            _playerPresentationConfig = DefaultPlayerPresentationConfig; 
                     }
 
                     _playerPresentationSetup = true;
@@ -117,7 +112,7 @@ internal class PlayerSettingsHandler : MonoBehaviour, IPlayerSettingsHandler //T
                     else if (_rememberPlayerSettings)
                         _playerPresentationConfig = GetPlayerPresentationFromPlayerPrefs();
                     else
-                        _playerPresentationConfig = new PlayerPresentationConfig(_defaultPlayerPresentationConfig); //Don't want to copy the reference, just the values
+                        _playerPresentationConfig = new PlayerPresentationConfig(DefaultPlayerPresentationConfig); //Don't want to copy the reference, just the values
                 }
             }
             else
@@ -136,12 +131,12 @@ internal class PlayerSettingsHandler : MonoBehaviour, IPlayerSettingsHandler //T
     {
         return
             _playerPresentationConfig = new PlayerPresentationConfig(
-                playerName: PlayerPrefs.GetString(PlayerNameArgName, _defaultPlayerPresentationConfig.PlayerName),
-                avatarHeadType: (ViRSEAvatarHeadAppearanceType)PlayerPrefs.GetInt(PlayerHeadTypeArgName, (int)_defaultPlayerPresentationConfig.AvatarHeadType),
-                avatarBodyType: (ViRSEAvatarTorsoAppearanceType)PlayerPrefs.GetInt(PlayerTorsoTypeArgName, (int)_defaultPlayerPresentationConfig.AvatarTorsoType),
-                avatarRed: (ushort)PlayerPrefs.GetInt(PlayerRedArgName, _defaultPlayerPresentationConfig.AvatarRed),
-                avatarGreen: (ushort)PlayerPrefs.GetInt(PlayerGreenArgName, _defaultPlayerPresentationConfig.AvatarGreen),
-                avatarBlue: (ushort)PlayerPrefs.GetInt(PlayerBlueArgName, _defaultPlayerPresentationConfig.AvatarBlue));
+                playerName: PlayerPrefs.GetString(PlayerNameArgName, DefaultPlayerPresentationConfig.PlayerName),
+                avatarHeadType: (ViRSEAvatarHeadAppearanceType)PlayerPrefs.GetInt(PlayerHeadTypeArgName, (int)DefaultPlayerPresentationConfig.AvatarHeadType),
+                avatarBodyType: (ViRSEAvatarTorsoAppearanceType)PlayerPrefs.GetInt(PlayerTorsoTypeArgName, (int)DefaultPlayerPresentationConfig.AvatarTorsoType),
+                avatarRed: (ushort)PlayerPrefs.GetInt(PlayerRedArgName, DefaultPlayerPresentationConfig.AvatarRed),
+                avatarGreen: (ushort)PlayerPrefs.GetInt(PlayerGreenArgName, DefaultPlayerPresentationConfig.AvatarGreen),
+                avatarBlue: (ushort)PlayerPrefs.GetInt(PlayerBlueArgName, DefaultPlayerPresentationConfig.AvatarBlue));
     }
 
     public event Action<PlayerPresentationConfig> OnPlayerPresentationConfigChanged;

@@ -12,9 +12,9 @@ using static VE2.Platform.API.PlatformPublicSerializables;
 
 namespace VE2_NonCore_FileSystem
 {
-    public static class FileSystemServiceFactory
+    internal static class FileSystemServiceFactory
     {
-        public static FileSystemService CreateFileStorageService(ServerConnectionSettings ftpNetworkSettings, string workingPath)
+        internal static FileSystemService CreateFileStorageService(ServerConnectionSettings ftpNetworkSettings, string workingPath)
         {
             string localWorkingPath = Application.persistentDataPath + "/files/" + workingPath; 
             string remoteWorkingPath = workingPath;

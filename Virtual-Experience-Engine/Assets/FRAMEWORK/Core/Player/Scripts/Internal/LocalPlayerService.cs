@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using VE2.Common;
 using VE2.Core.Common;
@@ -5,14 +6,14 @@ using static VE2.Common.CommonSerializables;
 
 namespace VE2.Core.Player
 {
-    public static class VE2PlayerServiceFactory
+    internal static class VE2PlayerServiceFactory
     {
-        public static PlayerService Create(PlayerTransformData state, PlayerStateConfig config, bool enableVR, bool enable2D)
+        internal static PlayerService Create(PlayerTransformData state, PlayerStateConfig config, bool enableVR, bool enable2D, IPlayerSettingsHandler playerSettingsHandler)
         {
             return new PlayerService(state, config, enableVR, enable2D, 
             PlayerLocator.Instance.PlayerStateModuleContainer,
             PlayerLocator.Instance.InteractorContainer,
-            PlayerLocator.Instance.PlayerSettingsHandler,
+            playerSettingsHandler,
             PlayerLocator.Instance.PlayerAppearanceOverridesProvider,
             PlayerLocator.Instance.PlayerSyncer,
             PlayerLocator.Instance.InputHandler.PlayerInputContainer,
@@ -21,9 +22,20 @@ namespace VE2.Core.Player
         }
     }
 
-    public class PlayerService  
+    public class PlayerService : IPlayerService, IPlayerServiceInternal
     {
+        #region Interfaces
+        public PlayerPresentationConfig PlayerPresentationConfig => _playerSettingsHandler.PlayerPresentationConfig;
+        public event Action<PlayerPresentationConfig> OnPlayerPresentationConfigChanged;
+        public string GameObjectName => throw new NotImplementedException(); //TODO: Maybe remove if we shift towards a ServiceProvider interface model
+
+        public bool RememberPlayerSettings { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        PlayerPresentationConfig IPlayerServiceInternal.PlayerPresentationConfig { set => throw new NotImplementedException(); }
+        #endregion
+
+
         public bool VRModeActive => _playerStateModule.PlayerTransformData.IsVRMode;
+
 
         private readonly PlayerStateModule _playerStateModule;
         private readonly PlayerController2D _player2D;
@@ -33,6 +45,7 @@ namespace VE2.Core.Player
 
         private readonly PlayerInputContainer _playerInputContainer;
         private readonly IPlayerSettingsHandler _playerSettingsHandler;
+
 
         public PlayerService(PlayerTransformData state, PlayerStateConfig config, bool enableVR, bool enable2D, 
             PlayerStateModuleContainer playerStateModuleContainer, InteractorContainer interactorContainer,

@@ -7,7 +7,7 @@ using VE2.Platform.Internal;
 
 namespace VE2.PlatformNetworking
 {
-    public interface IPlatformCommsHandler
+    internal interface IPlatformCommsHandler
     {
         public bool IsReadyToTransmit { get; }
 

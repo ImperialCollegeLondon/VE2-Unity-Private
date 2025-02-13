@@ -5,6 +5,7 @@ using static InstanceSyncSerializables;
 using System;
 using static VE2.InstanceNetworking.V_InstanceIntegration;
 using VE2.Common;
+using static VE2.Platform.API.PlatformPublicSerializables;
 
 namespace VE2.InstanceNetworking
 {
@@ -19,7 +20,7 @@ namespace VE2.InstanceNetworking
                 commsHandler, 
                 localClientIDWrapper, 
                 connectionStateDebugWrapper, 
-                VE2NonCoreServiceLocator.Instance.InstanceNetworkSettingsProvider,
+                PlatformServiceLocator.Instance.PlatformService as IPlatformServiceInternal,
                 VComponents_Locator.Instance.WorldStateModulesContainer,
                 PlayerLocator.Instance.PlayerStateModuleContainer,
                 PlayerLocator.Instance.InteractorContainer,
@@ -41,7 +42,9 @@ namespace VE2.InstanceNetworking
         //CommsManager dependencies
         private readonly IPluginSyncCommsHandler _commsHandler;
         private readonly ConnectionStateDebugWrapper _connectionStateDebugWrapper;
-        private readonly IInstanceNetworkSettingsProvider _networkSettingsProvider;
+
+        //Platform dependencies
+        private readonly IPlatformServiceInternal _platformService;
 
         //WorldState sync dependencies
         private readonly WorldStateModulesContainer _worldStateModulesContainer;
@@ -61,14 +64,14 @@ namespace VE2.InstanceNetworking
         internal RemotePlayerSyncer _remotePlayerSyncer;
 
         public InstanceService(IPluginSyncCommsHandler commsHandler, LocalClientIdWrapper localClientIDWrapper, 
-        ConnectionStateDebugWrapper connectionStateDebugWrapper, IInstanceNetworkSettingsProvider instanceNetworkSettingsProvider, 
+        ConnectionStateDebugWrapper connectionStateDebugWrapper, IPlatformServiceInternal platformService, 
         WorldStateModulesContainer worldStateModulesContainer, PlayerStateModuleContainer playerStateModuleContainer,
         InteractorContainer interactorContainer, IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider, 
         bool connectAutomatically)
         {
             _commsHandler = commsHandler;
             _connectionStateDebugWrapper = connectionStateDebugWrapper;
-            _networkSettingsProvider = instanceNetworkSettingsProvider;
+            _platformService = platformService;
             _worldStateModulesContainer = worldStateModulesContainer;
             _playerStateModuleContainer = playerStateModuleContainer;
             _interactorContainer = interactorContainer;
@@ -81,6 +84,27 @@ namespace VE2.InstanceNetworking
             _commsHandler.OnReceiveInstanceInfoUpdate += HandleReceiveInstanceInfoUpdate;
             _commsHandler.OnDisconnectedFromServer += HandleDisconnectFromServer;
 
+            /*
+                Do we want to connect automatically? 
+                Well, no, maybe the plugin has some kind of staging scene? 
+                So, the connection should be programmatic via an api, but you shouln't be able to pass an isntance code?
+
+                So if not connect automatically, then plugin needs to be able to trigger connection to a certain instance code 
+                Do we really care about this???
+
+                BUt then that lets the plugin override the instance code that we get from the hub... which we don't want... 
+
+                We're saying we don't want to have to handshake with platform before we start instance syncing, right?
+                So then in the editor, we need to be able to launch right into a plugin, and connect to instancing without connecting to platform 
+                How??
+
+                Honestly... I think let's just keep it simple, and assume it always comes from a server 
+
+                The alternative would be to have the platform return some default setting??
+                So configure platform service with default instance code, but also with default instance instancing settings?? 
+                Ah, idk, we're talking about less than 250 seconds of load time here... let's not worry about it for now I think 
+            */
+
             if (connectAutomatically)
                 ConnectToServerWhenReady();
         }
@@ -91,27 +115,28 @@ namespace VE2.InstanceNetworking
                 _connectionStateDebugWrapper.ConnectionState != ConnectionState.LostConnection)
                 return;
 
-            if (_networkSettingsProvider.AreNetworkingSettingsReady)
+            if (_platformService.IsConnectedToServer)
             {
                 ConnectToServer();
             }
             else
             {
                 _connectionStateDebugWrapper.ConnectionState = ConnectionState.WaitingForConnectionSettings;
-                _networkSettingsProvider.OnNetworkSettingsReady += ConnectToServer;
+                _platformService.OnConnectedToServer += ConnectToServer;
             }
         }
 
         private void ConnectToServer() //TODO, encapsulate with the above in a ConnectionManager class 
         {
-            _networkSettingsProvider.OnNetworkSettingsReady -= ConnectToServer;
+            _platformService.OnConnectedToServer -= ConnectToServer;
             _connectionStateDebugWrapper.ConnectionState = ConnectionState.Connecting;
 
-            InstanceNetworkSettings instanceConnectionDetails = _networkSettingsProvider.InstanceNetworkSettings;
-            Debug.Log("Try connect... " + instanceConnectionDetails.IP);
+            ServerConnectionSettings serverConnectionSettings = _platformService.GetInstanceServerSettingsForCurrentWorld();
 
-            if (IPAddress.TryParse(instanceConnectionDetails.IP, out IPAddress ipAddress))
-                _commsHandler.ConnectToServer(ipAddress, instanceConnectionDetails.Port);
+            Debug.Log("Try connect... " + serverConnectionSettings.ServerAddress);
+
+            if (IPAddress.TryParse(serverConnectionSettings.ServerAddress, out IPAddress ipAddress))
+                _commsHandler.ConnectToServer(ipAddress, serverConnectionSettings.ServerPort);
             else
                 Debug.LogError("Could not connect to server, invalid IP address");
         }
@@ -133,11 +158,11 @@ namespace VE2.InstanceNetworking
 
         private void SendServerRegistration() 
         {
-            Debug.Log("<color=green> Try connect to server with instance code - " + _networkSettingsProvider.InstanceNetworkSettings.InstanceCode);
+            Debug.Log("<color=green> Try connect to server with instance code - " + _platformService.CurrentInstanceCode);
 
             //We also send the LocalClientID here, this will either be maxvalue (if this is our first time connecting, the server will give us a new ID)..
             //..or it'll be the ID we we're given by the server (if we're reconnecting, the server will use the ID we provide)
-            ServerRegistrationRequest serverRegistrationRequest = new(_networkSettingsProvider.InstanceNetworkSettings.InstanceCode, _instanceInfoContainer.LocalClientID);
+            ServerRegistrationRequest serverRegistrationRequest = new(_platformService.CurrentInstanceCode, _instanceInfoContainer.LocalClientID);
             _commsHandler.SendMessage(serverRegistrationRequest.Bytes, InstanceNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
         }
 

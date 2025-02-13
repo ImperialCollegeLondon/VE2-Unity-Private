@@ -1,5 +1,5 @@
 {
-    "name": "VE2_NonCore_RemoteFileSystem_Internal",
+    "name": "VE2.NonCore.FileSystem.Internal",
     "rootNamespace": "",
     "references": [
         "GUID:696a0953692949b40bec8730e64e1fdd",

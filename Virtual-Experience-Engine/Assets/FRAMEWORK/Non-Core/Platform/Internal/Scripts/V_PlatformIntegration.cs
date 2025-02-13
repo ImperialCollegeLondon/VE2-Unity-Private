@@ -9,6 +9,7 @@ using UnityEngine.SceneManagement;
 using VE2.Common;
 using VE2.NonCore.Platform.Private;
 using static VE2.Common.CommonSerializables;
+using static VE2.Platform.API.PlatformPublicSerializables;
 using static VE2.Platform.Internal.PlatformSerializables;
 
 namespace VE2.PlatformNetworking
@@ -23,10 +24,19 @@ namespace VE2.PlatformNetworking
         Then, when anything needs to talk to the platform, it should go through the service locator
         This means we don't need ship the hub code to the customer - the hub code should be a different assembly to everything else 
 
+
+        ALSO==================
+
+        The monobehaviour is effectively the factory 
+        All it really needs is a lazy init getter for the service 
+        that would then mean this needs another interface altogether, IE PlatformServiceProvider
+        So, locator implements IPlatformService, its implementation points towards the IPlatformServiceProvider
+
+        The alternative is the Locator, and the integration, and the 
     */
 
     [ExecuteInEditMode]
-    public class V_PlatformIntegration : MonoBehaviour, IPlatformService
+    public class V_PlatformIntegration : MonoBehaviour, IPlatformService, IPlatformServiceInternal
     {
 
         [Title("Debug Connection Settings")]
@@ -50,17 +60,19 @@ namespace VE2.PlatformNetworking
 
         public ushort LocalClientID => _platformService.LocalClientID;
 
-        public List<(string, int)> ActiveWorldsNamesAndVersions { //TODO< probably should be async
-            get 
-            {
-                List<(string, int)> activeWorldNamesAndVersions = new();
+        Dictionary<string, WorldDetails> IPlatformServiceInternal.ActiveWorlds => _platformService.ActiveWorlds;
 
-                foreach(WorldDetails worldDetails in _platformService.ActiveWorlds.Values)
-                    activeWorldNamesAndVersions.Add((worldDetails.Name, worldDetails.VersionNumber));
+        // public List<(string, int)> ActiveWorldsNamesAndVersions { //TODO< probably should be async
+        //     get 
+        //     {
+        //         List<(string, int)> activeWorldNamesAndVersions = new();
 
-                return activeWorldNamesAndVersions;
-            }
-        }
+        //         foreach(WorldDetails worldDetails in _platformService.ActiveWorlds.Values)
+        //             activeWorldNamesAndVersions.Add((worldDetails.Name, worldDetails.VersionNumber));
+
+        //         return activeWorldNamesAndVersions;
+        //     }
+        // }
 
         public void RequestInstanceAllocation(string worldName, string instanceSuffix)
         {
@@ -70,16 +82,12 @@ namespace VE2.PlatformNetworking
         public GlobalInfo GlobalInfo => _platformService.GlobalInfo;
         public event Action<GlobalInfo> OnGlobalInfoChanged { add => _platformService.OnGlobalInfoChanged += value; remove => _platformService.OnGlobalInfoChanged -= value; }
 
+        public string GameObjectName => gameObject.name;
+        public bool IsEnabled => enabled && gameObject.activeInHierarchy;
+        public string CurrentInstanceCode => throw new NotImplementedException();
         #endregion
 
         private PlatformService _platformService;
-
-
-        #region Shared Interfaces OLD
-        public string GameObjectName => gameObject.name;
-        public bool IsEnabled => enabled && gameObject.activeInHierarchy;
-        #endregion
-
 
         private void OnEnable() //TODO - handle reconnect
         {
@@ -100,7 +108,7 @@ namespace VE2.PlatformNetworking
             //Get customerLogin settings 
             //Get instance settings
             //InstanceService will also need those two, PLUS instance IP address settings
-            PlayerPresentationConfig playerPresentationConfig = PlayerLocator.Instance.PlayerSettingsHandler.PlayerPresentationConfig;
+            PlayerPresentationConfig playerPresentationConfig = PlayerLocator.Instance.PlayerService.PlayerPresentationConfig;
 
             //False if we're in the hub for the first time. 
             bool customerSettingsFound = true;
@@ -148,6 +156,21 @@ namespace VE2.PlatformNetworking
 
             //if (_platformService != null)
             //    _platformService.OnConnectedToServer -= HandlePlatformServiceReady;
+        }
+
+        void IPlatformServiceInternal.RequestInstanceAllocation(string worldName, string instanceSuffix)
+        {
+            throw new NotImplementedException();
+        }
+
+        ServerConnectionSettings IPlatformServiceInternal.GetInstanceServerSettingsForWorld(string worldName)
+        {
+            throw new NotImplementedException();
+        }
+
+        ServerConnectionSettings IPlatformServiceInternal.GetInstanceServerSettingsForCurrentWorld()
+        {
+            throw new NotImplementedException();
         }
     }
 
