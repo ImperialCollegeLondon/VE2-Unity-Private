@@ -9,7 +9,7 @@ using UnityEngine.SceneManagement;
 using VE2.Common;
 using VE2.NonCore.Platform.Private;
 using static VE2.Common.CommonSerializables;
-using static VE2.PlatformNetworking.PlatformSerializables;
+using static VE2.Platform.Internal.PlatformSerializables;
 
 namespace VE2.PlatformNetworking
 {

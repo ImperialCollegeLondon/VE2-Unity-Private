@@ -16,7 +16,7 @@ using VE2_NonCore_FileSystem_Interfaces_Internal;
 using VE2_NonCore_FileSystem;
 using VE2_NonCore_FileSystem_Interfaces_Common;
 using UnityEditor.Build.Reporting;
-using static NonCoreCommonSerializables;
+using static VE2.Platform.API.PlatformPublicSerializables;
 
 //TODO: Need to check for DLLs (rather than just assemblies) referenced the scene/scripts, and include them in the build. E.G Mathnet.Numerics.dll
 
@@ -108,7 +108,7 @@ class VE2PluginBuilderWindow : EditorWindow
         _sceneToExport = SceneManager.GetActiveScene();
         Debug.Log("OnEnable - " + _sceneToExport.name);
 
-        FTPNetworkSettings ftpNetworkSettings = new("13.87.84.200", 22, "ViRSE", "fwf3f3j21r3ed"); //TODO: Load in from SO
+        ServerConnectionSettings ftpNetworkSettings = new("ViRSE", "fwf3f3j21r3ed", "13.87.84.200", 22); //TODO: Load in from SO
 
         //TODO: maybe just the factory can move to the internal interface asmdef?
         _fileSystem = FileSystemServiceFactory.CreateFileStorageService(ftpNetworkSettings, $"VE2/Worlds/{_environmentType}");

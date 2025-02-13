@@ -7,9 +7,8 @@ using VE2.Core.VComponents.PluginInterfaces;
 
 namespace VE2.Core.VComponents.Integration
 {
-    public class V_HandheldAdjustable : MonoBehaviour, IV_HandheldAdjustable
+    public class V_HandheldAdjustable : VComponentBase, IV_HandheldAdjustable
     {
-
         [SerializeField, HideLabel, IgnoreParent] private HandheldAdjustableConfig _config = new();
         [SerializeField, HideInInspector] private AdjustableState _state = null;
 

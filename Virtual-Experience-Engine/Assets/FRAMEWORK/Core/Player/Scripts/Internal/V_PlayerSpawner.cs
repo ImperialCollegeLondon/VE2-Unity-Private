@@ -31,6 +31,9 @@ namespace VE2.Core.Player
 
         private void OnEnable() 
         {
+            if (PlayerLocator.Instance.PlayerSettingsHandler == null)
+                PlayerLocator.Instance.PlayerSettingsHandler = new GameObject("PlayerSettings").AddComponent<PlayerSettingsHandler>();
+
             if (!Application.isPlaying)
                 return;
 

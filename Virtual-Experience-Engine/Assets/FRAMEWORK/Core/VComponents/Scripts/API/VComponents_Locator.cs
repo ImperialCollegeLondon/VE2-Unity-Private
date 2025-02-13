@@ -14,12 +14,20 @@ public class VComponents_Locator : MonoBehaviour
             if (_instance == null)
                 _instance = FindFirstObjectByType<VComponents_Locator>();
 
-            if (_instance == null && !Application.isPlaying)
+            if (_instance == null)
                 _instance = new GameObject($"VComponents_Locator{SceneManager.GetActiveScene().name}").AddComponent<VComponents_Locator>();
 
             return _instance;
         }
     }
+
+    /*
+        How do we actually create the WorldStateModulesContainer?
+        We want to make sure we have a fresh one before the start of each scene 
+        But we can't reset it in awake
+
+        Shouldn't matter, its declared as = new();, so it should be fresh each time
+    */
 
     private void Awake()
     {

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using VE2.Common;
+using VE2.Platform.Internal;
 
 namespace VE2.PlatformNetworking
 {

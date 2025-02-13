@@ -9,7 +9,7 @@ using VE2.Core.VComponents.Internal;
 
 namespace VE2.Core.VComponents.Integration
 {
-    internal class V_ToggleActivatable : MonoBehaviour, IV_ToggleActivatable, IRangedPlayerInteractableIntegrator, ICollidePlayerInteractableIntegrator
+    internal class V_ToggleActivatable : VComponentBase, IV_ToggleActivatable, IRangedPlayerInteractableIntegrator, ICollidePlayerInteractableIntegrator
     {
         [SerializeField, HideLabel, IgnoreParent] private ToggleActivatableConfig _config = new(); 
         [SerializeField, HideInInspector] private SingleInteractorActivatableState _state = new();

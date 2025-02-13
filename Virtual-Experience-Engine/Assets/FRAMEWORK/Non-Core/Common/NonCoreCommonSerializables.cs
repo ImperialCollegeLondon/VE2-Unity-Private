@@ -123,61 +123,61 @@ public class NonCoreCommonSerializables
         }
     }
 
-    [Serializable]
-    public class FTPNetworkSettings : VE2Serializable
-    {
-#if UNITY_EDITOR
-        [SerializeField]
-#endif
-        public string IPAddress;
+//     [Serializable]
+//     public class FTPNetworkSettings : VE2Serializable
+//     {
+// #if UNITY_EDITOR
+//         [SerializeField]
+// #endif
+//         public string IPAddress;
 
-#if UNITY_EDITOR
-        [SerializeField]
-#endif
-        public string PortNumber;
+// #if UNITY_EDITOR
+//         [SerializeField]
+// #endif
+//         public string PortNumber;
 
-#if UNITY_EDITOR
-        [SerializeField]
-#endif
-        public string Username;
+// #if UNITY_EDITOR
+//         [SerializeField]
+// #endif
+//         public string Username;
 
-#if UNITY_EDITOR
-        [SerializeField]
-#endif
-        public string Password;
+// #if UNITY_EDITOR
+//         [SerializeField]
+// #endif
+//         public string Password;
 
-        public FTPNetworkSettings(string ip, ushort port, string username, string password)
-        {
-            IPAddress = ip;
-            PortNumber = port.ToString();
-            Username = username;
-            Password = password;
-        }
+//         public FTPNetworkSettings(string ip, ushort port, string username, string password)
+//         {
+//             IPAddress = ip;
+//             PortNumber = port.ToString();
+//             Username = username;
+//             Password = password;
+//         }
 
-        public FTPNetworkSettings(byte[] bytes) : base(bytes) { }
+//         public FTPNetworkSettings(byte[] bytes) : base(bytes) { }
 
-        protected override byte[] ConvertToBytes()
-        {
-            using MemoryStream stream = new();
-            using BinaryWriter writer = new(stream);
+//         protected override byte[] ConvertToBytes()
+//         {
+//             using MemoryStream stream = new();
+//             using BinaryWriter writer = new(stream);
 
-            writer.Write(IPAddress);
-            writer.Write(PortNumber);
-            writer.Write(Username);
-            writer.Write(Password);
+//             writer.Write(IPAddress);
+//             writer.Write(PortNumber);
+//             writer.Write(Username);
+//             writer.Write(Password);
 
-            return stream.ToArray();
-        }
+//             return stream.ToArray();
+//         }
 
-        protected override void PopulateFromBytes(byte[] bytes)
-        {
-            using MemoryStream stream = new(bytes);
-            using BinaryReader reader = new(stream);
+//         protected override void PopulateFromBytes(byte[] bytes)
+//         {
+//             using MemoryStream stream = new(bytes);
+//             using BinaryReader reader = new(stream);
 
-            IPAddress = reader.ReadString();
-            PortNumber = reader.ReadString();
-            Username = reader.ReadString();
-            Password = reader.ReadString();
-        }
-    }
+//             IPAddress = reader.ReadString();
+//             PortNumber = reader.ReadString();
+//             Username = reader.ReadString();
+//             Password = reader.ReadString();
+//         }
+//     }
 }

@@ -3,7 +3,7 @@ using UnityEngine;
 using VE2.Core;
 using VE2.NonCore.Platform.Private;
 using VE2.PlatformNetworking;
-using static VE2.PlatformNetworking.PlatformSerializables;
+using static VE2.Platform.Internal.PlatformSerializables;
 
 public class DebugHubUI : MonoBehaviour
 {
@@ -29,9 +29,7 @@ public class DebugHubUI : MonoBehaviour
         string availableWorldList = "";
 
         foreach (WorldDetails worldDetails in _platformService.ActiveWorlds.Values)
-        {
-            availableWorldList += $"{worldDetails.Name} - <i><color=yellow>{worldDetails.InstancingIPAddress}:{worldDetails.InstancingPortNumber}</color></i>\n";
-        }
+            availableWorldList += $"{worldDetails.Name} - <i><color=yellow>{_platformService.GetInstanceServerSettingsForWorld(worldDetails.Name)}</color></i>\n";
 
         instancesListText.text = availableWorldList;
     }

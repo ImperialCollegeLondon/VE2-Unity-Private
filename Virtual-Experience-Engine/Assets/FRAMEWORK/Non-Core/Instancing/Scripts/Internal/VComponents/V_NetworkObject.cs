@@ -18,6 +18,12 @@ namespace VE2.NonCore.Instancing.VComponents.MonoBehaviours
 
         private NetworkObjectService _service = null;
 
+        private void Reset()
+        {
+            //Kicks off the lazy init for the VCLocator instance
+            var reference = VComponents_Locator.Instance;
+        }
+
         private void OnEnable()
         {
             string id = "NetObj-" + gameObject.name;

@@ -10,7 +10,7 @@ using System.Collections.Generic;
 
 namespace VE2.Core.VComponents.Integration
 {
-    internal class V_FreeGrabbable : MonoBehaviour, IV_FreeGrabbable, IRangedGrabPlayerInteractableIntegrator
+    internal class V_FreeGrabbable : VComponentBase, IV_FreeGrabbable, IRangedGrabPlayerInteractableIntegrator
     {
         [SerializeField, HideLabel, IgnoreParent] private FreeGrabbableConfig _config = new();
         [SerializeField, HideInInspector] private FreeGrabbableState _state = new();

@@ -7,7 +7,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using VE2.NonCore.Platform.Private;
-using static VE2.PlatformNetworking.PlatformSerializables;
 
 namespace VE2.PlatformNetworking
 {

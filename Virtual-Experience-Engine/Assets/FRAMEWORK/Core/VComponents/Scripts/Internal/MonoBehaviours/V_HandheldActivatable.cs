@@ -7,7 +7,7 @@ using VE2.Core.VComponents.PluginInterfaces;
 
 namespace VE2.Core.VComponents.Integration
 {
-    public class V_HandheldActivatable : MonoBehaviour, IV_HandheldActivatable
+    public class V_HandheldActivatable : VComponentBase, IV_HandheldActivatable
     {
         [SerializeField, HideLabel, IgnoreParent] private HandheldActivatableConfig _config = new(); 
         [SerializeField, HideInInspector] private SingleInteractorActivatableState _state = new();        

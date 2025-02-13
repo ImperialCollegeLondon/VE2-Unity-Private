@@ -20,6 +20,7 @@ using static VE2.Common.CommonSerializables;
     This setter grabs the GO off the interface and stores it in a private serialized field 
     The Locator's private Player Property has a lazy getter that returns the stored GO's interface if null 
 
+    Yeah, lets reuse the outward facing interfaces on this PlayerLocator, "Facade Pattern"
 */
 public class PlayerLocator : MonoBehaviour
 {
@@ -106,8 +107,8 @@ public class PlayerLocator : MonoBehaviour
     {
         get
         {
-            if (_playerSettingsHandler == null && !string.IsNullOrEmpty(PlayerOverridesProviderGOName))
-                _playerSettingsHandler = GameObject.Find(PlayerOverridesProviderGOName)?.GetComponent<IPlayerSettingsHandler>();
+            if (_playerSettingsHandler == null && !string.IsNullOrEmpty(playerSettingsHandlerGOName))
+                _playerSettingsHandler = GameObject.Find(playerSettingsHandlerGOName)?.GetComponent<IPlayerSettingsHandler>();
 
             if (_playerSettingsHandler == null)
                 return null;
@@ -119,7 +120,7 @@ public class PlayerLocator : MonoBehaviour
             _playerSettingsHandler = value;
 
             if (value != null)
-                PlayerOverridesProviderGOName = value.GameObjectName;
+                playerSettingsHandlerGOName = value.GameObjectName;
         }
     }
 

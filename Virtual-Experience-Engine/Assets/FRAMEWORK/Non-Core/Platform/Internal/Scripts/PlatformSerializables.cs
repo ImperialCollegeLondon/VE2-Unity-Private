@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using static NonCoreCommonSerializables;
 using static VE2.Common.CommonSerializables;
-using static PlatformPublicSerializables;
+using static VE2.Platform.API.PlatformPublicSerializables;
 
 
 
@@ -13,7 +13,7 @@ using static PlatformPublicSerializables;
 using UnityEngine;
 #endif
 
-namespace VE2.PlatformNetworking
+namespace VE2.Platform.Internal
 {
     public class PlatformSerializables
     {
@@ -147,25 +147,25 @@ namespace VE2.PlatformNetworking
             public bool AuthSuccess { get; private set; }
             public ushort LocalClientID { get; private set; }
             public GlobalInfo GlobalInfo { get; private set; }
-            public Dictionary<string, WorldDetails> AvailableWorlds { get; private set; }
-            public FTPNetworkSettings WorldsStoreFTPNetworkSettings;
-            public string InactiveWorldsInstancingIPAddress { get; private set; }
-            public ushort InactiveWorldsInstancingPortNumber { get; private set; }
+            public Dictionary<string, WorldDetails> ActiveWorlds { get; private set; }
+            public ServerConnectionSettings WorldBuildsFTPServerSettings;
+            public ServerConnectionSettings DefaultWorldSubStoreFTPServerSettings;
+            public ServerConnectionSettings DefaultInstanceServerSettings;
 
             public ServerRegistrationResponse() { }
 
             public ServerRegistrationResponse(byte[] bytes) : base(bytes) { }
 
-            public ServerRegistrationResponse(bool authSuccess, ushort localClientID, GlobalInfo globalInfo, Dictionary<string, WorldDetails> availableWorlds, 
-                FTPNetworkSettings worldsStoreFTPNetworkSettings, string inactiveWorldsInstancingIPAddress, ushort inactiveWorldsInstancingPortNumber)
+            public ServerRegistrationResponse(bool authSuccess, ushort localClientID, GlobalInfo globalInfo, Dictionary<string, WorldDetails> availableWorlds,
+                ServerConnectionSettings worldBuildsFTPServerSettings, ServerConnectionSettings defaultWorldSubStoreFTPServerSettings, ServerConnectionSettings defaultInstanceServerSettings)
             {
-                authSuccess = AuthSuccess;
+                AuthSuccess = authSuccess;
                 LocalClientID = localClientID;
                 GlobalInfo = globalInfo;
-                AvailableWorlds = availableWorlds;
-                WorldsStoreFTPNetworkSettings = worldsStoreFTPNetworkSettings;
-                InactiveWorldsInstancingIPAddress = inactiveWorldsInstancingIPAddress;
-                InactiveWorldsInstancingPortNumber = inactiveWorldsInstancingPortNumber;
+                ActiveWorlds = availableWorlds;
+                WorldBuildsFTPServerSettings = worldBuildsFTPServerSettings;
+                DefaultWorldSubStoreFTPServerSettings = defaultWorldSubStoreFTPServerSettings;
+                DefaultInstanceServerSettings = defaultInstanceServerSettings;
             }
 
             protected override byte[] ConvertToBytes()
@@ -183,8 +183,8 @@ namespace VE2.PlatformNetworking
                 writer.Write((ushort)globalInfoBytes.Length);
                 writer.Write(globalInfoBytes);
 
-                writer.Write((ushort)AvailableWorlds.Count);
-                foreach (var kvp in AvailableWorlds)
+                writer.Write((ushort)ActiveWorlds.Count);
+                foreach (var kvp in ActiveWorlds)
                 {
                     writer.Write(kvp.Key);
                     byte[] worldDetailsBytes = kvp.Value.Bytes;
@@ -192,9 +192,18 @@ namespace VE2.PlatformNetworking
                     writer.Write(worldDetailsBytes);
                 }
 
-                byte[] worldsStoreFTPNetworkSettingsBytes = WorldsStoreFTPNetworkSettings.Bytes;
+                byte[] worldsStoreFTPNetworkSettingsBytes = WorldBuildsFTPServerSettings.Bytes;
                 writer.Write((ushort)worldsStoreFTPNetworkSettingsBytes.Length);
                 writer.Write(worldsStoreFTPNetworkSettingsBytes);
+
+
+                byte[] defaultWorldSubStoreFTPServerSettingsBytes = DefaultWorldSubStoreFTPServerSettings.Bytes;
+                writer.Write((ushort)defaultWorldSubStoreFTPServerSettingsBytes.Length);
+                writer.Write(defaultWorldSubStoreFTPServerSettingsBytes);
+
+                byte[] defaultInstanceServerSettingsBytes = DefaultInstanceServerSettings.Bytes;
+                writer.Write((ushort)defaultInstanceServerSettingsBytes.Length);
+                writer.Write(defaultInstanceServerSettingsBytes);
 
                 return stream.ToArray();
             }
@@ -210,24 +219,32 @@ namespace VE2.PlatformNetworking
 
                 LocalClientID = reader.ReadUInt16();
 
-                int globalInfoLength = reader.ReadUInt16();
+                ushort globalInfoLength = reader.ReadUInt16();
                 byte[] globalInfoBytes = reader.ReadBytes(globalInfoLength);
                 GlobalInfo = new GlobalInfo(globalInfoBytes);
 
-                int availableWorldsCount = reader.ReadUInt16();
-                AvailableWorlds = new Dictionary<string, WorldDetails>();
+                ushort availableWorldsCount = reader.ReadUInt16();
+                ActiveWorlds = new Dictionary<string, WorldDetails>();
                 for (int i = 0; i < availableWorldsCount; i++)
                 {
                     string key = reader.ReadString();
                     int worldDetailsLength = reader.ReadUInt16();
                     byte[] worldDetailsBytes = reader.ReadBytes(worldDetailsLength);
                     WorldDetails worldDetails = new WorldDetails(worldDetailsBytes);
-                    AvailableWorlds[key] = worldDetails;
+                    ActiveWorlds[key] = worldDetails;
                 }
 
-                ushort worldsStoreFTPNetworkSettingsLength = reader.ReadUInt16();
-                byte[] worldsStoreFTPNetworkSettingsBytes = reader.ReadBytes(worldsStoreFTPNetworkSettingsLength);
-                WorldsStoreFTPNetworkSettings = new FTPNetworkSettings(worldsStoreFTPNetworkSettingsBytes);
+                ushort worldBuildsFTPNetworkSettingsLength = reader.ReadUInt16();
+                byte[] worldsStoreFTPNetworkSettingsBytes = reader.ReadBytes(worldBuildsFTPNetworkSettingsLength);
+                WorldBuildsFTPServerSettings = new ServerConnectionSettings(worldsStoreFTPNetworkSettingsBytes);
+
+                ushort defaultWorldSubStoreFTPServerSettingsLength = reader.ReadUInt16();
+                byte[] defaultWorldSubStoreFTPServerSettingsBytes = reader.ReadBytes(defaultWorldSubStoreFTPServerSettingsLength);
+                DefaultWorldSubStoreFTPServerSettings = new ServerConnectionSettings(defaultWorldSubStoreFTPServerSettingsBytes);
+
+                ushort defaultInstanceServerSettingsLength = reader.ReadUInt16();
+                byte[] defaultInstanceServerSettingsBytes = reader.ReadBytes(defaultInstanceServerSettingsLength);
+                DefaultInstanceServerSettings = new ServerConnectionSettings(defaultWorldSubStoreFTPServerSettingsBytes);
             }
         }
 
@@ -241,21 +258,26 @@ namespace VE2.PlatformNetworking
 
         public class WorldDetails : VE2Serializable //TODO: We don't actually need to send this all via the interface, its just world names and versions we need 
         {
-            public string Name { get; private set; }
-            public int VersionNumber { get; private set; }
-            public string InstancingIPAddress { get; private set; }
-            public ushort InstancingPortNumber { get; private set; }
-            public FTPNetworkSettings WorldSubStoreFTPNetworkSettings { get; private set; }
+            //Note, these are public writable only so the JSON utility can write to them when reading the config file
+            public string Name;
+            public int VersionNumber;
+            public bool HasCustomFTPServer;
+            public ServerConnectionSettings CustomFTPServerSettings;
+            public bool HasCustomInstanceServer;
+            public ServerConnectionSettings CustomInstanceServerSettings;
+
+            public WorldDetails() { }
 
             public WorldDetails(byte[] bytes) : base(bytes) { }
 
-            public WorldDetails(string name, int versionNumber, string instancingIPAddress, ushort instancingPortNumber, FTPNetworkSettings worldSubStoreFTPNetworkSettings)
+            public WorldDetails(string name, int versionNumber, bool hasCustomFTPServerSettings, ServerConnectionSettings customFTPServerSettings, bool hasCustomInstanceServerSettings, ServerConnectionSettings customInstanceServerSettings)
             {
                 Name = name;
                 VersionNumber = versionNumber;
-                InstancingIPAddress = instancingIPAddress;
-                InstancingPortNumber = instancingPortNumber;
-                WorldSubStoreFTPNetworkSettings = worldSubStoreFTPNetworkSettings;
+                HasCustomFTPServer = hasCustomFTPServerSettings;
+                CustomFTPServerSettings = customFTPServerSettings;
+                HasCustomInstanceServer = hasCustomInstanceServerSettings;
+                CustomInstanceServerSettings = customInstanceServerSettings;
             }
 
 
@@ -264,14 +286,26 @@ namespace VE2.PlatformNetworking
                 using MemoryStream stream = new();
                 using BinaryWriter writer = new(stream);
 
+                Console.WriteLine("\n\nWrite world " + Name);
+
                 writer.Write(Name);
                 writer.Write(VersionNumber);
-                writer.Write(InstancingIPAddress);
-                writer.Write(InstancingPortNumber);
 
-                byte[] worldFTPNetworkSettingsBytes = WorldSubStoreFTPNetworkSettings.Bytes;
-                writer.Write((ushort)worldFTPNetworkSettingsBytes.Length);
-                writer.Write(worldFTPNetworkSettingsBytes);
+                writer.Write(HasCustomFTPServer);
+                if (HasCustomFTPServer)
+                {
+                    byte[] customFTPServerSettingsBytes = CustomFTPServerSettings.Bytes;
+                    writer.Write((ushort)customFTPServerSettingsBytes.Length);
+                    writer.Write(customFTPServerSettingsBytes);
+                }
+
+                writer.Write(HasCustomInstanceServer);
+                if (HasCustomInstanceServer)
+                {
+                    byte[] customInstanceServerSettingsBytes = CustomInstanceServerSettings.Bytes;
+                    writer.Write((ushort)customInstanceServerSettingsBytes.Length);
+                    writer.Write(customInstanceServerSettingsBytes);
+                }
 
                 return stream.ToArray();
             }
@@ -283,12 +317,23 @@ namespace VE2.PlatformNetworking
 
                 Name = reader.ReadString();
                 VersionNumber = reader.ReadInt32();
-                InstancingIPAddress = reader.ReadString();
-                InstancingPortNumber = reader.ReadUInt16();
 
-                ushort worldFTPNetworkSettingsLength = reader.ReadUInt16();
-                byte[] worldFTPNetworkSettingsBytes = reader.ReadBytes(worldFTPNetworkSettingsLength);
-                WorldSubStoreFTPNetworkSettings = new FTPNetworkSettings(worldFTPNetworkSettingsBytes);
+                HasCustomFTPServer = reader.ReadBoolean();
+                if (HasCustomFTPServer)
+                {
+                    ushort customFTPServerSettingsLength = reader.ReadUInt16();
+                    byte[] customFTPServerSettingsBytes = reader.ReadBytes(customFTPServerSettingsLength);
+                    CustomFTPServerSettings = new ServerConnectionSettings(customFTPServerSettingsBytes);
+                }
+
+                HasCustomInstanceServer = reader.ReadBoolean();
+                if (HasCustomInstanceServer)
+                {
+                    ushort customInstanceServerSettingsLength = reader.ReadUInt16();
+                    byte[] customInstanceServerSettingsBytes = reader.ReadBytes(customInstanceServerSettingsLength);
+                    CustomInstanceServerSettings = new ServerConnectionSettings(customInstanceServerSettingsBytes);
+                }
+
             }
         }
 

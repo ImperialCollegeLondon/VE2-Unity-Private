@@ -6,12 +6,13 @@ using System.Linq;
 using UnityEngine;
 using VE2_NonCore_FileSystem_Interfaces_Common;
 using static NonCoreCommonSerializables;
+using static VE2.Platform.API.PlatformPublicSerializables;
 
 namespace VE2_NonCore_FileSystem
 {
     public abstract class V_FileSystemIntegrationBase : MonoBehaviour
     {
-        [SerializeField, SpaceArea(spaceAfter: 10)] private FTPNetworkSettings ftpNetworkSettings;
+        [SerializeField, SpaceArea(spaceAfter: 10)] private ServerConnectionSettings ftpNetworkSettings;
 
 
         [SerializeField, IgnoreParent, BeginGroup("Remote File Tasks")] private List<RemoteFileTaskInfo> _queuedTasks = new(); 

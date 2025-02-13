@@ -8,17 +8,18 @@ using UnityEngine;
 using VE2_NonCore_FileSystem_Interfaces_Common;
 using VE2_NonCore_FileSystem_Interfaces_Internal;
 using static NonCoreCommonSerializables;
+using static VE2.Platform.API.PlatformPublicSerializables;
 
 namespace VE2_NonCore_FileSystem
 {
     public static class FileSystemServiceFactory
     {
-        public static FileSystemService CreateFileStorageService(FTPNetworkSettings ftpNetworkSettings, string workingPath)
+        public static FileSystemService CreateFileStorageService(ServerConnectionSettings ftpNetworkSettings, string workingPath)
         {
             string localWorkingPath = Application.persistentDataPath + "/files/" + workingPath; 
             string remoteWorkingPath = workingPath;
 
-            SftpClient sftpClient = new(ftpNetworkSettings.IPAddress, int.Parse(ftpNetworkSettings.PortNumber), ftpNetworkSettings.Username, ftpNetworkSettings.Password);
+            SftpClient sftpClient = new(ftpNetworkSettings.ServerAddress, (int)ftpNetworkSettings.ServerPort, ftpNetworkSettings.Username, ftpNetworkSettings.Password);
             FTPCommsHandler commsHandler = new(sftpClient);
             FTPService ftpService = new(commsHandler, remoteWorkingPath, localWorkingPath);
 

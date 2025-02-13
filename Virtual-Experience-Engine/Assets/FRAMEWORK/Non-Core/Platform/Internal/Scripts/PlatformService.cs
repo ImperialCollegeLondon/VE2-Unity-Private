@@ -7,9 +7,10 @@ using static NonCoreCommonSerializables;
 using UnityEngine.SceneManagement;
 using System.Linq;
 using VE2.PlatformNetworking;
-using static VE2.PlatformNetworking.PlatformSerializables;
 using static VE2.Common.CommonSerializables;
 using VE2.Common;
+using static VE2.Platform.Internal.PlatformSerializables;
+using static VE2.Platform.API.PlatformPublicSerializables;
 
 namespace VE2.NonCore.Platform.Private
 {
@@ -24,15 +25,23 @@ namespace VE2.NonCore.Platform.Private
         }
     }
 
-    //TODO, we might want to consider cutting down the duplicate code with the instance sync stuff
-    //Ehhh.. there's really not much duplicate code here, not sure we it's worth coupling these two things together
+    //So we need to expose this stuff to the hub... and we don't want the hub to live in the platform namespace, because then it gets pulled in by plugins 
+    //So PlatformService needs to implement two interface, IPlatformAPI and IPlatformAPIPrivate 
+    //Goes into ServiceLocator by IPlatformAPI
+    //The hub finds it, and casts it to IPlatformAPIPrivate 
+
     public class PlatformService //: IPlatformService
     {
         public ushort LocalClientID { get; private set; }
-        public string CurrentInstanceCode { get; private set; } //Remove, comes from settingshandler?
+        public string CurrentInstanceCode { get; private set; } //TODO: Remove, comes from settingshandler?
         public GlobalInfo GlobalInfo { get; private set; }
         public event Action<GlobalInfo> OnGlobalInfoChanged;
         public Dictionary<string, WorldDetails> ActiveWorlds { get; private set; }
+
+        private ServerConnectionSettings _worldBuildsFTPServerSettings;
+        private ServerConnectionSettings _defaultWorldSubStoreFTPServerSettings;
+        private ServerConnectionSettings __defaultInstancingServerSettings;
+
         public event Action<string> OnInstanceCodeChange;
 
         /*
@@ -65,6 +74,16 @@ namespace VE2.NonCore.Platform.Private
         {
             RequestInstanceAllocation("Hub", "Solo");
         }
+
+        public ServerConnectionSettings GetInstanceServerSettingsForWorld(string worldName)
+        {
+            if (ActiveWorlds == null || !ActiveWorlds.ContainsKey(worldName) || !ActiveWorlds[worldName].HasCustomInstanceServer)
+                return __defaultInstancingServerSettings;
+            else
+                return ActiveWorlds[worldName].CustomInstanceServerSettings;
+        }
+
+        public ServerConnectionSettings GetInstanceServerSettingsForCurrentWorld() => GetInstanceServerSettingsForWorld(SceneManager.GetActiveScene().name); //TODO: Should come from settings?
         #endregion
 
         private IPlatformCommsHandler _commsHandler;
@@ -121,8 +140,7 @@ namespace VE2.NonCore.Platform.Private
 
             LocalClientID = serverRegistrationConfirmation.LocalClientID;
             GlobalInfo = serverRegistrationConfirmation.GlobalInfo;
-
-            ActiveWorlds = serverRegistrationConfirmation.AvailableWorlds;
+            ActiveWorlds = serverRegistrationConfirmation.ActiveWorlds;
 
             IsConnectedToServer = true;
 
