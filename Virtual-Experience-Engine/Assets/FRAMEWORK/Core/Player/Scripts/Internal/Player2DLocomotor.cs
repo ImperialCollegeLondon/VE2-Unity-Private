@@ -3,7 +3,7 @@ using UnityEngine.InputSystem;
 
 namespace VE2.Core.Player
 {
-    public class Player2DLocomotor
+    internal class Player2DLocomotor
     {
         //TODO: make private, could be wired in via scriptable object?
         // Public variables
@@ -67,7 +67,7 @@ namespace VE2.Core.Player
         }
 
         //TODO: Wire in input
-        public Player2DLocomotor(Locomotor2DReferences locomotor2DReferences)
+        internal Player2DLocomotor(Locomotor2DReferences locomotor2DReferences)
         {
             _characterController = locomotor2DReferences.Controller;
             _verticalOffsetTransform = locomotor2DReferences.VerticalOffsetTransform;

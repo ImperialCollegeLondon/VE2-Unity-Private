@@ -29,7 +29,7 @@ namespace VE2.Core.VComponents.Tests
                 new FreeGrabbableConfig(),
                 new FreeGrabbableState(), 
                 "debug",
-                Substitute.For<WorldStateModulesContainer>(),
+                Substitute.For<IWorldStateSyncService>(),
                 interactorContainerStub,
                 Substitute.For<IRigidbodyWrapper>(), 
                 new PhysicsConstants());

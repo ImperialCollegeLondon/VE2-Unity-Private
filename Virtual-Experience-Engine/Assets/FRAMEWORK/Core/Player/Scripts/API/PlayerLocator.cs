@@ -22,13 +22,14 @@ using static VE2.Common.CommonSerializables;
 
     Yeah, lets reuse the outward facing interfaces on this PlayerLocator, "Facade Pattern"
 */
-public class PlayerLocator : MonoBehaviour
+public class PlayerLocator : MonoBehaviour //TODO: Can't GONames be private??
 {
     private static PlayerLocator _instance;
-    public static PlayerLocator Instance
+    private static PlayerLocator Instance
     { //Reload-proof singleton
         get
         {
+            //if we've moved to a different scene, this will be null, so we can find the locator for the new scene
             if (_instance == null)
                 _instance = FindFirstObjectByType<PlayerLocator>();
 
@@ -39,9 +40,49 @@ public class PlayerLocator : MonoBehaviour
         }
     }
 
+    public static IPlayerService Player => PlayerServiceProvider.PlayerService;
+
+    [SerializeField, HideInInspector] public string PlayerServiceProviderGOName;
+    private IPlayerServiceProvider _playerServiceProvder;
+    internal static IPlayerServiceProvider PlayerServiceProvider
+    {
+        get
+        {
+            Debug.Log("Get PlayerServiceProvider");
+
+            if (Instance._playerServiceProvder == null && !string.IsNullOrEmpty(Instance.PlayerServiceProviderGOName))
+                Instance._playerServiceProvder = GameObject.Find(Instance.PlayerServiceProviderGOName)?.GetComponent<IPlayerServiceProvider>();
+
+            return Instance._playerServiceProvder;
+        }
+        set //Will need to be called externally
+        {
+            Instance._playerServiceProvder = value;
+
+            if (value != null)
+                Instance.PlayerServiceProviderGOName = value.GameObjectName;
+        }
+    }
+
+    // #region player interfaces
+    // public static event Action<PlayerPresentationConfig> OnPlayerPresentationConfigChanged {
+    //     add 
+    //     {
+    //         PlayerServiceProvider.PlayerService.OnPlayerPresentationConfigChanged += value;
+    //     } 
+    //     remove 
+    //     {
+    //         PlayerServiceProvider.PlayerService.OnPlayerPresentationConfigChanged -= value;
+    //     }
+    // }
+    // public static PlayerPresentationConfig PlayerPresentationConfig => PlayerServiceProvider.PlayerService.PlayerPresentationConfig;
+    // public static bool VRModeActive => PlayerServiceProvider.PlayerService.VRModeActive;
+    // #endregion
+
+
     //TODO: Don't expose this publicly - it's only the player that needs it(?)
     private IInputHandler _inputHandler;
-    public IInputHandler InputHandler //Returns the default InputHandler 
+    internal static IInputHandler InputHandler //Returns the default InputHandler 
     {
         get
         {
@@ -51,78 +92,62 @@ public class PlayerLocator : MonoBehaviour
                 return null;
             }
                 
-            _inputHandler ??= FindFirstObjectByType<InputHandler>();
-            _inputHandler ??= new GameObject("V_InputHandler").AddComponent<InputHandler>();
-            return _inputHandler;
+            Instance._inputHandler ??= FindFirstObjectByType<InputHandler>();
+            Instance._inputHandler ??= new GameObject("V_InputHandler").AddComponent<InputHandler>();
+            return Instance._inputHandler;
         }
     }
 
-    [SerializeField, HideInInspector] public string PlayerServiceGOName;
-    private IPlayerService _playerService;
-    public IPlayerService PlayerService
-    {
-        get
-        {
-            if (_playerService == null && !string.IsNullOrEmpty(PlayerServiceGOName))
-                _playerService = GameObject.Find(PlayerServiceGOName)?.GetComponent<IPlayerService>();
+    // [SerializeField, HideInInspector] public string PlayerServiceGOName;
+    // private IPlayerService _playerService;
+    // public IPlayerService PlayerService
+    // {
+    //     get
+    //     {
+    //         if (_playerService == null && !string.IsNullOrEmpty(PlayerServiceGOName))
+    //             _playerService = GameObject.Find(PlayerServiceGOName)?.GetComponent<IPlayerService>();
 
-            return _playerService;
-        }
-        set //Will need to be called externally
-        {
-            _playerService = value;
+    //         return _playerService;
+    //     }
+    //     set //Will need to be called externally
+    //     {
+    //         _playerService = value;
 
-            if (value != null)
-                PlayerServiceGOName = value.GameObjectName;
-        }
-    }
+    //         if (value != null)
+    //             PlayerServiceGOName = value.GameObjectName;
+    //     }
+    // }
 
     //TODO: Remove this - can just live on the V_PlayerSpawner inspector, no need for a separate mono
-    [SerializeField, HideInInspector] public string PlayerOverridesProviderGOName;
-    private IPlayerAppearanceOverridesProvider _playerOverridesProvider;
-    public IPlayerAppearanceOverridesProvider PlayerAppearanceOverridesProvider
-    {
-        get
-        {
-            if (_playerOverridesProvider == null && !string.IsNullOrEmpty(PlayerOverridesProviderGOName))
-                _playerOverridesProvider = GameObject.Find(PlayerOverridesProviderGOName)?.GetComponent<IPlayerAppearanceOverridesProvider>();
 
-            if (_playerOverridesProvider == null || !_playerOverridesProvider.IsEnabled)
-                return null;
-            else
-                return _playerOverridesProvider;
-        }
-        set //Will need to be called externally
-        {
-            _playerOverridesProvider = value;
+    public static bool HasMultiPlayerSupport => LocalClientIDProviderProvider != null;
+    internal ILocalClientIDProvider WorldStateSyncService => LocalClientIDProviderProvider.LocalClientIDProvider;
 
-            if (value != null)
-                PlayerOverridesProviderGOName = value.GameObjectName;
-        }
-    }
-
-    [SerializeField, HideInInspector] public string playerSyncerGameObjectName;
-    private IPlayerSyncer _playerSyncer;
-    public IPlayerSyncer PlayerSyncer{
+    [SerializeField, HideInInspector] public string _playerSyncProviderGOName;
+    private ILocalClientIDProviderProvider _playerSyncProvider;
+    internal static ILocalClientIDProviderProvider LocalClientIDProviderProvider{
         get 
         {
-            if (_playerSyncer == null && !string.IsNullOrEmpty(playerSyncerGameObjectName))
-                _playerSyncer = GameObject.Find(playerSyncerGameObjectName)?.GetComponent<IPlayerSyncer>();
+            if (Instance._playerSyncProvider == null && !string.IsNullOrEmpty(Instance._playerSyncProviderGOName))
+                Instance._playerSyncProvider = GameObject.Find(Instance._playerSyncProviderGOName)?.GetComponent<ILocalClientIDProviderProvider>();
 
-            return _playerSyncer;
+            return Instance._playerSyncProvider;
         }
         set
         {
-            _playerSyncer = value;
+            Instance._playerSyncProvider = value;
 
             if (value != null)
-                playerSyncerGameObjectName = value.GameObjectName;
+                Instance._playerSyncProviderGOName = value.GameObjectName;
         }
     }
 
 
-    public PlayerStateModuleContainer PlayerStateModuleContainer { get; private set; } = new();
-    public InteractorContainer InteractorContainer { get; private set; } = new();
+    // private PlayerStateModuleContainer _playerStateModuleContainer = new();
+    // public static PlayerStateModuleContainer PlayerStateModuleContainer { get => Instance._playerStateModuleContainer; private set => Instance._playerStateModuleContainer = value; }
+
+    private InteractorContainer _interactorContainer = new();
+    public static InteractorContainer InteractorContainer { get => Instance._interactorContainer; private set => Instance._interactorContainer = value; }
 
     private void Awake()
     {
@@ -133,31 +158,31 @@ public class PlayerLocator : MonoBehaviour
 
     private void OnDestroy()
     {
-        PlayerStateModuleContainer.Reset();
+        //PlayerStateModuleContainer.Reset();
         InteractorContainer.Reset();
     }
 }
 
-public class PlayerStateModuleContainer : BaseStateModuleContainer
-{
-    public IPlayerStateModule PlayerStateModule { get; private set; }
-    public event Action<IPlayerStateModule> OnPlayerStateModuleRegistered;
-    public event Action<IPlayerStateModule> OnPlayerStateModuleDeregistered;
+// public class PlayerStateModuleContainer : BaseStateModuleContainer
+// {
+//     public IPlayerStateModule PlayerStateModule { get; private set; }
+//     public event Action<IPlayerStateModule> OnPlayerStateModuleRegistered;
+//     public event Action<IPlayerStateModule> OnPlayerStateModuleDeregistered;
 
-    public override void RegisterStateModule(IBaseStateModule moduleBase)
-    {
-        PlayerStateModule = (IPlayerStateModule)moduleBase;
-        OnPlayerStateModuleRegistered?.Invoke(PlayerStateModule);
-    }
+//     public override void RegisterStateModule(IBaseStateModule moduleBase)
+//     {
+//         PlayerStateModule = (IPlayerStateModule)moduleBase;
+//         OnPlayerStateModuleRegistered?.Invoke(PlayerStateModule);
+//     }
 
-    public override void DeregisterStateModule(IBaseStateModule moduleBase)
-    {
-        PlayerStateModule = null;
-        OnPlayerStateModuleDeregistered?.Invoke((IPlayerStateModule)moduleBase);
-    }
+//     public override void DeregisterStateModule(IBaseStateModule moduleBase)
+//     {
+//         PlayerStateModule = null;
+//         OnPlayerStateModuleDeregistered?.Invoke((IPlayerStateModule)moduleBase);
+//     }
 
-    public override void Reset() => PlayerStateModule = null;
-}
+//     public override void Reset() => PlayerStateModule = null;
+// }
 
 public class InteractorContainer
 {

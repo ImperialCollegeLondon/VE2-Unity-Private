@@ -11,7 +11,7 @@ using static VE2.Common.CommonSerializables;
 namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
-    public class FreeGrabbableStateConfig : BaseStateConfig
+    public class FreeGrabbableStateConfig : BaseWorldStateConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Grab State Settings", ApplyCondition = true)]
@@ -40,9 +40,9 @@ namespace VE2.Core.VComponents.Internal
         internal event Action OnGrabConfirmed;
         internal event Action OnDropConfirmed;
 
-        public FreeGrabbableStateModule(VE2Serializable state, BaseStateConfig config, string id, 
-            WorldStateModulesContainer worldStateModulesContainer, InteractorContainer interactorContainer, IRangedGrabInteractionModule rangedGrabInteractionModule) : 
-            base(state, config, id, worldStateModulesContainer)
+        public FreeGrabbableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, 
+            IWorldStateSyncService worldStateSyncService, InteractorContainer interactorContainer, IRangedGrabInteractionModule rangedGrabInteractionModule) : 
+            base(state, config, id, worldStateSyncService)
         {
             _interactorContainer = interactorContainer;
             _rangedGrabInteractionModule = rangedGrabInteractionModule;

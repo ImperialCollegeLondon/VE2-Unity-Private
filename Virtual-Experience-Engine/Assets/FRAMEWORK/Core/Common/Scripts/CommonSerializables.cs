@@ -304,17 +304,17 @@ namespace VE2.Common //TODO - Need to expose to customer
 
                 //TODO: Should live in Player API?
                 [Serializable]
-                public class AvatarAppearance : VE2Serializable
+                public class OverridableAvatarAppearance : VE2Serializable
                 {
                         public PlayerPresentationConfig PresentationConfig { get; set; }
                         public AvatarAppearanceOverrideType HeadOverrideType { get; set; }
                         public AvatarAppearanceOverrideType TorsoOverrideType { get; set; }
 
-                        public AvatarAppearance() { }
+                        public OverridableAvatarAppearance() { }
 
-                        public AvatarAppearance(byte[] bytes) : base(bytes) { }
+                        public OverridableAvatarAppearance(byte[] bytes) : base(bytes) { }
 
-                        public AvatarAppearance(PlayerPresentationConfig presentationConfig, AvatarAppearanceOverrideType headOverrideType, AvatarAppearanceOverrideType torsoOverrideType)
+                        public OverridableAvatarAppearance(PlayerPresentationConfig presentationConfig, AvatarAppearanceOverrideType headOverrideType, AvatarAppearanceOverrideType torsoOverrideType)
                         {
                                 PresentationConfig = presentationConfig;
                                 HeadOverrideType = headOverrideType;
@@ -351,7 +351,7 @@ namespace VE2.Common //TODO - Need to expose to customer
 
                         public override bool Equals(object obj)
                         {
-                                if (obj is AvatarAppearance other)
+                                if (obj is OverridableAvatarAppearance other)
                                 {
                                         return PresentationConfig.Equals(other.PresentationConfig) &&
                                                HeadOverrideType == other.HeadOverrideType &&

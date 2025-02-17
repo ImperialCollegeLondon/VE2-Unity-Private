@@ -1,15 +1,28 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+using VE2.Common;
 using static VE2.Common.CommonSerializables;
 
 internal interface IPlayerServiceInternal : IPlayerService
 {
     public bool RememberPlayerSettings { get; set; }
 
+    public PlayerTransformData PlayerTransformData { get; }
+
     /// <summary>
     /// call MarkPlayerSettingsUpdated after modifying this property
     /// </summary>
-    public PlayerPresentationConfig PlayerPresentationConfig { set; }
-
+    public OverridableAvatarAppearance OverridableAvatarAppearance { get; }
     public void MarkPlayerSettingsUpdated() { }
+    public event Action<OverridableAvatarAppearance> OnOverridableAvatarAppearanceChanged;
+
+    // public GameObject GetHeadOverrideGameObjectForIndex(AvatarAppearanceOverrideType index);
+    // public GameObject GetTorsoOverrideGameObjectForIndex(AvatarAppearanceOverrideType index);
+
+    public List<GameObject> HeadOverrideGOs { get; }
+    public List<GameObject> TorsoOverrideGOs { get; }
+
+    public TransmissionProtocol TransmissionProtocol { get; }
+    public float TransmissionFrequency { get; }
 }

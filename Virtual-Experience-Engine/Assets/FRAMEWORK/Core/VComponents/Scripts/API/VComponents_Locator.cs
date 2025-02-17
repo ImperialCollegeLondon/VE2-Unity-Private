@@ -7,7 +7,7 @@ using VE2.Common;
 public class VComponents_Locator : MonoBehaviour
 {
     private static VComponents_Locator _instance;
-    public static VComponents_Locator Instance
+    private static VComponents_Locator Instance
     { //Reload-proof singleton
         get
         {
@@ -21,13 +21,36 @@ public class VComponents_Locator : MonoBehaviour
         }
     }
 
-    /*
-        How do we actually create the WorldStateModulesContainer?
-        We want to make sure we have a fresh one before the start of each scene 
-        But we can't reset it in awake
+    public static bool HasMultiPlayerSupport => WorldStateSyncProvider != null;
+    public static IWorldStateSyncService WorldStateSyncService => WorldStateSyncProvider?.WorldStateSyncService;
 
-        Shouldn't matter, its declared as = new();, so it should be fresh each time
-    */
+    [SerializeField, HideInInspector] public string _worldStateSyncProviderGOName;
+    private IWorldStateSyncProvider _worldStateSyncProvider;
+    internal static IWorldStateSyncProvider WorldStateSyncProvider {
+        get 
+        {
+            if (Instance._worldStateSyncProvider == null && !string.IsNullOrEmpty(Instance._worldStateSyncProviderGOName))
+                Instance._worldStateSyncProvider = GameObject.Find(Instance._worldStateSyncProviderGOName)?.GetComponent<IWorldStateSyncProvider>();
+
+            return Instance._worldStateSyncProvider;
+        }
+        set
+        {
+            Instance._worldStateSyncProvider = value;
+
+            if (value != null)
+                Instance._worldStateSyncProviderGOName = value.GameObjectName;
+        }
+    }
+
+    //Should store a provider 
+    //Expose the IPlayerSyncService through that the provider 
+    //That has the IPlayerSyncService interface (pipes through the InstanceService)
+    //IPlayerSyncService has the IsConnected and OnConnected, LocalClientID, and (De/)RegisterLocalPlayer 
+    //IWorldStateSyncService has just (De/)RegisterWorldStateModule
+    //Theres also IInstanceService, which has IsHost, OnBecomeHost, LocalClientID
+    //There's also also InstanceServiceInternal could just live internally
+    //ALL THE THINGS ARE SYNCRONOUS!! Order of execution shouldn't matter
 
     private void Awake()
     {
@@ -36,15 +59,11 @@ public class VComponents_Locator : MonoBehaviour
         gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
     }
 
-    private void OnDestroy()
-    {
-        WorldStateModulesContainer.Reset();
-    }
+    // private void OnDestroy()
+    // {
+    //     WorldStateModulesContainer.Reset();
+    // }
 
-    public WorldStateModulesContainer WorldStateModulesContainer { get; private set; } = new();
-
-    public void SetWorldStateModulesContainer(WorldStateModulesContainer worldStateModulesContainer) //TODO: what's this doing? Testing? If so, should be internal?
-    {
-        WorldStateModulesContainer = worldStateModulesContainer;
-    }
+    // private WorldStateModulesContainer _worldStateModulesContainer = new();
+    // public static WorldStateModulesContainer WorldStateModulesContainer { get => Instance._worldStateModulesContainer; private set => Instance._worldStateModulesContainer = value; } //TODO: Internal
 }

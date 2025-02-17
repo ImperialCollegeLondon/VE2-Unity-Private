@@ -6,7 +6,7 @@ using VE2.Core.Common;
 
 namespace VE2.Core.Player
 {
-    public class V_HandController //TODO: Where does snap turn go? Maybe just in here?
+    internal class V_HandController //TODO: Where does snap turn go? Maybe just in here?
     {
         public Transform GrabberTransform => _interactor.GrabberTransform;
 
@@ -17,7 +17,7 @@ namespace VE2.Core.Player
         private readonly DragLocomotor _dragLocomotor;
         private List<Material> _colorMaterials = new();
 
-        public V_HandController(GameObject handGO, HandVRInputContainer handVRInputContainer, InteractorVR interactor, DragLocomotor dragLocomotor)
+        internal V_HandController(GameObject handGO, HandVRInputContainer handVRInputContainer, InteractorVR interactor, DragLocomotor dragLocomotor)
         {
             _handGO = handGO;
             _colorMaterials = CommonUtils.GetAvatarColorMaterialsForGameObject(handGO);

@@ -22,8 +22,8 @@ public class PlayerAndHandheldAdjustableTests
         //Create an ID
         System.Random random = new();
         ushort localClientID = (ushort)random.Next(0, ushort.MaxValue);
-        IPlayerSyncer playerSyncerStub = Substitute.For<IPlayerSyncer>();
-        playerSyncerStub.IsConnectedToServer.Returns(true);
+        ILocalClientIDProvider playerSyncerStub = Substitute.For<ILocalClientIDProvider>();
+        playerSyncerStub.IsClientIDReady.Returns(true);
         playerSyncerStub.LocalClientID.Returns(localClientID);
 
         InteractorID interactorID = new(localClientID, InteractorType.Mouse2D);
@@ -39,7 +39,7 @@ public class PlayerAndHandheldAdjustableTests
         handheldAdjustableConfig.StateConfig.MaximumValue = random.Next(0, 100);
         handheldAdjustableConfig.StateConfig.MinimumValue = random.Next(-100, 0);
 
-        HandheldAdjustableService handheldAdjustable = new(handheldAdjustableConfig, new AdjustableState(), "debug", Substitute.For<WorldStateModulesContainer>());
+        HandheldAdjustableService handheldAdjustable = new(handheldAdjustableConfig, new AdjustableState(), "debug", Substitute.For<IWorldStateSyncService>());
 
         V_HandheldAdjustableStub v_handheldAdjustableStub = new(handheldAdjustable);
 
@@ -51,7 +51,7 @@ public class PlayerAndHandheldAdjustableTests
         new FreeGrabbableConfig(),
         new FreeGrabbableState(),
         "debug",
-        Substitute.For<WorldStateModulesContainer>(),
+        Substitute.For<IWorldStateSyncService>(),
         interactorContainerStub,
         Substitute.For<IRigidbodyWrapper>(),
         new PhysicsConstants());
@@ -80,13 +80,9 @@ public class PlayerAndHandheldAdjustableTests
         //Create the player (2d)
         PlayerService playerService = new(
             new PlayerTransformData(),
-            new PlayerStateConfig(),
-            false,
-            true,
-            new PlayerStateModuleContainer(),
+            new PlayerConfig(),
             interactorContainerStub,
-            playerSettingsProviderStub,
-            Substitute.For<IPlayerAppearanceOverridesProvider>(),
+            Substitute.For<IPlayerSettingsHandler>(),
             playerSyncerStub,
             playerInputContainerStubWrapper.PlayerInputContainer,
             raycastProviderStub,

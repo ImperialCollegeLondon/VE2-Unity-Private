@@ -24,9 +24,9 @@ namespace VE2.Core.Tests
             //Create an ID
             System.Random random = new();
             ushort localClientID = (ushort)random.Next(0, ushort.MaxValue);
-            IPlayerSyncer multiplayerSupportStub = Substitute.For<IPlayerSyncer>();
-            multiplayerSupportStub.IsConnectedToServer.Returns(true);
-            multiplayerSupportStub.LocalClientID.Returns(localClientID);
+            ILocalClientIDProvider localClientProviderStub = Substitute.For<ILocalClientIDProvider>();
+            localClientProviderStub.IsClientIDReady.Returns(true);
+            localClientProviderStub.LocalClientID.Returns(localClientID);
             
             InteractorID interactorID = new(localClientID, InteractorType.Mouse2D);
             IInteractor interactorStub = Substitute.For<IInteractor>();
@@ -38,7 +38,7 @@ namespace VE2.Core.Tests
                 new FreeGrabbableConfig(),
                 new FreeGrabbableState(), 
                 "debug",
-                Substitute.For<WorldStateModulesContainer>(),
+                Substitute.For<IWorldStateSyncService>(),
                 interactorContainerStub,
                 Substitute.For<IRigidbodyWrapper>(), 
                 new PhysicsConstants());
@@ -64,21 +64,17 @@ namespace VE2.Core.Tests
                 .Raycast(default, default, default, default)
                 .ReturnsForAnyArgs(new RaycastResultWrapper(grabbablePlayerInterface, null, 0));
 
-            //Create the player (2d)
-            PlayerService playerService = new(
-                new PlayerTransformData(),
-                new PlayerStateConfig(),
-                false,
-                true,
-                new PlayerStateModuleContainer(),
-                interactorContainerStub,
-                playerSettingsProviderStub,
-                Substitute.For<IPlayerAppearanceOverridesProvider>(),
-                multiplayerSupportStub,
-                playerInputContainerStubWrapper.PlayerInputContainer,
-                raycastProviderStub, 
-                Substitute.For<IXRManagerWrapper>()
-            );
+        //Create the player (2d)
+        PlayerService playerService = new(
+            new PlayerTransformData(),
+            new PlayerConfig(),
+            interactorContainerStub,
+            Substitute.For<IPlayerSettingsHandler>(),
+            localClientProviderStub,
+            playerInputContainerStubWrapper.PlayerInputContainer,
+            raycastProviderStub,
+            Substitute.For<IXRManagerWrapper>()
+        );
 
             //Wire up the customer script to receive the events
             PluginGrabbableScript pluginScript = Substitute.For<PluginGrabbableScript>();

@@ -15,7 +15,7 @@ namespace VE2.Core.VComponents.Tests
         [Test]
         public void HandheldAdjustable_WhenAdjustedByPlugin_EmitsToPlugin()
         {
-            HandheldAdjustableService handheldAdjustable = new(new HandheldAdjustableConfig(), new AdjustableState(), "debug", Substitute.For<WorldStateModulesContainer>());
+            HandheldAdjustableService handheldAdjustable = new(new HandheldAdjustableConfig(), new AdjustableState(), "debug", Substitute.For<IWorldStateSyncService>());
 
             V_HandheldAdjustableStub v_adjustableStub = new(handheldAdjustable);
 

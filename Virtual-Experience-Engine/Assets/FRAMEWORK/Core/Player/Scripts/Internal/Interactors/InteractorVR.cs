@@ -5,7 +5,7 @@ using VE2.Core.Player;
 using VE2.Core.Player.InteractionFinders;
 using VE2.Core.VComponents.InteractableInterfaces;
 
-public class InteractorVR : PointerInteractor
+internal class InteractorVR : PointerInteractor
 {
     private readonly V_CollisionDetector _collisionDetector;
     private readonly GameObject _handVisualGO;
@@ -14,8 +14,8 @@ public class InteractorVR : PointerInteractor
     private readonly ColorConfiguration _colorConfig;
     private const float LINE_EMISSION_INTENSITY = 15;
 
-    public InteractorVR(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
-        InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, IPlayerSyncer multiplayerSupport) :
+    internal InteractorVR(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
+        InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, ILocalClientIDProvider multiplayerSupport) :
         base(interactorContainer, interactorInputContainer,
             interactorReferences, interactorType, raycastProvider, multiplayerSupport)
     {
@@ -47,13 +47,13 @@ public class InteractorVR : PointerInteractor
 
     private void HandleCollideStart(ICollideInteractionModule collideInteractionModule)
     {
-        if (!_WaitingForMultiplayerSupport && !collideInteractionModule.AdminOnly)
+        if (!_WaitingForLocalClientID && !collideInteractionModule.AdminOnly)
             collideInteractionModule.InvokeOnCollideEnter(_InteractorID.ClientID);
     }
 
     private void HandleCollideEnd(ICollideInteractionModule collideInteractionModule)
     {
-        if (!_WaitingForMultiplayerSupport && !collideInteractionModule.AdminOnly)
+        if (!_WaitingForLocalClientID && !collideInteractionModule.AdminOnly)
             collideInteractionModule.InvokeOnCollideExit(_InteractorID.ClientID);
     }
 

@@ -4,7 +4,7 @@ using VE2.Core.Player.InteractionFinders;
 
 namespace VE2.Core.Player
 {
-    public class V_HandVRReferences : MonoBehaviour
+    internal class V_HandVRReferences : MonoBehaviour
     {
         public InteractorVRReferences InteractorVRReferences => _interactorVRReferences;
         [SerializeField] private InteractorVRReferences _interactorVRReferences;
@@ -17,7 +17,7 @@ namespace VE2.Core.Player
     }
 
 [Serializable]
-    public class InteractorVRReferences : InteractorReferences
+    internal class InteractorVRReferences : InteractorReferences
     {
         public LineRenderer LineRenderer => _lineRenderer;
         [SerializeField, IgnoreParent] private LineRenderer _lineRenderer;

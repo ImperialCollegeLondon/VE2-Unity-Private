@@ -244,13 +244,13 @@ public class InstanceSyncSerializables
     public class AvatarAppearanceWrapper : VE2Serializable
     {
         public bool UsingViRSEPlayer;
-        public AvatarAppearance ViRSEAvatarAppearance;
+        public OverridableAvatarAppearance ViRSEAvatarAppearance;
 
         public AvatarAppearanceWrapper() { }
 
         public AvatarAppearanceWrapper(byte[] bytes) : base(bytes) { }
 
-        public AvatarAppearanceWrapper(bool usingViRSEAvatar, AvatarAppearance virseAvatarAppearance)
+        public AvatarAppearanceWrapper(bool usingViRSEAvatar, OverridableAvatarAppearance virseAvatarAppearance)
         {
             UsingViRSEPlayer = usingViRSEAvatar;
             ViRSEAvatarAppearance = virseAvatarAppearance;

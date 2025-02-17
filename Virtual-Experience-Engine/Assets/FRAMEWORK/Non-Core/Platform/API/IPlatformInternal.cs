@@ -5,13 +5,20 @@ using static VE2.Platform.API.PlatformPublicSerializables;
 internal interface IPlatformServiceInternal : IPlatformService
 {
     //public List<(string, int)> ActiveWorldsNamesAndVersions { get; }
+    public ushort LocalClientID { get; }
+    public bool IsAuthFailed { get; }
+    public event Action OnAuthFailed;
+    public GlobalInfo GlobalInfo { get; }
+    public event Action<GlobalInfo> OnGlobalInfoChanged;
+
     public Dictionary<string, WorldDetails> ActiveWorlds { get; }
 
     public void RequestInstanceAllocation(string worldName, string instanceSuffix);
 
-    internal ServerConnectionSettings GetInstanceServerSettingsForWorld(string worldName);
+    public ServerConnectionSettings GetInstanceServerSettingsForWorld(string worldName);
 
-    internal ServerConnectionSettings GetInstanceServerSettingsForCurrentWorld();
+    public ServerConnectionSettings GetInstanceServerSettingsForCurrentWorld();
+
 }
 
 /*

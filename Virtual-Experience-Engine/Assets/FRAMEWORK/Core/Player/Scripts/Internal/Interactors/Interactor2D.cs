@@ -5,13 +5,13 @@ using VE2.Core.Common;
 
 namespace VE2.Core.Player
 {
-    public class Interactor2D : PointerInteractor
+    internal class Interactor2D : PointerInteractor
     {
         private readonly Image _reticuleImage;
         private readonly ColorConfiguration _colorConfig;
 
-        public Interactor2D(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
-            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, IPlayerSyncer playerSyncer) : 
+        internal Interactor2D(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
+            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, ILocalClientIDProvider playerSyncer) : 
             base(interactorContainer, interactorInputContainer,
                 interactorReferences, interactorType, raycastProvider, playerSyncer)   
         {

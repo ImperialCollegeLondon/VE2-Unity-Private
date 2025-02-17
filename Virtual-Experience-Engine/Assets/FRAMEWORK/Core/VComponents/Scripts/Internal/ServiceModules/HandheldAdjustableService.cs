@@ -42,9 +42,9 @@ namespace VE2.Core.VComponents.Internal
 
         private readonly HandheldAdjustableServiceConfig  _handheldAdjustableServiceConfig;
 
-        public HandheldAdjustableService(HandheldAdjustableConfig config, VE2Serializable state, string id, WorldStateModulesContainer worldStateModulesContainer)
+        public HandheldAdjustableService(HandheldAdjustableConfig config, VE2Serializable state, string id, IWorldStateSyncService worldStateSyncService)
         {
-            _StateModule = new(state, config.StateConfig, id, worldStateModulesContainer);
+            _StateModule = new(state, config.StateConfig, id, worldStateSyncService);
             _HandheldScrollInteractionModule = new(config.GeneralInteractionConfig);
 
             _handheldAdjustableServiceConfig = config.HandheldAdjustableServiceConfig;

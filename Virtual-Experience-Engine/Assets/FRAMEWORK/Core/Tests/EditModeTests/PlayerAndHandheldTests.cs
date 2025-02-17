@@ -23,9 +23,9 @@ namespace VE2.Core.Tests
             //Create an ID
             System.Random random = new();
             ushort localClientID = (ushort)random.Next(0, ushort.MaxValue);
-            IPlayerSyncer playerSyncerStub = Substitute.For<IPlayerSyncer>();
-            playerSyncerStub.IsConnectedToServer.Returns(true);
-            playerSyncerStub.LocalClientID.Returns(localClientID);
+            ILocalClientIDProvider localClientIDProviderStub = Substitute.For<ILocalClientIDProvider>();
+            localClientIDProviderStub.IsClientIDReady.Returns(true);
+            localClientIDProviderStub.LocalClientID.Returns(localClientID);
 
             InteractorID interactorID = new(localClientID, InteractorType.Mouse2D);
             IInteractor interactorStub = Substitute.For<IInteractor>();
@@ -33,7 +33,7 @@ namespace VE2.Core.Tests
             interactorContainerStub.RegisterInteractor(interactorID.ToString(), interactorStub);
 
             //Create the activatable with default values
-            HandheldActivatableService handheldActivatable = new(new HandheldActivatableConfig(), new SingleInteractorActivatableState(), "debug", Substitute.For<WorldStateModulesContainer>());
+            HandheldActivatableService handheldActivatable = new(new HandheldActivatableConfig(), new SingleInteractorActivatableState(), "debug", Substitute.For<IWorldStateSyncService>());
 
             //Stub out the VC (integration layer) with the activatable
             V_HandheldActivatableStub v_handheldActivatableStub = new(handheldActivatable);
@@ -47,7 +47,7 @@ namespace VE2.Core.Tests
                 new FreeGrabbableConfig(),
                 new FreeGrabbableState(),
                 "debug",
-                Substitute.For<WorldStateModulesContainer>(),
+                Substitute.For<IWorldStateSyncService>(),
                 interactorContainerStub,
                 Substitute.For<IRigidbodyWrapper>(),
                 new PhysicsConstants());
@@ -73,17 +73,13 @@ namespace VE2.Core.Tests
                 .Raycast(default, default, default, default)
                 .ReturnsForAnyArgs(new RaycastResultWrapper(grabbablePlayerInterface, null, 0));
 
-            //Create the player (2d)
+                    //Create the player (2d)
             PlayerService playerService = new(
                 new PlayerTransformData(),
-                new PlayerStateConfig(),
-                false,
-                true,
-                new PlayerStateModuleContainer(),
+                new PlayerConfig(),
                 interactorContainerStub,
-                playerSettingsProviderStub,
-                Substitute.For<IPlayerAppearanceOverridesProvider>(),
-                playerSyncerStub,
+                Substitute.For<IPlayerSettingsHandler>(),
+                localClientIDProviderStub,
                 playerInputContainerStubWrapper.PlayerInputContainer,
                 raycastProviderStub,
                 Substitute.For<IXRManagerWrapper>()

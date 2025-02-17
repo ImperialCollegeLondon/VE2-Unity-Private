@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using VE2.NonCore.Platform.Private;
@@ -10,12 +11,19 @@ public class DebugGlobalInfoUI : MonoBehaviour
 {
     [SerializeField] private TMP_Text globalInfoText;
 
-    private V_PlatformIntegration _platformIntegration;
+    private IPlatformServiceInternal _platformIntegration;
 
-    void OnEnable()
+    private void OnEnable()
     {
+        StartCoroutine(DelayedOnEnable());
+    }
+
+    private IEnumerator DelayedOnEnable()
+    {
+        yield return new WaitForSeconds(0.1f);
+
         //PlatformServiceProvider provider = FindFirstObjectByType<PlatformServiceProvider>();
-        _platformIntegration = FindObjectOfType<V_PlatformIntegration>();
+        _platformIntegration = (IPlatformServiceInternal)PlatformServiceLocator.PlatformService;
         if (_platformIntegration != null)
         {
 
@@ -30,6 +38,7 @@ public class DebugGlobalInfoUI : MonoBehaviour
             globalInfoText.text = "No platform service provider found";
         }
     }
+
 
     private void HandleGlobalInfoChanged(GlobalInfo globalInfo)
     {

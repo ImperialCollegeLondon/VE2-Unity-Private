@@ -8,7 +8,7 @@ using VE2.Core.VComponents.InteractableInterfaces;
 
 namespace VE2.Core.Player
 {
-    public class InteractorReferences 
+    internal class InteractorReferences 
     {
         public Transform GrabberTransform => _grabberTransform;
         [SerializeField, IgnoreParent] private Transform _grabberTransform;
@@ -29,13 +29,14 @@ namespace VE2.Core.Player
         [SerializeField, IgnoreParent] public string Value;
     }
 
-    public abstract class PointerInteractor : IInteractor
+    internal abstract class PointerInteractor : IInteractor
     {
         public Transform GrabberTransform => _GrabberTransform;
 
         protected bool IsCurrentlyGrabbing => _CurrentGrabbingGrabbable != null;
-        protected InteractorID _InteractorID => new(_playerSyncer == null ? (ushort)0 : _playerSyncer.LocalClientID, _InteractorType);
-        protected bool _WaitingForMultiplayerSupport => _playerSyncer != null && !_playerSyncer.IsConnectedToServer;
+        private ushort _localClientID => _playerSyncService == null ? (ushort)0 : _playerSyncService.LocalClientID;
+        protected InteractorID _InteractorID => new(_localClientID, _InteractorType);
+        protected bool _WaitingForLocalClientID => _playerSyncService != null && !_playerSyncService.IsClientIDReady;
 
         protected const float MAX_RAYCAST_DISTANCE = 10;
         protected IRangedGrabInteractionModule _CurrentGrabbingGrabbable;
@@ -52,7 +53,7 @@ namespace VE2.Core.Player
 
         private readonly InteractorType _InteractorType;
         private readonly IRaycastProvider _RaycastProvider;
-        private readonly IPlayerSyncer _playerSyncer;
+        private readonly ILocalClientIDProvider _playerSyncService;
 
         /*
             The interactor has to know its ID, since it has to send the ID to the VComponents 
@@ -77,8 +78,8 @@ namespace VE2.Core.Player
             Unless it lives on VC.API
         */
 
-        public PointerInteractor(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
-            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, IPlayerSyncer playerSyncer)
+        internal PointerInteractor(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
+            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, ILocalClientIDProvider playerSyncService)
         {
             _interactorContainer = interactorContainer;
             _interactorInputContainer = interactorInputContainer;
@@ -90,7 +91,7 @@ namespace VE2.Core.Player
 
             _InteractorType = interactorType;
             _RaycastProvider = raycastProvider;
-            _playerSyncer = playerSyncer;
+            _playerSyncService = playerSyncService;
         }
 
         public virtual void HandleOnEnable()
@@ -101,10 +102,10 @@ namespace VE2.Core.Player
             _interactorInputContainer.ScrollTickUp.OnTickOver += HandleScrollUp;
             _interactorInputContainer.ScrollTickDown.OnTickOver += HandleScrollDown;
 
-            if (_WaitingForMultiplayerSupport)
-                _playerSyncer.OnConnectedToServer += RegisterWithContainer;
+            if (_WaitingForLocalClientID)
+                _playerSyncService.OnClientIDReady += HandleLocalClientIDReady;
             else
-                RegisterWithContainer();
+                HandleLocalClientIDReady(_localClientID);
         }
 
         public virtual void HandleOnDisable()
@@ -115,16 +116,16 @@ namespace VE2.Core.Player
             _interactorInputContainer.ScrollTickUp.OnTickOver -= HandleScrollUp;
             _interactorInputContainer.ScrollTickDown.OnTickOver -= HandleScrollDown;
 
-            if (_playerSyncer != null)
-                _playerSyncer.OnConnectedToServer -= RegisterWithContainer;
+            if (_playerSyncService != null)
+                _playerSyncService.OnClientIDReady -= HandleLocalClientIDReady;
 
             _interactorContainer.DeregisterInteractor(_InteractorID.ToString());
         }
 
-        private void RegisterWithContainer() 
+        private void HandleLocalClientIDReady(ushort clientID) 
         {
-            if (_playerSyncer != null)
-                _playerSyncer.OnConnectedToServer -= RegisterWithContainer;
+            if (_playerSyncService != null)
+                _playerSyncService.OnClientIDReady -= HandleLocalClientIDReady;
 
             _interactorContainer.RegisterInteractor(_InteractorID.ToString(), this);
         }
@@ -136,7 +137,7 @@ namespace VE2.Core.Player
 
             RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
 
-            if (!_WaitingForMultiplayerSupport && raycastResultWrapper.HitInteractableOrUI && !(raycastResultWrapper.HitInteractable && !raycastResultWrapper.RangedInteractableIsInRange))
+            if (!_WaitingForLocalClientID && raycastResultWrapper.HitInteractableOrUI && !(raycastResultWrapper.HitInteractable && !raycastResultWrapper.RangedInteractableIsInRange))
             {
                 bool isAllowedToInteract = (raycastResultWrapper.HitInteractable && !raycastResultWrapper.RangedInteractable.AdminOnly) || 
                     (raycastResultWrapper.HitUI && raycastResultWrapper.UIButton.interactable);
@@ -203,7 +204,7 @@ namespace VE2.Core.Player
         
         private void HandleRangedClickPressed()
         {
-            if (_WaitingForMultiplayerSupport || IsCurrentlyGrabbing)
+            if (_WaitingForLocalClientID || IsCurrentlyGrabbing)
                 return;
 
             RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
@@ -230,7 +231,7 @@ namespace VE2.Core.Player
             {
                 RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
 
-                if (!_WaitingForMultiplayerSupport && raycastResultWrapper != null && raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange )
+                if (!_WaitingForLocalClientID && raycastResultWrapper != null && raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange )
                 {   
                     if (!raycastResultWrapper.RangedInteractable.AdminOnly)
                     {
@@ -261,7 +262,7 @@ namespace VE2.Core.Player
 
         private void HandleHandheldClickPressed()
         {
-            if (!_WaitingForMultiplayerSupport && IsCurrentlyGrabbing)
+            if (!_WaitingForLocalClientID && IsCurrentlyGrabbing)
             {
                 foreach (IHandheldInteractionModule handheldInteraction in _CurrentGrabbingGrabbable.HandheldInteractions)
                 {

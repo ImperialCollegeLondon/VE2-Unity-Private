@@ -36,7 +36,7 @@ namespace VE2.PlatformNetworking
     */
 
     [ExecuteInEditMode]
-    public class V_PlatformIntegration : MonoBehaviour, IPlatformService, IPlatformServiceInternal
+    public class V_PlatformIntegration : MonoBehaviour, IPlatformProvider //, IPlatformService, IPlatformServiceInternal
     {
 
         [Title("Debug Connection Settings")]
@@ -50,48 +50,25 @@ namespace VE2.PlatformNetworking
         [SerializeField, HideIf(nameof(OfflineMode), true)] private string CustomerKey;
         [SerializeField] private string FallbackPlatformInstanceNumber = "dev";
 
-
-        #region Hub-Facing interfaces 
-        public bool IsConnectedToServer { get; private set;}
-        public event Action OnConnectedToServer;
-        
-        public bool IsAuthFailed { get; private set; }
-        public event Action OnAuthFailed;
-
-        public ushort LocalClientID => _platformService.LocalClientID;
-
-        Dictionary<string, WorldDetails> IPlatformServiceInternal.ActiveWorlds => _platformService.ActiveWorlds;
-
-        // public List<(string, int)> ActiveWorldsNamesAndVersions { //TODO< probably should be async
-        //     get 
-        //     {
-        //         List<(string, int)> activeWorldNamesAndVersions = new();
-
-        //         foreach(WorldDetails worldDetails in _platformService.ActiveWorlds.Values)
-        //             activeWorldNamesAndVersions.Add((worldDetails.Name, worldDetails.VersionNumber));
-
-        //         return activeWorldNamesAndVersions;
-        //     }
-        // }
-
-        public void RequestInstanceAllocation(string worldName, string instanceSuffix)
-        {
-            throw new NotImplementedException();
-        }
-
-        public GlobalInfo GlobalInfo => _platformService.GlobalInfo;
-        public event Action<GlobalInfo> OnGlobalInfoChanged { add => _platformService.OnGlobalInfoChanged += value; remove => _platformService.OnGlobalInfoChanged -= value; }
-
         public string GameObjectName => gameObject.name;
-        public bool IsEnabled => enabled && gameObject.activeInHierarchy;
-        public string CurrentInstanceCode => throw new NotImplementedException();
-        #endregion
 
         private PlatformService _platformService;
+        IPlatformService IPlatformProvider.PlatformService { 
+            get 
+            {
+                if (_platformService == null)
+                        OnEnable();
+
+                return _platformService as IPlatformService;
+            }
+        }
+
 
         private void OnEnable() //TODO - handle reconnect
         {
-            if (!Application.isPlaying)
+            PlatformServiceLocator.PlatformProvider = this;
+
+            if (!Application.isPlaying || _platformService != null)
             {
                 //Maybe find the settings handlers and show their inspectors, if possible
                 return;
@@ -99,6 +76,12 @@ namespace VE2.PlatformNetworking
 
             _platformService = PlatformServiceFactory.Create();
 
+            //TODO: - should these just be wired in through the constructor?
+            //Why would we ever actually need to wait for these? or change them?
+            //We'll pull them out of the settings handler
+            //Apart from the very first time in the intro scene...
+            //We'll need to wait for the intro to tell us to connect to the platform, and with what details
+            //because that's the first time, we can just assume that, if the connection settings are missing, we're in the intro scene
             string ipAddress = PlatformIP;
             ushort portNumber = PlatformPort;
             string customerID = CustomerID;
@@ -108,7 +91,7 @@ namespace VE2.PlatformNetworking
             //Get customerLogin settings 
             //Get instance settings
             //InstanceService will also need those two, PLUS instance IP address settings
-            PlayerPresentationConfig playerPresentationConfig = PlayerLocator.Instance.PlayerService.PlayerPresentationConfig;
+            //PlayerPresentationConfig playerPresentationConfig = PlayerLocator.Player.PlayerPresentationConfig;
 
             //False if we're in the hub for the first time. 
             bool customerSettingsFound = true;
@@ -117,27 +100,27 @@ namespace VE2.PlatformNetworking
             // else, wait for the hub to tell us to, after we've logged in.
 
 
-            if (_platformService.IsConnectedToServer)
-                HandlePlatformServiceReady();
-            else
-                _platformService.OnConnectedToServer += HandlePlatformServiceReady;
+            // if (_platformService.IsConnectedToServer)
+            //     HandlePlatformServiceReady();
+            // else
+            //     _platformService.OnConnectedToServer += HandlePlatformServiceReady;
         }
 
 
-        private void HandlePlatformServiceReady()
-        {
-            //Invoke events? 
-            IsAuthFailed = false;
-            IsConnectedToServer = true;
-            OnConnectedToServer?.Invoke();
-        }
+        // private void HandlePlatformServiceReady()
+        // {
+        //     //Invoke events? 
+        //     IsAuthFailed = false;
+        //     IsConnectedToServer = true;
+        //     OnConnectedToServer?.Invoke();
+        // }
 
-        private void HandleAuthFailed()
-        {
-            IsConnectedToServer = false;
-            IsAuthFailed = true;
-            OnAuthFailed?.Invoke();
-        }
+        // private void HandleAuthFailed()
+        // {
+        //     IsConnectedToServer = false;
+        //     IsAuthFailed = true;
+        //     OnAuthFailed?.Invoke();
+        // }
 
         private void FixedUpdate()
         {
@@ -158,20 +141,20 @@ namespace VE2.PlatformNetworking
             //    _platformService.OnConnectedToServer -= HandlePlatformServiceReady;
         }
 
-        void IPlatformServiceInternal.RequestInstanceAllocation(string worldName, string instanceSuffix)
-        {
-            throw new NotImplementedException();
-        }
+        // void IPlatformServiceInternal.RequestInstanceAllocation(string worldName, string instanceSuffix)
+        // {
+        //     throw new NotImplementedException();
+        // }
 
-        ServerConnectionSettings IPlatformServiceInternal.GetInstanceServerSettingsForWorld(string worldName)
-        {
-            throw new NotImplementedException();
-        }
+        // ServerConnectionSettings IPlatformServiceInternal.GetInstanceServerSettingsForWorld(string worldName)
+        // {
+        //     throw new NotImplementedException();
+        // }
 
-        ServerConnectionSettings IPlatformServiceInternal.GetInstanceServerSettingsForCurrentWorld()
-        {
-            throw new NotImplementedException();
-        }
+        // ServerConnectionSettings IPlatformServiceInternal.GetInstanceServerSettingsForCurrentWorld()
+        // {
+        //     throw new NotImplementedException();
+        // }
     }
 
     // public class DebugPlatformService : IPlatformService
@@ -228,3 +211,7 @@ namespace VE2.PlatformNetworking
     //     }
     // }
 }
+
+/*
+    PlayerService creates the 
+*/

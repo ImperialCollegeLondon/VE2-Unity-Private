@@ -17,7 +17,7 @@ namespace VE2.Core.VComponents.Tests
         public void HandheldActivatable_WhenActivatedByPlugin_EmitsToPlugin()
         {
             //Create the activatable with default values
-            HandheldActivatableService handheldActivatable = new(new HandheldActivatableConfig(), new SingleInteractorActivatableState(), "debug", Substitute.For<WorldStateModulesContainer>());
+            HandheldActivatableService handheldActivatable = new(new HandheldActivatableConfig(), new SingleInteractorActivatableState(), "debug", Substitute.For<IWorldStateSyncService>());
 
             //Stub out the VC (integration layer) with the activatable
             V_HandheldActivatableStub v_activatableStub = new(handheldActivatable);

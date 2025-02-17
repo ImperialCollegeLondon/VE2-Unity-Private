@@ -31,9 +31,9 @@ namespace VE2.Core.VComponents.Internal
 
         internal bool test = false;
 
-        public ToggleActivatableService(ToggleActivatableConfig config, VE2Serializable state, string id, WorldStateModulesContainer worldStateModulesContainer)
+        public ToggleActivatableService(ToggleActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncService worldStateSyncService)
         {
-            _StateModule = new(state, config.StateConfig, id, worldStateModulesContainer);
+            _StateModule = new(state, config.StateConfig, id, worldStateSyncService);
             _RangedClickInteractionModule = new(config.RangedInteractionConfig, config.GeneralInteractionConfig);
             _ColliderInteractionModule = new(config.GeneralInteractionConfig);
 

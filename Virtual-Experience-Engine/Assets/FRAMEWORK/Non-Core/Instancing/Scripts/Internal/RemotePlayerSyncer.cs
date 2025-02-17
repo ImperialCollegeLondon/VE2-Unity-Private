@@ -10,6 +10,8 @@ namespace VE2.InstanceNetworking
     {
         private readonly InstanceInfoContainer _instanceInfoContainer;
         private readonly InteractorContainer _interactorContainer;
+        //private readonly IPlayerServiceInternal _playerService;
+
         private readonly List<GameObject> _virseAvatarHeadGameObjects;
         private readonly List<GameObject> _virseAvatarTorsoGameObjects;
         private readonly List<GameObject> _avatarHeadOverrideGameObjects;
@@ -17,12 +19,13 @@ namespace VE2.InstanceNetworking
 
         private Dictionary<ushort, RemoteAvatarController> _remoteAvatars = new();
 
-        public RemotePlayerSyncer(InstanceInfoContainer instanceInfoContainer, InteractorContainer interactorContainer, IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider)
+        public RemotePlayerSyncer(InstanceInfoContainer instanceInfoContainer, InteractorContainer interactorContainer, IPlayerServiceInternal playerService)
         {
             _instanceInfoContainer = instanceInfoContainer;
             _instanceInfoContainer.OnInstanceInfoChanged += HandleNewInstanceInfo;
 
             _interactorContainer = interactorContainer;
+            // _playerService = playerService;
 
             _virseAvatarHeadGameObjects = new List<GameObject>()
             {
@@ -35,8 +38,8 @@ namespace VE2.InstanceNetworking
                 Resources.Load<GameObject>("Avatars/Torsos/V_Avatar_Torso_Default_1"),
             };
 
-            _avatarHeadOverrideGameObjects = playerAppearanceOverridesProvider.HeadOverrideGOs;
-            _avatarTorsoOverrideGameObjects = playerAppearanceOverridesProvider.HeadOverrideGOs;
+            _avatarHeadOverrideGameObjects = playerService.HeadOverrideGOs;
+            _avatarTorsoOverrideGameObjects = playerService.HeadOverrideGOs;
 
             HandleNewInstanceInfo(_instanceInfoContainer.InstanceInfo); //must do this after the gameobject references have been set up above
         }

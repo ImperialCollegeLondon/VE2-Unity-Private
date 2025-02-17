@@ -11,16 +11,13 @@ using static VE2.Common.CommonSerializables;
 namespace VE2.NonCore.Instancing.VComponents.Internal
 {
     [Serializable]
-    public class NetworkObjectStateConfig : BaseStateConfig
+    public class NetworkObjectStateConfig : BaseWorldStateConfig
     {
         [SerializeField] public UnityEvent<object> OnStateChange = new();
     }
 
-    internal class NetworkObjectStateModule : BaseStateModule, IWorldStateModule, INetworkObjectStateModule
+    internal class NetworkObjectStateModule : BaseWorldStateModule, INetworkObjectStateModule
     {
-        public string ID { get; private set; }
-        public byte[] StateAsBytes { get => State.Bytes; set => UpdateBytes(value); }
-
         public UnityEvent<object> OnStateChange => _config.OnStateChange;
 
         public object NetworkObject { get => DeserializedNetworkObject(); set => SerializeNetworkObject(value); }
@@ -28,10 +25,7 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
         private NetworkObjectState _state => (NetworkObjectState)State;
         private NetworkObjectStateConfig _config => (NetworkObjectStateConfig)Config;
 
-        public NetworkObjectStateModule(VE2Serializable state, BaseStateConfig config, string id, WorldStateModulesContainer worldStateModulesContainer) : base(state, config, worldStateModulesContainer) 
-        {
-            ID = id;
-        }
+        public NetworkObjectStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncService worldStateSyncService) : base(state, config, id, worldStateSyncService) {}
 
         private void SerializeNetworkObject(object unserializedNetworkObject)
         {
@@ -70,7 +64,7 @@ namespace VE2.NonCore.Instancing.VComponents.Internal
             }
         }
 
-        protected void UpdateBytes(byte[] newBytes)
+        protected override void UpdateBytes(byte[] newBytes)
         {
             State.Bytes = newBytes;
             InvokeCustomerOnStateChangeEvent();

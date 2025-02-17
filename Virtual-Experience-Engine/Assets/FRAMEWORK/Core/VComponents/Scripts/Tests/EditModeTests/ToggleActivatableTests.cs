@@ -116,16 +116,16 @@ namespace VE2.Core.VComponents.Tests
             ToggleActivatableConfig config = null,
             SingleInteractorActivatableState interactorState = null,
             string debugName = "debug",
-            WorldStateModulesContainer worldStateModules = null
+            IWorldStateSyncService worldStateSyncService = null
         )
         {
             // Use defaults if parameters are not provided
             config ??= new ToggleActivatableConfig();
             interactorState ??= new SingleInteractorActivatableState();
-            worldStateModules ??= Substitute.For<WorldStateModulesContainer>();
+            worldStateSyncService ??= Substitute.For<IWorldStateSyncService>();
 
             //Create the activatable with default values
-            ToggleActivatableService toggleActivatable = new(config, interactorState, debugName, worldStateModules);
+            ToggleActivatableService toggleActivatable = new(config, interactorState, debugName, worldStateSyncService);
 
             return toggleActivatable;
         }

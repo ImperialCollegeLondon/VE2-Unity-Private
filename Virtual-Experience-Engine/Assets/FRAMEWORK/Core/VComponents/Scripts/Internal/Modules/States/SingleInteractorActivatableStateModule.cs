@@ -10,7 +10,7 @@ using static VE2.Common.CommonSerializables;
 namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
-    public class ActivatableStateConfig : BaseStateConfig
+    public class ActivatableStateConfig : BaseWorldStateConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Activation Settings", ApplyCondition = true)]
@@ -30,7 +30,7 @@ namespace VE2.Core.VComponents.Internal
         private SingleInteractorActivatableState _state => (SingleInteractorActivatableState)State;
         private ActivatableStateConfig _config => (ActivatableStateConfig)Config;
 
-        public SingleInteractorActivatableStateModule(VE2Serializable state, BaseStateConfig config, string id, WorldStateModulesContainer worldStateModulesContainer) : base(state, config, id, worldStateModulesContainer) { }
+        public SingleInteractorActivatableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncService worldStateSyncService) : base(state, config, id, worldStateSyncService) { }
 
         private void HandleExternalActivation(bool newIsActivated)
         {

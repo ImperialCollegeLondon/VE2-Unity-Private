@@ -69,7 +69,7 @@ internal class PlayerSettingsHandler : MonoBehaviour, IPlayerSettingsHandler //T
         }
     }
 
-    [EditorButton("MarkPlayerSettingsUpdated", nameof(MarkPlayerSettingsUpdated), ApplyCondition = true)]
+    [EditorButton("MarkPlayerSettingsUpdated", nameof(SavePlayerAppearance), ApplyCondition = true)]
     [SerializeField, IgnoreParent, DisableIf(nameof(_isPlaying), false), EndGroup] private PlayerPresentationConfig _playerPresentationConfig = new();
 
     /// <summary>
@@ -123,7 +123,7 @@ internal class PlayerSettingsHandler : MonoBehaviour, IPlayerSettingsHandler //T
         set
         {
             _playerPresentationConfig = value;
-            MarkPlayerSettingsUpdated();
+            //MarkPlayerSettingsUpdated();
         }
     }
 
@@ -139,11 +139,11 @@ internal class PlayerSettingsHandler : MonoBehaviour, IPlayerSettingsHandler //T
                 avatarBlue: (ushort)PlayerPrefs.GetInt(PlayerBlueArgName, DefaultPlayerPresentationConfig.AvatarBlue));
     }
 
-    public event Action<PlayerPresentationConfig> OnPlayerPresentationConfigChanged;
+    //public event Action<PlayerPresentationConfig> OnPlayerPresentationConfigChanged;
 
-    public void MarkPlayerSettingsUpdated()
+    public void SavePlayerAppearance()
     {
-        OnPlayerPresentationConfigChanged?.Invoke(_playerPresentationConfig);
+        //OnPlayerPresentationConfigChanged?.Invoke(_playerPresentationConfig);
 
         PlayerPrefs.SetInt(RememberPlayerSettingsArgName, _rememberPlayerSettings ? 1 : 0);
         

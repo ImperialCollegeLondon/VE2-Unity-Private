@@ -11,24 +11,24 @@ namespace VE2.Core.Tests
 {
     //public class PlayerSetup { }
 
-    [SetUpFixture]
-    public class PlayerSettingsProviderSetup
-    {
-        public static IPlayerSettingsHandler PlayerSettingsProviderStub { get; private set; }
+    // [SetUpFixture]
+    // public class PlayerSettingsProviderSetup
+    // {
+    //     public static IPlayerSettingsHandler PlayerSettingsProviderStub { get; private set; }
 
-        [OneTimeSetUp]
-        public void PlayerSettingsProviderStubSetupOnce()
-        {
-            //Stub out the player settings provider with default settings
-            PlayerSettingsProviderStub = Substitute.For<IPlayerSettingsHandler>();
-            PlayerSettingsProviderStub.PlayerPresentationConfig.Returns(new PlayerPresentationConfig());
-        }
+    //     [OneTimeSetUp]
+    //     public void PlayerSettingsProviderStubSetupOnce()
+    //     {
+    //         //Stub out the player settings provider with default settings
+    //         PlayerSettingsProviderStub = Substitute.For<IPlayerSettingsHandler>();
+    //         PlayerSettingsProviderStub.PlayerPresentationConfig.Returns(new PlayerPresentationConfig());
+    //     }
 
-        public static void StubUserSettingsValueForPlayerSettingsProviderStub(PlayerPresentationConfig playerPresentationConfig)
-        {
-            PlayerSettingsProviderStub.PlayerPresentationConfig.Returns(playerPresentationConfig);
-        }
-    }
+    //     public static void StubUserSettingsValueForPlayerSettingsProviderStub(PlayerPresentationConfig playerPresentationConfig)
+    //     {
+    //         PlayerSettingsProviderStub.PlayerPresentationConfig.Returns(playerPresentationConfig);
+    //     }
+    // }
 
     [SetUpFixture]
     public class InputHandlerSetup
@@ -46,7 +46,7 @@ namespace VE2.Core.Tests
     [SetUpFixture]
     public class PlayerSyncerSetup
     {
-        public static IPlayerSyncer PlayerSyncerStub { get; private set; }
+        public static ILocalClientIDProvider LocalClientIDProviderStub { get; private set; }
         public static InteractorID InteractorID { get; private set; }
         public static string InteractorGameobjectName { get; private set; }
 
@@ -57,15 +57,15 @@ namespace VE2.Core.Tests
             System.Random random = new();
             ushort localClientID = (ushort)random.Next(0, ushort.MaxValue);
 
-            PlayerSyncerStub = Substitute.For<IPlayerSyncer>();
-            PlayerSyncerStub.IsConnectedToServer.Returns(true);
+            LocalClientIDProviderStub = Substitute.For<ILocalClientIDProvider>();
+            LocalClientIDProviderStub.IsClientIDReady.Returns(true);
             InteractorID = new(localClientID, InteractorType.Mouse2D);
             InteractorGameobjectName = $"Interactor{InteractorID.ClientID}-{InteractorID.InteractorType}";
         }
 
         public static void StubLocalClientIDForMultiplayerSupportStub(ushort localClientID)
         {
-            PlayerSyncerStub.LocalClientID.Returns(localClientID);
+            LocalClientIDProviderStub.LocalClientID.Returns(localClientID);
         }
     }
 
@@ -105,22 +105,18 @@ namespace VE2.Core.Tests
     [SetUpFixture]
     public class PlayerServiceSetup
     {
-        public static PlayerService PlayerServiceStub { get; private set; }
+        public static IPlayerService PlayerServiceStub { get; private set; }
 
         [OneTimeSetUp]
         public void SetUpPlayerServiceStub()
         {
             //Create the player (2d)
-            PlayerServiceStub = new(
+            PlayerServiceStub = new PlayerService(
                 new PlayerTransformData(),
-                new PlayerStateConfig(),
-                false,
-                true,
-                new PlayerStateModuleContainer(),
+                new PlayerConfig(),
                 new InteractorContainer(),
-                PlayerSettingsProviderSetup.PlayerSettingsProviderStub,
-                Substitute.For<IPlayerAppearanceOverridesProvider>(),
-                PlayerSyncerSetup.PlayerSyncerStub,
+                Substitute.For<IPlayerSettingsHandler>(),
+                PlayerSyncerSetup.LocalClientIDProviderStub,
                 InputHandlerSetup.PlayerInputContainerStubWrapper.PlayerInputContainer,
                 RayCastProviderSetup.RaycastProviderStub, 
                 Substitute.For<IXRManagerWrapper>()

@@ -10,12 +10,6 @@ public interface IPlatformService //TODO, maybe not all of these should live in 
 {
     public bool IsConnectedToServer { get; }
     public event Action OnConnectedToServer;
-
-    public bool IsAuthFailed { get; }
-    public event Action OnAuthFailed;
-
-    public string GameObjectName { get; }
-
     public string CurrentInstanceCode { get; }
 }
 

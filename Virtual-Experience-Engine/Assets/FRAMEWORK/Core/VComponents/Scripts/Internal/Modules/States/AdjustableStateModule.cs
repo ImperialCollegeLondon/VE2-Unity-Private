@@ -11,7 +11,7 @@ namespace VE2.Core.VComponents.Internal
 {
 
     [Serializable]
-    public class AdjustableStateConfig : BaseStateConfig
+    public class AdjustableStateConfig : BaseWorldStateConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Adjustable State Settings", ApplyCondition = true)]
@@ -36,7 +36,7 @@ namespace VE2.Core.VComponents.Internal
         internal bool IsAtMinimumValue => Value == _config.MinimumValue;
         internal bool IsAtMaximumValue => Value == _config.MaximumValue;
 
-        public AdjustableStateModule(CommonSerializables.VE2Serializable state, BaseStateConfig config, string id, WorldStateModulesContainer worldStateModulesContainer) : base(state, config, id, worldStateModulesContainer)
+        public AdjustableStateModule(CommonSerializables.VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncService worldStateSyncService) : base(state, config, id, worldStateSyncService)
         {
             if (_config.EmitValueOnStart == true)
             {

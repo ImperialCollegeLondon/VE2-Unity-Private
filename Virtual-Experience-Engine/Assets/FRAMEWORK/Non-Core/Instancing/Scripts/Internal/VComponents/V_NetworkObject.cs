@@ -21,13 +21,13 @@ namespace VE2.NonCore.Instancing.VComponents.MonoBehaviours
         private void Reset()
         {
             //Kicks off the lazy init for the VCLocator instance
-            var reference = VComponents_Locator.Instance;
+            //var reference = VComponents_Locator.Instance; don't think we need this
         }
 
         private void OnEnable()
         {
             string id = "NetObj-" + gameObject.name;
-            _service = new NetworkObjectService(_config, _state, id, VComponents_Locator.Instance.WorldStateModulesContainer);
+            _service = new NetworkObjectService(_config, _state, id, VComponents_Locator.WorldStateSyncService);
         }
 
         private void FixedUpdate()

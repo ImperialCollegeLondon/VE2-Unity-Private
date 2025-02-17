@@ -7,7 +7,7 @@ using static InstanceSyncSerializables;
 namespace VE2.InstanceNetworking
 {
     [ExecuteInEditMode]
-    public class V_InstanceIntegration : MonoBehaviour, IPlayerSyncer 
+    public class V_InstanceIntegration : MonoBehaviour, IInstanceProvider, IWorldStateSyncProvider, ILocalClientIDProviderProvider
     {
         #region Inspector Fields
         // [DynamicHelp(nameof(_settingsMessage))]
@@ -22,49 +22,65 @@ namespace VE2.InstanceNetworking
         [SerializeField, Disable, HideLabel, IgnoreParent] private ConnectionStateDebugWrapper _connectionStateDebug;
 
         [SerializeField, HideInInspector] private LocalClientIdWrapper _localClientIDWrapper = new();
-        [Serializable] public class LocalClientIdWrapper { public ushort LocalClientID = ushort.MaxValue; }
+        [Serializable] public class LocalClientIdWrapper 
+        { 
+            private ushort _localClientID = ushort.MaxValue; 
+            public ushort LocalClientID 
+            {
+                get => _localClientID;
+                set 
+                {
+                    _localClientID = value;
+                    OnLocalClientIDSet?.Invoke(value);
+                }
+            } 
+            
+            public event Action<ushort> OnLocalClientIDSet;
+        }
 
         //We do this wiring here rather than the interface as the interface file needs to live in the VE2.common package
         #region Interfaces
         public bool IsEnabled => enabled && gameObject.activeInHierarchy;
         public string GameObjectName => gameObject.name;
-        public bool IsConnectedToServer => _connectionStateDebug.ConnectionState == ConnectionState.Connected;
-        public event Action OnConnectedToInstance { add => _instanceService.OnConnectedToInstance += value; remove => _instanceService.OnConnectedToInstance -= value; }
-        public event Action OnDisconnectedFromInstance { add => _instanceService.OnDisconnectedFromInstance += value; remove => _instanceService.OnDisconnectedFromInstance -= value; }
-        public ushort LocalClientID => _localClientIDWrapper.LocalClientID;
-        public bool IsHost => _instanceService._instanceInfoContainer.IsHost;
+        // public bool IsConnectedToServer => _connectionStateDebug.ConnectionState == ConnectionState.Connected;
+        // public event Action OnConnectedToInstance { add => _instanceService.OnConnectedToInstance += value; remove => _instanceService.OnConnectedToInstance -= value; }
+        // public event Action OnDisconnectedFromInstance { add => _instanceService.OnDisconnectedFromInstance += value; remove => _instanceService.OnDisconnectedFromInstance -= value; }
+        // public bool IsHost => _instanceService._instanceInfoContainer.IsHost;
+        // public ushort LocalClientID => _localClientIDWrapper.LocalClientID;
         #endregion
 
-        #region Temp debug Interfaces //TODO: remove once UI is in 
-        public InstancedInstanceInfo InstanceInfo => _instanceService._instanceInfoContainer.InstanceInfo; //TODO, don't want to expose this
-        public event Action<InstancedInstanceInfo> OnInstanceInfoChanged { 
-            add => _instanceService._instanceInfoContainer.OnInstanceInfoChanged += value; 
-            remove => _instanceService._instanceInfoContainer.OnInstanceInfoChanged -= value; 
-        }
-        #endregion
-
-        /*
-            Maybe we should split the interface up a bit... 
-            One for things that need to be internal facing (or at least, facing core) 
-            And one for things that need to be exposed to the plugin
-            The things that wire into the plugin, can have a standard IV_InstanceIntegration interface 
-        */
-
-        private InstanceService _instanceService;
 
         public event Action OnConnectedToServer;
 
+        private InstanceService _instanceService;
+        public IInstanceService InstanceService {
+            get 
+            {
+                if (_instanceService == null)
+                    OnEnable();
+
+                return _instanceService as IInstanceService;
+            }
+        }
+
+        public IWorldStateSyncService WorldStateSyncService => _instanceService.WorldStateSyncService;
+        public ILocalClientIDProvider LocalClientIDProvider => _instanceService;
+
         private void OnEnable()
         {
-            if (!Application.isPlaying)
+            InstancingAPI.InstanceProvider = this;
+            PlayerLocator.LocalClientIDProviderProvider = this;
+            VComponents_Locator.WorldStateSyncProvider = this;
+
+            if (!Application.isPlaying || _instanceService != null)
             {
-                PlayerLocator.Instance.PlayerSyncer = this;  
+                PlayerLocator.LocalClientIDProviderProvider = this;  
                 return;
             }
 
             //But if we expose this to the customer... how does it go into the service locator???
             //Ok, we cam just make some base class for the settings provider that we can expose to the plugin, the plugin-defined settings provider can just inherit from that. The base can worry about putting itself into the service locator 
-            if (PlatformServiceLocator.Instance.PlatformService == null)
+            if (PlatformServiceLocator.PlatformService == null)
             {
                 Debug.LogError("Can't boot instance integration, no platform service found");
                 return;

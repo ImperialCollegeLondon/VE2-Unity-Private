@@ -26,9 +26,9 @@ namespace VE2.Core.VComponents.Internal
         private readonly HandheldClickInteractionModule _HandheldClickInteractionModule;
         #endregion
 
-        public HandheldActivatableService(HandheldActivatableConfig config, VE2Serializable state, string id, WorldStateModulesContainer worldStateModulesContainer)
+        public HandheldActivatableService(HandheldActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncService worldStateSyncService)
         {
-            _StateModule = new(state, config.StateConfig, id, worldStateModulesContainer);
+            _StateModule = new(state, config.StateConfig, id, worldStateSyncService);
             _HandheldClickInteractionModule = new(config.GeneralInteractionConfig);
 
             _HandheldClickInteractionModule.OnClickDown += HandleInteract;

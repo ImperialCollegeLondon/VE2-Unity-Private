@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 public class PlatformServiceLocator : MonoBehaviour
 {
     private static PlatformServiceLocator _instance;
-    public static PlatformServiceLocator Instance
+    private static PlatformServiceLocator Instance
     { //Reload-proof singleton
         get
         {
@@ -18,30 +18,32 @@ public class PlatformServiceLocator : MonoBehaviour
         }
     }
 
-    [SerializeField, HideInInspector] public string platformServiceGOName;
-    private IPlatformService _platformService;
-    public IPlatformService PlatformService
+    internal static IPlatformService PlatformService => PlatformProvider.PlatformService;
+
+    [SerializeField, HideInInspector] public string platformProviderGOName;
+    private IPlatformProvider _platformProvider;
+    internal static IPlatformProvider PlatformProvider
     {
         get
         {
-            if (_platformService == null && !string.IsNullOrEmpty(platformServiceGOName))
-                _platformService = GameObject.Find(platformServiceGOName)?.GetComponent<IPlatformService>();
+            if (Instance._platformProvider == null && !string.IsNullOrEmpty(Instance.platformProviderGOName))
+                Instance._platformProvider = GameObject.Find(Instance.platformProviderGOName)?.GetComponent<IPlatformProvider>();
 
-                if (_platformService == null)
+                if (Instance._platformProvider == null)
                 {
                     Debug.LogError("PlatformService is not available");
                     return null;
                 }  
 
-                return _platformService;
+                return Instance._platformProvider;
 
         }
         set //Will need to be called externally
         {
-            _platformService = value;
+            Instance._platformProvider = value;
 
             if (value != null)
-                platformServiceGOName = value.GameObjectName;
+                Instance.platformProviderGOName = value.GameObjectName;
         }
     }
 

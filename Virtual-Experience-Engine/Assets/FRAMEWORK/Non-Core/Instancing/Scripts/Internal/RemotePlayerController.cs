@@ -22,7 +22,7 @@ namespace VE2.InstanceNetworking
 
         private List<Material> _colorMaterials = new();
 
-        private AvatarAppearance _currentRemoteAvatarAppearance;
+        private OverridableAvatarAppearance _currentRemoteAvatarAppearance;
         private GameObject _activeHead;
         private GameObject _activeTorso;
 
@@ -88,7 +88,7 @@ namespace VE2.InstanceNetworking
             }
         }
 
-        public void HandleReceiveAvatarAppearance(AvatarAppearance newAvatarAppearance)
+        public void HandleReceiveAvatarAppearance(OverridableAvatarAppearance newAvatarAppearance)
         {
             if (_currentRemoteAvatarAppearance != null && _currentRemoteAvatarAppearance.Equals(newAvatarAppearance))
                 return;

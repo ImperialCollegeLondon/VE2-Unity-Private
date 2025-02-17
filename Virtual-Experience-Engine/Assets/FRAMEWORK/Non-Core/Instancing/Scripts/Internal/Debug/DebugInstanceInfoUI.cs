@@ -3,24 +3,32 @@ using UnityEngine;
 using VE2.InstanceNetworking;
 using VE2.Core;
 using static InstanceSyncSerializables;
+using System.Collections;
 
 public class DebugInstanceInfoUI : MonoBehaviour
 {
     [SerializeField] private TMP_Text globalInfoText;
 
-    private V_InstanceIntegration instanceIntegration;
+    private InstanceService instanceService;
 
     void OnEnable()
     {
-        instanceIntegration = FindFirstObjectByType<V_InstanceIntegration>();
-        if (instanceIntegration != null)
+        StartCoroutine(DelayedOnEnable());
+    }
+
+    private IEnumerator DelayedOnEnable()
+    {
+        yield return new WaitForSeconds(0.1f);
+
+        instanceService = (InstanceService)FindFirstObjectByType<V_InstanceIntegration>().InstanceService;
+        if (instanceService != null)
         {
             //If we're already connected to the server, display initial global info rather than waiting for an update
-            if (instanceIntegration.IsConnectedToServer)
-                HandleInstanceInfoChanged(instanceIntegration.InstanceInfo);
+            if (instanceService.IsConnectedToServer)
+                HandleInstanceInfoChanged(instanceService.InstanceInfo);
 
-            instanceIntegration.OnInstanceInfoChanged += HandleInstanceInfoChanged;
-            instanceIntegration.OnDisconnectedFromInstance += HandleDisconnectFromServer;
+            instanceService.OnInstanceInfoChanged += HandleInstanceInfoChanged;
+            instanceService.OnDisconnectedFromInstance += HandleDisconnectFromServer;
         }
         else
         {
@@ -30,12 +38,12 @@ public class DebugInstanceInfoUI : MonoBehaviour
 
     private void HandleInstanceInfoChanged(InstancedInstanceInfo instanceInfo)
     {
-        string instanceInfoString = $"<b>INSTANCE</b> {instanceInfo.InstanceCode} \nLocal ID = <color=green>{instanceIntegration.LocalClientID}</color>\n";
+        string instanceInfoString = $"<b>INSTANCE</b> {instanceInfo.InstanceCode} \nLocal ID = <color=green>{instanceService.LocalClientID}</color>\n";
 
         //Debug.Log("NUM PLAYERS IN ISNTANCE = " + instanceInfo.ClientInfos.Values.Count + "=============");
         foreach (InstancedClientInfo clientInfo in instanceInfo.ClientInfos.Values)
         {
-            if (clientInfo.ClientID.Equals(instanceIntegration.LocalClientID))
+            if (clientInfo.ClientID.Equals(instanceService.LocalClientID))
                 instanceInfoString += $"<color=green>";
 
             instanceInfoString += $"{clientInfo.ClientID}";
@@ -46,7 +54,7 @@ public class DebugInstanceInfoUI : MonoBehaviour
             instanceInfoString += $"Host = { clientInfo.ClientID.Equals(instanceInfo.HostID).ToString()}\n";
 
 
-            if (clientInfo.ClientID.Equals(instanceIntegration.LocalClientID))
+            if (clientInfo.ClientID.Equals(instanceService.LocalClientID))
                 instanceInfoString += $"</color>";
         }
 
@@ -60,12 +68,12 @@ public class DebugInstanceInfoUI : MonoBehaviour
 
     private void OnDisable()
     {
-        if (instanceIntegration != null)
+        if (instanceService != null)
         {
-            if (instanceIntegration.IsConnectedToServer)
+            if (instanceService.IsConnectedToServer)
             {
-                instanceIntegration.OnInstanceInfoChanged -= HandleInstanceInfoChanged;
-                instanceIntegration.OnDisconnectedFromInstance -= HandleDisconnectFromServer;
+                instanceService.OnInstanceInfoChanged -= HandleInstanceInfoChanged;
+                instanceService.OnDisconnectedFromInstance -= HandleDisconnectFromServer;
             }
         }
     }

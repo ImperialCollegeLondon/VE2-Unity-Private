@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace VE2.Core.Player
 {
-    public class Player2DReferences : MonoBehaviour
+    internal class Player2DReferences : MonoBehaviour
     {
         public Interactor2DReferences Interactor2DReferences => _interactor2DReferences;
         [SerializeField, IgnoreParent] private Interactor2DReferences _interactor2DReferences;
@@ -13,7 +13,7 @@ namespace VE2.Core.Player
     }
 
     [Serializable]
-    public class Locomotor2DReferences 
+    internal class Locomotor2DReferences 
     {
         public CharacterController Controller => _controller;
         [SerializeField, IgnoreParent] private CharacterController _controller;

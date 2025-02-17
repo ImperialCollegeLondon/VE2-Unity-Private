@@ -10,13 +10,13 @@ using static VE2.Common.CommonSerializables;
 namespace VE2.Core.Player
 {
     [Serializable]
-    public class Interactor2DReferences : InteractorReferences
+    internal class Interactor2DReferences : InteractorReferences
     {
         public Image ReticuleImage => _reticuleImage;
         [SerializeField, IgnoreParent] private Image _reticuleImage;
     }
 
-    public class PlayerController2D 
+    internal class PlayerController2D 
     {
         public PlayerTransformData PlayerTransformData {
             get {
@@ -39,8 +39,8 @@ namespace VE2.Core.Player
         private readonly Player2DLocomotor _playerLocomotor2D;
         private readonly Interactor2D _interactor2D;
 
-        public PlayerController2D(InteractorContainer interactorContainer, Player2DInputContainer player2DInputContainer, IPlayerSettingsHandler playerSettingsHandler,
-            Player2DControlConfig controlConfig, IRaycastProvider raycastProvider, IPlayerSyncer multiplayerSupport) 
+        internal PlayerController2D(InteractorContainer interactorContainer, Player2DInputContainer player2DInputContainer, IPlayerSettingsHandler playerSettingsHandler,
+            Player2DControlConfig controlConfig, IRaycastProvider raycastProvider, ILocalClientIDProvider multiplayerSupport) 
         {
             GameObject player2DPrefab = Resources.Load("2dPlayer") as GameObject;
             _playerGO = GameObject.Instantiate(player2DPrefab, null, false);

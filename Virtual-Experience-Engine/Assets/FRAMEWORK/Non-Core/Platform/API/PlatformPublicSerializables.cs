@@ -137,7 +137,7 @@ namespace VE2.Platform.API
         }
 
 
-        public class GlobalInfo : VE2Serializable
+        internal class GlobalInfo : VE2Serializable
         {
             public Dictionary<string, PlatformInstanceInfo> InstanceInfos { get; private set; }
 
@@ -192,7 +192,7 @@ namespace VE2.Platform.API
         }
 
 
-        public class PlatformInstanceInfo : InstanceInfoBase
+        internal class PlatformInstanceInfo : InstanceInfoBase
         {
             public Dictionary<ushort, PlatformClientInfo> ClientInfos { get; private set; }
 

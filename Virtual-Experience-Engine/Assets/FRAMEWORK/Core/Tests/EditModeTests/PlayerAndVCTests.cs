@@ -48,7 +48,7 @@ namespace VE2.Core.Tests
         public void OnUserClick_WithHoveringActivatable_CustomerScriptReceivesOnActivate( [Random((ushort) 0, ushort.MaxValue, 1)] ushort localClientID)
         {
             RayCastProviderSetup.StubRangedInteractionModuleForRaycastProviderStub(_activatableRaycastInterface.RangedClickInteractionModule);
-            PlayerSyncerSetup.PlayerSyncerStub.LocalClientID.Returns(localClientID);
+            PlayerSyncerSetup.LocalClientIDProviderStub.LocalClientID.Returns(localClientID);
 
             //Check customer received the activation, and that the interactorID is set
             InputHandlerSetup.PlayerInputContainerStubWrapper.RangedClick2D.OnPressed += Raise.Event<Action>();

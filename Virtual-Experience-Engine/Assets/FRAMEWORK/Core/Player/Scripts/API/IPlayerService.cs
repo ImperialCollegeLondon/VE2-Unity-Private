@@ -4,14 +4,10 @@ using static VE2.Common.CommonSerializables;
 
 public interface IPlayerService
 {
-    /// <summary>
-    /// call MarkPlayerSettingsUpdated after modifying this property
-    /// </summary>
-    public PlayerPresentationConfig PlayerPresentationConfig { get; }
-
-    public event Action<PlayerPresentationConfig> OnPlayerPresentationConfigChanged;
-
     public bool VRModeActive { get; }
+    public void SetAvatarHeadOverride(AvatarAppearanceOverrideType type);
+    public void SetAvatarTorsoOverride(AvatarAppearanceOverrideType type);
 
-    public string GameObjectName { get; }
+    public void ClearAvatarHeadOverride() => SetAvatarHeadOverride(AvatarAppearanceOverrideType.None);
+    public void ClearAvatarTorsoOverride() => SetAvatarTorsoOverride(AvatarAppearanceOverrideType.None);
 }

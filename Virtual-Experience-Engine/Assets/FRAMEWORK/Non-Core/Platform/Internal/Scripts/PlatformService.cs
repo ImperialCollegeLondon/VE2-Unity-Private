@@ -21,7 +21,7 @@ namespace VE2.NonCore.Platform.Private
         internal static PlatformService Create()
         {
             PlatformCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
-            return new PlatformService(commsHandler, new PluginLoader(), PlayerLocator.Instance.PlayerService);
+            return new PlatformService(commsHandler, new PluginLoader(), PlayerLocator.Player as IPlayerServiceInternal);
         }
     }
 
@@ -30,34 +30,19 @@ namespace VE2.NonCore.Platform.Private
     //Goes into ServiceLocator by IPlatformAPI
     //The hub finds it, and casts it to IPlatformAPIPrivate 
 
-    internal class PlatformService
+    internal class PlatformService: IPlatformServiceInternal
     {
-        internal ushort LocalClientID { get; private set; }
-        internal string CurrentInstanceCode { get; private set; } //TODO: Remove, comes from settingshandler?
-        internal GlobalInfo GlobalInfo { get; private set; }
-        internal event Action<GlobalInfo> OnGlobalInfoChanged;
-        internal Dictionary<string, WorldDetails> ActiveWorlds { get; private set; }
-        internal ServerConnectionSettings WorldBuildsFTPServerSettings { get; private set; }
-        internal ServerConnectionSettings DefaultWorldSubStoreFTPServerSettings { get; private set; }
-        internal ServerConnectionSettings DefaultInstancingServerSettings { get; private set; }
+        public ushort LocalClientID { get; private set; }
+        public bool IsConnectedToServer { get; private set; }
+        public event Action OnConnectedToServer;
+        public string CurrentInstanceCode { get; private set; }
+        public bool IsAuthFailed { get; private set; }
+        public event Action OnAuthFailed;
+        public Dictionary<string, WorldDetails> ActiveWorlds { get; private set; }
+        public GlobalInfo GlobalInfo { get; private set; }
+        public event Action<GlobalInfo> OnGlobalInfoChanged;
 
-        internal event Action<string> OnInstanceCodeChange;
-
-        /*
-                We should probably just be hiding UserSettingsDebug when there IS a platform service?
-                Instead, maybe we can just show the platform's user settings directly into the debug thing?
-
-        */
-
-        #region Interfaces
-        internal bool IsConnectedToServer { get; private set; }
-        internal event Action OnConnectedToServer;
-
-        internal bool IsAuthFailed { get; private set; }
-
-        internal event Action OnAuthFailed;
-
-        internal void RequestInstanceAllocation(string worldName, string instanceSuffix)
+        public void RequestInstanceAllocation(string worldName, string instanceSuffix)
         {
             if (IsConnectedToServer)
             {
@@ -70,12 +55,12 @@ namespace VE2.NonCore.Platform.Private
                 Debug.LogError("Not yet connected to server");
             }
         }
-        internal void RequestHubAllocation()
+        public void RequestHubAllocation()
         {
             RequestInstanceAllocation("Hub", "Solo");
         }
 
-        internal ServerConnectionSettings GetInstanceServerSettingsForWorld(string worldName)
+        public ServerConnectionSettings GetInstanceServerSettingsForWorld(string worldName)
         {
             if (ActiveWorlds == null || !ActiveWorlds.ContainsKey(worldName) || !ActiveWorlds[worldName].HasCustomInstanceServer)
                 return DefaultInstancingServerSettings;
@@ -83,21 +68,34 @@ namespace VE2.NonCore.Platform.Private
                 return ActiveWorlds[worldName].CustomInstanceServerSettings;
         }
 
-        internal ServerConnectionSettings GetInstanceServerSettingsForCurrentWorld() => GetInstanceServerSettingsForWorld(SceneManager.GetActiveScene().name); //TODO: Should come from settings?
-        #endregion
+        public ServerConnectionSettings GetInstanceServerSettingsForCurrentWorld() => GetInstanceServerSettingsForWorld(SceneManager.GetActiveScene().name); //TODO: Should come from settings?
+
+
+        internal ServerConnectionSettings WorldBuildsFTPServerSettings { get; private set; }
+        internal ServerConnectionSettings DefaultWorldSubStoreFTPServerSettings { get; private set; }
+        internal ServerConnectionSettings DefaultInstancingServerSettings { get; private set; }
+
+        internal event Action<string> OnInstanceCodeChange;
+
+        /*
+                We should probably just be hiding UserSettingsDebug when there IS a platform service?
+                Instead, maybe we can just show the platform's user settings directly into the debug thing?
+
+        */
+
 
         private IPlatformCommsHandler _commsHandler;
         private readonly PluginLoader _pluginLoader;
-        private readonly IPlayerService _playerService;
+        private readonly IPlayerServiceInternal _playerService;
 
-        internal PlatformService(IPlatformCommsHandler commsHandler, PluginLoader pluginLoader, IPlayerService playerService)
+        internal PlatformService(IPlatformCommsHandler commsHandler, PluginLoader pluginLoader, IPlayerServiceInternal playerService)
         {
             _commsHandler = commsHandler;
             _pluginLoader = pluginLoader;
             _playerService = playerService;
 
             if (_playerService != null)
-                _playerService.OnPlayerPresentationConfigChanged += HandlePlayerPresentationConfigChanged;
+                _playerService.OnOverridableAvatarAppearanceChanged += HandlePlayerPresentationConfigChanged;
 
             commsHandler.OnReceiveNetcodeConfirmation += HandleReceiveNetcodeVersion;
             commsHandler.OnReceiveServerRegistrationConfirmation += HandleReceiveServerRegistrationResponse;
@@ -127,7 +125,7 @@ namespace VE2.NonCore.Platform.Private
                 string correctedInstanceCode = CurrentInstanceCode.Contains("Hub") ? "Hub-Solo" : CurrentInstanceCode; //TODO: Figure out instance code
                 string customerID = "test", customerKey = "test"; //TODO - figure out these too!
 
-                ServerRegistrationRequest serverRegistrationRequest = new(customerID, customerKey, CurrentInstanceCode, _playerService.PlayerPresentationConfig);
+                ServerRegistrationRequest serverRegistrationRequest = new(customerID, customerKey, CurrentInstanceCode, _playerService.OverridableAvatarAppearance.PresentationConfig);
                 _commsHandler.SendMessage(serverRegistrationRequest.Bytes, PlatformNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
             }
         }
@@ -233,10 +231,10 @@ namespace VE2.NonCore.Platform.Private
          * 
          */
 
-        private void HandlePlayerPresentationConfigChanged(PlayerPresentationConfig playerPresentationConfig)
+        private void HandlePlayerPresentationConfigChanged(OverridableAvatarAppearance overridableAvatarAppearance)
         {
             Debug.Log("Sending player presentation config to server - " + LocalClientID);
-            _commsHandler.SendMessage(playerPresentationConfig.Bytes, PlatformNetworkingMessageCodes.UpdatePlayerPresentation, TransmissionProtocol.TCP);
+            _commsHandler.SendMessage(overridableAvatarAppearance.PresentationConfig.Bytes, PlatformNetworkingMessageCodes.UpdatePlayerPresentation, TransmissionProtocol.TCP);
         }
 
         internal void TearDown()
@@ -244,11 +242,16 @@ namespace VE2.NonCore.Platform.Private
             _commsHandler?.DisconnectFromServer();
 
             if (_playerService != null)
-                _playerService.OnPlayerPresentationConfigChanged -= HandlePlayerPresentationConfigChanged;
+                _playerService.OnOverridableAvatarAppearanceChanged -= HandlePlayerPresentationConfigChanged;
+        }
+
+        void IPlatformServiceInternal.RequestInstanceAllocation(string worldName, string instanceSuffix)
+        {
+            RequestInstanceAllocation(worldName, instanceSuffix);
         }
     }
 
-    public static class GlobalInfoExtensions
+    internal static class GlobalInfoExtensions
     {
         public static PlatformInstanceInfo InstanceInfoForClient(this GlobalInfo globalInfo, ushort localClientID)
         {
