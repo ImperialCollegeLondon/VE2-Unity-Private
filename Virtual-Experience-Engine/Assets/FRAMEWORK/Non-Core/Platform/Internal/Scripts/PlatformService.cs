@@ -18,10 +18,10 @@ namespace VE2.NonCore.Platform.Private
     {
         //Shouldn't pass these details,
         //Should pass these in the "Connect" method
-        internal static PlatformService Create()
+        internal static PlatformService Create(IPlatformSettingsHandler platformSettingsHandler)
         {
             PlatformCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
-            return new PlatformService(commsHandler, new PluginLoader(), PlayerLocator.Player as IPlayerServiceInternal);
+            return new PlatformService(commsHandler, new PluginLoader(), PlayerLocator.Player as IPlayerServiceInternal, platformSettingsHandler);
         }
     }
 
@@ -32,13 +32,14 @@ namespace VE2.NonCore.Platform.Private
 
     internal class PlatformService: IPlatformServiceInternal
     {
-        public ushort LocalClientID { get; private set; }
+        public ushort LocalClientID { get => _platformSettingsHandler.PlatformClientID; private set => _platformSettingsHandler.PlatformClientID = value; }
+        public Dictionary<string, WorldDetails> ActiveWorlds { get => _platformSettingsHandler.ActiveWorlds; private set => _platformSettingsHandler.ActiveWorlds = value; }
+        public string CurrentInstanceCode { get => _platformSettingsHandler.InstanceCode; private set => _platformSettingsHandler.InstanceCode = value; }
+
         public bool IsConnectedToServer { get; private set; }
         public event Action OnConnectedToServer;
-        public string CurrentInstanceCode { get; private set; }
         public bool IsAuthFailed { get; private set; }
         public event Action OnAuthFailed;
-        public Dictionary<string, WorldDetails> ActiveWorlds { get; private set; }
         public GlobalInfo GlobalInfo { get; private set; }
         public event Action<GlobalInfo> OnGlobalInfoChanged;
 
@@ -62,18 +63,14 @@ namespace VE2.NonCore.Platform.Private
 
         public ServerConnectionSettings GetInstanceServerSettingsForWorld(string worldName)
         {
-            if (ActiveWorlds == null || !ActiveWorlds.ContainsKey(worldName) || !ActiveWorlds[worldName].HasCustomInstanceServer)
-                return DefaultInstancingServerSettings;
+            if (ActiveWorlds == null || ActiveWorlds.ContainsKey(worldName) || ActiveWorlds[worldName].HasCustomInstanceServer)
+                return _platformSettingsHandler.FallbackInstanceServerSettings;
             else
                 return ActiveWorlds[worldName].CustomInstanceServerSettings;
         }
 
         public ServerConnectionSettings GetInstanceServerSettingsForCurrentWorld() => GetInstanceServerSettingsForWorld(SceneManager.GetActiveScene().name); //TODO: Should come from settings?
 
-
-        internal ServerConnectionSettings WorldBuildsFTPServerSettings { get; private set; }
-        internal ServerConnectionSettings DefaultWorldSubStoreFTPServerSettings { get; private set; }
-        internal ServerConnectionSettings DefaultInstancingServerSettings { get; private set; }
 
         internal event Action<string> OnInstanceCodeChange;
 
@@ -87,12 +84,14 @@ namespace VE2.NonCore.Platform.Private
         private IPlatformCommsHandler _commsHandler;
         private readonly PluginLoader _pluginLoader;
         private readonly IPlayerServiceInternal _playerService;
+        private readonly IPlatformSettingsHandler _platformSettingsHandler;
 
-        internal PlatformService(IPlatformCommsHandler commsHandler, PluginLoader pluginLoader, IPlayerServiceInternal playerService)
+        internal PlatformService(IPlatformCommsHandler commsHandler, PluginLoader pluginLoader, IPlayerServiceInternal playerService, IPlatformSettingsHandler platformSettingsHandler)
         {
             _commsHandler = commsHandler;
             _pluginLoader = pluginLoader;
             _playerService = playerService;
+            _platformSettingsHandler = platformSettingsHandler;
 
             if (_playerService != null)
                 _playerService.OnOverridableAvatarAppearanceChanged += HandlePlayerPresentationConfigChanged;

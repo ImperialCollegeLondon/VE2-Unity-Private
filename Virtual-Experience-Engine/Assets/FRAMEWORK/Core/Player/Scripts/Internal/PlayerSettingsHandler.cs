@@ -26,6 +26,10 @@ using static VE2.Common.CommonSerializables;
 
 //If we create this from PlayerController, where do we create the CustomerLoginSettingsHandler?
 //In the classes that need them, just don't make a second one
+
+/// <summary>
+/// Write to DefaultPlayerPresentationConfig after creating
+/// </summary>
 [ExecuteAlways]
 internal class PlayerSettingsHandler : MonoBehaviour, IPlayerSettingsHandler //TODO: Add control settings! Unless those should live somewhere else?
 {
@@ -45,7 +49,7 @@ internal class PlayerSettingsHandler : MonoBehaviour, IPlayerSettingsHandler //T
     public PlayerPresentationConfig DefaultPlayerPresentationConfig;
 
     private bool _isPlaying => Application.isPlaying;
-    private bool _playerPresentationSetup = false;
+    [SerializeField] private bool _playerPresentationSetup = false;
     [SpaceArea(10)]
     [SerializeField, IgnoreParent, DisableIf(nameof(_isPlaying), false), BeginGroup("Current Player Presentation")] private bool _rememberPlayerSettings = false;
     public bool RememberPlayerSettings
@@ -160,6 +164,13 @@ internal class PlayerSettingsHandler : MonoBehaviour, IPlayerSettingsHandler //T
 
     private void Awake()
     {
+        if (FindObjectsByType<PlayerSettingsHandler>(FindObjectsSortMode.None).Length > 1)
+        {
+            Debug.LogError("There should only be one PlayerSettingsHandler in the scene, but a new one was created. Deleting the new one.");
+            Destroy(gameObject);
+            return;
+        }
+
         _playerPresentationSetup = false;
         _rememberPlayerSettings = PlayerPrefs.GetInt(RememberPlayerSettingsArgName) == 1 ? true: false;
 
@@ -183,107 +194,107 @@ internal class PlayerSettingsHandler : MonoBehaviour, IPlayerSettingsHandler //T
 }
 
 
-public class ServerRegArgDefaults : MonoBehaviour
-{
-    private static ServerRegArgDefaults _instance;
-    public static ServerRegArgDefaults Instance
-    { //Reload-proof singleton
-        get
-        {
-            if (_instance == null)
-                _instance = FindFirstObjectByType<ServerRegArgDefaults>();
+// public class ServerRegArgDefaults : MonoBehaviour
+// {
+//     private static ServerRegArgDefaults _instance;
+//     public static ServerRegArgDefaults Instance
+//     { //Reload-proof singleton
+//         get
+//         {
+//             if (_instance == null)
+//                 _instance = FindFirstObjectByType<ServerRegArgDefaults>();
 
-            if (_instance == null && !Application.isPlaying)
-                _instance = new GameObject($"CustomerLoginArgDefaults{SceneManager.GetActiveScene().name}").AddComponent<ServerRegArgDefaults>();
+//             if (_instance == null && !Application.isPlaying)
+//                 _instance = new GameObject($"CustomerLoginArgDefaults{SceneManager.GetActiveScene().name}").AddComponent<ServerRegArgDefaults>();
 
-            return _instance;
-        }
-    }
+//             return _instance;
+//         }
+//     }
 
-    [SerializeField, IgnoreParent] private string _customerID;
-    public string CustomerID => _customerID;
+//     [SerializeField, IgnoreParent] private string _customerID;
+//     public string CustomerID => _customerID;
 
-    [SerializeField, IgnoreParent] private string _customerKey;
-    public string CustomerKey => _customerKey;
+//     [SerializeField, IgnoreParent] private string _customerKey;
+//     public string CustomerKey => _customerKey;
 
-    [SerializeField, IgnoreParent] private string _instanceCode;
-    public string InstanceCode => _instanceCode;
-}
+//     [SerializeField, IgnoreParent] private string _instanceCode;
+//     public string InstanceCode => _instanceCode;
+// }
 
-public class PlatformNetworkArgDefaults : MonoBehaviour
-{
-    private static PlatformNetworkArgDefaults _instance;
-    public static PlatformNetworkArgDefaults Instance
-    { //Reload-proof singleton
-        get
-        {
-            if (_instance == null)
-                _instance = FindFirstObjectByType<PlatformNetworkArgDefaults>();
+// public class PlatformNetworkArgDefaults : MonoBehaviour
+// {
+//     private static PlatformNetworkArgDefaults _instance;
+//     public static PlatformNetworkArgDefaults Instance
+//     { //Reload-proof singleton
+//         get
+//         {
+//             if (_instance == null)
+//                 _instance = FindFirstObjectByType<PlatformNetworkArgDefaults>();
 
-            if (_instance == null && !Application.isPlaying)
-                _instance = new GameObject($"PlatformNetworkArgDefaults{SceneManager.GetActiveScene().name}").AddComponent<PlatformNetworkArgDefaults>();
+//             if (_instance == null && !Application.isPlaying)
+//                 _instance = new GameObject($"PlatformNetworkArgDefaults{SceneManager.GetActiveScene().name}").AddComponent<PlatformNetworkArgDefaults>();
 
-            return _instance;
-        }
-    }
+//             return _instance;
+//         }
+//     }
 
-    [SerializeField, IgnoreParent] private string ipAddress;
-    public string IPAddress => ipAddress;
+//     [SerializeField, IgnoreParent] private string ipAddress;
+//     public string IPAddress => ipAddress;
 
-    [SerializeField, IgnoreParent] private string _portNumber;
-    public string PortNumber => _portNumber;
-}
+//     [SerializeField, IgnoreParent] private string _portNumber;
+//     public string PortNumber => _portNumber;
+// }
 
-public class InstanceNetworkArgDefaults : MonoBehaviour
-{
-    private static InstanceNetworkArgDefaults _instance;
-    public static InstanceNetworkArgDefaults Instance
-    { //Reload-proof singleton
-        get
-        {
-            if (_instance == null)
-                _instance = FindFirstObjectByType<InstanceNetworkArgDefaults>();
+// public class InstanceNetworkArgDefaults : MonoBehaviour
+// {
+//     private static InstanceNetworkArgDefaults _instance;
+//     public static InstanceNetworkArgDefaults Instance
+//     { //Reload-proof singleton
+//         get
+//         {
+//             if (_instance == null)
+//                 _instance = FindFirstObjectByType<InstanceNetworkArgDefaults>();
 
-            if (_instance == null && !Application.isPlaying)
-                _instance = new GameObject($"InstanceNetworkArgDefaults{SceneManager.GetActiveScene().name}").AddComponent<InstanceNetworkArgDefaults>();
+//             if (_instance == null && !Application.isPlaying)
+//                 _instance = new GameObject($"InstanceNetworkArgDefaults{SceneManager.GetActiveScene().name}").AddComponent<InstanceNetworkArgDefaults>();
 
-            return _instance;
-        }
-    }
+//             return _instance;
+//         }
+//     }
 
-    [SerializeField, IgnoreParent] private string ipAddress;
-    public string IPAddress => ipAddress;
+//     [SerializeField, IgnoreParent] private string ipAddress;
+//     public string IPAddress => ipAddress;
 
-    [SerializeField, IgnoreParent] private string _portNumber;
-    public string PortNumber => _portNumber;
-}
+//     [SerializeField, IgnoreParent] private string _portNumber;
+//     public string PortNumber => _portNumber;
+// }
 
-public class FTPNetworkArgDefaults : MonoBehaviour
-{
-    private static InstanceNetworkArgDefaults _instance;
-    public static InstanceNetworkArgDefaults Instance
-    { //Reload-proof singleton
-        get
-        {
-            if (_instance == null)
-                _instance = FindFirstObjectByType<InstanceNetworkArgDefaults>();
+// public class FTPNetworkArgDefaults : MonoBehaviour
+// {
+//     private static InstanceNetworkArgDefaults _instance;
+//     public static InstanceNetworkArgDefaults Instance
+//     { //Reload-proof singleton
+//         get
+//         {
+//             if (_instance == null)
+//                 _instance = FindFirstObjectByType<InstanceNetworkArgDefaults>();
 
-            if (_instance == null && !Application.isPlaying)
-                _instance = new GameObject($"InstanceNetworkArgDefaults{SceneManager.GetActiveScene().name}").AddComponent<InstanceNetworkArgDefaults>();
+//             if (_instance == null && !Application.isPlaying)
+//                 _instance = new GameObject($"InstanceNetworkArgDefaults{SceneManager.GetActiveScene().name}").AddComponent<InstanceNetworkArgDefaults>();
 
-            return _instance;
-        }
-    }
+//             return _instance;
+//         }
+//     }
 
-    [SerializeField, IgnoreParent] private string ipAddress;
-    public string IPAddress => ipAddress;
+//     [SerializeField, IgnoreParent] private string ipAddress;
+//     public string IPAddress => ipAddress;
 
-    [SerializeField, IgnoreParent] private string _portNumber;
-    public string PortNumber => _portNumber;
+//     [SerializeField, IgnoreParent] private string _portNumber;
+//     public string PortNumber => _portNumber;
 
-    [SerializeField, IgnoreParent] private string _username;
-    public string Username => _username;
+//     [SerializeField, IgnoreParent] private string _username;
+//     public string Username => _username;
 
-    [SerializeField, IgnoreParent] private string _password;
-    public string Password => _password;
-}
+//     [SerializeField, IgnoreParent] private string _password;
+//     public string Password => _password;
+// }

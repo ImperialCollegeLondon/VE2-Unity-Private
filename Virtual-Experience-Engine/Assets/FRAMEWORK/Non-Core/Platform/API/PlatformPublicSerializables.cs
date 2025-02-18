@@ -12,6 +12,7 @@ namespace VE2.Platform.API
 
     public class PlatformPublicSerializables
     {
+        [Serializable]
         internal class ServerConnectionSettings : VE2Serializable
         {
             public string Username;
@@ -55,6 +56,7 @@ namespace VE2.Platform.API
             }
         }
 
+        [Serializable]
         internal class WorldDetails : VE2Serializable //TODO: We don't actually need to send this all via the interface, its just world names and versions we need 
         {
             //Note, these are public writable only so the JSON utility can write to them when reading the config file
@@ -191,7 +193,7 @@ namespace VE2.Platform.API
 
         }
 
-
+    
         internal class PlatformInstanceInfo : InstanceInfoBase
         {
             public Dictionary<ushort, PlatformClientInfo> ClientInfos { get; private set; }

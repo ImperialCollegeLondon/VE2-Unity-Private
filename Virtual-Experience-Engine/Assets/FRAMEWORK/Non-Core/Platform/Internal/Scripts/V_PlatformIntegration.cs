@@ -38,17 +38,17 @@ namespace VE2.PlatformNetworking
     [ExecuteInEditMode]
     public class V_PlatformIntegration : MonoBehaviour, IPlatformProvider //, IPlatformService, IPlatformServiceInternal
     {
-
-        [Title("Debug Connection Settings")]
-        [Help("If starting in this scene rather than the hub (e.g, when testing in the editor), these settings will be used.")]
-        [BeginGroup("Fallback settings"), SerializeField] private bool OfflineMode = false;
+        //[Title("Debug Connection Settings")]
+        [Help("If starting in this scene rather than the Hub (e.g, when testing in the editor), these settings will be used.")]
+        [BeginGroup("Debug settings"), SerializeField] private bool OfflineMode = false;
         [SerializeField, HideIf(nameof(OfflineMode), true)] private string PlatformIP = "127.0.0.1";
         [SerializeField, HideIf(nameof(OfflineMode), true)] private ushort PlatformPort = 4298;
 
-        //TODO: these three should come from a settings object
-        [SerializeField, HideIf(nameof(OfflineMode), true)] private string CustomerID;
-        [SerializeField, HideIf(nameof(OfflineMode), true)] private string CustomerKey;
-        [SerializeField] private string FallbackPlatformInstanceNumber = "dev";
+        [SerializeField, HideIf(nameof(OfflineMode), true)] private string CustomerID = "dev";
+        [SerializeField, HideIf(nameof(OfflineMode), true)] private string CustomerKey = "dev";
+        [SerializeField] private string InstanceCode = "dev";
+        [SerializeField] private ServerConnectionSettings WorldSubStoreFTPSettings = new("dev", "dev", "127.0.0.1", 21);
+        [SerializeField, EndGroup] private ServerConnectionSettings InstancingServerSettings  = new("dev", "dev", "127.0.0.1", 4297);
 
         public string GameObjectName => gameObject.name;
 
@@ -57,7 +57,7 @@ namespace VE2.PlatformNetworking
             get 
             {
                 if (_platformService == null)
-                        OnEnable();
+                    OnEnable();
 
                 return _platformService as IPlatformService;
             }
@@ -74,7 +74,14 @@ namespace VE2.PlatformNetworking
                 return;
             }
 
-            _platformService = PlatformServiceFactory.Create();
+            PlatformSettingsHandler platformSettingsHandler = FindFirstObjectByType<PlatformSettingsHandler>();
+            if (platformSettingsHandler == null)
+            {
+                platformSettingsHandler = new GameObject("PlatformSettingsHandler").AddComponent<PlatformSettingsHandler>();
+                platformSettingsHandler.SetDefaults(CustomerID, CustomerKey, InstanceCode, WorldSubStoreFTPSettings, InstancingServerSettings);
+            }
+            
+            _platformService = PlatformServiceFactory.Create(platformSettingsHandler);
 
             //TODO: - should these just be wired in through the constructor?
             //Why would we ever actually need to wait for these? or change them?
@@ -86,7 +93,7 @@ namespace VE2.PlatformNetworking
             ushort portNumber = PlatformPort;
             string customerID = CustomerID;
             string customerKey = CustomerKey;
-            string instanceCode = $"{SceneManager.GetActiveScene().name}-{FallbackPlatformInstanceNumber}";
+            string instanceCode = $"{SceneManager.GetActiveScene().name}-{InstanceCode}";
 
             //Get customerLogin settings 
             //Get instance settings
