@@ -11,7 +11,7 @@ using VE2.Core.VComponents.PluginInterfaces;
 
 namespace VE2.Core.VComponents.Tests
 {
-    public class HandheldActivatableTest
+    internal class HandheldActivatableTest
     {
         [Test]
         public void HandheldActivatable_WhenActivatedByPlugin_EmitsToPlugin()
@@ -44,7 +44,7 @@ namespace VE2.Core.VComponents.Tests
         }
     }
 
-    public class V_HandheldActivatableStub : IV_HandheldActivatable
+    internal class V_HandheldActivatableStub : IV_HandheldActivatable
     {
         #region Plugin Interfaces
         ISingleInteractorActivatableStateModule IV_HandheldActivatable._StateModule => _HandheldActivatable.StateModule;

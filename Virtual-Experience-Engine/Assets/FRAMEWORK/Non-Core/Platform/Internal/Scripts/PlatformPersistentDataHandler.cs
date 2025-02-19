@@ -22,7 +22,7 @@ internal interface IPlatformSettingsHandler
 /// Call SetDefaults after instantiating 
 /// </summary>
 [ExecuteAlways]
-internal class PlatformSettingsHandler : MonoBehaviour, IPlatformSettingsHandler  //TODO - rename to PlatformPersistentDataHandler?
+internal class PlatformPersistentDataHandler : MonoBehaviour, IPlatformSettingsHandler  
 {
     private const string HasArgsArgName = "hasArgs";
 
@@ -416,7 +416,7 @@ internal class PlatformSettingsHandler : MonoBehaviour, IPlatformSettingsHandler
 
     private void Awake()
     {
-        if (FindObjectsByType<PlatformSettingsHandler>(FindObjectsSortMode.None).Length > 1)
+        if (FindObjectsByType<PlatformPersistentDataHandler>(FindObjectsSortMode.None).Length > 1)
         {
             Debug.LogError("There should only be one PlatformSettingsHandler in the scene, but a new one was created. Deleting the new one.");
             Destroy(gameObject);

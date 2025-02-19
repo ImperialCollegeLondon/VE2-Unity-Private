@@ -12,7 +12,7 @@ namespace VE2.Core.VComponents.Tests
 {
     [TestFixture]
     [Category("Activatable Service Tests")]
-    public class ToggleActivatableTests
+    internal class ToggleActivatableTests
     {
         //variables that will be reused in the tests
         private IV_ToggleActivatable _activatablePluginInterface;
@@ -76,14 +76,14 @@ namespace VE2.Core.VComponents.Tests
         }
     }
 
-    public class PluginScriptMock
+    internal class PluginScriptMock
     {
         public virtual void HandleActivateReceived() { }
         public virtual void HandleDeactivateReceived() { }
         public virtual void HandleValueAdjusted(float value) { }
     }
 
-    public class V_ToggleActivatableStub : IV_ToggleActivatable, IRangedClickPlayerInteractableIntegrator, ICollidePlayerInteractableIntegrator
+    internal class V_ToggleActivatableStub : IV_ToggleActivatable, IRangedClickPlayerInteractableIntegrator, ICollidePlayerInteractableIntegrator
     {
         #region Plugin Interfaces
         ISingleInteractorActivatableStateModule IV_ToggleActivatable._StateModule => _ToggleActivatable.StateModule;
@@ -95,9 +95,9 @@ namespace VE2.Core.VComponents.Tests
         IRangedInteractionModule IRangedPlayerInteractableIntegrator.RangedInteractionModule => _ToggleActivatable.RangedClickInteractionModule;
         #endregion
 
-        protected ToggleActivatableService _ToggleActivatable = null;
+        internal ToggleActivatableService _ToggleActivatable = null;
 
-        public V_ToggleActivatableStub(ToggleActivatableService ToggleActivatable)
+        internal V_ToggleActivatableStub(ToggleActivatableService ToggleActivatable)
         {
             _ToggleActivatable = ToggleActivatable;
         }
@@ -109,7 +109,7 @@ namespace VE2.Core.VComponents.Tests
         }
     }
 
-    public static class ToggleActivatableServiceStubFactory
+    internal static class ToggleActivatableServiceStubFactory
     {
         //factory method to create the activatable stub
         public static ToggleActivatableService Create(

@@ -6,7 +6,6 @@ using System;
 using static VE2.InstanceNetworking.V_InstanceIntegration;
 using VE2.Common;
 using static VE2.Platform.API.PlatformPublicSerializables;
-using static VE2.Common.CommonSerializables;
 
 namespace VE2.InstanceNetworking
 {
@@ -15,31 +14,44 @@ namespace VE2.InstanceNetworking
         internal static InstanceService Create(LocalClientIdWrapper localClientIDWrapper, bool connectAutomatically, ConnectionStateDebugWrapper connectionStateDebugWrapper) 
         {
             InstanceNetworkingCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
-            //TODO - maybe we should get avatar prefab GOs here too?
 
             return new InstanceService(
                 commsHandler, 
                 localClientIDWrapper, 
                 connectionStateDebugWrapper, 
-                PlatformServiceLocator.PlatformService as IPlatformServiceInternal,
-                PlayerLocator.InteractorContainer,
-                PlayerLocator.Player as IPlayerServiceInternal,
+                PlatformAPI.PlatformService as IPlatformServiceInternal,
+                PlayerAPI.InteractorContainer,
+                PlayerAPI.Player as IPlayerServiceInternal,
                 connectAutomatically);
         }
     }
 
-    //TODO: Wire CommsHandler into the syncer directly, less wiring overall, and more consistent with the containers that we inject into the syncers 
-    internal class InstanceService : IInstanceService, IInstanceServiceInternal, ILocalClientIDProvider
+    internal class InstanceService : IInstanceService, IInstanceServiceInternal
     {
-        //TODO, should take some config for events like "OnBecomeHost", "OnLoseHost", maybe also sync frequencies
+        //TODO, should take some config for events like "OnBecomeHost", "OnLoseHost"
 
+        #region Public interfaces
         public bool IsConnectedToServer => _connectionStateDebugWrapper.ConnectionState == ConnectionState.Connected;
         public event Action OnConnectedToInstance;
         public event Action OnDisconnectedFromInstance;
+        public void ConnectToInstance() => ConnectToServer();
+        public void DisconnectFromInstance() => DisconnectFromServer();
+        public bool IsHost => _instanceInfoContainer.IsHost;
+        #endregion
+
+
+        #region Internal interfaces
         public event Action<ushort> OnClientIDReady;
+        internal IWorldStateSyncService WorldStateSyncService => _worldStateSyncer;
+        #endregion
 
 
-        #region Temp debug Interfaces //TODO: remove once UI is in 
+        #region Shared interfaces
+        public ushort LocalClientID => _instanceInfoContainer.LocalClientID;
+        #endregion
+
+
+        #region Temp debug interfaces //TODO: remove once UI is in 
         public InstancedInstanceInfo InstanceInfo => _instanceInfoContainer.InstanceInfo;
         public event Action<InstancedInstanceInfo> OnInstanceInfoChanged { 
             add => _instanceInfoContainer.OnInstanceInfoChanged += value; 
@@ -55,22 +67,14 @@ namespace VE2.InstanceNetworking
         private readonly InteractorContainer _interactorContainer;
         private readonly InstanceInfoContainer _instanceInfoContainer;
 
-
-        internal IWorldStateSyncService WorldStateSyncService => _worldStateSyncer;
-        internal ILocalClientIDProvider PlayerSyncService => _localPlayerSyncer;
-
-        public ushort LocalClientID => _instanceInfoContainer.LocalClientID;
-
-        public bool IsHost => _instanceInfoContainer.IsHost;
-
-        internal WorldStateSyncer _worldStateSyncer;
-        internal LocalPlayerSyncer _localPlayerSyncer;
-        internal RemotePlayerSyncer _remotePlayerSyncer;
+        internal readonly WorldStateSyncer _worldStateSyncer;
+        internal readonly LocalPlayerSyncer _localPlayerSyncer;
+        internal readonly RemotePlayerSyncer _remotePlayerSyncer;
 
         public InstanceService(IPluginSyncCommsHandler commsHandler, LocalClientIdWrapper localClientIDWrapper, 
-        ConnectionStateDebugWrapper connectionStateDebugWrapper, IPlatformServiceInternal platformService, 
-        InteractorContainer interactorContainer, IPlayerServiceInternal playerServiceInternal,
-        bool connectAutomatically)
+            ConnectionStateDebugWrapper connectionStateDebugWrapper, IPlatformServiceInternal platformService, 
+            InteractorContainer interactorContainer, IPlayerServiceInternal playerServiceInternal,
+            bool connectAutomatically)
         {
             _commsHandler = commsHandler;
             _connectionStateDebugWrapper = connectionStateDebugWrapper;
@@ -85,58 +89,23 @@ namespace VE2.InstanceNetworking
             _commsHandler.OnReceiveInstanceInfoUpdate += HandleReceiveInstanceInfoUpdate;
             _commsHandler.OnDisconnectedFromServer += HandleDisconnectFromServer;
 
-
             _worldStateSyncer = new(_commsHandler, _instanceInfoContainer); //receives and transmits
-            _localPlayerSyncer = new(_commsHandler, _instanceInfoContainer.LocalClientIdWrapper, playerServiceInternal, _instanceInfoContainer); //only transmits
+            _localPlayerSyncer = new(_commsHandler, playerServiceInternal, _instanceInfoContainer); //only transmits
             _remotePlayerSyncer = new(_commsHandler, _instanceInfoContainer, _interactorContainer, _playerService); //only receives
 
-            /*
-                Do we want to connect automatically? 
-                Well, no, maybe the plugin has some kind of staging scene? 
-                So, the connection should be programmatic via an api, but you shouln't be able to pass an isntance code?
-
-                So if not connect automatically, then plugin needs to be able to trigger connection to a certain instance code 
-                Do we really care about this???
-
-                BUt then that lets the plugin override the instance code that we get from the hub... which we don't want... 
-
-                We're saying we don't want to have to handshake with platform before we start instance syncing, right?
-                So then in the editor, we need to be able to launch right into a plugin, and connect to instancing without connecting to platform 
-                How??
-
-                Honestly... I think let's just keep it simple, and assume it always comes from a server 
-
-                The alternative would be to have the platform return some default setting??
-                So configure platform service with default instance code, but also with default instance instancing settings?? 
-                Ah, idk, we're talking about less than 250 seconds of load time here... let's not worry about it for now I think 
-            */
-
-            //TODO: create syncers here
-
             if (connectAutomatically)
-                ConnectToServerWhenReady();
-        }
-
-        public void ConnectToServerWhenReady()  //TODO: No longer need to wait for platform server connection, conn details should be available anyway
-        {
-            if (_connectionStateDebugWrapper.ConnectionState != ConnectionState.NotYetConnected &&
-                _connectionStateDebugWrapper.ConnectionState != ConnectionState.LostConnection)
-                return;
-
-            if (_platformService.IsConnectedToServer)
-            {
                 ConnectToServer();
-            }
-            else
-            {
-                _connectionStateDebugWrapper.ConnectionState = ConnectionState.WaitingForConnectionSettings;
-                _platformService.OnConnectedToServer += ConnectToServer;
-            }
         }
 
-        private void ConnectToServer() //TODO, encapsulate with the above in a ConnectionManager class 
+        private void ConnectToServer() //TODO: expose to plugin for delayed connection?
         {
-            _platformService.OnConnectedToServer -= ConnectToServer;
+            if (_connectionStateDebugWrapper.ConnectionState == ConnectionState.Connecting &&
+                _connectionStateDebugWrapper.ConnectionState == ConnectionState.Connected)
+            {
+                Debug.LogWarning("Attempted to connect to server while already connected or connecting");
+                return;
+            }
+
             _connectionStateDebugWrapper.ConnectionState = ConnectionState.Connecting;
 
             ServerConnectionSettings serverConnectionSettings = _platformService.GetInstanceServerSettingsForCurrentWorld();
@@ -172,7 +141,7 @@ namespace VE2.InstanceNetworking
             AvatarAppearanceWrapper avatarAppearanceWrapper = new(usingFrameworkAvatar, _playerService.OverridableAvatarAppearance);
 
             //We also send the LocalClientID here, this will either be maxvalue (if this is our first time connecting, the server will give us a new ID)..
-            //..or it'll be the ID we we're given by the server (if we're reconnecting, the server will use the ID we provide)
+            //..or it'll be the ID we we're restored after a disconnect (if we're reconnecting, the server will use the ID we provide)
             ServerRegistrationRequest serverRegistrationRequest = new(_platformService.CurrentInstanceCode, _instanceInfoContainer.LocalClientID, avatarAppearanceWrapper);
             _commsHandler.SendMessage(serverRegistrationRequest.Bytes, InstanceNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
         }
@@ -191,7 +160,7 @@ namespace VE2.InstanceNetworking
 
         private void HandleReceiveInstanceInfoUpdate(byte[] bytes) =>  _instanceInfoContainer.InstanceInfo = new InstancedInstanceInfo(bytes);
 
-        public void NetworkUpdate() 
+        internal void NetworkUpdate() 
         {
             _commsHandler.MainThreadUpdate();
 
@@ -203,9 +172,17 @@ namespace VE2.InstanceNetworking
             }
         }
 
-        public void ReceivePingFromHost() {} //TODO
+        private void ReceivePingFromHost() {} //TODO
 
-        public void DisconnectFromServer() => _commsHandler.DisconnectFromServer();
+        private void DisconnectFromServer() 
+        {
+            if (_connectionStateDebugWrapper.ConnectionState != ConnectionState.Connected)
+            {
+                Debug.LogWarning("Attempted to disconnect to server while not connected");
+                return;
+            }
+            _commsHandler.DisconnectFromServer();
+        } 
 
         private void HandleDisconnectFromServer() 
         {
@@ -217,7 +194,7 @@ namespace VE2.InstanceNetworking
             OnDisconnectedFromInstance?.Invoke();
         }
 
-        public void TearDown()
+        internal void TearDown()
         {
             if (IsConnectedToServer)
             {

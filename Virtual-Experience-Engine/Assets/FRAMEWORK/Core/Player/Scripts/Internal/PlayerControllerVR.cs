@@ -39,7 +39,7 @@ namespace VE2.Core.Player
         private readonly V_HandController _handControllerLeft;
         private readonly V_HandController _handControllerRight;
 
-        internal PlayerControllerVR(InteractorContainer interactorContainer, PlayerVRInputContainer playerVRInputContainer, IPlayerSettingsHandler playerSettingsHandler, PlayerVRControlConfig controlConfig, 
+        internal PlayerControllerVR(InteractorContainer interactorContainer, PlayerVRInputContainer playerVRInputContainer, IPlayerPersistentDataHandler playerSettingsHandler, PlayerVRControlConfig controlConfig, 
             IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper, ILocalClientIDProvider multiplayerSupport)
         {
             GameObject playerVRPrefab = Resources.Load("vrPlayer") as GameObject;

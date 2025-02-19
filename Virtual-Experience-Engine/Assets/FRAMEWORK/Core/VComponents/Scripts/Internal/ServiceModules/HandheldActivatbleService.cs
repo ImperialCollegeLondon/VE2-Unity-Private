@@ -9,12 +9,12 @@ using VE2.Common;
 namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
-    public class HandheldActivatableConfig
+    internal class HandheldActivatableConfig
     {
         [SerializeField, IgnoreParent] public ActivatableStateConfig StateConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
     }
-    public class HandheldActivatableService
+    internal class HandheldActivatableService
     {
         #region Interfaces
         public ISingleInteractorActivatableStateModule StateModule => _StateModule;

@@ -9,9 +9,8 @@ using static VE2.Common.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
 {
-
     [Serializable]
-    public class AdjustableStateConfig : BaseWorldStateConfig
+    internal class AdjustableStateConfig : BaseWorldStateConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Adjustable State Settings", ApplyCondition = true)]

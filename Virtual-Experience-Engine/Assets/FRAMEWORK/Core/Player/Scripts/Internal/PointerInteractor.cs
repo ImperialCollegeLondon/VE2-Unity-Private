@@ -34,9 +34,9 @@ namespace VE2.Core.Player
         public Transform GrabberTransform => _GrabberTransform;
 
         protected bool IsCurrentlyGrabbing => _CurrentGrabbingGrabbable != null;
-        private ushort _localClientID => _playerSyncService == null ? (ushort)0 : _playerSyncService.LocalClientID;
+        private ushort _localClientID => _localClientIDProvider == null ? (ushort)0 : _localClientIDProvider.LocalClientID;
         protected InteractorID _InteractorID => new(_localClientID, _InteractorType);
-        protected bool _WaitingForLocalClientID => _playerSyncService != null && !_playerSyncService.IsClientIDReady;
+        protected bool _WaitingForLocalClientID => _localClientIDProvider != null && !_localClientIDProvider.IsClientIDReady;
 
         protected const float MAX_RAYCAST_DISTANCE = 10;
         protected IRangedGrabInteractionModule _CurrentGrabbingGrabbable;
@@ -53,33 +53,10 @@ namespace VE2.Core.Player
 
         private readonly InteractorType _InteractorType;
         private readonly IRaycastProvider _RaycastProvider;
-        private readonly ILocalClientIDProvider _playerSyncService;
-
-        /*
-            The interactor has to know its ID, since it has to send the ID to the VComponents 
-            But this ID comes from the instancing server...
-            So we need the instancing service to put itself, by interface, into the PlayerLocator
-            What do we need? 
-                - an interface reference that's set at edit-time 
-                - a way to get the client ID out of that interface
-            So basically, we're passing IInstancingSupport into the Player? 
-            AND we have to pass the PlayerStateContainer, and InteractorContainer? Where should these live?
-            So IInstancing lives on the PlayerAPI... but, we do need something similar for the VC too... 
-            Maybe we just have INetworkSupport live in Core.Common?
-                - a bool for if its there 
-                - a playerStateModule container 
-                - a worldStateModule container 
-                - a way to get the client ID
-                - an interactor container
-            So we'd need a CoreServicesLocator? 
-            TBH, the PlayerSync interface doesn't really overlap with the VComponentsSync interface, so maybe no need to couple them
-
-            InteractorContainer NEEDS to live on Player.API, VCs need to see it too
-            Unless it lives on VC.API
-        */
+        private readonly ILocalClientIDProvider _localClientIDProvider;
 
         internal PointerInteractor(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
-            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, ILocalClientIDProvider playerSyncService)
+            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, ILocalClientIDProvider localClientIDProvider)
         {
             _interactorContainer = interactorContainer;
             _interactorInputContainer = interactorInputContainer;
@@ -91,7 +68,7 @@ namespace VE2.Core.Player
 
             _InteractorType = interactorType;
             _RaycastProvider = raycastProvider;
-            _playerSyncService = playerSyncService;
+            _localClientIDProvider = localClientIDProvider;
         }
 
         public virtual void HandleOnEnable()
@@ -103,7 +80,7 @@ namespace VE2.Core.Player
             _interactorInputContainer.ScrollTickDown.OnTickOver += HandleScrollDown;
 
             if (_WaitingForLocalClientID)
-                _playerSyncService.OnClientIDReady += HandleLocalClientIDReady;
+                _localClientIDProvider.OnClientIDReady += HandleLocalClientIDReady;
             else
                 HandleLocalClientIDReady(_localClientID);
         }
@@ -116,16 +93,16 @@ namespace VE2.Core.Player
             _interactorInputContainer.ScrollTickUp.OnTickOver -= HandleScrollUp;
             _interactorInputContainer.ScrollTickDown.OnTickOver -= HandleScrollDown;
 
-            if (_playerSyncService != null)
-                _playerSyncService.OnClientIDReady -= HandleLocalClientIDReady;
+            if (_localClientIDProvider != null)
+                _localClientIDProvider.OnClientIDReady -= HandleLocalClientIDReady;
 
             _interactorContainer.DeregisterInteractor(_InteractorID.ToString());
         }
 
         private void HandleLocalClientIDReady(ushort clientID) 
         {
-            if (_playerSyncService != null)
-                _playerSyncService.OnClientIDReady -= HandleLocalClientIDReady;
+            if (_localClientIDProvider != null)
+                _localClientIDProvider.OnClientIDReady -= HandleLocalClientIDReady;
 
             _interactorContainer.RegisterInteractor(_InteractorID.ToString(), this);
         }

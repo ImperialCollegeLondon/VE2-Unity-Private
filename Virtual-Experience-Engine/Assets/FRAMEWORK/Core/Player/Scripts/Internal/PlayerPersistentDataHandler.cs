@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using static VE2.Common.CommonSerializables;
 
-internal interface IPlayerSettingsHandler
+internal interface IPlayerPersistentDataHandler
 {
     public bool RememberPlayerSettings { get; set; }
 
@@ -22,7 +22,7 @@ internal interface IPlayerSettingsHandler
 /// Write to DefaultPlayerPresentationConfig after creating
 /// </summary>
 [ExecuteAlways]
-internal class PlayerSettingsHandler : MonoBehaviour, IPlayerSettingsHandler //TODO: Add control settings! Unless those should live somewhere else?
+internal class PlayerPersistentDataHandler : MonoBehaviour, IPlayerPersistentDataHandler //TODO: Add control settings! 
 {
     private const string HasArgsArgName = "hasArgs";
     public static string RememberPlayerSettingsArgName => "rememberPlayerSettings";
@@ -33,11 +33,7 @@ internal class PlayerSettingsHandler : MonoBehaviour, IPlayerSettingsHandler //T
     public static string PlayerGreenArgName => "playerGreen";
     public static string PlayerBlueArgName => "playerBlue";
 
-    public string GameObjectName => gameObject.name;
-
-    //TODO: Also need RememberMeDefault and RememberMeCurrent
     private bool _isPlaying => Application.isPlaying;
-
 
     [SpaceArea(10)]
     [SerializeField, IgnoreParent, DisableIf(nameof(_isPlaying), false), BeginGroup("Current Player Presentation")] private bool _rememberPlayerSettings = false;
@@ -157,7 +153,7 @@ internal class PlayerSettingsHandler : MonoBehaviour, IPlayerSettingsHandler //T
 
     private void Awake()
     {
-        if (FindObjectsByType<PlayerSettingsHandler>(FindObjectsSortMode.None).Length > 1)
+        if (FindObjectsByType<PlayerPersistentDataHandler>(FindObjectsSortMode.None).Length > 1)
         {
             Debug.LogError("There should only be one PlayerSettingsHandler in the scene, but a new one was created. Deleting the new one.");
             Destroy(gameObject);

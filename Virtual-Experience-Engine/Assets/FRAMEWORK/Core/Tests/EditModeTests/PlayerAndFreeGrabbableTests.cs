@@ -10,9 +10,9 @@ using VE2.Core.VComponents.InteractableFindables;
 using VE2.Core.VComponents.Internal;
 using static VE2.Common.CommonSerializables;
 using System;
-using VE2.Core.VComponents.Tests;
 using VE2.Core.Common;
 using VE2.Core.Player;
+using VE2.Core.VComponents.Tests;
 
 namespace VE2.Core.Tests
 {
@@ -52,7 +52,7 @@ namespace VE2.Core.Tests
             IRangedGrabInteractionModule grabbablePlayerInterface = grabbableRaycastInterface.RangedGrabInteractionModule;
 
             //Stub out the player settings provider with default settings
-            IPlayerSettingsHandler playerSettingsProviderStub = Substitute.For<IPlayerSettingsHandler>();
+            IPlayerPersistentDataHandler playerSettingsProviderStub = Substitute.For<IPlayerPersistentDataHandler>();
             playerSettingsProviderStub.PlayerPresentationConfig.Returns(new PlayerPresentationConfig());
 
             //Stub out the input handler    
@@ -69,7 +69,7 @@ namespace VE2.Core.Tests
             new PlayerTransformData(),
             new PlayerConfig(),
             interactorContainerStub,
-            Substitute.For<IPlayerSettingsHandler>(),
+            Substitute.For<IPlayerPersistentDataHandler>(),
             localClientProviderStub,
             playerInputContainerStubWrapper.PlayerInputContainer,
             raycastProviderStub,

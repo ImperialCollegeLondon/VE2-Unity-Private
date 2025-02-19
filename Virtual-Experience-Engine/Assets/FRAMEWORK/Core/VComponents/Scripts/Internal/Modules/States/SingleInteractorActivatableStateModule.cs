@@ -10,7 +10,7 @@ using static VE2.Common.CommonSerializables;
 namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
-    public class ActivatableStateConfig : BaseWorldStateConfig
+    internal class ActivatableStateConfig : BaseWorldStateConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Activation Settings", ApplyCondition = true)]

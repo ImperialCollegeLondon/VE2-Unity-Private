@@ -39,7 +39,7 @@ namespace VE2.Core.Player
         private readonly Player2DLocomotor _playerLocomotor2D;
         private readonly Interactor2D _interactor2D;
 
-        internal PlayerController2D(InteractorContainer interactorContainer, Player2DInputContainer player2DInputContainer, IPlayerSettingsHandler playerSettingsHandler,
+        internal PlayerController2D(InteractorContainer interactorContainer, Player2DInputContainer player2DInputContainer, IPlayerPersistentDataHandler playerSettingsHandler,
             Player2DControlConfig controlConfig, IRaycastProvider raycastProvider, ILocalClientIDProvider multiplayerSupport) 
         {
             GameObject player2DPrefab = Resources.Load("2dPlayer") as GameObject;

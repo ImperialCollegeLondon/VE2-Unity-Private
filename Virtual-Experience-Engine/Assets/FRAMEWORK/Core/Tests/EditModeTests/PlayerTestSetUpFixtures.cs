@@ -115,7 +115,7 @@ namespace VE2.Core.Tests
                 new PlayerTransformData(),
                 new PlayerConfig(),
                 new InteractorContainer(),
-                Substitute.For<IPlayerSettingsHandler>(),
+                Substitute.For<IPlayerPersistentDataHandler>(),
                 PlayerSyncerSetup.LocalClientIDProviderStub,
                 InputHandlerSetup.PlayerInputContainerStubWrapper.PlayerInputContainer,
                 RayCastProviderSetup.RaycastProviderStub, 

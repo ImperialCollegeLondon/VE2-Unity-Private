@@ -2,15 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
-using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using VE2.Common;
 using VE2.NonCore.Platform.Private;
-using static VE2.Common.CommonSerializables;
 using static VE2.Platform.API.PlatformPublicSerializables;
-using static VE2.Platform.Internal.PlatformSerializables;
 
 namespace VE2.PlatformNetworking
 {
@@ -36,9 +32,9 @@ namespace VE2.PlatformNetworking
     */
 
     [ExecuteInEditMode]
-    public class V_PlatformIntegration : MonoBehaviour, IPlatformProvider //, IPlatformService, IPlatformServiceInternal
+    internal class V_PlatformIntegration : MonoBehaviour, IPlatformProvider //, IPlatformService, IPlatformServiceInternal
     {
-        //[Title("Debug Connection Settings")]
+        #region Debug settings
         [Help("If starting in this scene rather than the Hub (e.g, when testing in the editor), these settings will be used.")]
         [BeginGroup("Debug settings"), SerializeField] private bool OfflineMode = false;
         [SerializeField, HideIf(nameof(OfflineMode), true)] private string PlatformIP = "127.0.0.1";
@@ -49,9 +45,10 @@ namespace VE2.PlatformNetworking
         [SerializeField] private string InstanceSuffix = "dev";
         [SerializeField] private ServerConnectionSettings WorldSubStoreFTPSettings = new("dev", "dev", "127.0.0.1", 21);
         [SerializeField, EndGroup] private ServerConnectionSettings InstancingServerSettings  = new("dev", "dev", "127.0.0.1", 4297);
+        #endregion
 
-        public string GameObjectName => gameObject.name;
 
+        #region Provider Interfaces
         private PlatformService _platformService;
         IPlatformService IPlatformProvider.PlatformService { 
             get 
@@ -62,74 +59,36 @@ namespace VE2.PlatformNetworking
                 return _platformService as IPlatformService;
             }
         }
+        public string GameObjectName => gameObject.name;
+        #endregion
 
 
         private void OnEnable() //TODO - handle reconnect
         {
-            PlatformServiceLocator.PlatformProvider = this;
+            PlatformAPI.PlatformProvider = this;
 
             if (!Application.isPlaying || _platformService != null)
-            {
-                //Maybe find the settings handlers and show their inspectors, if possible
                 return;
-            }
+
+            Debug.Log("init platform");
 
             string instanceCode = $"{SceneManager.GetActiveScene().name}-{InstanceSuffix}";
 
-            PlatformSettingsHandler platformSettingsHandler = FindFirstObjectByType<PlatformSettingsHandler>();
-            if (platformSettingsHandler == null)
+            PlatformPersistentDataHandler platformPersistentDataHandler = FindFirstObjectByType<PlatformPersistentDataHandler>();
+            if (platformPersistentDataHandler == null)
             {
-                platformSettingsHandler = new GameObject("PlatformSettingsHandler").AddComponent<PlatformSettingsHandler>();
-                platformSettingsHandler.SetDefaults(CustomerID, CustomerKey, instanceCode, WorldSubStoreFTPSettings, InstancingServerSettings);
+                platformPersistentDataHandler = new GameObject("PlatformSettingsHandler").AddComponent<PlatformPersistentDataHandler>();
+                platformPersistentDataHandler.SetDefaults(CustomerID, CustomerKey, instanceCode, WorldSubStoreFTPSettings, InstancingServerSettings);
             }
             
-            _platformService = PlatformServiceFactory.Create(platformSettingsHandler);
+            _platformService = PlatformServiceFactory.Create(platformPersistentDataHandler);
 
-            //TODO: - should these just be wired in through the constructor?
-            //Why would we ever actually need to wait for these? or change them?
-            //We'll pull them out of the settings handler
-            //Apart from the very first time in the intro scene...
-            //We'll need to wait for the intro to tell us to connect to the platform, and with what details
-            //because that's the first time, we can just assume that, if the connection settings are missing, we're in the intro scene
-            // string ipAddress = PlatformIP;
-            // ushort portNumber = PlatformPort;
-            // string customerID = CustomerID;
-            // string customerKey = CustomerKey;
-
-            //Get customerLogin settings 
-            //Get instance settings
-            //InstanceService will also need those two, PLUS instance IP address settings
-            //PlayerPresentationConfig playerPresentationConfig = PlayerLocator.Player.PlayerPresentationConfig;
-
-            Debug.Log("Create instance code: " + instanceCode);
-            //False if we're in the hub for the first time. 
+            //False if we're in the hub/intro scene for the first time. 
             bool customerSettingsFound = true;
             if (customerSettingsFound)
                 _platformService.ConnectToPlatform(IPAddress.Parse(PlatformIP), PlatformPort, instanceCode);
-            // else, wait for the hub to tell us to, after we've logged in.
-
-
-            // if (_platformService.IsConnectedToServer)
-            //     HandlePlatformServiceReady();
-            // else
-            //     _platformService.OnConnectedToServer += HandlePlatformServiceReady;
+            // else, wait for the /intro scene to tell us to, after we've logged in.
         }
-
-
-        // private void HandlePlatformServiceReady()
-        // {
-        //     //Invoke events? 
-        //     IsAuthFailed = false;
-        //     IsConnectedToServer = true;
-        //     OnConnectedToServer?.Invoke();
-        // }
-
-        // private void HandleAuthFailed()
-        // {
-        //     IsConnectedToServer = false;
-        //     IsAuthFailed = true;
-        //     OnAuthFailed?.Invoke();
-        // }
 
         private void FixedUpdate()
         {
@@ -139,31 +98,10 @@ namespace VE2.PlatformNetworking
         private void OnDisable()
         {
             if (!Application.isPlaying)
-            {
-                //ViRSENonCoreServiceLocator.Instance.InstanceNetworkSettingsProvider = null;
                 return;
-            }
 
             _platformService?.TearDown();
-
-            //if (_platformService != null)
-            //    _platformService.OnConnectedToServer -= HandlePlatformServiceReady;
         }
-
-        // void IPlatformServiceInternal.RequestInstanceAllocation(string worldName, string instanceSuffix)
-        // {
-        //     throw new NotImplementedException();
-        // }
-
-        // ServerConnectionSettings IPlatformServiceInternal.GetInstanceServerSettingsForWorld(string worldName)
-        // {
-        //     throw new NotImplementedException();
-        // }
-
-        // ServerConnectionSettings IPlatformServiceInternal.GetInstanceServerSettingsForCurrentWorld()
-        // {
-        //     throw new NotImplementedException();
-        // }
     }
 
     // public class DebugPlatformService : IPlatformService

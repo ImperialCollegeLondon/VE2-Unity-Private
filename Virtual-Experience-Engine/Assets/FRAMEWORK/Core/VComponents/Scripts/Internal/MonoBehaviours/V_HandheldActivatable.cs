@@ -23,7 +23,7 @@ namespace VE2.Core.VComponents.Integration
         private void OnEnable()
         {
             string id = "HHActivatable-" + gameObject.name; 
-            _service = new(_config, _state, id, VComponents_Locator.HasMultiPlayerSupport? VComponents_Locator.WorldStateSyncService : null);
+            _service = new(_config, _state, id, VComponentsAPI.HasMultiPlayerSupport? VComponentsAPI.WorldStateSyncService : null);
         }
 
         private void FixedUpdate()

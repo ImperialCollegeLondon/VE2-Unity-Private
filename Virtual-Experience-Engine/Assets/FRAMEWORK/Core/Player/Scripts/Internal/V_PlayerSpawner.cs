@@ -9,7 +9,7 @@ using static VE2.Common.CommonSerializables;
 namespace VE2.Core.Player
 {
     [Serializable]
-    public class PlayerConfig
+    internal class PlayerConfig
     {
         [SerializeField] public bool EnableVR = false;
         [SerializeField] public bool Enable2D = true;
@@ -37,25 +37,23 @@ namespace VE2.Core.Player
 
         [Title("Transmission Settings", ApplyCondition = true)]
         [HideIf(nameof(_hasMultiplayerSupport), false)]
-        [SpaceArea(spaceAfter: 10, Order = -1), BeginGroup(Style = GroupStyle.Round, ApplyCondition = true), EndGroup, SerializeField, IgnoreParent] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new();
+        [SpaceArea(spaceAfter: 10, Order = -1), BeginGroup(Style = GroupStyle.Round, ApplyCondition = true), EndGroup, SerializeField, IgnoreParent] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new(TransmissionProtocol.UDP, 35);
         
-        private bool _hasMultiplayerSupport => PlayerLocator.HasMultiPlayerSupport;
+        private bool _hasMultiplayerSupport => PlayerAPI.HasMultiPlayerSupport;
     }
 
     // public class 
 
     [ExecuteAlways]
-    public class V_PlayerSpawner : MonoBehaviour, IPlayerServiceProvider
+    internal class V_PlayerSpawner : MonoBehaviour, IPlayerServiceProvider
     {
         //TODO, configs for each player, OnTeleport, DragHeight, FreeFlyMode, etc
         [SerializeField, IgnoreParent] public PlayerConfig playerConfig = new();
 
         [Help("If running standalone, this presentation config will be used, if integrated with the ViRSE platform, the platform will provide the presentation config.")]
-        [BeginGroup("Debug settings"), SerializeField, EndGroup]  private PlayerPresentationConfig _defaultPlayerPresentationConfig = new();
+        [BeginGroup("Debug settings"), SerializeField, DisableInPlayMode, EndGroup]  private PlayerPresentationConfig _defaultPlayerPresentationConfig = new();
 
-        private bool _transformDataSetup = false;
-        private PlayerTransformData _playerTransformData = new();
-
+        #region Provider Interfaces
         private PlayerService _playerService;
         public IPlayerService PlayerService { 
             get 
@@ -72,19 +70,25 @@ namespace VE2.Core.Player
         }
 
         public string GameObjectName { get => gameObject.name; }
+        #endregion
+
+        private bool _transformDataSetup = false;
+        private PlayerTransformData _playerTransformData = new();
 
         private void OnEnable() 
         {
-            PlayerLocator.PlayerServiceProvider = this;
+            PlayerAPI.PlayerServiceProvider = this;
 
             if (!Application.isPlaying || _playerService != null)
                 return;
 
-            PlayerSettingsHandler playerSettingsHandler = FindFirstObjectByType<PlayerSettingsHandler>();
-            if (playerSettingsHandler == null)
+            Debug.Log("init local player");
+
+            PlayerPersistentDataHandler playerPersistentDataHandler = FindFirstObjectByType<PlayerPersistentDataHandler>();
+            if (playerPersistentDataHandler == null)
             {
-                playerSettingsHandler = new GameObject("PlayerSettingsHandler").AddComponent<PlayerSettingsHandler>();
-                playerSettingsHandler.SetDefaults(_defaultPlayerPresentationConfig);
+                playerPersistentDataHandler = new GameObject("PlayerPersisentDataHandler").AddComponent<PlayerPersistentDataHandler>();
+                playerPersistentDataHandler.SetDefaults(_defaultPlayerPresentationConfig);
             }
 
             if (!_transformDataSetup)
@@ -104,7 +108,7 @@ namespace VE2.Core.Player
             _playerService = VE2PlayerServiceFactory.Create(
                 _playerTransformData, 
                 playerConfig, 
-                playerSettingsHandler);
+                playerPersistentDataHandler);
         }
 
         private void FixedUpdate() 

@@ -6,12 +6,12 @@
         "UnityEditor.TestRunner",
         "TNRD.NSubstitute",
         "Unity.XR.Management",
-        "VE2_Core_VComponents_Tests",
         "VE2.Core.VComponents.API",
-        "VE2_Core_Common",
-        "VE2.Core.Player.Internal",
+        "VE2.Core.VComponents.Tests",
         "VE2.Core.VComponents.Internal",
-        "VE2.Core.Player.API"
+        "VE2.Core.Player.Internal",
+        "VE2.Core.Player.API",
+        "VE2_Core_Common"
     ],
     "includePlatforms": [
         "Editor"

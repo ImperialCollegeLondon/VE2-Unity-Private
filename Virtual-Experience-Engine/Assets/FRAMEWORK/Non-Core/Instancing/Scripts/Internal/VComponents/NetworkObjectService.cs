@@ -7,8 +7,7 @@ using static VE2.Common.CommonSerializables;
 
 namespace VE2.NonCore.Instancing.VComponents.Internal
 {
-
-    public class NetworkObjectService
+    internal class NetworkObjectService
     {
         #region Interfaces
         public INetworkObjectStateModule StateModule => _StateModule;

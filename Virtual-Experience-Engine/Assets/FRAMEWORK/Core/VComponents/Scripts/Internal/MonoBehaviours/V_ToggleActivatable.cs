@@ -29,7 +29,7 @@ namespace VE2.Core.VComponents.Integration
         private void OnEnable()
         {
             string id = "Activatable-" + gameObject.name; 
-            _service = new ToggleActivatableService(_config, _state, id, VComponents_Locator.WorldStateSyncService);
+            _service = new ToggleActivatableService(_config, _state, id, VComponentsAPI.WorldStateSyncService);
         }
 
         private void FixedUpdate()

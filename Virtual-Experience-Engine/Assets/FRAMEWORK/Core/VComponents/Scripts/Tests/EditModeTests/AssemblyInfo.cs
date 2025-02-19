@@ -1,2 +1,2 @@
 using System.Runtime.CompilerServices;
-[assembly: InternalsVisibleTo("ViRSE.Core.Tests")]
+[assembly: InternalsVisibleTo("VE2.Core.Tests")]

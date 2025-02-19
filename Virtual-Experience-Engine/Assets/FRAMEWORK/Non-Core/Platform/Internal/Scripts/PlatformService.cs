@@ -16,19 +16,12 @@ namespace VE2.NonCore.Platform.Private
 {
     internal static class PlatformServiceFactory
     {
-        //Shouldn't pass these details,
-        //Should pass these in the "Connect" method
         internal static PlatformService Create(IPlatformSettingsHandler platformSettingsHandler)
         {
             PlatformCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
-            return new PlatformService(commsHandler, new PluginLoader(), PlayerLocator.Player as IPlayerServiceInternal, platformSettingsHandler);
+            return new PlatformService(commsHandler, new PluginLoader(), PlayerAPI.Player as IPlayerServiceInternal, platformSettingsHandler);
         }
     }
-
-    //So we need to expose this stuff to the hub... and we don't want the hub to live in the platform namespace, because then it gets pulled in by plugins 
-    //So PlatformService needs to implement two interface, IPlatformAPI and IPlatformAPIPrivate 
-    //Goes into ServiceLocator by IPlatformAPI
-    //The hub finds it, and casts it to IPlatformAPIPrivate 
 
     internal class PlatformService: IPlatformServiceInternal
     {

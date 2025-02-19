@@ -9,14 +9,14 @@ using System.Collections.Generic;
 namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
-    public class FreeGrabbableConfig
+    internal class FreeGrabbableConfig
     {
         [SerializeField, IgnoreParent] public FreeGrabbableStateConfig StateConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
         [SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfig = new();
     }
 
-    public class FreeGrabbableService
+    internal class FreeGrabbableService
     {
         #region Interfacess
         public IFreeGrabbableStateModule StateModule => _StateModule;

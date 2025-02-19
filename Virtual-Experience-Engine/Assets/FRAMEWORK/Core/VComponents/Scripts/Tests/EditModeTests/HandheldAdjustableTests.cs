@@ -10,7 +10,7 @@ using VE2.Core.VComponents.PluginInterfaces;
 
 namespace VE2.Core.VComponents.Tests
 {
-    public class HandheldAdjustableTests
+    internal class HandheldAdjustableTests
     {
         [Test]
         public void HandheldAdjustable_WhenAdjustedByPlugin_EmitsToPlugin()
@@ -33,7 +33,7 @@ namespace VE2.Core.VComponents.Tests
         }
     }
 
-    public class V_HandheldAdjustableStub : IV_HandheldAdjustable
+    internal class V_HandheldAdjustableStub : IV_HandheldAdjustable
     {
         #region Plugin Interfaces
         IAdjustableStateModule IV_HandheldAdjustable._StateModule => _HandheldAdjustable.StateModule;

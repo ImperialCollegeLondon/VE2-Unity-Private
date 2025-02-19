@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using UnityEngine;
 using VE2.Common;
 using VE2.Core.Common;
@@ -11,13 +9,13 @@ namespace VE2.Core.Player
 {
     internal static class VE2PlayerServiceFactory
     {
-        internal static PlayerService Create(PlayerTransformData state, PlayerConfig config, IPlayerSettingsHandler playerSettingsHandler)
+        internal static PlayerService Create(PlayerTransformData state, PlayerConfig config, IPlayerPersistentDataHandler playerSettingsHandler)
         {
             return new PlayerService(state, config, 
-            PlayerLocator.InteractorContainer,
+            PlayerAPI.InteractorContainer,
             playerSettingsHandler,
-            PlayerLocator.LocalClientIDProviderProvider.LocalClientIDProvider,
-            PlayerLocator.InputHandler.PlayerInputContainer,
+            PlayerAPI.LocalClientIDProvider,
+            PlayerAPI.InputHandler.PlayerInputContainer,
                 new RaycastProvider(),
                 new XRManagerWrapper());
         }
@@ -25,7 +23,7 @@ namespace VE2.Core.Player
 
     internal class PlayerService : IPlayerService, IPlayerServiceInternal 
     {
-        #region Interfaces //TODO - this wiring can probably live in the interface?
+        #region Interfaces 
         public PlayerTransformData PlayerTransformData {get; private set;}
 
         public event Action<OverridableAvatarAppearance> OnOverridableAvatarAppearanceChanged;
@@ -46,16 +44,11 @@ namespace VE2.Core.Player
             } 
         }
 
-        //This probably SHOULD live in the PlayerSettingsHandler, so it serializes properly 
-        //Syncer wants to pick up on changes 
-        //So send the entire service 
 
         public bool RememberPlayerSettings { get => _playerSettingsHandler.RememberPlayerSettings; set => _playerSettingsHandler.RememberPlayerSettings = value; }
 
         public TransmissionProtocol TransmissionProtocol => _config.RepeatedTransmissionConfig.TransmissionType;
         public float TransmissionFrequency => _config.RepeatedTransmissionConfig.TransmissionFrequency;
-        #endregion
-
 
         public bool VRModeActive => PlayerTransformData.IsVRMode;
 
@@ -74,31 +67,8 @@ namespace VE2.Core.Player
             _config.TorsoOverrideType = type;
             OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
         }
+        #endregion
 
-        // public GameObject GetHeadOverrideGameObjectForIndex(AvatarAppearanceOverrideType type)
-        // {
-        //     if (type == AvatarAppearanceOverrideType.None)
-        //         return null;
-        //     else
-        //         return _config.HeadOverrideGOs[(int)type - 1];
-        // }
-
-        // public GameObject GetTorsoOverrideGameObjectForIndex(AvatarAppearanceOverrideType type)
-        // {
-        //     if (type == AvatarAppearanceOverrideType.None)
-        //         return null;
-        //     else
-        //         return _config.TorsoOverrideGOs[(int)type - 1];
-        // }
-
-
-
-        // PlayerTransformData IPlayerServiceInternal.PlayerTransformData => throw new NotImplementedException();
-
-        // PlayerPresentationConfig IPlayerServiceInternal.PlayerPresentationConfig { get => PlayerPresentationConfig; set => throw new NotImplementedException(); }
-
-
-        //private readonly PlayerStateModule _playerStateModule;
         private readonly PlayerConfig _config;
         private readonly PlayerController2D _player2D;
         private readonly PlayerControllerVR _playerVR;
@@ -106,13 +76,12 @@ namespace VE2.Core.Player
         private bool _enableVR;
 
         private readonly PlayerInputContainer _playerInputContainer;
-        private readonly IPlayerSettingsHandler _playerSettingsHandler;
+        private readonly IPlayerPersistentDataHandler _playerSettingsHandler;
 
         //private readonly IXRManagerWrapper _xrManagerWrapper;
 
-
         internal PlayerService(PlayerTransformData transformData, PlayerConfig config,
-            InteractorContainer interactorContainer, IPlayerSettingsHandler playerSettingsHandler, 
+            InteractorContainer interactorContainer, IPlayerPersistentDataHandler playerSettingsHandler, 
             ILocalClientIDProvider playerSyncer, PlayerInputContainer playerInputContainer, IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerWrapper)
         {
            // _playerStateModule = new(state, config, playerStateModuleContainer);
@@ -155,8 +124,6 @@ namespace VE2.Core.Player
                 _player2D.ActivatePlayer(PlayerTransformData);
 
             _playerInputContainer.ChangeMode.OnPressed += HandleChangeModePressed;
-
-            //HandleAvatarAppearanceChanged(_playerStateModule.AvatarAppearance); //Do this now to set the initial color
         }
 
         private void HandleChangeModePressed() 
@@ -228,7 +195,6 @@ namespace VE2.Core.Player
                 _playerVR.TearDown();
             }
 
-            //_playerStateModule.TearDown();
             _playerInputContainer.ChangeMode.OnPressed -= HandleChangeModePressed;
         }
     }

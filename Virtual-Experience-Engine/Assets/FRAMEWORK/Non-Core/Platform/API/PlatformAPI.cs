@@ -1,23 +1,24 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class PlatformServiceLocator : MonoBehaviour
+public class PlatformAPI : MonoBehaviour
 {
-    private static PlatformServiceLocator _instance;
-    private static PlatformServiceLocator Instance
+    private static PlatformAPI _instance;
+    private static PlatformAPI Instance
     { //Reload-proof singleton
         get
         {
             if (_instance == null)
-                _instance = FindFirstObjectByType<PlatformServiceLocator>();
+                _instance = FindFirstObjectByType<PlatformAPI>();
 
             if (_instance == null && !Application.isPlaying)
-                _instance = new GameObject($"PlatformLocator{SceneManager.GetActiveScene().name}").AddComponent<PlatformServiceLocator>();
+                _instance = new GameObject($"PlatformAPI-{SceneManager.GetActiveScene().name}").AddComponent<PlatformAPI>();
 
             return _instance;
         }
     }
 
+    //Internal for now, unless the pluguin needs to talk to this for some reason
     internal static IPlatformService PlatformService => PlatformProvider.PlatformService;
 
     [SerializeField, HideInInspector] public string platformProviderGOName;

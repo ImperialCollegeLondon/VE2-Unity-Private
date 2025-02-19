@@ -23,7 +23,7 @@ public class DebugGlobalInfoUI : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
 
         //PlatformServiceProvider provider = FindFirstObjectByType<PlatformServiceProvider>();
-        _platformIntegration = (IPlatformServiceInternal)PlatformServiceLocator.PlatformService;
+        _platformIntegration = (IPlatformServiceInternal)PlatformAPI.PlatformService;
         if (_platformIntegration != null)
         {
 

@@ -1,26 +1,26 @@
 using System;
 using UnityEngine;
 using VE2.Common;
-using VE2.Core.VComponents.InteractableInterfaces;
-using static InstanceSyncSerializables;
 
 namespace VE2.InstanceNetworking
 {
+    //Note, ILocalClientIDProvider is implemented here, NOT on the service - it needs to exsit at edit-time
+    //Since the platform inits the player, and instancing inits the platform, we can't have the player init the instancing
+    //Otherwise we'd have a stack overflow, instead, provide ID from the mono here, without initing the instancing service
     [ExecuteInEditMode]
-    public class V_InstanceIntegration : MonoBehaviour, IInstanceProvider, IWorldStateSyncProvider, ILocalClientIDProviderProvider
+    internal class V_InstanceIntegration : MonoBehaviour, IInstanceProvider, IWorldStateSyncProvider, ILocalClientIDProvider
     {
-        #region Inspector Fields
-        // [DynamicHelp(nameof(_settingsMessage))]
-        [EditorButton(nameof(ConnectToServerOnceDetailsReady), "Connect", activityType: ButtonActivityType.OnPlayMode)] //TODO only works if _connectOnStart is false, look into other EditorButton packages
+        #region Inspector frontend
+        private void DebugConnect() => _instanceService.ConnectToInstance();
+        private void DebugDisconnect() => _instanceService.DisconnectFromInstance();
+        [EditorButton(nameof(DebugConnect), "Connect", activityType: ButtonActivityType.OnPlayMode)] 
+        [EditorButton(nameof(DebugDisconnect), "Disconnect", activityType: ButtonActivityType.OnPlayMode)] 
         [SerializeField] private bool _connectOnStart = true;
-
-        // private string _settingsMessage => _instanceNetworkSettingsProviderPresent ?
-        //     $"Debug network settings can be found on the {_instanceNetworkSettingsProvider.GameObjectName} gameobject" :
-        //     "If not connecting automatically, details should be passed via the API";
         #endregion
 
-        [SerializeField, Disable, HideLabel, IgnoreParent] private ConnectionStateDebugWrapper _connectionStateDebug;
 
+        #region Runtime data
+        [SerializeField, Disable, HideLabel, IgnoreParent] private ConnectionStateDebugWrapper _connectionStateDebug;
         [SerializeField, HideInInspector] private LocalClientIdWrapper _localClientIDWrapper = new();
         [Serializable] public class LocalClientIdWrapper 
         { 
@@ -37,21 +37,12 @@ namespace VE2.InstanceNetworking
             
             public event Action<ushort> OnLocalClientIDSet;
         }
-
-        //We do this wiring here rather than the interface as the interface file needs to live in the VE2.common package
-        #region Interfaces
-        public bool IsEnabled => enabled && gameObject.activeInHierarchy;
-        public string GameObjectName => gameObject.name;
-        // public bool IsConnectedToServer => _connectionStateDebug.ConnectionState == ConnectionState.Connected;
-        // public event Action OnConnectedToInstance { add => _instanceService.OnConnectedToInstance += value; remove => _instanceService.OnConnectedToInstance -= value; }
-        // public event Action OnDisconnectedFromInstance { add => _instanceService.OnDisconnectedFromInstance += value; remove => _instanceService.OnDisconnectedFromInstance -= value; }
-        // public bool IsHost => _instanceService._instanceInfoContainer.IsHost;
-        // public ushort LocalClientID => _localClientIDWrapper.LocalClientID;
         #endregion
 
-
-        public event Action OnConnectedToServer;
-
+        //We do this wiring here rather than the interface as the interface file needs to live in the VE2.common package
+        #region provider Interfaces
+        public bool IsEnabled => enabled && gameObject.activeInHierarchy;
+        public string GameObjectName => gameObject.name;
         private InstanceService _instanceService;
         public IInstanceService InstanceService {
             get 
@@ -63,24 +54,28 @@ namespace VE2.InstanceNetworking
             }
         }
 
-        public IWorldStateSyncService WorldStateSyncService => _instanceService.WorldStateSyncService;
-        public ILocalClientIDProvider LocalClientIDProvider => _instanceService;
+        //Note - we want to go through the public getter for this, so we trigger lazy init
+        public IWorldStateSyncService WorldStateSyncService => ((InstanceService)InstanceService).WorldStateSyncService;
+
+        public ushort LocalClientID => _localClientIDWrapper.LocalClientID;
+        public event Action<ushort> OnClientIDReady {add => _localClientIDWrapper.OnLocalClientIDSet += value; remove => _localClientIDWrapper.OnLocalClientIDSet -= value; }
+        #endregion
 
         private void OnEnable()
         {
             InstancingAPI.InstanceProvider = this;
-            PlayerLocator.LocalClientIDProviderProvider = this;
-            VComponents_Locator.WorldStateSyncProvider = this;
+            PlayerAPI.LocalClientIDProvider = this;
+            VComponentsAPI.WorldStateSyncProvider = this;
 
             if (!Application.isPlaying || _instanceService != null)
             {
-                PlayerLocator.LocalClientIDProviderProvider = this;  
+                PlayerAPI.LocalClientIDProvider = this;  
                 return;
             }
 
-            //But if we expose this to the customer... how does it go into the service locator???
-            //Ok, we cam just make some base class for the settings provider that we can expose to the plugin, the plugin-defined settings provider can just inherit from that. The base can worry about putting itself into the service locator 
-            if (PlatformServiceLocator.PlatformService == null)
+            Debug.Log("init instancing");
+
+            if (PlatformAPI.PlatformService == null)
             {
                 Debug.LogError("Can't boot instance integration, no platform service found");
                 return;
@@ -88,12 +83,6 @@ namespace VE2.InstanceNetworking
 
             _instanceService = InstanceServiceFactory.Create(_localClientIDWrapper, _connectOnStart, _connectionStateDebug);
         }
-
-        public void ConnectToServerOnceDetailsReady() 
-        {
-            if (!_connectOnStart)
-                _instanceService?.ConnectToServerWhenReady();
-        } 
 
         private void FixedUpdate()
         {
@@ -108,30 +97,6 @@ namespace VE2.InstanceNetworking
             _instanceService.TearDown();
             _instanceService = null;
         }
-
-        #region PlayerSyncer interfaces
-
-        public void RegisterPlayerStateModule(IBaseStateModule module)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void DeregisterPlayerStateModule(IBaseStateModule module)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RegisterInteractor(IInteractor interactor)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void DeregisterInteractor(IInteractor interactor)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
     }
 
     [Serializable]
@@ -140,6 +105,6 @@ namespace VE2.InstanceNetworking
         [SerializeField, Disable, IgnoreParent] public ConnectionState ConnectionState = ConnectionState.NotYetConnected;
     }
 
-    public enum ConnectionState { NotYetConnected, WaitingForConnectionSettings, Connecting, Connected, LostConnection }
+    public enum ConnectionState { NotYetConnected, Connecting, Connected, LostConnection }
 
 }

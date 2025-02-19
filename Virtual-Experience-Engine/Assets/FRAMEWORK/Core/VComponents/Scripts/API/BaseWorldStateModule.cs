@@ -1,9 +1,27 @@
+using System;
 using UnityEngine;
 using VE2.Common;
 using VE2.Core.Common;
 using static VE2.Common.CommonSerializables;
 
-public abstract class BaseWorldStateModule : IWorldStateModule
+[Serializable]
+internal class BaseWorldStateConfig 
+{
+    [BeginGroup(Style = GroupStyle.Round, ApplyCondition = true)]
+    [Title("Transmission Settings", ApplyCondition = true)]
+    [HideIf(nameof(MultiplayerSupportPresent), false)]
+    [SerializeField] public bool IsNetworked = true;
+
+    [HideIf(nameof(MultiplayerSupportPresent), false)]
+    [DisableIf(nameof(IsNetworked), false)]
+    [EndGroup(ApplyCondition = true, Order = 5)]
+    [SpaceArea(spaceAfter: 10, Order = -1), SerializeField, IgnoreParent] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new(TransmissionProtocol.UDP, 1);
+
+    private bool MultiplayerSupportPresent => VComponentsAPI.HasMultiPlayerSupport;
+}
+
+//Note - this lives here so other packages can use it
+internal abstract class BaseWorldStateModule : IWorldStateModule
 {
     public VE2Serializable State { get; }
     protected BaseWorldStateConfig Config { get; private set; }

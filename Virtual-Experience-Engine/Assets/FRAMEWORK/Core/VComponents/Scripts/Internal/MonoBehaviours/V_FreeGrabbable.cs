@@ -43,8 +43,8 @@ namespace VE2.Core.VComponents.Integration
                 _config, 
                 _state, 
                 id,
-                VComponents_Locator.WorldStateSyncService,
-                PlayerLocator.InteractorContainer,
+                VComponentsAPI.WorldStateSyncService,
+                PlayerAPI.InteractorContainer,
                 _rigidbodyWrapper,
                 Resources.Load<PhysicsConstants>("PhysicsConstants"));
         }

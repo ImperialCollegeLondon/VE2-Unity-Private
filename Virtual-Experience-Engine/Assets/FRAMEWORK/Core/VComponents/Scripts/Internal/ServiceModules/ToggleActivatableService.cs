@@ -8,14 +8,14 @@ using static VE2.Common.CommonSerializables;
 namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
-    public class ToggleActivatableConfig
+    internal class ToggleActivatableConfig
     {
         [SerializeField, IgnoreParent] public ActivatableStateConfig StateConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
         [SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfig = new();
     }
 
-    public class ToggleActivatableService
+    internal class ToggleActivatableService
     {
         #region Interfaces
         public ISingleInteractorActivatableStateModule StateModule => _StateModule;

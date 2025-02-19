@@ -31,7 +31,7 @@ namespace VE2.NonCore.Instancing.VComponents.Tests
         public virtual void HandleObjectReceived(object obj) { } //Virtual so the method can be mocked (so we can assert it was called with the right object)
     }
 
-    public class V_NetworkObjectStub : IV_NetworkObject //We can't Substitute.For a MonoBehaviour, so we create an explicit test double class instead 
+    internal class V_NetworkObjectStub : IV_NetworkObject //We can't Substitute.For a MonoBehaviour, so we create an explicit test double class instead 
     {
         #region Plugin Interfaces
         INetworkObjectStateModule IV_NetworkObject._StateModule => _NetworkService.StateModule;

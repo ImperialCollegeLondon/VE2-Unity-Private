@@ -14,7 +14,7 @@ public class InstancingAPI : MonoBehaviour
                 _instance = FindFirstObjectByType<InstancingAPI>();
 
             if (_instance == null && !Application.isPlaying)
-                _instance = new GameObject($"InstanceLocator{SceneManager.GetActiveScene().name}").AddComponent<InstancingAPI>();
+                _instance = new GameObject($"InstancingAPI{SceneManager.GetActiveScene().name}").AddComponent<InstancingAPI>();
 
             return _instance;
         }

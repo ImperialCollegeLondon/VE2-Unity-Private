@@ -7,34 +7,19 @@ using VE2.Core.Common;
 using VE2.Core.VComponents.InteractableInterfaces;
 using static VE2.Common.CommonSerializables;
 
-//What if we just put the IPlayer interface on this locator?? 
-/*
-    E.G for SetPosition, we call PlayerAPI.SetPosition(Vector3 position)
-    PlayerAPI.SetPosition is static, and calls PlayerLocator.Instance.Player.SetPosition(Vector3 position)
-
-    We'd need a public "SetPlayer" class... to make the initial link...
-    Unless the ServiceLocator scane the entire scene?
-
-    Lets stick to our current pattern
-    At edit time, the V_PlayerSpawner will set the player on the locator 
-    This setter grabs the GO off the interface and stores it in a private serialized field 
-    The Locator's private Player Property has a lazy getter that returns the stored GO's interface if null 
-
-    Yeah, lets reuse the outward facing interfaces on this PlayerLocator, "Facade Pattern"
-*/
-public class PlayerLocator : MonoBehaviour //TODO: Can't GONames be private??
+public class PlayerAPI : MonoBehaviour 
 {
-    private static PlayerLocator _instance;
-    private static PlayerLocator Instance
+    private static PlayerAPI _instance;
+    private static PlayerAPI Instance
     { //Reload-proof singleton
         get
         {
             //if we've moved to a different scene, this will be null, so we can find the locator for the new scene
             if (_instance == null)
-                _instance = FindFirstObjectByType<PlayerLocator>();
+                _instance = FindFirstObjectByType<PlayerAPI>();
 
             if (_instance == null && !Application.isPlaying)
-                _instance = new GameObject($"PlayerLocator{SceneManager.GetActiveScene().name}").AddComponent<PlayerLocator>();
+                _instance = new GameObject($"PlayerAPI{SceneManager.GetActiveScene().name}").AddComponent<PlayerAPI>();
 
             return _instance;
         }
@@ -42,14 +27,12 @@ public class PlayerLocator : MonoBehaviour //TODO: Can't GONames be private??
 
     public static IPlayerService Player => PlayerServiceProvider.PlayerService;
 
-    [SerializeField, HideInInspector] public string PlayerServiceProviderGOName;
+    [SerializeField, HideInInspector] private string PlayerServiceProviderGOName;
     private IPlayerServiceProvider _playerServiceProvder;
     internal static IPlayerServiceProvider PlayerServiceProvider
     {
         get
         {
-            Debug.Log("Get PlayerServiceProvider");
-
             if (Instance._playerServiceProvder == null && !string.IsNullOrEmpty(Instance.PlayerServiceProviderGOName))
                 Instance._playerServiceProvder = GameObject.Find(Instance.PlayerServiceProviderGOName)?.GetComponent<IPlayerServiceProvider>();
 
@@ -64,23 +47,7 @@ public class PlayerLocator : MonoBehaviour //TODO: Can't GONames be private??
         }
     }
 
-    // #region player interfaces
-    // public static event Action<PlayerPresentationConfig> OnPlayerPresentationConfigChanged {
-    //     add 
-    //     {
-    //         PlayerServiceProvider.PlayerService.OnPlayerPresentationConfigChanged += value;
-    //     } 
-    //     remove 
-    //     {
-    //         PlayerServiceProvider.PlayerService.OnPlayerPresentationConfigChanged -= value;
-    //     }
-    // }
-    // public static PlayerPresentationConfig PlayerPresentationConfig => PlayerServiceProvider.PlayerService.PlayerPresentationConfig;
-    // public static bool VRModeActive => PlayerServiceProvider.PlayerService.VRModeActive;
-    // #endregion
-
-
-    //TODO: Don't expose this publicly - it's only the player that needs it(?) Might be useful to have it here for testing though...
+    //Lives here so we can inject a stub for testing
     private IInputHandler _inputHandler;
     internal static IInputHandler InputHandler //Returns the default InputHandler 
     {
@@ -98,16 +65,14 @@ public class PlayerLocator : MonoBehaviour //TODO: Can't GONames be private??
         }
     }
 
-    public static bool HasMultiPlayerSupport => LocalClientIDProviderProvider != null;
-    internal ILocalClientIDProvider WorldStateSyncService => LocalClientIDProviderProvider.LocalClientIDProvider;
-
-    [SerializeField, HideInInspector] public string _playerSyncProviderGOName;
-    private ILocalClientIDProviderProvider _playerSyncProvider;
-    internal static ILocalClientIDProviderProvider LocalClientIDProviderProvider{
+    public static bool HasMultiPlayerSupport => LocalClientIDProvider != null && LocalClientIDProvider.IsEnabled;
+    [SerializeField, HideInInspector] private string _playerSyncProviderGOName;
+    private ILocalClientIDProvider _playerSyncProvider;
+    internal static ILocalClientIDProvider LocalClientIDProvider{
         get 
         {
             if (Instance._playerSyncProvider == null && !string.IsNullOrEmpty(Instance._playerSyncProviderGOName))
-                Instance._playerSyncProvider = GameObject.Find(Instance._playerSyncProviderGOName)?.GetComponent<ILocalClientIDProviderProvider>();
+                Instance._playerSyncProvider = GameObject.Find(Instance._playerSyncProviderGOName)?.GetComponent<ILocalClientIDProvider>();
 
             return Instance._playerSyncProvider;
         }
@@ -121,6 +86,9 @@ public class PlayerLocator : MonoBehaviour //TODO: Can't GONames be private??
     }
 
     private InteractorContainer _interactorContainer = new();
+    /// <summary>
+    /// Contains all interactors (local or otherwise) in the scene, allows grabbables to perform validation on grab
+    /// </summary>
     public static InteractorContainer InteractorContainer { get => Instance._interactorContainer; private set => Instance._interactorContainer = value; }
 
     private void Awake()
@@ -152,19 +120,4 @@ public class InteractorContainer
     }
 
     public void Reset() => _interactors.Clear();
-}
-
-//TODO: REMOVE!
-public interface IPlayerAppearanceOverridesProvider
-{
-    public AvatarAppearanceOverrideType HeadOverrideType { get; }
-    public AvatarAppearanceOverrideType TorsoOverrideType { get; }
-    public bool IsEnabled { get; }
-    public string GameObjectName { get; }
-
-    public void NotifyProviderOfChangeAppearanceOverrides();
-    public event Action OnAppearanceOverridesChanged;
-
-    public List<GameObject> HeadOverrideGOs { get; }
-    public List<GameObject> TorsoOverrideGOs { get; }
 }

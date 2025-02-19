@@ -27,7 +27,7 @@ namespace VE2.NonCore.Instancing.VComponents.MonoBehaviours
         private void OnEnable()
         {
             string id = "NetObj-" + gameObject.name;
-            _service = new NetworkObjectService(_config, _state, id, VComponents_Locator.WorldStateSyncService);
+            _service = new NetworkObjectService(_config, _state, id, VComponentsAPI.WorldStateSyncService);
         }
 
         private void FixedUpdate()

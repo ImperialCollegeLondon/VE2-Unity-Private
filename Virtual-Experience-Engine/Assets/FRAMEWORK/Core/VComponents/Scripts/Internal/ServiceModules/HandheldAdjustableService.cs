@@ -8,7 +8,7 @@ using static VE2.Common.CommonSerializables;
 namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
-    public class HandheldAdjustableConfig
+    internal class HandheldAdjustableConfig
     {
         [SerializeField, IgnoreParent] public AdjustableStateConfig StateConfig = new();
         [SerializeField, IgnoreParent] public HandheldAdjustableServiceConfig HandheldAdjustableServiceConfig = new();
@@ -16,7 +16,7 @@ namespace VE2.Core.VComponents.Internal
     }
 
     [Serializable]
-    public class HandheldAdjustableServiceConfig
+    internal class HandheldAdjustableServiceConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Scroll Settings")]
@@ -28,7 +28,7 @@ namespace VE2.Core.VComponents.Internal
         // [ShowIf("SinglePressScroll", false)]
         // [EndGroup, SerializeField] public float IncrementPerSecondVRStickHeld = 4;
     }
-    public class HandheldAdjustableService
+    internal class HandheldAdjustableService
     {
         #region Interfaces
         public IAdjustableStateModule StateModule => _StateModule;

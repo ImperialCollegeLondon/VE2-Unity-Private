@@ -1,5 +1,5 @@
 {
-    "name": "VE2_Core_VComponents_Tests",
+    "name": "VE2.Core.VComponents.Tests",
     "rootNamespace": "",
     "references": [
         "UnityEngine.TestRunner",

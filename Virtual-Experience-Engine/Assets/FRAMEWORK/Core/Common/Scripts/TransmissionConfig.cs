@@ -11,6 +11,12 @@ namespace VE2.Core.Common
         [Range(0.2f, 50f)]
         [SerializeField] public float TransmissionFrequency = 1;
 
+        public RepeatedTransmissionConfig(TransmissionProtocol transmissionType, float transmissionFrequency)
+        {
+            TransmissionType = transmissionType;
+            TransmissionFrequency = transmissionFrequency;
+        }
+
         protected virtual void OnValidate() //TODO - OnVlidate needs to come from VC
         {
             if (TransmissionFrequency > 1)

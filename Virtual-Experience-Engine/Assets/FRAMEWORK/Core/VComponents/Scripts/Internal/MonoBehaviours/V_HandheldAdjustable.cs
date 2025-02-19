@@ -28,7 +28,7 @@ namespace VE2.Core.VComponents.Integration
             if (_state == null)
                 _state = new AdjustableState(_config.StateConfig.StartingValue);
 
-            _service = new(_config, _state, id, VComponents_Locator.WorldStateSyncService);
+            _service = new(_config, _state, id, VComponentsAPI.WorldStateSyncService);
         }
 
         private void FixedUpdate()

@@ -9,13 +9,15 @@ namespace VE2.Common
         public bool IsClientIDReady => LocalClientID != ushort.MaxValue;
         public event Action<ushort> OnClientIDReady;
         public ushort LocalClientID { get; }
-    }
-
-    internal interface ILocalClientIDProviderProvider
-    {
-        public ILocalClientIDProvider LocalClientIDProvider { get; }
         public string GameObjectName { get; }
         public bool IsEnabled { get; }
     }
+
+    // internal interface ILocalClientIDProviderProvider
+    // {
+    //     public ILocalClientIDProvider LocalClientIDProvider { get; }
+    //     public string GameObjectName { get; }
+    //     public bool IsEnabled { get; }
+    // }
 }
 

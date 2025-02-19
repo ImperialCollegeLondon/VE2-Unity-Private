@@ -10,7 +10,7 @@ using VE2.Core.VComponents.PluginInterfaces;
 
 namespace VE2.Core.VComponents.Tests
 {
-    public class FreeGrabbableTest
+    internal class FreeGrabbableTest
     {
         [Test]
         public void FreeGrabbable_WhenGrabbed_EmitsToPlugin()
@@ -61,14 +61,14 @@ namespace VE2.Core.VComponents.Tests
         }
     }
 
-    public class PluginGrabbableScript
+    internal class PluginGrabbableScript
     {
         public virtual void HandleGrabReceived() { }
 
         public virtual void HandleDropReceived() { }
     }
 
-    public class V_FreeGrabbableStub : IV_FreeGrabbable, IRangedGrabPlayerInteractableIntegrator
+    internal class V_FreeGrabbableStub : IV_FreeGrabbable, IRangedGrabPlayerInteractableIntegrator
     {
         #region Plugin Interfaces     
         IFreeGrabbableStateModule IV_FreeGrabbable._StateModule => _service.StateModule;

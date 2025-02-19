@@ -11,7 +11,7 @@ using static VE2.Common.CommonSerializables;
 namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
-    public class FreeGrabbableStateConfig : BaseWorldStateConfig
+    internal class FreeGrabbableStateConfig : BaseWorldStateConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Grab State Settings", ApplyCondition = true)]

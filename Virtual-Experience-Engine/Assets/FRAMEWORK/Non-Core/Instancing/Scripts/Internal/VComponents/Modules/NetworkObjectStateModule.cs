@@ -11,7 +11,7 @@ using static VE2.Common.CommonSerializables;
 namespace VE2.NonCore.Instancing.VComponents.Internal
 {
     [Serializable]
-    public class NetworkObjectStateConfig : BaseWorldStateConfig
+    internal class NetworkObjectStateConfig : BaseWorldStateConfig
     {
         [SerializeField] public UnityEvent<object> OnStateChange = new();
     }
