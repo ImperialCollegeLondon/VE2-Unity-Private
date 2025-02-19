@@ -1,31 +1,22 @@
 using System;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using VE2.Common;
 using static VE2.Common.CommonSerializables;
 
-//TODO: Think about how these args will work for args passed in from the very start 
-//E.G the launcher passing customerID and customerKey... 
-//If android, look using the SettingsHandler, if desktop, read cmd args explicitly
+internal interface IPlayerSettingsHandler
+{
+    public bool RememberPlayerSettings { get; set; }
 
-/*
-    This should be internal to Player - if a different service needs access to these settings, it should go via the player API
-    The reason we have this whole "Settingshandler" thing is to try and share inspector things between different services 
-    Hold on, what about settings that don't really fit to a service?
-    e.g - the starting instance code
-    That could be in some kind "ServerRegistrationSettingsHandler"? is that not then inconsistent?
-    it _should_ come from the platform, but instancing doesn't might still need this data even if PlatformService isn't preseant (i.e, load just a plugin)
-    Maybe platform and instancing should just give come in the same package?
-    If you want instancing off-platform, then just make sure arguments come into the system... wont platform still try to connect to platform server 
-*/
+    public PlayerPresentationConfig PlayerPresentationConfig { get; set; }
 
-//TODO: NEW - do we even want to expose this in the API assembly at all? PluginLoader needs it I suppose...
-//Basically, the API needs to expose read access for these settings 
-//We want a IPlayerSettingsReadable, and a IPlayerSettingsReadWritable? Pass ReadWritable to the UI, Readable to platform?
+    public event Action<PlayerPresentationConfig> OnDebugSaveAppearance;
 
+    /// <summary>
+    /// Will save to playerprefs if RememberPlayerSettings is true
+    /// </summary>
+    public void MarkAppearanceChanged();
 
-//If we create this from PlayerController, where do we create the CustomerLoginSettingsHandler?
-//In the classes that need them, just don't make a second one
+    public void SetDefaults(PlayerPresentationConfig defaultPlayerPresentationConfig);
+}
 
 /// <summary>
 /// Write to DefaultPlayerPresentationConfig after creating
@@ -45,11 +36,9 @@ internal class PlayerSettingsHandler : MonoBehaviour, IPlayerSettingsHandler //T
     public string GameObjectName => gameObject.name;
 
     //TODO: Also need RememberMeDefault and RememberMeCurrent
-
-    public PlayerPresentationConfig DefaultPlayerPresentationConfig;
-
     private bool _isPlaying => Application.isPlaying;
-    [SerializeField] private bool _playerPresentationSetup = false;
+
+
     [SpaceArea(10)]
     [SerializeField, IgnoreParent, DisableIf(nameof(_isPlaying), false), BeginGroup("Current Player Presentation")] private bool _rememberPlayerSettings = false;
     public bool RememberPlayerSettings
@@ -73,8 +62,10 @@ internal class PlayerSettingsHandler : MonoBehaviour, IPlayerSettingsHandler //T
         }
     }
 
-    [EditorButton("MarkPlayerSettingsUpdated", nameof(SavePlayerAppearance), ApplyCondition = true)]
-    [SerializeField, IgnoreParent, DisableIf(nameof(_isPlaying), false), EndGroup] private PlayerPresentationConfig _playerPresentationConfig = new();
+    [EditorButton("MarkAppearanceChanged", nameof(MarkAppearanceChanged), ApplyCondition = false)] //TODO - just for debug, remove once proper customisation UI is working
+    [SerializeField, Disable] private bool _playerPresentationSetup = false;
+    [SerializeField, Disable] private PlayerPresentationConfig _defaultPlayerPresentationConfig;
+    [SerializeField, DisableIf(nameof(_isPlaying), false), EndGroup] private PlayerPresentationConfig _playerPresentationConfig = new();
 
     /// <summary>
     /// call MarkPlayerSettingsUpdated after modifying this property
@@ -104,30 +95,27 @@ internal class PlayerSettingsHandler : MonoBehaviour, IPlayerSettingsHandler //T
                         else if (_rememberPlayerSettings)
                             _playerPresentationConfig = GetPlayerPresentationFromPlayerPrefs();
                         else
-                            _playerPresentationConfig = DefaultPlayerPresentationConfig; 
+                            _playerPresentationConfig = _defaultPlayerPresentationConfig; 
                     }
-
-                    _playerPresentationSetup = true;
                 }
                 else
                 {
-                    if (PlayerArgsDesktopBus.Instance.HasArgs)
-                        _playerPresentationConfig = PlayerArgsDesktopBus.Instance.PlayerPresentationConfig;
-                    else if (_rememberPlayerSettings)
+                    if (_rememberPlayerSettings)
                         _playerPresentationConfig = GetPlayerPresentationFromPlayerPrefs();
                     else
-                        _playerPresentationConfig = new PlayerPresentationConfig(DefaultPlayerPresentationConfig); //Don't want to copy the reference, just the values
+                        _playerPresentationConfig = _defaultPlayerPresentationConfig; 
                 }
+
+                _playerPresentationSetup = true;
             }
-            else
-                Debug.Log("Player settings setup!");
 
             return _playerPresentationConfig;
         }
         set
         {
+            _playerPresentationSetup = true;
             _playerPresentationConfig = value;
-            //MarkPlayerSettingsUpdated();
+            MarkAppearanceChanged();
         }
     }
 
@@ -135,19 +123,19 @@ internal class PlayerSettingsHandler : MonoBehaviour, IPlayerSettingsHandler //T
     {
         return
             _playerPresentationConfig = new PlayerPresentationConfig(
-                playerName: PlayerPrefs.GetString(PlayerNameArgName, DefaultPlayerPresentationConfig.PlayerName),
-                avatarHeadType: (ViRSEAvatarHeadAppearanceType)PlayerPrefs.GetInt(PlayerHeadTypeArgName, (int)DefaultPlayerPresentationConfig.AvatarHeadType),
-                avatarBodyType: (ViRSEAvatarTorsoAppearanceType)PlayerPrefs.GetInt(PlayerTorsoTypeArgName, (int)DefaultPlayerPresentationConfig.AvatarTorsoType),
-                avatarRed: (ushort)PlayerPrefs.GetInt(PlayerRedArgName, DefaultPlayerPresentationConfig.AvatarRed),
-                avatarGreen: (ushort)PlayerPrefs.GetInt(PlayerGreenArgName, DefaultPlayerPresentationConfig.AvatarGreen),
-                avatarBlue: (ushort)PlayerPrefs.GetInt(PlayerBlueArgName, DefaultPlayerPresentationConfig.AvatarBlue));
+                playerName: PlayerPrefs.GetString(PlayerNameArgName, _defaultPlayerPresentationConfig.PlayerName),
+                avatarHeadType: (ViRSEAvatarHeadAppearanceType)PlayerPrefs.GetInt(PlayerHeadTypeArgName, (int)_defaultPlayerPresentationConfig.AvatarHeadType),
+                avatarBodyType: (ViRSEAvatarTorsoAppearanceType)PlayerPrefs.GetInt(PlayerTorsoTypeArgName, (int)_defaultPlayerPresentationConfig.AvatarTorsoType),
+                avatarRed: (ushort)PlayerPrefs.GetInt(PlayerRedArgName, _defaultPlayerPresentationConfig.AvatarRed),
+                avatarGreen: (ushort)PlayerPrefs.GetInt(PlayerGreenArgName, _defaultPlayerPresentationConfig.AvatarGreen),
+                avatarBlue: (ushort)PlayerPrefs.GetInt(PlayerBlueArgName, _defaultPlayerPresentationConfig.AvatarBlue));
     }
 
-    //public event Action<PlayerPresentationConfig> OnPlayerPresentationConfigChanged;
+    public event Action<PlayerPresentationConfig> OnDebugSaveAppearance;
 
-    public void SavePlayerAppearance()
+    public void MarkAppearanceChanged()
     {
-        //OnPlayerPresentationConfigChanged?.Invoke(_playerPresentationConfig);
+        OnDebugSaveAppearance?.Invoke(_playerPresentationConfig); //TODO remove
 
         PlayerPrefs.SetInt(RememberPlayerSettingsArgName, _rememberPlayerSettings ? 1 : 0);
         
@@ -162,6 +150,11 @@ internal class PlayerSettingsHandler : MonoBehaviour, IPlayerSettingsHandler //T
         }
     }
 
+    public void SetDefaults(PlayerPresentationConfig defaultPlayerPresentationConfig)
+    {
+        _defaultPlayerPresentationConfig = defaultPlayerPresentationConfig;
+    }
+
     private void Awake()
     {
         if (FindObjectsByType<PlayerSettingsHandler>(FindObjectsSortMode.None).Length > 1)
@@ -171,7 +164,7 @@ internal class PlayerSettingsHandler : MonoBehaviour, IPlayerSettingsHandler //T
             return;
         }
 
-        _playerPresentationSetup = false;
+        ResetData();
         _rememberPlayerSettings = PlayerPrefs.GetInt(RememberPlayerSettingsArgName) == 1 ? true: false;
 
         if (Application.isPlaying)
@@ -188,6 +181,11 @@ internal class PlayerSettingsHandler : MonoBehaviour, IPlayerSettingsHandler //T
     }
 
     private void OnDisable()
+    {
+        ResetData();
+    }
+
+    private void ResetData() 
     {
         _playerPresentationSetup = false;
     }

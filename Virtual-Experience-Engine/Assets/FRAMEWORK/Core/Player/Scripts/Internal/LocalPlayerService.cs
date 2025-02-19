@@ -23,17 +23,19 @@ namespace VE2.Core.Player
         }
     }
 
-    internal class PlayerService : IPlayerService, IPlayerServiceInternal
+    internal class PlayerService : IPlayerService, IPlayerServiceInternal 
     {
         #region Interfaces //TODO - this wiring can probably live in the interface?
         public PlayerTransformData PlayerTransformData {get; private set;}
-        //public PlayerPresentationConfig PlayerPresentationConfig { get => _playerSettingsHandler.PlayerPresentationConfig; set => _playerSettingsHandler.PlayerPresentationConfig = value; }
+
+        public event Action<OverridableAvatarAppearance> OnOverridableAvatarAppearanceChanged;
+
         public void MarkPlayerPresentationConfigChanged() 
         {
-            _playerSettingsHandler.SavePlayerAppearance();
+            _playerSettingsHandler.MarkAppearanceChanged();
             OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
         }
-        public event Action<OverridableAvatarAppearance> OnOverridableAvatarAppearanceChanged;
+
         public OverridableAvatarAppearance OverridableAvatarAppearance { 
             get 
             {
@@ -121,6 +123,8 @@ namespace VE2.Core.Player
             _playerSettingsHandler = playerSettingsHandler;
             //_xrManagerWrapper = xrManagerWrapper;
 
+            _playerSettingsHandler.OnDebugSaveAppearance += HandlePlayerPresentationChanged;
+
 
             if (_config.EnableVR)
             {
@@ -183,6 +187,11 @@ namespace VE2.Core.Player
 
         private void HandlePlayerPresentationChanged(PlayerPresentationConfig presentationConfig)
         {
+            //TODO - same for 2d
+            //We need local avatars for both actually, beyond just the hands!
+
+            OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
+
             _playerVR?.HandleLocalAvatarColorChanged(new Color(
                 presentationConfig.AvatarRed,
                 presentationConfig.AvatarGreen,

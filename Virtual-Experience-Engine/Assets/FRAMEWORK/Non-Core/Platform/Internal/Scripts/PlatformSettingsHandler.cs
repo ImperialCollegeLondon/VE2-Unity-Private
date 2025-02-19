@@ -423,10 +423,27 @@ internal class PlatformSettingsHandler : MonoBehaviour, IPlatformSettingsHandler
             return;
         }
 
+        ResetData();
+
         //gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
         gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
         DontDestroyOnLoad(this);
     }
 
+    private void OnDisable()
+    {
+        ResetData();
+    }
 
+    private void ResetData() 
+    {
+        _platformClientIDSetup = false;
+        _platformCustomerNameSetup = false;
+        _platformPasswordSetup = false;
+        _instanceCodeSetup = false;
+        _activeWorldsSetup = false;
+        _worldBuildsFTPServerSettingsSetup = false;
+        _fallbackWorldSubStoreFTPServerSettingsSetup = false;
+        _fallbackInstanceServerSettingsSetup = false;
+    }
 }

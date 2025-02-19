@@ -50,7 +50,8 @@ namespace VE2.Core.Player
         //TODO, configs for each player, OnTeleport, DragHeight, FreeFlyMode, etc
         [SerializeField, IgnoreParent] public PlayerConfig playerConfig = new();
 
-        [SerializeField, IgnoreParent, DisableInPlayMode, BeginGroup("Default Player Presentation"), EndGroup, InLineEditor] private PlayerPresentationConfig _defaultPlayerPresentationConfig = new();
+        [Help("If running standalone, this presentation config will be used, if integrated with the ViRSE platform, the platform will provide the presentation config.")]
+        [BeginGroup("Debug settings"), SerializeField, EndGroup]  private PlayerPresentationConfig _defaultPlayerPresentationConfig = new();
 
         private bool _transformDataSetup = false;
         private PlayerTransformData _playerTransformData = new();
@@ -74,13 +75,17 @@ namespace VE2.Core.Player
 
         private void OnEnable() 
         {
-            // if (PlayerLocator.Instance.PlayerSettingsHandler == null)
-            //     PlayerLocator.Instance.PlayerSettingsHandler = new GameObject("PlayerSettings").AddComponent<PlayerSettingsHandler>();
-
             PlayerLocator.PlayerServiceProvider = this;
 
             if (!Application.isPlaying || _playerService != null)
                 return;
+
+            PlayerSettingsHandler playerSettingsHandler = FindFirstObjectByType<PlayerSettingsHandler>();
+            if (playerSettingsHandler == null)
+            {
+                playerSettingsHandler = new GameObject("PlayerSettingsHandler").AddComponent<PlayerSettingsHandler>();
+                playerSettingsHandler.SetDefaults(_defaultPlayerPresentationConfig);
+            }
 
             if (!_transformDataSetup)
             {
@@ -94,14 +99,6 @@ namespace VE2.Core.Player
             {
                 playerConfig.EnableVR = true;
                 playerConfig.Enable2D = false;
-            }
-
-            //If there is no existing settings provider, create one with the defaults in this inspector 
-            PlayerSettingsHandler playerSettingsHandler = FindFirstObjectByType<PlayerSettingsHandler>();
-            if (playerSettingsHandler == null)
-            {
-                playerSettingsHandler = new GameObject("PlayerSettings").AddComponent<PlayerSettingsHandler>();
-                playerSettingsHandler.DefaultPlayerPresentationConfig = _defaultPlayerPresentationConfig;
             }
 
             _playerService = VE2PlayerServiceFactory.Create(

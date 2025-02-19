@@ -5,37 +5,37 @@ using static VE2.Common.CommonSerializables;
 /// <summary>
 /// If on desktop, and about to go to a new world, update the bus with the infomation to pass to that scene 
 /// Of on android, start the intent for the new world with the settings as arguments 
-/// </summary>
-public class PlayerArgsDesktopBus : MonoBehaviour //TODO: move into PlayerSettingsHandler, maybe rename PlayerPersistentDataHandler
-{
-    public static PlayerArgsDesktopBus _instance;
-    public static PlayerArgsDesktopBus Instance
-    {
-        get
-        {
-            if (_instance == null)
+// /// </summary>
+// public class PlayerArgsDesktopBus : MonoBehaviour //TODO: move into PlayerSettingsHandler, maybe rename PlayerPersistentDataHandler
+// {
+//     public static PlayerArgsDesktopBus _instance;
+//     public static PlayerArgsDesktopBus Instance
+//     {
+//         get
+//         {
+//             if (_instance == null)
 
-                _instance = FindFirstObjectByType<PlayerArgsDesktopBus>();
+//                 _instance = FindFirstObjectByType<PlayerArgsDesktopBus>();
         
-            if (_instance == null)
-            {
-                GameObject go = new GameObject($"PlayerArgsDesktopBus{SceneManager.GetActiveScene().name}");
-                _instance = go.AddComponent<PlayerArgsDesktopBus>();
-            }
+//             if (_instance == null)
+//             {
+//                 GameObject go = new GameObject($"PlayerArgsDesktopBus{SceneManager.GetActiveScene().name}");
+//                 _instance = go.AddComponent<PlayerArgsDesktopBus>();
+//             }
 
-            return _instance;
-        }
-    }
+//             return _instance;
+//         }
+//     }
 
-    [SerializeField] public bool HasArgs = false;
-    [SerializeField, HideIf(nameof(HasArgs), false)] public PlayerPresentationConfig PlayerPresentationConfig;
-    [SerializeField] public bool RememberPlayerSettings = false;
+//     [SerializeField] public bool HasArgs = false;
+//     [SerializeField, HideIf(nameof(HasArgs), false)] public PlayerPresentationConfig PlayerPresentationConfig;
+//     [SerializeField] public bool RememberPlayerSettings = false;
 
-    private void Awake()
-    {
-        DontDestroyOnLoad(this);
-    }
-}
+//     private void Awake()
+//     {
+//         DontDestroyOnLoad(this);
+//     }
+// }
 
 /*
 

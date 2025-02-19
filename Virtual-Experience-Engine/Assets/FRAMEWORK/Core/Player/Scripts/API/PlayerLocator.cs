@@ -80,7 +80,7 @@ public class PlayerLocator : MonoBehaviour //TODO: Can't GONames be private??
     // #endregion
 
 
-    //TODO: Don't expose this publicly - it's only the player that needs it(?)
+    //TODO: Don't expose this publicly - it's only the player that needs it(?) Might be useful to have it here for testing though...
     private IInputHandler _inputHandler;
     internal static IInputHandler InputHandler //Returns the default InputHandler 
     {
@@ -97,28 +97,6 @@ public class PlayerLocator : MonoBehaviour //TODO: Can't GONames be private??
             return Instance._inputHandler;
         }
     }
-
-    // [SerializeField, HideInInspector] public string PlayerServiceGOName;
-    // private IPlayerService _playerService;
-    // public IPlayerService PlayerService
-    // {
-    //     get
-    //     {
-    //         if (_playerService == null && !string.IsNullOrEmpty(PlayerServiceGOName))
-    //             _playerService = GameObject.Find(PlayerServiceGOName)?.GetComponent<IPlayerService>();
-
-    //         return _playerService;
-    //     }
-    //     set //Will need to be called externally
-    //     {
-    //         _playerService = value;
-
-    //         if (value != null)
-    //             PlayerServiceGOName = value.GameObjectName;
-    //     }
-    // }
-
-    //TODO: Remove this - can just live on the V_PlayerSpawner inspector, no need for a separate mono
 
     public static bool HasMultiPlayerSupport => LocalClientIDProviderProvider != null;
     internal ILocalClientIDProvider WorldStateSyncService => LocalClientIDProviderProvider.LocalClientIDProvider;
@@ -142,10 +120,6 @@ public class PlayerLocator : MonoBehaviour //TODO: Can't GONames be private??
         }
     }
 
-
-    // private PlayerStateModuleContainer _playerStateModuleContainer = new();
-    // public static PlayerStateModuleContainer PlayerStateModuleContainer { get => Instance._playerStateModuleContainer; private set => Instance._playerStateModuleContainer = value; }
-
     private InteractorContainer _interactorContainer = new();
     public static InteractorContainer InteractorContainer { get => Instance._interactorContainer; private set => Instance._interactorContainer = value; }
 
@@ -158,31 +132,9 @@ public class PlayerLocator : MonoBehaviour //TODO: Can't GONames be private??
 
     private void OnDestroy()
     {
-        //PlayerStateModuleContainer.Reset();
         InteractorContainer.Reset();
     }
 }
-
-// public class PlayerStateModuleContainer : BaseStateModuleContainer
-// {
-//     public IPlayerStateModule PlayerStateModule { get; private set; }
-//     public event Action<IPlayerStateModule> OnPlayerStateModuleRegistered;
-//     public event Action<IPlayerStateModule> OnPlayerStateModuleDeregistered;
-
-//     public override void RegisterStateModule(IBaseStateModule moduleBase)
-//     {
-//         PlayerStateModule = (IPlayerStateModule)moduleBase;
-//         OnPlayerStateModuleRegistered?.Invoke(PlayerStateModule);
-//     }
-
-//     public override void DeregisterStateModule(IBaseStateModule moduleBase)
-//     {
-//         PlayerStateModule = null;
-//         OnPlayerStateModuleDeregistered?.Invoke((IPlayerStateModule)moduleBase);
-//     }
-
-//     public override void Reset() => PlayerStateModule = null;
-// }
 
 public class InteractorContainer
 {
