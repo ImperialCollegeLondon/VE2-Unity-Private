@@ -51,4 +51,9 @@ public class PlayerArgsDesktopBus : MonoBehaviour //TODO: move into PlayerSettin
     I don't think so - before, we thought we'd have e.g platform and instancing talk to the settings handler, meaning it had to be in the scene at edit time 
     But now we've reworked service init, they can all just go through the service 
     Default settings live on the actual service monobehaviour anyway - which only creates a new settings handler at runtime if there isn't already one present
+
+    We do need to be able to expose the arg names through the API 
+    Arg names could just live in a different class though, in API? 
+    platform needs arg names...
+    Maybe not... maybe the platform can just pass the "intent" directly to the PlayerService (and thus the PlayerSettingsHandler)
     */

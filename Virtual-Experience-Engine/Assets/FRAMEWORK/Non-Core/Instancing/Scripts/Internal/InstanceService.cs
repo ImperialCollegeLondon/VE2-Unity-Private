@@ -6,6 +6,7 @@ using System;
 using static VE2.InstanceNetworking.V_InstanceIntegration;
 using VE2.Common;
 using static VE2.Platform.API.PlatformPublicSerializables;
+using static VE2.Common.CommonSerializables;
 
 namespace VE2.InstanceNetworking
 {
@@ -33,8 +34,10 @@ namespace VE2.InstanceNetworking
         //TODO, should take some config for events like "OnBecomeHost", "OnLoseHost", maybe also sync frequencies
 
         public bool IsConnectedToServer => _connectionStateDebugWrapper.ConnectionState == ConnectionState.Connected;
-        // public event Action OnConnectedToInstance;
-        // public event Action OnDisconnectedFromInstance;
+        public event Action OnConnectedToInstance;
+        public event Action OnDisconnectedFromInstance;
+        public event Action<ushort> OnClientIDReady;
+
 
         #region Temp debug Interfaces //TODO: remove once UI is in 
         public InstancedInstanceInfo InstanceInfo => _instanceInfoContainer.InstanceInfo;
@@ -42,52 +45,27 @@ namespace VE2.InstanceNetworking
             add => _instanceInfoContainer.OnInstanceInfoChanged += value; 
             remove => _instanceInfoContainer.OnInstanceInfoChanged -= value; 
         }
-
-        //Maybe we shouldn't have an interface for the actual service... nothing is using it anyway?
-        //if its all syncronous, then we don't need the StateModuleContainers at all...
-        //So we use the normal API system, but the API also has a public bool for "HasSupport" or something 
-
-        //so IBaseMultiplayerSupport has 
-        //So BaseMultiplayerSupport lives in VE2 Common 
-        //But 
         #endregion
 
-        //TODO: Wire in IntertorContainer
-        //CommsManager dependencies
+
         private readonly IPluginSyncCommsHandler _commsHandler;
         private readonly ConnectionStateDebugWrapper _connectionStateDebugWrapper;
-
-        //Platform dependencies
         private readonly IPlatformServiceInternal _platformService;
-
-        private IPlayerServiceInternal _playerService;
-
-        //Remote player sync dependencies 
+        private readonly IPlayerServiceInternal _playerService;
         private readonly InteractorContainer _interactorContainer;
+        private readonly InstanceInfoContainer _instanceInfoContainer;
 
-        //Common dependencies
-        internal readonly InstanceInfoContainer _instanceInfoContainer;
-
-        //internal 
 
         internal IWorldStateSyncService WorldStateSyncService => _worldStateSyncer;
         internal ILocalClientIDProvider PlayerSyncService => _localPlayerSyncer;
 
         public ushort LocalClientID => _instanceInfoContainer.LocalClientID;
 
-        public bool IsEnabled => throw new NotImplementedException();
-
-        public string GameObjectName => throw new NotImplementedException();
-
-        public bool IsHost => throw new NotImplementedException();
+        public bool IsHost => _instanceInfoContainer.IsHost;
 
         internal WorldStateSyncer _worldStateSyncer;
         internal LocalPlayerSyncer _localPlayerSyncer;
         internal RemotePlayerSyncer _remotePlayerSyncer;
-
-        public event Action<ushort> OnClientIDReady;
-        public event Action OnConnectedToInstance;
-        public event Action OnDisconnectedFromInstance;
 
         public InstanceService(IPluginSyncCommsHandler commsHandler, LocalClientIdWrapper localClientIDWrapper, 
         ConnectionStateDebugWrapper connectionStateDebugWrapper, IPlatformServiceInternal platformService, 
@@ -98,6 +76,7 @@ namespace VE2.InstanceNetworking
             _connectionStateDebugWrapper = connectionStateDebugWrapper;
             _platformService = platformService;
             _interactorContainer = interactorContainer;
+            _playerService = playerServiceInternal;
 
             _instanceInfoContainer = new(localClientIDWrapper);
 
@@ -109,6 +88,7 @@ namespace VE2.InstanceNetworking
 
             _worldStateSyncer = new(_commsHandler, _instanceInfoContainer); //receives and transmits
             _localPlayerSyncer = new(_commsHandler, _instanceInfoContainer.LocalClientIdWrapper, playerServiceInternal, _instanceInfoContainer); //only transmits
+            _remotePlayerSyncer = new(_commsHandler, _instanceInfoContainer, _interactorContainer, _playerService); //only receives
 
             /*
                 Do we want to connect automatically? 
@@ -137,7 +117,7 @@ namespace VE2.InstanceNetworking
                 ConnectToServerWhenReady();
         }
 
-        public void ConnectToServerWhenReady() 
+        public void ConnectToServerWhenReady()  //TODO: No longer need to wait for platform server connection, conn details should be available anyway
         {
             if (_connectionStateDebugWrapper.ConnectionState != ConnectionState.NotYetConnected &&
                 _connectionStateDebugWrapper.ConnectionState != ConnectionState.LostConnection)
@@ -188,9 +168,12 @@ namespace VE2.InstanceNetworking
         {
             Debug.Log("<color=green> Try connect to server with instance code - " + _platformService.CurrentInstanceCode);
 
+            bool usingFrameworkAvatar = true; //TODO
+            AvatarAppearanceWrapper avatarAppearanceWrapper = new(usingFrameworkAvatar, _playerService.OverridableAvatarAppearance);
+
             //We also send the LocalClientID here, this will either be maxvalue (if this is our first time connecting, the server will give us a new ID)..
             //..or it'll be the ID we we're given by the server (if we're reconnecting, the server will use the ID we provide)
-            ServerRegistrationRequest serverRegistrationRequest = new(_platformService.CurrentInstanceCode, _instanceInfoContainer.LocalClientID);
+            ServerRegistrationRequest serverRegistrationRequest = new(_platformService.CurrentInstanceCode, _instanceInfoContainer.LocalClientID, avatarAppearanceWrapper);
             _commsHandler.SendMessage(serverRegistrationRequest.Bytes, InstanceNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
         }
 
@@ -201,15 +184,6 @@ namespace VE2.InstanceNetworking
             _instanceInfoContainer.InstanceInfo = serverRegistrationConfirmation.InstanceInfo;
 
             //Ready for syncing=======================================
-
-
-
-            //TODO PlayerSyncService needs to do SendMessage here
-            //_localPlayerSyncer.OnAvatarAppearanceUpdatedLocally += (BytesAndProtocol bytesAndProtocol) => _commsHandler.SendMessage(bytesAndProtocol.Bytes, InstanceNetworkingMessageCodes.UpdateAvatarPresentation, bytesAndProtocol.Protocol);
-            //_localPlayerSyncer.OnPlayerStateUpdatedLocally += (BytesAndProtocol bytesAndProtocol) => _commsHandler.SendMessage(bytesAndProtocol.Bytes, InstanceNetworkingMessageCodes.PlayerState, bytesAndProtocol.Protocol);
-
-            _remotePlayerSyncer = new(_instanceInfoContainer, _interactorContainer, _playerService); //only receives
-            _commsHandler.OnReceiveRemotePlayerState += _remotePlayerSyncer.HandleReceiveRemotePlayerState;
 
             _connectionStateDebugWrapper.ConnectionState = ConnectionState.Connected;
             OnConnectedToInstance?.Invoke();

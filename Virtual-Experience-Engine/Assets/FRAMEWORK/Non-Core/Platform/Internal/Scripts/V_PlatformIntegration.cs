@@ -46,7 +46,7 @@ namespace VE2.PlatformNetworking
 
         [SerializeField, HideIf(nameof(OfflineMode), true)] private string CustomerID = "dev";
         [SerializeField, HideIf(nameof(OfflineMode), true)] private string CustomerKey = "dev";
-        [SerializeField] private string InstanceCode = "dev";
+        [SerializeField] private string InstanceSuffix = "dev";
         [SerializeField] private ServerConnectionSettings WorldSubStoreFTPSettings = new("dev", "dev", "127.0.0.1", 21);
         [SerializeField, EndGroup] private ServerConnectionSettings InstancingServerSettings  = new("dev", "dev", "127.0.0.1", 4297);
 
@@ -74,11 +74,13 @@ namespace VE2.PlatformNetworking
                 return;
             }
 
+            string instanceCode = $"{SceneManager.GetActiveScene().name}-{InstanceSuffix}";
+
             PlatformSettingsHandler platformSettingsHandler = FindFirstObjectByType<PlatformSettingsHandler>();
             if (platformSettingsHandler == null)
             {
                 platformSettingsHandler = new GameObject("PlatformSettingsHandler").AddComponent<PlatformSettingsHandler>();
-                platformSettingsHandler.SetDefaults(CustomerID, CustomerKey, InstanceCode, WorldSubStoreFTPSettings, InstancingServerSettings);
+                platformSettingsHandler.SetDefaults(CustomerID, CustomerKey, instanceCode, WorldSubStoreFTPSettings, InstancingServerSettings);
             }
             
             _platformService = PlatformServiceFactory.Create(platformSettingsHandler);
@@ -89,21 +91,21 @@ namespace VE2.PlatformNetworking
             //Apart from the very first time in the intro scene...
             //We'll need to wait for the intro to tell us to connect to the platform, and with what details
             //because that's the first time, we can just assume that, if the connection settings are missing, we're in the intro scene
-            string ipAddress = PlatformIP;
-            ushort portNumber = PlatformPort;
-            string customerID = CustomerID;
-            string customerKey = CustomerKey;
-            string instanceCode = $"{SceneManager.GetActiveScene().name}-{InstanceCode}";
+            // string ipAddress = PlatformIP;
+            // ushort portNumber = PlatformPort;
+            // string customerID = CustomerID;
+            // string customerKey = CustomerKey;
 
             //Get customerLogin settings 
             //Get instance settings
             //InstanceService will also need those two, PLUS instance IP address settings
             //PlayerPresentationConfig playerPresentationConfig = PlayerLocator.Player.PlayerPresentationConfig;
 
+            Debug.Log("Create instance code: " + instanceCode);
             //False if we're in the hub for the first time. 
             bool customerSettingsFound = true;
             if (customerSettingsFound)
-                _platformService.ConnectToPlatform(IPAddress.Parse(ipAddress), portNumber, instanceCode);
+                _platformService.ConnectToPlatform(IPAddress.Parse(PlatformIP), PlatformPort, instanceCode);
             // else, wait for the hub to tell us to, after we've logged in.
 
 

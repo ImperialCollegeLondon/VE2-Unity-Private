@@ -63,10 +63,10 @@ namespace VE2.NonCore.Platform.Private
 
         public ServerConnectionSettings GetInstanceServerSettingsForWorld(string worldName)
         {
-            if (ActiveWorlds == null || ActiveWorlds.ContainsKey(worldName) || ActiveWorlds[worldName].HasCustomInstanceServer)
-                return _platformSettingsHandler.FallbackInstanceServerSettings;
-            else
+            if (ActiveWorlds != null && ActiveWorlds.ContainsKey(worldName) && ActiveWorlds[worldName].HasCustomInstanceServer)
                 return ActiveWorlds[worldName].CustomInstanceServerSettings;
+            else
+                return _platformSettingsHandler.FallbackInstanceServerSettings;
         }
 
         public ServerConnectionSettings GetInstanceServerSettingsForCurrentWorld() => GetInstanceServerSettingsForWorld(SceneManager.GetActiveScene().name); //TODO: Should come from settings?

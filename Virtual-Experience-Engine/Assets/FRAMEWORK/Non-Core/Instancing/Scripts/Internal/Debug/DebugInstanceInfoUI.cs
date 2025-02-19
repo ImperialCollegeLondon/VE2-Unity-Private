@@ -47,8 +47,8 @@ public class DebugInstanceInfoUI : MonoBehaviour
                 instanceInfoString += $"<color=green>";
 
             instanceInfoString += $"{clientInfo.ClientID}";
-            if (clientInfo.AvatarAppearanceWrapper.UsingViRSEPlayer)
-                instanceInfoString += $"({ clientInfo.AvatarAppearanceWrapper.ViRSEAvatarAppearance.PresentationConfig.PlayerName}): ";
+            if (clientInfo.InstancedAvatarAppearance.UsingFrameworkPlayer)
+                instanceInfoString += $"({ clientInfo.InstancedAvatarAppearance.OverridableAvatarAppearance.PresentationConfig.PlayerName}): ";
             else
                 instanceInfoString += $"(Name N/A): "; 
             instanceInfoString += $"Host = { clientInfo.ClientID.Equals(instanceInfo.HostID).ToString()}\n";

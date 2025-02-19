@@ -78,6 +78,7 @@ internal class PlatformSettingsHandler : MonoBehaviour, IPlatformSettingsHandler
         }
         set 
         {
+            _platformCustomerNameSetup = true;
             _platformCustomerName = value;
         }
     }
@@ -120,6 +121,7 @@ internal class PlatformSettingsHandler : MonoBehaviour, IPlatformSettingsHandler
         }
         set 
         {
+            _platformPasswordSetup = true;
             _platformPassword = value;
         }
     }
@@ -161,6 +163,7 @@ internal class PlatformSettingsHandler : MonoBehaviour, IPlatformSettingsHandler
         }
         set 
         {
+            _platformClientIDSetup = true;
             _platformClientID = value;
         }
     }
@@ -203,6 +206,7 @@ internal class PlatformSettingsHandler : MonoBehaviour, IPlatformSettingsHandler
         }
         set 
         {
+            _instanceCodeSetup = true;
             _instanceCode = value;
         }
     }
@@ -262,17 +266,18 @@ internal class PlatformSettingsHandler : MonoBehaviour, IPlatformSettingsHandler
         }
         set 
         {
+            _activeWorldsSetup = true;
             _activeWorldsList = new List<WorldDetails>(value.Values);
         }
     }
 
     //[SerializeField, Disable] private ServerConnectionSettings _defaultWorldBuildsFTPServerSettings; 
-    [SerializeField, Disable] private bool __worldBuildsFTPServerSettingsSetup = false;
+    [SerializeField, Disable] private bool _worldBuildsFTPServerSettingsSetup = false;
     [SerializeField, Disable] private ServerConnectionSettings _worldBuildsFTPServerSettings; 
     public ServerConnectionSettings WorldBuildsFTPServerSettings {
         get 
         {
-            if (!__worldBuildsFTPServerSettingsSetup)
+            if (!_worldBuildsFTPServerSettingsSetup)
             {
                 if (Application.platform == RuntimePlatform.Android)
                 {
@@ -298,13 +303,14 @@ internal class PlatformSettingsHandler : MonoBehaviour, IPlatformSettingsHandler
                 {
                     _worldBuildsFTPServerSettings = null; //There is no default for this, can only come in from platform server
                 }
-                __worldBuildsFTPServerSettingsSetup = true;
+                _worldBuildsFTPServerSettingsSetup = true;
             }
 
             return _worldBuildsFTPServerSettings;
         }
         set 
         {
+            _worldBuildsFTPServerSettingsSetup = true;
             _worldBuildsFTPServerSettings = value;
         }
     }
@@ -349,6 +355,7 @@ internal class PlatformSettingsHandler : MonoBehaviour, IPlatformSettingsHandler
         }
         set 
         {
+            _fallbackWorldSubStoreFTPServerSettingsSetup = true;
             _fallbackWorldSubStoreFTPServerSettings = value;
         }
     }
@@ -393,8 +400,8 @@ internal class PlatformSettingsHandler : MonoBehaviour, IPlatformSettingsHandler
         }
         set 
         {
-            _fallbackInstanceServerSettings = value;
             _fallbackInstanceServerSettingsSetup = true;
+            _fallbackInstanceServerSettings = value;
         }
     }
 

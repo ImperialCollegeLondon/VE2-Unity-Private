@@ -32,13 +32,15 @@ public class InstanceSyncSerializables
     {
         public string InstanceCode { get; private set; }
         public ushort IDToRestore { get; private set; }
+        public AvatarAppearanceWrapper AvatarAppearanceWrapper { get; private set; } 
 
         public ServerRegistrationRequest(byte[] bytes) : base(bytes) { }
 
-        public ServerRegistrationRequest(string instanceCode, ushort idToRestore = ushort.MaxValue)
+        public ServerRegistrationRequest(string instanceCode, ushort idToRestore, AvatarAppearanceWrapper avatarAppearanceWrapper)
         {
             InstanceCode = instanceCode;
             IDToRestore = idToRestore;
+            AvatarAppearanceWrapper = avatarAppearanceWrapper;
         }
 
         protected override byte[] ConvertToBytes()
@@ -48,6 +50,10 @@ public class InstanceSyncSerializables
 
             writer.Write(InstanceCode);
             writer.Write(IDToRestore);
+
+            byte[] avatarAppearanceBytes = AvatarAppearanceWrapper.Bytes;
+            writer.Write((ushort)avatarAppearanceBytes.Length);
+            writer.Write(avatarAppearanceBytes);
 
             return stream.ToArray();
         }
@@ -59,13 +65,16 @@ public class InstanceSyncSerializables
 
             InstanceCode = reader.ReadString();
             IDToRestore = reader.ReadUInt16();
+
+            ushort avatarAppearanceBytesLength = reader.ReadUInt16();
+            AvatarAppearanceWrapper = new AvatarAppearanceWrapper(reader.ReadBytes(avatarAppearanceBytesLength));
         }
     }
 
     public class ServerRegistrationConfirmation : VE2Serializable
     {
         public ushort LocalClientID { get; private set; }
-        public InstancedInstanceInfo InstanceInfo { get; private set; } 
+        public InstancedInstanceInfo InstanceInfo { get; private set; }
 
         public ServerRegistrationConfirmation(byte[] bytes) : base(bytes) { }
 
@@ -166,41 +175,11 @@ public class InstanceSyncSerializables
                 ClientInfos.Add(key, value);
             }
         }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is not InstancedInstanceInfo other)
-                return false;
-
-            if (HostID != other.HostID || InstanceMuted != other.InstanceMuted || ClientInfos.Count != other.ClientInfos.Count)
-                return false;
-
-            foreach (var kvp in ClientInfos)
-            {
-                if (!other.ClientInfos.TryGetValue(kvp.Key, out var otherClientInfo) || !kvp.Value.Equals(otherClientInfo))
-                    return false;
-            }
-
-            return true;
-        }
-
-        public override int GetHashCode()
-        {
-            int hashCode = base.GetHashCode();
-            hashCode = (hashCode * 397) ^ HostID.GetHashCode();
-            hashCode = (hashCode * 397) ^ InstanceMuted.GetHashCode();
-            foreach (var kvp in ClientInfos)
-            {
-                hashCode = (hashCode * 397) ^ kvp.Key.GetHashCode();
-                hashCode = (hashCode * 397) ^ kvp.Value.GetHashCode();
-            }
-            return hashCode;
-        }
     }
 
     public class InstancedClientInfo : ClientInfoBase
     {
-        public AvatarAppearanceWrapper AvatarAppearanceWrapper;
+        public AvatarAppearanceWrapper InstancedAvatarAppearance;
 
         public InstancedClientInfo() { }
 
@@ -208,7 +187,7 @@ public class InstanceSyncSerializables
 
         public InstancedClientInfo(ushort clientID, bool isAdmin, AvatarAppearanceWrapper instancedAvatarAppearance) : base(clientID, isAdmin, "unknown") //TODO, machine name should maybe be platform-specific?
         {
-            AvatarAppearanceWrapper = instancedAvatarAppearance;
+            InstancedAvatarAppearance = instancedAvatarAppearance;
         }
 
         protected override byte[] ConvertToBytes()
@@ -220,7 +199,7 @@ public class InstanceSyncSerializables
             writer.Write((ushort)baseBytes.Length);
             writer.Write(baseBytes);
 
-            byte[] avatarAppearanceBytes = AvatarAppearanceWrapper.Bytes;
+            byte[] avatarAppearanceBytes = InstancedAvatarAppearance.Bytes;
             writer.Write((ushort)avatarAppearanceBytes.Length);
             writer.Write(avatarAppearanceBytes);
 
@@ -237,23 +216,23 @@ public class InstanceSyncSerializables
             base.PopulateFromBytes(baseData);
 
             ushort avatarAppearanceLength = reader.ReadUInt16();
-            AvatarAppearanceWrapper = new AvatarAppearanceWrapper(reader.ReadBytes(avatarAppearanceLength));
+            InstancedAvatarAppearance = new AvatarAppearanceWrapper(reader.ReadBytes(avatarAppearanceLength));
         }
     }
 
     public class AvatarAppearanceWrapper : VE2Serializable
     {
-        public bool UsingViRSEPlayer;
-        public OverridableAvatarAppearance ViRSEAvatarAppearance;
+        public bool UsingFrameworkPlayer;
+        public OverridableAvatarAppearance OverridableAvatarAppearance;
 
         public AvatarAppearanceWrapper() { }
 
         public AvatarAppearanceWrapper(byte[] bytes) : base(bytes) { }
 
-        public AvatarAppearanceWrapper(bool usingViRSEAvatar, OverridableAvatarAppearance virseAvatarAppearance)
+        public AvatarAppearanceWrapper(bool usingFrameworkAvatar, OverridableAvatarAppearance frameworkAvatarAppearance)
         {
-            UsingViRSEPlayer = usingViRSEAvatar;
-            ViRSEAvatarAppearance = virseAvatarAppearance;
+            UsingFrameworkPlayer = usingFrameworkAvatar;
+            OverridableAvatarAppearance = frameworkAvatarAppearance;
         }
 
         protected override byte[] ConvertToBytes()
@@ -261,11 +240,11 @@ public class InstanceSyncSerializables
             using MemoryStream stream = new();
             using BinaryWriter writer = new(stream);
 
-            writer.Write(UsingViRSEPlayer);
+            writer.Write(UsingFrameworkPlayer);
 
-            if (UsingViRSEPlayer)
+            if (UsingFrameworkPlayer)
             {
-                byte[] virseAppearanceBytes = ViRSEAvatarAppearance.Bytes;
+                byte[] virseAppearanceBytes = OverridableAvatarAppearance.Bytes;
                 writer.Write((ushort)virseAppearanceBytes.Length);
                 writer.Write(virseAppearanceBytes);
             }
@@ -278,13 +257,13 @@ public class InstanceSyncSerializables
             using MemoryStream stream = new(bytes);
             using BinaryReader reader = new(stream);
 
-            UsingViRSEPlayer = reader.ReadBoolean();
-            
-            if (UsingViRSEPlayer)
+            UsingFrameworkPlayer = reader.ReadBoolean();
+
+            if (UsingFrameworkPlayer)
             {
                 ushort virseAppearanceBytesLength = reader.ReadUInt16();
                 byte[] virseAppearanceBytes = reader.ReadBytes(virseAppearanceBytesLength);
-                ViRSEAvatarAppearance = new(virseAppearanceBytes);
+                OverridableAvatarAppearance = new(virseAppearanceBytes);
             }
         }
     }

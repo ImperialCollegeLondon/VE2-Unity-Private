@@ -8,6 +8,7 @@ namespace VE2.InstanceNetworking
 {
     internal class RemotePlayerSyncer
     {
+       private readonly IPluginSyncCommsHandler _commsHandler;
         private readonly InstanceInfoContainer _instanceInfoContainer;
         private readonly InteractorContainer _interactorContainer;
         //private readonly IPlayerServiceInternal _playerService;
@@ -19,13 +20,15 @@ namespace VE2.InstanceNetworking
 
         private Dictionary<ushort, RemoteAvatarController> _remoteAvatars = new();
 
-        public RemotePlayerSyncer(InstanceInfoContainer instanceInfoContainer, InteractorContainer interactorContainer, IPlayerServiceInternal playerService)
+        public RemotePlayerSyncer(IPluginSyncCommsHandler commsHandler, InstanceInfoContainer instanceInfoContainer, InteractorContainer interactorContainer, IPlayerServiceInternal playerService)
         {
+            _commsHandler = commsHandler;
+            _commsHandler.OnReceiveRemotePlayerState += HandleReceiveRemotePlayerState;
+
             _instanceInfoContainer = instanceInfoContainer;
-            _instanceInfoContainer.OnInstanceInfoChanged += HandleNewInstanceInfo;
+            _instanceInfoContainer.OnInstanceInfoChanged += HandleInstanceInfoChanged;
 
             _interactorContainer = interactorContainer;
-            // _playerService = playerService;
 
             _virseAvatarHeadGameObjects = new List<GameObject>()
             {
@@ -40,16 +43,16 @@ namespace VE2.InstanceNetworking
 
             _avatarHeadOverrideGameObjects = playerService.HeadOverrideGOs;
             _avatarTorsoOverrideGameObjects = playerService.HeadOverrideGOs;
-
-            HandleNewInstanceInfo(_instanceInfoContainer.InstanceInfo); //must do this after the gameobject references have been set up above
         }
 
-        private void HandleNewInstanceInfo(InstancedInstanceInfo newInstanceInfo)
+        private void HandleInstanceInfoChanged(InstancedInstanceInfo newInstanceInfo)
         {
+            Debug.Log("RemotePlayerSyncer: HandleInstanceInfoChanged");
             Dictionary<ushort, InstancedClientInfo> receivedRemoteClientInfosWithAppearance = new();
             foreach (KeyValuePair<ushort, InstancedClientInfo> kvp in newInstanceInfo.ClientInfos)
             {
-                if (kvp.Key != _instanceInfoContainer.LocalClientID && kvp.Value.AvatarAppearanceWrapper.UsingViRSEPlayer)
+                Debug.Log("Checking client: " + kvp.Key + " - " + kvp.Value.InstancedAvatarAppearance.UsingFrameworkPlayer);
+                if (kvp.Key != _instanceInfoContainer.LocalClientID && kvp.Value.InstancedAvatarAppearance.UsingFrameworkPlayer)
                     receivedRemoteClientInfosWithAppearance.Add(kvp.Key, kvp.Value);
             }
 
@@ -70,7 +73,7 @@ namespace VE2.InstanceNetworking
                     _remoteAvatars.Add(receivedRemoteClientInfoWithAppearance.ClientID, remotePlayerGO.GetComponent<RemoteAvatarController>());
                 }
 
-                _remoteAvatars[receivedRemoteClientInfoWithAppearance.ClientID].HandleReceiveAvatarAppearance(receivedRemoteClientInfoWithAppearance.AvatarAppearanceWrapper.ViRSEAvatarAppearance);
+                _remoteAvatars[receivedRemoteClientInfoWithAppearance.ClientID].HandleReceiveAvatarAppearance(receivedRemoteClientInfoWithAppearance.InstancedAvatarAppearance.OverridableAvatarAppearance);
             }
 
             List<ushort> remoteClientIDsToDespawn = new(_remoteAvatars.Keys);
@@ -83,7 +86,7 @@ namespace VE2.InstanceNetworking
             }
         }
 
-        public void HandleReceiveRemotePlayerState(byte[] stateAsBytes)
+        private void HandleReceiveRemotePlayerState(byte[] stateAsBytes)
         {
             PlayerStateWrapper stateWrapper = new(stateAsBytes);
             PlayerTransformData playerState = new(stateWrapper.StateBytes);
@@ -101,7 +104,7 @@ namespace VE2.InstanceNetworking
                     GameObject.Destroy(remotePlayerController.gameObject);
 
             _remoteAvatars.Clear();
-            _instanceInfoContainer.OnInstanceInfoChanged -= HandleNewInstanceInfo;
+            _instanceInfoContainer.OnInstanceInfoChanged -= HandleInstanceInfoChanged;
         }
     }
 }

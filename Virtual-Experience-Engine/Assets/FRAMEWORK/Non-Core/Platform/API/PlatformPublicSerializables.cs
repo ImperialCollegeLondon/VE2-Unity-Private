@@ -15,9 +15,9 @@ namespace VE2.Platform.API
         [Serializable]
         internal class ServerConnectionSettings : VE2Serializable
         {
-            public string Username;
-            public string Password;
-            public string ServerAddress;
+            public string Username = "";
+            public string Password = "";
+            public string ServerAddress = "";
             public ushort ServerPort;
 
             public ServerConnectionSettings() { }
@@ -193,8 +193,8 @@ namespace VE2.Platform.API
 
         }
 
-    
-        internal class PlatformInstanceInfo : InstanceInfoBase
+
+        internal class PlatformInstanceInfo : InstanceInfoBase //TODO - shouldn't be in public serializables
         {
             public Dictionary<ushort, PlatformClientInfo> ClientInfos { get; private set; }
 
