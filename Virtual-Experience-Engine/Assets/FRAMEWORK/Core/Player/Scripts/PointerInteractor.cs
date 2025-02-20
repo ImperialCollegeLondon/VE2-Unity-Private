@@ -29,6 +29,11 @@ namespace VE2.Core.Player
         [SerializeField, IgnoreParent] public string Value;
     }
 
+    [Serializable]
+    public class GrabbableWrapper
+    {
+        public IRangedFreeGrabInteractionModule RangedFreeGrabInteraction { get; internal set; }
+    }
     public abstract class PointerInteractor : IInteractor
     {
         public Transform GrabberTransform => _GrabberTransform;
@@ -38,7 +43,7 @@ namespace VE2.Core.Player
         protected bool _WaitingForMultiplayerSupport => _multiplayerSupport != null && !_multiplayerSupport.IsConnectedToServer;
 
         protected const float MAX_RAYCAST_DISTANCE = 10;
-        protected IRangedGrabInteractionModule _CurrentGrabbingGrabbable;
+        protected IRangedFreeGrabInteractionModule _CurrentGrabbingGrabbable;
 
         private GameObject lastHoveredUIObject = null; // Keep track of the last hovered UI object
 
@@ -50,12 +55,15 @@ namespace VE2.Core.Player
         private readonly LayerMask _layerMask;
         private readonly StringWrapper _raycastHitDebug;
 
+
         private readonly InteractorType _InteractorType;
         private readonly IRaycastProvider _RaycastProvider;
         private readonly IMultiplayerSupport _multiplayerSupport;
 
+        internal readonly GrabbableWrapper GrabbableWrapper;
+
         public PointerInteractor(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
-            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, IMultiplayerSupport multiplayerSupport)
+            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, IMultiplayerSupport multiplayerSupport, GrabbableWrapper grabbableWrapper = null)
         {
             _interactorContainer = interactorContainer;
             _interactorInputContainer = interactorInputContainer;
@@ -68,6 +76,8 @@ namespace VE2.Core.Player
             _InteractorType = interactorType;
             _RaycastProvider = raycastProvider;
             _multiplayerSupport = multiplayerSupport;
+
+            GrabbableWrapper = grabbableWrapper;
         }
 
         public virtual void HandleOnEnable()
@@ -224,9 +234,11 @@ namespace VE2.Core.Player
             }
         }
 
-        public void ConfirmGrab(IRangedGrabInteractionModule rangedGrabInteractable)
+        public void ConfirmGrab(IRangedFreeGrabInteractionModule rangedGrabInteractable)
         {
+            Debug.Log("ConfirmGrab - null? " + (rangedGrabInteractable == null));
             _CurrentGrabbingGrabbable = rangedGrabInteractable;
+            GrabbableWrapper.RangedFreeGrabInteraction = rangedGrabInteractable;
             SetInteractorState(InteractorState.Grabbing);
         }
 
@@ -234,6 +246,7 @@ namespace VE2.Core.Player
         {
             SetInteractorState(InteractorState.Idle);
             _CurrentGrabbingGrabbable = null;
+            GrabbableWrapper.RangedFreeGrabInteraction = null;
         }
 
         private void HandleHandheldClickPressed()

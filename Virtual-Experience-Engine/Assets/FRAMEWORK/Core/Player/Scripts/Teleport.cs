@@ -6,8 +6,10 @@ public class Teleport
 {
     private readonly TeleportInputContainer _inputContainer;
     private readonly Transform _rootTransform; // For rotating the player
-    private readonly Transform _teleportRaycastOrigin; // Position of the teleport raycast origin
-
+    private readonly Transform _thisHandTeleportRaycastOrigin; // Position of the teleport raycast origin
+    private readonly Transform _otherHandTeleportRaycastOrigin; // Position of the other hand teleport raycast origin
+    private readonly GrabbableWrapper _thisHandGrabbableWrapper;
+    private readonly GrabbableWrapper _otherHandGrabbableWrapper;
     private GameObject _reticle;
     private LineRenderer _lineRenderer;
     private GameObject _lineRendererObject;
@@ -15,16 +17,20 @@ public class Teleport
     private Vector3 _hitPoint;
     private float _teleportRayDistance = 50f;
     private Quaternion _teleportTargetRotation;
-    private LayerMask _groundLayerMask => LayerMask.GetMask("Traversible");
+    private Quaternion _teleportRotation;
+    private LayerMask _teleportLayerMask => LayerMask.GetMask("Traversible");
     private Vector2 _currentTeleportDirection;
     private int _lineSegmentCount = 20; // Number of segments in the Bezier curve
     private float _maxSlopeAngle = 45f; // Maximum slope angle in degrees
 
-    public Teleport(TeleportInputContainer inputContainer, Transform rootTransform, Transform teleportRaycastOrigin)
+    public Teleport(TeleportInputContainer inputContainer, Transform rootTransform, Transform thisHandTeleportRaycastOrigin, Transform otherHandTeleportRaycastOrigin, GrabbableWrapper thisHandGrabbableWrapper, GrabbableWrapper otherHandGrabbableWrapper)
     {
         _inputContainer = inputContainer;
         _rootTransform = rootTransform;
-        _teleportRaycastOrigin = teleportRaycastOrigin;
+        _thisHandTeleportRaycastOrigin = thisHandTeleportRaycastOrigin;
+        _otherHandTeleportRaycastOrigin = otherHandTeleportRaycastOrigin;
+        _thisHandGrabbableWrapper = thisHandGrabbableWrapper;
+        _otherHandGrabbableWrapper = otherHandGrabbableWrapper;
     }
 
     public void HandleUpdate()
@@ -59,34 +65,60 @@ public class Teleport
 
     private void HandleTeleportDeactivated()
     {
+
+        if (_thisHandGrabbableWrapper.RangedFreeGrabInteraction != null)
+            return;
+
         // Teleport User
         Debug.Log("Teleport Deactivated");
+
+        Vector3 initialHandPosition = _otherHandTeleportRaycastOrigin.position;
+        Quaternion initialHandRotation = _otherHandTeleportRaycastOrigin.rotation;
+
         _rootTransform.position = _hitPoint;
-        _rootTransform.rotation = _arrowObject.transform.rotation;
+        _rootTransform.rotation = _teleportRotation;
+
+
+        Vector3 finallHandPosition = _otherHandTeleportRaycastOrigin.position;
+        Quaternion finalHandRotation = _otherHandTeleportRaycastOrigin.rotation;
+         //Get raycast origin pos/rot again 
+
+        //Delta between the two 
+        Vector3 deltaPosition = finallHandPosition - initialHandPosition;
+        Quaternion deltaRotation = finalHandRotation * Quaternion.Inverse(initialHandRotation);
+
+        Debug.Log($"Grabbable Wrapper is {_otherHandGrabbableWrapper.RangedFreeGrabInteraction == null}");
+        if (_otherHandGrabbableWrapper.RangedFreeGrabInteraction != null)
+        {
+            _otherHandGrabbableWrapper.RangedFreeGrabInteraction.ApplyDeltaWhenGrabbed(deltaPosition, deltaRotation); //Handle the teleportation for the ranged grab interaction module
+        }
+
         Debug.Log($"Teleporting to: {_hitPoint} with Rotation of {_teleportTargetRotation.eulerAngles}");
         CancelTeleport();
     }
 
     private void CastTeleportRay()
     {
-        Vector3 startPosition = _teleportRaycastOrigin.position;
-        Vector3 direction = _teleportRaycastOrigin.forward;
-        _teleportRaycastOrigin.gameObject.SetActive(false);
+        if (_thisHandGrabbableWrapper.RangedFreeGrabInteraction != null)
+            return;
 
-        if (Physics.Raycast(startPosition, direction, out RaycastHit hit, _teleportRayDistance, _groundLayerMask))
+        Vector3 startPosition = _thisHandTeleportRaycastOrigin.position;
+        Vector3 direction = _thisHandTeleportRaycastOrigin.forward;
+        _thisHandTeleportRaycastOrigin.gameObject.SetActive(false);
+
+        if (Physics.Raycast(startPosition, direction, out RaycastHit hit, _teleportRayDistance, _teleportLayerMask))
         {
             if (IsValidSurface(hit.normal))
             {
                 _hitPoint = hit.point;
                 _reticle.transform.position = _hitPoint;
-                Vector3 arrowDirection = _teleportRaycastOrigin.forward;
+                Vector3 arrowDirection = _thisHandTeleportRaycastOrigin.forward;
                 arrowDirection.y = 0;
                 if (arrowDirection != Vector3.zero)
                 {
                     arrowDirection.Normalize();
                 }
                 _arrowObject.transform.rotation = Quaternion.LookRotation(arrowDirection, Vector3.up);
-                _arrowObject.transform.position = _hitPoint + direction * (_arrowObject.transform.localScale.z / 2) + Vector3.up * (_arrowObject.transform.localScale.y / 2);
 
                 // Update the line renderer positions
                 DrawBezierCurve(startPosition, _hitPoint);
@@ -94,7 +126,7 @@ public class Teleport
 
                 _reticle.SetActive(true);
                 _arrowObject.SetActive(true);
-                UpdateTargetRotation();
+                UpdateTargetRotation(hit.normal);
             }
             else
             {
@@ -137,7 +169,7 @@ public class Teleport
         _reticle.SetActive(false);
         _lineRendererObject.SetActive(false);
         _arrowObject.SetActive(false);
-        _teleportRaycastOrigin.gameObject.SetActive(true);
+        _thisHandTeleportRaycastOrigin.gameObject.SetActive(true);
     }
 
     private void CreateTeleportRayAndReticle()
@@ -152,32 +184,29 @@ public class Teleport
             _lineRenderer.material = new Material(Shader.Find("Unlit/Color"));
             _lineRenderer.material.color = Color.yellow;
             _lineRendererObject.SetActive(false);
-            _lineRendererObject.transform.SetParent(_teleportRaycastOrigin.parent);
+            _lineRendererObject.transform.SetParent(_thisHandTeleportRaycastOrigin.parent);
             _lineRendererObject.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
         }
-
         if (_reticle == null)
         {
-            _reticle = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            _reticle.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
-            Material reticleMaterial = new Material(Shader.Find("Unlit/Color"));
-            _reticle.GetComponent<Renderer>().material = new Material(Shader.Find("Unlit/Color"));
-            _reticle.GetComponent<Renderer>().material.color = Color.green;
+            GameObject teleportCursorPrefab = Resources.Load<GameObject>("TeleportationCursor");
+            if (teleportCursorPrefab != null)
+            {
+                _reticle = GameObject.Instantiate(teleportCursorPrefab);
+                _arrowObject = _reticle.transform.Find("TeleportationCursorChild").gameObject;
+
+            }
+            else
+            {
+                Debug.LogError("TeleportCursor prefab not found in Resources.");
+            }
         }
 
         _reticle.SetActive(false);
-
-        if (_arrowObject == null)
-        {
-            _arrowObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            _arrowObject.transform.localScale = new Vector3(0.1f, 0.1f, 0.25f);
-            _arrowObject.GetComponent<Renderer>().material = new Material(Shader.Find("Unlit/Color"));
-            _arrowObject.GetComponent<Renderer>().material.color = Color.yellow;
-        }
         _arrowObject.SetActive(false);
     }
 
-    private void UpdateTargetRotation()
+    private void UpdateTargetRotation(Vector3 surfaceNormal)
     {
         _currentTeleportDirection = _inputContainer.TeleportDirection.Value;
         float rotationAngle = Mathf.Atan2(_currentTeleportDirection.x, _currentTeleportDirection.y) * Mathf.Rad2Deg;
@@ -185,7 +214,11 @@ public class Teleport
 
         Debug.Log($"Current Teleport Direction: {_currentTeleportDirection}, Teleport Rotation: {rotationAngle}");
 
-        _arrowObject.transform.rotation *= _teleportTargetRotation;
+        _teleportRotation = _arrowObject.transform.rotation * _teleportTargetRotation;
+
+        // Align the arrow object with the surface normal
+        Quaternion surfaceRotation = Quaternion.FromToRotation(Vector3.up, surfaceNormal);
+        _arrowObject.transform.rotation = surfaceRotation * _teleportTargetRotation;
     }
 
     private void DrawBezierCurve(Vector3 startPosition, Vector3 endPosition)

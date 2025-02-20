@@ -23,7 +23,7 @@ namespace VE2.InstanceNetworking
             _interactorContainer.DeregisterInteractor(_interactorID.ToString());
         }
 
-        public void ConfirmGrab(IRangedGrabInteractionModule rangedGrabInteractionModule)
+        public void ConfirmGrab(IRangedFreeGrabInteractionModule rangedGrabInteractionModule)
         {
             //TODO: hide
         }

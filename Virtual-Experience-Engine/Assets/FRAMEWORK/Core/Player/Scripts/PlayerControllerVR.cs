@@ -61,21 +61,26 @@ namespace VE2.Core.Player
             handVRRightGO.transform.localScale = new Vector3(-1, 1, 1);
             handVRRightGO.name = "HandVRRight";
 
-            _handControllerLeft = CreateHandController(handVRLeftGO, interactorContainer, playerVRInputContainer.HandVRLeftInputContainer, playerVRInputContainer.HandVRRightInputContainer.DragLocomotorInputContainer, InteractorType.LeftHandVR, raycastProvider, multiplayerSupport);
-            _handControllerRight = CreateHandController(handVRRightGO, interactorContainer, playerVRInputContainer.HandVRRightInputContainer,playerVRInputContainer.HandVRLeftInputContainer.DragLocomotorInputContainer, InteractorType.RightHandVR, raycastProvider, multiplayerSupport);
+
+            GrabbableWrapper leftHandGrabbableWrapper = new GrabbableWrapper();
+            GrabbableWrapper rightHandGrabbableWrapper = new GrabbableWrapper();
+
+            _handControllerLeft = CreateHandController(handVRLeftGO, handVRRightGO, interactorContainer, playerVRInputContainer.HandVRLeftInputContainer, playerVRInputContainer.HandVRRightInputContainer.DragLocomotorInputContainer, InteractorType.LeftHandVR, raycastProvider, multiplayerSupport, leftHandGrabbableWrapper, rightHandGrabbableWrapper);
+            _handControllerRight = CreateHandController(handVRRightGO, handVRLeftGO, interactorContainer, playerVRInputContainer.HandVRRightInputContainer,playerVRInputContainer.HandVRLeftInputContainer.DragLocomotorInputContainer, InteractorType.RightHandVR, raycastProvider, multiplayerSupport, rightHandGrabbableWrapper, leftHandGrabbableWrapper);
         }
 
-        private V_HandController CreateHandController(GameObject handGO, InteractorContainer interactorContainer, HandVRInputContainer handVRInputContainer, DragLocomotorInputContainer otherHandDragInputContainer, InteractorType interactorType, IRaycastProvider raycastProvider, IMultiplayerSupport multiplayerSupport)
+        private V_HandController CreateHandController(GameObject handGO, GameObject otherHandGO, InteractorContainer interactorContainer, HandVRInputContainer handVRInputContainer, DragLocomotorInputContainer otherHandDragInputContainer, InteractorType interactorType, IRaycastProvider raycastProvider, IMultiplayerSupport multiplayerSupport, GrabbableWrapper thisHandGrabbableWrapper, GrabbableWrapper otherHandGrabbableWrapper)
         {
-            V_HandVRReferences handVRReferences = handGO.GetComponent<V_HandVRReferences>();
+            V_HandVRReferences thisHandVRReferences = handGO.GetComponent<V_HandVRReferences>();
+            V_HandVRReferences otherHandVRReferences = otherHandGO.GetComponent<V_HandVRReferences>();
 
             InteractorVR interactor = new(
                 interactorContainer, handVRInputContainer.InteractorVRInputContainer,
-                handVRReferences.InteractorVRReferences,
-                interactorType, raycastProvider, multiplayerSupport);
+                thisHandVRReferences.InteractorVRReferences,
+                interactorType, raycastProvider, multiplayerSupport, thisHandGrabbableWrapper);
 
             DragLocomotor dragLocomotor = new(
-                handVRReferences.LocomotorVRReferences,
+                thisHandVRReferences.LocomotorVRReferences,
                 handVRInputContainer.DragLocomotorInputContainer,
                 otherHandDragInputContainer,
                 _rootTransform, _verticalOffsetTransform, handGO.transform);
@@ -83,10 +88,10 @@ namespace VE2.Core.Player
             SnapTurn snapTurn = new(
                 handVRInputContainer.SnapTurnInputContainer,
                 _rootTransform,
-                handVRInputContainer.TeleportInputContainer);
+                handVRInputContainer.TeleportInputContainer, thisHandGrabbableWrapper,otherHandGrabbableWrapper, thisHandVRReferences.InteractorVRReferences.RayOrigin, otherHandVRReferences.InteractorVRReferences.RayOrigin);
             Teleport teleport = new(
                 handVRInputContainer.TeleportInputContainer,
-                _rootTransform, handVRReferences.InteractorVRReferences.RayOrigin);
+                _rootTransform, thisHandVRReferences.InteractorVRReferences.RayOrigin, otherHandVRReferences.InteractorVRReferences.RayOrigin, thisHandGrabbableWrapper, otherHandGrabbableWrapper);
             return new V_HandController(handGO, handVRInputContainer, interactor, dragLocomotor, snapTurn, teleport);
         }
 

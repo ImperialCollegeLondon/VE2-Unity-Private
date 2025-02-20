@@ -20,12 +20,12 @@ namespace VE2.Core.VComponents.Internal
     {
         #region Interfacess
         public IFreeGrabbableStateModule StateModule => _StateModule;
-        public IRangedGrabInteractionModule RangedGrabInteractionModule => _RangedGrabInteractionModule;
+        public IRangedFreeGrabInteractionModule RangedGrabInteractionModule => _RangedGrabInteractionModule;
         #endregion
 
         #region Modules
         private readonly FreeGrabbableStateModule _StateModule;
-        private readonly RangedGrabInteractionModule _RangedGrabInteractionModule;
+        private readonly RangedFreeGrabInteractionModule _RangedGrabInteractionModule;
         #endregion
 
         public bool IsGrabbed => _StateModule.IsGrabbed;
@@ -34,9 +34,11 @@ namespace VE2.Core.VComponents.Internal
         private bool _isKinematicOnStart;
         private PhysicsConstants _physicsConstants;
 
+        private Transform _transform;
+
         public FreeGrabbableService(List<IHandheldInteractionModule> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id, 
             WorldStateModulesContainer worldStateModulesContainer, InteractorContainer interactorContainer, 
-            IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants)
+            IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants, Transform transform)
         {
             _RangedGrabInteractionModule = new(handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
             _StateModule = new(state, config.StateConfig, id, worldStateModulesContainer, interactorContainer, RangedGrabInteractionModule);
@@ -44,9 +46,11 @@ namespace VE2.Core.VComponents.Internal
             _rigidbody  = rigidbody;
             _physicsConstants = physicsConstants;
             _isKinematicOnStart = _rigidbody.isKinematic;
+            _transform = transform;
 
             _RangedGrabInteractionModule.OnLocalInteractorRequestGrab += (InteractorID interactorID) => _StateModule.SetGrabbed(interactorID);
             _RangedGrabInteractionModule.OnLocalInteractorRequestDrop += (InteractorID interactorID) => _StateModule.SetDropped(interactorID);
+            _RangedGrabInteractionModule.OnGrabDeltaApplied += ApplyDeltaWhenGrabbed;
 
             _StateModule.OnGrabConfirmed += HandleGrabConfirmed;
             _StateModule.OnDropConfirmed += HandleDropConfirmed;
@@ -56,6 +60,19 @@ namespace VE2.Core.VComponents.Internal
 
         // private void HandleLocalInteractorRequestDrop(InteractorID interactorID) => _StateModule.SetDropped(interactorID);
         
+        private void ApplyDeltaWhenGrabbed(Vector3 deltaPosition, Quaternion deltaRotation)
+        {
+            Debug.Log("Applying delta when grabbed");   
+            _rigidbody.isKinematic = true;
+
+            _rigidbody.position += deltaPosition;
+            _rigidbody.rotation *= deltaRotation;
+            _rigidbody.angularVelocity = Vector3.zero;
+            _rigidbody.linearVelocity = Vector3.zero;
+            _rigidbody.isKinematic = false;
+
+
+        }
         private void HandleGrabConfirmed()
         {
             _rigidbody.isKinematic = false;

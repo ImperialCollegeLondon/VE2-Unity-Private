@@ -46,7 +46,8 @@ namespace VE2.Core.VComponents.Integration
                 VE2CoreServiceLocator.Instance.WorldStateModulesContainer,
                 VE2CoreServiceLocator.Instance.InteractorContainer,
                 _rigidbodyWrapper,
-                Resources.Load<PhysicsConstants>("PhysicsConstants"));
+                Resources.Load<PhysicsConstants>("PhysicsConstants"),
+                transform);
         }
 
         private void FixedUpdate()

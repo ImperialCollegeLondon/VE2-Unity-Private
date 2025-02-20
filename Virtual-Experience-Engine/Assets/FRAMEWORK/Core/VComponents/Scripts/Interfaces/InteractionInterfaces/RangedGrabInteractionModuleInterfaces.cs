@@ -8,7 +8,6 @@ namespace VE2.Core.VComponents.InteractableInterfaces
     {
         public void RequestLocalGrab(InteractorID interactorID);
         public void RequestLocalDrop(InteractorID interactorID);
-
         public List<IHandheldInteractionModule> HandheldInteractions { get; }
     }
 }

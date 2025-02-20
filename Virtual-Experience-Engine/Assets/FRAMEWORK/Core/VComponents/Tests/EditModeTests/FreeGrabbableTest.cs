@@ -33,7 +33,8 @@ namespace VE2.Core.VComponents.Tests
                 Substitute.For<WorldStateModulesContainer>(),
                 interactorContainerStub,
                 Substitute.For<IRigidbodyWrapper>(), 
-                new PhysicsConstants());
+                new PhysicsConstants(),
+                Substitute.For<Transform>());
 
             //Stub out the VC (integration layer) with the grabbable
             V_FreeGrabbableStub v_freeGrabbableStub = new(freeGrabbable);

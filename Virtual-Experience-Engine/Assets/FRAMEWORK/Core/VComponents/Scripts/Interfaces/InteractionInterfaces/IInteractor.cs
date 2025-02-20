@@ -7,7 +7,7 @@ namespace VE2.Core.VComponents.InteractableInterfaces
     public interface IInteractor
     {
         public Transform GrabberTransform { get; }
-        public void ConfirmGrab(IRangedGrabInteractionModule rangedGrabInteractionModule);
+        public void ConfirmGrab(IRangedFreeGrabInteractionModule rangedGrabInteractionModule);
         public void ConfirmDrop();
 
     /*
