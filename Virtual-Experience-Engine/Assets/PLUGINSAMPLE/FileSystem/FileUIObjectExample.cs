@@ -2,8 +2,7 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using VE2_NonCore_FileSystem_Interfaces_Common;
-using VE2_NonCore_FileSystem_Interfaces_Plugin;
+using VE2.NonCore.FileSystem.API;
 
 public class FileUIObjectExample : MonoBehaviour
 {
@@ -28,10 +27,10 @@ public class FileUIObjectExample : MonoBehaviour
     private bool _isAvailableLocally;
     private bool _isAvailableRemotely;
 
-    private IPluginFileSystem _pluginFileSystem;
+    private IFileSystem _pluginFileSystem;
     private FileDetails _fileDetails;
 
-    public void Setup(IPluginFileSystem pluginFileSystem, FileDetails fileDetails, bool isAvailableLocally, bool isAvailableRemotely)
+    public void Setup(IFileSystem pluginFileSystem, FileDetails fileDetails, bool isAvailableLocally, bool isAvailableRemotely)
     {
         _pluginFileSystem = pluginFileSystem;
 

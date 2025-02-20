@@ -5,10 +5,8 @@ using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using VE2.NonCore.FileSystem.API;
 using VE2.NonCore.Platform.API;
-using VE2_NonCore_FileSystem_Interfaces_Common;
-using VE2_NonCore_FileSystem_Interfaces_Internal;
-using VE2_NonCore_FileSystem_Interfaces_Plugin;
 
 public class HubFileUIObjectExample : MonoBehaviour
 {
@@ -34,10 +32,10 @@ public class HubFileUIObjectExample : MonoBehaviour
     private int _activeRemoteVersion;
 
     private IPlatformServiceInternal _platformService;
-    private IInternalFileSystem _fileSystem;
+    private IFileSystemInternal _fileSystem;
     private string _worldFolder;
 
-    internal void Setup(IPlatformServiceInternal platformService, IInternalFileSystem fileSystem, string worldFolder)
+    internal void Setup(IPlatformServiceInternal platformService, IFileSystemInternal fileSystem, string worldFolder)
     {
         _platformService = platformService;
         _fileSystem = fileSystem;

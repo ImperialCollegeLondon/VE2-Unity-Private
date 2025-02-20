@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using UnityEngine;
-using VE2_NonCore_FileSystem_Interfaces_Common;
+using VE2.NonCore.FileSystem.API;
 using static VE2.Platform.API.PlatformPublicSerializables;
 
 namespace VE2.NonCore.FileSystem.Internal

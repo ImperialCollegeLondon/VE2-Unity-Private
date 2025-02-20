@@ -4,8 +4,7 @@ using System.IO;
 using System.Linq;
 using Renci.SshNet;
 using UnityEngine;
-using VE2_NonCore_FileSystem_Interfaces_Common;
-using VE2_NonCore_FileSystem_Interfaces_Internal;
+using VE2.NonCore.FileSystem.API;
 using static VE2.Platform.API.PlatformPublicSerializables;
 
 namespace VE2.NonCore.FileSystem.Internal
@@ -26,7 +25,7 @@ namespace VE2.NonCore.FileSystem.Internal
     }
 
     //Has the same interface as V_InternalFileSystem. The PluginBuilder/Exporter needs to use this without going through a MonoBehaviour first
-    public class FileSystemService : IInternalFileSystem 
+    public class FileSystemService : IFileSystemInternal 
     {
         #region Interfaces 
         public bool IsFileSystemReady { get; private set; } = false;

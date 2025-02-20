@@ -11,11 +11,10 @@ using UnityEngine.SceneManagement;
 using System.Text;
 using System.Security.Cryptography;
 using VE2.PlatformNetworking;
-using VE2_NonCore_FileSystem_Interfaces_Internal;
-using VE2_NonCore_FileSystem_Interfaces_Common;
 using UnityEditor.Build.Reporting;
 using static VE2.Platform.API.PlatformPublicSerializables;
 using VE2.NonCore.FileSystem.Internal;
+using VE2.NonCore.FileSystem.API;
 
 //TODO: Need to check for DLLs (rather than just assemblies) referenced the scene/scripts, and include them in the build. E.G Mathnet.Numerics.dll
 
@@ -97,7 +96,7 @@ namespace VE2.NonCore.Platform.Internal
         private EnvironmentType _lastEnvironmentType = EnvironmentType.Undefined;
 
 
-        private IInternalFileSystem _fileSystem;
+        private IFileSystemInternal _fileSystem;
 
         private int _highestRemoteVersionFound = -1;
         private bool _searchingForVersion = false;

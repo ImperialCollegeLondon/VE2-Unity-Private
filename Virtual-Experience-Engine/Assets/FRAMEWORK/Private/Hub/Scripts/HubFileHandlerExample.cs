@@ -3,10 +3,8 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using VE2.NonCore.FileSystem.API;
 using VE2.NonCore.Platform.API;
-using VE2_NonCore_FileSystem_Interfaces_Common;
-using VE2_NonCore_FileSystem_Interfaces_Internal;
-using VE2_NonCore_FileSystem_Interfaces_Plugin;
 
 public class HubFileHandlerExample : MonoBehaviour
 {
@@ -18,7 +16,7 @@ public class HubFileHandlerExample : MonoBehaviour
     [SerializeField] private GameObject _fileUIObjectPrefab;
 
     [SerializeField] private GameObject _fileSystemGameObject;
-    private IInternalFileSystem _fileSystem => _fileSystemGameObject.GetComponent<IInternalFileSystem>();
+    private IFileSystemInternal _fileSystem => _fileSystemGameObject.GetComponent<IFileSystemInternal>();
 
     // private List<VerticalLayoutGroup> _fileUIObjectVerticalGroups = new List<VerticalLayoutGroup>();
     // private List<FileUIObjectExample> _fileUIObjects = new List<FileUIObjectExample>();

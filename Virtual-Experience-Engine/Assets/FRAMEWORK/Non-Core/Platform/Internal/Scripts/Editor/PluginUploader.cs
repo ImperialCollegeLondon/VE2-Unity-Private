@@ -7,13 +7,12 @@ using System;
 using System.IO;
 using UnityEngine.SceneManagement;
 using VE2.PlatformNetworking;
-using VE2_NonCore_FileSystem_Interfaces_Internal;
-using VE2_NonCore_FileSystem_Interfaces_Common;
 using System.Text.RegularExpressions;
 using System.Linq;
 using static VE2.Platform.API.PlatformPublicSerializables;
 using static VE2.NonCore.Platform.Internal.VE2PluginBuilderWindow;
 using VE2.NonCore.FileSystem.Internal;
+using VE2.NonCore.FileSystem.API;
 
 namespace VE2.Platform.Internal
 {
@@ -60,7 +59,7 @@ namespace VE2.Platform.Internal
         private Scene _sceneToExport;
         private string _worldFolderName => $"{_worldCategory}_{_sceneToExport.name}";
 
-        private IInternalFileSystem _fileSystem;
+        private IFileSystemInternal _fileSystem;
 
         private int _highestRemoteVersionFound = -1;
         private int _highestLocalVersionFound = -1;

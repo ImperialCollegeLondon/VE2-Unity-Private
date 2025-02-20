@@ -6,9 +6,8 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine.SceneManagement;
 using Unity.Burst;
-using VE2_NonCore_FileSystem_Interfaces_Internal;
-using VE2_NonCore_FileSystem_Interfaces_Common;
 using VE2.NonCore.FileSystem.Internal;
+using VE2.NonCore.FileSystem.API;
 
 namespace VE2.NonCore.Platform.Internal
 {
@@ -32,7 +31,7 @@ namespace VE2.NonCore.Platform.Internal
                 Although, it probs needs to be renamed to e.g V_PlatformProvider, rather V_PlatformIntegration
             */
 
-            IInternalFileSystem fileSystem = GameObject.FindObjectOfType<V_InternalFileSystem>();
+            IFileSystemInternal fileSystem = GameObject.FindObjectOfType<V_InternalFileSystem>();
             if (fileSystem == null)
             {
                 Debug.LogError("Could not load plugin as FileSystem  can't be found");

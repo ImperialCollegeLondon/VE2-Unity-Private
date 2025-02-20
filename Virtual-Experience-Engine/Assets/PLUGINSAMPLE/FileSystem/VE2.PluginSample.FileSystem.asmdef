@@ -1,8 +1,11 @@
 {
-    "name": "VE2_NonCore_FileSystem_Interfaces_Plugin",
+    "name": "VE2.PluginSample.FileSystem",
     "rootNamespace": "",
     "references": [
-        "GUID:948c2c6a17e0b2741862a32a3ad86652"
+        "Unity.TextMeshPro",
+        "Toolbox",
+        "Toolbox.Editor",
+        "VE2.NonCore.FileSystem.API"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -1,5 +1,5 @@
 {
-    "name": "VE2_Plugin_Sample_Green",
+    "name": "VE2.PluginSample.Green",
     "rootNamespace": "",
     "references": [
         "GUID:27761945d4a599347997de06d94a1ae9",

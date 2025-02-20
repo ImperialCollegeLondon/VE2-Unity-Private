@@ -1,9 +1,9 @@
 using UnityEngine;
-using VE2_NonCore_FileSystem_Interfaces_Internal;
+using VE2.NonCore.FileSystem.API;
 
 namespace VE2.NonCore.FileSystem.Internal
 {
-    public class V_InternalFileSystem : V_FileSystemIntegrationBase, IInternalFileSystem
+    public class V_InternalFileSystem : V_FileSystemIntegrationBase, IFileSystemInternal
     {
         public override string LocalWorkingPath{ get {
                string platformName = Application.platform == RuntimePlatform.Android ? "Android" : "Windows";
