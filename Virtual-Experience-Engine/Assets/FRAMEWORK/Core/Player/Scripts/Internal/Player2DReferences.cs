@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace VE2.Core.Player
+namespace VE2.Core.Player.Internal
 {
     internal class Player2DReferences : MonoBehaviour
     {

@@ -1,16 +1,12 @@
 using System;
 using UnityEngine;
-using VE2.Common;
-using VE2.Core.VComponents.NonInteractableInterfaces;
-using VE2.Core.VComponents.InteractableFindables;
-using VE2.Core.VComponents.PluginInterfaces;
-using VE2.Core.VComponents.InteractableInterfaces;
 using VE2.Core.VComponents.Internal;
 using System.Collections.Generic;
+using VE2.Core.VComponents.API;
 
 namespace VE2.Core.VComponents.Integration
 {
-    internal class V_FreeGrabbable : VComponentBase, IV_FreeGrabbable, IRangedGrabPlayerInteractableIntegrator
+    internal class V_FreeGrabbable : VComponentBase, IV_FreeGrabbable, IRangedGrabInteractionModuleProvider
     {
         [SerializeField, HideLabel, IgnoreParent] private FreeGrabbableConfig _config = new();
         [SerializeField, HideInInspector] private FreeGrabbableState _state = new();
@@ -21,7 +17,7 @@ namespace VE2.Core.VComponents.Integration
         #endregion
 
         #region Player Interfaces
-        IRangedInteractionModule IRangedPlayerInteractableIntegrator.RangedInteractionModule => _service.RangedGrabInteractionModule;
+        IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _service.RangedGrabInteractionModule;
         #endregion
 
         private FreeGrabbableService _service = null;
@@ -44,7 +40,7 @@ namespace VE2.Core.VComponents.Integration
                 _state, 
                 id,
                 VComponentsAPI.WorldStateSyncService,
-                PlayerAPI.InteractorContainer,
+                VComponentsAPI.InteractorContainer,
                 _rigidbodyWrapper,
                 Resources.Load<PhysicsConstants>("PhysicsConstants"));
         }

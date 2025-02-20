@@ -1,10 +1,10 @@
 using UnityEngine;
-using VE2.Common;
-using VE2.Core.VComponents.InteractableInterfaces;
+using VE2.Core.Player.API;
+using VE2.Core.VComponents.API;
 
-namespace VE2.InstanceNetworking
+namespace VE2.NonCore.Instancing.Internal
 {
-    public class RemoteInteractor : MonoBehaviour, IInteractor
+    internal class RemoteInteractor : MonoBehaviour, IInteractor //TODO: Maybe doesn't need to be a mononbehaviour?
     {
         public Transform GrabberTransform => transform;
         private InteractorContainer _interactorContainer;
@@ -33,8 +33,4 @@ namespace VE2.InstanceNetworking
             //TODO: Show 
         }
     }
-
-    //TODO - need to add to InteractorContainer here 
-    //Means we also don't want this being a MB 
-
 }

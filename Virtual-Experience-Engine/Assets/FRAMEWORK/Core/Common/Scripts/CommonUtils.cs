@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace VE2.Common
+namespace VE2.Core.Common
 {
     public static class CommonUtils
     {
-        public static List<Material> GetAvatarColorMaterialsForGameObject(GameObject go)
+        public static List<Material> GetAvatarColorMaterialsForGameObject(GameObject go) //TODO, move to player?
         {
             List<Material> colorMaterials = new();
 

@@ -1,13 +1,15 @@
+using System;
 using UnityEngine;
 using System.Net;
-using static NonCoreCommonSerializables;
-using static InstanceSyncSerializables;
-using System;
-using static VE2.InstanceNetworking.V_InstanceIntegration;
-using VE2.Common;
 using static VE2.Platform.API.PlatformPublicSerializables;
+using VE2.Core.Player.API;
+using VE2.NonCore.Instancing.API;
+using static VE2.NonCore.Instancing.Internal.InstanceSyncSerializables;
+using VE2.Core.VComponents.API;
+using VE2.Core.Common;
+using VE2.NonCore.Platform.API;
 
-namespace VE2.InstanceNetworking
+namespace VE2.NonCore.Instancing.Internal
 {
     internal static class InstanceServiceFactory
     {
@@ -20,7 +22,7 @@ namespace VE2.InstanceNetworking
                 localClientIDWrapper, 
                 connectionStateDebugWrapper, 
                 PlatformAPI.PlatformService as IPlatformServiceInternal,
-                PlayerAPI.InteractorContainer,
+                VComponentsAPI.InteractorContainer,
                 PlayerAPI.Player as IPlayerServiceInternal,
                 connectAutomatically);
         }

@@ -1,8 +1,6 @@
 using UnityEngine.Events;
-using VE2.Core.VComponents.NonInteractableInterfaces;
-using VE2.Core.VComponents.InteractableInterfaces;
 
-namespace VE2.Core.VComponents.PluginInterfaces
+namespace VE2.Core.VComponents.API
 {
     public interface IV_ToggleActivatable 
     {

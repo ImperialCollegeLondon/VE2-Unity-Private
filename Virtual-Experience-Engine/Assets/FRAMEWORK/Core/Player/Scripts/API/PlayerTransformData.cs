@@ -1,9 +1,9 @@
 using System;
 using System.IO;
 using UnityEngine;
-using static VE2.Common.CommonSerializables;
+using static VE2.Core.Common.CommonSerializables;
 
-namespace VE2.Common
+namespace VE2.Core.Player.API
 {
     //TODO, we know the player will always be rotated to be level with the floor 
     //So that means we can actually just transmit a single float for the root rotation angle

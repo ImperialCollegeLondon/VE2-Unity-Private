@@ -8,7 +8,7 @@ using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace VE2_NonCore_FileSystem
+namespace VE2.NonCore.FileSystem.Internal
 {
     public enum FTPStatus { NotReady, Ready, Busy };
 

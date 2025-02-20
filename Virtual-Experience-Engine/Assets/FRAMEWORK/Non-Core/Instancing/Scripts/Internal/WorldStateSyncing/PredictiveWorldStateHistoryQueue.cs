@@ -8,10 +8,10 @@ using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
 
-namespace VE2.InstanceNetworking
+namespace VE2.NonCore.Instancing.Internal
 {
     [BurstCompile]
-    public class PredictiveWorldStateHistoryQueue
+    internal class PredictiveWorldStateHistoryQueue
     {
         public FixedSizedQueue<byte[]> RecentStates { get; private set; }
 
@@ -123,7 +123,7 @@ namespace VE2.InstanceNetworking
         }
     }
 
-    public class FixedSizedQueue<T>
+    internal class FixedSizedQueue<T>
     {
         ConcurrentQueue<T> q = new();
         private object lockObject = new();

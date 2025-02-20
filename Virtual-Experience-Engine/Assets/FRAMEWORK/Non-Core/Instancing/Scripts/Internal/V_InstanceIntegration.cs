@@ -1,8 +1,10 @@
 using System;
 using UnityEngine;
-using VE2.Common;
+using VE2.Core.Player.API;
+using VE2.Core.VComponents.API;
+using VE2.NonCore.Instancing.API;
 
-namespace VE2.InstanceNetworking
+namespace VE2.NonCore.Instancing.Internal
 {
     //Note, ILocalClientIDProvider is implemented here, NOT on the service - it needs to exsit at edit-time
     //Since the platform inits the player, and instancing inits the platform, we can't have the player init the instancing
@@ -22,21 +24,6 @@ namespace VE2.InstanceNetworking
         #region Runtime data
         [SerializeField, Disable, HideLabel, IgnoreParent] private ConnectionStateDebugWrapper _connectionStateDebug;
         [SerializeField, HideInInspector] private LocalClientIdWrapper _localClientIDWrapper = new();
-        [Serializable] public class LocalClientIdWrapper 
-        { 
-            private ushort _localClientID = ushort.MaxValue; 
-            public ushort LocalClientID 
-            {
-                get => _localClientID;
-                set 
-                {
-                    _localClientID = value;
-                    OnLocalClientIDSet?.Invoke(value);
-                }
-            } 
-            
-            public event Action<ushort> OnLocalClientIDSet;
-        }
         #endregion
 
         //We do this wiring here rather than the interface as the interface file needs to live in the VE2.common package

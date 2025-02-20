@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using VE2.NonCore.Platform.API;
 using VE2_NonCore_FileSystem_Interfaces_Common;
 using VE2_NonCore_FileSystem_Interfaces_Internal;
 using VE2_NonCore_FileSystem_Interfaces_Plugin;

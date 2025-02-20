@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static InstanceSyncSerializables;
-using VE2.Common;
 using System;
 using UnityEngine.XR;
+using VE2.Core.VComponents.API;
+using VE2.Core.Common;
+using static VE2.NonCore.Instancing.Internal.InstanceSyncSerializables;
 
-namespace VE2.InstanceNetworking
+namespace VE2.NonCore.Instancing.Internal
 {
     internal class WorldStateSyncer : IWorldStateSyncService
     {

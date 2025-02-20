@@ -1,9 +1,7 @@
 using System;
 using UnityEngine;
-using VE2.Common;
-using VE2.Core.VComponents.InteractableInterfaces;
-using VE2.Core.VComponents.NonInteractableInterfaces;
-using static VE2.Common.CommonSerializables;
+using VE2.Core.VComponents.API;
+using static VE2.Core.Common.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -41,6 +39,10 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         private readonly HandheldAdjustableServiceConfig  _handheldAdjustableServiceConfig;
+        private HandheldAdjustableConfig config;
+        private AdjustableState state;
+        private string id;
+        private IWorldStateSyncService worldStateSyncService;
 
         public HandheldAdjustableService(HandheldAdjustableConfig config, VE2Serializable state, string id, IWorldStateSyncService worldStateSyncService)
         {
@@ -50,6 +52,14 @@ namespace VE2.Core.VComponents.Internal
             _handheldAdjustableServiceConfig = config.HandheldAdjustableServiceConfig;
             _HandheldScrollInteractionModule.OnScrollUp += HandleScrollUp;
             _HandheldScrollInteractionModule.OnScrollDown += HandleScrollDown;
+        }
+
+        public HandheldAdjustableService(HandheldAdjustableConfig config, AdjustableState state, string id, IWorldStateSyncService worldStateSyncService)
+        {
+            this.config = config;
+            this.state = state;
+            this.id = id;
+            this.worldStateSyncService = worldStateSyncService;
         }
 
         public void HandleFixedUpdate()

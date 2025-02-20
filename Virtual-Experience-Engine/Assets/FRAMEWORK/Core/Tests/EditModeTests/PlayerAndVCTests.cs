@@ -2,11 +2,10 @@ using NSubstitute;
 using NUnit.Framework;
 using System;
 using VE2.Core.VComponents.Tests;
-using VE2.Core.VComponents.PluginInterfaces;
 using UnityEngine;
-using VE2.Core.VComponents.InteractableFindables;
 using VE2.Core.VComponents.Internal;
 using VE2.Core.Common;
+using VE2.Core.VComponents.API;
 
 
 namespace VE2.Core.Tests
@@ -19,7 +18,7 @@ namespace VE2.Core.Tests
         private IV_ToggleActivatable _activatablePluginInterface;
         private PluginScriptMock _customerScript;
         private V_ToggleActivatableStub _v_activatableStub;
-        private IRangedClickPlayerInteractableIntegrator _activatableRaycastInterface;
+        private IRangedClickInteractionModuleProvider _activatableRaycastInterface;
 
         //Setup Once for every single test in this test fixture
         [OneTimeSetUp]

@@ -1,8 +1,7 @@
 using NSubstitute;
 using NUnit.Framework;
-using VE2.NonCore.Instancing.VComponents.Internal;
-using VE2.NonCore.Instancing.VComponents.NonInteractableInterfaces;
-using VE2.NonCore.Instancing.VComponents.PluginInterfaces;
+using VE2.NonCore.Instancing.API;
+using VE2.NonCore.Instancing.Internal;
 namespace VE2.NonCore.Instancing.VComponents.Tests
 {
     public class NetworkObjectTests

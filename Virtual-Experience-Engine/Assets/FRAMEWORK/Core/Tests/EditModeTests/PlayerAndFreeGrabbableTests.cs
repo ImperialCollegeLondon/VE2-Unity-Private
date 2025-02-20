@@ -1,18 +1,13 @@
 using System.Collections.Generic;
 using NSubstitute;
 using NUnit.Framework;
-using VE2.Core.VComponents.PluginInterfaces;
-using UnityEngine;
-using VE2.Common;
-using VE2.Core.VComponents.InteractableInterfaces;
-using VE2.Core.VComponents.NonInteractableInterfaces;
-using VE2.Core.VComponents.InteractableFindables;
 using VE2.Core.VComponents.Internal;
-using static VE2.Common.CommonSerializables;
 using System;
-using VE2.Core.Common;
-using VE2.Core.Player;
 using VE2.Core.VComponents.Tests;
+using VE2.Core.Player.API;
+using VE2.Core.VComponents.API;
+using VE2.Core.Player.Internal;
+using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.Core.Tests
 {
@@ -48,7 +43,7 @@ namespace VE2.Core.Tests
 
             //Get interfaces
             IV_FreeGrabbable grabbablePluginInterface = v_freeGrabbableStub;
-            IRangedGrabPlayerInteractableIntegrator grabbableRaycastInterface = v_freeGrabbableStub;
+            IRangedGrabInteractionModuleProvider grabbableRaycastInterface = v_freeGrabbableStub;
             IRangedGrabInteractionModule grabbablePlayerInterface = grabbableRaycastInterface.RangedGrabInteractionModule;
 
             //Stub out the player settings provider with default settings

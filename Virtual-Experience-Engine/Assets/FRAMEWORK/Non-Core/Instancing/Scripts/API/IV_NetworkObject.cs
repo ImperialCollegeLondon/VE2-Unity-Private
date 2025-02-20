@@ -1,7 +1,6 @@
 using UnityEngine.Events;
-using VE2.NonCore.Instancing.VComponents.NonInteractableInterfaces;
 
-namespace VE2.NonCore.Instancing.VComponents.PluginInterfaces
+namespace VE2.NonCore.Instancing.API
 {
     public interface IV_NetworkObject
     {

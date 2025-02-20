@@ -1,7 +1,10 @@
 using UnityEngine;
 
-internal interface IPlayerServiceProvider
+namespace VE2.Core.Player.API
 {
-    public IPlayerService PlayerService { get; }
-    public string GameObjectName { get; }
+    internal interface IPlayerServiceProvider
+    {
+        public IPlayerService PlayerService { get; }
+        public string GameObjectName { get; }
+    }
 }

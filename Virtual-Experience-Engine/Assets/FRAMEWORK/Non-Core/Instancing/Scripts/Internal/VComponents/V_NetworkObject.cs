@@ -1,11 +1,9 @@
 using System;
 using UnityEngine;
-using VE2.Common;
-using VE2.NonCore.Instancing.VComponents.Internal;
-using VE2.NonCore.Instancing.VComponents.NonInteractableInterfaces;
-using VE2.NonCore.Instancing.VComponents.PluginInterfaces;
+using VE2.Core.VComponents.API;
+using VE2.NonCore.Instancing.API;
 
-namespace VE2.NonCore.Instancing.VComponents.MonoBehaviours
+namespace VE2.NonCore.Instancing.Internal
 {
     internal class V_NetworkObject : MonoBehaviour, IV_NetworkObject
     {

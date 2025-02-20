@@ -3,12 +3,11 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 using UnityEngine.Events;
-using VE2.Common;
-using VE2.Core.Common;
-using VE2.NonCore.Instancing.VComponents.NonInteractableInterfaces;
-using static VE2.Common.CommonSerializables;
+using VE2.Core.VComponents.API;
+using VE2.NonCore.Instancing.API;
+using static VE2.Core.Common.CommonSerializables;
 
-namespace VE2.NonCore.Instancing.VComponents.Internal
+namespace VE2.NonCore.Instancing.Internal
 {
     [Serializable]
     internal class NetworkObjectStateConfig : BaseWorldStateConfig

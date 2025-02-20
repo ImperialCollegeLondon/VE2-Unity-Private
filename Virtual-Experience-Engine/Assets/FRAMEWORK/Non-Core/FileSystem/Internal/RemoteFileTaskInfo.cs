@@ -4,7 +4,7 @@ using UnityEngine;
 using VE2_NonCore_FileSystem_Interfaces_Common;
 
 
-namespace VE2_NonCore_FileSystem
+namespace VE2.NonCore.FileSystem.Internal
 {
     [Serializable]
     public class RemoteFileTaskInfo : IRemoteFileTaskInfo

@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace VE2.Core.Common
+namespace VE2.Core.Player.API
 {
-
     #region Input Types 
 
     public interface IValueInput<T>

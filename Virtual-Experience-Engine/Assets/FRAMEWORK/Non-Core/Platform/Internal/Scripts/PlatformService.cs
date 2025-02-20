@@ -3,16 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Net;
-using static NonCoreCommonSerializables;
 using UnityEngine.SceneManagement;
 using System.Linq;
 using VE2.PlatformNetworking;
-using static VE2.Common.CommonSerializables;
-using VE2.Common;
 using static VE2.Platform.Internal.PlatformSerializables;
 using static VE2.Platform.API.PlatformPublicSerializables;
+using VE2.Core.Player.API;
+using VE2.NonCore.Platform.API;
+using VE2.Core.Common;
+using static VE2.Core.Player.API.PlayerSerializables;
 
-namespace VE2.NonCore.Platform.Private
+namespace VE2.NonCore.Platform.Internal
 {
     internal static class PlatformServiceFactory
     {
@@ -34,6 +35,19 @@ namespace VE2.NonCore.Platform.Private
         public bool IsAuthFailed { get; private set; }
         public event Action OnAuthFailed;
         public GlobalInfo GlobalInfo { get; private set; }
+
+        public List<(string, int)> ActiveWorldsNamesAndVersions {
+            get 
+            {
+                List<(string, int)> activeWorldsNamesAndVersions = new();
+
+                foreach (WorldDetails worldDetails in ActiveWorlds.Values)
+                    activeWorldsNamesAndVersions.Add((worldDetails.Name, worldDetails.VersionNumber));
+
+                return activeWorldsNamesAndVersions;
+            }
+        }
+
         public event Action<GlobalInfo> OnGlobalInfoChanged;
 
         public void RequestInstanceAllocation(string worldName, string instanceSuffix)
@@ -213,15 +227,6 @@ namespace VE2.NonCore.Platform.Private
         {
             //TODO calc buffer size
         }
-
-        //TODO, create platform UI, although maybe this shouldn't be here?
-        /*  Maybe the main UI should search for "UIProviders"?
-         *  Idk, doesn't really feel like it should be the UIs job to search for and obtain all its sub-UI panels,
-         *  equally doesn't really feel like it should be the platform service's job to detect scene load and create UIs too though...
-         *  Maybe this should be V_PlatformIntegration's job?
-         * 
-         * 
-         */
 
         private void HandlePlayerPresentationConfigChanged(OverridableAvatarAppearance overridableAvatarAppearance)
         {

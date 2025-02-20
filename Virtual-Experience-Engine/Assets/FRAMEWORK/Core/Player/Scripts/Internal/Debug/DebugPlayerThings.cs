@@ -5,12 +5,15 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
-public class DebugPlayerThings : MonoBehaviour
+namespace VE2.Core.Player.Internal
 {
-    void Update()
+    public class DebugPlayerThings : MonoBehaviour
     {
-        if (Keyboard.current.tKey.wasPressedThisFrame)
-            EditorUtility.RequestScriptReload();
+        void Update()
+        {
+            if (Keyboard.current.tKey.wasPressedThisFrame)
+                EditorUtility.RequestScriptReload();
+        }
     }
 }
 

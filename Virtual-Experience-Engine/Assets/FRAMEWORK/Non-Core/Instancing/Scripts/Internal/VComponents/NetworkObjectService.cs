@@ -1,11 +1,9 @@
 using System;
-using UnityEngine;
-using VE2.Common;
-using VE2.InstanceNetworking;
-using VE2.NonCore.Instancing.VComponents.NonInteractableInterfaces;
-using static VE2.Common.CommonSerializables;
+using VE2.Core.VComponents.API;
+using VE2.NonCore.Instancing.API;
+using static VE2.Core.Common.CommonSerializables;
 
-namespace VE2.NonCore.Instancing.VComponents.Internal
+namespace VE2.NonCore.Instancing.Internal
 {
     internal class NetworkObjectService
     {

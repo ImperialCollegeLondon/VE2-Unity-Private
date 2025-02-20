@@ -1,7 +1,6 @@
 using System;
-using static VE2.Common.CommonSerializables;
 
-namespace VE2.Common 
+namespace VE2.NonCore.Instancing.API
 {
     public interface IInstanceService
     {

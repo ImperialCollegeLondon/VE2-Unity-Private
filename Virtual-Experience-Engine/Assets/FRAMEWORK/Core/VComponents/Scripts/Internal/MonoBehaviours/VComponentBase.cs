@@ -1,5 +1,4 @@
 using UnityEngine;
-using VE2.Common;
 
 public class VComponentBase : MonoBehaviour
 {

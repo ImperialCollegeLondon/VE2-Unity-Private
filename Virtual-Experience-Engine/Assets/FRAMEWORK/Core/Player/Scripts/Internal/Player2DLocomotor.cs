@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace VE2.Core.Player
+namespace VE2.Core.Player.Internal
 {
     internal class Player2DLocomotor
     {

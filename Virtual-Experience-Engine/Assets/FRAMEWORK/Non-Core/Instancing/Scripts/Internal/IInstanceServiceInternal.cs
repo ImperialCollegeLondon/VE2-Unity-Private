@@ -1,9 +1,11 @@
 using System;
 using UnityEngine;
-using VE2.Common;
+using VE2.NonCore.Instancing.API;
 
-public interface IInstanceServiceInternal : IInstanceService
+namespace VE2.NonCore.Instancing.Internal
 {
-    // public InstancedInstanceInfo InstanceInfo { get; }
-    // public event Action<InstancedInstanceInfo> OnInstanceInfoChanged;
+    public interface IInstanceServiceInternal : IInstanceService
+    {
+        
+    }
 }

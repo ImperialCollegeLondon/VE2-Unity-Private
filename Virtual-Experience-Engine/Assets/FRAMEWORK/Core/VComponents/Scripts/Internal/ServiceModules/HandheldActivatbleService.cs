@@ -1,10 +1,7 @@
 using UnityEngine;
 using System;
-using VE2.Core.VComponents.InteractableInterfaces;
-using VE2.Core.VComponents.NonInteractableInterfaces;
-using UnityEngine.XR;
-using static VE2.Common.CommonSerializables;
-using VE2.Common;
+using VE2.Core.VComponents.API;
+using static VE2.Core.Common.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
 {

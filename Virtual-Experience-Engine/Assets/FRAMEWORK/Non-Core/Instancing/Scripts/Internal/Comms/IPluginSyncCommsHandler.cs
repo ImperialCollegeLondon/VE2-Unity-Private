@@ -2,11 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
-using VE2.Common;
+using VE2.Core.Common;
 
-namespace VE2.InstanceNetworking
+namespace VE2.NonCore.Instancing.Internal
 {
-    public interface IPluginSyncCommsHandler
+    internal interface IPluginSyncCommsHandler
     {
         public bool IsReadyToTransmit { get; }
 

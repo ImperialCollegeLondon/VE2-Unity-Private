@@ -1,15 +1,10 @@
 using System;
 using UnityEngine;
-using VE2.Common;
-using VE2.Core.VComponents.NonInteractableInterfaces;
-using VE2.Core.VComponents.InteractableFindables;
-using VE2.Core.VComponents.PluginInterfaces;
-using VE2.Core.VComponents.InteractableInterfaces;
-using VE2.Core.VComponents.Internal;
+using VE2.Core.VComponents.API;
 
-namespace VE2.Core.VComponents.Integration
+namespace VE2.Core.VComponents.Internal
 {
-    internal class V_ToggleActivatable : VComponentBase, IV_ToggleActivatable, IRangedPlayerInteractableIntegrator, ICollidePlayerInteractableIntegrator
+    internal class V_ToggleActivatable : VComponentBase, IV_ToggleActivatable, IRangedInteractionModuleProvider, ICollideInteractionModuleProvider
     {
         [SerializeField, HideLabel, IgnoreParent] private ToggleActivatableConfig _config = new(); 
         [SerializeField, HideInInspector] private SingleInteractorActivatableState _state = new();
@@ -20,8 +15,8 @@ namespace VE2.Core.VComponents.Integration
         #endregion
 
         #region Player Interfaces
-        ICollideInteractionModule ICollidePlayerInteractableIntegrator.CollideInteractionModule => _service.ColliderInteractionModule;
-        IRangedInteractionModule IRangedPlayerInteractableIntegrator.RangedInteractionModule => _service.RangedClickInteractionModule;
+        ICollideInteractionModule ICollideInteractionModuleProvider.CollideInteractionModule => _service.ColliderInteractionModule;
+        IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _service.RangedClickInteractionModule;
         #endregion
         
         private ToggleActivatableService _service = null;

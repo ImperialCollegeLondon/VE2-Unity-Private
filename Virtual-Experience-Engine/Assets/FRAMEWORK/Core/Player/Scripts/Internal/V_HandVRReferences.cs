@@ -1,8 +1,7 @@
 using System;
 using UnityEngine;
-using VE2.Core.Player.InteractionFinders;
 
-namespace VE2.Core.Player
+namespace VE2.Core.Player.Internal
 {
     internal class V_HandVRReferences : MonoBehaviour
     {

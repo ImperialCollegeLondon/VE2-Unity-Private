@@ -2,6 +2,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+namespace VE2.Core.Common
+{
+
 [ExecuteInEditMode]
 public class V_ColorAssignment : MonoBehaviour
 {
@@ -113,4 +116,5 @@ public class V_ColorAssignment : MonoBehaviour
                 break;
         }
     }
+}
 }

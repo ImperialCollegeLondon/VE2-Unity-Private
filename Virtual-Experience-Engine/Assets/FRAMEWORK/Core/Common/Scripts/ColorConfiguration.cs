@@ -1,17 +1,21 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "ColorConfiguration", menuName = "Scriptable Objects/ColorConfiguration")]
-public class ColorConfiguration : ScriptableObject
+namespace VE2.Core.Common
 {
-    public Color PrimaryColor;
-    public Color SecondaryColor; 
-    public Color TertiaryColor;
-    public Color QuaternaryColor;
-    public Color AccentPrimaryColor;
-    public Color AccentSecondaryColor;
+    [CreateAssetMenu(fileName = "ColorConfiguration", menuName = "Scriptable Objects/ColorConfiguration")]
+    public class ColorConfiguration : ScriptableObject
+    {
+        public Color PrimaryColor;
+        public Color SecondaryColor; 
+        public Color TertiaryColor;
+        public Color QuaternaryColor;
+        public Color AccentPrimaryColor;
+        public Color AccentSecondaryColor;
 
-    public Color ButtonDisabledColor;
+        public Color ButtonDisabledColor;
 
-    public Color PointerIdleColor; 
-    public Color PointerHighlightColor;
+        public Color PointerIdleColor; 
+        public Color PointerHighlightColor;
+    }
 }
+

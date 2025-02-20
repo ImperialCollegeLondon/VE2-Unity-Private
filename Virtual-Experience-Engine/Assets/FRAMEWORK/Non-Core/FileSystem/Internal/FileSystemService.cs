@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Renci.SshNet;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using VE2_NonCore_FileSystem_Interfaces_Common;
 using VE2_NonCore_FileSystem_Interfaces_Internal;
-using static NonCoreCommonSerializables;
 using static VE2.Platform.API.PlatformPublicSerializables;
 
-namespace VE2_NonCore_FileSystem
+namespace VE2.NonCore.FileSystem.Internal
 {
     internal static class FileSystemServiceFactory
     {

@@ -5,7 +5,7 @@ using System.Linq;
 using Renci.SshNet;
 using UnityEngine;
 
-namespace VE2_NonCore_FileSystem
+namespace VE2.NonCore.FileSystem.Internal
 {
     public static class FTPServiceFactory
     {

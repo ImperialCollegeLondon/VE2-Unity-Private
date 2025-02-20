@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace VE2.Core.VComponents
+namespace VE2.NonCore.Instancing.Internal
 {
     //public class PhysicsSycnableModule : WorldstateSyncableModule
     //{

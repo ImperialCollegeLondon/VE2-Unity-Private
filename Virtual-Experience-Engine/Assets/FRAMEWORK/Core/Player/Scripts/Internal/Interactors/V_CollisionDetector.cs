@@ -1,9 +1,8 @@
 using System;
 using UnityEngine;
-using VE2.Core.VComponents.InteractableFindables;
-using VE2.Core.VComponents.InteractableInterfaces;
+using VE2.Core.VComponents.API;
 
-namespace VE2.Core.Player.InteractionFinders
+namespace VE2.Core.Player.Internal
 {
     public interface ICollisionDetector
     {
@@ -18,7 +17,7 @@ namespace VE2.Core.Player.InteractionFinders
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.TryGetComponent(out ICollidePlayerInteractableIntegrator collidable))
+            if (other.gameObject.TryGetComponent(out ICollideInteractionModuleProvider collidable))
             {
                 OnCollideStart?.Invoke(collidable.CollideInteractionModule);
             }
@@ -26,7 +25,7 @@ namespace VE2.Core.Player.InteractionFinders
 
         private void OnTriggerExit(Collider other)
         {
-            if (other.gameObject.TryGetComponent(out ICollidePlayerInteractableIntegrator collidable))
+            if (other.gameObject.TryGetComponent(out ICollideInteractionModuleProvider collidable))
             {
                 OnCollideEnd?.Invoke(collidable.CollideInteractionModule);
             }

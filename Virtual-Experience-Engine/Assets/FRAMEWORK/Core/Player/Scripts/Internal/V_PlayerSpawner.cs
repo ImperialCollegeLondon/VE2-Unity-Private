@@ -1,12 +1,11 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using VE2.Common;
 using VE2.Core.Common;
-using static VE2.Common.CommonSerializables;
+using VE2.Core.Player.API;
+using static VE2.Core.Player.API.PlayerSerializables;
 
-namespace VE2.Core.Player
+namespace VE2.Core.Player.Internal
 {
     [Serializable]
     internal class PlayerConfig

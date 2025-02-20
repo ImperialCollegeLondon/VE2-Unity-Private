@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace VE2.Core.Player
+namespace VE2.Core.Player.Internal
 {
     public class PlayerVRReferences : MonoBehaviour
     {

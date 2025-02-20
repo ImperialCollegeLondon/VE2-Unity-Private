@@ -1,13 +1,16 @@
 using System;
 using UnityEngine;
-using static VE2.Common.CommonSerializables;
+using static VE2.Core.Player.API.PlayerSerializables;
 
-public interface IPlayerService
+namespace VE2.Core.Player.API
 {
-    public bool VRModeActive { get; }
-    public void SetAvatarHeadOverride(AvatarAppearanceOverrideType type);
-    public void SetAvatarTorsoOverride(AvatarAppearanceOverrideType type);
+    public interface IPlayerService
+    {
+        public bool VRModeActive { get; }
+        public void SetAvatarHeadOverride(AvatarAppearanceOverrideType type);
+        public void SetAvatarTorsoOverride(AvatarAppearanceOverrideType type);
 
-    public void ClearAvatarHeadOverride() => SetAvatarHeadOverride(AvatarAppearanceOverrideType.None);
-    public void ClearAvatarTorsoOverride() => SetAvatarTorsoOverride(AvatarAppearanceOverrideType.None);
+        public void ClearAvatarHeadOverride() => SetAvatarHeadOverride(AvatarAppearanceOverrideType.None);
+        public void ClearAvatarTorsoOverride() => SetAvatarTorsoOverride(AvatarAppearanceOverrideType.None);
+    }
 }

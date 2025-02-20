@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using VE2.Common;
-using static VE2.Common.CommonSerializables;
+using VE2.Core.Common;
+using VE2.Core.Player.API;
+using VE2.Core.VComponents.API;
+using static VE2.Core.Player.API.PlayerSerializables;
 
-namespace VE2.InstanceNetworking
+namespace VE2.NonCore.Instancing.Internal
 {
-    public class RemoteAvatarController : MonoBehaviour
+    internal class RemoteAvatarController : MonoBehaviour
     {
         [SerializeField] private Transform _headHolder;
         [SerializeField] private Transform _verticalOffsetTransform;
@@ -108,7 +110,7 @@ namespace VE2.InstanceNetworking
         }
 
 
-        private bool SetHead(ViRSEAvatarHeadAppearanceType avatarHeadType, AvatarAppearanceOverrideType headOverrideType)
+        private bool SetHead(VE2AvatarHeadAppearanceType avatarHeadType, AvatarAppearanceOverrideType headOverrideType)
         {
             if (_currentRemoteAvatarAppearance != null && _currentRemoteAvatarAppearance.PresentationConfig.AvatarHeadType == avatarHeadType && _currentRemoteAvatarAppearance.HeadOverrideType == headOverrideType)
                 return false;
@@ -127,7 +129,7 @@ namespace VE2.InstanceNetworking
             return true;
         }
 
-        private bool SetTorso(ViRSEAvatarTorsoAppearanceType avatarTorsoType, AvatarAppearanceOverrideType torsoOverrideType)
+        private bool SetTorso(VE2AvatarTorsoAppearanceType avatarTorsoType, AvatarAppearanceOverrideType torsoOverrideType)
         {
             if (_currentRemoteAvatarAppearance != null && _currentRemoteAvatarAppearance.PresentationConfig.AvatarTorsoType == avatarTorsoType && _currentRemoteAvatarAppearance.TorsoOverrideType == torsoOverrideType)
                 return false;

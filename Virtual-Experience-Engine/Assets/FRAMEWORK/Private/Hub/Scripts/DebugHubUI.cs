@@ -1,6 +1,6 @@
 using TMPro;
 using UnityEngine;
-using static VE2.Platform.API.PlatformPublicSerializables;
+using VE2.NonCore.Platform.API;
 
 public class DebugHubUI : MonoBehaviour
 {
@@ -25,8 +25,8 @@ public class DebugHubUI : MonoBehaviour
     {
         string availableWorldList = "";
 
-        foreach (WorldDetails worldDetails in _platformService.ActiveWorlds.Values)
-            availableWorldList += $"{worldDetails.Name} - <i><color=yellow>{_platformService.GetInstanceServerSettingsForWorld(worldDetails.Name)}</color></i>\n";
+        foreach ((string, int) activeWorldNamesAndVersions in _platformService.ActiveWorldsNamesAndVersions)
+            availableWorldList += $"{activeWorldNamesAndVersions.Item1} - <i>V<color=yellow>{activeWorldNamesAndVersions.Item2}</color></i>\n";
 
         instancesListText.text = availableWorldList;
     }

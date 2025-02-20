@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using VE2.Common;
 using VE2.Core.Common;
+using VE2.Core.Player.API;
 
-namespace VE2.Core.Player
+namespace VE2.Core.Player.Internal
 {
     internal class V_HandController //TODO: Where does snap turn go? Maybe just in here?
     {

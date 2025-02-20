@@ -1,12 +1,8 @@
 using System.Collections.Generic;
 using NSubstitute;
 using NUnit.Framework;
-using VE2.Common;
-using VE2.Core.VComponents.InteractableFindables;
-using VE2.Core.VComponents.InteractableInterfaces;
+using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
-using VE2.Core.VComponents.NonInteractableInterfaces;
-using VE2.Core.VComponents.PluginInterfaces;
 
 namespace VE2.Core.VComponents.Tests
 {
@@ -39,7 +35,7 @@ namespace VE2.Core.VComponents.Tests
 
             //Get interfaces
             IV_FreeGrabbable grabbablePluginInterface = v_freeGrabbableStub;
-            IRangedGrabPlayerInteractableIntegrator grabbableRaycastInterface = v_freeGrabbableStub;
+            IRangedGrabInteractionModuleProvider grabbableRaycastInterface = v_freeGrabbableStub;
             IRangedGrabInteractionModule grabbablePlayerInterface = grabbableRaycastInterface.RangedGrabInteractionModule;
 
             //Wire up the customer script to receive the events
@@ -68,7 +64,7 @@ namespace VE2.Core.VComponents.Tests
         public virtual void HandleDropReceived() { }
     }
 
-    internal class V_FreeGrabbableStub : IV_FreeGrabbable, IRangedGrabPlayerInteractableIntegrator
+    internal class V_FreeGrabbableStub : IV_FreeGrabbable, IRangedGrabInteractionModuleProvider
     {
         #region Plugin Interfaces     
         IFreeGrabbableStateModule IV_FreeGrabbable._StateModule => _service.StateModule;
@@ -76,7 +72,7 @@ namespace VE2.Core.VComponents.Tests
         #endregion
 
         #region Player Interfaces
-        IRangedInteractionModule IRangedPlayerInteractableIntegrator.RangedInteractionModule => _service.RangedGrabInteractionModule;
+        IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _service.RangedGrabInteractionModule;
         #endregion
 
         private readonly FreeGrabbableService _service = null;

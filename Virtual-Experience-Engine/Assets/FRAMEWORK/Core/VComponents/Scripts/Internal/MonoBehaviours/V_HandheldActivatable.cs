@@ -1,9 +1,6 @@
 using UnityEngine;
-using VE2.Common;
-using VE2.Core.VComponents.InteractableInterfaces;
+using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
-using VE2.Core.VComponents.NonInteractableInterfaces;
-using VE2.Core.VComponents.PluginInterfaces;
 
 namespace VE2.Core.VComponents.Integration
 {

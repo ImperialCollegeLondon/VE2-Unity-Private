@@ -5,7 +5,7 @@ using System.Net;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using VE2.NonCore.Platform.Private;
+using VE2.NonCore.Platform.Internal;
 using static VE2.Platform.API.PlatformPublicSerializables;
 
 namespace VE2.PlatformNetworking

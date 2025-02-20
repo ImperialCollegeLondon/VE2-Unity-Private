@@ -1,12 +1,10 @@
 using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
-using VE2.Common;
-using VE2.Core.Common;
-using VE2.Core.VComponents.InteractableInterfaces;
+using VE2.Core.Player.API;
+using VE2.Core.VComponents.API;
 
-namespace VE2.Core.Player
+namespace VE2.Core.Player.Internal
 {
     internal class InteractorReferences 
     {

@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
-using VE2.Common;
-using static InstanceSyncSerializables;
-using static VE2.Common.CommonSerializables;
+using VE2.Core.Player.API;
+using VE2.Core.VComponents.API;
+using static VE2.Core.Player.API.PlayerSerializables;
+using static VE2.NonCore.Instancing.Internal.InstanceSyncSerializables;
 
-namespace VE2.InstanceNetworking
+namespace VE2.NonCore.Instancing.Internal
 {
     internal class RemotePlayerSyncer
     {

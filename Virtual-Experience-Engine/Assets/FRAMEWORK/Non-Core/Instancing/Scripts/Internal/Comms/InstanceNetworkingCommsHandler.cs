@@ -5,11 +5,11 @@ using System.Net;
 using DRMessageReader = DarkRift.DarkRiftReader;
 using DRMessageWrapper = DarkRift.Message;
 using System.Collections.Generic;
-using VE2.Common;
+using VE2.Core.Common;
 
-namespace VE2.InstanceNetworking
+namespace VE2.NonCore.Instancing.Internal
 {
-    public class InstanceNetworkingCommsHandler : IPluginSyncCommsHandler
+    internal class InstanceNetworkingCommsHandler : IPluginSyncCommsHandler
     {
         private DarkRiftClient _drClient;
         private readonly Queue<Action> executionQueue = new();

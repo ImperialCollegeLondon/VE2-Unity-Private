@@ -1,9 +1,7 @@
 using UnityEngine;
 using UnityEngine.Events;
-using VE2.Core.VComponents.InteractableInterfaces;
-using VE2.Core.VComponents.NonInteractableInterfaces;
 
-namespace VE2.Core.VComponents.PluginInterfaces
+namespace VE2.Core.VComponents.API
 {
     public interface IV_HandheldAdjustable
     {

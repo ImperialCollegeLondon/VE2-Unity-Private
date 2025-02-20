@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEditor;
 #endif
 
-namespace VE2.Common
+namespace VE2.Core.Common
 {
     public static class V_Logger
     {

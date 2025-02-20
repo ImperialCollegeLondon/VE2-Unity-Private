@@ -5,10 +5,9 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using VE2_NonCore_FileSystem_Interfaces_Common;
-using static NonCoreCommonSerializables;
 using static VE2.Platform.API.PlatformPublicSerializables;
 
-namespace VE2_NonCore_FileSystem
+namespace VE2.NonCore.FileSystem.Internal
 {
     public abstract class V_FileSystemIntegrationBase : MonoBehaviour
     {

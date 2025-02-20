@@ -1,7 +1,11 @@
-using static InstanceSyncSerializables;
-using VE2.Common;
-using static VE2.Common.CommonSerializables;
-namespace VE2.InstanceNetworking
+
+using VE2.Core.Common;
+using VE2.Core.Player.API;
+using static VE2.Core.Common.CommonSerializables;
+using static VE2.Core.Player.API.PlayerSerializables;
+using static VE2.NonCore.Instancing.Internal.InstanceSyncSerializables;
+
+namespace VE2.NonCore.Instancing.Internal
 {
     internal class LocalPlayerSyncer 
     {

@@ -1,9 +1,11 @@
 using UnityEngine;
-using VE2.Common;
 
-internal interface IInstanceProvider
+namespace VE2.NonCore.Instancing.API
 {
-    public IInstanceService InstanceService { get; }
-    public string GameObjectName { get; }
-    public bool IsEnabled { get; }
+    internal interface IInstanceProvider
+    {
+        public IInstanceService InstanceService { get; }
+        public string GameObjectName { get; }
+        public bool IsEnabled { get; }
+    }
 }

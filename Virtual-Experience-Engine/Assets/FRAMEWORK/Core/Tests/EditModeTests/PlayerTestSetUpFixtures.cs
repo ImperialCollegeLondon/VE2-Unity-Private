@@ -1,11 +1,11 @@
 using NUnit.Framework;
 using NSubstitute;
-using VE2.Common;
-using static VE2.Common.CommonSerializables;
-using VE2.Core.VComponents.InteractableInterfaces;
 using VE2.Core.Player;
 using UnityEngine;
 using VE2.Core.Common;
+using VE2.Core.VComponents.API;
+using VE2.Core.Player.Internal;
+using VE2.Core.Player.API;
 
 namespace VE2.Core.Tests
 {
@@ -31,7 +31,7 @@ namespace VE2.Core.Tests
     // }
 
     [SetUpFixture]
-    public class InputHandlerSetup
+    internal class InputHandlerSetup
     {
         public static PlayerInputContainerStubWrapper PlayerInputContainerStubWrapper { get; private set; }
 
@@ -44,7 +44,7 @@ namespace VE2.Core.Tests
     }
     
     [SetUpFixture]
-    public class PlayerSyncerSetup
+    internal class PlayerSyncerSetup
     {
         public static ILocalClientIDProvider LocalClientIDProviderStub { get; private set; }
         public static InteractorID InteractorID { get; private set; }
@@ -70,7 +70,7 @@ namespace VE2.Core.Tests
     }
 
     [SetUpFixture]
-    public class InteractorSetup
+    internal class InteractorSetup
     {
         public static IInteractor InteractorStub { get; private set; }
         public static GameObject InteractorGameObject { get; private set; }
@@ -84,7 +84,7 @@ namespace VE2.Core.Tests
     }
 
     [SetUpFixture]
-    public class RayCastProviderSetup
+    internal class RayCastProviderSetup
     {
         public static IRaycastProvider RaycastProviderStub { get; private set; }
 

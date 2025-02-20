@@ -1,11 +1,6 @@
 using NSubstitute;
 using NUnit.Framework;
-using VE2.Core.VComponents.PluginInterfaces;
-using UnityEngine;
-using VE2.Common;
-using VE2.Core.VComponents.InteractableInterfaces;
-using VE2.Core.VComponents.NonInteractableInterfaces;
-using VE2.Core.VComponents.InteractableFindables;
+using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
 
 namespace VE2.Core.VComponents.Tests
@@ -83,7 +78,7 @@ namespace VE2.Core.VComponents.Tests
         public virtual void HandleValueAdjusted(float value) { }
     }
 
-    internal class V_ToggleActivatableStub : IV_ToggleActivatable, IRangedClickPlayerInteractableIntegrator, ICollidePlayerInteractableIntegrator
+    internal class V_ToggleActivatableStub : IV_ToggleActivatable, IRangedClickInteractionModuleProvider, ICollideInteractionModuleProvider
     {
         #region Plugin Interfaces
         ISingleInteractorActivatableStateModule IV_ToggleActivatable._StateModule => _ToggleActivatable.StateModule;
@@ -91,8 +86,8 @@ namespace VE2.Core.VComponents.Tests
         #endregion
 
         #region Player Interfaces
-        ICollideInteractionModule ICollidePlayerInteractableIntegrator.CollideInteractionModule => _ToggleActivatable.ColliderInteractionModule;
-        IRangedInteractionModule IRangedPlayerInteractableIntegrator.RangedInteractionModule => _ToggleActivatable.RangedClickInteractionModule;
+        ICollideInteractionModule ICollideInteractionModuleProvider.CollideInteractionModule => _ToggleActivatable.ColliderInteractionModule;
+        IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _ToggleActivatable.RangedClickInteractionModule;
         #endregion
 
         internal ToggleActivatableService _ToggleActivatable = null;
