@@ -39,7 +39,7 @@ namespace VE2.Core.Player.Internal
         private readonly Player2DLocomotor _playerLocomotor2D;
         private readonly Interactor2D _interactor2D;
 
-        internal PlayerController2D(InteractorContainer interactorContainer, Player2DInputContainer player2DInputContainer, IPlayerPersistentDataHandler playerSettingsHandler,
+        internal PlayerController2D(InteractorContainer interactorContainer, Player2DInputContainer player2DInputContainer, IPlayerPersistentDataHandler playerPersistentDataHandler,
             Player2DControlConfig controlConfig, IRaycastProvider raycastProvider, ILocalClientIDProvider multiplayerSupport) 
         {
             GameObject player2DPrefab = Resources.Load("2dPlayer") as GameObject;
@@ -60,7 +60,7 @@ namespace VE2.Core.Player.Internal
             //TODO: think about inspect mode, does that live in the interactor, or the player controller?
             //If interactor, will need to make the interactor2d constructor take a this as a param, and forward the other params to the base constructor
 
-            Debug.Log("Current player settings name: " + playerSettingsHandler.PlayerPresentationConfig.PlayerName);    
+            Debug.Log("Current player settings name: " + playerPersistentDataHandler.PlayerPresentationConfig.PlayerName);    
         }
 
         public void ActivatePlayer(PlayerTransformData initTransformData)

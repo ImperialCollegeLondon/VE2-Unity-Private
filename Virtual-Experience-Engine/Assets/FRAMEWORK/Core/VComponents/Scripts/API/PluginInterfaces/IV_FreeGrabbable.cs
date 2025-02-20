@@ -5,7 +5,7 @@ namespace VE2.Core.VComponents.API
     public interface IV_FreeGrabbable 
     {
         #region State Module Interface
-        protected IFreeGrabbableStateModule _StateModule { get; }
+        internal IFreeGrabbableStateModule _StateModule { get; }
 
         public UnityEvent OnGrab => _StateModule.OnGrab;
         public UnityEvent OnDrop => _StateModule.OnDrop;
@@ -15,7 +15,7 @@ namespace VE2.Core.VComponents.API
         #endregion
 
         #region Ranged Interaction Module Interface
-        protected IRangedGrabInteractionModule _RangedGrabModule{ get; }
+        internal IRangedGrabInteractionModule _RangedGrabModule{ get; }
         public float InteractRange { get => _RangedGrabModule.InteractRange; set => _RangedGrabModule.InteractRange = value; }
         #endregion
 

@@ -6,12 +6,12 @@ using VE2.Core.VComponents.API;
 
 namespace VE2.Core.Player.Internal
 {
-    public interface IRaycastProvider
+    internal interface IRaycastProvider
     {
         public RaycastResultWrapper Raycast(Vector3 rayOrigin, Vector3 raycastDirection, float maxRaycastDistance, LayerMask layerMask);
     }
 
-    public class RaycastProvider : IRaycastProvider
+    internal class RaycastProvider : IRaycastProvider
     {
         public RaycastResultWrapper Raycast(Vector3 rayOrigin, Vector3 raycastDirection, float maxRaycastDistance, LayerMask layerMask) 
         {
@@ -59,7 +59,7 @@ namespace VE2.Core.Player.Internal
         }
     }
 
-    public class RaycastResultWrapper 
+    internal class RaycastResultWrapper 
     {
         public IRangedInteractionModule RangedInteractable { get; private set; }
         public Button UIButton;

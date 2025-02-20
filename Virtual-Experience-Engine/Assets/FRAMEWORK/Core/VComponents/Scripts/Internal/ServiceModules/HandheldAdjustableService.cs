@@ -54,14 +54,6 @@ namespace VE2.Core.VComponents.Internal
             _HandheldScrollInteractionModule.OnScrollDown += HandleScrollDown;
         }
 
-        public HandheldAdjustableService(HandheldAdjustableConfig config, AdjustableState state, string id, IWorldStateSyncService worldStateSyncService)
-        {
-            this.config = config;
-            this.state = state;
-            this.id = id;
-            this.worldStateSyncService = worldStateSyncService;
-        }
-
         public void HandleFixedUpdate()
         {
             _StateModule.HandleFixedUpdate();

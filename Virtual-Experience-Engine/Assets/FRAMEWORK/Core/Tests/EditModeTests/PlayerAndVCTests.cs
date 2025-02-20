@@ -12,7 +12,7 @@ namespace VE2.Core.Tests
 {
     [TestFixture]
     [Category("Player and ToggleActivatable Tests")]
-    public class PlayerAndToggleActivatableTests
+    internal class PlayerAndToggleActivatableTests : PlayerServiceSetupFixture
     {
         //variables that will be reused in the tests
         private IV_ToggleActivatable _activatablePluginInterface;
@@ -47,16 +47,16 @@ namespace VE2.Core.Tests
         public void OnUserClick_WithHoveringActivatable_CustomerScriptReceivesOnActivate( [Random((ushort) 0, ushort.MaxValue, 1)] ushort localClientID)
         {
             RayCastProviderSetup.StubRangedInteractionModuleForRaycastProviderStub(_activatableRaycastInterface.RangedClickInteractionModule);
-            PlayerSyncerSetup.LocalClientIDProviderStub.LocalClientID.Returns(localClientID);
+            LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID.Returns(localClientID);
 
             //Check customer received the activation, and that the interactorID is set
-            InputHandlerSetup.PlayerInputContainerStubWrapper.RangedClick2D.OnPressed += Raise.Event<Action>();
+            PlayerInputContainerSetup.RangedClick2D.OnPressed += Raise.Event<Action>();
             _customerScript.Received(1).HandleActivateReceived();
             Assert.IsTrue(_activatablePluginInterface.IsActivated, "Activatable should be activated");
             Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, localClientID);
 
             // Invoke the click to deactivate
-            InputHandlerSetup.PlayerInputContainerStubWrapper.RangedClick2D.OnPressed += Raise.Event<Action>();
+            PlayerInputContainerSetup.RangedClick2D.OnPressed += Raise.Event<Action>();
             _customerScript.Received(1).HandleDeactivateReceived();
             Assert.IsFalse(_activatablePluginInterface.IsActivated, "Activatable should be deactivated");
             Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, localClientID);

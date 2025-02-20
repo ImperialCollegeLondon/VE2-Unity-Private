@@ -53,6 +53,9 @@ namespace VE2.Core.VComponents.API
 
         public virtual void HandleFixedUpdate()
         {
+            if (_worldStateSyncService == null)
+                return;
+
             if (IsNetworked && !_wasNetworkedLastFrame)
                 _worldStateSyncService.RegisterWorldStateModule(this);
             else if (!IsNetworked && _wasNetworkedLastFrame)

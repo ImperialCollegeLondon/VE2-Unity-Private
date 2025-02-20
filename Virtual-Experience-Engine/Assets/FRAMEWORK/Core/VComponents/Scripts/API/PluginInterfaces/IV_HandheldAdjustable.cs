@@ -6,7 +6,7 @@ namespace VE2.Core.VComponents.API
     public interface IV_HandheldAdjustable
     {
         #region State Module Interface
-        protected IAdjustableStateModule _StateModule { get; }
+        internal IAdjustableStateModule _StateModule { get; }
 
         public UnityEvent<float> OnValueAdjusted => _StateModule.OnValueAdjusted;
         public float Value { get { return _StateModule.Value; } set { _StateModule.Value = value; } }
@@ -14,7 +14,7 @@ namespace VE2.Core.VComponents.API
         #endregion
 
         #region Handheld Interaction Module Interface
-        protected IHandheldScrollInteractionModule _HandheldScrollModule { get; }
+        internal IHandheldScrollInteractionModule _HandheldScrollModule { get; }
         #endregion
 
         #region General Interaction Module Interface

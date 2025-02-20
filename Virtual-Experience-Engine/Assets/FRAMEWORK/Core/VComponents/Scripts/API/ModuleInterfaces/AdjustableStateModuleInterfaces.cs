@@ -3,7 +3,7 @@ using UnityEngine.Events;
 
 namespace VE2.Core.VComponents.API
 {
-    public interface IAdjustableStateModule
+    internal interface IAdjustableStateModule
     {
         public UnityEvent<float> OnValueAdjusted { get; }
         public float Value { get; set; }

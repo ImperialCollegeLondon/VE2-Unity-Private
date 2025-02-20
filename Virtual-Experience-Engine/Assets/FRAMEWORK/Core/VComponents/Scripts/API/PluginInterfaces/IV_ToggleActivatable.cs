@@ -5,7 +5,7 @@ namespace VE2.Core.VComponents.API
     public interface IV_ToggleActivatable 
     {
         #region State Module Interface
-        protected ISingleInteractorActivatableStateModule _StateModule { get; }
+        internal ISingleInteractorActivatableStateModule _StateModule { get; }
 
         public UnityEvent OnActivate => _StateModule.OnActivate;
         public UnityEvent OnDeactivate => _StateModule.OnDeactivate;
@@ -15,7 +15,7 @@ namespace VE2.Core.VComponents.API
         #endregion
 
         #region Ranged Interaction Module Interface
-        protected IRangedClickInteractionModule _RangedClickModule{ get; }
+        internal IRangedClickInteractionModule _RangedClickModule{ get; }
         public float InteractRange { get => _RangedClickModule.InteractRange; set => _RangedClickModule.InteractRange = value; }
         #endregion
 

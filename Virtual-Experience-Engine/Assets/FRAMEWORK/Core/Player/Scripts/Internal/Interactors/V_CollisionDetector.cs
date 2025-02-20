@@ -4,13 +4,13 @@ using VE2.Core.VComponents.API;
 
 namespace VE2.Core.Player.Internal
 {
-    public interface ICollisionDetector
+    internal interface ICollisionDetector
     {
         public event Action<ICollideInteractionModule> OnCollideStart;
         public event Action<ICollideInteractionModule> OnCollideEnd;
     }
 
-    public class V_CollisionDetector : MonoBehaviour, ICollisionDetector
+    internal class V_CollisionDetector : MonoBehaviour, ICollisionDetector
     {
         public event Action<ICollideInteractionModule> OnCollideStart;
         public event Action<ICollideInteractionModule> OnCollideEnd;

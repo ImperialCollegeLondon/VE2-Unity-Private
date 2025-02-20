@@ -2,7 +2,7 @@
 
 namespace VE2.Core.VComponents.API
 {
-    public interface IGeneralInteractionModule
+    internal interface IGeneralInteractionModule
     {
         public bool AdminOnly { get; set; }
         public bool EnableControllerVibrations { get; set; }

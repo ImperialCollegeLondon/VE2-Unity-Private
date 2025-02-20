@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 namespace VE2.Core.VComponents.API
 {
-    public interface IFreeGrabbableStateModule
+    internal interface IFreeGrabbableStateModule
     {
         public UnityEvent OnGrab { get; }
         public UnityEvent OnDrop { get; }

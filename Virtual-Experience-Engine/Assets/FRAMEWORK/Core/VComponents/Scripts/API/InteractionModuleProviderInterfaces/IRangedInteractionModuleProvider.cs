@@ -1,7 +1,7 @@
 
 namespace VE2.Core.VComponents.API
 {
-    public interface IRangedInteractionModuleProvider //: IGeneralPlayerInteractable
+    internal interface IRangedInteractionModuleProvider //: IGeneralPlayerInteractable
     {
         public IRangedInteractionModule RangedInteractionModule { get; }
     }

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace VE2.Core.VComponents.API
 {
-    public interface IRangedClickInteractionModule : IRangedInteractionModule
+    internal interface IRangedClickInteractionModule : IRangedInteractionModule
     {
         public void Click(ushort clientID);
     }

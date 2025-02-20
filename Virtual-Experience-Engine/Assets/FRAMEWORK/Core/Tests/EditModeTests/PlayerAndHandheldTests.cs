@@ -12,23 +12,12 @@ using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.Core.Tests
 {
-    public class PlayerAndHandheldActivatableTests
+    [TestFixture]
+    internal class PlayerAndHandheldActivatableTests : PlayerServiceSetupFixture
     {
         [Test]
         public void OnUserClick_WithHandheldActivatable_CustomerScriptReceivesOnActivate()
         {
-            //Create an ID
-            System.Random random = new();
-            ushort localClientID = (ushort)random.Next(0, ushort.MaxValue);
-            ILocalClientIDProvider localClientIDProviderStub = Substitute.For<ILocalClientIDProvider>();
-            localClientIDProviderStub.IsClientIDReady.Returns(true);
-            localClientIDProviderStub.LocalClientID.Returns(localClientID);
-
-            InteractorID interactorID = new(localClientID, InteractorType.Mouse2D);
-            IInteractor interactorStub = Substitute.For<IInteractor>();
-            InteractorContainer interactorContainerStub = new();
-            interactorContainerStub.RegisterInteractor(interactorID.ToString(), interactorStub);
-
             //Create the activatable with default values
             HandheldActivatableService handheldActivatable = new(new HandheldActivatableConfig(), new SingleInteractorActivatableState(), "debug", Substitute.For<IWorldStateSyncService>());
 
@@ -45,7 +34,7 @@ namespace VE2.Core.Tests
                 new FreeGrabbableState(),
                 "debug",
                 Substitute.For<IWorldStateSyncService>(),
-                interactorContainerStub,
+                InteractorContainerSetup.InteractorContainer,
                 Substitute.For<IRigidbodyWrapper>(),
                 new PhysicsConstants());
 
@@ -57,30 +46,10 @@ namespace VE2.Core.Tests
             IRangedGrabInteractionModuleProvider grabbableRaycastInterface = v_freeGrabbableStub;
             IRangedGrabInteractionModule grabbablePlayerInterface = grabbableRaycastInterface.RangedGrabInteractionModule;
 
-            //Stub out the player settings provider with default settings
-            IPlayerPersistentDataHandler playerSettingsProviderStub = Substitute.For<IPlayerPersistentDataHandler>();
-            playerSettingsProviderStub.PlayerPresentationConfig.Returns(new PlayerPresentationConfig());
-
-            //Stub out the input handler    
-            PlayerInputContainerStubWrapper playerInputContainerStubWrapper = new();
-
             //Stub out the raycast provider to hit the activatable GO with 0 range
-            IRaycastProvider raycastProviderStub = Substitute.For<IRaycastProvider>();
-            raycastProviderStub
+            RayCastProviderSetup.RaycastProviderStub
                 .Raycast(default, default, default, default)
                 .ReturnsForAnyArgs(new RaycastResultWrapper(grabbablePlayerInterface, null, 0));
-
-                    //Create the player (2d)
-            PlayerService playerService = new(
-                new PlayerTransformData(),
-                new PlayerConfig(),
-                interactorContainerStub,
-                Substitute.For<IPlayerPersistentDataHandler>(),
-                localClientIDProviderStub,
-                playerInputContainerStubWrapper.PlayerInputContainer,
-                raycastProviderStub,
-                Substitute.For<IXRManagerWrapper>()
-            );
 
             //Wire up the customer script to receive the events
             PluginScriptMock pluginScriptMock = Substitute.For<PluginScriptMock>();
@@ -88,21 +57,21 @@ namespace VE2.Core.Tests
             handheldActivatablePluginInterface.OnDeactivate.AddListener(pluginScriptMock.HandleDeactivateReceived);
 
             //Invoke grab, check customer received the grab, and that the interactorID is set
-            playerInputContainerStubWrapper.Grab2D.OnPressed += Raise.Event<Action>();
+            PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
             Assert.IsTrue(grabbablePluginInterface.IsGrabbed);
-            Assert.AreEqual(grabbablePluginInterface.MostRecentInteractingClientID, localClientID);
+            Assert.AreEqual(grabbablePluginInterface.MostRecentInteractingClientID, LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID);
 
             //Invoke Activate, Check customer received the activate, and that the interactorID is set
-            playerInputContainerStubWrapper.HandheldClick2D.OnPressed += Raise.Event<Action>();
+            PlayerInputContainerSetup.HandheldClick2D.OnPressed += Raise.Event<Action>();
             pluginScriptMock.Received(1).HandleActivateReceived();
             Assert.IsTrue(handheldActivatablePluginInterface.IsActivated);
-            Assert.AreEqual(handheldActivatablePluginInterface.MostRecentInteractingClientID, localClientID);
+            Assert.AreEqual(handheldActivatablePluginInterface.MostRecentInteractingClientID, LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID);
 
             //Invoke Deactivate, Check customer received the deactivate, and that the interactorID is set
-            playerInputContainerStubWrapper.HandheldClick2D.OnPressed += Raise.Event<Action>();
+            PlayerInputContainerSetup.HandheldClick2D.OnPressed += Raise.Event<Action>();
             pluginScriptMock.Received(1).HandleDeactivateReceived();
             Assert.IsFalse(handheldActivatablePluginInterface.IsActivated);
-            Assert.AreEqual(handheldActivatablePluginInterface.MostRecentInteractingClientID, localClientID);
+            Assert.AreEqual(handheldActivatablePluginInterface.MostRecentInteractingClientID, LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID);
         }
     }
 }

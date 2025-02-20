@@ -5,7 +5,7 @@ namespace VE2.Core.VComponents.API
     public interface IV_HandheldActivatable 
     {
         #region State Module Interface
-        protected ISingleInteractorActivatableStateModule _StateModule { get; }
+        internal ISingleInteractorActivatableStateModule _StateModule { get; }
 
         public UnityEvent OnActivate => _StateModule.OnActivate;
         public UnityEvent OnDeactivate => _StateModule.OnDeactivate;
@@ -15,7 +15,7 @@ namespace VE2.Core.VComponents.API
         #endregion
 
         #region Handheld Interaction Module Interface
-        protected IHandheldClickInteractionModule _HandheldClickModule{ get; }
+        internal IHandheldClickInteractionModule _HandheldClickModule{ get; }
         #endregion
 
         #region General Interaction Module Interface
