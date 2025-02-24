@@ -95,8 +95,6 @@ namespace VE2.Core.Player.Internal
             _playerSettingsHandler = playerSettingsHandler;
             //_xrManagerWrapper = xrManagerWrapper;
 
-            _playerSettingsHandler.OnDebugSaveAppearance += HandlePlayerPresentationChanged;
-
             if (_config.EnableVR)
             {
                 Debug.Log("calling init XR Loader");
@@ -115,6 +113,9 @@ namespace VE2.Core.Player.Internal
                     playerSettingsHandler, new Player2DControlConfig(), //TODO:
                     raycastProvider, playerSyncer);
             }
+
+            _playerSettingsHandler.OnDebugSaveAppearance += HandlePlayerPresentationChanged;
+            HandlePlayerPresentationChanged(_playerSettingsHandler.PlayerPresentationConfig); //Do this now to set the initial appearance
 
             if (_config.EnableVR && !_config.Enable2D)
                 PlayerTransformData.IsVRMode = true;
