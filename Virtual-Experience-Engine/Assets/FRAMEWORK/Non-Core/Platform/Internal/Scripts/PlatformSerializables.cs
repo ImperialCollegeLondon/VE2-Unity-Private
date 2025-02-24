@@ -245,7 +245,7 @@ namespace VE2.NonCore.Platform.Internal
 
                 ushort defaultInstanceServerSettingsLength = reader.ReadUInt16();
                 byte[] defaultInstanceServerSettingsBytes = reader.ReadBytes(defaultInstanceServerSettingsLength);
-                DefaultInstanceServerSettings = new ServerConnectionSettings(defaultWorldSubStoreFTPServerSettingsBytes);
+                DefaultInstanceServerSettings = new ServerConnectionSettings(defaultInstanceServerSettingsBytes);
             }
         }
 

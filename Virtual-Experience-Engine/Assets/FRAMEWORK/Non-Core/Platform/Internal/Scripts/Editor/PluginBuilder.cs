@@ -538,12 +538,12 @@ namespace VE2.NonCore.Platform.Internal
             PlayerSettings.applicationIdentifier = "com.ImperialCollegeLondon." + name;
 
             // Get scenes from the Build Settings
-            string[] scenes = GetEnabledScenes();
+            //string[] scenes = GetEnabledScenes();
 
             // Define build options
             BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions
             {
-                scenes = scenes,
+                scenes = new string[] { SceneManager.GetActiveScene().path },
                 locationPathName = $"{destinationFolder}/{name}.apk",
                 target = BuildTarget.Android,
                 options = BuildOptions.None

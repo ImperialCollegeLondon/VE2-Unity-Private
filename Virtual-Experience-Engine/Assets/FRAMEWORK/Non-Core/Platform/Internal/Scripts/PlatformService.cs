@@ -147,8 +147,6 @@ namespace VE2.NonCore.Platform.Internal
             {
                 //if first time auth connect, do nothing? 
                 //Otherwise, send reg request to platform
-
-                string correctedInstanceCode = CurrentInstanceCode.Contains("Hub") ? "Hub-Solo" : CurrentInstanceCode; //TODO: Figure out instance code
                 string customerID = "test", customerKey = "test"; //TODO - figure out these too!
 
                 Debug.Log("Rec netcode - requesting reg into " + CurrentInstanceCode);
@@ -165,7 +163,14 @@ namespace VE2.NonCore.Platform.Internal
 
             LocalClientID = serverRegistrationConfirmation.LocalClientID;
             GlobalInfo = serverRegistrationConfirmation.GlobalInfo;
+
+            //TODO - maybe these should not come in from registation, perhaps should be requested by the hub specifically?
             ActiveWorlds = serverRegistrationConfirmation.ActiveWorlds;
+            _platformSettingsHandler.WorldBuildsFTPServerSettings = serverRegistrationConfirmation.WorldBuildsFTPServerSettings;
+            _platformSettingsHandler.FallbackInstanceServerSettings = serverRegistrationConfirmation.DefaultInstanceServerSettings;
+            _platformSettingsHandler.FallbackWorldSubStoreFTPServerSettings = serverRegistrationConfirmation.DefaultWorldSubStoreFTPServerSettings;
+
+            Debug.Log("Server says our fallback instance server IP is " + serverRegistrationConfirmation.DefaultInstanceServerSettings.ServerAddress);
 
             IsConnectedToServer = true;
 
