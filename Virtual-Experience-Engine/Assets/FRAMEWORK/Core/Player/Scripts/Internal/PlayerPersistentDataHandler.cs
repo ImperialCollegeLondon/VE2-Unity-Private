@@ -78,11 +78,13 @@ namespace VE2.Core.Player.Internal
                         {
                             bool hasArgs = intent == null ? false : intent.Call<bool>("getBooleanExtra", HasArgsArgName, false);
 
+                            Debug.Log("PlayerPersistentDataHandler getting presentation config - hasArgs: " + hasArgs);
                             if (hasArgs)
                             {
                                 string playerPresentationConfigBytesAsString = intent.Call<string>("getStringExtra", PlayerPresentationConfigArgName);
                                 byte[] playerPresentationConfigBytes = System.Convert.FromBase64String(playerPresentationConfigBytesAsString);
                                 _playerPresentationConfig = new(playerPresentationConfigBytes);
+                                Debug.Log("set new color to " + _playerPresentationConfig.AvatarRed + "-" + _playerPresentationConfig.AvatarGreen + "-" + _playerPresentationConfig.AvatarBlue);
                             }
                             else if (_rememberPlayerSettings)
                                 _playerPresentationConfig = GetPlayerPresentationFromPlayerPrefs();

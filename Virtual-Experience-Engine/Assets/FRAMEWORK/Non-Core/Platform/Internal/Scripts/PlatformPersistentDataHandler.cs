@@ -284,6 +284,7 @@ namespace VE2.NonCore.Platform.Internal
 
                             if (hasArgs)
                             {
+                                _activeWorldsList = new();
                                 int numberOfActiveWorlds = intent.Call<int>("getIntExtra", NumberOfActiveWorldsArgName, 0);
 
                                 string activeWorldsBytesAsString = intent.Call<string>("getStringExtra", ActiveWorldsArgName);
