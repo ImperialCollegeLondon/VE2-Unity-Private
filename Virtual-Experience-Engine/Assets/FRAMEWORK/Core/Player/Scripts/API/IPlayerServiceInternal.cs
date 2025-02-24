@@ -27,5 +27,7 @@ namespace VE2.Core.Player.API
 
         public TransmissionProtocol TransmissionProtocol { get; }
         public float TransmissionFrequency { get; }
+
+        public AndroidJavaObject AddArgsToIntent(AndroidJavaObject intent);
     }
 }

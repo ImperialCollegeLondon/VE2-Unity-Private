@@ -68,6 +68,8 @@ namespace VE2.Core.Player.Internal
             _config.TorsoOverrideType = type;
             OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
         }
+
+        public AndroidJavaObject AddArgsToIntent(AndroidJavaObject intent) => _playerSettingsHandler.AddArgsToIntent(intent);
         #endregion
 
         private readonly PlayerConfig _config;

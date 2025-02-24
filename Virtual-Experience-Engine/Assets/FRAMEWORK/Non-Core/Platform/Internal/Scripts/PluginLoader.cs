@@ -8,12 +8,28 @@ using UnityEngine.SceneManagement;
 using Unity.Burst;
 using VE2.NonCore.FileSystem.Internal;
 using VE2.NonCore.FileSystem.API;
+using VE2.Core.Player.API;
 
 namespace VE2.NonCore.Platform.Internal
 {
-    public class PluginLoader //TODO: Needs an interface?
+    // internal class PluginLoaderFactory
+    // {
+    //     public static PluginLoader Create(IPlatformSettingsHandler platformSettingsHandler, IPlayerServiceInternal playerServiceInternal)
+    //     {
+    //         return new PluginLoader();
+    //     }
+    // }
+
+    internal class PluginLoader //TODO: Needs an interface?
     {
-        public PluginLoader() {}
+        private readonly IPlatformSettingsHandler _platformSettingsHandler;
+        private readonly IPlayerServiceInternal _playerServiceInternal;
+
+        public PluginLoader(IPlatformSettingsHandler platformSettingsHandler, IPlayerServiceInternal playerServiceInternal) 
+        {
+            _platformSettingsHandler = platformSettingsHandler;
+            _playerServiceInternal = playerServiceInternal;
+        }
 
         /// <summary>
         /// Finds the bundle and dlls at the given folder path, loads the dll into the assembly, unpacks the bundle, and instantiates GameObjects as children of the given transform
@@ -122,10 +138,8 @@ namespace VE2.NonCore.Platform.Internal
 
             if (intent != null)
             {
-                //TODO: Need all settings handlers, need to inject command args here
-
-                intent.Call<AndroidJavaObject>("putExtra", $"arg0", "TestArg0");
-                intent.Call<AndroidJavaObject>("putExtra", $"arg1", "TestArg1");
+                intent = _platformSettingsHandler.AddArgsToIntent(intent);
+                intent = _playerServiceInternal.AddArgsToIntent(intent);
 
                 currentActivity.Call("startActivity", intent);
                 Debug.Log("App launched successfully");

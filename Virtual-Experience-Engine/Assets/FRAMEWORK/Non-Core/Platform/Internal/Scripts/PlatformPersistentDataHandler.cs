@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -18,6 +19,8 @@ namespace VE2.NonCore.Platform.Internal
         public ServerConnectionSettings WorldBuildsFTPServerSettings {get; set;}
         public ServerConnectionSettings FallbackWorldSubStoreFTPServerSettings {get; set;}
         public ServerConnectionSettings FallbackInstanceServerSettings {get; set;}
+
+        public AndroidJavaObject AddArgsToIntent(AndroidJavaObject intent);
 
         //public void SetDefaults(string defaultPlatformCustomerName, string defaultPlatformPassword, string instanceCode, ServerConnectionSettings defaultWorldSubStoreFTPServerSettings, ServerConnectionSettings defaultFallbackInstanceServerSettings);
     }
@@ -461,14 +464,36 @@ namespace VE2.NonCore.Platform.Internal
             }
         }
 
-        // public void SetDefaults(string defaultPlatformCustomerName, string defaultPlatformPassword, string defaultInstanceCode, ServerConnectionSettings defaultWorldSubStoreFTPServerSettings, ServerConnectionSettings defaultFallbackInstanceServerSettings)
-        // {
-        //     _defaultPlatformCustomerName = defaultPlatformCustomerName;
-        //     _defaultPlatformPassword = defaultPlatformPassword;
-        //     _defaultInstanceCode = defaultInstanceCode;
-        //     _defaultFallbackWorldSubStoreFTPServerSettings = defaultWorldSubStoreFTPServerSettings;
-        //     _defaultFallbackInstanceServerSettings = defaultFallbackInstanceServerSettings;
-        // }
+
+        public AndroidJavaObject AddArgsToIntent(AndroidJavaObject intent)
+        {
+            intent.Call<AndroidJavaObject>("putExtra", HasArgsArgName, true);
+
+            intent.Call<AndroidJavaObject>("putExtra", PlatformConnectionSettingsArgName, Convert.ToBase64String(PlatformServerConnectionSettings.Bytes));
+
+            intent.Call<AndroidJavaObject>("putExtra", PlatformCustomerNameArgName, PlatformCustomerName);
+            intent.Call<AndroidJavaObject>("putExtra", PlatformPasswordArgName, PlatformCustomerPassword);
+
+            intent.Call<AndroidJavaObject>("putExtra", PlatformClientIDArgName, PlatformClientID);
+            intent.Call<AndroidJavaObject>("putExtra", InstanceCodeArgName, InstanceCode);
+
+            intent.Call<AndroidJavaObject>("putExtra", NumberOfActiveWorldsArgName, _activeWorldsList.Count);
+            using MemoryStream stream = new();
+            using BinaryWriter writer = new(stream);
+            foreach (WorldDetails activeWorld in _activeWorldsList)
+            {
+                ushort activeWorldBytesLength = (ushort)activeWorld.Bytes.Length;
+                writer.Write(activeWorldBytesLength);
+                writer.Write(activeWorld.Bytes);
+            }
+            intent.Call<AndroidJavaObject>("putExtra", ActiveWorldsArgName, Convert.ToBase64String(stream.ToArray()));
+
+            intent.Call<AndroidJavaObject>("putExtra", WorldBuildsFTPServerSettingsArgName, Convert.ToBase64String(WorldBuildsFTPServerSettings.Bytes));
+            intent.Call<AndroidJavaObject>("putExtra", FallbackWorldSubStoreFTPServerSettingsArgName, Convert.ToBase64String(FallbackWorldSubStoreFTPServerSettings.Bytes));
+            intent.Call<AndroidJavaObject>("putExtra", FallbackInstanceServerSettingsArgName,  Convert.ToBase64String(FallbackInstanceServerSettings.Bytes));
+
+            return intent;
+        }
 
         private void Awake()
         {

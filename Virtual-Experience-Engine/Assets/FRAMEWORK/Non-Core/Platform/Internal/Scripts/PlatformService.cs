@@ -19,7 +19,9 @@ namespace VE2.NonCore.Platform.Internal
         internal static PlatformService Create(IPlatformSettingsHandler platformSettingsHandler)
         {
             PlatformCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
-            return new PlatformService(commsHandler, new PluginLoader(), PlayerAPI.Player as IPlayerServiceInternal, platformSettingsHandler);
+            IPlayerServiceInternal playerService = PlayerAPI.Player as IPlayerServiceInternal;
+            PluginLoader pluginLoader = new PluginLoader(platformSettingsHandler, playerService);
+            return new PlatformService(commsHandler, pluginLoader, playerService, platformSettingsHandler);
         }
     }
 
@@ -205,21 +207,10 @@ namespace VE2.NonCore.Platform.Internal
             {
                 SceneManager.LoadScene("Hub");
             }
-            //TODO, should be talking to the plugin loader instead here 
             else
             {
-                //TODO - we need the version number... should this part of the instance suffix?
-                //probably? It's the server that needs to tell you which version to run, so should be in the instance code somewhere
                 _pluginLoader.LoadPlugin(newInstanceInfo.WorldFolderName, int.Parse(newInstanceInfo.VersionNumber));
             }
-            // else if (newInstanceInfo.InstanceCode.StartsWith("Dev"))
-            // {
-            //     SceneManager.LoadScene("Dev");
-            // }
-            // else
-            // {
-            //     Debug.LogError("Couldn't go to scene");
-            // }
         }
 
         internal void MainThreadUpdate()

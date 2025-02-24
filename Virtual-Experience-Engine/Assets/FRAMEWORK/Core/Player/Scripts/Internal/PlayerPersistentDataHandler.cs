@@ -18,6 +18,8 @@ namespace VE2.Core.Player.Internal
         public void MarkAppearanceChanged();
 
         public void SetDefaults(PlayerPresentationConfig defaultPlayerPresentationConfig);
+
+        public AndroidJavaObject AddArgsToIntent(AndroidJavaObject intent);
     }
 
     /// <summary>
@@ -27,13 +29,14 @@ namespace VE2.Core.Player.Internal
     internal class PlayerPersistentDataHandler : MonoBehaviour, IPlayerPersistentDataHandler //TODO: Add control settings! 
     {
         private const string HasArgsArgName = "hasArgs";
-        public static string RememberPlayerSettingsArgName => "rememberPlayerSettings";
-        public static string PlayerNameArgName => "playerName";
-        public static string PlayerHeadTypeArgName => "playerHeadType";
-        public static string PlayerTorsoTypeArgName => "playerTorsoType";
-        public static string PlayerRedArgName => "playerRed";
-        public static string PlayerGreenArgName => "playerGreen";
-        public static string PlayerBlueArgName => "playerBlue";
+        public static string RememberPlayerSettingsArgName => "rememberPlayerSettingsArg";
+        public static string PlayerPresentationConfigArgName => "playerPresentationConfigArg";
+        // public static string PlayerNameArgName => "playerName";
+        // public static string PlayerHeadTypeArgName => "playerHeadType";
+        // public static string PlayerTorsoTypeArgName => "playerTorsoType";
+        // public static string PlayerRedArgName => "playerRed";
+        // public static string PlayerGreenArgName => "playerGreen";
+        // public static string PlayerBlueArgName => "playerBlue";
 
         private bool _isPlaying => Application.isPlaying;
 
@@ -47,14 +50,7 @@ namespace VE2.Core.Player.Internal
                 _rememberPlayerSettings = value;
 
                 if (_rememberPlayerSettings == false)
-                {
-                    PlayerPrefs.DeleteKey(PlayerNameArgName);
-                    PlayerPrefs.DeleteKey(PlayerHeadTypeArgName);
-                    PlayerPrefs.DeleteKey(PlayerTorsoTypeArgName);
-                    PlayerPrefs.DeleteKey(PlayerRedArgName);
-                    PlayerPrefs.DeleteKey(PlayerGreenArgName);
-                    PlayerPrefs.DeleteKey(PlayerBlueArgName);
-                }
+                    PlayerPrefs.DeleteKey(PlayerPresentationConfigArgName);
 
                 PlayerPrefs.SetInt(RememberPlayerSettingsArgName, value ? 1 : 0);
             }
@@ -83,13 +79,11 @@ namespace VE2.Core.Player.Internal
                             bool hasArgs = intent == null ? false : intent.Call<bool>("getBooleanExtra", HasArgsArgName, false);
 
                             if (hasArgs)
-                                _playerPresentationConfig = new PlayerPresentationConfig(
-                                    playerName: intent.Call<string>("getStringExtra", PlayerNameArgName),
-                                    avatarHeadType: (VE2AvatarHeadAppearanceType)intent.Call<int>("getIntExtra", PlayerHeadTypeArgName),
-                                    avatarBodyType: (VE2AvatarTorsoAppearanceType)intent.Call<int>("getIntExtra", PlayerTorsoTypeArgName),
-                                    avatarRed: (ushort)intent.Call<int>("getIntExtra", PlayerRedArgName, 0),
-                                    avatarGreen: (ushort)intent.Call<int>("getIntExtra", PlayerGreenArgName, 0),
-                                    avatarBlue: (ushort)intent.Call<int>("getIntExtra", PlayerBlueArgName, 0));
+                            {
+                                string playerPresentationConfigBytesAsString = intent.Call<string>("getStringExtra", PlayerPresentationConfigArgName);
+                                byte[] playerPresentationConfigBytes = System.Convert.FromBase64String(playerPresentationConfigBytesAsString);
+                                _playerPresentationConfig = new(playerPresentationConfigBytes);
+                            }
                             else if (_rememberPlayerSettings)
                                 _playerPresentationConfig = GetPlayerPresentationFromPlayerPrefs();
                             else
@@ -119,14 +113,9 @@ namespace VE2.Core.Player.Internal
 
         private PlayerPresentationConfig GetPlayerPresentationFromPlayerPrefs()
         {
-            return
-                _playerPresentationConfig = new PlayerPresentationConfig(
-                    playerName: PlayerPrefs.GetString(PlayerNameArgName, _defaultPlayerPresentationConfig.PlayerName),
-                    avatarHeadType: (VE2AvatarHeadAppearanceType)PlayerPrefs.GetInt(PlayerHeadTypeArgName, (int)_defaultPlayerPresentationConfig.AvatarHeadType),
-                    avatarBodyType: (VE2AvatarTorsoAppearanceType)PlayerPrefs.GetInt(PlayerTorsoTypeArgName, (int)_defaultPlayerPresentationConfig.AvatarTorsoType),
-                    avatarRed: (ushort)PlayerPrefs.GetInt(PlayerRedArgName, _defaultPlayerPresentationConfig.AvatarRed),
-                    avatarGreen: (ushort)PlayerPrefs.GetInt(PlayerGreenArgName, _defaultPlayerPresentationConfig.AvatarGreen),
-                    avatarBlue: (ushort)PlayerPrefs.GetInt(PlayerBlueArgName, _defaultPlayerPresentationConfig.AvatarBlue));
+            string playerPresentationConfigBytesAsString = PlayerPrefs.GetString(PlayerPresentationConfigArgName);
+            byte[] playerPresentationConfigBytes = System.Convert.FromBase64String(playerPresentationConfigBytesAsString);
+            return new(playerPresentationConfigBytes);
         }
 
         public event Action<PlayerPresentationConfig> OnDebugSaveAppearance;
@@ -139,18 +128,20 @@ namespace VE2.Core.Player.Internal
             
             if (_rememberPlayerSettings) //TODO: On android, this will save in plugins playerprefs, not in the ve2.apk playerprefs.. don't do it if we're android, and not the hub? But how best to tell if in hub?
             {
-                PlayerPrefs.SetString(PlayerNameArgName, _playerPresentationConfig.PlayerName);
-                PlayerPrefs.SetInt(PlayerHeadTypeArgName, (int)_playerPresentationConfig.AvatarHeadType);
-                PlayerPrefs.SetInt(PlayerTorsoTypeArgName, (int)_playerPresentationConfig.AvatarTorsoType);
-                PlayerPrefs.SetInt(PlayerRedArgName, _playerPresentationConfig.AvatarRed);
-                PlayerPrefs.SetInt(PlayerGreenArgName, _playerPresentationConfig.AvatarGreen);
-                PlayerPrefs.SetInt(PlayerBlueArgName, _playerPresentationConfig.AvatarBlue);
+                PlayerPrefs.SetString(PlayerPresentationConfigArgName, Convert.ToBase64String(_playerPresentationConfig.Bytes));
             }
         }
 
         public void SetDefaults(PlayerPresentationConfig defaultPlayerPresentationConfig)
         {
             _defaultPlayerPresentationConfig = defaultPlayerPresentationConfig;
+        }
+
+        public AndroidJavaObject AddArgsToIntent(AndroidJavaObject intent)
+        {
+            intent.Call<AndroidJavaObject>("putExtra", HasArgsArgName, true);
+            intent.Call<AndroidJavaObject>("putExtra", PlayerPresentationConfigArgName, Convert.ToBase64String(_playerPresentationConfig.Bytes));
+            return intent;
         }
 
         private void Awake()
