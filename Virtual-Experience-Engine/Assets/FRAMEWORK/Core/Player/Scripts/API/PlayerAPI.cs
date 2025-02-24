@@ -30,7 +30,7 @@ namespace VE2.Core.Player.API
         private IPlayerServiceProvider _playerServiceProvder;
         internal static IPlayerServiceProvider PlayerServiceProvider
         {
-            get
+            private get
             {
                 if (Instance._playerServiceProvder == null && !string.IsNullOrEmpty(Instance.PlayerServiceProviderGOName))
                 {

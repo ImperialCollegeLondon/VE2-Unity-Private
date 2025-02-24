@@ -29,7 +29,7 @@ namespace VE2.Core.Player.Internal
 
         public event Action<OverridableAvatarAppearance> OnOverridableAvatarAppearanceChanged;
 
-        public void MarkPlayerPresentationConfigChanged() 
+        public void MarkPlayerSettingsUpdated() 
         {
             _playerSettingsHandler.MarkAppearanceChanged();
             OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
