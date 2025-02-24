@@ -1,12 +1,15 @@
-﻿<!-- NOTE -->
-<!-- This is the manifest to use when building plugin applications. Delete the other manifest, and rename this to "AndroidManifest" when building plugin -->
-
-<?xml version="1.0" encoding="utf-8" standalone="no"?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="auto"
     package="com.yourcompany.yourapp">
     <!-- TODO: See above, looks wrong -->
+
+
+    <!-- NOTE -->
+    <!-- This is the manifest to use when building plugin applications. Delete the other manifest, and rename this to "AndroidManifest" when building plugin -->
+    <!-- Also, ensure the AAR is NOT present for plugin applications -->
+    
 
     <!-- Add the QUERY_ALL_PACKAGES permission here -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
