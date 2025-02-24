@@ -5,9 +5,8 @@ using UnityEngine;
 using System.Net;
 using UnityEngine.SceneManagement;
 using System.Linq;
-using VE2.PlatformNetworking;
-using static VE2.Platform.Internal.PlatformSerializables;
-using static VE2.Platform.API.PlatformPublicSerializables;
+using static VE2.NonCore.Platform.Internal.PlatformSerializables;
+using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 using VE2.Core.Player.API;
 using VE2.NonCore.Platform.API;
 using VE2.Core.Common;
@@ -50,12 +49,12 @@ namespace VE2.NonCore.Platform.Internal
 
         public event Action<GlobalInfo> OnGlobalInfoChanged;
 
-        public void RequestInstanceAllocation(string worldName, string instanceSuffix)
+        public void RequestInstanceAllocation(string worldFolderName, string instanceSuffix, string versionNumber)
         {
             if (IsConnectedToServer)
             {
-                Debug.Log($"Requesting instance allocation to {worldName}-{instanceSuffix}");
-                InstanceAllocationRequest instanceAllocationRequest = new(worldName, instanceSuffix);
+                Debug.Log($"Requesting instance allocation to {worldFolderName}-{instanceSuffix}-{versionNumber}");
+                InstanceAllocationRequest instanceAllocationRequest = new(worldFolderName, instanceSuffix, versionNumber);
                 _commsHandler.SendMessage(instanceAllocationRequest.Bytes, PlatformNetworkingMessageCodes.InstanceAllocationRequest, TransmissionProtocol.TCP);
             }
             else
@@ -63,9 +62,18 @@ namespace VE2.NonCore.Platform.Internal
                 Debug.LogError("Not yet connected to server");
             }
         }
+
+        /// <summary>
+        /// Should happen once we arrive in the hub
+        /// </summary>
         public void RequestHubAllocation()
         {
-            RequestInstanceAllocation("Hub", "Solo");
+            RequestInstanceAllocation("Hub", "Solo", "NoVersion");
+        }
+
+        public void ReturnToHub()
+        {
+            _pluginLoader.LoadHub();
         }
 
         public ServerConnectionSettings GetInstanceServerSettingsForWorld(string worldName)
@@ -78,6 +86,23 @@ namespace VE2.NonCore.Platform.Internal
 
         public ServerConnectionSettings GetInstanceServerSettingsForCurrentWorld() => GetInstanceServerSettingsForWorld(SceneManager.GetActiveScene().name); //TODO: Should come from settings?
 
+
+        //Called by hub
+        public void UpdateSettings(ServerConnectionSettings serverConnectionSettings, string instanceCode)
+        {
+            Debug.Log("Update settings handler - " + serverConnectionSettings.ServerAddress + " - " + serverConnectionSettings.ServerPort + " - " + instanceCode);
+            _platformSettingsHandler.PlatformServerConnectionSettings = serverConnectionSettings;
+            _platformSettingsHandler.InstanceCode = instanceCode;
+        }
+
+        //Called by the hub, or by the provider, if we're in an plugin
+        public void ConnectToPlatform()
+        {
+            Debug.Log("Connecting to platform with settings -" + _platformSettingsHandler.PlatformServerConnectionSettings.ServerAddress + "-:-" + _platformSettingsHandler.PlatformServerConnectionSettings.ServerPort + "-:-" + _platformSettingsHandler.InstanceCode);
+            CurrentInstanceCode = _platformSettingsHandler.InstanceCode;
+            //IPAddress.Parse("PlatformIP"), PlatformPort, instanceCode
+            _commsHandler.ConnectToServer(IPAddress.Parse(_platformSettingsHandler.PlatformServerConnectionSettings.ServerAddress), _platformSettingsHandler.PlatformServerConnectionSettings.ServerPort);
+        }
 
         internal event Action<string> OnInstanceCodeChange;
 
@@ -108,13 +133,6 @@ namespace VE2.NonCore.Platform.Internal
             commsHandler.OnReceiveGlobalInfoUpdate += HandleReceiveGlobalInfoUpdate;
         }
 
-        internal void ConnectToPlatform(IPAddress ipAddress, ushort portNumber, string startingInstanceCode)
-        {
-            Debug.Log("Connecting to platform");
-            CurrentInstanceCode = startingInstanceCode;
-            _commsHandler.ConnectToServer(ipAddress, portNumber);
-        }
-
         private void HandleReceiveNetcodeVersion(byte[] bytes)
         {
             NetcodeVersionConfirmation netcodeVersionConfirmation = new(bytes);
@@ -131,6 +149,7 @@ namespace VE2.NonCore.Platform.Internal
                 string correctedInstanceCode = CurrentInstanceCode.Contains("Hub") ? "Hub-Solo" : CurrentInstanceCode; //TODO: Figure out instance code
                 string customerID = "test", customerKey = "test"; //TODO - figure out these too!
 
+                Debug.Log("Rec netcode - requesting reg into " + CurrentInstanceCode);
                 ServerRegistrationRequest serverRegistrationRequest = new(customerID, customerKey, CurrentInstanceCode, _playerService.OverridableAvatarAppearance.PresentationConfig);
                 _commsHandler.SendMessage(serverRegistrationRequest.Bytes, PlatformNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
             }
@@ -158,7 +177,6 @@ namespace VE2.NonCore.Platform.Internal
         {
             GlobalInfo newGlobalInfo = new(bytes);
 
-            Debug.Log("Rec global update 1");
 
             if (GlobalInfo != null && newGlobalInfo.Bytes.SequenceEqual(GlobalInfo.Bytes))
                 return;
@@ -166,16 +184,8 @@ namespace VE2.NonCore.Platform.Internal
             //TODO - might be better to have the instance allocation be a specific message, rather than being ended implicitely in the global info update?
             //Are we then worried about missing the message?
             PlatformInstanceInfo newLocalInstanceInfo = newGlobalInfo.InstanceInfoForClient(LocalClientID);
-            Debug.Log("Received global info update... our ID " + LocalClientID);
-            foreach (PlatformInstanceInfo instanceInfo in newGlobalInfo.InstanceInfos.Values)
-            {
-                Debug.Log($"Instance {instanceInfo.InstanceCode} has {instanceInfo.ClientInfos.Count}");
-                foreach (PlatformClientInfo platformClientInfo in instanceInfo.ClientInfos.Values)
-                {
-                    Debug.Log($"clients id {platformClientInfo.ClientID} name = {platformClientInfo.PlayerPresentationConfig.PlayerName}");
-                }
-            }
-            if (newLocalInstanceInfo.InstanceCode != CurrentInstanceCode)
+
+            if (newLocalInstanceInfo.FullInstanceCode != CurrentInstanceCode)
             {
                 HandleInstanceAllocation(newLocalInstanceInfo);
             }
@@ -186,19 +196,21 @@ namespace VE2.NonCore.Platform.Internal
 
         private void HandleInstanceAllocation(PlatformInstanceInfo newInstanceInfo)
         {
-            Debug.Log($"<color=green>Detected allocation to new instance, going to {newInstanceInfo.InstanceCode}</color>");
+            Debug.Log($"<color=green>Detected allocation to new instance, going to {newInstanceInfo.FullInstanceCode}</color>");
 
-            CurrentInstanceCode = newInstanceInfo.InstanceCode;
-            OnInstanceCodeChange?.Invoke(newInstanceInfo.InstanceCode);
+            CurrentInstanceCode = newInstanceInfo.FullInstanceCode;
+            OnInstanceCodeChange?.Invoke(newInstanceInfo.FullInstanceCode);
 
-            if (newInstanceInfo.InstanceCode.StartsWith("Hub"))
+            if (newInstanceInfo.FullInstanceCode.StartsWith("Hub"))
             {
                 SceneManager.LoadScene("Hub");
             }
             //TODO, should be talking to the plugin loader instead here 
             else
             {
-                _pluginLoader.LoadPlugin(newInstanceInfo.WorldName, int.Parse(newInstanceInfo.InstanceSuffix));
+                //TODO - we need the version number... should this part of the instance suffix?
+                //probably? It's the server that needs to tell you which version to run, so should be in the instance code somewhere
+                _pluginLoader.LoadPlugin(newInstanceInfo.WorldFolderName, int.Parse(newInstanceInfo.VersionNumber));
             }
             // else if (newInstanceInfo.InstanceCode.StartsWith("Dev"))
             // {
@@ -231,10 +243,11 @@ namespace VE2.NonCore.Platform.Internal
         private void HandlePlayerPresentationConfigChanged(OverridableAvatarAppearance overridableAvatarAppearance)
         {
             Debug.Log("Sending player presentation config to server - " + LocalClientID);
-            _commsHandler.SendMessage(overridableAvatarAppearance.PresentationConfig.Bytes, PlatformNetworkingMessageCodes.UpdatePlayerPresentation, TransmissionProtocol.TCP);
+            if (IsConnectedToServer)
+                _commsHandler.SendMessage(overridableAvatarAppearance.PresentationConfig.Bytes, PlatformNetworkingMessageCodes.UpdatePlayerPresentation, TransmissionProtocol.TCP);
         }
 
-        internal void TearDown()
+        public void TearDown()
         {
             _commsHandler?.DisconnectFromServer();
 
@@ -242,9 +255,9 @@ namespace VE2.NonCore.Platform.Internal
                 _playerService.OnOverridableAvatarAppearanceChanged -= HandlePlayerPresentationConfigChanged;
         }
 
-        void IPlatformServiceInternal.RequestInstanceAllocation(string worldName, string instanceSuffix)
+        void IPlatformServiceInternal.RequestInstanceAllocation(string worldFolderName, string instanceSuffix, string versionNumber)
         {
-            RequestInstanceAllocation(worldName, instanceSuffix);
+            RequestInstanceAllocation(worldFolderName, instanceSuffix, versionNumber);
         }
     }
 

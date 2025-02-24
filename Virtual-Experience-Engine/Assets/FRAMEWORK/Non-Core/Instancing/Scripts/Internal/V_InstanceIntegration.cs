@@ -3,6 +3,7 @@ using UnityEngine;
 using VE2.Core.Player.API;
 using VE2.Core.VComponents.API;
 using VE2.NonCore.Instancing.API;
+using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 
 namespace VE2.NonCore.Instancing.Internal
 {
@@ -18,6 +19,10 @@ namespace VE2.NonCore.Instancing.Internal
         [EditorButton(nameof(DebugConnect), "Connect", activityType: ButtonActivityType.OnPlayMode)] 
         [EditorButton(nameof(DebugDisconnect), "Disconnect", activityType: ButtonActivityType.OnPlayMode)] 
         [SerializeField] private bool _connectOnStart = true;
+
+        [Help("These settings will be used when testing in editor. In build, the platform service will provide the correct settings.")]
+        [SerializeField, BeginGroup("Debug Settings"), DisableInPlayMode] private ServerConnectionSettings _debugServerSettings = new("dev", "dev", "127.0.0.1", 4297);
+        [SerializeField, EndGroup, DisableInPlayMode] private string _debugInstanceCode = "Misc-Dev-00-NoVersion";
         #endregion
 
 
@@ -68,7 +73,7 @@ namespace VE2.NonCore.Instancing.Internal
                 return;
             }
 
-            _instanceService = InstanceServiceFactory.Create(_localClientIDWrapper, _connectOnStart, _connectionStateDebug);
+            _instanceService = InstanceServiceFactory.Create(_localClientIDWrapper, _connectOnStart, _connectionStateDebug, _debugServerSettings, _debugInstanceCode);
         }
 
         private void FixedUpdate()

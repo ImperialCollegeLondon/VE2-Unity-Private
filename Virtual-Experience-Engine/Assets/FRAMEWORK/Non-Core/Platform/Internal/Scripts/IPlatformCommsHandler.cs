@@ -1,9 +1,8 @@
 using System;
 using System.Net;
 using VE2.Core.Common;
-using VE2.Platform.Internal;
 
-namespace VE2.PlatformNetworking
+namespace VE2.NonCore.Platform.Internal
 {
     internal interface IPlatformCommsHandler
     {

@@ -10,11 +10,10 @@ using System.Text.RegularExpressions;
 using UnityEngine.SceneManagement;
 using System.Text;
 using System.Security.Cryptography;
-using VE2.PlatformNetworking;
 using UnityEditor.Build.Reporting;
-using static VE2.Platform.API.PlatformPublicSerializables;
 using VE2.NonCore.FileSystem.Internal;
 using VE2.NonCore.FileSystem.API;
+using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 
 //TODO: Need to check for DLLs (rather than just assemblies) referenced the scene/scripts, and include them in the build. E.G Mathnet.Numerics.dll
 
@@ -31,10 +30,10 @@ namespace VE2.NonCore.Platform.Internal
             "Cinemachine",
             "Toolbox",
             "Toolbox.*",
-            "VE2_Core_*",
-            "VE2_NonCore_*",
-            "VE2_Common",
-            "VE2_Common_*",
+            "VE2.Core.*",
+            "VE2.NonCore.*",
+            "VE2.Common",
+            "VE2.Common.*",
         };
 
     }
@@ -91,7 +90,7 @@ namespace VE2.NonCore.Platform.Internal
         bool passwordsWereIllegal = false;
 
         private Scene _sceneToExport;
-        private string _worldFolderName => $"{_worldCategory}_{_sceneToExport.name}";
+        private string _worldFolderName => $"{_worldCategory}-{_sceneToExport.name}";
         private EnvironmentType _environmentType = EnvironmentType.Undefined;
         private EnvironmentType _lastEnvironmentType = EnvironmentType.Undefined;
 
@@ -459,7 +458,7 @@ namespace VE2.NonCore.Platform.Internal
                 }
             }
 
-            CleanupScriptBuild(destination);
+            //CleanupScriptBuild(destination);
         }
 
         private string ExtractFileName(Assembly assembly)
@@ -678,7 +677,10 @@ namespace VE2.NonCore.Platform.Internal
             foreach (var component in go.GetComponents<MonoBehaviour>())
             {
                 if (component == null || component.GetType() == null || component.GetType().Assembly == null)
+                {
                     Debug.Log("PluginBuilder encoutered a problematic script on " + go.name);
+                    DestroyImmediate(go);
+                }
 
                 yield return component.GetType().Assembly;
             }

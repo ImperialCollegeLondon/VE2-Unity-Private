@@ -131,7 +131,7 @@ namespace VE2.Core.Player.Internal
             if (!Application.isPlaying)
                 return;
                 
-            Debug.Log("Disabling player spawner, service null? " + (_playerService == null));
+            //Debug.Log("Disabling player spawner, service null? " + (_playerService == null));
             _playerService?.TearDown();
             _playerService = null;
         }

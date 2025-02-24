@@ -176,6 +176,7 @@ namespace VE2.Core.Player.Internal
 
             //gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
             gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
+            DontDestroyOnLoad(gameObject);
         }
 
         private void OnDisable()

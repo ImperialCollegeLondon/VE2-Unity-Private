@@ -25,18 +25,18 @@ public class PlatformAPI : MonoBehaviour
     private IPlatformProvider _platformProvider;
     internal static IPlatformProvider PlatformProvider
     {
-        get
+        private get
         {
             if (Instance._platformProvider == null && !string.IsNullOrEmpty(Instance.platformProviderGOName))
                 Instance._platformProvider = GameObject.Find(Instance.platformProviderGOName)?.GetComponent<IPlatformProvider>();
 
-                if (Instance._platformProvider == null)
-                {
-                    Debug.LogError("PlatformService is not available");
-                    return null;
-                }  
+            if (Instance._platformProvider == null)
+            {
+                Debug.LogError("PlatformProvider is not available");
+                return null;
+            }  
 
-                return Instance._platformProvider;
+            return Instance._platformProvider;
 
         }
         set //Will need to be called externally

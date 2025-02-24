@@ -20,8 +20,6 @@ MonoBehaviour:
     rid: 2780094747114733568
   m_OverrideGlobalSceneList: 1
   m_Scenes:
-  - m_enabled: 1
-    m_path: Assets/FRAMEWORK/Non-Core/Platform/Platform-Private/Hub/Hub.unity
   - m_enabled: 0
     m_path: Assets/FRAMEWORK/DevStuff/Dev.unity
   - m_enabled: 0
@@ -986,6 +984,8 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
     - rid: 2780094747114733568
       type: {class: AndroidPlatformBuildSettings, ns: UnityEditor.Android, asm: UnityEditor.Android.Extensions}
       data:

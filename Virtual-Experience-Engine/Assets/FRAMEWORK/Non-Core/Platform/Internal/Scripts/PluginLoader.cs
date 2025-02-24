@@ -58,6 +58,18 @@ namespace VE2.NonCore.Platform.Internal
             }
         }
 
+        public void LoadHub()
+        {
+            if (Application.platform == RuntimePlatform.Android)
+            {
+                LaunchAndroidAPK("Virtual-Experience-Engine");
+            }
+            else 
+            {
+                SceneManager.LoadScene("Hub", LoadSceneMode.Single);
+            }
+        }
+
         private void LoadWindowsPlugin(List<LocalFileDetails> localFiles) 
         {
             //TODO: Need to make sure the DesktopSettingsBus objects are populated with their data

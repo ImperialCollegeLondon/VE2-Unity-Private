@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using static VE2.Platform.API.PlatformPublicSerializables;
+using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 using static VE2.Core.Common.CommonSerializables;
 using static VE2.Core.Player.API.PlayerSerializables;
 
@@ -10,7 +10,7 @@ using static VE2.Core.Player.API.PlayerSerializables;
 using UnityEngine;
 #endif
 
-namespace VE2.Platform.Internal
+namespace VE2.NonCore.Platform.Internal
 {
     public class PlatformSerializables
     {
@@ -93,8 +93,8 @@ namespace VE2.Platform.Internal
 
         //If auto-connect, should send this message 
         //If manual-connect (which needs an API on the platform interface), just connect with id and key
-        
-        
+
+
         internal class ServerRegistrationRequest : VE2Serializable
         {
             public string CustomerID;
@@ -251,7 +251,7 @@ namespace VE2.Platform.Internal
 
 
         [Serializable]
-        internal class WorldDetails : VE2Serializable 
+        internal class WorldDetails : VE2Serializable
         {
             //Note, these are public writable only so the JSON utility can write to them when reading the config file
             public string Name;
@@ -332,7 +332,7 @@ namespace VE2.Platform.Internal
             }
         }
 
-        
+
         internal class GlobalInfo : VE2Serializable
         {
             public Dictionary<string, PlatformInstanceInfo> InstanceInfos { get; private set; }
@@ -388,7 +388,7 @@ namespace VE2.Platform.Internal
         }
 
 
-        internal class PlatformInstanceInfo : InstanceInfoBase 
+        internal class PlatformInstanceInfo : InstanceInfoBase
         {
             public Dictionary<ushort, PlatformClientInfo> ClientInfos { get; private set; }
 
@@ -399,7 +399,12 @@ namespace VE2.Platform.Internal
 
             public PlatformInstanceInfo(byte[] bytes) : base(bytes) { }
 
-            public PlatformInstanceInfo(string worldName, string instanceSuffix, Dictionary<ushort, PlatformClientInfo> clientInfos) : base(worldName, instanceSuffix)
+            public PlatformInstanceInfo(string worldName, string instanceSuffix, string versionNumber, Dictionary<ushort, PlatformClientInfo> clientInfos) : base(worldName, instanceSuffix, versionNumber)
+            {
+                ClientInfos = clientInfos;
+            }
+
+            public PlatformInstanceInfo(string fullInstanceCode, Dictionary<ushort, PlatformClientInfo> clientInfos) : base(fullInstanceCode)
             {
                 ClientInfos = clientInfos;
             }
@@ -497,14 +502,16 @@ namespace VE2.Platform.Internal
         {
             public string WorldName { get; private set; }
             public string InstanceSuffix { get; private set; }
-            public string InstanceCode => $"{WorldName}-{InstanceSuffix}";
+            public string VersionNumber { get; private set; }
+            public string FullInstanceCode => $"{WorldName}-{InstanceSuffix}-{VersionNumber}";
 
             public InstanceAllocationRequest(byte[] bytes) : base(bytes) { }
 
-            public InstanceAllocationRequest(string worldName, string instanceSuffix)
+            public InstanceAllocationRequest(string worldName, string instanceSuffix, string versionNumber)
             {
                 WorldName = worldName;
                 InstanceSuffix = instanceSuffix;
+                VersionNumber = versionNumber;
             }
 
             protected override byte[] ConvertToBytes()
@@ -514,6 +521,7 @@ namespace VE2.Platform.Internal
 
                 writer.Write(WorldName);
                 writer.Write(InstanceSuffix);
+                writer.Write(VersionNumber);
 
                 return stream.ToArray();
             }
@@ -525,6 +533,7 @@ namespace VE2.Platform.Internal
 
                 WorldName = reader.ReadString();
                 InstanceSuffix = reader.ReadString();
+                VersionNumber = reader.ReadString();
             }
 
         }

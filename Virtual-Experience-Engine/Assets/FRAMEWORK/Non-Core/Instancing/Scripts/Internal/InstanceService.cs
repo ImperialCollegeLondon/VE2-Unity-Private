@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 using System.Net;
-using static VE2.Platform.API.PlatformPublicSerializables;
+using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 using VE2.Core.Player.API;
 using VE2.NonCore.Instancing.API;
 using static VE2.NonCore.Instancing.Internal.InstanceSyncSerializables;
@@ -13,7 +13,8 @@ namespace VE2.NonCore.Instancing.Internal
 {
     internal static class InstanceServiceFactory
     {
-        internal static InstanceService Create(LocalClientIdWrapper localClientIDWrapper, bool connectAutomatically, ConnectionStateDebugWrapper connectionStateDebugWrapper) 
+        internal static InstanceService Create(LocalClientIdWrapper localClientIDWrapper, bool connectAutomatically, 
+            ConnectionStateDebugWrapper connectionStateDebugWrapper, ServerConnectionSettings debugServerSettings, string debugInstanceCode) 
         {
             InstanceNetworkingCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
 
@@ -24,7 +25,9 @@ namespace VE2.NonCore.Instancing.Internal
                 PlatformAPI.PlatformService as IPlatformServiceInternal,
                 VComponentsAPI.InteractorContainer,
                 PlayerAPI.Player as IPlayerServiceInternal,
-                connectAutomatically);
+                connectAutomatically,
+                debugServerSettings,
+                debugInstanceCode);
         }
     }
 
@@ -68,6 +71,8 @@ namespace VE2.NonCore.Instancing.Internal
         private readonly IPlayerServiceInternal _playerService;
         private readonly InteractorContainer _interactorContainer;
         private readonly InstanceInfoContainer _instanceInfoContainer;
+        private readonly ServerConnectionSettings _debugServerSettings;
+        private readonly string _debugInstanceCode;
 
         internal readonly WorldStateSyncer _worldStateSyncer;
         internal readonly LocalPlayerSyncer _localPlayerSyncer;
@@ -76,13 +81,27 @@ namespace VE2.NonCore.Instancing.Internal
         public InstanceService(IPluginSyncCommsHandler commsHandler, LocalClientIdWrapper localClientIDWrapper, 
             ConnectionStateDebugWrapper connectionStateDebugWrapper, IPlatformServiceInternal platformService, 
             InteractorContainer interactorContainer, IPlayerServiceInternal playerServiceInternal,
-            bool connectAutomatically)
+            bool connectAutomatically, ServerConnectionSettings debugServerSettings, string debugInstanceCode)
         {
             _commsHandler = commsHandler;
             _connectionStateDebugWrapper = connectionStateDebugWrapper;
             _platformService = platformService;
             _interactorContainer = interactorContainer;
             _playerService = playerServiceInternal;
+            _debugServerSettings = debugServerSettings;
+            _debugInstanceCode = debugInstanceCode;
+
+            if (platformService.GetInstanceServerSettingsForCurrentWorld() == null)
+            {
+                if (Application.isEditor)
+                {
+                    //Use defaults from this inspector
+                }
+                else
+                {
+                    Debug.LogError("ERROR: in the build, the platform must provide the instance server settings");
+                }
+            }
 
             _instanceInfoContainer = new(localClientIDWrapper);
 
@@ -111,8 +130,20 @@ namespace VE2.NonCore.Instancing.Internal
             _connectionStateDebugWrapper.ConnectionState = ConnectionState.Connecting;
 
             ServerConnectionSettings serverConnectionSettings = _platformService.GetInstanceServerSettingsForCurrentWorld();
+            if (serverConnectionSettings == null)
+            {
+                if (!Application.isEditor)
+                {
+                    Debug.LogError("Could not get instance server settings from platform - cannot use fallback settings in build");   
+                    return;
+                }
+                else 
+                {
+                    serverConnectionSettings = _debugServerSettings;
+                }
+            }
 
-            Debug.Log("Try connect... " + serverConnectionSettings.ServerAddress);
+            Debug.Log("Try connect to instance... " + serverConnectionSettings.ServerAddress);
 
             if (IPAddress.TryParse(serverConnectionSettings.ServerAddress, out IPAddress ipAddress))
                 _commsHandler.ConnectToServer(ipAddress, serverConnectionSettings.ServerPort);
@@ -137,14 +168,16 @@ namespace VE2.NonCore.Instancing.Internal
 
         private void SendServerRegistration() 
         {
-            Debug.Log("<color=green> Try connect to server with instance code - " + _platformService.CurrentInstanceCode);
+            string instanceCode = _platformService.CurrentInstanceCode ?? _debugInstanceCode;
+
+            Debug.Log("<color=green> Try connect to server with instance code - " + instanceCode);
 
             bool usingFrameworkAvatar = true; //TODO
             AvatarAppearanceWrapper avatarAppearanceWrapper = new(usingFrameworkAvatar, _playerService.OverridableAvatarAppearance);
 
             //We also send the LocalClientID here, this will either be maxvalue (if this is our first time connecting, the server will give us a new ID)..
             //..or it'll be the ID we we're restored after a disconnect (if we're reconnecting, the server will use the ID we provide)
-            ServerRegistrationRequest serverRegistrationRequest = new(_platformService.CurrentInstanceCode, _instanceInfoContainer.LocalClientID, avatarAppearanceWrapper);
+            ServerRegistrationRequest serverRegistrationRequest = new(instanceCode, _instanceInfoContainer.LocalClientID, avatarAppearanceWrapper);
             _commsHandler.SendMessage(serverRegistrationRequest.Bytes, InstanceNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
         }
 

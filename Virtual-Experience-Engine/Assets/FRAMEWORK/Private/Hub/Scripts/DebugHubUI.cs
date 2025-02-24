@@ -5,7 +5,7 @@ using VE2.NonCore.Platform.API;
 public class DebugHubUI : MonoBehaviour
 {
     [SerializeField] private TMP_Text instancesListText;
-    private IPlatformServiceInternal _platformService;
+    private IPlatformServiceInternal _platformService => (IPlatformServiceInternal)PlatformAPI.PlatformService;
 
     void OnEnable()
     {
@@ -39,7 +39,7 @@ public class DebugHubUI : MonoBehaviour
             return;
         }
 
-        _platformService.RequestInstanceAllocation("Dev", "dev");
+        _platformService.RequestInstanceAllocation("Misc-Dev", "test", "NoVersion");
     }
 
     public void OnGoToDev2ButtonPressed()
@@ -50,7 +50,7 @@ public class DebugHubUI : MonoBehaviour
             return;
         }
 
-        _platformService.RequestInstanceAllocation("Dev", "dev2");
+        _platformService.RequestInstanceAllocation("Misc-Dev", "dev2", "NoVersion");
     }
 
     private void OnDisable()

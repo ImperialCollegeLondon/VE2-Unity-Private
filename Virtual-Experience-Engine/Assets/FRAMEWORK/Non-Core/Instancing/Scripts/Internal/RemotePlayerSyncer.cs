@@ -48,11 +48,11 @@ namespace VE2.NonCore.Instancing.Internal
 
         private void HandleInstanceInfoChanged(InstancedInstanceInfo newInstanceInfo)
         {
-            Debug.Log("RemotePlayerSyncer: HandleInstanceInfoChanged");
+            //Debug.Log("RemotePlayerSyncer: HandleInstanceInfoChanged");
             Dictionary<ushort, InstancedClientInfo> receivedRemoteClientInfosWithAppearance = new();
             foreach (KeyValuePair<ushort, InstancedClientInfo> kvp in newInstanceInfo.ClientInfos)
             {
-                Debug.Log("Checking client: " + kvp.Key + " - " + kvp.Value.InstancedAvatarAppearance.UsingFrameworkPlayer);
+                //Debug.Log("Checking client: " + kvp.Key + " - " + kvp.Value.InstancedAvatarAppearance.UsingFrameworkPlayer);
                 if (kvp.Key != _instanceInfoContainer.LocalClientID && kvp.Value.InstancedAvatarAppearance.UsingFrameworkPlayer)
                     receivedRemoteClientInfosWithAppearance.Add(kvp.Key, kvp.Value);
             }

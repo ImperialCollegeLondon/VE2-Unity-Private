@@ -46,7 +46,8 @@ public class HubFileHandlerExample : MonoBehaviour
     {
         //Debug.Log("Got remote folders! " + search.CompletionCode + " - " + search.FoldersFound.Count);
 
-        IPlatformServiceInternal platformService = PlatformAPI.PlatformProvider as IPlatformServiceInternal;
+        IPlatformServiceInternal platformService = PlatformAPI.PlatformService as IPlatformServiceInternal;
+        //Debug.Log("Platform service null: " + (platformService == null));
 
         /*
             Get list of worlds from server. Foreach world, make a UI for it, that's it!

@@ -5,11 +5,10 @@ using System.Collections.Generic;
 using System.Net;
 using UnityEngine;
 using VE2.Core.Common;
-using VE2.Platform.Internal;
 using DRMessageReader = DarkRift.DarkRiftReader;
 using DRMessageWrapper = DarkRift.Message;
 
-namespace VE2.PlatformNetworking
+namespace VE2.NonCore.Platform.Internal
 {
     public class PlatformCommsHandler : IPlatformCommsHandler
     {

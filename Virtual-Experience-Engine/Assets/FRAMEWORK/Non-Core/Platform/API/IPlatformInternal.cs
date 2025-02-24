@@ -1,11 +1,15 @@
 using System;
 using System.Collections.Generic;
-using static VE2.Platform.API.PlatformPublicSerializables;
+using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 
 namespace VE2.NonCore.Platform.API
 {
-    internal interface IPlatformServiceInternal : IPlatformService
+    internal interface IPlatformServiceInternal : IPlatformService //TODO: Do we even need plugin-facing APIs here?
     {
+        public void UpdateSettings(ServerConnectionSettings serverConnectionSettings, string instanceCode);
+
+        public void ConnectToPlatform();
+
         public ushort LocalClientID { get; }
         public bool IsAuthFailed { get; }
         public event Action OnAuthFailed;
@@ -16,11 +20,13 @@ namespace VE2.NonCore.Platform.API
         // public Dictionary<string, WorldDetails> ActiveWorlds { get; }
 
         public List<(string, int)> ActiveWorldsNamesAndVersions { get; }
-        public void RequestInstanceAllocation(string worldName, string instanceSuffix);
+        public void RequestInstanceAllocation(string worldFolderName, string instanceSuffix, string versionNumber);
+        public void ReturnToHub();
 
         public ServerConnectionSettings GetInstanceServerSettingsForWorld(string worldName);
 
         public ServerConnectionSettings GetInstanceServerSettingsForCurrentWorld();
 
+        public void TearDown();
     }
 }

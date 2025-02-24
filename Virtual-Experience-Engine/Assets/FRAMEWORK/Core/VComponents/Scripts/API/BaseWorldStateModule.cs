@@ -64,6 +64,6 @@ namespace VE2.Core.VComponents.API
             _wasNetworkedLastFrame = IsNetworked;
         }
 
-        public virtual void TearDown() => _worldStateSyncService.DeregisterWorldStateModule(this);
+        public virtual void TearDown() => _worldStateSyncService?.DeregisterWorldStateModule(this);
     }
 }

@@ -1,13 +1,14 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using static VE2.Platform.API.PlatformPublicSerializables;
-using static VE2.Platform.Internal.PlatformSerializables;
+using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
+using static VE2.NonCore.Platform.Internal.PlatformSerializables;
 
 namespace VE2.NonCore.Platform.Internal
 {
     internal interface IPlatformSettingsHandler 
     {
+        public ServerConnectionSettings PlatformServerConnectionSettings {get; set;}
         public string PlatformCustomerName {get; set;}
         public string PlatformCustomerPassword {get; set;}
         public ushort PlatformClientID {get; set;}
@@ -18,7 +19,7 @@ namespace VE2.NonCore.Platform.Internal
         public ServerConnectionSettings FallbackWorldSubStoreFTPServerSettings {get; set;}
         public ServerConnectionSettings FallbackInstanceServerSettings {get; set;}
 
-        public void SetDefaults(string defaultPlatformCustomerName, string defaultPlatformPassword, string instanceCode, ServerConnectionSettings defaultWorldSubStoreFTPServerSettings, ServerConnectionSettings defaultFallbackInstanceServerSettings);
+        //public void SetDefaults(string defaultPlatformCustomerName, string defaultPlatformPassword, string instanceCode, ServerConnectionSettings defaultWorldSubStoreFTPServerSettings, ServerConnectionSettings defaultFallbackInstanceServerSettings);
     }
 
     /// <summary>
@@ -30,6 +31,7 @@ namespace VE2.NonCore.Platform.Internal
         private const string HasArgsArgName = "hasArgs";
 
         //TODO - these can probably all be private, if we expose a function for adding intent args?
+        public static string PlatformConnectionSettingsArgName => "platformConnectionSettings";
         public static string PlatformCustomerNameArgName => "platformCustomerName";
         public static string PlatformPasswordArgName => "platformPassword";
         public static string PlatformClientIDArgName => "platformClientID";
@@ -41,9 +43,54 @@ namespace VE2.NonCore.Platform.Internal
         public static string FallbackWorldSubStoreFTPServerSettingsArgName => "fallbackWorldSubStoreFTPServerSettings";
         public static string FallbackInstanceServerSettingsArgName => "fallbackInstanceServerSettings";
 
-        public string GameObjectName => gameObject.name;
 
-        [SerializeField, Disable] private string _defaultPlatformCustomerName;
+        //private ServerConnectionSettings _defaultPlatformIPAddress =  new("127.0.0.1", 4287, "dev", "dev");
+        [SerializeField, Disable] private bool _platformServerConnectionSettingsSetup = false;
+        [SerializeField, Disable] private ServerConnectionSettings _platformServerConnectionSettings;
+        public ServerConnectionSettings PlatformServerConnectionSettings 
+        {
+            get 
+            {
+                if (!_platformServerConnectionSettingsSetup)
+                {
+                    if (Application.platform == RuntimePlatform.Android)
+                    {
+                        using (AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+                        using (AndroidJavaObject currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
+                        using (AndroidJavaObject intent = currentActivity.Call<AndroidJavaObject>("getIntent"))
+                        {
+                            bool hasArgs = intent == null ? false : intent.Call<bool>("getBooleanExtra", HasArgsArgName, false);
+
+                            if (hasArgs)
+                            {
+                                string platformServerSettingsBytesAsString = intent.Call<string>("getStringExtra", PlatformConnectionSettingsArgName);
+                                byte[] platformServerConnectionSettingsAsBytes = System.Convert.FromBase64String(platformServerSettingsBytesAsString);
+                                _platformServerConnectionSettings = new ServerConnectionSettings(platformServerConnectionSettingsAsBytes);
+                            }
+                            else 
+                            {
+                                _platformServerConnectionSettings = null;
+                            }
+                        }   
+                    } 
+                    else 
+                    {
+                        _platformServerConnectionSettings = null;
+                    }
+                    _platformServerConnectionSettingsSetup = true;
+                }
+
+                return _platformServerConnectionSettings;
+            }
+            set 
+            {
+                _platformServerConnectionSettingsSetup = true;
+                _platformServerConnectionSettings = value;
+            }
+        }
+
+
+        private string _defaultPlatformCustomerName = "dev";
         [SerializeField, Disable] private bool _platformCustomerNameSetup = false;
         [SerializeField, Disable] private string _platformCustomerName;
         public string PlatformCustomerName 
@@ -86,7 +133,7 @@ namespace VE2.NonCore.Platform.Internal
             }
         }
 
-        [SerializeField, Disable] private string _defaultPlatformPassword;
+        private string _defaultPlatformPassword = "dev";
         [SerializeField, Disable] private bool _platformPasswordSetup = false;
         [SerializeField, Disable] private string _platformPassword;
         public string PlatformCustomerPassword 
@@ -171,7 +218,7 @@ namespace VE2.NonCore.Platform.Internal
             }
         }
 
-        [SerializeField, Disable] private string _defaultInstanceCode;
+        //[SerializeField, Disable] private string _defaultInstanceCode;
         [SerializeField, Disable] private bool _instanceCodeSetup = false;
         [SerializeField, Disable] private string _instanceCode;
         public string InstanceCode 
@@ -194,13 +241,15 @@ namespace VE2.NonCore.Platform.Internal
                             }
                             else 
                             {
-                                _instanceCode = _defaultInstanceCode;
+                                //_instanceCode = _defaultInstanceCode;
+                                _instanceCode = null;
                             }
                         }   
                     } 
                     else 
                     {
-                        _instanceCode = _defaultInstanceCode;
+                        //_instanceCode = _defaultInstanceCode;
+                        _instanceCode = null;
                     }
                     _instanceCodeSetup = true;
                 }
@@ -318,7 +367,7 @@ namespace VE2.NonCore.Platform.Internal
             }
         }
 
-        [SerializeField, Disable] private ServerConnectionSettings _defaultFallbackWorldSubStoreFTPServerSettings;
+        //[SerializeField, Disable] private ServerConnectionSettings _defaultFallbackWorldSubStoreFTPServerSettings;
         [SerializeField, Disable] private bool _fallbackWorldSubStoreFTPServerSettingsSetup = false;
         [SerializeField, Disable] private ServerConnectionSettings _fallbackWorldSubStoreFTPServerSettings; 
         public ServerConnectionSettings FallbackWorldSubStoreFTPServerSettings 
@@ -343,13 +392,15 @@ namespace VE2.NonCore.Platform.Internal
                             }
                             else 
                             {
-                                _fallbackWorldSubStoreFTPServerSettings = _defaultFallbackWorldSubStoreFTPServerSettings;
+                                //_fallbackWorldSubStoreFTPServerSettings = _defaultFallbackWorldSubStoreFTPServerSettings;
+                                _fallbackWorldSubStoreFTPServerSettings = null;
                             }
                         }   
                     } 
                     else 
                     {
-                        _fallbackWorldSubStoreFTPServerSettings = _defaultFallbackWorldSubStoreFTPServerSettings;
+                        //_fallbackWorldSubStoreFTPServerSettings = _defaultFallbackWorldSubStoreFTPServerSettings;
+                        _fallbackWorldSubStoreFTPServerSettings = null;
                     }
                     _fallbackWorldSubStoreFTPServerSettingsSetup = true;
                 }
@@ -363,7 +414,7 @@ namespace VE2.NonCore.Platform.Internal
             }
         }
 
-        [SerializeField, Disable] private ServerConnectionSettings _defaultFallbackInstanceServerSettings;
+        //[SerializeField, Disable] private ServerConnectionSettings _defaultFallbackInstanceServerSettings;
         [SerializeField, Disable] private bool _fallbackInstanceServerSettingsSetup = false;
         [SerializeField, Disable] private ServerConnectionSettings _fallbackInstanceServerSettings; 
         public ServerConnectionSettings FallbackInstanceServerSettings 
@@ -388,13 +439,15 @@ namespace VE2.NonCore.Platform.Internal
                             }
                             else 
                             {
-                                _fallbackInstanceServerSettings = _defaultFallbackInstanceServerSettings;
+                                //_fallbackInstanceServerSettings = _defaultFallbackInstanceServerSettings;
+                                _fallbackInstanceServerSettings = null;
                             }
                         }   
                     }
                     else
                     {
-                        _fallbackInstanceServerSettings = _defaultFallbackInstanceServerSettings;
+                        //_fallbackInstanceServerSettings = _defaultFallbackInstanceServerSettings;
+                        _fallbackInstanceServerSettings = null;
                     }
                     _fallbackInstanceServerSettingsSetup = true;
                 }
@@ -408,14 +461,14 @@ namespace VE2.NonCore.Platform.Internal
             }
         }
 
-        public void SetDefaults(string defaultPlatformCustomerName, string defaultPlatformPassword, string defaultInstanceCode, ServerConnectionSettings defaultWorldSubStoreFTPServerSettings, ServerConnectionSettings defaultFallbackInstanceServerSettings)
-        {
-            _defaultPlatformCustomerName = defaultPlatformCustomerName;
-            _defaultPlatformPassword = defaultPlatformPassword;
-            _defaultInstanceCode = defaultInstanceCode;
-            _defaultFallbackWorldSubStoreFTPServerSettings = defaultWorldSubStoreFTPServerSettings;
-            _defaultFallbackInstanceServerSettings = defaultFallbackInstanceServerSettings;
-        }
+        // public void SetDefaults(string defaultPlatformCustomerName, string defaultPlatformPassword, string defaultInstanceCode, ServerConnectionSettings defaultWorldSubStoreFTPServerSettings, ServerConnectionSettings defaultFallbackInstanceServerSettings)
+        // {
+        //     _defaultPlatformCustomerName = defaultPlatformCustomerName;
+        //     _defaultPlatformPassword = defaultPlatformPassword;
+        //     _defaultInstanceCode = defaultInstanceCode;
+        //     _defaultFallbackWorldSubStoreFTPServerSettings = defaultWorldSubStoreFTPServerSettings;
+        //     _defaultFallbackInstanceServerSettings = defaultFallbackInstanceServerSettings;
+        // }
 
         private void Awake()
         {

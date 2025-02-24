@@ -26,19 +26,24 @@ namespace VE2.Core.Player.API
 
         public static IPlayerService Player => PlayerServiceProvider.PlayerService;
 
-        [SerializeField, HideInInspector] private string PlayerServiceProviderGOName;
+        [SerializeField] private string PlayerServiceProviderGOName;
         private IPlayerServiceProvider _playerServiceProvder;
         internal static IPlayerServiceProvider PlayerServiceProvider
         {
             get
             {
                 if (Instance._playerServiceProvder == null && !string.IsNullOrEmpty(Instance.PlayerServiceProviderGOName))
+                {
+                    //Debug.Log(Instance.gameObject.name+": " + SceneManager.GetActiveScene().name + ": PlayerServiceProvider is null, trying to find it on GO - " + Instance.PlayerServiceProviderGOName);
                     Instance._playerServiceProvder = GameObject.Find(Instance.PlayerServiceProviderGOName)?.GetComponent<IPlayerServiceProvider>();
+                    //Debug.Log("Found PlayerServiceProvider: " + (Instance._playerServiceProvder != null));
+                }
 
                 return Instance._playerServiceProvder;
             }
             set //Will need to be called externally
             {
+                //Debug.LogWarning("Set PlayerServiceProvider - " + value.GameObjectName);
                 Instance._playerServiceProvder = value;
 
                 if (value != null)
@@ -86,9 +91,15 @@ namespace VE2.Core.Player.API
 
         private void Awake()
         {
+            if (FindObjectsByType<PlayerAPI>(FindObjectsSortMode.None).Length > 1)
+            {
+                Debug.LogError("There should only be one PlayerAPI in the scene");
+                //Destroy(gameObject);
+            }
+
             _instance = this;
-            gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
-        //gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
+            //gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
+            gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
         }
     }
 }

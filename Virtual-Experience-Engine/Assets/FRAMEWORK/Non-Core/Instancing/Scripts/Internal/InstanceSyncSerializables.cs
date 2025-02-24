@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using static VE2.Core.Common.CommonSerializables;
 using static VE2.Core.Player.API.PlayerSerializables;
-using static VE2.Platform.API.PlatformPublicSerializables;
+using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 
 #if UNITY_EDITOR
 using UnityEngine;
@@ -124,7 +124,7 @@ namespace VE2.NonCore.Instancing.Internal
 
             public InstancedInstanceInfo(byte[] bytes) : base(bytes) { }
 
-            public InstancedInstanceInfo(string worldName, string instanceSuffix, ushort hostID, bool instanceMuted, Dictionary<ushort, InstancedClientInfo> clientInfos) : base(worldName, instanceSuffix)
+            public InstancedInstanceInfo(string fullInstanceCode, ushort hostID, bool instanceMuted, Dictionary<ushort, InstancedClientInfo> clientInfos) : base(fullInstanceCode)
             {
                 HostID = hostID;
                 InstanceMuted = instanceMuted;

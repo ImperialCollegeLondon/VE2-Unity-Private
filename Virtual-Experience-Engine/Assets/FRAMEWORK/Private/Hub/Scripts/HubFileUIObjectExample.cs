@@ -42,9 +42,9 @@ public class HubFileUIObjectExample : MonoBehaviour
 
         _worldFolder = worldFolder;
 
-        string worldFolderName = _worldFolder.Substring(_worldFolder.IndexOf('/') + 1);
-        _categoryText.text = worldFolderName.Substring(0, worldFolderName.IndexOf('_'));
-        _fileNameText.text = worldFolderName.Substring(_worldFolder.IndexOf('_') + 1);
+        string[] parts = _worldFolder.Split('-');
+        _categoryText.text = parts[0];
+        _fileNameText.text = parts[1];
 
         _taskPanel.SetActive(false); //No current tasks!
         _cancelTaskButton.gameObject.SetActive(false);
@@ -231,6 +231,8 @@ public class HubFileUIObjectExample : MonoBehaviour
         //Ok, fine, let's start with just making the request via platform service
 
         //Request allocation to that world, stripping out the category prefix
-        _platformService.RequestInstanceAllocation(_fileNameText.text, _activeRemoteVersion.ToString());
+        
+        string worldFolderName = $"{_categoryText.text}-{_fileNameText.text}";
+        _platformService.RequestInstanceAllocation(worldFolderName, "00", _activeRemoteVersion.ToString());
     }
 }

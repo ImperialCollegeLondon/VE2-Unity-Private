@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using VE2.NonCore.FileSystem.API;
-using static VE2.Platform.API.PlatformPublicSerializables;
+using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 
 namespace VE2.NonCore.FileSystem.Internal
 {

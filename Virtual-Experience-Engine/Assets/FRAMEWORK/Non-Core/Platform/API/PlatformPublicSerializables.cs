@@ -6,39 +6,39 @@ using System.Threading.Tasks;
 using System.IO;
 using static VE2.Core.Common.CommonSerializables;
 
-namespace VE2.Platform.API
+namespace VE2.NonCore.Platform.API
 {
     public class PlatformPublicSerializables
     {
         public class NetcodeVersionConfirmation : VE2Serializable
-    {
-        public int NetcodeVersion { get; private set; }
-
-        public NetcodeVersionConfirmation(byte[] bytes) : base(bytes) { }
-
-        public NetcodeVersionConfirmation(int netcodeVersion)
         {
-            NetcodeVersion = netcodeVersion;
+            public int NetcodeVersion { get; private set; }
+
+            public NetcodeVersionConfirmation(byte[] bytes) : base(bytes) { }
+
+            public NetcodeVersionConfirmation(int netcodeVersion)
+            {
+                NetcodeVersion = netcodeVersion;
+            }
+
+            protected override byte[] ConvertToBytes()
+            {
+                using MemoryStream stream = new();
+                using BinaryWriter writer = new(stream);
+
+                writer.Write(NetcodeVersion);
+
+                return stream.ToArray();
+            }
+
+            protected override void PopulateFromBytes(byte[] bytes)
+            {
+                using MemoryStream stream = new(bytes);
+                using BinaryReader reader = new(stream);
+
+                NetcodeVersion = reader.ReadInt32();
+            }
         }
-
-        protected override byte[] ConvertToBytes()
-        {
-            using MemoryStream stream = new();
-            using BinaryWriter writer = new(stream);
-
-            writer.Write(NetcodeVersion);
-
-            return stream.ToArray();
-        }
-
-        protected override void PopulateFromBytes(byte[] bytes)
-        {
-            using MemoryStream stream = new(bytes);
-            using BinaryReader reader = new(stream);
-
-            NetcodeVersion = reader.ReadInt32();
-        }
-    }
 
 
         [Serializable]
@@ -88,21 +88,28 @@ namespace VE2.Platform.API
 
         public class InstanceInfoBase : VE2Serializable
         {
-            public string WorldName { get; private set; }
+            public string WorldFolderName { get; private set; }
             public string InstanceSuffix { get; private set; }
-            public string InstanceCode => GetInstanceCode(WorldName, InstanceSuffix);
-
-            public static string GetInstanceCode(string worldName, string instanceSuffix) => $"{worldName}-{instanceSuffix}";
-            public static (string, string) SplitInstanceCode(string instanceCode) => (instanceCode.Split('-')[0], instanceCode.Split('-')[1]);
+            public string VersionNumber { get; private set; }
+            public string FullInstanceCode => $"{WorldFolderName}-{InstanceSuffix}-{VersionNumber}";
 
             public InstanceInfoBase() { }
 
             public InstanceInfoBase(byte[] bytes) : base(bytes) { }
 
-            public InstanceInfoBase(string worldName, string instanceSuffix)
+            public InstanceInfoBase(string worldFolderName, string instanceSuffix, string versionNumber)
             {
-                WorldName = worldName;
+                WorldFolderName = worldFolderName;
                 InstanceSuffix = instanceSuffix;
+                VersionNumber = versionNumber;
+            }
+
+            public InstanceInfoBase(string fullInstanceCode)
+            {
+                string[] parts = fullInstanceCode.Split('-');
+                WorldFolderName = $"{parts[0]}-{parts[1]}";
+                InstanceSuffix = parts[2];
+                VersionNumber = parts[3];
             }
 
             protected override byte[] ConvertToBytes()
@@ -110,8 +117,9 @@ namespace VE2.Platform.API
                 using MemoryStream stream = new();
                 using BinaryWriter writer = new(stream);
 
-                writer.Write(WorldName);
+                writer.Write(WorldFolderName);
                 writer.Write(InstanceSuffix);
+                writer.Write(VersionNumber);
 
                 return stream.ToArray();
             }
@@ -121,8 +129,9 @@ namespace VE2.Platform.API
                 using MemoryStream stream = new(bytes);
                 using BinaryReader reader = new(stream);
 
-                WorldName = reader.ReadString();
+                WorldFolderName = reader.ReadString();
                 InstanceSuffix = reader.ReadString();
+                VersionNumber = reader.ReadString();
             }
         }
 

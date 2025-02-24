@@ -20,9 +20,11 @@ namespace VE2.NonCore.Instancing.Internal
         {
             yield return new WaitForSeconds(0.1f);
 
-            instanceService = (InstanceService)FindFirstObjectByType<V_InstanceIntegration>().InstanceService;
-            if (instanceService != null)
+            V_InstanceIntegration instancingProvider = FindFirstObjectByType<V_InstanceIntegration>();
+            if (instancingProvider != null)
             {
+                instanceService = (InstanceService)instancingProvider.InstanceService;
+
                 //If we're already connected to the server, display initial global info rather than waiting for an update
                 if (instanceService.IsConnectedToServer)
                     HandleInstanceInfoChanged(instanceService.InstanceInfo);
@@ -38,7 +40,7 @@ namespace VE2.NonCore.Instancing.Internal
 
         private void HandleInstanceInfoChanged(InstancedInstanceInfo instanceInfo)
         {
-            string instanceInfoString = $"<b>INSTANCE</b> {instanceInfo.InstanceCode} \nLocal ID = <color=green>{instanceService.LocalClientID}</color>\n";
+            string instanceInfoString = $"<b>INSTANCE</b> {instanceInfo.FullInstanceCode} \nLocal ID = <color=green>{instanceService.LocalClientID}</color>\n";
 
             //Debug.Log("NUM PLAYERS IN ISNTANCE = " + instanceInfo.ClientInfos.Values.Count + "=============");
             foreach (InstancedClientInfo clientInfo in instanceInfo.ClientInfos.Values)
