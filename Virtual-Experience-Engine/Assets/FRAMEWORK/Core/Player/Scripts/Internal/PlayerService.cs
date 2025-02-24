@@ -10,7 +10,7 @@ namespace VE2.Core.Player.Internal
 {
     internal static class VE2PlayerServiceFactory
     {
-        internal static PlayerService Create(PlayerTransformData state, PlayerConfig config, IPlayerPersistentDataHandler playerPersistentDataHandler)
+        internal static PlayerService Create(PlayerTransformData state, PlayerConfig config, IPlayerPersistentDataHandler playerPersistentDataHandler, IXRManagerWrapper xrManagerWrapper)
         {
             return new PlayerService(state, config, 
             VComponentsAPI.InteractorContainer,
@@ -18,7 +18,7 @@ namespace VE2.Core.Player.Internal
             PlayerAPI.LocalClientIDProvider,
             PlayerAPI.InputHandler.PlayerInputContainer,
                 new RaycastProvider(),
-                new XRManagerWrapper());
+                xrManagerWrapper);
         }
     }
 
@@ -99,6 +99,7 @@ namespace VE2.Core.Player.Internal
 
             if (_config.EnableVR)
             {
+                Debug.Log("calling init XR Loader");
                 xrManagerWrapper.InitializeLoader(); 
 
                 _playerVR = new PlayerControllerVR(

@@ -104,10 +104,15 @@ namespace VE2.Core.Player.Internal
                 playerConfig.Enable2D = false;
             }
 
+            XRManagerWrapper xrManagerWrapper = FindFirstObjectByType<XRManagerWrapper>();
+            if (xrManagerWrapper == null)
+                xrManagerWrapper = new GameObject("XRManagerWrapper").AddComponent<XRManagerWrapper>();
+
             _playerService = VE2PlayerServiceFactory.Create(
                 _playerTransformData, 
                 playerConfig, 
-                playerPersistentDataHandler);
+                playerPersistentDataHandler,
+                xrManagerWrapper);
         }
 
         private void FixedUpdate() 

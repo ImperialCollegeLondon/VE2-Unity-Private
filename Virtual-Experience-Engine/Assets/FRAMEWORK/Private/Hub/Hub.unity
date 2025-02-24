@@ -23770,8 +23770,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerConfig:
-    EnableVR: 0
-    Enable2D: 1
+    EnableVR: 1
+    Enable2D: 0
     HeadOverrideType: 0
     TorsoOverrideType: 0
     HeadOverrideOne: {fileID: 0}
@@ -24671,8 +24671,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 5446078106991619965}
   m_HandleRect: {fileID: 1218663160943845413}
   m_Direction: 2
-  m_Value: 1
-  m_Size: 1
+  m_Value: 0
+  m_Size: 0.50000006
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

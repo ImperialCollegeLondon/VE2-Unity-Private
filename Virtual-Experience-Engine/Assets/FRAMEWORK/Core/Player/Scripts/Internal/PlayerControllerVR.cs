@@ -5,7 +5,7 @@ using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.Core.Player.Internal
 {
-    public class PlayerControllerVR
+    internal class PlayerControllerVR
     {
         public PlayerTransformData PlayerTransformData
         {
@@ -93,8 +93,11 @@ namespace VE2.Core.Player.Internal
             _verticalOffsetTransform.localPosition = new Vector3(0, initTransformData.VerticalOffset, 0);
             //We don't set head transform here, tracking will override it anyway
 
-            _xrManagerSettingsWrapper.InitializeLoader();
-            _xrManagerSettingsWrapper.StartSubsystems();
+            if (_xrManagerSettingsWrapper.IsInitializationComplete)
+                HandleXRInitComplete();
+            else
+                _xrManagerSettingsWrapper.OnLoaderInitialized += HandleXRInitComplete;
+            
 
             _playerVRInputContainer.ResetView.OnPressed += HandleResetViewPressed;
             _playerVRInputContainer.ResetView.OnReleased += HandleResetViewReleased;
@@ -115,6 +118,12 @@ namespace VE2.Core.Player.Internal
 
             _handControllerLeft.HandleOnDisable();
             _handControllerRight.HandleOnDisable();
+        }
+
+        private void HandleXRInitComplete()
+        {
+            _xrManagerSettingsWrapper.OnLoaderInitialized -= HandleXRInitComplete;
+            _xrManagerSettingsWrapper.StartSubsystems(); 
         }
 
         public void HandleLocalAvatarColorChanged(Color newColor)
