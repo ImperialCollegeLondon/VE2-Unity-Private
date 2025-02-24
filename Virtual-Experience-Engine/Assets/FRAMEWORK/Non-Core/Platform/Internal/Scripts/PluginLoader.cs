@@ -146,19 +146,31 @@ namespace VE2.NonCore.Platform.Internal
             registeredAssemblies.Add(name, assembly);
         }
 
-        Dictionary<string, AssetBundle> cachedBundles = new Dictionary<string, AssetBundle>();
         private AssetBundle GetBundle(string bundleFilePath)
         {
-            Debug.Log($"GETTING BUNDLE {bundleFilePath}, cached? {cachedBundles.ContainsKey(bundleFilePath)}");
-            if (!cachedBundles.TryGetValue(bundleFilePath, out AssetBundle bundle))
+            string bundleFileName = Path.GetFileName(bundleFilePath);
+            AssetBundle bundle = null;
+
+            foreach (AssetBundle loadedBundle in AssetBundle.GetAllLoadedAssetBundles())
             {
-                Debug.Log(($"LOADING BUNDLE {bundleFilePath}"));
-                bundle = AssetBundle.LoadFromFile(bundleFilePath);
+                Debug.Log("Check bundle - " + loadedBundle.name + " == " + bundleFilePath);
+
+                if (loadedBundle.name == bundleFileName)
+                {
+                    bundle = loadedBundle;
+                }
+            }
+
+            Debug.Log($"GETTING BUNDLE {bundleFilePath}, already loaded? {bundle != null}");
+
+            if (bundle == null)
+            {
+                Debug.Log($"LOADING BUNDLE {bundleFilePath}");
+                bundle = AssetBundle.LoadFromFile(bundleFilePath); //bundle already
                 if (bundle == null)
                 {
                     Debug.Log(($"Could not load bundle from file {bundleFilePath}"));
                 }
-                cachedBundles.Add(bundleFilePath, bundle);
             }
             return bundle;
         }
