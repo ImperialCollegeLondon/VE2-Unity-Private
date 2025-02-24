@@ -35,10 +35,10 @@ namespace VE2.NonCore.Platform.Internal
         /// Finds the bundle and dlls at the given folder path, loads the dll into the assembly, unpacks the bundle, and instantiates GameObjects as children of the given transform
         /// Will delete the current plugin GameObjects if there are any
         /// </summary>
-        /// <param name="pluginName"></param>
-        public void LoadPlugin(string pluginName, int pluginVersion)
+        /// <param name="worldFolderName"></param>
+        public void LoadPlugin(string worldFolderName, int pluginVersion)
         {
-            Debug.Log("Instantiate plugin - " + pluginName + " V" + pluginVersion);
+            Debug.Log("Instantiate plugin - " + worldFolderName + " V" + pluginVersion);
 
             /*
                 We need to check to see if we have that file, if not, we need to download it
@@ -56,8 +56,8 @@ namespace VE2.NonCore.Platform.Internal
                 return;
             }
 
-            Debug.Log($"Look for files at {pluginName}/{pluginVersion:D3}");
-            List<LocalFileDetails> localFiles = fileSystem.GetLocalFilesAtPath($"{pluginName}/{pluginVersion:D3}").Values.ToList();
+            Debug.Log($"Look for files at {worldFolderName}/{pluginVersion:D3}");
+            List<LocalFileDetails> localFiles = fileSystem.GetLocalFilesAtPath($"{worldFolderName}/{pluginVersion:D3}").Values.ToList();
             Debug.Log("Found " + localFiles.Count + " files");
             foreach (LocalFileDetails localFile in localFiles)
             {
@@ -66,7 +66,7 @@ namespace VE2.NonCore.Platform.Internal
 
             if (Application.platform == RuntimePlatform.Android)
             {
-                LaunchAndroidAPK(pluginName);
+                LaunchAndroidAPK(worldFolderName);
             }
             else 
             {
@@ -124,8 +124,9 @@ namespace VE2.NonCore.Platform.Internal
             SceneManager.LoadScene(scenePath[0], LoadSceneMode.Single);
         }
 
-        private void LaunchAndroidAPK(string apkName)
+        private void LaunchAndroidAPK(string worldFolderName) //TODO: Version number will have to be part of apk name?
         {
+            string apkName = worldFolderName.Split('-')[1]; //Chop off the category
             string packageName = $"{"com.ImperialCollegeLondon"}.{apkName}";
 
             Debug.Log($"Try launch {packageName}");
