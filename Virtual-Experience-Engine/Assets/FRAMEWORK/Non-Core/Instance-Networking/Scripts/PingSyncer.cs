@@ -47,6 +47,8 @@ namespace VE2.InstanceNetworking
         {
             PingMessage receivedPingMessage = new(bytes);
 
+            Debug.Log($"Received Ping from ${receivedPingMessage.ClientId}, with ping Id ${receivedPingMessage.PingId}");
+
             if (_instanceInfoContainer.IsHost)
             {
                 // If host, send back
@@ -60,7 +62,10 @@ namespace VE2.InstanceNetworking
 
                 // We no longer have any use for this sent ping message, let's remove it
                 _sentPingMessages.Remove(receivedPingMessage.PingId);
+
+                Debug.Log($"Currently ping is {Ping}ms with smoothed Ping {SmoothPing}ms");
             }
+
         }
 
 
