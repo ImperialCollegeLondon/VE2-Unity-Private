@@ -22,6 +22,7 @@ namespace VE2.InstanceNetworking
         public event Action<byte[]> OnReceiveInstanceInfoUpdate;
         public event Action OnDisconnectedFromServer;
         public event Action<byte[]> OnReceiveRemotePlayerState;
+        public event Action<byte[]> OnReceivePingMessage;
         public event Action<byte[]> OnReceiveInstantMessage;
 
         public void ConnectToServer(IPAddress ipAddress, int port) => _drClient.Connect(ipAddress, port, false);
@@ -90,6 +91,9 @@ namespace VE2.InstanceNetworking
                             break;
                         case InstanceSyncSerializables.InstanceNetworkingMessageCodes.PlayerState:
                             OnReceiveRemotePlayerState?.Invoke(bytes);
+                            break;
+                        case InstanceSyncSerializables.InstanceNetworkingMessageCodes.PingMessage:
+                            OnReceivePingMessage?.Invoke(bytes);
                             break;
                     }
                 });

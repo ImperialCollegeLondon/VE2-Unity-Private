@@ -17,6 +17,7 @@ namespace VE2.InstanceNetworking
         public event Action<byte[]> OnReceiveWorldStateSyncableBundle;
         public event Action<byte[]> OnReceiveRemotePlayerState;
         public event Action<byte[]> OnReceiveInstantMessage;
+        public event Action<byte[]> OnReceivePingMessage;
 
         public void ConnectToServer(IPAddress ipAddress, int portNumber);
         public void SendMessage(byte[] messageAsBytes, InstanceSyncSerializables.InstanceNetworkingMessageCodes messageCode, TransmissionProtocol transmissionProtocol);

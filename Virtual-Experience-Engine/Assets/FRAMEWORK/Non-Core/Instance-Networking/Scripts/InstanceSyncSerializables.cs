@@ -22,6 +22,45 @@ public class InstanceSyncSerializables
         WorldstateSyncableBundle,
         PlayerState,
         UpdateAvatarPresentation,
+        PingMessage
+    }
+
+    public class PingMessage : VE2Serializable
+    {
+        public int PingId { get; private set; }
+        public ushort ClientId { get; private set; }
+        public bool FromHost { get; private set; }
+
+        public PingMessage(byte[] bytes) : base(bytes) { }
+
+        public PingMessage(int pingId, ushort clientId, bool fromHost)
+        {
+            this.PingId = pingId;
+            this.ClientId = clientId;
+            this.FromHost = fromHost;
+        }
+
+        protected override byte[] ConvertToBytes()
+        {
+            using MemoryStream stream = new();
+            using BinaryWriter writer = new(stream);
+
+            writer.Write(PingId);
+            writer.Write(ClientId);
+            writer.Write(FromHost);
+
+            return stream.ToArray();
+        }
+
+        protected override void PopulateFromBytes(byte[] bytes)
+        {
+            using MemoryStream stream = new(bytes);
+            using BinaryReader reader = new(stream);
+
+            PingId = reader.ReadInt32();
+            ClientId = reader.ReadUInt16();
+            FromHost = reader.ReadBoolean();
+        }
     }
 
     //So what actually is this registration request?

@@ -55,6 +55,7 @@ namespace VE2.InstanceNetworking
         internal WorldStateSyncer _worldStateSyncer;
         internal LocalPlayerSyncer _localPlayerSyncer;
         internal RemotePlayerSyncer _remotePlayerSyncer;
+        internal PingSyncer _pingSyncer;
 
         public InstanceService(IPluginSyncCommsHandler commsHandler, LocalClientIdWrapper localClientIDWrapper, 
         ConnectionStateDebugWrapper connectionStateDebugWrapper, IInstanceNetworkSettingsProvider instanceNetworkSettingsProvider, 
@@ -76,6 +77,7 @@ namespace VE2.InstanceNetworking
             _commsHandler.OnReceiveServerRegistrationConfirmation += HandleReceiveServerRegistrationConfirmation;
             _commsHandler.OnReceiveInstanceInfoUpdate += HandleReceiveInstanceInfoUpdate;
             _commsHandler.OnDisconnectedFromServer += HandleDisconnectFromServer;
+            _commsHandler.OnReceivePingMessage += HandleReceivePingMessage;
 
             if (connectAutomatically)
                 ConnectToServerWhenReady();
@@ -157,6 +159,8 @@ namespace VE2.InstanceNetworking
             _remotePlayerSyncer = new(_instanceInfoContainer, _interactorContainer, _playerAppearanceOverridesProvider); //only receives
             _commsHandler.OnReceiveRemotePlayerState += _remotePlayerSyncer.HandleReceiveRemotePlayerState;
 
+            _pingSyncer = new(_instanceInfoContainer);
+
             _connectionStateDebugWrapper.ConnectionState = ConnectionState.Connected;
             OnConnectedToInstance?.Invoke();
         }
@@ -180,10 +184,14 @@ namespace VE2.InstanceNetworking
                 _worldStateSyncer.NetworkUpdate();
                 _localPlayerSyncer.NetworkUpdate();
                 _remotePlayerSyncer.NetworkUpdate();
+                _pingSyncer.NetworkUpdate();
             }
         }
 
-        public void ReceivePingFromHost() {} //TODO
+        public void HandleReceivePingMessage(byte[] bytes)
+        {
+            _pingSyncer.HandleReceivePingMessage(bytes);
+        }
 
         public void DisconnectFromServer() => _commsHandler.DisconnectFromServer();
 
@@ -192,6 +200,7 @@ namespace VE2.InstanceNetworking
             _worldStateSyncer.TearDown();
             _localPlayerSyncer.TearDown();
             _remotePlayerSyncer.TearDown();
+            _pingSyncer.TearDown();
 
             _connectionStateDebugWrapper.ConnectionState = ConnectionState.LostConnection;
             OnDisconnectedFromInstance?.Invoke();
@@ -204,6 +213,7 @@ namespace VE2.InstanceNetworking
                 _worldStateSyncer.TearDown();
                 _localPlayerSyncer.TearDown();
                 _remotePlayerSyncer.TearDown();
+                _pingSyncer.TearDown();
             }
 
             _commsHandler.DisconnectFromServer();
@@ -211,6 +221,7 @@ namespace VE2.InstanceNetworking
             _commsHandler.OnReceiveServerRegistrationConfirmation -= HandleReceiveServerRegistrationConfirmation;
             _commsHandler.OnReceiveInstanceInfoUpdate -= HandleReceiveInstanceInfoUpdate;
             _commsHandler.OnDisconnectedFromServer -= HandleDisconnectFromServer;
+            _commsHandler.OnReceivePingMessage -= HandleReceivePingMessage;
 
             _connectionStateDebugWrapper.ConnectionState = ConnectionState.NotYetConnected;
         }
