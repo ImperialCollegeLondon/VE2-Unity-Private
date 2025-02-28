@@ -29,7 +29,6 @@ public class InstanceSyncSerializables
     {
         public int PingId { get; private set; }
         public ushort ClientId { get; private set; }
-        public bool FromHost { get; private set; }
 
         public PingMessage(byte[] bytes) : base(bytes) { }
 
@@ -37,7 +36,6 @@ public class InstanceSyncSerializables
         {
             this.PingId = pingId;
             this.ClientId = clientId;
-            this.FromHost = fromHost;
         }
 
         protected override byte[] ConvertToBytes()
@@ -47,7 +45,6 @@ public class InstanceSyncSerializables
 
             writer.Write(PingId);
             writer.Write(ClientId);
-            writer.Write(FromHost);
 
             return stream.ToArray();
         }
@@ -59,7 +56,6 @@ public class InstanceSyncSerializables
 
             PingId = reader.ReadInt32();
             ClientId = reader.ReadUInt16();
-            FromHost = reader.ReadBoolean();
         }
     }
 

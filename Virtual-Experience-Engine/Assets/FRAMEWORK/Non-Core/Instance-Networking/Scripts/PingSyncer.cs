@@ -49,24 +49,12 @@ namespace VE2.InstanceNetworking
 
             if (_instanceInfoContainer.IsHost)
             {
-                if (receivedPingMessage.FromHost)
-                {
-                    Debug.LogErrorFormat($"Received ping from host even though I'm the host!, ping id {receivedPingMessage.PingId}, sending client {receivedPingMessage.ClientId}");
-                    return;
-                }
-
                 // If host, send back
                 PingMessage pingMessage = new(receivedPingMessage.PingId, receivedPingMessage.ClientId, true);
                 OnPingSend?.Invoke(new BytesAndProtocol(pingMessage.Bytes, TransmissionProtocol.TCP));
             }
             else
             {
-                if (!receivedPingMessage.FromHost)
-                {
-                    Debug.LogErrorFormat($"Received ping from client without going via the host!, ping id {receivedPingMessage.PingId}, sending client {receivedPingMessage.ClientId}");
-                    return;
-                }
-
                 // If non host, we can store a new ping value!
                 StorePing(_sentPingMessages[receivedPingMessage.PingId]);
 
