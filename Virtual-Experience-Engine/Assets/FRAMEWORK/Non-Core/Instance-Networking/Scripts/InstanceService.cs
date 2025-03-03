@@ -32,6 +32,7 @@ namespace VE2.InstanceNetworking
         public event Action OnConnectedToInstance;
         public event Action OnDisconnectedFromInstance;
         public event Action<ushort> OnHostChanged;
+        public event Action<int> OnPingUpdate;
 
         //TODO: Wire in IntertorContainer
         //CommsManager dependencies
@@ -63,6 +64,7 @@ namespace VE2.InstanceNetworking
         InteractorContainer interactorContainer, IPlayerAppearanceOverridesProvider playerAppearanceOverridesProvider, 
         bool connectAutomatically)
         {
+
             _commsHandler = commsHandler;
             _connectionStateDebugWrapper = connectionStateDebugWrapper;
             _networkSettingsProvider = instanceNetworkSettingsProvider;
@@ -81,6 +83,7 @@ namespace VE2.InstanceNetworking
 
             if (connectAutomatically)
                 ConnectToServerWhenReady();
+
         }
 
         public void ConnectToServerWhenReady() 
@@ -160,6 +163,8 @@ namespace VE2.InstanceNetworking
             _commsHandler.OnReceiveRemotePlayerState += _remotePlayerSyncer.HandleReceiveRemotePlayerState;
 
             _pingSyncer = new(_instanceInfoContainer);
+            _pingSyncer.OnPingSend += (BytesAndProtocol bytesAndProtocol) => _commsHandler.SendMessage(bytesAndProtocol.Bytes, InstanceNetworkingMessageCodes.PingMessage, bytesAndProtocol.Protocol);
+            _pingSyncer.OnPingUpdate += HandlePingUpdate;
 
             _connectionStateDebugWrapper.ConnectionState = ConnectionState.Connected;
             OnConnectedToInstance?.Invoke();
@@ -191,6 +196,11 @@ namespace VE2.InstanceNetworking
         public void HandleReceivePingMessage(byte[] bytes)
         {
             _pingSyncer.HandleReceivePingMessage(bytes);
+        }
+
+        private void HandlePingUpdate (int smoothPing)
+        {
+            OnPingUpdate?.Invoke(smoothPing);
         }
 
         public void DisconnectFromServer() => _commsHandler.DisconnectFromServer();

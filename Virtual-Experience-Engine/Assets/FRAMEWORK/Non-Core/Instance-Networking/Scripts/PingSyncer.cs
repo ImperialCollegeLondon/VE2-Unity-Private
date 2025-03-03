@@ -10,6 +10,7 @@ namespace VE2.InstanceNetworking
     internal class PingSyncer
     {
         public event Action<BytesAndProtocol> OnPingSend;
+        public event Action<int> OnPingUpdate;
 
         // Client Id and Host status
         private InstanceInfoContainer _instanceInfoContainer;
@@ -29,7 +30,9 @@ namespace VE2.InstanceNetworking
         }
 
         public float Ping => _pings.Count > 0 ? _pings[^1] : -1;
-        public float SmoothPing => GetAveragePing();
+        public int SmoothPing => GetAveragePing();
+
+        private readonly int MAX_PING_RECORDS = 20;
 
         public void NetworkUpdate()
         {
@@ -47,8 +50,6 @@ namespace VE2.InstanceNetworking
         {
             PingMessage receivedPingMessage = new(bytes);
 
-            Debug.Log($"Received Ping from ${receivedPingMessage.ClientId}, with ping Id ${receivedPingMessage.PingId}");
-
             if (_instanceInfoContainer.IsHost)
             {
                 // If host, send back
@@ -62,14 +63,13 @@ namespace VE2.InstanceNetworking
 
                 // We no longer have any use for this sent ping message, let's remove it
                 _sentPingMessages.Remove(receivedPingMessage.PingId);
-
-                Debug.Log($"Currently ping is {Ping}ms with smoothed Ping {SmoothPing}ms");
+                OnPingUpdate?.Invoke(SmoothPing);
             }
 
         }
 
 
-        private float GetAveragePing()
+        private int GetAveragePing()
         {
             if (_pings.Count > 0)
             {
@@ -80,7 +80,7 @@ namespace VE2.InstanceNetworking
                     sum += _pings[i];
                 }
 
-                return sum / _pings.Count;
+                return (int)(sum / _pings.Count);
             }
             else
             {
@@ -97,8 +97,8 @@ namespace VE2.InstanceNetworking
         {
             _pings.Add(Time.time * 1000 - pingReturnTime);
 
-            // Keep list of pings max 1 second long?
-            while (_pings.Count > 60)
+            // Keep list of ping some specific length?
+            while (_pings.Count > MAX_PING_RECORDS)
             {
                 _pings.RemoveAt(0);
             }
