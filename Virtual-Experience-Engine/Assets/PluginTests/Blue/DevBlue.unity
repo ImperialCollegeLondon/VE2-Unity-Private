@@ -3264,8 +3264,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerConfig:
-    EnableVR: 1
-    Enable2D: 0
+    EnableVR: 0
+    Enable2D: 1
     HeadOverrideType: 0
     TorsoOverrideType: 0
     HeadOverrideOne: {fileID: 0}
@@ -3960,9 +3960,9 @@ MonoBehaviour:
   _debugServerSettings:
     Username: dev
     Password: dev
-    ServerAddress: 127.0.0.1
+    ServerAddress: 51.142.90.253
     ServerPort: 4297
-  _debugInstanceCode: Misc-DevBlue-00-NoVersion
+  _debugInstanceCode: Misc-DevBlue-00-5
   _connectionStateDebug:
     ConnectionState: 0
 --- !u!4 &835746393

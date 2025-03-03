@@ -475,7 +475,6 @@ namespace VE2.NonCore.Platform.Internal
             intent.Call<AndroidJavaObject>("putExtra", PlatformCustomerNameArgName, PlatformCustomerName);
             intent.Call<AndroidJavaObject>("putExtra", PlatformPasswordArgName, PlatformCustomerPassword);
 
-            intent.Call<AndroidJavaObject>("putExtra", PlatformClientIDArgName, PlatformClientID);
             intent.Call<AndroidJavaObject>("putExtra", PlatformClientIDArgName, (int)PlatformClientID);
             intent.Call<AndroidJavaObject>("putExtra", InstanceCodeArgName, InstanceCode);
 
