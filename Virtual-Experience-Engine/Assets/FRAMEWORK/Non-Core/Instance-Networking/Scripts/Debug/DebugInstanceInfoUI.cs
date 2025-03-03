@@ -47,12 +47,14 @@ public class DebugInstanceInfoUI : MonoBehaviour
                 instanceInfoString += $"(Name N/A): "; 
             instanceInfoString += $"Host = { clientInfo.ClientID.Equals(instanceInfo.HostID).ToString()}\n";
 
-
             if (clientInfo.ClientID.Equals(instanceIntegration.LocalClientID))
                 instanceInfoString += $"</color>";
         }
 
         globalInfoText.text = instanceInfoString;
+
+        if (instanceIntegration.IsHost)
+            pingText.text = $"Ping: 0ms (as host)";
     }
 
     private void HandlePingUpdate (int smoothPing)
