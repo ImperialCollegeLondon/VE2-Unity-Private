@@ -41,6 +41,11 @@ namespace VE2.InstanceNetworking
             add => _instanceService._instanceInfoContainer.OnInstanceInfoChanged += value; 
             remove => _instanceService._instanceInfoContainer.OnInstanceInfoChanged -= value; 
         }
+        public event Action<int> OnPingUpdate
+        {
+            add => _instanceService.OnPingUpdate += value;
+            remove => _instanceService.OnPingUpdate -= value;
+        }
         #endregion
 
         /*

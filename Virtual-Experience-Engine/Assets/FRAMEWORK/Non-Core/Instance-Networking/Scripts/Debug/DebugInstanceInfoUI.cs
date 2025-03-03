@@ -7,6 +7,7 @@ using static InstanceSyncSerializables;
 public class DebugInstanceInfoUI : MonoBehaviour
 {
     [SerializeField] private TMP_Text globalInfoText;
+    [SerializeField] private TMP_Text pingText;
 
     private V_InstanceIntegration instanceIntegration;
 
@@ -21,6 +22,7 @@ public class DebugInstanceInfoUI : MonoBehaviour
 
             instanceIntegration.OnInstanceInfoChanged += HandleInstanceInfoChanged;
             instanceIntegration.OnDisconnectedFromInstance += HandleDisconnectFromServer;
+            instanceIntegration.OnPingUpdate += HandlePingUpdate;
         }
         else
         {
@@ -51,7 +53,12 @@ public class DebugInstanceInfoUI : MonoBehaviour
         }
 
         globalInfoText.text = instanceInfoString;
-    }   
+    }
+
+    private void HandlePingUpdate (int smoothPing)
+    {
+        pingText.text = $"Ping: {smoothPing}ms";
+    }
 
     private void HandleDisconnectFromServer()
     {
@@ -66,6 +73,7 @@ public class DebugInstanceInfoUI : MonoBehaviour
             {
                 instanceIntegration.OnInstanceInfoChanged -= HandleInstanceInfoChanged;
                 instanceIntegration.OnDisconnectedFromInstance -= HandleDisconnectFromServer;
+                instanceIntegration.OnPingUpdate -= HandlePingUpdate;
             }
         }
     }
