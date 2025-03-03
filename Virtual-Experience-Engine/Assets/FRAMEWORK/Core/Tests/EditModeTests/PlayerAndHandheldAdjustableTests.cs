@@ -92,7 +92,7 @@ namespace VE2.Core.Tests
         {
             //get starting and increment values
             float startingValue = _handheldAdjustableConfig.StateConfig.StartingOutputValue;
-            float increment = _handheldAdjustableConfig.HandheldAdjustableServiceConfig.IncrementPerScrollTick;
+            float increment = _handheldAdjustableConfig.StateConfig.IncrementPerScrollTick;
             
             //assign min and max values
             _handheldAdjustableStateModule.MinimumOutputValue = minValue;

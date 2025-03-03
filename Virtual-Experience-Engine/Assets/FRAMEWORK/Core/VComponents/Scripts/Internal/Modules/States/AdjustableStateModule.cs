@@ -18,7 +18,10 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField] public float MinimumOutputValue = 0;
         [SerializeField] public float MaximumOutputValue = 1;
         [SerializeField] public float StartingOutputValue = 0;
-        [EndGroup, SerializeField] public bool EmitValueOnStart = true;
+        [SerializeField] public bool EmitValueOnStart = true; 
+        [Title("Scroll Settings")]
+        [EndGroup, SerializeField] public float IncrementPerScrollTick = 0.1f;    
+
     }
     internal class AdjustableStateModule : BaseWorldStateModule, IAdjustableStateModule
     {

@@ -9,5 +9,9 @@ namespace VE2.Core.VComponents.InteractableInterfaces
     public interface IRangedAdjustableInteractionModule : IRangedGrabInteractionModule
     {
         public ITransformWrapper Transform { get; }
+
+        public void ScrollUp();
+
+        public void ScrollDown();
     }
 }

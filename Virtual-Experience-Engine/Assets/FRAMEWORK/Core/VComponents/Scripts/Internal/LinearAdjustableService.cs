@@ -42,7 +42,11 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField] public SpatialAdjustmentProperty AdjustmentProperty = SpatialAdjustmentProperty.Continuous;
         [SerializeField, ShowIf("AdjustmentProperty", SpatialAdjustmentProperty.Discrete)] public int NumberOfValues = 1;
         [SerializeField] public float MinimumSpatialValue = 0f;
-        [EndGroup, SerializeField] public float MaximumSpatialValue = 1f;
+        [SerializeField] public float MaximumSpatialValue = 1f;
+
+        // [SerializeField] public bool SinglePressScroll = false;
+        // [ShowIf("SinglePressScroll", false)]
+        // [EndGroup, SerializeField] public float IncrementPerSecondVRStickHeld = 4;
     }
 
     public class LinearAdjustableService
@@ -69,13 +73,20 @@ namespace VE2.Core.VComponents.Internal
 
         private readonly SpatialAdjustmentProperty _adjustmentProperty;
         private readonly ITransformWrapper _transformWrapper;
+        private readonly ITransformWrapper _attachPointTransform;
         private readonly SpatialAdjustmentType _adjustmentType;
+        private readonly float _incrementPerScrollTick;
 
         public LinearAdjustableService(ITransformWrapper transformWrapper, List<IHandheldInteractionModule> handheldInteractions, LinearAdjustableConfig config, VE2Serializable adjustableState, VE2Serializable grabbableState, string id,
             WorldStateModulesContainer worldStateModulesContainer, InteractorContainer interactorContainer)
         {
-            _RangedAdjustableInteractionModule = new(transformWrapper, handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
+            //get attach point transform, if null, use the transform wrapper (the object itself)
+            _attachPointTransform = config.GrabbableStateConfig.AttachPoint == null ? transformWrapper : new TransformWrapper(config.GrabbableStateConfig.AttachPoint);
 
+            //initialize module for ranged adjustable interaction (scrolling)
+            _RangedAdjustableInteractionModule = new(_attachPointTransform, handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
+
+            _incrementPerScrollTick = config.AdjustableStateConfig.IncrementPerScrollTick;
             _transformWrapper = transformWrapper;
 
             _adjustmentType = config.LinearAdjustableServiceConfig.AdjustmentType;
@@ -87,18 +98,37 @@ namespace VE2.Core.VComponents.Internal
             _minimumSpatialValue = config.LinearAdjustableServiceConfig.MinimumSpatialValue;
             _maximumSpatialValue = config.LinearAdjustableServiceConfig.MaximumSpatialValue;
 
+            //seperate modules for adjustable state and free grabbable state, they have a unique ID for each for the world state syncer
             _AdjustableStateModule = new(adjustableState, config.AdjustableStateConfig, $"ADJ-{id}", worldStateModulesContainer);
             _FreeGrabbableStateModule = new(grabbableState, config.GrabbableStateConfig, $"FG-{id}", worldStateModulesContainer, interactorContainer, RangedAdjustableInteractionModule);
 
             _RangedAdjustableInteractionModule.OnLocalInteractorRequestGrab += (InteractorID interactorID) => _FreeGrabbableStateModule.SetGrabbed(interactorID);
             _RangedAdjustableInteractionModule.OnLocalInteractorRequestDrop += (InteractorID interactorID) => _FreeGrabbableStateModule.SetDropped(interactorID);
 
+            _RangedAdjustableInteractionModule.OnScrollUp += OnScrollUp;
+            _RangedAdjustableInteractionModule.OnScrollDown += OnScrollDown;
+
             _FreeGrabbableStateModule.OnGrabConfirmed += OnGrabConfirmed;
             _FreeGrabbableStateModule.OnDropConfirmed += OnDropConfirmed;
 
             _AdjustableStateModule.OnValueChangedInternal += (float value) => OnStateValueChanged(value);
                       
+            //set the initial value of the adjustable state module
             SetValueOnStateModule(config.AdjustableStateConfig.StartingOutputValue);
+        }
+
+        private void OnScrollUp()
+        {
+            float targetValue = _AdjustableStateModule.OutputValue + _incrementPerScrollTick; //should this change spatial value?
+            UnityEngine.Debug.Log($"Scrolling Up: {targetValue}");
+            SetValueOnStateModule(targetValue);
+        }
+
+        private void OnScrollDown()
+        {
+            float targetValue = _AdjustableStateModule.OutputValue - _incrementPerScrollTick; //should this change spatial value?
+            UnityEngine.Debug.Log($"Scrolling Down: {targetValue}");
+            SetValueOnStateModule(targetValue);
         }
 
         private void OnGrabConfirmed()
@@ -120,19 +150,20 @@ namespace VE2.Core.VComponents.Internal
 
         private void OnStateValueChanged(float value)
         {
+            //Values received from the state are always output values
+            //convert the output value to spatial value
             _spatialValue = ConvertToSpatialValue(value);
-            UnityEngine.Debug.Log($"Spatial Value = {_spatialValue}");
 
             switch (_adjustmentType)
             {
                 case SpatialAdjustmentType.XAxis:
-                    _transformWrapper.localPosition = new Vector3(_spatialValue, _transformWrapper.localPosition.y, _transformWrapper.localPosition.z);
+                    _attachPointTransform.localPosition = new Vector3(_spatialValue, _attachPointTransform.localPosition.y, _attachPointTransform.localPosition.z);
                     break;
                 case SpatialAdjustmentType.YAxis:
-                    _transformWrapper.localPosition = new Vector3(_transformWrapper.localPosition.x, _spatialValue, _transformWrapper.localPosition.z);
+                    _attachPointTransform.localPosition = new Vector3(_attachPointTransform.localPosition.x, _spatialValue, _attachPointTransform.localPosition.z);
                     break;
                 case SpatialAdjustmentType.ZAxis:
-                    _transformWrapper.localPosition = new Vector3(_transformWrapper.localPosition.x, _transformWrapper.localPosition.y, _spatialValue);
+                    _attachPointTransform.localPosition = new Vector3(_attachPointTransform.localPosition.x, _attachPointTransform.localPosition.y, _spatialValue);
                     break;
             }
         }
@@ -150,8 +181,11 @@ namespace VE2.Core.VComponents.Internal
 
         private void TrackPosition(Vector3 grabberPosition)
         {
+            //get the vector position of the grabber in the local space of the object
             Vector3 localGrabPosition = _transformWrapper.InverseTransfromPoint(grabberPosition);
             float adjustment = 0f;
+
+            //get the grabber value X/Y/Z based on the adjustment axis X/Y/Z
             switch (_adjustmentType)
             {
                 case SpatialAdjustmentType.XAxis:
@@ -170,6 +204,9 @@ namespace VE2.Core.VComponents.Internal
             SetValueOnStateModule(OutputValue);
         }
 
+        /* MAKE SURE ANY SPATIAL VALUE IS CONVERTED TO OUTPUT VALUE BEFORE SETTING IT TO THE STATE MODULE
+        ALWAYS CALL THIS VALUE TO SET THE VALUE TO THE STATE MODULE, it calculates it automatically based on if it is discrete and continuous
+        and sets it to tthe state module */
         private void SetValueOnStateModule(float value)
         {
             if (_adjustmentProperty == SpatialAdjustmentProperty.Discrete)
@@ -188,6 +225,7 @@ namespace VE2.Core.VComponents.Internal
         {
             value = Mathf.Clamp(value, _AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue);
 
+            //get the size between each step based on the number of values provided and the index of the step
             float stepSize = (_AdjustableStateModule.MaximumOutputValue - _AdjustableStateModule.MinimumOutputValue) / _numberOfValues;
             int stepIndex = Mathf.RoundToInt((value - _AdjustableStateModule.MinimumOutputValue) / stepSize);
 

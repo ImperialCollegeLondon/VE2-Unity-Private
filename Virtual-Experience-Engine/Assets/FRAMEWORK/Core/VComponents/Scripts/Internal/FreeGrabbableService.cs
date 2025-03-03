@@ -6,6 +6,7 @@ using VE2.Core.VComponents.InteractableInterfaces;
 using static VE2.Common.CommonSerializables;
 using log4net.Util;
 using System.Collections.Generic;
+using VE2.Common.TransformWrapper;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -30,6 +31,7 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         private IRigidbodyWrapper _rigidbody;
+        private ITransformWrapper _transform;
         private bool _isKinematicOnStart;
         private PhysicsConstants _physicsConstants;
 
@@ -41,6 +43,7 @@ namespace VE2.Core.VComponents.Internal
             _StateModule = new(state, config.StateConfig, id, worldStateModulesContainer, interactorContainer, RangedGrabInteractionModule);
             
             _rigidbody  = rigidbody;
+            _transform = config.StateConfig.AttachPoint == null ? new TransformWrapper(_rigidbody.transform) : new TransformWrapper(config.StateConfig.AttachPoint);
             _physicsConstants = physicsConstants;
             _isKinematicOnStart = _rigidbody.isKinematic;
 
@@ -77,7 +80,7 @@ namespace VE2.Core.VComponents.Internal
 
         private void TrackPosition(Vector3 targetPosition)
         {
-            Vector3 directionToGrabber = targetPosition - _rigidbody.position;
+            Vector3 directionToGrabber = targetPosition - _transform.position;
             float directionToGrabberMaxVelocityMagnitudeRatio = directionToGrabber.magnitude / _physicsConstants.DefaultMaxAngularVelocity;
             if (directionToGrabberMaxVelocityMagnitudeRatio > 1)
                 directionToGrabber /= directionToGrabberMaxVelocityMagnitudeRatio;
@@ -87,7 +90,7 @@ namespace VE2.Core.VComponents.Internal
 
         private void TrackRotation(Quaternion targetRotation)
         {
-            var rotationDelta = targetRotation * Quaternion.Inverse(_rigidbody.rotation);
+            var rotationDelta = targetRotation * Quaternion.Inverse(_transform.rotation);
             rotationDelta.ToAngleAxis(out var angleInDegrees, out var rotationAxis);
             if (angleInDegrees > 180f)
                 angleInDegrees -= 360f;

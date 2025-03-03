@@ -7,6 +7,7 @@ using VE2.Core.VComponents.PluginInterfaces;
 using VE2.Core.VComponents.InteractableInterfaces;
 using VE2.Core.VComponents.Internal;
 using System.Collections.Generic;
+using VE2.Common.TransformWrapper;
 
 namespace VE2.Core.VComponents.Integration
 {
@@ -26,6 +27,7 @@ namespace VE2.Core.VComponents.Integration
 
         private FreeGrabbableService _service = null;
         private RigidbodyWrapper _rigidbodyWrapper = null;
+        private TransformWrapper _transformWrapper = null;
         private void OnEnable()
         {
             string id = "FreeGrabbable-" + gameObject.name;
@@ -38,6 +40,7 @@ namespace VE2.Core.VComponents.Integration
                 handheldInteractions.Add(handheldAdjustable.HandheldScrollInteractionModule);
 
             _rigidbodyWrapper = new(GetComponent<Rigidbody>());
+            
             _service = new FreeGrabbableService(
                 handheldInteractions,
                 _config, 
