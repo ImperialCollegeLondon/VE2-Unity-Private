@@ -59,7 +59,6 @@ namespace VE2.Core.Player.Internal
             handVRRightGO.transform.localScale = new Vector3(-1, 1, 1);
             handVRRightGO.name = "HandVRRight";
 
-
             FreeGrabbableWrapper leftHandGrabbableWrapper = new FreeGrabbableWrapper();
             FreeGrabbableWrapper rightHandGrabbableWrapper = new FreeGrabbableWrapper();
 
