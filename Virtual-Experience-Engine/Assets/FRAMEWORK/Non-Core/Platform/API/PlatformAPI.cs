@@ -19,7 +19,7 @@ public class PlatformAPI : MonoBehaviour
     }
 
     //Internal for now, unless the pluguin needs to talk to this for some reason
-    internal static IPlatformService PlatformService => PlatformProvider.PlatformService;
+    internal static IPlatformService PlatformService => PlatformProvider?.PlatformService;
 
     [SerializeField, HideInInspector] public string platformProviderGOName;
     private IPlatformProvider _platformProvider;

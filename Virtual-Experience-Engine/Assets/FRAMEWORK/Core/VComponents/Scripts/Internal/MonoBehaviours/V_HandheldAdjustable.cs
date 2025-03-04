@@ -3,7 +3,7 @@ using VE2.Core.VComponents.API;
 
 namespace VE2.Core.VComponents.Internal
 {
-    public class V_HandheldAdjustable : VComponentBase, IV_HandheldAdjustable
+    internal class V_HandheldAdjustable : MonoBehaviour, IV_HandheldAdjustable
     {
         [SerializeField, HideLabel, IgnoreParent] private HandheldAdjustableConfig _config = new();
         [SerializeField, HideInInspector] private AdjustableState _state = null;

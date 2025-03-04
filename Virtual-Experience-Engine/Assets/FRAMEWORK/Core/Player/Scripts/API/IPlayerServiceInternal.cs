@@ -19,9 +19,6 @@ namespace VE2.Core.Player.API
         public void MarkPlayerSettingsUpdated() { }
         public event Action<OverridableAvatarAppearance> OnOverridableAvatarAppearanceChanged;
 
-        // public GameObject GetHeadOverrideGameObjectForIndex(AvatarAppearanceOverrideType index);
-        // public GameObject GetTorsoOverrideGameObjectForIndex(AvatarAppearanceOverrideType index);
-
         public List<GameObject> HeadOverrideGOs { get; }
         public List<GameObject> TorsoOverrideGOs { get; }
 

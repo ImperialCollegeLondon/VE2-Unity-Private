@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Renci.SshNet;
 using UnityEngine;
 
 namespace VE2.NonCore.FileSystem.Internal
 {
-    public static class FTPServiceFactory
+    internal static class FTPServiceFactory
     {
         public static FTPService Create(ConnectionInfo connectionInfo, string remoteWorkingPath, string localWorkingPath)
         {
@@ -17,7 +16,7 @@ namespace VE2.NonCore.FileSystem.Internal
         }
     }
 
-    public class FTPService 
+    internal class FTPService 
     {
         #region Higher-level interfaces 
 
@@ -241,7 +240,7 @@ namespace VE2.NonCore.FileSystem.Internal
         }
     }
 
-    public abstract class FTPTask
+    internal abstract class FTPTask
     {
         public bool IsCompleted { get; protected set; } = false;
         public bool IsCancelled { get; private set; } = false;
@@ -273,7 +272,7 @@ namespace VE2.NonCore.FileSystem.Internal
         public void Cancel() => IsCancelled = true;
     }
 
-    public abstract class FTPFileTask : FTPTask
+    internal abstract class FTPFileTask : FTPTask
     {
         public readonly string Name;
 
@@ -283,7 +282,7 @@ namespace VE2.NonCore.FileSystem.Internal
         }
     }
 
-    public abstract class FTPFileTransferTask : FTPFileTask
+    internal abstract class FTPFileTransferTask : FTPFileTask
     {
         public event Action<float> OnProgressChanged;
 
@@ -341,18 +340,18 @@ namespace VE2.NonCore.FileSystem.Internal
         public override string ToString() => $"Name:{Name}  Rpath:{RemotePath} Lpath:{LocalPath}";
     }
 
-    public class FTPDownloadTask : FTPFileTransferTask
+    internal class FTPDownloadTask : FTPFileTransferTask
     {
         public FTPDownloadTask(string remotePath, string localPath, string name) : base(remotePath, localPath, name) { }
     }
 
-    public class FTPUploadTask : FTPFileTransferTask
+    internal class FTPUploadTask : FTPFileTransferTask
     {
         public List<string> FoldersToCheck;
         public FTPUploadTask(string remotePath, string localPath, string name) : base(remotePath, localPath, name) { }
     }
 
-    public class FTPRemoteFolderListTask : FTPTask
+    internal class FTPRemoteFolderListTask : FTPTask
     {
         public override string RemotePathAndName => RemotePath;
         public List<string> FoundFolderNames = new();
@@ -360,7 +359,7 @@ namespace VE2.NonCore.FileSystem.Internal
         public FTPRemoteFolderListTask(string remotePath) : base(remotePath) { }
     }
 
-    public class FTPRemoteFileListTask : FTPTask
+    internal class FTPRemoteFileListTask : FTPTask
     {
         public override string RemotePathAndName => RemotePath;
         public List<FileDetails> FoundFilesDetails = new();
@@ -368,7 +367,7 @@ namespace VE2.NonCore.FileSystem.Internal
         public FTPRemoteFileListTask(string remotePath) : base(remotePath) { }
     }
 
-    public abstract class FTPRemoteTask : FTPFileTask
+    internal abstract class FTPRemoteTask : FTPFileTask
     {
         public override string RemotePathAndName => RemotePath.EndsWith('/') ? $"{RemotePath}{Name}" : $"{RemotePath}/{Name}";
 
@@ -377,12 +376,12 @@ namespace VE2.NonCore.FileSystem.Internal
         public override string ToString() => $"Name:{Name}  Rpath:{RemotePath}";
     }
 
-    public class FTPMakeFolderTask : FTPRemoteTask
+    internal class FTPMakeFolderTask : FTPRemoteTask
     {
         public FTPMakeFolderTask(string remotePath, string name) : base(remotePath, name) { }
     }
 
-    public class FTPDeleteTask : FTPRemoteTask
+    internal class FTPDeleteTask : FTPRemoteTask
     {
         public FTPDeleteTask(string remotePath, string name) : base(remotePath, name) { }
     }

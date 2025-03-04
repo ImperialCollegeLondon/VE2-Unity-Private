@@ -33,17 +33,12 @@ namespace VE2.Core.Player.API
             private get
             {
                 if (Instance._playerServiceProvder == null && !string.IsNullOrEmpty(Instance.PlayerServiceProviderGOName))
-                {
-                    //Debug.Log(Instance.gameObject.name+": " + SceneManager.GetActiveScene().name + ": PlayerServiceProvider is null, trying to find it on GO - " + Instance.PlayerServiceProviderGOName);
                     Instance._playerServiceProvder = GameObject.Find(Instance.PlayerServiceProviderGOName)?.GetComponent<IPlayerServiceProvider>();
-                    //Debug.Log("Found PlayerServiceProvider: " + (Instance._playerServiceProvder != null));
-                }
 
                 return Instance._playerServiceProvder;
             }
             set //Will need to be called externally
             {
-                //Debug.LogWarning("Set PlayerServiceProvider - " + value.GameObjectName);
                 Instance._playerServiceProvder = value;
 
                 if (value != null)
@@ -94,7 +89,7 @@ namespace VE2.Core.Player.API
             if (FindObjectsByType<PlayerAPI>(FindObjectsSortMode.None).Length > 1)
             {
                 Debug.LogError("There should only be one PlayerAPI in the scene");
-                //Destroy(gameObject);
+                Destroy(gameObject);
             }
 
             _instance = this;

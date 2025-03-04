@@ -10,17 +10,17 @@ using UnityEngine;
 
 namespace VE2.NonCore.FileSystem.Internal
 {
-    public enum FTPStatus { NotReady, Ready, Busy };
+    internal enum FTPStatus { NotReady, Ready, Busy };
 
-    public enum FTPCompletionCode { Waiting, Success, Busy, CouldNotConnect, Cancelled, LocalFileError, RemoteFileError }
+    internal enum FTPCompletionCode { Waiting, Success, Busy, CouldNotConnect, Cancelled, LocalFileError, RemoteFileError }
 
-    public struct FileDetails
+    internal struct FileDetails
     {
         public string fileName;
         public ulong fileSize;
     }
 
-    public interface IFTPCommsHandler
+    internal interface IFTPCommsHandler
     {
         public FTPStatus Status { get; }
         public event Action<FTPStatus> OnStatusChanged;
@@ -33,7 +33,7 @@ namespace VE2.NonCore.FileSystem.Internal
         public void UploadFile(FTPUploadTask uploadTask);
     }
 
-    public class FTPCommsHandler : IFTPCommsHandler
+    internal class FTPCommsHandler : IFTPCommsHandler
     {
         private FTPStatus _status;
         public FTPStatus Status

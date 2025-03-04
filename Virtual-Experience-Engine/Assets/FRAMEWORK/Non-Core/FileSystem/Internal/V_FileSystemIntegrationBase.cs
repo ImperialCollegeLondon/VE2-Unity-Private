@@ -9,7 +9,7 @@ using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 
 namespace VE2.NonCore.FileSystem.Internal
 {
-    public abstract class V_FileSystemIntegrationBase : MonoBehaviour
+    internal abstract class V_FileSystemIntegrationBase : MonoBehaviour
     {
         [SerializeField, SpaceArea(spaceAfter: 10)] private ServerConnectionSettings ftpNetworkSettings;
 
@@ -41,7 +41,7 @@ namespace VE2.NonCore.FileSystem.Internal
         public List<IRemoteFileTaskInfo> GetCompletedFileTasks() => _FileStorageService.GetCompletedFileTasks();
         #endregion
 
-        protected FileSystemService _FileStorageService;
+        internal FileSystemService _FileStorageService; 
 
         private void OnEnable()
         {

@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 
 namespace VE2.Core.Player.Internal
 {
-    public class DebugPlayerThings : MonoBehaviour
+    internal class DebugPlayerThings : MonoBehaviour
     {
         void Update()
         {

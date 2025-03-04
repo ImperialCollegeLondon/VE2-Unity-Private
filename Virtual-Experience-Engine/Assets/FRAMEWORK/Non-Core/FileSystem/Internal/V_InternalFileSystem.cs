@@ -3,7 +3,7 @@ using VE2.NonCore.FileSystem.API;
 
 namespace VE2.NonCore.FileSystem.Internal
 {
-    public class V_InternalFileSystem : V_FileSystemIntegrationBase, IFileSystemInternal
+    internal class V_InternalFileSystem : V_FileSystemIntegrationBase, IFileSystemInternal
     {
         public override string LocalWorkingPath{ get {
                string platformName = Application.platform == RuntimePlatform.Android ? "Android" : "Windows";

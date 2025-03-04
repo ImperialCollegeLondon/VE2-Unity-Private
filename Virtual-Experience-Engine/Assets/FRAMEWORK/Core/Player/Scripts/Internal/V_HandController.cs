@@ -64,7 +64,6 @@ namespace VE2.Core.Player.Internal
             When interactor tells us it's grabbed, we need to hide the hand model 
             Add some HandModel handler, wire in input to the hand model
             Figure out hand poses, should probably be orchestrated through here? 
-
         */
     }
 }

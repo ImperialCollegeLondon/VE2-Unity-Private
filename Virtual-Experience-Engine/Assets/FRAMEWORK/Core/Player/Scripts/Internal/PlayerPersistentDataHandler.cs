@@ -31,12 +31,6 @@ namespace VE2.Core.Player.Internal
         private const string HasArgsArgName = "hasArgs";
         public static string RememberPlayerSettingsArgName => "rememberPlayerSettingsArg";
         public static string PlayerPresentationConfigArgName => "playerPresentationConfigArg";
-        // public static string PlayerNameArgName => "playerName";
-        // public static string PlayerHeadTypeArgName => "playerHeadType";
-        // public static string PlayerTorsoTypeArgName => "playerTorsoType";
-        // public static string PlayerRedArgName => "playerRed";
-        // public static string PlayerGreenArgName => "playerGreen";
-        // public static string PlayerBlueArgName => "playerBlue";
 
         private bool _isPlaying => Application.isPlaying;
 

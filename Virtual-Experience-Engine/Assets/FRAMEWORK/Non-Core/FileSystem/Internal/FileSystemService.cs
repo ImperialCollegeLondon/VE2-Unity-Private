@@ -25,7 +25,7 @@ namespace VE2.NonCore.FileSystem.Internal
     }
 
     //Has the same interface as V_InternalFileSystem. The PluginBuilder/Exporter needs to use this without going through a MonoBehaviour first
-    public class FileSystemService : IFileSystemInternal 
+    internal  class FileSystemService : IFileSystemInternal 
     {
         #region Interfaces 
         public bool IsFileSystemReady { get; private set; } = false;

@@ -24,7 +24,7 @@ namespace VE2.Core.VComponents.API
         }
 
         internal static bool HasMultiPlayerSupport => WorldStateSyncProvider != null && WorldStateSyncProvider.IsEnabled;
-        internal static IWorldStateSyncService WorldStateSyncService => WorldStateSyncProvider?.WorldStateSyncService;
+        internal static IWorldStateSyncService WorldStateSyncService => HasMultiPlayerSupport ? WorldStateSyncProvider?.WorldStateSyncService : null;
 
         [SerializeField, HideInInspector] private string _worldStateSyncProviderGOName;
         private IWorldStateSyncProvider _worldStateSyncProvider;

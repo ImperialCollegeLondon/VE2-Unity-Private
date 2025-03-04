@@ -3,7 +3,7 @@ using VE2.Core.Player.API;
 
 namespace VE2.Private.Hub
 {
-    public class DebugPlayerCust : MonoBehaviour
+    internal class DebugPlayerCust : MonoBehaviour
     {
         private IPlayerServiceInternal _playerServiceInternal => (IPlayerServiceInternal)PlayerAPI.Player;
 

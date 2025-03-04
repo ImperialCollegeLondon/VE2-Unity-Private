@@ -6,7 +6,7 @@ using VE2.Core.VComponents.API;
 
 namespace VE2.Core.VComponents.Integration
 {
-    internal class V_FreeGrabbable : VComponentBase, IV_FreeGrabbable, IRangedGrabInteractionModuleProvider
+    internal class V_FreeGrabbable : MonoBehaviour, IV_FreeGrabbable, IRangedGrabInteractionModuleProvider
     {
         [SerializeField, HideLabel, IgnoreParent] private FreeGrabbableConfig _config = new();
         [SerializeField, HideInInspector] private FreeGrabbableState _state = new();

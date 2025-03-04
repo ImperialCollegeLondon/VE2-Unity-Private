@@ -4,7 +4,7 @@ using VE2.Core.VComponents.API;
 
 namespace VE2.Core.VComponents.Internal
 {
-    internal class V_ToggleActivatable : VComponentBase, IV_ToggleActivatable, IRangedInteractionModuleProvider, ICollideInteractionModuleProvider
+    internal class V_ToggleActivatable : MonoBehaviour, IV_ToggleActivatable, IRangedInteractionModuleProvider, ICollideInteractionModuleProvider
     {
         [SerializeField, HideLabel, IgnoreParent] private ToggleActivatableConfig _config = new(); 
         [SerializeField, HideInInspector] private SingleInteractorActivatableState _state = new();

@@ -7,7 +7,7 @@ using VE2.NonCore.FileSystem.API;
 namespace VE2.NonCore.FileSystem.Internal
 {
     [Serializable]
-    public class RemoteFileTaskInfo : IRemoteFileTaskInfo
+    internal class RemoteFileTaskInfo : IRemoteFileTaskInfo
     {
         [BeginHorizontal(ControlFieldWidth = false), SerializeField, LabelWidth(50), Disable] private RemoteTaskType _type;
         public RemoteTaskType Type => _type;
@@ -108,7 +108,7 @@ namespace VE2.NonCore.FileSystem.Internal
     }
 
     [Serializable]
-    public class RemoteFileSearchInfo : IRemoteFileSearchInfo
+    internal class RemoteFileSearchInfo : IRemoteFileSearchInfo
     {
         [SerializeField, LabelWidth(110f), Disable] private string _path; //Relative to working path
         public string Path => _path;
@@ -148,7 +148,7 @@ namespace VE2.NonCore.FileSystem.Internal
     }
 
     [Serializable]
-    public class RemoteFolderSearchInfo : IRemoteFolderSearchInfo
+    internal class RemoteFolderSearchInfo : IRemoteFolderSearchInfo
     {
         [SerializeField, LabelWidth(110f), Disable] private string _path; //Relative to working path
         public string Path => _path;

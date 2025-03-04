@@ -81,8 +81,6 @@ namespace VE2.Core.Player.Internal
             if (!Application.isPlaying || _playerService != null)
                 return;
 
-            Debug.Log("init local player");
-
             PlayerPersistentDataHandler playerPersistentDataHandler = FindFirstObjectByType<PlayerPersistentDataHandler>();
             if (playerPersistentDataHandler == null)
             {
