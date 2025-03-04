@@ -76,9 +76,10 @@ namespace VE2.NonCore.Instancing.Internal
             _headHolder.SetLocalPositionAndRotation(playerState.HeadLocalPosition, playerState.HeadLocalRotation);
             _torsoHolder.position = _headHolder.position + (_torsoOffsetFromHead * Vector3.up);
 
-            _interactorVRLeftGameObject.SetActive(playerState.IsVRMode);
-            _interactorVRRightGameObject.SetActive(playerState.IsVRMode);
-            _interactor2DGameObject.SetActive(!playerState.IsVRMode);
+            //We only want to show the VR hands if we're in VR mode, AND the hands are actually tracking
+            _interactorVRLeftGameObject.SetActive(playerState.IsVRMode && playerState.HandVRLeftLocalPosition != Vector3.zero);
+            _interactorVRRightGameObject.SetActive(playerState.IsVRMode && playerState.HandVRRightLocalPosition != Vector3.zero);
+            _interactor2DGameObject.SetActive(!playerState.IsVRMode); //No visual, so we can show them regardless 
 
             if (playerState.IsVRMode)
             {

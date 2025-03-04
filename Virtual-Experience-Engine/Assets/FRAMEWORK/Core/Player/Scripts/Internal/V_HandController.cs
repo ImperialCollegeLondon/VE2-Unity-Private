@@ -24,6 +24,7 @@ namespace VE2.Core.Player.Internal
         public V_HandController(GameObject handGO, HandVRInputContainer handVRInputContainer, InteractorVR interactor, DragLocomotor dragLocomotor, SnapTurn snapTurn, Teleport teleport)
         {
             _handGO = handGO;
+
             _colorMaterials = CommonUtils.GetAvatarColorMaterialsForGameObject(handGO);
 
             _positionInput = handVRInputContainer.HandPosition;
@@ -55,6 +56,9 @@ namespace VE2.Core.Player.Internal
         {
             _handGO.transform.localPosition = _positionInput.Value;
             _handGO.transform.localRotation = _rotationInput.Value;
+
+            //Only show the hand if its actually tracking
+            _handGO.SetActive(_handGO.transform.localPosition != Vector3.zero);
 
             //Rotate the hand 90 degrees along its local x axis to match the controller 
             _handGO.transform.Rotate(Vector3.right, 90, Space.Self);
