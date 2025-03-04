@@ -1,0 +1,160 @@
+using UnityEngine;
+using VE2.Core.Player.API;
+using VE2.Core.VComponents.API;
+using static VE2.Core.Player.API.PlayerSerializables;
+
+namespace VE2.Core.Player.Internal
+{
+    internal class PlayerControllerVR
+    {
+        public PlayerTransformData PlayerTransformData
+        {
+            get
+            {
+                return new PlayerTransformData(
+                    IsVRMode: true,
+                    rootPosition: _rootTransform.position,
+                    rootRotation: _rootTransform.rotation,
+                    verticalOffset: _verticalOffsetTransform.localPosition.y,
+                    headPosition: _headTransform.transform.localPosition,
+                    headRotation: _headTransform.transform.rotation,
+                    handVRLeftPosition: _handControllerLeft.GrabberTransform.localPosition,
+                    handVRLeftRotation: _handControllerLeft.GrabberTransform.localRotation,
+                    handVRRightPosition: _handControllerRight.GrabberTransform.localPosition,
+                    handVRRightRotation: _handControllerRight.GrabberTransform.localRotation
+                );
+            }
+        }
+
+        private readonly GameObject _playerGO;
+        private readonly PlayerVRInputContainer _playerVRInputContainer;
+        private readonly PlayerVRControlConfig _controlConfig;
+        private readonly IXRManagerWrapper _xrManagerSettingsWrapper;
+        private readonly Transform _rootTransform;
+        private readonly Transform _verticalOffsetTransform;
+        private readonly Transform _headTransform;
+
+        private readonly V_HandController _handControllerLeft;
+        private readonly V_HandController _handControllerRight;
+
+        internal PlayerControllerVR(InteractorContainer interactorContainer, PlayerVRInputContainer playerVRInputContainer, IPlayerPersistentDataHandler playerSettingsHandler, PlayerVRControlConfig controlConfig, 
+            IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper, ILocalClientIDProvider multiplayerSupport)
+        {
+            GameObject playerVRPrefab = Resources.Load("vrPlayer") as GameObject;
+            _playerGO = GameObject.Instantiate(playerVRPrefab, null, false);
+            _playerGO.SetActive(false);
+
+            _playerVRInputContainer = playerVRInputContainer;
+            _controlConfig = controlConfig;
+            _xrManagerSettingsWrapper = xrManagerSettingsWrapper;
+
+            PlayerVRReferences playerVRReferences = _playerGO.GetComponent<PlayerVRReferences>();
+            _rootTransform = playerVRReferences.RootTransform;
+            _verticalOffsetTransform = playerVRReferences.VerticalOffsetTransform;
+            _headTransform = playerVRReferences.HeadTransform;
+
+            GameObject handVRLeftPrefab = Resources.Load<GameObject>("HandVRLeft");
+            GameObject handVRLeftGO = GameObject.Instantiate(handVRLeftPrefab, _verticalOffsetTransform, false);
+            GameObject handVRRightGO = GameObject.Instantiate(handVRLeftPrefab, _verticalOffsetTransform, false);
+            handVRRightGO.transform.localScale = new Vector3(-1, 1, 1);
+            handVRRightGO.name = "HandVRRight";
+
+            //So the hands don't block the camera before they start tracking
+            handVRLeftGO.transform.position -= Vector3.down;
+            handVRRightGO.transform.position -= Vector3.down;
+
+            _handControllerLeft = CreateHandController(handVRLeftGO, interactorContainer, playerVRInputContainer.HandVRLeftInputContainer, playerVRInputContainer.HandVRRightInputContainer.DragLocomotorInputContainer, InteractorType.LeftHandVR, raycastProvider, multiplayerSupport);
+            _handControllerRight = CreateHandController(handVRRightGO, interactorContainer, playerVRInputContainer.HandVRRightInputContainer,playerVRInputContainer.HandVRLeftInputContainer.DragLocomotorInputContainer, InteractorType.RightHandVR, raycastProvider, multiplayerSupport);
+        }
+
+        private V_HandController CreateHandController(GameObject handGO, InteractorContainer interactorContainer, HandVRInputContainer handVRInputContainer, DragLocomotorInputContainer otherHandDragInputContainer, InteractorType interactorType, IRaycastProvider raycastProvider, ILocalClientIDProvider multiplayerSupport)
+        {
+            V_HandVRReferences handVRReferences = handGO.GetComponent<V_HandVRReferences>();
+
+            InteractorVR interactor = new(
+                interactorContainer, handVRInputContainer.InteractorVRInputContainer,
+                handVRReferences.InteractorVRReferences,
+                interactorType, raycastProvider, multiplayerSupport);
+
+            DragLocomotor dragLocomotor = new(
+                handVRReferences.LocomotorVRReferences,
+                handVRInputContainer.DragLocomotorInputContainer,
+                otherHandDragInputContainer,
+                _rootTransform, _verticalOffsetTransform, handGO.transform);
+
+            return new V_HandController(handGO, handVRInputContainer, interactor, dragLocomotor);
+        }
+
+        public void ActivatePlayer(PlayerTransformData initTransformData)
+        {
+            _playerGO.SetActive(true);
+
+            _rootTransform.SetPositionAndRotation(initTransformData.RootPosition, initTransformData.RootRotation);
+            _verticalOffsetTransform.localPosition = new Vector3(0, initTransformData.VerticalOffset, 0);
+            //We don't set head transform here, tracking will override it anyway
+
+            if (_xrManagerSettingsWrapper.IsInitializationComplete)
+                HandleXRInitComplete();
+            else
+                _xrManagerSettingsWrapper.OnLoaderInitialized += HandleXRInitComplete;
+            
+
+            _playerVRInputContainer.ResetView.OnPressed += HandleResetViewPressed;
+            _playerVRInputContainer.ResetView.OnReleased += HandleResetViewReleased;
+
+            _handControllerLeft.HandleOnEnable();
+            _handControllerRight.HandleOnEnable();
+        }
+
+        public void DeactivatePlayer()
+        {
+            if (_playerGO != null)
+                _playerGO?.SetActive(false);
+
+            _xrManagerSettingsWrapper.StopSubsystems();
+
+            _playerVRInputContainer.ResetView.OnPressed -= HandleResetViewPressed;
+            _playerVRInputContainer.ResetView.OnReleased -= HandleResetViewReleased;
+
+            _handControllerLeft.HandleOnDisable();
+            _handControllerRight.HandleOnDisable();
+        }
+
+        private void HandleXRInitComplete()
+        {
+            _xrManagerSettingsWrapper.OnLoaderInitialized -= HandleXRInitComplete;
+            _xrManagerSettingsWrapper.StartSubsystems(); 
+        }
+
+        public void HandleLocalAvatarColorChanged(Color newColor)
+        {
+            _handControllerLeft.HandleLocalAvatarColorChanged(newColor);
+            _handControllerRight.HandleLocalAvatarColorChanged(newColor);
+        }
+
+        public void HandleUpdate()
+        {
+            _handControllerLeft.HandleUpdate();
+            _handControllerRight.HandleUpdate();
+        }
+
+        private void HandleResetViewPressed()
+        {
+            //TODO:
+        }
+
+        private void HandleResetViewReleased()
+        {
+            //TODO:
+        }
+
+        public void TearDown()
+        {
+            if (_xrManagerSettingsWrapper.IsInitializationComplete)
+            {
+                _xrManagerSettingsWrapper.StopSubsystems();
+                _xrManagerSettingsWrapper.DeinitializeLoader();
+            }
+        }
+    }
+}

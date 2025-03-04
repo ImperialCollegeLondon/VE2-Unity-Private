@@ -2,8 +2,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using VE2_NonCore_FileSystem_Interfaces_Common;
-using VE2_NonCore_FileSystem_Interfaces_Plugin;
+using VE2.NonCore.FileSystem.API;
 
 public class FileHandlerExample : MonoBehaviour
 {
@@ -15,7 +14,7 @@ public class FileHandlerExample : MonoBehaviour
     [SerializeField] private GameObject _fileUIObjectPrefab;
 
     [SerializeField] private GameObject _fileSystemGameObject;
-    private IPluginFileSystem _pluginFileSystem => _fileSystemGameObject.GetComponent<IPluginFileSystem>();
+    private IFileSystem _pluginFileSystem => _fileSystemGameObject.GetComponent<IFileSystem>();
 
     // private List<VerticalLayoutGroup> _fileUIObjectVerticalGroups = new List<VerticalLayoutGroup>();
     // private List<FileUIObjectExample> _fileUIObjects = new List<FileUIObjectExample>();

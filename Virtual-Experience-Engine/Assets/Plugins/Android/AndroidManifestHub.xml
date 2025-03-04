@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:installLocation="auto"
+    package="com.yourcompany.yourapp">
+    <!-- TODO: See above, looks wrong -->
+
+
+    <!-- NOTE -->
+    <!-- This is the manifest to use when building the hub application. Delete the other manifest, and rename this to "AndroidManifest" when building the hub -->
+    <!-- Also, ensure the AAR is present for the hub application -->
+
+
+    <!-- Add the QUERY_ALL_PACKAGES permission here -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <!-- Required for OpenXR and Oculus VR -->
+    <uses-feature android:name="android.hardware.vr.headtracking" android:version="1" android:required="true" />
+
+    <application
+        android:label="@string/app_name"
+        android:icon="@mipmap/app_icon"
+        android:allowBackup="false">
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.ImperialCollegeLondon.VirtualExperienceEngine.fileprovider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"/>
+        </provider>
+        
+        <!-- VR Activity -->
+        <activity
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
+            android:configChanges="locale|fontScale|keyboard|keyboardHidden|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
+            android:launchMode="singleTask"
+            android:name="com.unity3d.player.UnityPlayerGameActivity"
+            android:excludeFromRecents="true"
+            android:exported="true">
+            
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="com.oculus.intent.category.VR" />
+            </intent-filter>
+            
+            <meta-data android:name="com.oculus.vr.focusaware" android:value="true" />
+        </activity>
+        
+        <!-- Meta-data for VR and Oculus -->
+        <meta-data android:name="unityplayer.SkipPermissionsDialog" android:value="false" />
+        <meta-data android:name="com.samsung.android.vr.application.mode" android:value="vr_only" />
+        <meta-data android:name="com.oculus.ossplash.background" android:value="black" />
+        <meta-data android:name="com.oculus.telemetry.project_guid" android:value="07bc858d-06e3-41e0-b5ab-5449f36054fd" />
+    </application>
+</manifest>

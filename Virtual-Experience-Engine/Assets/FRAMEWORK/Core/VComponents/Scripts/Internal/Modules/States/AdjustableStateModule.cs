@@ -2,16 +2,14 @@ using System;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
-using VE2.Common;
 using VE2.Core.Common;
-using VE2.Core.VComponents.NonInteractableInterfaces;
-using static VE2.Common.CommonSerializables;
+using VE2.Core.VComponents.API;
+using static VE2.Core.Common.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
 {
-
     [Serializable]
-    public class AdjustableStateConfig : BaseStateConfig
+    internal class AdjustableStateConfig : BaseWorldStateConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Adjustable State Settings", ApplyCondition = true)]
@@ -36,7 +34,7 @@ namespace VE2.Core.VComponents.Internal
         internal bool IsAtMinimumValue => Value == _config.MinimumValue;
         internal bool IsAtMaximumValue => Value == _config.MaximumValue;
 
-        public AdjustableStateModule(CommonSerializables.VE2Serializable state, BaseStateConfig config, string id, WorldStateModulesContainer worldStateModulesContainer) : base(state, config, id, worldStateModulesContainer)
+        public AdjustableStateModule(CommonSerializables.VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncService worldStateSyncService) : base(state, config, id, worldStateSyncService)
         {
             if (_config.EmitValueOnStart == true)
             {

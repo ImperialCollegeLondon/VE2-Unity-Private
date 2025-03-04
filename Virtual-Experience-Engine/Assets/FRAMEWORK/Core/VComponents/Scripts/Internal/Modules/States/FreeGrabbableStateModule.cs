@@ -2,16 +2,13 @@ using System;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
-using VE2.Common;
-using VE2.Core.Common;
-using VE2.Core.VComponents.InteractableInterfaces;
-using VE2.Core.VComponents.NonInteractableInterfaces;
-using static VE2.Common.CommonSerializables;
+using VE2.Core.VComponents.API;
+using static VE2.Core.Common.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
-    public class FreeGrabbableStateConfig : BaseStateConfig
+    internal class FreeGrabbableStateConfig : BaseWorldStateConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Grab State Settings", ApplyCondition = true)]
@@ -40,9 +37,9 @@ namespace VE2.Core.VComponents.Internal
         internal event Action OnGrabConfirmed;
         internal event Action OnDropConfirmed;
 
-        public FreeGrabbableStateModule(VE2Serializable state, BaseStateConfig config, string id, 
-            WorldStateModulesContainer worldStateModulesContainer, InteractorContainer interactorContainer, IRangedGrabInteractionModule rangedGrabInteractionModule) : 
-            base(state, config, id, worldStateModulesContainer)
+        public FreeGrabbableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, 
+            IWorldStateSyncService worldStateSyncService, InteractorContainer interactorContainer, IRangedGrabInteractionModule rangedGrabInteractionModule) : 
+            base(state, config, id, worldStateSyncService)
         {
             _interactorContainer = interactorContainer;
             _rangedGrabInteractionModule = rangedGrabInteractionModule;

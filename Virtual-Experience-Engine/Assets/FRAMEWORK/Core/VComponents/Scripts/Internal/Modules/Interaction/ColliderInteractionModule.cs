@@ -1,5 +1,5 @@
 using System;
-using VE2.Core.VComponents.InteractableInterfaces;
+using VE2.Core.VComponents.API;
 
 //No config for collider interactions
 namespace VE2.Core.VComponents.Internal

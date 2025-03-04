@@ -20,12 +20,12 @@ MonoBehaviour:
     rid: 2780094747114733568
   m_OverrideGlobalSceneList: 1
   m_Scenes:
-  - m_enabled: 1
-    m_path: Assets/FRAMEWORK/Non-Core/Platform/Platform-Private/Hub/Hub.unity
   - m_enabled: 0
     m_path: Assets/FRAMEWORK/DevStuff/Dev.unity
   - m_enabled: 0
     m_path: Assets/PluginTests/Green/DevGreen.unity
+  - m_enabled: 1
+    m_path: Assets/FRAMEWORK/Private/Hub/Hub.unity
   m_ScriptingDefines: []
   m_PlayerSettingsYaml:
     m_Settings:
@@ -194,7 +194,7 @@ MonoBehaviour:
     - line: '|   androidMaxAspectRatio: 2.1'
     - line: '|   androidMinAspectRatio: 1'
     - line: '|   applicationIdentifier:'
-    - line: '|     Android: com.ImperialCollegeLondon.VE2Hub17'
+    - line: '|     Android: com.ImperialCollegeLondon.VirtualExperienceEngine'
     - line: '|     Standalone: com.Unity-Technologies.com.unity.template.urp-blank'
     - line: '|     iPhone: com.Unity-Technologies.com.unity.template.urp-blank'
     - line: '|   buildNumber:'
