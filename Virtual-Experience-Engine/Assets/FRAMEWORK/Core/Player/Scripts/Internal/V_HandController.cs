@@ -6,9 +6,11 @@ using VE2.Core.Player.API;
 
 namespace VE2.Core.Player.Internal
 {
-    internal class V_HandController //TODO: Where does snap turn go? Maybe just in here?
+    internal class V_HandController 
     {
         public Transform GrabberTransform => _interactor.GrabberTransform;
+
+        internal Transform Transform => _handGO.transform;
 
         private readonly GameObject _handGO;
         private readonly IValueInput<Vector3> _positionInput;

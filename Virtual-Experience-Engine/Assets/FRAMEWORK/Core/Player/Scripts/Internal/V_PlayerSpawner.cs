@@ -41,8 +41,6 @@ namespace VE2.Core.Player.Internal
         private bool _hasMultiplayerSupport => PlayerAPI.HasMultiPlayerSupport;
     }
 
-    // public class 
-
     [ExecuteAlways]
     internal class V_PlayerSpawner : MonoBehaviour, IPlayerServiceProvider
     {

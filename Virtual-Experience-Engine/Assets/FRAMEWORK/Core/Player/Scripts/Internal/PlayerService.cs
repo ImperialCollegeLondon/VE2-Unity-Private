@@ -51,7 +51,7 @@ namespace VE2.Core.Player.Internal
         public TransmissionProtocol TransmissionProtocol => _config.RepeatedTransmissionConfig.TransmissionType;
         public float TransmissionFrequency => _config.RepeatedTransmissionConfig.TransmissionFrequency;
 
-        public bool VRModeActive => PlayerTransformData.IsVRMode;
+        public bool IsVRMode => PlayerTransformData.IsVRMode;
 
         public List<GameObject> HeadOverrideGOs => _config.HeadOverrideGOs;
 
@@ -75,8 +75,6 @@ namespace VE2.Core.Player.Internal
         private readonly PlayerConfig _config;
         private readonly PlayerController2D _player2D;
         private readonly PlayerControllerVR _playerVR;
-        private bool _enable2D;
-        private bool _enableVR;
 
         private readonly PlayerInputContainer _playerInputContainer;
         private readonly IPlayerPersistentDataHandler _playerSettingsHandler;
@@ -133,7 +131,7 @@ namespace VE2.Core.Player.Internal
 
         private void HandleChangeModePressed() 
         {
-            if (!_enable2D || !_enableVR)
+            if (!_config.Enable2D || !_config.EnableVR)
                 return; //Can't change modes if both aren't enabled!
 
             try 

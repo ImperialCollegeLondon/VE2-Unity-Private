@@ -744,7 +744,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &269500766
 Transform:
   m_ObjectHideFlags: 0
@@ -1545,7 +1545,6 @@ MonoBehaviour:
   m_Script: {fileID: 1463380775}
   m_Name: 
   m_EditorClassIdentifier: 
-  _instanceNetworkSettingsGOName: PlatformIntegration
 --- !u!4 &457429261
 Transform:
   m_ObjectHideFlags: 1
@@ -3330,7 +3329,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerConfig:
     EnableVR: 1
-    Enable2D: 0
+    Enable2D: 1
     HeadOverrideType: 0
     TorsoOverrideType: 0
     HeadOverrideOne: {fileID: 0}
@@ -3805,7 +3804,7 @@ GameObject:
   - component: {fileID: 815348235}
   - component: {fileID: 815348234}
   - component: {fileID: 815348233}
-  m_Layer: 10
+  m_Layer: 3
   m_Name: Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3917,7 +3916,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &835746392
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6283,9 +6282,6 @@ MonoBehaviour:
   m_Script: {fileID: 615277677}
   m_Name: 
   m_EditorClassIdentifier: 
-  _multiplayerSupportGOName: InstanceIntegration
-  PlayerSettingsProviderGOName: PlatformIntegration
-  PlayerOverridesProviderGOName: 
 --- !u!4 &1521070450
 Transform:
   m_ObjectHideFlags: 1

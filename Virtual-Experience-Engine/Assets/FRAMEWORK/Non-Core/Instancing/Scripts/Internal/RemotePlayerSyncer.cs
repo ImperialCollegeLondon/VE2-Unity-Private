@@ -12,7 +12,6 @@ namespace VE2.NonCore.Instancing.Internal
        private readonly IPluginSyncCommsHandler _commsHandler;
         private readonly InstanceInfoContainer _instanceInfoContainer;
         private readonly InteractorContainer _interactorContainer;
-        //private readonly IPlayerServiceInternal _playerService;
 
         private readonly List<GameObject> _virseAvatarHeadGameObjects;
         private readonly List<GameObject> _virseAvatarTorsoGameObjects;

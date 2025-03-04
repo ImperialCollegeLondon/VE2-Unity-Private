@@ -6,7 +6,7 @@ namespace VE2.Core.Player.API
 {
     public interface IPlayerService
     {
-        public bool VRModeActive { get; }
+        public bool IsVRMode { get; }
         public void SetAvatarHeadOverride(AvatarAppearanceOverrideType type);
         public void SetAvatarTorsoOverride(AvatarAppearanceOverrideType type);
 

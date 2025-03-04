@@ -17,11 +17,11 @@ namespace VE2.Core.Player.Internal
                     rootRotation: _rootTransform.rotation,
                     verticalOffset: _verticalOffsetTransform.localPosition.y,
                     headPosition: _headTransform.transform.localPosition,
-                    headRotation: _headTransform.transform.rotation,
-                    handVRLeftPosition: _handControllerLeft.GrabberTransform.localPosition,
-                    handVRLeftRotation: _handControllerLeft.GrabberTransform.localRotation,
-                    handVRRightPosition: _handControllerRight.GrabberTransform.localPosition,
-                    handVRRightRotation: _handControllerRight.GrabberTransform.localRotation
+                    headRotation: _headTransform.transform.localRotation,
+                    handVRLeftPosition: _handControllerLeft.Transform.localPosition,
+                    handVRLeftRotation: _handControllerLeft.Transform.localRotation,
+                    handVRRightPosition: _handControllerRight.Transform.localPosition,
+                    handVRRightRotation: _handControllerRight.Transform.localRotation
                 );
             }
         }
