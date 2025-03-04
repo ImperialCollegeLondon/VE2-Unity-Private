@@ -14,8 +14,6 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         internal IHandheldScrollInteractionModule HandheldScrollInteractionModule => _service.HandheldScrollInteractionModule;
-
-
         private HandheldAdjustableService _service = null;
 
         private void OnEnable()

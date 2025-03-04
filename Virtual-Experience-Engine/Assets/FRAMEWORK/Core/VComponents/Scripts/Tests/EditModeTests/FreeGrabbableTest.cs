@@ -31,7 +31,7 @@ namespace VE2.Core.VComponents.Tests
                 new PhysicsConstants());
 
             //Stub out the VC (integration layer) with the grabbable
-            V_FreeGrabbableStub v_freeGrabbableStub = new(freeGrabbable);
+            V_FreeGrabbableProviderStub v_freeGrabbableStub = new(freeGrabbable);
 
             //Get interfaces
             IV_FreeGrabbable grabbablePluginInterface = v_freeGrabbableStub;
@@ -64,7 +64,7 @@ namespace VE2.Core.VComponents.Tests
         public virtual void HandleDropReceived() { }
     }
 
-    internal class V_FreeGrabbableStub : IV_FreeGrabbable, IRangedGrabInteractionModuleProvider
+    internal class V_FreeGrabbableProviderStub : IV_FreeGrabbable, IRangedGrabInteractionModuleProvider
     {
         #region Plugin Interfaces     
         IFreeGrabbableStateModule IV_FreeGrabbable._StateModule => _service.StateModule;
@@ -77,9 +77,14 @@ namespace VE2.Core.VComponents.Tests
 
         private readonly FreeGrabbableService _service = null;
 
-        public V_FreeGrabbableStub(FreeGrabbableService service)
+        public V_FreeGrabbableProviderStub(FreeGrabbableService service)
         {
             _service = service;
+        }
+
+        public void TearDown()
+        {
+            _service.TearDown();
         }
     }
 }

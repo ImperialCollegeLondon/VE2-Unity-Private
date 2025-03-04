@@ -4,43 +4,39 @@ using System;
 using VE2.Core.VComponents.Tests;
 using UnityEngine;
 using VE2.Core.VComponents.Internal;
-using VE2.Core.Common;
 using VE2.Core.VComponents.API;
-
 
 namespace VE2.Core.Tests
 {
     [TestFixture]
-    [Category("Player and ToggleActivatable Tests")]
+    [Category("Player and Toggle Activatable Tests")]
     internal class PlayerAndToggleActivatableTests : PlayerServiceSetupFixture
     {
         //variables that will be reused in the tests
-        private IV_ToggleActivatable _activatablePluginInterface;
-        private PluginScriptMock _customerScript;
-        private V_ToggleActivatableStub _v_activatableStub;
-        private IRangedClickInteractionModuleProvider _activatableRaycastInterface;
+        private IV_ToggleActivatable _activatablePluginInterface => _v_activatableProviderStub;
+        private IRangedClickInteractionModuleProvider _activatableRaycastInterface => _v_activatableProviderStub;
+        private V_ToggleActivatableProviderStub _v_activatableProviderStub;
+        private PluginActivatableScript _customerScript;
 
         //Setup Once for every single test in this test fixture
-        [OneTimeSetUp]
-        public void SetUpOnce()
+        [SetUp]
+        public void SetUpBeforeEveryTest()
         {
             //Create the activatable
-            ToggleActivatableService toggleActivatableService = ToggleActivatableServiceStubFactory.Create();
-            _v_activatableStub = new(toggleActivatableService);
-
-            //hook up interfaces
-            _activatablePluginInterface = _v_activatableStub;
-            _activatableRaycastInterface = _v_activatableStub;
+            ToggleActivatableService toggleActivatableService = new(
+                new ToggleActivatableConfig(),
+                new SingleInteractorActivatableState(),
+                "debug",
+                Substitute.For<IWorldStateSyncService>());
+            
+            //Stub out the provider layer
+            _v_activatableProviderStub = new(toggleActivatableService);
 
             //Wire up the customer script to receive the events           
-            _customerScript = Substitute.For<PluginScriptMock>();
+            _customerScript = Substitute.For<PluginActivatableScript>();
             _activatablePluginInterface.OnActivate.AddListener(_customerScript.HandleActivateReceived);
             _activatablePluginInterface.OnDeactivate.AddListener(_customerScript.HandleDeactivateReceived);
         }
-
-        //setup that runs before every test method in this test fixture
-        [SetUp]
-        public void SetUpBeforeEveryTest() { }
 
         //test method to confirm that the activatable emits the correct events when the player interacts with it
         [Test]
@@ -67,17 +63,11 @@ namespace VE2.Core.Tests
         public void TearDownAfterEveryTest()
         {
             _customerScript.ClearReceivedCalls();
-            _activatablePluginInterface.IsActivated = false;
-        }
-
-        //tear down that runs once after all the tests in this class
-        [OneTimeTearDown]
-        public void TearDownOnce()
-        {
+            
             _activatablePluginInterface.OnActivate.RemoveAllListeners();
             _activatablePluginInterface.OnDeactivate.RemoveAllListeners();
 
-            _v_activatableStub.TearDown();
+            _v_activatableProviderStub.TearDown();
         }
     }
 }

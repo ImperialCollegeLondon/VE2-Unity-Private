@@ -9,31 +9,25 @@ namespace VE2.Core.VComponents.Tests
     [Category("Activatable Service Tests")]
     internal class ToggleActivatableTests
     {
-        //variables that will be reused in the tests
-        private IV_ToggleActivatable _activatablePluginInterface;
-        private PluginScriptMock _customerScript;
-        private V_ToggleActivatableStub _v_activatableStub;
+        private IV_ToggleActivatable _activatablePluginInterface => _v_toggleActivatableProviderStub;
+        private V_ToggleActivatableProviderStub _v_toggleActivatableProviderStub;
+        private PluginActivatableScript _customerScript;
 
         //Setup Once for every single test in this test class
         [OneTimeSetUp]
         public void SetUpOnce()
         {
             //Create the activatable
-            ToggleActivatableService toggleActivatable = ToggleActivatableServiceStubFactory.Create();
-            _v_activatableStub = new(toggleActivatable);
+            ToggleActivatableService toggleActivatable = new(new ToggleActivatableConfig(), new SingleInteractorActivatableState(), "debug", Substitute.For<IWorldStateSyncService>());
 
-            //Get interfaces
-            _activatablePluginInterface = _v_activatableStub;
+            //Stub out the VC (provider layer) with the activatable
+            _v_toggleActivatableProviderStub = new(toggleActivatable);
 
             //Wire up the customer script to receive the events           
-            _customerScript = Substitute.For<PluginScriptMock>();
+            _customerScript = Substitute.For<PluginActivatableScript>();
             _activatablePluginInterface.OnActivate.AddListener(_customerScript.HandleActivateReceived);
             _activatablePluginInterface.OnDeactivate.AddListener(_customerScript.HandleDeactivateReceived);
         }
-
-        //setup that runs before every test method in this class
-        [SetUp]
-        public void SetUpBeforeEveryTest() { }
 
         //test method to confirm that the activatable emits the correct events when Activated/Deactivated
         [Test]
@@ -57,28 +51,21 @@ namespace VE2.Core.VComponents.Tests
         public void TearDownAfterEveryTest()
         {
             _customerScript.ClearReceivedCalls();
-            _activatablePluginInterface.IsActivated = false;
-        }
 
-        //tear down that runs once after all the tests in this class
-        [OneTimeTearDown]
-        public void TearDownOnce()
-        {
             _activatablePluginInterface.OnActivate.RemoveAllListeners();
             _activatablePluginInterface.OnDeactivate.RemoveAllListeners();
 
-            _v_activatableStub.TearDown();
+            _v_toggleActivatableProviderStub.TearDown();
         }
     }
 
-    internal class PluginScriptMock
+    internal class PluginActivatableScript
     {
         public virtual void HandleActivateReceived() { }
         public virtual void HandleDeactivateReceived() { }
-        public virtual void HandleValueAdjusted(float value) { }
     }
 
-    internal class V_ToggleActivatableStub : IV_ToggleActivatable, IRangedClickInteractionModuleProvider, ICollideInteractionModuleProvider
+    internal class V_ToggleActivatableProviderStub : IV_ToggleActivatable, IRangedClickInteractionModuleProvider, ICollideInteractionModuleProvider
     {
         #region Plugin Interfaces
         ISingleInteractorActivatableStateModule IV_ToggleActivatable._StateModule => _ToggleActivatable.StateModule;
@@ -92,7 +79,7 @@ namespace VE2.Core.VComponents.Tests
 
         internal ToggleActivatableService _ToggleActivatable = null;
 
-        internal V_ToggleActivatableStub(ToggleActivatableService ToggleActivatable)
+        internal V_ToggleActivatableProviderStub(ToggleActivatableService ToggleActivatable)
         {
             _ToggleActivatable = ToggleActivatable;
         }
@@ -101,28 +88,6 @@ namespace VE2.Core.VComponents.Tests
         {
             _ToggleActivatable.TearDown();
             _ToggleActivatable = null;
-        }
-    }
-
-    internal static class ToggleActivatableServiceStubFactory
-    {
-        //factory method to create the activatable stub
-        public static ToggleActivatableService Create(
-            ToggleActivatableConfig config = null,
-            SingleInteractorActivatableState interactorState = null,
-            string debugName = "debug",
-            IWorldStateSyncService worldStateSyncService = null
-        )
-        {
-            // Use defaults if parameters are not provided
-            config ??= new ToggleActivatableConfig();
-            interactorState ??= new SingleInteractorActivatableState();
-            worldStateSyncService ??= Substitute.For<IWorldStateSyncService>();
-
-            //Create the activatable with default values
-            ToggleActivatableService toggleActivatable = new(config, interactorState, debugName, worldStateSyncService);
-
-            return toggleActivatable;
         }
     }
 }

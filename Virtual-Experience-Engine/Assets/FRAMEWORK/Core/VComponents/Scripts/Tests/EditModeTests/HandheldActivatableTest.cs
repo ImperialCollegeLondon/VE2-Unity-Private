@@ -7,51 +7,74 @@ using VE2.Core.VComponents.Internal;
 
 namespace VE2.Core.VComponents.Tests
 {
-    internal class HandheldActivatableTest
+    [TestFixture]
+    [Category("Handheld Activatable Tests")]
+    internal class HandheldActivatableTests
     {
+        private IV_HandheldActivatable _activatablePluginInterface => _v_handheldActivatableProviderStub;
+        private V_HandheldActivatableProviderStub _v_handheldActivatableProviderStub;
+        private PluginActivatableScript _customerScript;
+
+        //Setup Once for every single test in this test class
+        [OneTimeSetUp]
+        public void SetUpOnce()
+        {
+            //Create the activatable
+            HandheldActivatableService toggleActivatable = new(
+                new HandheldActivatableConfig(), 
+                new SingleInteractorActivatableState(), 
+                "debug", 
+                Substitute.For<IWorldStateSyncService>());
+
+            //Stub out the VC (provider layer) with the activatable
+            _v_handheldActivatableProviderStub = new(toggleActivatable);
+
+            //Wire up the customer script to receive the events           
+            _customerScript = Substitute.For<PluginActivatableScript>();
+            _activatablePluginInterface.OnActivate.AddListener(_customerScript.HandleActivateReceived);
+            _activatablePluginInterface.OnDeactivate.AddListener(_customerScript.HandleDeactivateReceived);
+        }
+
         [Test]
         public void HandheldActivatable_WhenActivatedByPlugin_EmitsToPlugin()
         {
-            //Create the activatable with default values
-            HandheldActivatableService handheldActivatable = new(new HandheldActivatableConfig(), new SingleInteractorActivatableState(), "debug", Substitute.For<IWorldStateSyncService>());
-
-            //Stub out the VC (integration layer) with the activatable
-            V_HandheldActivatableStub v_activatableStub = new(handheldActivatable);
-
-            //Get interfaces
-            IV_HandheldActivatable activatablePluginInterface = v_activatableStub;
-
             //Wire up the customer script to receive the events
-            PluginScriptMock customerScript = Substitute.For<PluginScriptMock>();
-            activatablePluginInterface.OnActivate.AddListener(customerScript.HandleActivateReceived);
-            activatablePluginInterface.OnDeactivate.AddListener(customerScript.HandleDeactivateReceived);
+            PluginActivatableScript customerScript = Substitute.For<PluginActivatableScript>();
+            _activatablePluginInterface.OnActivate.AddListener(customerScript.HandleActivateReceived);
+            _activatablePluginInterface.OnDeactivate.AddListener(customerScript.HandleDeactivateReceived);
 
             //Invoke click, Check customer received the activation, and that the interactorID is set
-            activatablePluginInterface.IsActivated = true;
+            _activatablePluginInterface.IsActivated = true;
             customerScript.Received(1).HandleActivateReceived();
-            Assert.IsTrue(activatablePluginInterface.IsActivated);
-            Assert.AreEqual(activatablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
+            Assert.IsTrue(_activatablePluginInterface.IsActivated);
+            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
 
             // Invoke the click to deactivate
-            activatablePluginInterface.IsActivated = false;
+            _activatablePluginInterface.IsActivated = false;
             customerScript.Received(1).HandleDeactivateReceived();
-            Assert.IsFalse(activatablePluginInterface.IsActivated);
-            Assert.AreEqual(activatablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
+            Assert.IsFalse(_activatablePluginInterface.IsActivated);
+            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
         }
     }
 
-    internal class V_HandheldActivatableStub : IV_HandheldActivatable
+    internal class V_HandheldActivatableProviderStub : IV_HandheldActivatable
     {
         #region Plugin Interfaces
         ISingleInteractorActivatableStateModule IV_HandheldActivatable._StateModule => _HandheldActivatable.StateModule;
         IHandheldClickInteractionModule IV_HandheldActivatable._HandheldClickModule => _HandheldActivatable.HandheldClickInteractionModule;
         #endregion
 
+        internal IHandheldClickInteractionModule HandheldClickInteractionModule => _HandheldActivatable.HandheldClickInteractionModule;  
         protected HandheldActivatableService _HandheldActivatable = null;
 
-        public V_HandheldActivatableStub(HandheldActivatableService HandheldActivatable)
+        public V_HandheldActivatableProviderStub(HandheldActivatableService HandheldActivatable)
         {
             _HandheldActivatable = HandheldActivatable;
+        }
+
+        public void TearDown()
+        {
+            _HandheldActivatable.TearDown();
         }
     }
 }

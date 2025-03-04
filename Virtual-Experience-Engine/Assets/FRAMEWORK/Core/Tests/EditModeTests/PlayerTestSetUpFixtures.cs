@@ -1,8 +1,6 @@
 using NUnit.Framework;
 using NSubstitute;
-using VE2.Core.Player;
 using UnityEngine;
-using VE2.Core.Common;
 using VE2.Core.VComponents.API;
 using VE2.Core.Player.Internal;
 using VE2.Core.Player.API;
@@ -170,15 +168,15 @@ namespace VE2.Core.Tests
         }
     }
 
-    //Unlike the others, we want to repeat this setup for every test
+    //We want to repeat this setup for every test
     //Otherwise, we may find that the player's state carries over between tests!
     internal abstract class PlayerServiceSetupFixture
     {
-        private static PlayerService _playerService;
-        public static IPlayerService PlayerService => _playerService;
+        private PlayerService _playerService;
+        public IPlayerService PlayerService => _playerService;
 
         [SetUp]
-        public static void SetUpPlayerServiceBeforeEachTest()
+        public void SetUpPlayerServiceBeforeEachTest()
         {
             _playerService = new PlayerService(
                 new PlayerTransformData(),
@@ -193,7 +191,7 @@ namespace VE2.Core.Tests
         }
 
         [TearDown]
-        public void TearDownAfterEachTest()
+        public void TearDownPlayerServiceAfterEachTest()
         {
             _playerService.TearDown();
             _playerService = null;
