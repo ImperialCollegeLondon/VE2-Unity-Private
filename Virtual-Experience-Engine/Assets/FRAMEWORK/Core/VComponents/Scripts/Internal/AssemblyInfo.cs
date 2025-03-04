@@ -1,3 +1,4 @@
 using System.Runtime.CompilerServices;
-[assembly: InternalsVisibleTo("ViRSE.Core.VComponents.Tests")]
-[assembly: InternalsVisibleTo("ViRSE.Core.Tests")]
+[assembly: InternalsVisibleTo("VE2.Core.VComponents.Tests")]
+[assembly: InternalsVisibleTo("VE2.Core.Tests")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")] //For NSubstitute substitutes

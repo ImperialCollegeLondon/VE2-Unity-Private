@@ -1,0 +1,16 @@
+{
+    "name": "VE2.NonCore.Platforn.API",
+    "rootNamespace": "",
+    "references": [
+        "GUID:111c54dcd318c434faa4cad0b1ad6d57"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

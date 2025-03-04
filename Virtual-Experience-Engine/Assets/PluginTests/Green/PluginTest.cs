@@ -4,10 +4,8 @@ using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using VE2;
-using VE2.Core.VComponents;
-using VE2.Core.VComponents.PluginInterfaces;
-using VE2.NonCore.Instancing.VComponents.PluginInterfaces;
+using VE2.Core.VComponents.API;
+using VE2.NonCore.Instancing.API;
 
 public class PluginTest : MonoBehaviour
 {

@@ -1,82 +1,48 @@
 using NUnit.Framework;
 using NSubstitute;
-using VE2.Common;
-using static VE2.Common.CommonSerializables;
-using VE2.Core.VComponents.InteractableInterfaces;
-using VE2.Core.Player;
 using UnityEngine;
-using VE2.Core.Common;
+using VE2.Core.VComponents.API;
+using VE2.Core.Player.Internal;
+using VE2.Core.Player.API;
+using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.Core.Tests
 {
-    //public class PlayerSetup { }
-
     [SetUpFixture]
-    public class PlayerSettingsProviderSetup
+    internal class LocalClientIDProviderSetup
     {
-        public static IPlayerSettingsProvider PlayerSettingsProviderStub { get; private set; }
-
-        [OneTimeSetUp]
-        public void PlayerSettingsProviderStubSetupOnce()
-        {
-            //Stub out the player settings provider with default settings
-            PlayerSettingsProviderStub = Substitute.For<IPlayerSettingsProvider>();
-            PlayerSettingsProviderStub.UserSettings.Returns(new UserSettingsPersistable());
-        }
-
-        public static void StubUserSettingsValueForPlayerSettingsProviderStub(UserSettingsPersistable userSettings)
-        {
-            PlayerSettingsProviderStub.UserSettings.Returns(userSettings);
-        }
-    }
-
-    [SetUpFixture]
-    public class InputHandlerSetup
-    {
-        public static PlayerInputContainerStubWrapper PlayerInputContainerStubWrapper { get; private set; }
-
-        [OneTimeSetUp]
-        public void InputHandlerStubSetupOnce()
-        {
-            //Stub out the input handler    
-            PlayerInputContainerStubWrapper = new();
-        }
-    }
-    
-    [SetUpFixture]
-    public class MultiplayerSupportSetup
-    {
-        public static IMultiplayerSupport MultiplayerSupportStub { get; private set; }
+        public static ILocalClientIDProvider LocalClientIDProviderStub { get; private set; }
         public static InteractorID InteractorID { get; private set; }
         public static string InteractorGameobjectName { get; private set; }
 
         [OneTimeSetUp]
-        public void MultiplayerSupportStubSetupOnce()
+        public static void MultiplayerSupportStubSetupOnce()
         {
             //Stub out the multiplayer support
             System.Random random = new();
             ushort localClientID = (ushort)random.Next(0, ushort.MaxValue);
 
-            MultiplayerSupportStub = Substitute.For<IMultiplayerSupport>();
-            MultiplayerSupportStub.IsConnectedToServer.Returns(true);
+            LocalClientIDProviderStub = Substitute.For<ILocalClientIDProvider>();
+            LocalClientIDProviderStub.IsClientIDReady.Returns(true);
+            LocalClientIDProviderStub.LocalClientID.Returns(localClientID);
             InteractorID = new(localClientID, InteractorType.Mouse2D);
             InteractorGameobjectName = $"Interactor{InteractorID.ClientID}-{InteractorID.InteractorType}";
         }
 
         public static void StubLocalClientIDForMultiplayerSupportStub(ushort localClientID)
         {
-            MultiplayerSupportStub.LocalClientID.Returns(localClientID);
+            LocalClientIDProviderStub.LocalClientID.Returns(localClientID);
         }
     }
 
     [SetUpFixture]
-    public class InteractorSetup
+    internal class InteractorSetup
     {
         public static IInteractor InteractorStub { get; private set; }
         public static GameObject InteractorGameObject { get; private set; }
 
         [OneTimeSetUp]
-        public void InteractorStubSetupOnce()
+        public static void InteractorStubSetupOnce()
         {
             InteractorStub = Substitute.For<IInteractor>();
             InteractorGameObject = new();
@@ -84,12 +50,25 @@ namespace VE2.Core.Tests
     }
 
     [SetUpFixture]
-    public class RayCastProviderSetup
+    internal class InteractorContainerSetup
+    {
+        public static InteractorContainer InteractorContainer { get; private set; }
+
+        [OneTimeSetUp]
+        public static void InteractorContainerSetupOnce()
+        {
+            InteractorContainer = new();
+            InteractorContainer.RegisterInteractor(LocalClientIDProviderSetup.InteractorID.ToString(), InteractorSetup.InteractorStub);
+        }
+    }
+
+    [SetUpFixture]
+    internal class RayCastProviderSetup
     {
         public static IRaycastProvider RaycastProviderStub { get; private set; }
 
         [OneTimeSetUp]
-        public void RayCastProviderStubSetupOnce()
+        public static void RayCastProviderStubSetupOnce()
         {
             RaycastProviderStub = Substitute.For<IRaycastProvider>();
         }
@@ -103,81 +82,70 @@ namespace VE2.Core.Tests
     }
 
     [SetUpFixture]
-    public class PlayerServiceSetup
+    internal class PlayerPersistentDataHandlerSetup
     {
-        public static PlayerService PlayerServiceStub { get; private set; }
+        public static IPlayerPersistentDataHandler PlayerPersistentDataHandlerStub { get; private set; }
 
         [OneTimeSetUp]
-        public void SetUpPlayerServiceStub()
+        public void PlayerPersistentDataHandlerStubSetupOnce()
         {
-            //Create the player (2d)
-            PlayerServiceStub = new(
-                new PlayerTransformData(),
-                new PlayerStateConfig(),
-                false,
-                true,
-                new PlayerStateModuleContainer(),
-                new InteractorContainer(),
-                PlayerSettingsProviderSetup.PlayerSettingsProviderStub,
-                Substitute.For<IPlayerAppearanceOverridesProvider>(),
-                MultiplayerSupportSetup.MultiplayerSupportStub,
-                InputHandlerSetup.PlayerInputContainerStubWrapper.PlayerInputContainer,
-                RayCastProviderSetup.RaycastProviderStub, 
-                Substitute.For<IXRManagerWrapper>()
-            );
+            PlayerPersistentDataHandlerStub = Substitute.For<IPlayerPersistentDataHandler>();
+            PlayerPersistentDataHandlerStub.PlayerPresentationConfig.Returns(new PlayerPresentationConfig());
         }
     }
 
-    public class PlayerInputContainerStubWrapper
+    [SetUpFixture]
+    public class PlayerInputContainerSetup
     {
-        public PlayerInputContainer PlayerInputContainer { get; private set; }
+        public static PlayerInputContainer PlayerInputContainerStub { get; private set; }
 
-        public IPressableInput ChangeMode2D { get; private set; } = Substitute.For<IPressableInput>();
+        public static IPressableInput ChangeMode2D { get; private set; } = Substitute.For<IPressableInput>();
 
         // 2D player
-        public IPressableInput InspectModeButton { get; private set; } = Substitute.For<IPressableInput>();
-        public IPressableInput RangedClick2D { get; private set; } = Substitute.For<IPressableInput>();
-        public IPressableInput Grab2D { get; private set; } = Substitute.For<IPressableInput>();
-        public IPressableInput HandheldClick2D { get; private set; } = Substitute.For<IPressableInput>();
-        public IScrollInput ScrollTickUp2D { get; private set; } = Substitute.For<IScrollInput>();
-        public IScrollInput ScrollTickDown2D { get; private set; } = Substitute.For<IScrollInput>();
+        public static IPressableInput InspectModeButton { get; private set; } = Substitute.For<IPressableInput>();
+        public static IPressableInput RangedClick2D { get; private set; } = Substitute.For<IPressableInput>();
+        public static IPressableInput Grab2D { get; private set; } = Substitute.For<IPressableInput>();
+        public static IPressableInput HandheldClick2D { get; private set; } = Substitute.For<IPressableInput>();
+        public static IScrollInput ScrollTickUp2D { get; private set; } = Substitute.For<IScrollInput>();
+        public static IScrollInput ScrollTickDown2D { get; private set; } = Substitute.For<IScrollInput>();
 
         // VR reset
-        public IPressableInput ResetViewVR { get; private set; } = Substitute.For<IPressableInput>();
+        public static IPressableInput ResetViewVR { get; private set; } = Substitute.For<IPressableInput>();
 
         // Left-hand VR
-        public IValueInput<Vector3> HandVRLeftPosition { get; private set; } = Substitute.For<IValueInput<Vector3>>();
-        public IValueInput<Quaternion> HandVRLeftRotation { get; private set; } = Substitute.For<IValueInput<Quaternion>>();
-        public IPressableInput RangedClickVRLeft { get; private set; } = Substitute.For<IPressableInput>();
-        public IPressableInput GrabVRLeft { get; private set; } = Substitute.For<IPressableInput>();
-        public IPressableInput HandheldClickVRLeft { get; private set; } = Substitute.For<IPressableInput>();
-        public IScrollInput ScrollTickUpVRLeft { get; private set; } = Substitute.For<IScrollInput>();
-        public IScrollInput ScrollTickDownVRLeft { get; private set; } = Substitute.For<IScrollInput>();
-        public IPressableInput HorizontalDragVRLeft { get; private set; } = Substitute.For<IPressableInput>();
-        public IPressableInput VerticalDragVRLeft { get; private set; } = Substitute.For<IPressableInput>();
-        public IStickPressInput StickPressHorizontalLeftDirectionVRLeft { get; private set; } = Substitute.For<IStickPressInput>();
-        public IStickPressInput StickPressHorizontalRightDirectionVRLeft { get; private set; } = Substitute.For<IStickPressInput>();
-        public IPressableInput StickPressVerticalVRLeft { get; private set; } = Substitute.For<IPressableInput>();
-        public IValueInput<Vector2> TeleportDirectionVRLeft { get; private set; } = Substitute.For<IValueInput<Vector2>>();
+        public static IValueInput<Vector3> HandVRLeftPosition { get; private set; } = Substitute.For<IValueInput<Vector3>>();
+        public static IValueInput<Quaternion> HandVRLeftRotation { get; private set; } = Substitute.For<IValueInput<Quaternion>>();
+        public static IPressableInput RangedClickVRLeft { get; private set; } = Substitute.For<IPressableInput>();
+        public static IPressableInput GrabVRLeft { get; private set; } = Substitute.For<IPressableInput>();
+        public static IPressableInput HandheldClickVRLeft { get; private set; } = Substitute.For<IPressableInput>();
+        public static IScrollInput ScrollTickUpVRLeft { get; private set; } = Substitute.For<IScrollInput>();
+        public static IScrollInput ScrollTickDownVRLeft { get; private set; } = Substitute.For<IScrollInput>();
+        public static IPressableInput HorizontalDragVRLeft { get; private set; } = Substitute.For<IPressableInput>();
+        public static IPressableInput VerticalDragVRLeft { get; private set; } = Substitute.For<IPressableInput>();
+        public static IStickPressInput StickPressHorizontalLeftDirectionVRLeft { get; private set; } = Substitute.For<IStickPressInput>();
+        public static IStickPressInput StickPressHorizontalRightDirectionVRLeft { get; private set; } = Substitute.For<IStickPressInput>();
+        public static IPressableInput StickPressVerticalVRLeft { get; private set; } = Substitute.For<IPressableInput>();
+        public static IValueInput<Vector2> TeleportDirectionVRLeft { get; private set; } = Substitute.For<IValueInput<Vector2>>();
 
         // Right-hand VR
-        public IValueInput<Vector3> HandVRRightPosition { get; private set; } = Substitute.For<IValueInput<Vector3>>();
-        public IValueInput<Quaternion> HandVRRightRotation { get; private set; } = Substitute.For<IValueInput<Quaternion>>();
-        public IPressableInput RangedClickVRRight { get; private set; } = Substitute.For<IPressableInput>();
-        public IPressableInput GrabVRRight { get; private set; } = Substitute.For<IPressableInput>();
-        public IPressableInput HandheldClickVRRight { get; private set; } = Substitute.For<IPressableInput>();
-        public IScrollInput ScrollTickUpVRRight { get; private set; } = Substitute.For<IScrollInput>();
-        public IScrollInput ScrollTickDownVRRight { get; private set; } = Substitute.For<IScrollInput>();
-        public IPressableInput HorizontalDragVRRight { get; private set; } = Substitute.For<IPressableInput>();
-        public IPressableInput VerticalDragVRRight { get; private set; } = Substitute.For<IPressableInput>(); 
-        public IStickPressInput StickPressHorizontalLeftDirectionVRRight { get; private set; } = Substitute.For<IStickPressInput>();
-        public IStickPressInput StickPressHorizontalRightDirectionVRRight { get; private set; } = Substitute.For<IStickPressInput>();
-        public IPressableInput StickPressVerticalVRRight { get; private set; } = Substitute.For<IPressableInput>();
-        public IValueInput<Vector2> TeleportDirectionVRRight { get; private set; } = Substitute.For<IValueInput<Vector2>>();
+        public static IValueInput<Vector3> HandVRRightPosition { get; private set; } = Substitute.For<IValueInput<Vector3>>();
+        public static IValueInput<Quaternion> HandVRRightRotation { get; private set; } = Substitute.For<IValueInput<Quaternion>>();
+        public static IPressableInput RangedClickVRRight { get; private set; } = Substitute.For<IPressableInput>();
+        public static IPressableInput GrabVRRight { get; private set; } = Substitute.For<IPressableInput>();
+        public static IPressableInput HandheldClickVRRight { get; private set; } = Substitute.For<IPressableInput>();
+        public static IScrollInput ScrollTickUpVRRight { get; private set; } = Substitute.For<IScrollInput>();
+        public static IScrollInput ScrollTickDownVRRight { get; private set; } = Substitute.For<IScrollInput>();
+        public static IPressableInput HorizontalDragVRRight { get; private set; } = Substitute.For<IPressableInput>();
+        public static IPressableInput VerticalDragVRRight { get; private set; } = Substitute.For<IPressableInput>(); 
+        public static IStickPressInput StickPressHorizontalLeftDirectionVRRight { get; private set; } = Substitute.For<IStickPressInput>();
+        public static IStickPressInput StickPressHorizontalRightDirectionVRRight { get; private set; } = Substitute.For<IStickPressInput>();
+        public static IPressableInput StickPressVerticalVRRight { get; private set; } = Substitute.For<IPressableInput>();
+        public static IValueInput<Vector2> TeleportDirectionVRRight { get; private set; } = Substitute.For<IValueInput<Vector2>>();
 
-        public PlayerInputContainerStubWrapper()
+        [OneTimeSetUp]
+        public static void SetupPlayerInputContainerStubWrapper()
         {
-            PlayerInputContainer = new PlayerInputContainer(
+            PlayerInputContainerStub = new PlayerInputContainer(
                 changeMode2D: ChangeMode2D,
                 inspectModeButton: InspectModeButton,
                 rangedClick2D: RangedClick2D,
@@ -213,6 +181,36 @@ namespace VE2.Core.Tests
                 stickPressVerticalVRRight: StickPressVerticalVRRight,
                 teleportDirectionVRRight: TeleportDirectionVRRight
             );
+        }
+    }
+
+    //We want to repeat this setup for every test
+    //Otherwise, we may find that the player's state carries over between tests!
+    internal abstract class PlayerServiceSetupFixture
+    {
+        private PlayerService _playerService;
+        public IPlayerService PlayerService => _playerService;
+
+        [SetUp]
+        public void SetUpPlayerServiceBeforeEachTest()
+        {
+            _playerService = new PlayerService(
+                new PlayerTransformData(),
+                new PlayerConfig(),
+                InteractorContainerSetup.InteractorContainer,
+                PlayerPersistentDataHandlerSetup.PlayerPersistentDataHandlerStub,
+                LocalClientIDProviderSetup.LocalClientIDProviderStub,
+                PlayerInputContainerSetup.PlayerInputContainerStub,
+                RayCastProviderSetup.RaycastProviderStub, 
+                Substitute.For<IXRManagerWrapper>()
+            );
+        }
+
+        [TearDown]
+        public void TearDownPlayerServiceAfterEachTest()
+        {
+            _playerService.TearDown();
+            _playerService = null;
         }
     }
 }
