@@ -141,6 +141,8 @@ namespace VE2.Core.VComponents.Internal
             //Values received from the state are always output values
             //convert the output value to spatial value
             _spatialValue = ConvertToSpatialValue(value);
+
+            //set revs and the old rotational value received from the state if host so the values remained synced
             _numberOfRevolutions = Mathf.FloorToInt(_spatialValue / 360);
             _oldRotationalValue = _spatialValue - (_numberOfRevolutions * 360);
 
