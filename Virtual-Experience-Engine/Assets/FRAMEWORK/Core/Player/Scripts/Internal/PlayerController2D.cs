@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using VE2.Core.Player.API;
+using VE2.Core.UI.API;
 using VE2.Core.VComponents.API;
 using static VE2.Core.Player.API.PlayerSerializables;
 
@@ -39,8 +40,14 @@ namespace VE2.Core.Player.Internal
         private readonly Player2DLocomotor _playerLocomotor2D;
         private readonly Interactor2D _interactor2D;
 
+        private readonly IPrimaryUIService _primaryUIService;
+        private readonly Canvas _primaryUICanvas;
+
+        private readonly ISecondaryUIService _secondaryUIService;
+        private readonly Canvas _secondaryUICanvas;
+
         internal PlayerController2D(InteractorContainer interactorContainer, Player2DInputContainer player2DInputContainer, IPlayerPersistentDataHandler playerPersistentDataHandler,
-            Player2DControlConfig controlConfig, IRaycastProvider raycastProvider, ILocalClientIDProvider multiplayerSupport) 
+            Player2DControlConfig controlConfig, IRaycastProvider raycastProvider, ILocalClientIDProvider multiplayerSupport, IPrimaryUIService primaryUIService, ISecondaryUIService secondaryUIService) 
         {
             GameObject player2DPrefab = Resources.Load("2dPlayer") as GameObject;
             _playerGO = GameObject.Instantiate(player2DPrefab, null, false);
@@ -49,7 +56,12 @@ namespace VE2.Core.Player.Internal
             _controlConfig = controlConfig;
             _player2DInputContainer = player2DInputContainer;
 
+            _primaryUIService = primaryUIService;
+            _secondaryUIService = secondaryUIService;
+
             Player2DReferences player2DReferences = _playerGO.GetComponent<Player2DReferences>();
+            _primaryUICanvas = player2DReferences.PrimaryUICanvas;
+            _secondaryUICanvas = player2DReferences.SecondaryUICanvas;
 
             _interactor2D = new(
                 interactorContainer, player2DInputContainer.InteractorInputContainer2D,
@@ -74,6 +86,8 @@ namespace VE2.Core.Player.Internal
 
             _interactor2D.GrabberTransform.SetLocalPositionAndRotation(initTransformData.Hand2DLocalPosition, initTransformData.Hand2DLocalRotation);
             _interactor2D.HandleOnEnable();
+
+            _primaryUIService.MoveUIToCanvas(_primaryUICanvas);
         }
 
         public void DeactivatePlayer() 

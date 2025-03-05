@@ -5,6 +5,7 @@ using VE2.Core.VComponents.API;
 using VE2.Core.Player.Internal;
 using VE2.Core.Player.API;
 using static VE2.Core.Player.API.PlayerSerializables;
+using VE2.Core.UI.API;
 
 namespace VE2.Core.Tests
 {
@@ -202,7 +203,9 @@ namespace VE2.Core.Tests
                 LocalClientIDProviderSetup.LocalClientIDProviderStub,
                 PlayerInputContainerSetup.PlayerInputContainerStub,
                 RayCastProviderSetup.RaycastProviderStub, 
-                Substitute.For<IXRManagerWrapper>()
+                Substitute.For<IXRManagerWrapper>(),
+                Substitute.For<IPrimaryUIService>(),
+                Substitute.For<ISecondaryUIService>()
             );
         }
 

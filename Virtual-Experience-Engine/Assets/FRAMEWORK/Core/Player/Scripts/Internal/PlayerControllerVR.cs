@@ -1,5 +1,6 @@
 using UnityEngine;
 using VE2.Core.Player.API;
+using VE2.Core.UI.API;
 using VE2.Core.VComponents.API;
 using static VE2.Core.Player.API.PlayerSerializables;
 
@@ -37,8 +38,13 @@ namespace VE2.Core.Player.Internal
         private readonly V_HandController _handControllerLeft;
         private readonly V_HandController _handControllerRight;
 
+        //TODO - it's both players that need these. 
+        //That suggests we probably want this in a base class? Think about refactoring
+        private readonly IPrimaryUIService _primaryUIService; //Secondary lives on the hands
+        private readonly Canvas _primaryUICanvas;
+
         internal PlayerControllerVR(InteractorContainer interactorContainer, PlayerVRInputContainer playerVRInputContainer, IPlayerPersistentDataHandler playerSettingsHandler, PlayerVRControlConfig controlConfig, 
-            IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper, ILocalClientIDProvider localClientIDProvider)
+            IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper, ILocalClientIDProvider localClientIDProvider, IPrimaryUIService primaryUIService, ISecondaryUIService secondaryUIService)
         {
             GameObject playerVRPrefab = Resources.Load("vrPlayer") as GameObject;
             _playerGO = GameObject.Instantiate(playerVRPrefab, null, false);
@@ -48,10 +54,17 @@ namespace VE2.Core.Player.Internal
             _controlConfig = controlConfig;
             _xrManagerSettingsWrapper = xrManagerSettingsWrapper;
 
+            _primaryUIService = primaryUIService;
+            //_primaryUIService.AddNewTab(/*The player settings and player controls*/);
+            //Where do these panels come from? The player service? Or the player controllers?
+            //We do need logic for working out if we should show 2d/vr... but we already have PlayerService looking at those bools...
+            //and is probably easier to not have to pass in the tabs for both players?
+
             PlayerVRReferences playerVRReferences = _playerGO.GetComponent<PlayerVRReferences>();
             _rootTransform = playerVRReferences.RootTransform;
             _verticalOffsetTransform = playerVRReferences.VerticalOffsetTransform;
             _headTransform = playerVRReferences.HeadTransform;
+            _primaryUICanvas = playerVRReferences.PrimaryUICanvas;
 
             GameObject handVRLeftPrefab = Resources.Load<GameObject>("HandVRLeft");
             GameObject handVRLeftGO = GameObject.Instantiate(handVRLeftPrefab, _verticalOffsetTransform, false);
@@ -112,6 +125,8 @@ namespace VE2.Core.Player.Internal
 
             _handControllerLeft.HandleOnEnable();
             _handControllerRight.HandleOnEnable();
+
+            _primaryUIService?.MoveUIToCanvas(_primaryUICanvas);
         }
 
         public void DeactivatePlayer()
@@ -154,6 +169,11 @@ namespace VE2.Core.Player.Internal
         private void HandleResetViewReleased()
         {
             //TODO:
+        }
+
+        private void HandlePrimaryUITogglePressed()
+        {
+            
         }
 
         public void TearDown()

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using VE2.Core.Common;
 using VE2.Core.Player.API;
+using VE2.Core.UI.API;
 using VE2.Core.VComponents.API;
 using static VE2.Core.Player.API.PlayerSerializables;
 
@@ -10,15 +11,18 @@ namespace VE2.Core.Player.Internal
 {
     internal static class VE2PlayerServiceFactory
     {
-        internal static PlayerService Create(PlayerTransformData state, PlayerConfig config, IPlayerPersistentDataHandler playerPersistentDataHandler, IXRManagerWrapper xrManagerWrapper)
+        internal static PlayerService Create(PlayerTransformData state, PlayerConfig config, IPlayerPersistentDataHandler playerPersistentDataHandler, 
+            IXRManagerWrapper xrManagerWrapper, IPrimaryUIService primaryUIService, ISecondaryUIService secondaryUIService)
         {
             return new PlayerService(state, config, 
             VComponentsAPI.InteractorContainer,
             playerPersistentDataHandler,
             PlayerAPI.LocalClientIDProvider,
             PlayerAPI.InputHandler.PlayerInputContainer,
-                new RaycastProvider(),
-                xrManagerWrapper);
+            new RaycastProvider(),
+            xrManagerWrapper,
+            primaryUIService,
+            secondaryUIService);
         }
     }
 
@@ -83,7 +87,8 @@ namespace VE2.Core.Player.Internal
 
         internal PlayerService(PlayerTransformData transformData, PlayerConfig config,
             InteractorContainer interactorContainer, IPlayerPersistentDataHandler playerSettingsHandler, 
-            ILocalClientIDProvider playerSyncer, PlayerInputContainer playerInputContainer, IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerWrapper)
+            ILocalClientIDProvider playerSyncer, PlayerInputContainer playerInputContainer, IRaycastProvider raycastProvider, 
+            IXRManagerWrapper xrManagerWrapper, IPrimaryUIService primaryUIService, ISecondaryUIService secondaryUIService)
         {
            // _playerStateModule = new(state, config, playerStateModuleContainer);
             PlayerTransformData = transformData;
@@ -93,15 +98,17 @@ namespace VE2.Core.Player.Internal
             _playerSettingsHandler = playerSettingsHandler;
             //_xrManagerWrapper = xrManagerWrapper;
 
+            //TODO, if primary UI exists, add the player settings and player controls to it
+            //_primaryUIService?.AddNewTab(/*The player settings and player controls*/);
+
             if (_config.EnableVR)
             {
-                Debug.Log("calling init XR Loader");
                 xrManagerWrapper.InitializeLoader(); 
 
                 _playerVR = new PlayerControllerVR(
                     interactorContainer, _playerInputContainer.PlayerVRInputContainer,
                     playerSettingsHandler, new PlayerVRControlConfig(), //TODO: 
-                    raycastProvider, xrManagerWrapper, playerSyncer);
+                    raycastProvider, xrManagerWrapper, playerSyncer, primaryUIService, secondaryUIService);
             }
 
             if (_config.Enable2D)
@@ -109,7 +116,7 @@ namespace VE2.Core.Player.Internal
                 _player2D = new PlayerController2D(
                     interactorContainer, _playerInputContainer.Player2DInputContainer,
                     playerSettingsHandler, new Player2DControlConfig(), //TODO:
-                    raycastProvider, playerSyncer);
+                    raycastProvider, playerSyncer, primaryUIService, secondaryUIService);
             }
 
             _playerSettingsHandler.OnDebugSaveAppearance += HandlePlayerPresentationChanged;
