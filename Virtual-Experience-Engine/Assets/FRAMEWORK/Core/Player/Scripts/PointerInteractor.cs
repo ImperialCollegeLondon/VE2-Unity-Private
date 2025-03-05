@@ -13,6 +13,9 @@ namespace VE2.Core.Player
         public Transform GrabberTransform => _grabberTransform;
         [SerializeField, IgnoreParent] private Transform _grabberTransform;
 
+        public GameObject GrabberVisualisation => _grabberVisualisation;
+        [SerializeField, IgnoreParent] private GameObject _grabberVisualisation;
+
         public Transform RayOrigin => _rayOrigin;
         [SerializeField, IgnoreParent] private Transform _rayOrigin;
 
@@ -44,6 +47,7 @@ namespace VE2.Core.Player
         private readonly InteractorInputContainer _interactorInputContainer;
 
         protected readonly Transform _GrabberTransform;
+        protected readonly GameObject _GrabberVisualisation;
         protected readonly Transform _RayOrigin;
         private readonly LayerMask _layerMask;
         private readonly StringWrapper _raycastHitDebug;
@@ -59,6 +63,7 @@ namespace VE2.Core.Player
             _interactorInputContainer = interactorInputContainer;
 
             _GrabberTransform = interactorReferences.GrabberTransform;
+            _GrabberVisualisation = interactorReferences.GrabberVisualisation;
             _RayOrigin = interactorReferences.RayOrigin;
             _layerMask = interactorReferences.LayerMask;
             _raycastHitDebug = interactorReferences.RaycastHitDebug;
@@ -106,24 +111,31 @@ namespace VE2.Core.Player
 
         public void HandleUpdate()
         {
-            if (IsCurrentlyGrabbing)
-                return;
-
-            RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
-
-            if (!_WaitingForMultiplayerSupport && raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange)
+            if (IsCurrentlyGrabbing && _CurrentGrabbingGrabbable is IRangedAdjustableInteractionModule rangedAdjustableInteraction) //if grabbing and grabbed object is an adjustable module
             {
-                bool isAllowedToInteract = !raycastResultWrapper.RangedInteractable.AdminOnly;
-                SetInteractorState(isAllowedToInteract ? InteractorState.InteractionAvailable : InteractorState.InteractionLocked);
-                _raycastHitDebug.Value = raycastResultWrapper.RangedInteractable.ToString();
+                var lineRenderer = _GrabberVisualisation.GetComponent<LineRenderer>();
+                lineRenderer.startWidth = lineRenderer.endWidth = 0.005f;
+                lineRenderer.SetPosition(0, GrabberTransform.position);
+                lineRenderer.SetPosition(1, rangedAdjustableInteraction.Transform.position);
             }
             else
             {
-                SetInteractorState(InteractorState.Idle);
-                _raycastHitDebug.Value = "none";
-            }
+                RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
 
-            HandleRaycastDistance(raycastResultWrapper.HitDistance);
+                if (!_WaitingForMultiplayerSupport && raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange)
+                {
+                    bool isAllowedToInteract = !raycastResultWrapper.RangedInteractable.AdminOnly;
+                    SetInteractorState(isAllowedToInteract ? InteractorState.InteractionAvailable : InteractorState.InteractionLocked);
+                    _raycastHitDebug.Value = raycastResultWrapper.RangedInteractable.ToString();
+                }
+                else
+                {
+                    SetInteractorState(InteractorState.Idle);
+                    _raycastHitDebug.Value = "none";
+                }
+
+                HandleRaycastDistance(raycastResultWrapper.HitDistance);
+            }
         }
 
         protected virtual void HandleRaycastDistance(float distance) { } //TODO: Code smell? InteractorVR needs this to set the LineRenderer length
@@ -185,8 +197,10 @@ namespace VE2.Core.Player
             if (_CurrentGrabbingGrabbable is IRangedAdjustableInteractionModule rangedAdjustableInteraction)
             {
                 //offset the virtual grabber transform to the grabbable's position
-                Vector3 directionToGrabber = _GrabberTransform.position - rangedAdjustableInteraction.Transform.position;
+                Vector3 directionToGrabber = GrabberTransform.position - rangedAdjustableInteraction.Transform.position;
                 GrabberTransform.position -= directionToGrabber;
+
+                _GrabberVisualisation.SetActive(true);
             }
         }
 
@@ -197,6 +211,7 @@ namespace VE2.Core.Player
 
             //reset the virtual grabber transform to the original position
             _GrabberTransform.localPosition = Vector3.zero;
+            _GrabberVisualisation.SetActive(false);
         }
 
         private void HandleHandheldClickPressed()
@@ -242,6 +257,7 @@ namespace VE2.Core.Player
                 }
             }
         }
+
         private void HandleScrollDown()
         {
             if (IsCurrentlyGrabbing)
