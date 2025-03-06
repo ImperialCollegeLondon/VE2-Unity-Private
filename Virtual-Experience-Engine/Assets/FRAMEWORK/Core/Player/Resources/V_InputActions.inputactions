@@ -1,0 +1,759 @@
+{
+    "name": "V_InputActions",
+    "maps": [
+        {
+            "name": "InputPlayer",
+            "id": "33c9d7be-85b3-4493-9091-92d3f696acbb",
+            "actions": [
+                {
+                    "name": "ToggleMode",
+                    "type": "Button",
+                    "id": "f2279239-3787-46f1-88ff-bdffa89c7e3b",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "Button With One Modifier",
+                    "id": "09a574d4-40f5-4d53-ace3-70595e0930d0",
+                    "path": "ButtonWithOneModifier(overrideModifiersNeedToBePressedFirst=true)",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleMode",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "Modifier",
+                    "id": "92fddcfa-7c7d-40e5-8553-5697e575b9fd",
+                    "path": "<Keyboard>/ctrl",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleMode",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "Button",
+                    "id": "a13b6316-f013-4c70-8425-6f2a249e476e",
+                    "path": "<Keyboard>/h",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleMode",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                }
+            ]
+        },
+        {
+            "name": "Input2D",
+            "id": "2a9154f7-62cb-4648-aaae-c794fdcea435",
+            "actions": [
+                {
+                    "name": "InspectMode",
+                    "type": "Button",
+                    "id": "47172c85-0669-46f0-a7b4-fec08e1a1bc7",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "1122da15-a6df-4b41-a960-c173285164cd",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "InspectMode",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "InputInteractor2D",
+            "id": "09d4f250-ce8e-41ab-90cd-de0f299fad1c",
+            "actions": [
+                {
+                    "name": "RangedClick",
+                    "type": "Button",
+                    "id": "c1a6647e-d6fe-4a0e-a456-044c14cce0b0",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Grab",
+                    "type": "Button",
+                    "id": "5242649c-4710-4b9d-802c-4da0120b8615",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "HandheldClick",
+                    "type": "Button",
+                    "id": "525445fb-a694-47e9-9eeb-95ae41b5089b",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ScrollValue",
+                    "type": "Value",
+                    "id": "b40e7fb2-eb07-4e50-8e3d-5744937ed42c",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "332e80bc-559e-4cfa-8368-d96ea38473f7",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "RangedClick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "740d0829-0e71-4b28-bab2-4005e9d08cb8",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Grab",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "500bfc76-5530-4271-8df9-ca675938c3a1",
+                    "path": "<Keyboard>/f",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HandheldClick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "acb8fca5-808d-4eab-ae15-9ac211ee049e",
+                    "path": "<Mouse>/scroll",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ScrollValue",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "InputVR",
+            "id": "31eab18a-af78-439e-9a03-7af1cd017b55",
+            "actions": [
+                {
+                    "name": "ResetView",
+                    "type": "Button",
+                    "id": "3ffd22dd-fa68-4c4b-a1fe-e32ad25ade24",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "54dc9dbd-9136-4331-996a-cb2fa73ec431",
+                    "path": "<XRController>{LeftHand}/start",
+                    "interactions": "Hold(duration=1,pressPoint=0.5)",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ResetView",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "InputInteractorVRLeft",
+            "id": "7981f7ca-c936-4ffe-819b-88f183a99132",
+            "actions": [
+                {
+                    "name": "RangedClick",
+                    "type": "Button",
+                    "id": "c97e8edd-acbc-4bf8-b474-22cf06cf6e15",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Grab",
+                    "type": "Button",
+                    "id": "5cf0a12c-9c10-4db5-afda-be13a4bfc5b9",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "HandheldClick",
+                    "type": "Button",
+                    "id": "d6073b9e-b575-411b-8096-fc8f3d9abcc2",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ScrollValue",
+                    "type": "Value",
+                    "id": "de24bfcc-1bfa-420d-b811-d44c8a504c03",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "88714a70-7330-4774-af1f-b9a9e609222f",
+                    "path": "<XRController>{LeftHand}/triggerPressed",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "RangedClick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "905dc2c7-26d4-4b1f-82a6-771d2bb7092e",
+                    "path": "<XRController>{LeftHand}/triggerPressed",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HandheldClick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "dc60d7ad-2447-4b13-b0ed-9de2c01ea71d",
+                    "path": "<XRController>{LeftHand}/gripPressed",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Grab",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "404e2b1b-f7ff-4dd6-b4f2-a4810dd743af",
+                    "path": "<XRController>{LeftHand}/thumbstick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ScrollValue",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "InputInteractorVRRight",
+            "id": "ff6727e8-ebfe-4f36-adfc-a0b128afdbe5",
+            "actions": [
+                {
+                    "name": "RangedClick",
+                    "type": "Button",
+                    "id": "8607de90-2be7-453b-a5c3-b906c15e5658",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Grab",
+                    "type": "Button",
+                    "id": "ef886675-fe33-4140-bdf1-d3cd31e75e31",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "HandheldClick",
+                    "type": "Button",
+                    "id": "cecb03ff-2586-4cba-b28d-aaf2795e5e8d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ScrollValue",
+                    "type": "Value",
+                    "id": "618cc2ad-a85b-42de-8f65-cb723866af3d",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "24dd57ef-0363-4a68-986e-d5ecbc080393",
+                    "path": "<XRController>{RightHand}/triggerPressed",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "RangedClick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a1b9a9f2-3f32-4f27-b4b4-5fbcd8586e5a",
+                    "path": "<XRController>{RightHand}/gripPressed",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Grab",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "69bb7499-40d4-4876-968e-1bf2b97bea22",
+                    "path": "<XRController>{RightHand}/thumbstick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ScrollValue",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3ff7c7b7-9f02-4f33-9291-ebde1d3ee41e",
+                    "path": "<XRController>{RightHand}/triggerPressed",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HandheldClick",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "InputLocomotorVRLeft",
+            "id": "dc987789-dcc4-4b77-a5da-f3b2d5b074bf",
+            "actions": [
+                {
+                    "name": "PrimaryButton",
+                    "type": "Button",
+                    "id": "7feaeae0-1dec-4e20-a534-058a42b38475",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SecondaryButton",
+                    "type": "Button",
+                    "id": "a343c573-6371-45f2-8db7-1fc289374c29",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "379c9ea1-7f3c-4325-a1fb-54cbea4f79c1",
+                    "path": "<XRController>{LeftHand}/secondaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SecondaryButton",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b1db78c4-6609-4780-a9bd-e11a95fb4e82",
+                    "path": "<XRController>{LeftHand}/primaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PrimaryButton",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "InputLocomotorVRRight",
+            "id": "fd9e2fde-7325-4bcc-aa04-ddb25fc25746",
+            "actions": [
+                {
+                    "name": "PrimaryButton",
+                    "type": "Button",
+                    "id": "17319a34-3204-4e2f-93df-274147b82fe2",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SecondaryButton",
+                    "type": "Button",
+                    "id": "8ed76480-9d2d-4122-aaf9-bcee8eaccb54",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "a3b42b1e-fe13-48fd-a0b4-3deb1a5afe77",
+                    "path": "<XRController>{RightHand}/primaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PrimaryButton",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3433552e-1119-4dc1-9150-1a56db902289",
+                    "path": "<XRController>{RightHand}/secondaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SecondaryButton",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "InputUI",
+            "id": "75f0d35a-4ec0-4947-b080-17366f5c12db",
+            "actions": [
+                {
+                    "name": "ToggleMenu",
+                    "type": "Button",
+                    "id": "ddeda0b2-6ad7-4ca4-a800-560e5fb7bc17",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "8eb966e9-fbdb-46bc-bed9-9b63931b6e7f",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleMenu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8cdf36e2-8279-4e57-8238-0b6cf18804ce",
+                    "path": "<XRController>{LeftHand}/start",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleMenu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "InputHandVRLeft",
+            "id": "0000c70a-3d47-419d-bec5-7cc887e21c2b",
+            "actions": [
+                {
+                    "name": "HandPosition",
+                    "type": "Value",
+                    "id": "22252098-6fba-4c89-969d-909fe5e427e9",
+                    "expectedControlType": "Vector3",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "HandRotation",
+                    "type": "Value",
+                    "id": "b0d727bb-348c-4f8e-b958-b25b5e366488",
+                    "expectedControlType": "Quaternion",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "3a61293e-708a-4b63-818f-654575ba1be9",
+                    "path": "<XRController>{LeftHand}/devicePosition",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HandPosition",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ca41ef79-4e27-4b90-bbb5-257ceaf37db3",
+                    "path": "<XRController>{LeftHand}/deviceRotation",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HandRotation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "InputHandVRRight",
+            "id": "4ef7960d-bcda-4833-9ec2-1981d7a992f6",
+            "actions": [
+                {
+                    "name": "HandPosition",
+                    "type": "Value",
+                    "id": "74ab2dac-ef0a-4a8d-85da-30d7c0b44896",
+                    "expectedControlType": "Vector3",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "HandRotation",
+                    "type": "Value",
+                    "id": "f56d298a-588d-435e-ac65-7ed481063d81",
+                    "expectedControlType": "Quaternion",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "a837c8e8-2804-49f3-a268-3529b1fd1c37",
+                    "path": "<XRController>{RightHand}/devicePosition",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HandPosition",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "99311727-d097-4b61-88a0-237344bee73c",
+                    "path": "<XRController>{RightHand}/deviceRotation",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HandRotation",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "InputDragVRLeft",
+            "id": "b3bcf135-a189-4e87-80d3-061e8497733b",
+            "actions": [
+                {
+                    "name": "HorizontalDrag",
+                    "type": "Button",
+                    "id": "f2dc6ad6-cdeb-4d72-9ad9-8191f21f4d3d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "VerticalDrag",
+                    "type": "Button",
+                    "id": "8eabf3a2-98d1-4e34-80c2-8b9752f99f5c",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "50833f85-7be6-4e4e-83df-f208055988c7",
+                    "path": "<XRController>{LeftHand}/primaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HorizontalDrag",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "85a277c5-0c04-464d-96d5-4c325b399505",
+                    "path": "<XRController>{LeftHand}/secondaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "VerticalDrag",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "InputDragVRRight",
+            "id": "3124df50-8c41-44a4-8c24-0ad795227a86",
+            "actions": [
+                {
+                    "name": "HorizontalDrag",
+                    "type": "Button",
+                    "id": "e1f04468-8d67-4861-858c-f02f0923f2e5",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "VerticalDrag",
+                    "type": "Button",
+                    "id": "c6a8a7f1-d7bf-49b3-93c1-a6db60344a8b",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "2bf9b97d-82cd-40c6-bfe3-7870d0e9e22c",
+                    "path": "<XRController>{RightHand}/primaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HorizontalDrag",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7afa8ae1-ce0c-4ecd-964a-8eaa13dc668c",
+                    "path": "<XRController>{RightHand}/secondaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "VerticalDrag",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "StickPressVRLeft",
+            "id": "77a22473-2b8b-42fb-997e-f7a6e373ede4",
+            "actions": [
+                {
+                    "name": "StickPress",
+                    "type": "Value",
+                    "id": "2b15e316-e7c9-4aa6-8978-8e17464a29e9",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "ebee4681-407c-4d0c-b124-924e134ead21",
+                    "path": "<XRController>{LeftHand}/thumbstick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "StickPress",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "StickPressVRRight",
+            "id": "b6ef6be0-67a4-4038-9239-8cab0386c436",
+            "actions": [
+                {
+                    "name": "StickPress",
+                    "type": "Value",
+                    "id": "15b4afea-31fe-4639-a259-53103ebdd3e0",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "fcbc57df-f168-4ea1-91b0-c10c7f54d7d6",
+                    "path": "<XRController>{RightHand}/thumbstick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "StickPress",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

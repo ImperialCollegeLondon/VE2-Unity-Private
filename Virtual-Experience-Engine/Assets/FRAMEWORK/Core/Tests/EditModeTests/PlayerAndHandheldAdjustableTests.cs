@@ -2,122 +2,107 @@ using NSubstitute;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
-using VE2;
-using VE2.Common;
-using VE2.Core.Player;
-using VE2.Core.Tests;
-using VE2.Core.VComponents.InteractableFindables;
-using VE2.Core.VComponents.InteractableInterfaces;
+using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
-using VE2.Core.VComponents.PluginInterfaces;
 using VE2.Core.VComponents.Tests;
-using static VE2.Common.CommonSerializables;
 
-public class PlayerAndHandheldAdjustableTests
+namespace VE2.Core.Tests
 {
-    [Test]
-    public void OnUserScroll_WithHandheldAdjustable_CustomerScriptReceivesOnValueAdjusted()
+    [TestFixture]
+    [Category("Player and Handheld Adjustable Tests")]
+    internal class PlayerAndHandheldAdjustableTests  : PlayerServiceSetupFixture
     {
-        //Create an ID
-        System.Random random = new();
-        ushort localClientID = (ushort)random.Next(0, ushort.MaxValue);
-        IMultiplayerSupport multiplayerSupportStub = Substitute.For<IMultiplayerSupport>();
-        multiplayerSupportStub.IsConnectedToServer.Returns(true);
-        multiplayerSupportStub.LocalClientID.Returns(localClientID);
+        //handheld adjustable
+        private IV_HandheldAdjustable _handheldAdjustablePluginInterface => _v_handheldAdjustableStub;
+        private IHandheldScrollInteractionModule _handheldAdjustablePlayerInterface =>  _v_handheldAdjustableStub.HandheldScrollInteractionModule;
+        private V_HandheldAdjustableProviderStub _v_handheldAdjustableStub;
+        private HandheldAdjustableConfig _handheldAdjustableConfig; //TODO: Should go in via plugin interface rather than talking directly to the config object
 
-        InteractorID interactorID = new(localClientID, InteractorType.Mouse2D);
-        IInteractor interactorStub = Substitute.For<IInteractor>();
-        InteractorContainer interactorContainerStub = new();
-        interactorContainerStub.RegisterInteractor(interactorID.ToString(), interactorStub);
+        //free grabbable
+        private IV_FreeGrabbable _grabbablePluginInterface => _v_freeGrabbableStub;
+        private IRangedGrabInteractionModuleProvider _grabbableRaycastInterface => _v_freeGrabbableStub;
+        private V_FreeGrabbableProviderStub _v_freeGrabbableStub;
 
-        HandheldAdjustableConfig handheldAdjustableConfig = new();
+        private PluginAdjustableScript _customerScript;
 
-        float startingValue = handheldAdjustableConfig.StateConfig.StartingValue;
-        float increment = handheldAdjustableConfig.HandheldAdjustableServiceConfig.IncrementPerScrollTick;
+        [SetUp]
+        public void SetUpBeforeEveryTest()
+        {
+            _handheldAdjustableConfig = new();
 
-        handheldAdjustableConfig.StateConfig.MaximumValue = random.Next(0, 100);
-        handheldAdjustableConfig.StateConfig.MinimumValue = random.Next(-100, 0);
+            //Create the activatable with above random values
+            HandheldAdjustableService handheldAdjustable = new(_handheldAdjustableConfig, new AdjustableState(), "debug", Substitute.For<IWorldStateSyncService>());
 
-        HandheldAdjustableService handheldAdjustable = new(handheldAdjustableConfig, new AdjustableState(), "debug", Substitute.For<WorldStateModulesContainer>());
+            //Stub out the VC (provider layer) with the activatable
+            _v_handheldAdjustableStub = new(handheldAdjustable);
 
-        V_HandheldAdjustableStub v_handheldAdjustableStub = new(handheldAdjustable);
+            //wire up the customer script to receive the events
+            _customerScript = Substitute.For<PluginAdjustableScript>();
+            _handheldAdjustablePluginInterface.OnValueAdjusted.AddListener((value) => _customerScript.HandleValueAdjusted(value));
 
-        IV_HandheldAdjustable handheldAdjustablePluginInterface = v_handheldAdjustableStub;
-        IHandheldScrollInteractionModule handheldAdjustablePlayerInterface = handheldAdjustable.HandheldScrollInteractionModule;
+            //Create the grabbable, with a link to the adjustable
+            FreeGrabbableService freeGrabbable = new(
+                new List<IHandheldInteractionModule>() { _handheldAdjustablePlayerInterface },
+                new FreeGrabbableConfig(),
+                new FreeGrabbableState(),
+                "debug",
+                Substitute.For<IWorldStateSyncService>(),
+                InteractorContainerSetup.InteractorContainer,
+                Substitute.For<IRigidbodyWrapper>(),
+                new PhysicsConstants());
 
-        FreeGrabbableService freeGrabbable = new(
-        new List<IHandheldInteractionModule>() { handheldAdjustablePlayerInterface },
-        new FreeGrabbableConfig(),
-        new FreeGrabbableState(),
-        "debug",
-        Substitute.For<WorldStateModulesContainer>(),
-        interactorContainerStub,
-        Substitute.For<IRigidbodyWrapper>(),
-        new PhysicsConstants());
+            //Stub out the VC (provider layer) with the grabbable
+            _v_freeGrabbableStub = new(freeGrabbable);
+        }
 
-        //Stub out the VC (integration layer) with the grabbable
-        V_FreeGrabbableStub v_freeGrabbableStub = new(freeGrabbable);
 
-        //Get interfaces
-        IV_FreeGrabbable grabbablePluginInterface = v_freeGrabbableStub;
-        IRangedGrabPlayerInteractableIntegrator grabbableRaycastInterface = v_freeGrabbableStub;
-        IRangedGrabInteractionModule grabbablePlayerInterface = grabbableRaycastInterface.RangedGrabInteractionModule;
+        [Test]
+        public void WithHandheldAdjustable_OnUserScroll_CustomerScriptReceiveOnValueAdjusted([Random(-100f, 0f, 1)] float minValue, [Random(0f, 100f, 1)] float maxValue)
+        {
+            //get starting and increment values
+            float startingValue = _handheldAdjustableConfig.StateConfig.StartingValue;
+            float increment = _handheldAdjustableConfig.HandheldAdjustableServiceConfig.IncrementPerScrollTick;
 
-        //Stub out the player settings provider with default settings
-        IPlayerSettingsProvider playerSettingsProviderStub = Substitute.For<IPlayerSettingsProvider>();
-        playerSettingsProviderStub.UserSettings.Returns(new UserSettingsPersistable());
+            //assign min and max values
+            _handheldAdjustableConfig.StateConfig.MinimumValue = minValue;
+            _handheldAdjustableConfig.StateConfig.MaximumValue = maxValue;
 
-        //Stub out the input handler    
-        PlayerInputContainerStubWrapper playerInputContainerStubWrapper = new();
+            //stub out the raycast result to return the grabbable's interaction module
+            RayCastProviderSetup.StubRangedInteractionModuleForRaycastProviderStub(_grabbableRaycastInterface.RangedGrabInteractionModule);
 
-        //Stub out the raycast provider to hit the activatable GO with 0 range
-        IRaycastProvider raycastProviderStub = Substitute.For<IRaycastProvider>();
-        raycastProviderStub
-            .Raycast(default, default, default, default)
-            .ReturnsForAnyArgs(new RaycastResultWrapper(grabbablePlayerInterface, 0));
+            //Invoke grab, check customer received the grab, and that the interactorID is set
+            PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
+            Assert.IsTrue(_grabbablePluginInterface.IsGrabbed);
+            Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID, LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID);
 
-        //Create the player (2d)
-        PlayerService playerService = new(
-            new PlayerTransformData(),
-            new PlayerStateConfig(),
-            false,
-            true,
-            new PlayerStateModuleContainer(),
-            interactorContainerStub,
-            playerSettingsProviderStub,
-            Substitute.For<IPlayerAppearanceOverridesProvider>(),
-            multiplayerSupportStub,
-            playerInputContainerStubWrapper.PlayerInputContainer,
-            raycastProviderStub,
-            Substitute.For<IXRManagerWrapper>()
-        );
+            //Invoke scroll up, check customer received the scroll up, and that the value is correct
+            PlayerInputContainerSetup.ScrollTickUp2D.OnTickOver += Raise.Event<Action>();
+            _customerScript.Received(1).HandleValueAdjusted(startingValue + increment);
+            Assert.IsTrue(_handheldAdjustablePluginInterface.Value == startingValue + increment);
+            Assert.AreEqual(_handheldAdjustablePluginInterface.MostRecentInteractingClientID, LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID);
 
-        //Wire up the customer script to receive the events
-        PluginScriptMock pluginScriptMock = Substitute.For<PluginScriptMock>();
-        handheldAdjustablePluginInterface.OnValueAdjusted.AddListener((value) => pluginScriptMock.HandleValueAdjusted(value));
+            //Invoke scroll down, check customer received the scroll down, and that the value is correct
+            PlayerInputContainerSetup.ScrollTickDown2D.OnTickOver += Raise.Event<Action>();
+            _customerScript.Received(1).HandleValueAdjusted(startingValue);
+            Assert.IsTrue(_handheldAdjustablePluginInterface.Value == startingValue);
+            Assert.AreEqual(_handheldAdjustablePluginInterface.MostRecentInteractingClientID, LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID);
 
-        //Invoke grab, check customer received the grab, and that the interactorID is set
-        playerInputContainerStubWrapper.Grab2D.OnPressed += Raise.Event<Action>();
-        Assert.IsTrue(grabbablePluginInterface.IsGrabbed);
-        Assert.AreEqual(grabbablePluginInterface.MostRecentInteractingClientID, localClientID);
+            //Invoke scroll down, check customer received the scroll down, and that the value is correct
+            PlayerInputContainerSetup.ScrollTickDown2D.OnTickOver += Raise.Event<Action>();
+            _customerScript.Received(1).HandleValueAdjusted(startingValue - increment);
+            Assert.IsTrue(_handheldAdjustablePluginInterface.Value == startingValue - increment);
+            Assert.AreEqual(_handheldAdjustablePluginInterface.MostRecentInteractingClientID, LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID);
+        }
 
-        //Invoke scroll up, check customer received the scroll up, and that the value is correct
-        playerInputContainerStubWrapper.ScrollTickUp2D.OnTickOver += Raise.Event<Action>();
-        pluginScriptMock.Received(1).HandleValueAdjusted(startingValue + increment);
-        Assert.IsTrue(handheldAdjustablePluginInterface.Value == startingValue + increment);
-        Assert.AreEqual(handheldAdjustablePluginInterface.MostRecentInteractingClientID, localClientID);
+        [TearDown]
+        public void TearDownAfterEveryTest()
+        {
+            _customerScript.ClearReceivedCalls();
 
-        //Invoke scroll down, check customer received the scroll down, and that the value is correct
-        playerInputContainerStubWrapper.ScrollTickDown2D.OnTickOver += Raise.Event<Action>();
-        pluginScriptMock.Received(1).HandleValueAdjusted(startingValue);
-        Assert.IsTrue(handheldAdjustablePluginInterface.Value == startingValue);
-        Assert.AreEqual(handheldAdjustablePluginInterface.MostRecentInteractingClientID, localClientID);
+            _handheldAdjustablePluginInterface.OnValueAdjusted.RemoveAllListeners();
 
-        //Invoke scroll down, check customer received the scroll down, and that the value is correct
-        playerInputContainerStubWrapper.ScrollTickDown2D.OnTickOver += Raise.Event<Action>();
-        pluginScriptMock.Received(1).HandleValueAdjusted(startingValue - increment);
-        Assert.IsTrue(handheldAdjustablePluginInterface.Value == startingValue - increment);
-        Assert.AreEqual(handheldAdjustablePluginInterface.MostRecentInteractingClientID, localClientID);
+            _v_handheldAdjustableStub.TearDown();
+            _v_freeGrabbableStub.TearDown();
+        }
     }
 }

@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-using VE2.Core.VComponents.InteractableInterfaces;
+using VE2.Core.VComponents.API;
 
 namespace VE2.Core.VComponents.Internal
 {
