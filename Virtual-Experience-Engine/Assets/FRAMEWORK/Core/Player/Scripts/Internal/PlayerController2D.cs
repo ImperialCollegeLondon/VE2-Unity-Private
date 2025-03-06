@@ -87,7 +87,7 @@ namespace VE2.Core.Player.Internal
             _interactor2D.GrabberTransform.SetLocalPositionAndRotation(initTransformData.Hand2DLocalPosition, initTransformData.Hand2DLocalRotation);
             _interactor2D.HandleOnEnable();
 
-            _primaryUIService.MoveUIToCanvas(_primaryUICanvas);
+            _primaryUIService?.MoveUIToCanvas(_primaryUICanvas);
         }
 
         public void DeactivatePlayer() 

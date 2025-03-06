@@ -17,8 +17,8 @@ namespace VE2.Core.UI.API
                 if (_instance == null)
                     _instance = FindFirstObjectByType<UIAPI>();
 
-                if (_instance == null && !Application.isPlaying)
-                    _instance = new GameObject($"InstancingAPI{SceneManager.GetActiveScene().name}").AddComponent<UIAPI>();
+                if (_instance == null)
+                    _instance = new GameObject($"UIAPI{SceneManager.GetActiveScene().name}").AddComponent<UIAPI>();
 
                 return _instance;
             }
