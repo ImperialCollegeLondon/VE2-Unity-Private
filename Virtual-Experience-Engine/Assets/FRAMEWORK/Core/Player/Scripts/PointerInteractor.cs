@@ -113,6 +113,8 @@ namespace VE2.Core.Player
         {
             if (IsCurrentlyGrabbing && _CurrentGrabbingGrabbable is IRangedAdjustableInteractionModule rangedAdjustableInteraction) //if grabbing and grabbed object is an adjustable module
             {
+                //_GrabberVisualisation.transform.rotation = UnityEngine.Quaternion.LookRotation(rangedAdjustableInteraction.Transform.position - _GrabberVisualisation.transform.position);
+
                 var lineRenderer = _GrabberVisualisation.GetComponent<LineRenderer>();
                 lineRenderer.startWidth = lineRenderer.endWidth = 0.005f;
                 lineRenderer.SetPosition(0, GrabberTransform.position);
