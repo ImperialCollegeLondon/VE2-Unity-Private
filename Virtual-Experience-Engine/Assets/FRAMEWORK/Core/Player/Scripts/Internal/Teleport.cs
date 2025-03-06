@@ -12,6 +12,7 @@ namespace VE2.Core.Player.Internal
         private readonly Transform _otherHandTeleportRaycastOrigin; // Position of the other hand teleport raycast origin
         private readonly FreeGrabbableWrapper _thisHandGrabbableWrapper;
         private readonly FreeGrabbableWrapper _otherHandGrabbableWrapper;
+        private readonly bool _enableFreeFlyMode;
         private GameObject _reticle;
         private LineRenderer _lineRenderer;
         private GameObject _lineRendererObject;
@@ -25,7 +26,7 @@ namespace VE2.Core.Player.Internal
         private int _lineSegmentCount = 20; // Number of segments in the Bezier curve
         private float _maxSlopeAngle = 45f; // Maximum slope angle in degrees
 
-        public Teleport(TeleportInputContainer inputContainer, Transform rootTransform, Transform thisHandTeleportRaycastOrigin, Transform otherHandTeleportRaycastOrigin, FreeGrabbableWrapper thisHandGrabbableWrapper, FreeGrabbableWrapper otherHandGrabbableWrapper)
+        public Teleport(TeleportInputContainer inputContainer, Transform rootTransform, Transform thisHandTeleportRaycastOrigin, Transform otherHandTeleportRaycastOrigin, FreeGrabbableWrapper thisHandGrabbableWrapper, FreeGrabbableWrapper otherHandGrabbableWrapper, bool enableFreeFlyMode)
         {
             _inputContainer = inputContainer;
             _rootTransform = rootTransform;
@@ -33,6 +34,7 @@ namespace VE2.Core.Player.Internal
             _otherHandTeleportRaycastOrigin = otherHandTeleportRaycastOrigin;
             _thisHandGrabbableWrapper = thisHandGrabbableWrapper;
             _otherHandGrabbableWrapper = otherHandGrabbableWrapper;
+            _enableFreeFlyMode = enableFreeFlyMode;
         }
 
         public void HandleUpdate()
@@ -96,6 +98,12 @@ namespace VE2.Core.Player.Internal
 
             Vector3 startPosition = _thisHandTeleportRaycastOrigin.position;
             Vector3 direction = _thisHandTeleportRaycastOrigin.forward;
+
+            if (_enableFreeFlyMode)
+            {
+
+            }
+
             _thisHandTeleportRaycastOrigin.gameObject.SetActive(false);
 
             if (Physics.Raycast(startPosition, direction, out RaycastHit hit, _teleportRayDistance, _teleportLayerMask))
@@ -127,7 +135,6 @@ namespace VE2.Core.Player.Internal
                     _reticle.SetActive(false);
                     _arrowObject.SetActive(false);
                     _lineRenderer.material.color = Color.red;
-
                 }
             }
             else
