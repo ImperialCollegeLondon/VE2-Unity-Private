@@ -25,7 +25,7 @@ namespace VE2.Core.Player.Internal
         private Vector2 _currentTeleportDirection;
         private int _lineSegmentCount = 20; // Number of segments in the Bezier curve
         private float _maxSlopeAngle = 45f; // Maximum slope angle in degrees
-
+        private bool _isTeleportSuccessful = false;
         public Teleport(TeleportInputContainer inputContainer, Transform rootTransform, Transform thisHandTeleportRaycastOrigin, Transform otherHandTeleportRaycastOrigin, FreeGrabbableWrapper thisHandGrabbableWrapper, FreeGrabbableWrapper otherHandGrabbableWrapper, bool enableFreeFlyMode)
         {
             _inputContainer = inputContainer;
@@ -67,25 +67,27 @@ namespace VE2.Core.Player.Internal
                 return;
 
             // Teleport User
-
-            Vector3 initialHandPosition = _otherHandTeleportRaycastOrigin.position;
-            Quaternion initialHandRotation = _otherHandTeleportRaycastOrigin.rotation;
-
-            _rootTransform.position = _hitPoint;
-            _rootTransform.rotation = _teleportRotation;
-
-
-            Vector3 finallHandPosition = _otherHandTeleportRaycastOrigin.position;
-            Quaternion finalHandRotation = _otherHandTeleportRaycastOrigin.rotation;
-            //Get raycast origin pos/rot again 
-
-            //Delta between the two 
-            Vector3 deltaPosition = finallHandPosition - initialHandPosition;
-            Quaternion deltaRotation = finalHandRotation * Quaternion.Inverse(initialHandRotation);
-
-            if (_otherHandGrabbableWrapper.RangedFreeGrabInteraction != null)
+            if (_isTeleportSuccessful)
             {
-                _otherHandGrabbableWrapper.RangedFreeGrabInteraction.ApplyDeltaWhenGrabbed(deltaPosition, deltaRotation); //Handle the teleportation for the ranged grab interaction module
+                Vector3 initialHandPosition = _otherHandTeleportRaycastOrigin.position;
+                Quaternion initialHandRotation = _otherHandTeleportRaycastOrigin.rotation;
+
+                _rootTransform.position = _hitPoint;
+                _rootTransform.rotation = _teleportRotation;
+
+
+                Vector3 finallHandPosition = _otherHandTeleportRaycastOrigin.position;
+                Quaternion finalHandRotation = _otherHandTeleportRaycastOrigin.rotation;
+                //Get raycast origin pos/rot again 
+
+                //Delta between the two 
+                Vector3 deltaPosition = finallHandPosition - initialHandPosition;
+                Quaternion deltaRotation = finalHandRotation * Quaternion.Inverse(initialHandRotation);
+
+                if (_otherHandGrabbableWrapper.RangedFreeGrabInteraction != null)
+                {
+                    _otherHandGrabbableWrapper.RangedFreeGrabInteraction.ApplyDeltaWhenGrabbed(deltaPosition, deltaRotation); //Handle the teleportation for the ranged grab interaction module
+                }
             }
 
             CancelTeleport();
@@ -127,6 +129,7 @@ namespace VE2.Core.Player.Internal
                     _reticle.SetActive(true);
                     _arrowObject.SetActive(true);
                     UpdateTargetRotation(hit.normal);
+                    _isTeleportSuccessful = true;
                 }
                 else
                 {
@@ -135,6 +138,7 @@ namespace VE2.Core.Player.Internal
                     _reticle.SetActive(false);
                     _arrowObject.SetActive(false);
                     _lineRenderer.material.color = Color.red;
+                    _isTeleportSuccessful = false;
                 }
             }
             else
@@ -152,6 +156,7 @@ namespace VE2.Core.Player.Internal
                 _reticle.SetActive(false);
                 _arrowObject.SetActive(false);
                 _lineRenderer.material.color = Color.red;
+                _isTeleportSuccessful = false;
             }
             _lineRendererObject.SetActive(true);
         }
