@@ -1,6 +1,6 @@
 using TMPro;
 using UnityEngine;
-using VE2.Core.VComponents.PluginInterfaces;
+using VE2.Core.VComponents.API;
 
 public class AdjustableGrabStatus : MonoBehaviour
 {
@@ -9,13 +9,6 @@ public class AdjustableGrabStatus : MonoBehaviour
     private IV_LinearAdjustable _linearAdjustable => Adjustable.GetComponent<IV_LinearAdjustable>();
     private IV_RotationalAdjustable _rotationalAdjustable => Adjustable.GetComponent<IV_RotationalAdjustable>();
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void OnEnable()
-    {
-        
-    }
-
-    // Update is called once per frame
     void Update()
     {
         if (_linearAdjustable != null && _linearAdjustable.IsGrabbed)

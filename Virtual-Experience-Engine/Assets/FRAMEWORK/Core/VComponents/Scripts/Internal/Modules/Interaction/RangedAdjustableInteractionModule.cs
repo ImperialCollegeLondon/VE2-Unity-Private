@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using VE2.Common;
 using VE2.Common.TransformWrapper;
-using VE2.Core.VComponents.InteractableInterfaces;
-using VE2.Core.VComponents.Internal;
+using VE2.Core.VComponents.API;
 
 namespace VE2.Core.VComponents.Internal
 {

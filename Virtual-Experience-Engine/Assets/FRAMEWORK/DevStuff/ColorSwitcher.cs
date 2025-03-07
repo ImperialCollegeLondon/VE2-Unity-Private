@@ -1,5 +1,5 @@
 using UnityEngine;
-using VE2.Core.VComponents.PluginInterfaces;
+using VE2.Core.VComponents.API;
 
 public class ColorSwitcher : MonoBehaviour
 {

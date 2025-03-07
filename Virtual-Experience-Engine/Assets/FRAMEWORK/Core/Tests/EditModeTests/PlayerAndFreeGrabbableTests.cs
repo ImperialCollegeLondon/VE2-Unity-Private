@@ -1,85 +1,62 @@
 using NSubstitute;
 using NUnit.Framework;
-using VE2.Core.VComponents.PluginInterfaces;
-using VE2.Core.VComponents.InteractableFindables;
 using VE2.Core.VComponents.Internal;
-using System;
+using VE2.Core.VComponents.API;
+using VE2.Core.Player.Internal;
 using VE2.Core.VComponents.Tests;
-using VE2.Core.Player;
-using VE2.Common;
-
+using System.Collections.Generic;
+using System;
 
 namespace VE2.Core.Tests
 {
     [TestFixture]
-    [Category("Player and FreeGrabbable Tests")]
-    public class PlayerAndFreeGrabbableTests
+    [Category("Player and Free Grabbable Tests")]
+    internal class PlayerAndFreeGrabbableTests  : PlayerServiceSetupFixture
     {
-        //free grabbable
-        private IV_FreeGrabbable _grabbablePluginInterface;
-        private IRangedGrabPlayerInteractableIntegrator _grabbableRaycastInterface;
-        private V_FreeGrabbableStub _v_freeGrabbableStub;
-
+        private IV_FreeGrabbable _grabbablePluginInterface => _v_freeGrabbableProviderStub;
+        private IRangedGrabInteractionModuleProvider _grabbableRaycastInterface => _v_freeGrabbableProviderStub;
+        private V_FreeGrabbableProviderStub _v_freeGrabbableProviderStub;
         private PluginGrabbableScript _customerScript;
-        private PlayerService _playerServiceStub;
-
-        [OneTimeSetUp]
-        public void SetUpOnce()
-        {
-            //substitute for the customer script
-            _customerScript = Substitute.For<PluginGrabbableScript>();
-        }
 
         [SetUp]
         public void SetUpBeforeEveryTest()
         {           
-            //Create the free grabbable
-            FreeGrabbableService freeGrabbableService = FreeGrabbableServiceStubFactory.Create(interactorContainer: InteractorSetup.InteractorContainerStub);
+            FreeGrabbableService freeGrabbable = new( 
+                new List<IHandheldInteractionModule>() {},
+                new FreeGrabbableConfig(),
+                new GrabbableState(), 
+                "debug",
+                Substitute.For<IWorldStateSyncService>(),
+                InteractorContainerSetup.InteractorContainer,
+                Substitute.For<IRigidbodyWrapper>(), 
+                new PhysicsConstants());
 
-            _v_freeGrabbableStub = new(freeGrabbableService);
+            //Stub out provider layer
+            _v_freeGrabbableProviderStub = new(freeGrabbable);
 
-            //get interfaces
-            _grabbablePluginInterface = _v_freeGrabbableStub;
-            _grabbableRaycastInterface = _v_freeGrabbableStub;
-
-            //hook up the listeners to the IV_grabbable
+            //create customer script and hook up the listeners to the IV_grabbable
+            _customerScript = Substitute.For<PluginGrabbableScript>();
             _grabbablePluginInterface.OnGrab.AddListener(_customerScript.HandleGrabReceived);
             _grabbablePluginInterface.OnDrop.AddListener(_customerScript.HandleDropReceived);
-
-            //Create the player service
-            _playerServiceStub = new(
-                new PlayerTransformData(),
-                new PlayerStateConfig(),
-                false,
-                true,
-                new PlayerStateModuleContainer(),
-                InteractorSetup.InteractorContainerStub,
-                PlayerSettingsProviderSetup.PlayerSettingsProviderStub,
-                Substitute.For<IPlayerAppearanceOverridesProvider>(),
-                MultiplayerSupportSetup.MultiplayerSupportStub,
-                InputHandlerSetup.PlayerInputContainerStubWrapper.PlayerInputContainer,
-                RayCastProviderSetup.RaycastProviderStub, 
-                Substitute.For<IXRManagerWrapper>()
-            );
         }
-        
+
         [Test]
-        public void WithHoveringGrabbable_OnUserGrab_CustomerScriptReceivesOnGrab()
-        {
-            //stub the result of the raycast to return the grabbable's interaction module
+        public void OnUserGrab_WithHoveringGrabbable_CustomerScriptReceivesOnGrab()
+        {          
+            //Stub out the raycast provider to hit the activatable GO with 0 range
             RayCastProviderSetup.StubRangedInteractionModuleForRaycastProviderStub(_grabbableRaycastInterface.RangedGrabInteractionModule);
 
             //Invoke grab, check customer received the grab, and that the interactorID is set
-            InputHandlerSetup.PlayerInputContainerStubWrapper.Grab2D.OnPressed += Raise.Event<Action>();
+            PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
             _customerScript.Received(1).HandleGrabReceived();
             Assert.IsTrue(_grabbablePluginInterface.IsGrabbed);
-            Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID, MultiplayerSupportSetup.LocalClientID);
+            Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID, LocalClientIDProviderSetup.LocalClientID);
 
             //Invoke drop, Check customer received the drop, and that the interactorID is set
-            InputHandlerSetup.PlayerInputContainerStubWrapper.Grab2D.OnPressed += Raise.Event<Action>();
+            PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
             _customerScript.Received(1).HandleDropReceived();
             Assert.IsFalse(_grabbablePluginInterface.IsGrabbed);
-            Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID, MultiplayerSupportSetup.LocalClientID);
+            Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID, LocalClientIDProviderSetup.LocalClientID);
         }
 
         [TearDown]
@@ -90,11 +67,7 @@ namespace VE2.Core.Tests
             _grabbablePluginInterface.OnGrab.RemoveAllListeners();
             _grabbablePluginInterface.OnDrop.RemoveAllListeners();
 
-            _v_freeGrabbableStub.TearDown();
-            _grabbablePluginInterface = null;   
-            _grabbableRaycastInterface = null;
-
-            _playerServiceStub.TearDown();
+            _v_freeGrabbableProviderStub.TearDown();
         }
 
         [OneTimeTearDown]

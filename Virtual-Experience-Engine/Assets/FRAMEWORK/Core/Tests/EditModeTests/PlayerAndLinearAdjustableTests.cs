@@ -1,64 +1,44 @@
 using System;
+using System.Collections.Generic;
 using NSubstitute;
 using NUnit.Framework;
-using UnityEngine;
-using VE2.Common;
-using VE2.Core.Player;
-using VE2.Core.VComponents.InteractableFindables;
-using VE2.Core.VComponents.InteractableInterfaces;
+using VE2.Common.TransformWrapper;
+using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
-using VE2.Core.VComponents.PluginInterfaces;
 using VE2.Core.VComponents.Tests;
 
 namespace VE2.Core.Tests
 {
     [TestFixture]
     [Category("Player and Linear Adjustable Tests")]
-    public class PlayerAndLinearAdjustableTests
+    internal class PlayerAndLinearAdjustableTests : PlayerServiceSetupFixture
     {
-        private IV_LinearAdjustable _linearAdjustablePluginInterface;
-        private IRangedGrabPlayerInteractableIntegrator _linearAdjustableRaycastInterface;
-        private V_LinearAdjustableStub _v_linearAdjustableStub;
+        private IV_LinearAdjustable _linearAdjustablePluginInterface => _v_linearAdjustableProviderStub;
+        private IRangedGrabInteractionModuleProvider _linearAdjustableRaycastInterface => _v_linearAdjustableProviderStub;
+        private V_LinearAdjustableProviderStub _v_linearAdjustableProviderStub;
 
         private PluginGrabbableScript _customerScript;
-        private PlayerService _playerServiceStub;
-
-        [OneTimeSetUp]
-        public void SetUpOnce()
-        {
-            //Wire up the customer script to receive the events           
-            _customerScript = Substitute.For<PluginGrabbableScript>();
-        }
 
         [SetUp]
         public void SetUpBeforeEveryTest()
         {
             //create the handheld adjustable
-            LinearAdjustableService linearAdjustable = LinearAdjustableServiceFactory.Create(interactorContainer: InteractorSetup.InteractorContainerStub);
-            _v_linearAdjustableStub = new(linearAdjustable);
+            LinearAdjustableService linearAdjustable = new(
+                Substitute.For<ITransformWrapper>(),
+                new List<IHandheldInteractionModule>(),
+                new LinearAdjustableConfig(),
+                new AdjustableState(),
+                new GrabbableState(),
+                "debug",
+                Substitute.For<IWorldStateSyncService>(),
+                InteractorContainerSetup.InteractorContainer);
 
-            //hook up interfaces
-            _linearAdjustablePluginInterface = _v_linearAdjustableStub;
-            _linearAdjustableRaycastInterface = _v_linearAdjustableStub;
+            _v_linearAdjustableProviderStub = new(linearAdjustable);
 
             //wire up the customer script to receive the events
+            _customerScript = Substitute.For<PluginGrabbableScript>();
             _linearAdjustablePluginInterface.OnGrab.AddListener(_customerScript.HandleGrabReceived);
             _linearAdjustablePluginInterface.OnDrop.AddListener(_customerScript.HandleDropReceived);
-
-            _playerServiceStub = new(
-                new PlayerTransformData(),
-                new PlayerStateConfig(),
-                false,
-                true,
-                new PlayerStateModuleContainer(),
-                InteractorSetup.InteractorContainerStub,
-                PlayerSettingsProviderSetup.PlayerSettingsProviderStub,
-                Substitute.For<IPlayerAppearanceOverridesProvider>(),
-                MultiplayerSupportSetup.MultiplayerSupportStub,
-                InputHandlerSetup.PlayerInputContainerStubWrapper.PlayerInputContainer,
-                RayCastProviderSetup.RaycastProviderStub,
-                Substitute.For<IXRManagerWrapper>()
-            );
         }
 
         [Test]
@@ -67,16 +47,16 @@ namespace VE2.Core.Tests
             RayCastProviderSetup.StubRangedInteractionModuleForRaycastProviderStub(_linearAdjustableRaycastInterface.RangedGrabInteractionModule);
 
             //Invoke grab, check customer received the grab, and that the interactorID is set
-            InputHandlerSetup.PlayerInputContainerStubWrapper.Grab2D.OnPressed += Raise.Event<Action>();
+            PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
             _customerScript.Received(1).HandleGrabReceived();
             Assert.IsTrue(_linearAdjustablePluginInterface.IsGrabbed);
-            Assert.AreEqual(_linearAdjustablePluginInterface.MostRecentInteractingClientID, MultiplayerSupportSetup.LocalClientID);
+            Assert.AreEqual(_linearAdjustablePluginInterface.MostRecentInteractingClientID, LocalClientIDProviderSetup.LocalClientID);
 
             //Invoke drop, Check customer received the drop, and that the interactorID is set
-            InputHandlerSetup.PlayerInputContainerStubWrapper.Grab2D.OnPressed += Raise.Event<Action>();
+            PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
             _customerScript.Received(1).HandleDropReceived();
             Assert.IsFalse(_linearAdjustablePluginInterface.IsGrabbed);
-            Assert.AreEqual(_linearAdjustablePluginInterface.MostRecentInteractingClientID, MultiplayerSupportSetup.LocalClientID);
+            Assert.AreEqual(_linearAdjustablePluginInterface.MostRecentInteractingClientID, LocalClientIDProviderSetup.LocalClientID);
         }
 
         [TearDown]
@@ -87,11 +67,7 @@ namespace VE2.Core.Tests
             _linearAdjustablePluginInterface.OnGrab.RemoveAllListeners();
             _linearAdjustablePluginInterface.OnDrop.RemoveAllListeners();
 
-            _v_linearAdjustableStub.TearDown();
-            _linearAdjustableRaycastInterface = null;
-            _linearAdjustablePluginInterface = null;
-
-            _playerServiceStub.TearDown();
+            _v_linearAdjustableProviderStub.TearDown();
         }
 
         [OneTimeTearDown]

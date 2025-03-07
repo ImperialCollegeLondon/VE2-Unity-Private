@@ -4,37 +4,36 @@ using System.Diagnostics;
 using UnityEngine;
 using VE2.Common;
 using VE2.Common.TransformWrapper;
-using VE2.Core.VComponents.InteractableInterfaces;
-using VE2.Core.VComponents.NonInteractableInterfaces;
-using static VE2.Common.CommonSerializables;
+using VE2.Core.VComponents.API;
+using static VE2.Core.Common.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
 {
-    public enum SpatialAdjustmentType
+    internal enum SpatialAdjustmentType
     {
         XAxis,
         YAxis,
         ZAxis
     }
 
-    public enum SpatialAdjustmentProperty
+    internal enum SpatialAdjustmentProperty
     {
         Discrete,
         Continuous
     }
 
     [Serializable]
-    public class LinearAdjustableConfig
+    internal class LinearAdjustableConfig
     {
         [SerializeField, IgnoreParent] public SpatialAdjustableServiceConfig LinearAdjustableServiceConfig = new();
         [SerializeField, IgnoreParent] public AdjustableStateConfig AdjustableStateConfig = new();
-        [SerializeField, IgnoreParent] public FreeGrabbableStateConfig GrabbableStateConfig = new();
+        [SerializeField, IgnoreParent] public GrabbableStateConfig GrabbableStateConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfig = new();
         [SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
     }
 
     [Serializable]
-    public class SpatialAdjustableServiceConfig
+    internal class SpatialAdjustableServiceConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Spatial Adjustable Settings", ApplyCondition = true)]
@@ -49,7 +48,7 @@ namespace VE2.Core.VComponents.Internal
         // [EndGroup, SerializeField] public float IncrementPerSecondVRStickHeld = 4;
     }
 
-    public class LinearAdjustableService
+    internal class LinearAdjustableService
     {
         private float _spatialValue;
         public float SpatialValue { get => _spatialValue; set => SetSpatialValue(value); }
@@ -61,13 +60,13 @@ namespace VE2.Core.VComponents.Internal
 
         #region Interfaces
         public IAdjustableStateModule AdjustableStateModule => _AdjustableStateModule;
-        public IFreeGrabbableStateModule FreeGrabbableStateModule => _FreeGrabbableStateModule;
+        public IGrabbableStateModule FreeGrabbableStateModule => _GrabbableStateModule;
         public IRangedAdjustableInteractionModule RangedAdjustableInteractionModule => _RangedAdjustableInteractionModule;
         #endregion
 
         #region Modules
         private readonly AdjustableStateModule _AdjustableStateModule;
-        private readonly FreeGrabbableStateModule _FreeGrabbableStateModule;
+        private readonly GrabbableStateModule _GrabbableStateModule;
         private readonly RangedAdjustableInteractionModule _RangedAdjustableInteractionModule;
         #endregion
 
@@ -78,7 +77,7 @@ namespace VE2.Core.VComponents.Internal
         private readonly float _incrementPerScrollTick;
 
         public LinearAdjustableService(ITransformWrapper transformWrapper, List<IHandheldInteractionModule> handheldInteractions, LinearAdjustableConfig config, VE2Serializable adjustableState, VE2Serializable grabbableState, string id,
-            WorldStateModulesContainer worldStateModulesContainer, InteractorContainer interactorContainer)
+            IWorldStateSyncService worldStateSyncService, InteractorContainer interactorContainer)
         {
             //get attach point transform, if null, use the transform wrapper (the object itself)
             _attachPointTransform = config.GrabbableStateConfig.AttachPoint == null ? transformWrapper : new TransformWrapper(config.GrabbableStateConfig.AttachPoint);
@@ -99,17 +98,17 @@ namespace VE2.Core.VComponents.Internal
             _maximumSpatialValue = config.LinearAdjustableServiceConfig.MaximumSpatialValue;
 
             //seperate modules for adjustable state and free grabbable state, they have a unique ID for each for the world state syncer
-            _AdjustableStateModule = new(adjustableState, config.AdjustableStateConfig, $"ADJ-{id}", worldStateModulesContainer);
-            _FreeGrabbableStateModule = new(grabbableState, config.GrabbableStateConfig, $"FG-{id}", worldStateModulesContainer, interactorContainer, RangedAdjustableInteractionModule);
+            _AdjustableStateModule = new(adjustableState, config.AdjustableStateConfig, $"ADJ-{id}", worldStateSyncService);
+            _GrabbableStateModule = new(grabbableState, config.GrabbableStateConfig, $"FG-{id}", worldStateSyncService, interactorContainer, RangedAdjustableInteractionModule);
 
-            _RangedAdjustableInteractionModule.OnLocalInteractorRequestGrab += (InteractorID interactorID) => _FreeGrabbableStateModule.SetGrabbed(interactorID);
-            _RangedAdjustableInteractionModule.OnLocalInteractorRequestDrop += (InteractorID interactorID) => _FreeGrabbableStateModule.SetDropped(interactorID);
+            _RangedAdjustableInteractionModule.OnLocalInteractorRequestGrab += (InteractorID interactorID) => _GrabbableStateModule.SetGrabbed(interactorID);
+            _RangedAdjustableInteractionModule.OnLocalInteractorRequestDrop += (InteractorID interactorID) => _GrabbableStateModule.SetDropped(interactorID);
 
             _RangedAdjustableInteractionModule.OnScrollUp += OnScrollUp;
             _RangedAdjustableInteractionModule.OnScrollDown += OnScrollDown;
 
-            _FreeGrabbableStateModule.OnGrabConfirmed += OnGrabConfirmed;
-            _FreeGrabbableStateModule.OnDropConfirmed += OnDropConfirmed;
+            _GrabbableStateModule.OnGrabConfirmed += OnGrabConfirmed;
+            _GrabbableStateModule.OnDropConfirmed += OnDropConfirmed;
 
             _AdjustableStateModule.OnValueChangedInternal += (float value) => OnStateValueChanged(value);
                       
@@ -170,10 +169,10 @@ namespace VE2.Core.VComponents.Internal
 
         public void HandleFixedUpdate()
         {
-            _FreeGrabbableStateModule.HandleFixedUpdate();
-            if (_FreeGrabbableStateModule.IsLocalGrabbed)
+            _GrabbableStateModule.HandleFixedUpdate();
+            if (_GrabbableStateModule.IsLocalGrabbed)
             {
-                TrackPosition(_FreeGrabbableStateModule.CurrentGrabbingInteractor.GrabberTransform.position);
+                TrackPosition(_GrabbableStateModule.CurrentGrabbingInteractor.GrabberTransform.position);
             }
 
             _AdjustableStateModule.HandleFixedUpdate();
@@ -247,10 +246,10 @@ namespace VE2.Core.VComponents.Internal
         public void TearDown()
         {
             _AdjustableStateModule.TearDown();
-            _FreeGrabbableStateModule.TearDown();
+            _GrabbableStateModule.TearDown();
 
-            _FreeGrabbableStateModule.OnGrabConfirmed -= OnGrabConfirmed;
-            _FreeGrabbableStateModule.OnDropConfirmed -= OnDropConfirmed;
+            _GrabbableStateModule.OnGrabConfirmed -= OnGrabConfirmed;
+            _GrabbableStateModule.OnDropConfirmed -= OnDropConfirmed;
         }
     }
 }

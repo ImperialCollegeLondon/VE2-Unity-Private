@@ -1271,9 +1271,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0.82745105, g: 0.9333334, b: 0.9843138, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
+  m_Maskable: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1298,7 +1298,6 @@ GameObject:
   - component: {fileID: 1782269232077625576}
   - component: {fileID: 4816594841684212639}
   - component: {fileID: 1655137531710687974}
-  - component: {fileID: 1318145002431307010}
   - component: {fileID: 7139448569849498372}
   m_Layer: 6
   m_Name: 2dPlayer
@@ -1377,24 +1376,6 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0.95000005, z: 0}
---- !u!114 &1318145002431307010
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8454638066961242331}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9f5bed52b25039c44aa55a4bcc05978c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lightBlue: {r: 0.82745105, g: 0.9333334, b: 0.9843138, a: 1}
-  processBlue: {r: 0, g: 0.5686275, b: 0.82745105, a: 1}
-  imperialBlue: {r: 0, g: 0.2392157, b: 0.454902, a: 1}
-  navyBlue: {r: 0, g: 0.1254902, b: 0.27450982, a: 1}
-  virseGreen: {r: 0, g: 0.9725491, b: 0.78823537, a: 1}
-  tangerine: {r: 0.9215687, g: 0.45098042, b: 0, a: 1}
 --- !u!114 &7139448569849498372
 MonoBehaviour:
   m_ObjectHideFlags: 0
