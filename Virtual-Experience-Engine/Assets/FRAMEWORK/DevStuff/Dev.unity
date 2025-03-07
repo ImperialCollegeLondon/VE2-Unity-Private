@@ -500,8 +500,9 @@ MonoBehaviour:
     StateConfig:
       IsNetworked: 1
       RepeatedTransmissionConfig:
-        TransmissionType: 0
+        TransmissionType: 1
         TransmissionFrequency: 1
+      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls: []
@@ -3930,6 +3931,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _connectOnStart: 1
+  _config:
+    _artificialAddedPing: 0
   _debugServerSettings:
     Username: dev
     Password: dev
@@ -6253,6 +6256,7 @@ MonoBehaviour:
   _handheldActivatableGO: {fileID: 1542206479}
   _handheldAdjustableGO: {fileID: 1542206479}
   _networkObjectGO: {fileID: 1499303675}
+  _rbSyncableGO: {fileID: 0}
 --- !u!1 &1521070448
 GameObject:
   m_ObjectHideFlags: 1
@@ -7410,6 +7414,7 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls: []

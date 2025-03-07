@@ -23,5 +23,6 @@ namespace VE2.NonCore.Instancing.Internal
         public void SendMessage(byte[] messageAsBytes, InstanceSyncSerializables.InstanceNetworkingMessageCodes messageCode, TransmissionProtocol transmissionProtocol);
         public void MainThreadUpdate();
         public void DisconnectFromServer();
+        public InstanceCommsHandlerConfig InstanceConfig { get; set; }
     }
 }

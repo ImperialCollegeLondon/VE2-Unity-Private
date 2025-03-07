@@ -22,6 +22,7 @@ namespace VE2.NonCore.Instancing.Internal
         #endregion
 
         private IRigidbodyWrapper _rigidbody;
+        private IInstanceService _instanceService;
         private bool _isKinematicOnStart;
         private List<RigidbodySyncableState> _receivedRigidbodyStates;
 
@@ -30,7 +31,6 @@ namespace VE2.NonCore.Instancing.Internal
         private readonly float _timeBehind = 0.04f;
         private float _localFixedTime = 0f;
         private float _localRealTime = 0f;
-        private readonly float _estimatedPing = 0.02f;
 
         private bool _isGrabbed = false;
         private bool _recentlyDropped = false;
@@ -39,6 +39,7 @@ namespace VE2.NonCore.Instancing.Internal
         {
             _config = config;
             _stateModule = new(state, config, id, worldStateSyncService, instanceService);
+            _instanceService = instanceService;
             _rigidbody = rigidbodyWrapper;
             _isKinematicOnStart = _rigidbody.isKinematic;
 
@@ -99,7 +100,7 @@ namespace VE2.NonCore.Instancing.Internal
                 rigidbodyInSceneWrapper.isKinematic = true;
             }
 
-            float lagCompensationTime = _timeBehind + _estimatedPing;
+            float lagCompensationTime = _timeBehind + 0.02f;
             int cyclesToSimulate = Mathf.CeilToInt(lagCompensationTime / UnityEngine.Time.fixedDeltaTime) + 1;
 
             // Simulate physics in full steps

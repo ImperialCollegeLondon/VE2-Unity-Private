@@ -14,7 +14,7 @@ namespace VE2.NonCore.Instancing.Internal
     internal static class InstanceServiceFactory
     {
         internal static InstanceService Create(LocalClientIdWrapper localClientIDWrapper, bool connectAutomatically, 
-            ConnectionStateDebugWrapper connectionStateDebugWrapper, ServerConnectionSettings debugServerSettings, string debugInstanceCode) 
+            ConnectionStateDebugWrapper connectionStateDebugWrapper, ServerConnectionSettings debugServerSettings, string debugInstanceCode, InstanceCommsHandlerConfig config) 
         {
             InstanceNetworkingCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
 
@@ -27,7 +27,8 @@ namespace VE2.NonCore.Instancing.Internal
                 PlayerAPI.Player as IPlayerServiceInternal,
                 connectAutomatically,
                 debugServerSettings,
-                debugInstanceCode);
+                debugInstanceCode,
+                config);
         }
     }
 
@@ -61,6 +62,11 @@ namespace VE2.NonCore.Instancing.Internal
 
         #region Temp debug interfaces //TODO: remove once UI is in 
         public InstancedInstanceInfo InstanceInfo => _instanceInfoContainer.InstanceInfo;
+
+        public float Ping => _pingSyncer.Ping;
+
+        public int SmoothPing => _pingSyncer.SmoothPing;
+
         public event Action<InstancedInstanceInfo> OnInstanceInfoChanged { 
             add => _instanceInfoContainer.OnInstanceInfoChanged += value; 
             remove => _instanceInfoContainer.OnInstanceInfoChanged -= value; 
@@ -85,7 +91,7 @@ namespace VE2.NonCore.Instancing.Internal
         public InstanceService(IPluginSyncCommsHandler commsHandler, LocalClientIdWrapper localClientIDWrapper, 
             ConnectionStateDebugWrapper connectionStateDebugWrapper, IPlatformServiceInternal platformService, 
             InteractorContainer interactorContainer, IPlayerServiceInternal playerServiceInternal,
-            bool connectAutomatically, ServerConnectionSettings debugServerSettings, string debugInstanceCode)
+            bool connectAutomatically, ServerConnectionSettings debugServerSettings, string debugInstanceCode, InstanceCommsHandlerConfig config)
         {
             _commsHandler = commsHandler;
             _connectionStateDebugWrapper = connectionStateDebugWrapper;
@@ -94,6 +100,7 @@ namespace VE2.NonCore.Instancing.Internal
             _playerService = playerServiceInternal;
             _debugServerSettings = debugServerSettings;
             _debugInstanceCode = debugInstanceCode;
+            commsHandler.InstanceConfig = config;
 
             if (platformService.GetInstanceServerSettingsForCurrentWorld() == null)
             {

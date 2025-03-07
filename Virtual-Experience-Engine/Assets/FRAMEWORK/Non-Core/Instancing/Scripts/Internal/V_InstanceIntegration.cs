@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 using VE2.Core.Player.API;
 using VE2.Core.VComponents.API;
 using VE2.NonCore.Instancing.API;
@@ -7,6 +8,14 @@ using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 
 namespace VE2.NonCore.Instancing.Internal
 {
+    [Serializable]
+    internal class InstanceCommsHandlerConfig
+    {
+        [Min(0), Tooltip("Artifical delay added to *sending* all instance networking messages from this player, in ms.")]
+        [SerializeField] private float _artificialAddedPing;
+        public float ArtificialAddedPing { get => _artificialAddedPing; private set => _artificialAddedPing = value >= 0 ? value : 0; }
+    }
+
     //Note, ILocalClientIDProvider is implemented here, NOT on the service - it needs to exsit at edit-time
     //Since the platform inits the player, and instancing inits the platform, we can't have the player init the instancing
     //Otherwise we'd have a stack overflow, instead, provide ID from the mono here, without initing the instancing service
@@ -19,6 +28,12 @@ namespace VE2.NonCore.Instancing.Internal
         [EditorButton(nameof(DebugConnect), "Connect", activityType: ButtonActivityType.OnPlayMode)] 
         [EditorButton(nameof(DebugDisconnect), "Disconnect", activityType: ButtonActivityType.OnPlayMode)] 
         [SerializeField] private bool _connectOnStart = true;
+
+        [Space(10)]
+
+        [SerializeField, HideLabel, IgnoreParent] private InstanceCommsHandlerConfig _config = new();
+
+        [Space(10)]
 
         [Help("These settings will be used when testing in editor. In build, the platform service will provide the correct settings.")]
         [SerializeField, BeginGroup("Debug Settings"), DisableInPlayMode] private ServerConnectionSettings _debugServerSettings = new("dev", "dev", "127.0.0.1", 4297);
@@ -73,7 +88,7 @@ namespace VE2.NonCore.Instancing.Internal
                 return;
             }
 
-            _instanceService = InstanceServiceFactory.Create(_localClientIDWrapper, _connectOnStart, _connectionStateDebug, _debugServerSettings, _debugInstanceCode);
+            _instanceService = InstanceServiceFactory.Create(_localClientIDWrapper, _connectOnStart, _connectionStateDebug, _debugServerSettings, _debugInstanceCode, _config);
         }
 
         private void FixedUpdate()

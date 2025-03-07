@@ -14,5 +14,8 @@ namespace VE2.NonCore.Instancing.API
         public event Action OnDisconnectedFromInstance;
         public void ConnectToInstance();
         public void DisconnectFromInstance();
+
+        public float Ping { get; }
+        public int SmoothPing { get; }
     }
 }
