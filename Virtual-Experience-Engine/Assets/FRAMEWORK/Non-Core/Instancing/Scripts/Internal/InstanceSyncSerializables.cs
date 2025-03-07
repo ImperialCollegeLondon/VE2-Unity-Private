@@ -34,7 +34,7 @@ namespace VE2.NonCore.Instancing.Internal
 
             public PingMessage(byte[] bytes) : base(bytes) { }
 
-            public PingMessage(int pingId, ushort clientId, bool fromHost)
+            public PingMessage(int pingId, ushort clientId)
             {
                 this.PingId = pingId;
                 this.ClientId = clientId;

@@ -43,7 +43,7 @@ namespace VE2.NonCore.Instancing.Internal
             if (!_instanceInfoContainer.IsHost)
             {
                 _cycleNumber++;
-                PingMessage pingMessage = new(_cycleNumber, _instanceInfoContainer.LocalClientID, false);
+                PingMessage pingMessage = new(_cycleNumber, _instanceInfoContainer.LocalClientID);
                 _sentPingMessages.Add(_cycleNumber, Time.time*1000);
                 _commsHandler.SendMessage(pingMessage.Bytes, InstanceNetworkingMessageCodes.PingMessage, TransmissionProtocol.TCP);
             }
@@ -56,7 +56,7 @@ namespace VE2.NonCore.Instancing.Internal
             if (_instanceInfoContainer.IsHost)
             {
                 // If host, send back
-                PingMessage pingMessage = new(receivedPingMessage.PingId, receivedPingMessage.ClientId, true);
+                PingMessage pingMessage = new(receivedPingMessage.PingId, receivedPingMessage.ClientId);
                 _commsHandler.SendMessage(pingMessage.Bytes, InstanceNetworkingMessageCodes.PingMessage, TransmissionProtocol.TCP);
             }
             else

@@ -186,6 +186,8 @@ namespace VE2.NonCore.Instancing.Internal
         #region Receive States Logic
         public void HandleReceiveRigidbodyState(float fixedTime, Vector3 position, Quaternion rotation)
         {
+            Debug.Log($"Received rigidbody state! {fixedTime}, { position}, {rotation}");
+
             if (!_stateModule.IsHost)
             {
                 // When we start receiving rigidbody states again, we stop doing our own simulation

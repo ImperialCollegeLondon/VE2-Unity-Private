@@ -30,9 +30,7 @@ namespace VE2.NonCore.Instancing.Internal
         [SerializeField] private bool _connectOnStart = true;
 
         [Space(10)]
-
         [SerializeField, HideLabel, IgnoreParent] private InstanceCommsHandlerConfig _config = new();
-
         [Space(10)]
 
         [Help("These settings will be used when testing in editor. In build, the platform service will provide the correct settings.")]
