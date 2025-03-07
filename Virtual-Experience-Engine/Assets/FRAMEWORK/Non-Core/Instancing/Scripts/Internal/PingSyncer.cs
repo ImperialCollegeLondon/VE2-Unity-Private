@@ -8,7 +8,6 @@ namespace VE2.NonCore.Instancing.Internal
 {
     internal class PingSyncer
     {
-        public event Action<BytesAndProtocol> OnPingSend;
         public event Action<int> OnPingUpdate;
 
         // Client Id and Host status
@@ -23,9 +22,14 @@ namespace VE2.NonCore.Instancing.Internal
         // key: _cycleNumber, value: ping time in ms
         private List<float> _pings = new();
 
-        public PingSyncer(InstanceInfoContainer instanceInfoContainer)
+        private readonly IPluginSyncCommsHandler _commsHandler;
+
+        public PingSyncer(IPluginSyncCommsHandler commsHandler, InstanceInfoContainer instanceInfoContainer)
         {
+            _commsHandler = commsHandler;
             _instanceInfoContainer = instanceInfoContainer;
+
+            _commsHandler.OnReceivePingMessage += HandleReceivePingMessage;
         }
 
         public float Ping => _pings.Count > 0 ? _pings[^1] : -1;
@@ -33,7 +37,7 @@ namespace VE2.NonCore.Instancing.Internal
 
         private readonly int MAX_PING_RECORDS = 20;
 
-        public void NetworkUpdate()
+        public void NetworkUpdate() //TODO - maybe doesn't want to send ping as often as every fixedupdate?
         {
             // Every network update send ping if not host
             if (!_instanceInfoContainer.IsHost)
@@ -41,7 +45,7 @@ namespace VE2.NonCore.Instancing.Internal
                 _cycleNumber++;
                 PingMessage pingMessage = new(_cycleNumber, _instanceInfoContainer.LocalClientID, false);
                 _sentPingMessages.Add(_cycleNumber, Time.time*1000);
-                OnPingSend?.Invoke(new BytesAndProtocol(pingMessage.Bytes, TransmissionProtocol.TCP));
+                _commsHandler.SendMessage(pingMessage.Bytes, InstanceNetworkingMessageCodes.PingMessage, TransmissionProtocol.TCP);
             }
         }
 
@@ -53,7 +57,7 @@ namespace VE2.NonCore.Instancing.Internal
             {
                 // If host, send back
                 PingMessage pingMessage = new(receivedPingMessage.PingId, receivedPingMessage.ClientId, true);
-                OnPingSend?.Invoke(new BytesAndProtocol(pingMessage.Bytes, TransmissionProtocol.TCP));
+                _commsHandler.SendMessage(pingMessage.Bytes, InstanceNetworkingMessageCodes.PingMessage, TransmissionProtocol.TCP);
             }
             else
             {
@@ -89,7 +93,7 @@ namespace VE2.NonCore.Instancing.Internal
 
         public void TearDown()
         {
-
+            _commsHandler.OnReceivePingMessage -= HandleReceivePingMessage;
         }
 
         private void StorePing(float pingReturnTime)

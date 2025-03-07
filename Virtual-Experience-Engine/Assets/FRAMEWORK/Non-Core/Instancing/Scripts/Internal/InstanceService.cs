@@ -44,7 +44,7 @@ namespace VE2.NonCore.Instancing.Internal
         public bool IsHost => _instanceInfoContainer.IsHost;
 
         public event Action<ushort> OnHostChanged;
-        public event Action<int> OnPingUpdate;
+        public event Action<int> OnPingUpdate { add => _pingSyncer.OnPingUpdate += value; remove => _pingSyncer.OnPingUpdate -= value; }
         #endregion
 
 
@@ -117,10 +117,7 @@ namespace VE2.NonCore.Instancing.Internal
             _worldStateSyncer = new(_commsHandler, _instanceInfoContainer); //receives and transmits
             _localPlayerSyncer = new(_commsHandler, playerServiceInternal, _instanceInfoContainer); //only transmits
             _remotePlayerSyncer = new(_commsHandler, _instanceInfoContainer, _interactorContainer, _playerService); //only receives
-
-            _pingSyncer = new(_instanceInfoContainer);
-            _pingSyncer.OnPingSend += (BytesAndProtocol bytesAndProtocol) => _commsHandler.SendMessage(bytesAndProtocol.Bytes, InstanceNetworkingMessageCodes.PingMessage, bytesAndProtocol.Protocol); //TODO: inject commshandler into ping service
-            _pingSyncer.OnPingUpdate += HandlePingUpdate;
+            _pingSyncer = new(_commsHandler, _instanceInfoContainer); //receives and transmits
 
             if (connectAutomatically)
                 ConnectToServer();
@@ -230,11 +227,6 @@ namespace VE2.NonCore.Instancing.Internal
             _pingSyncer.HandleReceivePingMessage(bytes);
         }
 
-        private void HandlePingUpdate (int smoothPing)
-        {
-            OnPingUpdate?.Invoke(smoothPing);
-        }
-
         private void DisconnectFromServer() 
         {
             if (_connectionStateDebugWrapper.ConnectionState != ConnectionState.Connected)
@@ -271,7 +263,6 @@ namespace VE2.NonCore.Instancing.Internal
             _commsHandler.OnReceiveServerRegistrationConfirmation -= HandleReceiveServerRegistrationConfirmation;
             _commsHandler.OnReceiveInstanceInfoUpdate -= HandleReceiveInstanceInfoUpdate;
             _commsHandler.OnDisconnectedFromServer -= HandleDisconnectFromServer;
-            _commsHandler.OnReceivePingMessage -= HandleReceivePingMessage;
 
             _connectionStateDebugWrapper.ConnectionState = ConnectionState.NotYetConnected;
         }
@@ -294,7 +285,7 @@ namespace VE2.NonCore.Instancing.Internal
         public readonly LocalClientIdWrapper LocalClientIdWrapper;
         public ushort LocalClientID { get => LocalClientIdWrapper.LocalClientID; set => LocalClientIdWrapper.LocalClientID = value; }
 
-        public bool IsHost => InstanceInfo.HostID == LocalClientID;
+        public bool IsHost => InstanceInfo == null || InstanceInfo.HostID == LocalClientID;
 
         public event Action<InstancedInstanceInfo> OnInstanceInfoChanged;
         private InstancedInstanceInfo _instanceInfo = null;
