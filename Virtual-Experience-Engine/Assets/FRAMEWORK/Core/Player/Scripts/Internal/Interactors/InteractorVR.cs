@@ -7,6 +7,8 @@ namespace VE2.Core.Player.Internal
 {
     internal class InteractorVR : PointerInteractor
     {
+        private Vector3 _grabberTransformOffset;
+
         private readonly V_CollisionDetector _collisionDetector;
         private readonly GameObject _handVisualGO;
         private readonly LineRenderer _lineRenderer;
@@ -85,6 +87,27 @@ namespace VE2.Core.Player.Internal
                 case InteractorState.Grabbing:
                     break;
             }
+        }
+
+        protected override void HandleStartGrabbingAdjustable(IRangedAdjustableInteractionModule rangedAdjustableInteraction)
+        {
+            //We'll control its position in Update - it needs an offset towards the adjustable, without being affected by the parent transform's rotation
+            _GrabberTransform.SetParent(_interactorParentTransform.parent); 
+            _grabberTransformOffset = rangedAdjustableInteraction.Transform.position - GrabberTransform.position;
+        }
+
+        protected override void HandleUpdateGrabbingAdjustable()
+        {
+            //offset the virtual grabber transform to the grabbable's position
+            GrabberTransform.SetPositionAndRotation(_interactorParentTransform.position + _grabberTransformOffset, _interactorParentTransform.rotation);
+        }
+
+        protected override void HandleStopGrabbingAdjustable()
+        {
+            //No longer apply offset to grabber, it can return to the parent 
+            _GrabberTransform.SetParent(_interactorParentTransform); 
+            _GrabberTransform.localPosition = Vector3.zero;
+            _GrabberTransform.localRotation = Quaternion.identity;
         }
     }
 }

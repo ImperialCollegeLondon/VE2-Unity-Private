@@ -8,6 +8,9 @@ namespace VE2.Core.Player.Internal
 {
     internal class InteractorReferences 
     {
+        public Transform InteractorParentTransform => _interactorParentTransform;
+        [SerializeField, IgnoreParent] private Transform _interactorParentTransform;
+
         public Transform GrabberTransform => _grabberTransform;
         [SerializeField, IgnoreParent] private Transform _grabberTransform;
 
@@ -53,6 +56,7 @@ namespace VE2.Core.Player.Internal
         private readonly InteractorContainer _interactorContainer;
         private readonly InteractorInputContainer _interactorInputContainer;
 
+        protected readonly Transform _interactorParentTransform;
         protected readonly Transform _GrabberTransform;
         protected readonly GameObject _GrabberVisualisation;
         protected readonly Transform _RayOrigin;
@@ -72,6 +76,7 @@ namespace VE2.Core.Player.Internal
             _interactorContainer = interactorContainer;
             _interactorInputContainer = interactorInputContainer;
 
+            _interactorParentTransform = interactorReferences.InteractorParentTransform;
             _GrabberTransform = interactorReferences.GrabberTransform;
             _GrabberVisualisation = interactorReferences.GrabberVisualisation;
             _RayOrigin = interactorReferences.RayOrigin;
@@ -129,6 +134,8 @@ namespace VE2.Core.Player.Internal
                 lineRenderer.startWidth = lineRenderer.endWidth = 0.005f;
                 lineRenderer.SetPosition(0, GrabberTransform.position);
                 lineRenderer.SetPosition(1, rangedAdjustableInteraction.Transform.position);
+
+                HandleUpdateGrabbingAdjustable();
             }
             else if (!IsCurrentlyGrabbing)
             {
@@ -173,6 +180,8 @@ namespace VE2.Core.Player.Internal
                 HandleRaycastDistance(raycastResultWrapper.HitDistance);
             }
         }
+
+        protected abstract void HandleUpdateGrabbingAdjustable();
 
         private void HandleHoverOverUIGameObject(GameObject go)
         {
@@ -263,25 +272,28 @@ namespace VE2.Core.Player.Internal
             Debug.Log("ConfirmGrab - null? " + (rangedGrabInteractable == null));
             _CurrentGrabbingGrabbable = rangedGrabInteractable;
 
-            if (rangedGrabInteractable is IRangedFreeGrabInteractionModule rangedFreeGrabInteractable && GrabbableWrapper != null)
-                GrabbableWrapper.RangedFreeGrabInteraction = rangedFreeGrabInteractable;
-                
             SetInteractorState(InteractorState.Grabbing);
 
-            //if grabbable is an adjustable module
-            if (_CurrentGrabbingGrabbable is IRangedAdjustableInteractionModule rangedAdjustableInteraction)
+            if (rangedGrabInteractable is IRangedFreeGrabInteractionModule rangedFreeGrabInteractable && GrabbableWrapper != null)
             {
-                //offset the virtual grabber transform to the grabbable's position
-                Vector3 directionToGrabber = GrabberTransform.position - rangedAdjustableInteraction.Transform.position;
-                GrabberTransform.position -= directionToGrabber;
-
+                GrabbableWrapper.RangedFreeGrabInteraction = rangedFreeGrabInteractable;
+            }
+            else if (_CurrentGrabbingGrabbable is IRangedAdjustableInteractionModule rangedAdjustableInteraction)
+            {
+                HandleStartGrabbingAdjustable(rangedAdjustableInteraction);
                 _GrabberVisualisation.SetActive(true);
             }
         }
 
+        protected abstract void HandleStartGrabbingAdjustable(IRangedAdjustableInteractionModule rangedAdjustableInteraction);
+
         public void ConfirmDrop()
         {
             SetInteractorState(InteractorState.Idle);
+
+            if (_CurrentGrabbingGrabbable is IRangedAdjustableInteractionModule rangedAdjustableInteraction)
+                HandleStopGrabbingAdjustable();
+
             _CurrentGrabbingGrabbable = null;
 
             //reset the virtual grabber transform to the original position
@@ -291,6 +303,8 @@ namespace VE2.Core.Player.Internal
             if (GrabbableWrapper != null)
                 GrabbableWrapper.RangedFreeGrabInteraction = null;
         }
+
+        protected abstract void HandleStopGrabbingAdjustable();
 
         private void HandleHandheldClickPressed()
         {

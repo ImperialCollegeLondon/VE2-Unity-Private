@@ -11975,8 +11975,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerConfig:
-    EnableVR: 0
-    Enable2D: 1
+    EnableVR: 1
+    Enable2D: 0
     HeadOverrideType: 0
     TorsoOverrideType: 0
     HeadOverrideOne: {fileID: 0}
@@ -35465,10 +35465,10 @@ MonoBehaviour:
               m_BoolArgument: 0
             m_CallState: 2
       MinimumOutputValue: 0
-      MaximumOutputValue: 3
+      MaximumOutputValue: 1
       StartingOutputValue: 0
       EmitValueOnStart: 1
-      IncrementPerScrollTick: 1
+      IncrementPerScrollTick: 0.1
     HandheldAdjustableServiceConfig:
       LoopValues: 1
     GeneralInteractionConfig:

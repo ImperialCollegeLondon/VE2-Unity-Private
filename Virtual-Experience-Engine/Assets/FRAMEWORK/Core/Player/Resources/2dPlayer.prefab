@@ -1335,6 +1335,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interactor2DReferences:
+    _interactorParentTransform: {fileID: 5654965308306165130}
     _grabberTransform: {fileID: 2036654600086750462}
     _grabberVisualisation: {fileID: 6679703327889491434}
     _rayOrigin: {fileID: 1976337065367333606}

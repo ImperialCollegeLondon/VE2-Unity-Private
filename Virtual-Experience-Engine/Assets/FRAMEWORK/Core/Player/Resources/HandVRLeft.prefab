@@ -1450,6 +1450,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _interactorVRReferences:
+    _interactorParentTransform: {fileID: 7167164542793246743}
     _grabberTransform: {fileID: 627727185274979275}
     _grabberVisualisation: {fileID: 3864559903800573603}
     _rayOrigin: {fileID: 4664831131562171241}

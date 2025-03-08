@@ -42,6 +42,21 @@ namespace VE2.Core.Player.Internal
                     break;
             }
         }
+
+        protected override void HandleStartGrabbingAdjustable(IRangedAdjustableInteractionModule rangedAdjustableInteraction)
+        {
+            //Unlike VR, we should just apply a one-time offset on grab, and have the grabber behave like its on the end of a stick
+            //I.E, it's position is affected by the rotation of its parent 
+            Vector3 directionToGrabber = rangedAdjustableInteraction.Transform.position - GrabberTransform.position;
+            GrabberTransform.position += directionToGrabber;
+        }
+
+        protected override void HandleUpdateGrabbingAdjustable() { } //Nothing needed here
+
+        protected override void HandleStopGrabbingAdjustable()
+        {
+            GrabberTransform.localPosition = Vector3.zero;
+        }
     }
 
 }
