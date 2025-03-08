@@ -12,9 +12,10 @@ namespace VE2.Core.Player.Internal
         private readonly ColorConfiguration _colorConfig;
 
         internal Interactor2D(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
-            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, ILocalClientIDProvider playerSyncer) : 
+            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, 
+            ILocalClientIDProvider localClientIDProvider) : 
             base(interactorContainer, interactorInputContainer,
-                interactorReferences, interactorType, raycastProvider, playerSyncer)   
+                interactorReferences, interactorType, raycastProvider, localClientIDProvider, null, new HoveringOverScrollableIndicator())   
         {
             Interactor2DReferences interactor2DReferences = interactorReferences as Interactor2DReferences;
             _reticuleImage = interactor2DReferences.ReticuleImage;

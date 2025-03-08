@@ -17,9 +17,10 @@ namespace VE2.Core.Player.Internal
         private const float LINE_EMISSION_INTENSITY = 15;
 
         internal InteractorVR(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
-            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, ILocalClientIDProvider multiplayerSupport, FreeGrabbableWrapper grabbableWrapper) :
+            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, 
+            ILocalClientIDProvider multiplayerSupport, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator) :
             base(interactorContainer, interactorInputContainer,
-                interactorReferences, interactorType, raycastProvider, multiplayerSupport, grabbableWrapper)
+                interactorReferences, interactorType, raycastProvider, multiplayerSupport, grabbableWrapper, hoveringOverScrollableIndicator)
         {
             InteractorVRReferences interactorVRReferences = interactorReferences as InteractorVRReferences;
 

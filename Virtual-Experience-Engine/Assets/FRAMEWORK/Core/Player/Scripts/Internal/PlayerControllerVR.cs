@@ -72,10 +72,12 @@ namespace VE2.Core.Player.Internal
             V_HandVRReferences thisHandVRReferences = handGO.GetComponent<V_HandVRReferences>();
             V_HandVRReferences otherHandVRReferences = otherHandGO.GetComponent<V_HandVRReferences>();
 
+            HoveringOverScrollableIndicator hoveringOverScrollableIndicator = new();
+
             InteractorVR interactor = new(
                 interactorContainer, handVRInputContainer.InteractorVRInputContainer,
                 thisHandVRReferences.InteractorVRReferences,
-                interactorType, raycastProvider, multiplayerSupport, thisHandGrabbableWrapper);
+                interactorType, raycastProvider, multiplayerSupport, thisHandGrabbableWrapper, hoveringOverScrollableIndicator);
 
             DragLocomotor dragLocomotor = new(
                 thisHandVRReferences.LocomotorVRReferences,
@@ -90,7 +92,8 @@ namespace VE2.Core.Player.Internal
             
             Teleport teleport = new(
                 handVRInputContainer.TeleportInputContainer,
-                _rootTransform, thisHandVRReferences.InteractorVRReferences.RayOrigin, otherHandVRReferences.InteractorVRReferences.RayOrigin, thisHandGrabbableWrapper, otherHandGrabbableWrapper);
+                _rootTransform, thisHandVRReferences.InteractorVRReferences.RayOrigin, 
+                otherHandVRReferences.InteractorVRReferences.RayOrigin, thisHandGrabbableWrapper, otherHandGrabbableWrapper, hoveringOverScrollableIndicator);
             
             return new V_HandController(handGO, handVRInputContainer, interactor, dragLocomotor, snapTurn, teleport);
         }

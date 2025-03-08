@@ -69,9 +69,11 @@ namespace VE2.Core.Player.Internal
         private readonly ILocalClientIDProvider _localClientIDProvider;
 
         internal readonly FreeGrabbableWrapper GrabbableWrapper;
+        private readonly HoveringOverScrollableIndicator _hoveringOverScrollableIndicator;
 
         internal PointerInteractor(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
-            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, ILocalClientIDProvider localClientIDProvider, FreeGrabbableWrapper grabbableWrapper = null)
+            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, 
+            ILocalClientIDProvider localClientIDProvider, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator)
         {
             _interactorContainer = interactorContainer;
             _interactorInputContainer = interactorInputContainer;
@@ -88,6 +90,7 @@ namespace VE2.Core.Player.Internal
 
             GrabbableWrapper = grabbableWrapper;
             _localClientIDProvider = localClientIDProvider;
+            _hoveringOverScrollableIndicator = hoveringOverScrollableIndicator;
         }
 
         public virtual void HandleOnEnable()
@@ -160,19 +163,22 @@ namespace VE2.Core.Player.Internal
                 }
                 else
                 {
-                    SetInteractorState(InteractorState.Idle);
-                    _raycastHitDebug.Value = "none";
                     HandleNoHoverOverUIGameObject();
                 }
 
                 if (!_WaitingForLocalClientID && raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange)
                 {
                     bool isAllowedToInteract = !raycastResultWrapper.RangedInteractable.AdminOnly;
+
+                    _hoveringOverScrollableIndicator.IsHoveringOverScrollableObject = isAllowedToInteract && raycastResultWrapper.RangedInteractable is IRangedAdjustableInteractionModule; //TODO: Or a UIScrollable
+
                     SetInteractorState(isAllowedToInteract ? InteractorState.InteractionAvailable : InteractorState.InteractionLocked);
                     _raycastHitDebug.Value = raycastResultWrapper.RangedInteractable.ToString();
                 }
                 else
                 {
+                    _hoveringOverScrollableIndicator.IsHoveringOverScrollableObject = false;
+
                     SetInteractorState(InteractorState.Idle);
                     _raycastHitDebug.Value = "none";
                 }
