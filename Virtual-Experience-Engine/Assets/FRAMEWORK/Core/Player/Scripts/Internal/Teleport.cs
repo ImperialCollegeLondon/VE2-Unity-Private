@@ -150,33 +150,46 @@ namespace VE2.Core.Player.Internal
             }
             else
             {
-                if (Physics.Raycast(startPosition, direction, out RaycastHit hit, _teleportRayDistance, _teleportLayerMask))
+                if (Physics.Raycast(startPosition, direction, out RaycastHit hit, _teleportRayDistance))
                 {
-                    if (IsValidSurface(hit.normal))
+                    if (((1 << hit.collider.gameObject.layer) & _teleportLayerMask) != 0)
                     {
-                        _hitPoint = hit.point;
-                        _reticle.transform.position = _hitPoint;
-                        Vector3 arrowDirection = _thisHandTeleportRaycastOrigin.forward;
-                        arrowDirection.y = 0;
-                        if (arrowDirection != Vector3.zero)
+                        if (IsValidSurface(hit.normal))
                         {
-                            arrowDirection.Normalize();
+                            _hitPoint = hit.point;
+                            _reticle.transform.position = _hitPoint;
+                            Vector3 arrowDirection = _thisHandTeleportRaycastOrigin.forward;
+                            arrowDirection.y = 0;
+                            if (arrowDirection != Vector3.zero)
+                            {
+                                arrowDirection.Normalize();
+                            }
+                            _arrowObject.transform.rotation = Quaternion.LookRotation(arrowDirection, Vector3.up);
+
+                            // Update the line renderer positions
+                            DrawBezierCurve(startPosition, _hitPoint);
+                            _lineRenderer.material.color = Color.green;
+
+                            _reticle.SetActive(true);
+                            _arrowObject.SetActive(true);
+
+                            UpdateTargetRotation(hit.normal);
+                            _isTeleportSuccessful = true;
                         }
-                        _arrowObject.transform.rotation = Quaternion.LookRotation(arrowDirection, Vector3.up);
-
-                        // Update the line renderer positions
-                        DrawBezierCurve(startPosition, _hitPoint);
-                        _lineRenderer.material.color = Color.green;
-
-                        _reticle.SetActive(true);
-                        _arrowObject.SetActive(true);
-                        UpdateTargetRotation(hit.normal);
-                        _isTeleportSuccessful = true;
+                        else
+                        {
+                            DrawBezierCurve(startPosition, hit.point);
+                            // Surface is not valid for teleportation
+                            _reticle.SetActive(false);
+                            _arrowObject.SetActive(false);
+                            _lineRenderer.material.color = Color.red;
+                            _isTeleportSuccessful = false;
+                        }
                     }
                     else
                     {
                         DrawBezierCurve(startPosition, hit.point);
-                        // Surface is not valid for teleportation
+                        // Hit a non-traversable object
                         _reticle.SetActive(false);
                         _arrowObject.SetActive(false);
                         _lineRenderer.material.color = Color.red;
@@ -185,15 +198,7 @@ namespace VE2.Core.Player.Internal
                 }
                 else
                 {
-                    // Update the line renderer positions
-                    if (Physics.Raycast(startPosition, direction, out RaycastHit otherhit, _teleportRayDistance))
-                    {
-                        DrawBezierCurve(startPosition, otherhit.point);
-                    }
-                    else
-                    {
-                        DrawBezierCurve(startPosition, direction * _teleportRayDistance);
-                    }
+                    DrawBezierCurve(startPosition, startPosition + direction * _teleportRayDistance);
 
                     _reticle.SetActive(false);
                     _arrowObject.SetActive(false);
@@ -260,12 +265,16 @@ namespace VE2.Core.Player.Internal
             _teleportTargetRotation = Quaternion.Euler(0, rotationAngle, 0);
 
             Debug.Log($"Current Teleport Direction: {_currentTeleportDirection}, Teleport Rotation: {rotationAngle}");
-
-            _teleportRotation = _arrowObject.transform.rotation * _teleportTargetRotation;
+            _arrowObject.transform.rotation *= _teleportTargetRotation;
+            _teleportRotation = _arrowObject.transform.rotation;
 
             // Align the arrow object with the surface normal
             Quaternion surfaceRotation = Quaternion.FromToRotation(Vector3.up, surfaceNormal);
-            _arrowObject.transform.rotation = surfaceRotation * _teleportTargetRotation;
+            _reticle.transform.rotation *= surfaceRotation;
+
+            // Add an offset to ensure the reticle does not enter into the surface
+            float offset = 0.01f; // Reduced offset value
+            _reticle.transform.position += surfaceNormal * offset;
         }
 
         private void DrawBezierCurve(Vector3 startPosition, Vector3 endPosition)
