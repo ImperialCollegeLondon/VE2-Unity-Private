@@ -1,8 +1,10 @@
 using UnityEngine;
+using VE2.Core.Player.API;
 using VE2.Core.UI.API;
 
 namespace VE2.Core.UI.Internal
 {
+    [ExecuteAlways]
     public class V_UIProvider : MonoBehaviour, IUIProvider
     {
         [SerializeField] private bool _enablePrimaryUI = true;
@@ -20,9 +22,12 @@ namespace VE2.Core.UI.Internal
         {
             UIAPI.UIProvider = this;
 
+            if (!Application.isPlaying)
+                return;
+
             if (_primaryUIService == null && _enablePrimaryUI)
             {
-                _primaryUIService = new PrimaryUIService();
+                _primaryUIService = new PrimaryUIService(PlayerAPI.InputHandler.ToggleMenu);
             };
 
             if (_secondaryUIService == null && _enableSecondaryUI)
@@ -38,8 +43,8 @@ namespace VE2.Core.UI.Internal
             if (!Application.isPlaying)
                 return;
 
-            _primaryUIService.TearDown();
-            _secondaryUIService.TearDown();
+            _primaryUIService?.TearDown();
+            _secondaryUIService?.TearDown();
         }
     }
 

@@ -42,6 +42,7 @@ namespace VE2.Core.Player.Internal
 
         private readonly IPrimaryUIService _primaryUIService;
         private readonly Canvas _primaryUICanvas;
+        //private readonly GameObject _overlayUI; 
 
         private readonly ISecondaryUIService _secondaryUIService;
         private readonly Canvas _secondaryUICanvas;
@@ -68,12 +69,18 @@ namespace VE2.Core.Player.Internal
                 player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, multiplayerSupport);
 
             _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences);
+
+            if (_primaryUIService != null)
+            {
+                _primaryUIService.OnUIShow += HandlePrimaryUIActivated;
+                _primaryUIService.OnUIHide += HandlePrimaryUIDeactivated;
+            }
             
             //TODO: think about inspect mode, does that live in the interactor, or the player controller?
             //If interactor, will need to make the interactor2d constructor take a this as a param, and forward the other params to the base constructor
         }
 
-        public void ActivatePlayer(PlayerTransformData initTransformData)
+        internal void ActivatePlayer(PlayerTransformData initTransformData)
         {
             _playerGO.gameObject.SetActive(true);
 
@@ -90,7 +97,7 @@ namespace VE2.Core.Player.Internal
             _primaryUIService?.MoveUIToCanvas(_primaryUICanvas);
         }
 
-        public void DeactivatePlayer() 
+        internal void DeactivatePlayer() 
         {
             if (_playerGO != null)
                 _playerGO.gameObject.SetActive(false);
@@ -99,10 +106,40 @@ namespace VE2.Core.Player.Internal
             _interactor2D.HandleOnDisable();
         }
 
-        public void HandleUpdate() 
+        internal void HandleUpdate() 
         {
-            _playerLocomotor2D.HandleUpdate();
-            _interactor2D.HandleUpdate();
+            if (_primaryUIService == null || !_primaryUIService.IsShowing)
+            {
+                _playerLocomotor2D.HandleUpdate();
+                _interactor2D.HandleUpdate();   
+            }
+        }
+
+        internal void HandlePrimaryUIActivated() 
+        {
+            _playerLocomotor2D.HandleOnDisable();
+            _interactor2D.HandleOnDisable(); //TODO - we don't want to drop grabbables 
+        }
+
+        internal void HandlePrimaryUIDeactivated() 
+        {
+            _playerLocomotor2D.HandleOnEnable();
+            _interactor2D.HandleOnEnable(); 
+        }
+
+        internal void TearDown() 
+        {
+            _playerLocomotor2D?.HandleOnDisable();
+            _interactor2D?.HandleOnDisable();
+
+            if (_primaryUIService != null)
+            {
+                _primaryUIService.OnUIShow -= HandlePrimaryUIActivated;
+                _primaryUIService.OnUIHide -= HandlePrimaryUIDeactivated;
+            }
+
+            if (_playerGO != null)
+                GameObject.Destroy(_playerGO);
         }
     }
 }

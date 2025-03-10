@@ -8,7 +8,7 @@ namespace VE2.Core.UI.Internal
         #region Interfaces
         public void MoveUIToCanvas(Canvas canvas)
         {
-            throw new System.NotImplementedException();
+            
         }
         #endregion
 

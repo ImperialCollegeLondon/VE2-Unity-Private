@@ -20,7 +20,7 @@ namespace VE2.Core.Player.Internal
         private float _teleportRayDistance = 50f;
         private Quaternion _teleportTargetRotation;
         private Quaternion _teleportRotation;
-        private LayerMask _teleportLayerMask => LayerMask.GetMask("Traversible");
+        private LayerMask _teleportLayerMask => LayerMask.GetMask("Ground");
         private Vector2 _currentTeleportDirection;
         private int _lineSegmentCount = 20; // Number of segments in the Bezier curve
         private float _maxSlopeAngle = 45f; // Maximum slope angle in degrees

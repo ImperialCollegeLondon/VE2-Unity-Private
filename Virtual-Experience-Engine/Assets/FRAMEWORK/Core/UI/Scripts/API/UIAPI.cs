@@ -65,10 +65,12 @@ namespace VE2.Core.UI.API
 
     public interface IPrimaryUIService
     {
-        void ShowUI();
+        public bool IsShowing { get; }
+
+        public void ShowUI();
         public event Action OnUIShow;
 
-        void HidePrimaryUI();
+        public void HidePrimaryUI();
         public event Action OnUIHide;
 
         public void MoveUIToCanvas(Canvas canvas);

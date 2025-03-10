@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+//TODO: Perhaps these should live in common, rather than player? UI needs them too, and UI is separate from player
 namespace VE2.Core.Player.API
 {
     #region Input Types 
@@ -404,7 +405,7 @@ namespace VE2.Core.Player.API
     public interface IInputHandler
     {
         public PlayerInputContainer PlayerInputContainer { get; }
-        public IPressableInput ToggleMenu { get; }
+        public IPressableInput ToggleMenu { get; } 
     }
 
     //TODO: The actual handler could go into its own assembly... where to draw the line though? Each interface could also go into its own assembly too...

@@ -496,7 +496,7 @@
                 {
                     "name": "",
                     "id": "8cdf36e2-8279-4e57-8238-0b6cf18804ce",
-                    "path": "<XRController>{LeftHand}/start",
+                    "path": "<XRController>{LeftHand}/menu",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

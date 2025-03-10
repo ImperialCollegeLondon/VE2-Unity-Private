@@ -29,9 +29,15 @@ namespace VE2.Core.UI.Internal
 
         public static void MovePanelToFillCanvas(RectTransform panelRect, Canvas targetCanvas)
         {
-            if (panelRect == null || targetCanvas == null)
+            if (panelRect == null)
             {
-                Debug.LogError("MovePanelToFillCanvas: RectTransform or Canvas is null.");
+                Debug.LogError("MovePanelToFillCanvas: panel to move is null");
+                return;
+            }
+
+            if (targetCanvas == null)
+            {
+                Debug.LogError("MovePanelToFillCanvas: target Canvas is null.");
                 return;
             }
 
