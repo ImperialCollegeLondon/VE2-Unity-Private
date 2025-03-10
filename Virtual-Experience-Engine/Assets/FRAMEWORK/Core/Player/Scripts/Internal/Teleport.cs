@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using VE2.Core.Player.API;
 
@@ -14,20 +15,27 @@ namespace VE2.Core.Player.Internal
         private readonly FreeGrabbableWrapper _thisHandGrabbableWrapper;
         private readonly FreeGrabbableWrapper _otherHandGrabbableWrapper;
         private readonly bool _enableFreeFlyMode;
+
         private GameObject _reticle;
         private LineRenderer _lineRenderer;
         private GameObject _lineRendererObject;
         private GameObject _arrowObject;
         private Vector3 _hitPoint;
-        private float _teleportRayDistance = 10f;
         private Quaternion _teleportTargetRotation;
         private Quaternion _teleportRotation;
+
+        private float _initialSpeed = 10f; // Initial speed of the projectile motion
+        private float _simulationTimeStep = 0.05f;
+
         private LayerMask _teleportLayerMask => LayerMask.GetMask("Traversible");
         private Vector2 _currentTeleportDirection;
         private int _lineSegmentCount = 20; // Number of segments in the Bezier curve
         private float _maxSlopeAngle = 45f; // Maximum slope angle in degrees
         private bool _isTeleportSuccessful = false;
-        public Teleport(TeleportInputContainer inputContainer, Transform rootTransform, Transform headTransform, Transform thisHandTeleportRaycastOrigin, Transform otherHandTeleportRaycastOrigin, FreeGrabbableWrapper thisHandGrabbableWrapper, FreeGrabbableWrapper otherHandGrabbableWrapper, bool enableFreeFlyMode)
+        private Color _teleportColor = new Color(0.0f, 0.9764706f, 0.7921569f, 0.3176471f); 
+        public Teleport(TeleportInputContainer inputContainer, Transform rootTransform, Transform headTransform, 
+            Transform thisHandTeleportRaycastOrigin, Transform otherHandTeleportRaycastOrigin, 
+            FreeGrabbableWrapper thisHandGrabbableWrapper, FreeGrabbableWrapper otherHandGrabbableWrapper, bool enableFreeFlyMode)
         {
             _inputContainer = inputContainer;
             _rootTransform = rootTransform;
@@ -107,10 +115,11 @@ namespace VE2.Core.Player.Internal
 
             if (_enableFreeFlyMode)
             {
+                // Free-fly mode remains unchanged.
                 float stickX = _inputContainer.TeleportDirection.Value.x;
-                float distance = Mathf.Lerp(1f, 3f, stickX); //TODO: Make this configurable
+                float distance = Mathf.Lerp(1f, 3f, stickX); // TODO: Make this configurable
                 Vector3 teleportDestination = startPosition + direction * distance;
-                if (CanTeleport(startPosition,teleportDestination))
+                if (CanTeleport(startPosition, teleportDestination))
                 {
                     _reticle.transform.position = teleportDestination;
 
@@ -146,68 +155,90 @@ namespace VE2.Core.Player.Internal
                     _arrowObject.SetActive(false);
                     _isTeleportSuccessful = false;
                 }
-
             }
             else
             {
-                if (Physics.Raycast(startPosition, direction, out RaycastHit hit, _teleportRayDistance))
+                // Adjust initialSpeed to control how far/fast the arc travels.
+                _initialSpeed = 10f; // Configurable: tweak to change the arc length and curvature.
+                Vector3 initialVelocity = direction.normalized * _initialSpeed;
+
+                // We simulate projectile motion: position = start + v0 * t + 0.5 * g * t^2.
+                _simulationTimeStep = Mathf.Clamp(_simulationTimeStep, 0.001f, 0.1f); // Ensure it doesn't go above 0.1 seconds.
+                float simulationMaxTime = 5.0f; // Adjust maximum simulation time if needed.
+                List<Vector3> trajectoryPoints = new List<Vector3>();
+                trajectoryPoints.Add(startPosition);
+
+                bool hitFound = false;
+                RaycastHit hit = new RaycastHit();
+                float simulationTime = _simulationTimeStep;
+
+                while (simulationTime < simulationMaxTime)
                 {
-                    if (((1 << hit.collider.gameObject.layer) & _teleportLayerMask) != 0)
+                    Vector3 previousPoint = trajectoryPoints[trajectoryPoints.Count - 1];
+                    Vector3 currentPoint = startPosition + initialVelocity * simulationTime + 0.5f * Physics.gravity * simulationTime * simulationTime;
+                    trajectoryPoints.Add(currentPoint);
+
+                    Vector3 segmentDir = (currentPoint - previousPoint).normalized;
+                    float segmentDistance = Vector3.Distance(currentPoint, previousPoint);
+
+                    // First check: is there any object not on the Traversible layer blocking this segment?
+                    RaycastHit blockingHit;
+                    if (Physics.Raycast(previousPoint, segmentDir, out blockingHit, segmentDistance, ~_teleportLayerMask))
                     {
-                        if (IsValidSurface(hit.normal))
-                        {
-                            _hitPoint = hit.point;
-                            _reticle.transform.position = _hitPoint;
-                            Vector3 arrowDirection = _thisHandTeleportRaycastOrigin.forward;
-                            arrowDirection.y = 0;
-                            if (arrowDirection != Vector3.zero)
-                            {
-                                arrowDirection.Normalize();
-                            }
-                            _arrowObject.transform.rotation = Quaternion.LookRotation(arrowDirection, Vector3.up);
-
-                            // Update the line renderer positions
-                            DrawBezierCurve(startPosition, _hitPoint);
-                            _lineRenderer.material.color = Color.green;
-
-                            _reticle.SetActive(true);
-                            _arrowObject.SetActive(true);
-
-                            UpdateTargetRotation(hit.normal);
-                            _isTeleportSuccessful = true;
-                        }
-                        else
-                        {
-                            DrawBezierCurve(startPosition, hit.point);
-                            // Surface is not valid for teleportation
-                            _reticle.SetActive(false);
-                            _arrowObject.SetActive(false);
-                            _lineRenderer.material.color = Color.red;
-                            _isTeleportSuccessful = false;
-                        }
+                        // A non-traversible object is in the way – cancel teleport.
+                        hitFound = false;
+                        break;
                     }
-                    else
+
+                    // Second check: does the segment hit a valid teleport surface (i.e. on the Traversible layer)?
+                    if (Physics.Raycast(previousPoint, segmentDir, out hit, segmentDistance, _teleportLayerMask))
                     {
-                        DrawBezierCurve(startPosition, hit.point);
-                        // Hit a non-traversable object
-                        _reticle.SetActive(false);
-                        _arrowObject.SetActive(false);
-                        _lineRenderer.material.color = Color.red;
-                        _isTeleportSuccessful = false;
+                        // If a valid hit is detected, update the trajectory point and mark teleport as possible.
+                        trajectoryPoints[trajectoryPoints.Count - 1] = hit.point;
+                        hitFound = true;
+                        break;
                     }
+                    simulationTime += _simulationTimeStep;
+                }
+
+                // --- Update Visuals and Teleport Target ---
+                if (hitFound && IsValidSurface(hit.normal))
+                {
+                    _hitPoint = hit.point;
+                    _reticle.transform.position = _hitPoint;
+
+                    UpdateTargetRotation(hit.normal);
+
+                    // Update the line renderer with the simulated trajectory points.
+                    _lineRenderer.positionCount = trajectoryPoints.Count;
+                    for (int i = 0; i < trajectoryPoints.Count; i++)
+                    {
+                        _lineRenderer.SetPosition(i, trajectoryPoints[i]);
+                    }
+                    _lineRenderer.material.color = _teleportColor;
+                    _reticle.SetActive(true);
+                    _arrowObject.SetActive(true);
+                    _isTeleportSuccessful = true;
                 }
                 else
                 {
-                    DrawBezierCurve(startPosition, startPosition + direction * _teleportRayDistance);
-
+                    // If no valid hit, render the full arc in red.
+                    _lineRenderer.positionCount = trajectoryPoints.Count;
+                    for (int i = 0; i < trajectoryPoints.Count; i++)
+                    {
+                        _lineRenderer.SetPosition(i, trajectoryPoints[i]);
+                    }
+                    _lineRenderer.material.color = Color.red;
                     _reticle.SetActive(false);
                     _arrowObject.SetActive(false);
-                    _lineRenderer.material.color = Color.red;
                     _isTeleportSuccessful = false;
                 }
             }
+
             _lineRendererObject.SetActive(true);
         }
+
+
 
         private bool IsValidSurface(Vector3 normal)
         {
@@ -246,7 +277,6 @@ namespace VE2.Core.Player.Internal
                 {
                     _reticle = GameObject.Instantiate(teleportCursorPrefab);
                     _arrowObject = _reticle.transform.Find("TeleportationCursorChild").gameObject;
-
                 }
                 else
                 {
@@ -260,33 +290,29 @@ namespace VE2.Core.Player.Internal
 
         private void UpdateTargetRotation(Vector3 surfaceNormal)
         {
+            // Set arrow direction based on the raycast origin's horizontal forward.
+            Vector3 arrowDirection = _thisHandTeleportRaycastOrigin.forward;
+            arrowDirection.y = 0;
+            if (arrowDirection != Vector3.zero)
+                arrowDirection.Normalize();
+            _arrowObject.transform.rotation = Quaternion.LookRotation(arrowDirection, Vector3.up);
+
+            // Get input direction and compute an additional rotation from it.
             _currentTeleportDirection = _inputContainer.TeleportDirection.Value;
             float rotationAngle = Mathf.Atan2(_currentTeleportDirection.x, _currentTeleportDirection.y) * Mathf.Rad2Deg;
             _teleportTargetRotation = Quaternion.Euler(0, rotationAngle, 0);
+            _teleportRotation = _arrowObject.transform.rotation * _teleportTargetRotation;
 
-            Debug.Log($"Current Teleport Direction: {_currentTeleportDirection}, Teleport Rotation: {rotationAngle}");
-            _arrowObject.transform.rotation *= _teleportTargetRotation;
-            _teleportRotation = _arrowObject.transform.rotation;
-
-            // Align the arrow object with the surface normal
-            Quaternion surfaceRotation = Quaternion.FromToRotation(Vector3.up, surfaceNormal);
-            _reticle.transform.rotation *= surfaceRotation;
-
-            // Add an offset to ensure the reticle does not enter into the surface
-            float offset = 0.01f; // Reduced offset value
-            _reticle.transform.position += surfaceNormal * offset;
-        }
-
-        private void DrawBezierCurve(Vector3 startPosition, Vector3 endPosition)
-        {
-            Vector3 controlPoint = (startPosition + endPosition) / 2 + Vector3.up * 2; // Control point for the Bezier curve
-
-            for (int i = 0; i <= _lineSegmentCount; i++)
+            // Use the input rotation to determine a desired forward direction.
+            Vector3 desiredForward = _teleportTargetRotation * arrowDirection;
+            // Project that forward vector onto the plane defined by the surface normal.
+            desiredForward = Vector3.ProjectOnPlane(desiredForward, surfaceNormal).normalized;
+            if (desiredForward == Vector3.zero)
             {
-                float t = i / (float)_lineSegmentCount;
-                Vector3 position = CalculateQuadraticBezierPoint(t, startPosition, controlPoint, endPosition);
-                _lineRenderer.SetPosition(i, position);
+                // Fallback: if projection fails, use the original forward vector.
+                desiredForward = arrowDirection;
             }
+            _arrowObject.transform.rotation = Quaternion.LookRotation(desiredForward, surfaceNormal);
         }
 
         private void DrawStraightLine(Vector3 startPosition, Vector3 endPosition)
@@ -296,18 +322,6 @@ namespace VE2.Core.Player.Internal
             _lineRenderer.SetPosition(1, endPosition);
         }
 
-        private Vector3 CalculateQuadraticBezierPoint(float t, Vector3 startPosition, Vector3 controlPoint, Vector3 endPosition)
-        {
-            float u = 1 - t;
-            float tt = t * t;
-            float uu = u * u;
-
-            Vector3 p = uu * startPosition; // (1-t)^2 * startPosition
-            p += 2 * u * t * controlPoint; // 2 * (1-t) * t * controlPoint
-            p += tt * endPosition; // t^2 * endPosition
-
-            return p;
-        }
         private bool CanTeleport(Vector3 startPosition, Vector3 teleportDestination)
         {
             Vector3 direction = teleportDestination - startPosition;
