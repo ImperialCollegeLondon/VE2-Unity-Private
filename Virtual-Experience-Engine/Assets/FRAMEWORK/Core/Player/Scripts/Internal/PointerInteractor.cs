@@ -6,7 +6,7 @@ using VE2.Core.VComponents.API;
 
 namespace VE2.Core.Player.Internal
 {
-    internal class InteractorReferences 
+    internal class InteractorReferences
     {
         public Transform GrabberTransform => _grabberTransform;
         [SerializeField, IgnoreParent] private Transform _grabberTransform;
@@ -44,6 +44,7 @@ namespace VE2.Core.Player.Internal
 
         protected const float MAX_RAYCAST_DISTANCE = 10;
         protected IRangedGrabInteractionModule _CurrentGrabbingGrabbable;
+        protected IRangedClickInteractionModule _CurrentRangedClickInteractable;
 
         private GameObject lastHoveredUIObject = null; // Keep track of the last hovered UI object
 
@@ -110,7 +111,7 @@ namespace VE2.Core.Player.Internal
             _interactorContainer.DeregisterInteractor(_InteractorID.ToString());
         }
 
-        private void HandleLocalClientIDReady(ushort clientID) 
+        private void HandleLocalClientIDReady(ushort clientID)
         {
             if (_localClientIDProvider != null)
                 _localClientIDProvider.OnClientIDReady -= HandleLocalClientIDReady;
@@ -125,9 +126,18 @@ namespace VE2.Core.Player.Internal
 
             RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
 
+            if (_CurrentRangedClickInteractable != null && _interactorInputContainer.RangedClick.IsPressed)
+            {
+                if (raycastResultWrapper.RangedInteractable != _CurrentRangedClickInteractable)
+                {
+                    _CurrentRangedClickInteractable.ClickUp(_InteractorID.ClientID);
+                    _CurrentRangedClickInteractable = null;
+                }
+            }
+
             if (!_WaitingForLocalClientID && raycastResultWrapper.HitInteractableOrUI && !(raycastResultWrapper.HitInteractable && !raycastResultWrapper.RangedInteractableIsInRange))
             {
-                bool isAllowedToInteract = (raycastResultWrapper.HitInteractable && !raycastResultWrapper.RangedInteractable.AdminOnly) || 
+                bool isAllowedToInteract = (raycastResultWrapper.HitInteractable && !raycastResultWrapper.RangedInteractable.AdminOnly) ||
                     (raycastResultWrapper.HitUI && raycastResultWrapper.UIButton.interactable);
 
                 SetInteractorState(isAllowedToInteract ? InteractorState.InteractionAvailable : InteractorState.InteractionLocked);
@@ -184,12 +194,12 @@ namespace VE2.Core.Player.Internal
 
         private RaycastResultWrapper GetRayCastResult()
         {
-            if (_RayOrigin == null) 
+            if (_RayOrigin == null)
                 return null;
 
             return _RaycastProvider.Raycast(_RayOrigin.position, _RayOrigin.forward, MAX_RAYCAST_DISTANCE, _layerMask);
         }
-        
+
         private void HandleRangedClickPressed()
         {
             if (_WaitingForLocalClientID || IsCurrentlyGrabbing)
@@ -201,6 +211,7 @@ namespace VE2.Core.Player.Internal
                 raycastResultWrapper.RangedInteractable is IRangedClickInteractionModule rangedClickInteractable)
             {
                 rangedClickInteractable.ClickDown(_InteractorID.ClientID);
+                _CurrentRangedClickInteractable = rangedClickInteractable;
             }
             else if (raycastResultWrapper.HitUI && raycastResultWrapper.UIButton.IsInteractable())
             {
@@ -215,10 +226,10 @@ namespace VE2.Core.Player.Internal
 
             RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
 
-            if (raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange &&
-                raycastResultWrapper.RangedInteractable is IRangedClickInteractionModule rangedClickInteractable)
+            if (_CurrentRangedClickInteractable != null)
             {
-                rangedClickInteractable.ClickUp(_InteractorID.ClientID);
+                _CurrentRangedClickInteractable.ClickUp(_InteractorID.ClientID);
+                _CurrentRangedClickInteractable = null;
             }
         }
 
@@ -229,12 +240,12 @@ namespace VE2.Core.Player.Internal
                 IRangedGrabInteractionModule rangedGrabInteractableToDrop = _CurrentGrabbingGrabbable;
                 rangedGrabInteractableToDrop.RequestLocalDrop(_InteractorID);
             }
-            else 
+            else
             {
                 RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
 
-                if (!_WaitingForLocalClientID && raycastResultWrapper != null && raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange )
-                {   
+                if (!_WaitingForLocalClientID && raycastResultWrapper != null && raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange)
+                {
                     if (!raycastResultWrapper.RangedInteractable.AdminOnly)
                     {
                         if (raycastResultWrapper.RangedInteractable is IRangedGrabInteractionModule rangedGrabInteractable)
@@ -257,7 +268,7 @@ namespace VE2.Core.Player.Internal
 
             if (rangedGrabInteractable is IRangedFreeGrabInteractionModule rangedFreeGrabInteractable && GrabbableWrapper != null)
                 GrabbableWrapper.RangedFreeGrabInteraction = rangedFreeGrabInteractable;
-                
+
             SetInteractorState(InteractorState.Grabbing);
         }
 
