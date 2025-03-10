@@ -91,7 +91,7 @@ namespace VE2.Core.Player.Internal
                 handVRInputContainer.TeleportInputContainer, thisHandGrabbableWrapper,otherHandGrabbableWrapper, thisHandVRReferences.InteractorVRReferences.RayOrigin, otherHandVRReferences.InteractorVRReferences.RayOrigin);
             Teleport teleport = new(
                 handVRInputContainer.TeleportInputContainer,
-                _rootTransform, thisHandVRReferences.InteractorVRReferences.RayOrigin, otherHandVRReferences.InteractorVRReferences.RayOrigin, thisHandGrabbableWrapper, otherHandGrabbableWrapper, enableFreeFlyMode);
+                _rootTransform,_headTransform, thisHandVRReferences.InteractorVRReferences.RayOrigin, otherHandVRReferences.InteractorVRReferences.RayOrigin, thisHandGrabbableWrapper, otherHandGrabbableWrapper, enableFreeFlyMode);
             return new V_HandController(handGO, handVRInputContainer, interactor, dragLocomotor, snapTurn, teleport);
         }
 

@@ -8,6 +8,7 @@ namespace VE2.Core.Player.Internal
     {
         private readonly TeleportInputContainer _inputContainer;
         private readonly Transform _rootTransform; // For rotating the player
+        private readonly Transform _headTransform; // For setting the player's position in free fly mode
         private readonly Transform _thisHandTeleportRaycastOrigin; // Position of the teleport raycast origin
         private readonly Transform _otherHandTeleportRaycastOrigin; // Position of the other hand teleport raycast origin
         private readonly FreeGrabbableWrapper _thisHandGrabbableWrapper;
@@ -18,7 +19,7 @@ namespace VE2.Core.Player.Internal
         private GameObject _lineRendererObject;
         private GameObject _arrowObject;
         private Vector3 _hitPoint;
-        private float _teleportRayDistance = 50f;
+        private float _teleportRayDistance = 10f;
         private Quaternion _teleportTargetRotation;
         private Quaternion _teleportRotation;
         private LayerMask _teleportLayerMask => LayerMask.GetMask("Traversible");
@@ -26,10 +27,11 @@ namespace VE2.Core.Player.Internal
         private int _lineSegmentCount = 20; // Number of segments in the Bezier curve
         private float _maxSlopeAngle = 45f; // Maximum slope angle in degrees
         private bool _isTeleportSuccessful = false;
-        public Teleport(TeleportInputContainer inputContainer, Transform rootTransform, Transform thisHandTeleportRaycastOrigin, Transform otherHandTeleportRaycastOrigin, FreeGrabbableWrapper thisHandGrabbableWrapper, FreeGrabbableWrapper otherHandGrabbableWrapper, bool enableFreeFlyMode)
+        public Teleport(TeleportInputContainer inputContainer, Transform rootTransform, Transform headTransform, Transform thisHandTeleportRaycastOrigin, Transform otherHandTeleportRaycastOrigin, FreeGrabbableWrapper thisHandGrabbableWrapper, FreeGrabbableWrapper otherHandGrabbableWrapper, bool enableFreeFlyMode)
         {
             _inputContainer = inputContainer;
             _rootTransform = rootTransform;
+            _headTransform = headTransform;
             _thisHandTeleportRaycastOrigin = thisHandTeleportRaycastOrigin;
             _otherHandTeleportRaycastOrigin = otherHandTeleportRaycastOrigin;
             _thisHandGrabbableWrapper = thisHandGrabbableWrapper;
@@ -89,7 +91,7 @@ namespace VE2.Core.Player.Internal
                     _otherHandGrabbableWrapper.RangedFreeGrabInteraction.ApplyDeltaWhenGrabbed(deltaPosition, deltaRotation); //Handle the teleportation for the ranged grab interaction module
                 }
             }
-
+            
             CancelTeleport();
         }
 
@@ -101,19 +103,25 @@ namespace VE2.Core.Player.Internal
             Vector3 startPosition = _thisHandTeleportRaycastOrigin.position;
             Vector3 direction = _thisHandTeleportRaycastOrigin.forward;
 
-            if (_enableFreeFlyMode)
-            {
-
-            }
-
             _thisHandTeleportRaycastOrigin.gameObject.SetActive(false);
 
-            if (Physics.Raycast(startPosition, direction, out RaycastHit hit, _teleportRayDistance, _teleportLayerMask))
+            if (_enableFreeFlyMode)
             {
-                if (IsValidSurface(hit.normal))
+                float stickX = _inputContainer.TeleportDirection.Value.x;
+                float distance = Mathf.Lerp(1f, 3f, stickX); //TODO: Make this configurable
+                Vector3 teleportDestination = startPosition + direction * distance;
+                if (CanTeleport(startPosition,teleportDestination))
                 {
-                    _hitPoint = hit.point;
-                    _reticle.transform.position = _hitPoint;
+                    _reticle.transform.position = teleportDestination;
+
+                    Vector3 delta = teleportDestination - _headTransform.position;
+                    Vector3 finalPosition = _rootTransform.position + delta;
+                    if (Physics.Raycast(teleportDestination, Vector3.down, out RaycastHit hit, _teleportLayerMask))
+                    {
+                        finalPosition.y = Mathf.Max(finalPosition.y, hit.point.y);
+                    }
+
+                    _hitPoint = finalPosition;
                     Vector3 arrowDirection = _thisHandTeleportRaycastOrigin.forward;
                     arrowDirection.y = 0;
                     if (arrowDirection != Vector3.zero)
@@ -121,42 +129,77 @@ namespace VE2.Core.Player.Internal
                         arrowDirection.Normalize();
                     }
                     _arrowObject.transform.rotation = Quaternion.LookRotation(arrowDirection, Vector3.up);
+                    _teleportRotation = _arrowObject.transform.rotation;
 
-                    // Update the line renderer positions
-                    DrawBezierCurve(startPosition, _hitPoint);
+                    DrawStraightLine(startPosition, teleportDestination);
+
                     _lineRenderer.material.color = Color.green;
-
                     _reticle.SetActive(true);
                     _arrowObject.SetActive(true);
-                    UpdateTargetRotation(hit.normal);
                     _isTeleportSuccessful = true;
                 }
                 else
                 {
-                    DrawBezierCurve(startPosition, hit.point);
-                    // Surface is not valid for teleportation
+                    DrawStraightLine(startPosition, teleportDestination);
+                    _lineRenderer.material.color = Color.red;
+                    _reticle.SetActive(false);
+                    _arrowObject.SetActive(false);
+                    _isTeleportSuccessful = false;
+                }
+
+            }
+            else
+            {
+                if (Physics.Raycast(startPosition, direction, out RaycastHit hit, _teleportRayDistance, _teleportLayerMask))
+                {
+                    if (IsValidSurface(hit.normal))
+                    {
+                        _hitPoint = hit.point;
+                        _reticle.transform.position = _hitPoint;
+                        Vector3 arrowDirection = _thisHandTeleportRaycastOrigin.forward;
+                        arrowDirection.y = 0;
+                        if (arrowDirection != Vector3.zero)
+                        {
+                            arrowDirection.Normalize();
+                        }
+                        _arrowObject.transform.rotation = Quaternion.LookRotation(arrowDirection, Vector3.up);
+
+                        // Update the line renderer positions
+                        DrawBezierCurve(startPosition, _hitPoint);
+                        _lineRenderer.material.color = Color.green;
+
+                        _reticle.SetActive(true);
+                        _arrowObject.SetActive(true);
+                        UpdateTargetRotation(hit.normal);
+                        _isTeleportSuccessful = true;
+                    }
+                    else
+                    {
+                        DrawBezierCurve(startPosition, hit.point);
+                        // Surface is not valid for teleportation
+                        _reticle.SetActive(false);
+                        _arrowObject.SetActive(false);
+                        _lineRenderer.material.color = Color.red;
+                        _isTeleportSuccessful = false;
+                    }
+                }
+                else
+                {
+                    // Update the line renderer positions
+                    if (Physics.Raycast(startPosition, direction, out RaycastHit otherhit, _teleportRayDistance))
+                    {
+                        DrawBezierCurve(startPosition, otherhit.point);
+                    }
+                    else
+                    {
+                        DrawBezierCurve(startPosition, direction * _teleportRayDistance);
+                    }
+
                     _reticle.SetActive(false);
                     _arrowObject.SetActive(false);
                     _lineRenderer.material.color = Color.red;
                     _isTeleportSuccessful = false;
                 }
-            }
-            else
-            {
-                // Update the line renderer positions
-                if (Physics.Raycast(startPosition, direction, out RaycastHit otherhit, _teleportRayDistance))
-                {
-                    DrawBezierCurve(startPosition, otherhit.point);
-                }
-                else
-                {
-                    DrawBezierCurve(startPosition, direction * _teleportRayDistance);
-                }
-
-                _reticle.SetActive(false);
-                _arrowObject.SetActive(false);
-                _lineRenderer.material.color = Color.red;
-                _isTeleportSuccessful = false;
             }
             _lineRendererObject.SetActive(true);
         }
@@ -237,6 +280,13 @@ namespace VE2.Core.Player.Internal
             }
         }
 
+        private void DrawStraightLine(Vector3 startPosition, Vector3 endPosition)
+        {
+            _lineRenderer.positionCount = 2;
+            _lineRenderer.SetPosition(0, startPosition);
+            _lineRenderer.SetPosition(1, endPosition);
+        }
+
         private Vector3 CalculateQuadraticBezierPoint(float t, Vector3 startPosition, Vector3 controlPoint, Vector3 endPosition)
         {
             float u = 1 - t;
@@ -248,6 +298,20 @@ namespace VE2.Core.Player.Internal
             p += tt * endPosition; // t^2 * endPosition
 
             return p;
+        }
+        private bool CanTeleport(Vector3 startPosition, Vector3 teleportDestination)
+        {
+            Vector3 direction = teleportDestination - startPosition;
+            float distance = direction.magnitude;
+            direction.Normalize();
+
+            // Perform a raycast without any layer mask filtering, are there obstacles we would want to leave out? Hmmm...
+            if (Physics.Raycast(startPosition, direction, distance))
+            {
+                return false; // There is an obstacle in the way
+            }
+
+            return true; // No obstacles, can teleport
         }
     }
 }
