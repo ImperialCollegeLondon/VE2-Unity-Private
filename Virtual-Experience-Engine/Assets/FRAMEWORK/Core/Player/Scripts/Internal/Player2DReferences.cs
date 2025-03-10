@@ -14,6 +14,9 @@ namespace VE2.Core.Player.Internal
         public Canvas PrimaryUICanvas => _primaryUICanvas;
         [SerializeField, IgnoreParent] private Canvas _primaryUICanvas;
 
+        public GameObject OverlayUI => _overlayUI;  
+        [SerializeField, IgnoreParent] private GameObject _overlayUI;
+
         public Canvas SecondaryUICanvas => _secondaryUICanvas;
         [SerializeField, IgnoreParent] private Canvas _secondaryUICanvas;
     }

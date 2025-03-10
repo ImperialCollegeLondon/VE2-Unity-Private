@@ -85,10 +85,10 @@ namespace VE2.Core.Player.Internal
 
         //private readonly IXRManagerWrapper _xrManagerWrapper;
 
-        internal PlayerService(PlayerTransformData transformData, PlayerConfig config,
-            InteractorContainer interactorContainer, IPlayerPersistentDataHandler playerSettingsHandler, 
-            ILocalClientIDProvider playerSyncer, PlayerInputContainer playerInputContainer, IRaycastProvider raycastProvider, 
-            IXRManagerWrapper xrManagerWrapper, IPrimaryUIService primaryUIService, ISecondaryUIService secondaryUIService)
+        internal PlayerService(PlayerTransformData transformData, PlayerConfig config, InteractorContainer interactorContainer, 
+            IPlayerPersistentDataHandler playerSettingsHandler, ILocalClientIDProvider playerSyncer, 
+            PlayerInputContainer playerInputContainer, IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerWrapper, 
+            IPrimaryUIService primaryUIService, ISecondaryUIService secondaryUIService)
         {
            // _playerStateModule = new(state, config, playerStateModuleContainer);
             PlayerTransformData = transformData;

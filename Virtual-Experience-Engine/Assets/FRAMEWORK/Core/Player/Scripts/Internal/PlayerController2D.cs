@@ -42,13 +42,14 @@ namespace VE2.Core.Player.Internal
 
         private readonly IPrimaryUIService _primaryUIService;
         private readonly Canvas _primaryUICanvas;
-        //private readonly GameObject _overlayUI; 
+        private readonly GameObject _overlayUI; 
 
         private readonly ISecondaryUIService _secondaryUIService;
         private readonly Canvas _secondaryUICanvas;
 
         internal PlayerController2D(InteractorContainer interactorContainer, Player2DInputContainer player2DInputContainer, IPlayerPersistentDataHandler playerPersistentDataHandler,
-            Player2DControlConfig controlConfig, IRaycastProvider raycastProvider, ILocalClientIDProvider multiplayerSupport, IPrimaryUIService primaryUIService, ISecondaryUIService secondaryUIService) 
+            Player2DControlConfig controlConfig, IRaycastProvider raycastProvider, ILocalClientIDProvider multiplayerSupport, 
+            IPrimaryUIService primaryUIService, ISecondaryUIService secondaryUIService) 
         {
             GameObject player2DPrefab = Resources.Load("2dPlayer") as GameObject;
             _playerGO = GameObject.Instantiate(player2DPrefab, null, false);
@@ -63,6 +64,7 @@ namespace VE2.Core.Player.Internal
             Player2DReferences player2DReferences = _playerGO.GetComponent<Player2DReferences>();
             _primaryUICanvas = player2DReferences.PrimaryUICanvas;
             _secondaryUICanvas = player2DReferences.SecondaryUICanvas;
+            _overlayUI = player2DReferences.OverlayUI;
 
             _interactor2D = new(
                 interactorContainer, player2DInputContainer.InteractorInputContainer2D,
@@ -117,12 +119,14 @@ namespace VE2.Core.Player.Internal
 
         internal void HandlePrimaryUIActivated() 
         {
+            _overlayUI.SetActive(false);
             _playerLocomotor2D.HandleOnDisable();
             _interactor2D.HandleOnDisable(); //TODO - we don't want to drop grabbables 
         }
 
         internal void HandlePrimaryUIDeactivated() 
         {
+            _overlayUI.SetActive(true);
             _playerLocomotor2D.HandleOnEnable();
             _interactor2D.HandleOnEnable(); 
         }
