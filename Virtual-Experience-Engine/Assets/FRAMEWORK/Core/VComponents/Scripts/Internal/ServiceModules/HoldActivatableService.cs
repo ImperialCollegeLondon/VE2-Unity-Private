@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 using VE2.Core.VComponents.API;
 
 namespace VE2.Core.VComponents.Internal
@@ -7,11 +8,12 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class HoldActivatableConfig
     {
-        [SerializeField, IgnoreParent] public ActivatableStateConfig StateConfig = new();
+        [SerializeField, IgnoreParent] public HoldActivatableStateConfig StateConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
         [SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfig = new();
     }
-    internal class HoldActivatableSerice
+
+    internal class HoldActivatableService
     {
         #region Interfaces
         public IMultiInteractorActivatableStateModule StateModule => _StateModule;
@@ -25,14 +27,17 @@ namespace VE2.Core.VComponents.Internal
         private readonly ColliderInteractionModule _ColliderInteractionModule;
         #endregion
 
-        public HoldActivatableSerice(ToggleActivatableConfig config, MultiInteractorActivatableState state, string id, IWorldStateSyncService worldStateSyncService)
+        public HoldActivatableService(HoldActivatableConfig config, MultiInteractorActivatableState state, string id)
         {
             _StateModule = new(state, config.StateConfig, id);
             _RangedClickInteractionModule = new(config.RangedInteractionConfig, config.GeneralInteractionConfig);
             _ColliderInteractionModule = new(config.GeneralInteractionConfig);
 
-            _RangedClickInteractionModule.OnClickDown += HandleInteract;
-            _ColliderInteractionModule.OnCollideEnter += HandleInteract;
+            _RangedClickInteractionModule.OnClickDown += SetStateToActive;
+            _RangedClickInteractionModule.OnClickUp += SetStateToInactive;
+            
+            _ColliderInteractionModule.OnCollideEnter += SetStateToActive;
+            _ColliderInteractionModule.OnCollideExit += SetStateToInactive;
         }
 
         public void HandleFixedUpdate()
@@ -40,9 +45,14 @@ namespace VE2.Core.VComponents.Internal
             _StateModule.HandleFixedUpdate();
         }
 
-        private void HandleInteract(ushort clientID)
+        private void SetStateToActive(ushort clientID)
         {
-            _StateModule.InvertState(clientID);
+            _StateModule.SetState(clientID, true);
+        }
+
+        private void SetStateToInactive(ushort clientID)
+        {
+            _StateModule.SetState(clientID, false);
         }
 
         public void TearDown() 

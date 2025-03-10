@@ -8,7 +8,7 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class ToggleActivatableConfig
     {
-        [SerializeField, IgnoreParent] public ActivatableStateConfig StateConfig = new();
+        [SerializeField, IgnoreParent] public ToggleActivatableStateConfig StateConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
         [SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfig = new();
     }

@@ -83,6 +83,7 @@ namespace VE2.Core.Player.Internal
         public virtual void HandleOnEnable()
         {
             _interactorInputContainer.RangedClick.OnPressed += HandleRangedClickPressed;
+            _interactorInputContainer.RangedClick.OnReleased += HandleRangedClickReleased;
             _interactorInputContainer.HandheldClick.OnPressed += HandleHandheldClickPressed;
             _interactorInputContainer.Grab.OnPressed += HandleGrabPressed;
             _interactorInputContainer.ScrollTickUp.OnTickOver += HandleScrollUp;
@@ -97,6 +98,7 @@ namespace VE2.Core.Player.Internal
         public virtual void HandleOnDisable()
         {
             _interactorInputContainer.RangedClick.OnPressed -= HandleRangedClickPressed;
+            _interactorInputContainer.RangedClick.OnReleased -= HandleRangedClickReleased;
             _interactorInputContainer.HandheldClick.OnPressed -= HandleHandheldClickPressed;
             _interactorInputContainer.Grab.OnPressed -= HandleGrabPressed;
             _interactorInputContainer.ScrollTickUp.OnTickOver -= HandleScrollUp;
@@ -198,11 +200,25 @@ namespace VE2.Core.Player.Internal
             if (raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange &&
                 raycastResultWrapper.RangedInteractable is IRangedClickInteractionModule rangedClickInteractable)
             {
-                rangedClickInteractable.Click(_InteractorID.ClientID);
+                rangedClickInteractable.ClickDown(_InteractorID.ClientID);
             }
             else if (raycastResultWrapper.HitUI && raycastResultWrapper.UIButton.IsInteractable())
             {
                 raycastResultWrapper.UIButton.onClick.Invoke();
+            }
+        }
+
+        private void HandleRangedClickReleased()
+        {
+            if (_WaitingForLocalClientID || IsCurrentlyGrabbing)
+                return;
+
+            RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
+
+            if (raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange &&
+                raycastResultWrapper.RangedInteractable is IRangedClickInteractionModule rangedClickInteractable)
+            {
+                rangedClickInteractable.ClickUp(_InteractorID.ClientID);
             }
         }
 
