@@ -239,7 +239,7 @@ namespace VE2.Core.Player.Internal
             Debug.Log("ConfirmGrab - null? " + (rangedGrabInteractable == null));
             _CurrentGrabbingGrabbable = rangedGrabInteractable;
 
-            if (rangedGrabInteractable is IRangedFreeGrabInteractionModule rangedFreeGrabInteractable)
+            if (rangedGrabInteractable is IRangedFreeGrabInteractionModule rangedFreeGrabInteractable && GrabbableWrapper != null)
                 GrabbableWrapper.RangedFreeGrabInteraction = rangedFreeGrabInteractable;
                 
             SetInteractorState(InteractorState.Grabbing);
@@ -249,7 +249,9 @@ namespace VE2.Core.Player.Internal
         {
             SetInteractorState(InteractorState.Idle);
             _CurrentGrabbingGrabbable = null;
-            GrabbableWrapper.RangedFreeGrabInteraction = null;
+
+            if (GrabbableWrapper != null)
+                GrabbableWrapper.RangedFreeGrabInteraction = null;
         }
 
         private void HandleHandheldClickPressed()
