@@ -31,8 +31,10 @@ namespace VE2.Core.UI.Internal
 
         public PrimaryUIService(IPressableInput onToggleUIPressed)
         {
-            GameObject primaryUIGO = GameObject.Instantiate(Resources.Load<GameObject>("PrimaryUI"));
-            primaryUIGO.SetActive(false);
+            //GameObject primaryUIGO = GameObject.Instantiate(Resources.Load<GameObject>("PrimaryUIHolder").transform.GetChild(0).gameObject);
+            GameObject primaryUIGOCanvas = GameObject.Instantiate(Resources.Load<GameObject>("PrimaryUIHolder"));
+            GameObject primaryUIGO = primaryUIGOCanvas.transform.GetChild(0).gameObject;
+            //primaryUIGO.SetActive(false);
 
             PrimaryUIReferences primaryUIReferences = primaryUIGO.GetComponent<PrimaryUIReferences>();  
             _primaryUIGameObject = primaryUIReferences.PrimaryUI;

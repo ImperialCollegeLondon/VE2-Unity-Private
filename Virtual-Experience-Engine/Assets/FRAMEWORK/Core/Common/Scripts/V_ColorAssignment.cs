@@ -21,7 +21,8 @@ public class V_ColorAssignment : MonoBehaviour
     private enum ButtonType
     {
         Standard, 
-        Secondary
+        Secondary,
+        Close,
     }
 
     [SerializeField, HideIf(nameof(_hasButton), true)] private ColorType _colorType;
@@ -112,6 +113,19 @@ public class V_ColorAssignment : MonoBehaviour
                     _button.colors = new ColorBlock
                     {
                         
+                    };
+                break;
+            case ButtonType.Close:
+                if (_button != null)
+                    _button.colors = new ColorBlock
+                    {
+                        normalColor = _colorConfiguration.TertiaryColor,
+                        highlightedColor = Color.red,
+                        pressedColor = Color.red,
+                        selectedColor = _colorConfiguration.TertiaryColor,
+                        disabledColor = _colorConfiguration.ButtonDisabledColor,
+                        colorMultiplier = 1,
+                        fadeDuration = 0.1f
                     };
                 break;
         }
