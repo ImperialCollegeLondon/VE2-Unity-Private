@@ -12,7 +12,7 @@ namespace VE2.Core.VComponents.API
         public UnityEvent OnActivate => _StateModule.OnActivate;
         public UnityEvent OnDeactivate => _StateModule.OnDeactivate;
 
-        public bool IsActivated { get { return _StateModule.IsActivated; } set { _StateModule.IsActivated = value; } }
+        public bool IsActivated { get { return _StateModule.IsActivated; } }
         public ushort MostRecentInteractingClientID => _StateModule.MostRecentInteractingClientID;
         public List<ushort> CurrentlyInteractingClientIDs => _StateModule.CurrentlyInteractingClientIDs;
         #endregion

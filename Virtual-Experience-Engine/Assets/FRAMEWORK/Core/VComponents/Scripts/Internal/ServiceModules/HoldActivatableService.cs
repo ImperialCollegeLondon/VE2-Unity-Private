@@ -33,11 +33,11 @@ namespace VE2.Core.VComponents.Internal
             _RangedClickInteractionModule = new(config.RangedInteractionConfig, config.GeneralInteractionConfig);
             _ColliderInteractionModule = new(config.GeneralInteractionConfig);
 
-            _RangedClickInteractionModule.OnClickDown += SetStateToActive;
-            _RangedClickInteractionModule.OnClickUp += SetStateToInactive;
+            _RangedClickInteractionModule.OnClickDown += AddToInteractingInteractors;
+            _RangedClickInteractionModule.OnClickUp += RemoveFromInteractingInteractors;
             
-            _ColliderInteractionModule.OnCollideEnter += SetStateToActive;
-            _ColliderInteractionModule.OnCollideExit += SetStateToInactive;
+            _ColliderInteractionModule.OnCollideEnter += AddToInteractingInteractors;
+            _ColliderInteractionModule.OnCollideExit += RemoveFromInteractingInteractors;
         }
 
         public void HandleFixedUpdate()
@@ -45,14 +45,14 @@ namespace VE2.Core.VComponents.Internal
             _StateModule.HandleFixedUpdate();
         }
 
-        private void SetStateToActive(InteractorID interactorID)
+        private void AddToInteractingInteractors(InteractorID interactorID)
         {
-            _StateModule.SetState(interactorID, true);
+            _StateModule.AddInteractorToState(interactorID);
         }
 
-        private void SetStateToInactive(InteractorID interactorID)
+        private void RemoveFromInteractingInteractors(InteractorID interactorID)
         {
-            _StateModule.SetState(interactorID, false);
+            _StateModule.RemoveInteractorFromState(interactorID);
         }
 
         public void TearDown() 

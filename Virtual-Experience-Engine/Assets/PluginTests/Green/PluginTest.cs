@@ -135,11 +135,6 @@ public class PluginTest : MonoBehaviour
         else if (Keyboard.current.digit6Key.wasPressedThisFrame)
             _handheldAdjustable.Value++;
 
-        if(Keyboard.current.f1Key.wasPressedThisFrame)
-            _holdActivatable.IsActivated = true;
-        else if(Keyboard.current.f1Key.wasReleasedThisFrame)
-            _holdActivatable.IsActivated = false;
-
     }
 
     private void OnHandheldActivatableActivate()

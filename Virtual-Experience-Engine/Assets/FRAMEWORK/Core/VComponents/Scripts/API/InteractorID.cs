@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -31,12 +32,10 @@ namespace VE2.Core.VComponents.API
                    ClientID == iD.ClientID &&
                    InteractorType == iD.InteractorType;
         }
+        
         public override int GetHashCode()
         {
-            int hashCode = 1861411795;
-            hashCode = hashCode * -1521134295 + ClientID.GetHashCode();
-            hashCode = hashCode * -1521134295 + InteractorType.GetHashCode();
-            return hashCode;
+            return HashCode.Combine(ClientID, InteractorType);
         }
 
         protected override byte[] ConvertToBytes()
