@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.Events;
 using VE2.Core.VComponents.API;
@@ -26,54 +29,51 @@ namespace VE2.Core.VComponents.Internal
     {
         public UnityEvent OnActivate => _config.OnActivate;
         public UnityEvent OnDeactivate => _config.OnDeactivate;
-        public bool IsActivated { get => _state.IsActivated; set => _state.IsActivated = value; }
-        public ushort MostRecentInteractingClientID => _state.MostRecentInteractingClientID;
+        public bool IsActivated { get => _state.IsActivated; set => HandleExternalActivation(value); }
+        public ushort MostRecentInteractingClientID => _mostRecentInteractingInteractorID.ClientID;
+        public List<ushort> CurrentlyInteractingClientIDs => _state.GetInteractingClientIDs();
 
         private MultiInteractorActivatableState _state = null;
         private HoldActivatableStateConfig _config = null;
 
-        public MultiInteractorActivatableStateModule(MultiInteractorActivatableState state, HoldActivatableStateConfig config, string id)
+        private InteractorID _mostRecentInteractingInteractorID = new(ushort.MaxValue, InteractorType.None);
+
+        public MultiInteractorActivatableStateModule(MultiInteractorActivatableState state, HoldActivatableStateConfig config)
         {
             _state = state;
             _config = config;
         }
 
-        // private void HandleExternalActivation(bool newIsActivated)
-        // {
-        //     if (newIsActivated != _state.IsActivated)
-        //         InvertState(ushort.MaxValue);
-        // }
+        private void HandleExternalActivation(bool newIsActivated)
+        {
+            SetState(new(ushort.MaxValue, InteractorType.None), newIsActivated);
+        }
 
-        // public void InvertState(ushort clientID)
-        // {
-        //     _state.IsActivated = !_state.IsActivated;
-
-        //     if (clientID != ushort.MaxValue)
-        //         _state.MostRecentInteractingClientID = clientID;
-
-        //     _state.StateChangeNumber++;
-
-        //     if (_state.IsActivated)
-        //         InvokeCustomerOnActivateEvent();
-        //     else
-        //         InvokeCustomerOnDeactivateEvent();
-        // }
-
-        public void SetState(ushort clientID, bool activationState)
+        public void SetState(InteractorID interactorId, bool activationState)
         {
             _state.IsActivated = activationState;
 
-            if (clientID != ushort.MaxValue)
-                _state.MostRecentInteractingClientID = clientID;
-            
             _state.StateChangeNumber++;
 
             if (_state.IsActivated)
-                InvokeCustomerOnActivateEvent();
-            else
-                InvokeCustomerOnDeactivateEvent();
+            {
+                if (interactorId.ClientID != ushort.MaxValue)
+                    _state.interactingClientIds.Add(interactorId);
 
-            Debug.Log($"StateModule: SetState = {_state.IsActivated}");
+                InvokeCustomerOnActivateEvent();
+            }
+            else
+            {
+                if (interactorId.ClientID != ushort.MaxValue && _state.interactingClientIds.Contains(interactorId))
+                    _state.interactingClientIds.Remove(interactorId);
+
+                InvokeCustomerOnDeactivateEvent();
+            }
+
+            if (_state.interactingClientIds.Count > 0)
+                _mostRecentInteractingInteractorID = _state.interactingClientIds.Last();
+            else
+                _mostRecentInteractingInteractorID = interactorId;
         }
 
         private void InvokeCustomerOnActivateEvent()
@@ -84,7 +84,7 @@ namespace VE2.Core.VComponents.Internal
             }
             catch (Exception e)
             {
-                Debug.Log($"Error when emitting OnActivate from activatable with ID {_state.MostRecentInteractingClientID} \n{e.Message}\n{e.StackTrace}");
+                Debug.Log($"Error when emitting OnActivate from activatable with ID {_mostRecentInteractingInteractorID.ClientID} \n{e.Message}\n{e.StackTrace}");
             }
         }
 
@@ -96,7 +96,7 @@ namespace VE2.Core.VComponents.Internal
             }
             catch (Exception e)
             {
-                Debug.Log($"Error when emitting OnDeactivate from activatable with ID {_state.MostRecentInteractingClientID} \n{e.Message}\n{e.StackTrace}");
+                Debug.Log($"Error when emitting OnDeactivate from activatable with ID {_mostRecentInteractingInteractorID.ClientID} \n{e.Message}\n{e.StackTrace}");
             }
         }
 
@@ -115,7 +115,19 @@ namespace VE2.Core.VComponents.Internal
     public class MultiInteractorActivatableState
     {
         public ushort StateChangeNumber { get; set; }
-        public bool IsActivated;
-        public ushort MostRecentInteractingClientID;
+        public bool IsActivated { get; set; }
+        public HashSet<InteractorID> interactingClientIds = new HashSet<InteractorID>();
+
+        public List<ushort> GetInteractingClientIDs()
+        {
+            List<ushort> clientIDs = new List<ushort>();
+
+            foreach (InteractorID id in interactingClientIds)
+            {
+                clientIDs.Add(id.ClientID);
+            }
+
+            return clientIDs;
+        }
     }
 }

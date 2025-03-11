@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -13,6 +14,7 @@ namespace VE2.Core.VComponents.API
 
         public bool IsActivated { get { return _StateModule.IsActivated; } set { _StateModule.IsActivated = value; } }
         public ushort MostRecentInteractingClientID => _StateModule.MostRecentInteractingClientID;
+        public List<ushort> CurrentlyInteractingClientIDs => _StateModule.CurrentlyInteractingClientIDs;
         #endregion
 
         #region Ranged Interaction Module Interface

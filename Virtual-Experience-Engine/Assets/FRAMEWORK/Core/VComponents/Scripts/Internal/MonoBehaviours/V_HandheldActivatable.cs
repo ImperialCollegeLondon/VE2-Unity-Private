@@ -2,7 +2,7 @@ using UnityEngine;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
 
-namespace VE2.Core.VComponents.Integration
+namespace VE2.Core.VComponents.Internal
 {
     internal class V_HandheldActivatable : MonoBehaviour, IV_HandheldActivatable
     {

@@ -9,9 +9,12 @@ using VE2.NonCore.Instancing.API;
 
 public class PluginTest : MonoBehaviour
 {
-    [SerializeField] private GameObject _lightOn;
-    [SerializeField] private GameObject _lightOff;
+    [SerializeField] private GameObject _pushLightOn;
+    [SerializeField] private GameObject _pushLightOff;
+    [SerializeField] private GameObject _holdLightOn;
+    [SerializeField] private GameObject _holdLightOff;
     [SerializeField] private GameObject _pushButtonGO;
+    [SerializeField] private GameObject _holdButtonGO;
     [SerializeField] private GameObject _freeGrabbableGO;
     [SerializeField] private GameObject _handheldActivatableGO;
     [SerializeField] private GameObject _handheldAdjustableGO;
@@ -21,6 +24,7 @@ public class PluginTest : MonoBehaviour
 
 
     private IV_ToggleActivatable _pushActivatable => _pushButtonGO.GetComponent<IV_ToggleActivatable>();
+    private IV_HoldActivatable _holdActivatable => _holdButtonGO.GetComponent<IV_HoldActivatable>();
     private IV_FreeGrabbable _freeGrabbable => _freeGrabbableGO.GetComponent<IV_FreeGrabbable>();
     private IV_HandheldActivatable _handheldActivatable => _handheldActivatableGO.GetComponent<IV_HandheldActivatable>();
     private IV_HandheldAdjustable _handheldAdjustable => _handheldAdjustableGO.GetComponent<IV_HandheldAdjustable>();
@@ -51,7 +55,7 @@ public class PluginTest : MonoBehaviour
 
     }
 
-    public void OnButtonActivate()
+    public void OnPushButtonActivate()
     {
         ushort clientID = _pushActivatable.MostRecentInteractingClientID;
         Debug.Log("Button activated! ");
@@ -60,18 +64,44 @@ public class PluginTest : MonoBehaviour
         if (clientID != ushort.MaxValue) 
             Debug.Log($"Activate by... {clientID.ToString()}");
 
-        _lightOn.SetActive(true);
-        _lightOff.SetActive(false);
+        _pushLightOn.SetActive(true);
+        _pushLightOff.SetActive(false);
         //HandleNewColor();
     }
 
-    public void OnButtonDeactivate()
+    public void OnPushButtonDeactivate()
     {
         Debug.Log("Button deactivated!");
         Debug.Log($"Button state = {_pushActivatable.IsActivated}");
 
-        _lightOn.SetActive(false);
-        _lightOff.SetActive(true);
+        _pushLightOn.SetActive(false);
+        _pushLightOff.SetActive(true);
+    }
+
+        public void OnHoldButtonActivate()
+    {
+        ushort clientID = _holdActivatable.MostRecentInteractingClientID;
+        Debug.Log("Button activated! ");
+        Debug.Log($"Button state = {_holdActivatable.IsActivated}");
+
+        if (clientID != ushort.MaxValue) 
+            Debug.Log($"Activate by... {clientID}");
+
+        Debug.Log($"Current Interacting Clients: {_holdActivatable.CurrentlyInteractingClientIDs.Count}");
+
+        _holdLightOn.SetActive(true);
+        _holdLightOff.SetActive(false);
+        //HandleNewColor();
+    }
+
+    public void OnHoldButtonDeactivate()
+    {
+        Debug.Log("Button deactivated!");
+        Debug.Log($"Button state = {_holdActivatable.IsActivated}");
+        Debug.Log($"Current Interacting Clients: {_holdActivatable.CurrentlyInteractingClientIDs.Count}");
+
+        _holdLightOn.SetActive(false);
+        _holdLightOff.SetActive(true);
     }
 
     public void OnFreeGrabbableGrab()
@@ -104,6 +134,11 @@ public class PluginTest : MonoBehaviour
             _handheldAdjustable.Value--;
         else if (Keyboard.current.digit6Key.wasPressedThisFrame)
             _handheldAdjustable.Value++;
+
+        if(Keyboard.current.f1Key.wasPressedThisFrame)
+            _holdActivatable.IsActivated = true;
+        else if(Keyboard.current.f1Key.wasReleasedThisFrame)
+            _holdActivatable.IsActivated = false;
 
     }
 

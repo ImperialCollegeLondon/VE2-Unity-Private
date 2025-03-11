@@ -27,9 +27,9 @@ namespace VE2.Core.VComponents.Internal
         private readonly ColliderInteractionModule _ColliderInteractionModule;
         #endregion
 
-        public HoldActivatableService(HoldActivatableConfig config, MultiInteractorActivatableState state, string id)
+        public HoldActivatableService(HoldActivatableConfig config, MultiInteractorActivatableState state)
         {
-            _StateModule = new(state, config.StateConfig, id);
+            _StateModule = new(state, config.StateConfig);
             _RangedClickInteractionModule = new(config.RangedInteractionConfig, config.GeneralInteractionConfig);
             _ColliderInteractionModule = new(config.GeneralInteractionConfig);
 
@@ -45,14 +45,14 @@ namespace VE2.Core.VComponents.Internal
             _StateModule.HandleFixedUpdate();
         }
 
-        private void SetStateToActive(ushort clientID)
+        private void SetStateToActive(InteractorID interactorID)
         {
-            _StateModule.SetState(clientID, true);
+            _StateModule.SetState(interactorID, true);
         }
 
-        private void SetStateToInactive(ushort clientID)
+        private void SetStateToInactive(InteractorID interactorID)
         {
-            _StateModule.SetState(clientID, false);
+            _StateModule.SetState(interactorID, false);
         }
 
         public void TearDown() 

@@ -6,7 +6,7 @@ namespace VE2.Core.VComponents.API
 {
     internal interface IRangedClickInteractionModule : IRangedInteractionModule
     {
-        public void ClickDown(ushort clientID);
-        public void ClickUp(ushort clientID);
+        public void ClickDown(InteractorID interactorID);
+        public void ClickUp(InteractorID interactorID);
     }
 }

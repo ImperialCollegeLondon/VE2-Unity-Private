@@ -4,7 +4,7 @@ using VE2.Core.VComponents.Internal;
 using System.Collections.Generic;
 using VE2.Core.VComponents.API;
 
-namespace VE2.Core.VComponents.Integration
+namespace VE2.Core.VComponents.Internal
 {
     internal class V_FreeGrabbable : MonoBehaviour, IV_FreeGrabbable, IRangedGrabInteractionModuleProvider
     {

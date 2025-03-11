@@ -130,7 +130,7 @@ namespace VE2.Core.Player.Internal
             {
                 if (raycastResultWrapper.RangedInteractable != _CurrentRangedClickInteractable)
                 {
-                    _CurrentRangedClickInteractable.ClickUp(_InteractorID.ClientID);
+                    _CurrentRangedClickInteractable.ClickUp(_InteractorID);
                     _CurrentRangedClickInteractable = null;
                 }
             }
@@ -210,7 +210,7 @@ namespace VE2.Core.Player.Internal
             if (raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange &&
                 raycastResultWrapper.RangedInteractable is IRangedClickInteractionModule rangedClickInteractable)
             {
-                rangedClickInteractable.ClickDown(_InteractorID.ClientID);
+                rangedClickInteractable.ClickDown(_InteractorID);
                 _CurrentRangedClickInteractable = rangedClickInteractable;
             }
             else if (raycastResultWrapper.HitUI && raycastResultWrapper.UIButton.IsInteractable())
@@ -228,7 +228,7 @@ namespace VE2.Core.Player.Internal
 
             if (_CurrentRangedClickInteractable != null)
             {
-                _CurrentRangedClickInteractable.ClickUp(_InteractorID.ClientID);
+                _CurrentRangedClickInteractable.ClickUp(_InteractorID);
                 _CurrentRangedClickInteractable = null;
             }
         }

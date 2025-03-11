@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -10,5 +11,6 @@ namespace VE2.Core.VComponents.API
 
         public bool IsActivated { get; set; }
         public ushort MostRecentInteractingClientID { get; }
+        public List<ushort> CurrentlyInteractingClientIDs { get; }
     }
 }

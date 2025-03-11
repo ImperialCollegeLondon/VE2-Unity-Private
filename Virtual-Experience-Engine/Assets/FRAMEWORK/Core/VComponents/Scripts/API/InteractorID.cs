@@ -31,6 +31,14 @@ namespace VE2.Core.VComponents.API
                    ClientID == iD.ClientID &&
                    InteractorType == iD.InteractorType;
         }
+        public override int GetHashCode()
+        {
+            int hashCode = 1861411795;
+            hashCode = hashCode * -1521134295 + ClientID.GetHashCode();
+            hashCode = hashCode * -1521134295 + InteractorType.GetHashCode();
+            return hashCode;
+        }
+
         protected override byte[] ConvertToBytes()
         {
             using MemoryStream stream = new();

@@ -44,9 +44,9 @@ namespace VE2.Core.VComponents.Internal
             _StateModule.HandleFixedUpdate();
         }
 
-        private void HandleInteract(ushort clientID)
+        private void HandleInteract(InteractorID interactorID)
         {
-            _StateModule.InvertState(clientID);
+            _StateModule.InvertState(interactorID.ClientID);
         }
 
         public void TearDown() 

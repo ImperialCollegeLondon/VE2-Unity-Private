@@ -22,8 +22,7 @@ namespace VE2.Core.VComponents.Internal
 
         private void OnEnable()
         {
-            string id = "Activatable-" + gameObject.name;
-            _service = new HoldActivatableService(_config, _state, id);
+            _service = new HoldActivatableService(_config, _state);
         }
 
         private void FixedUpdate()

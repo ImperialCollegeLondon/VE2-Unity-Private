@@ -8,10 +8,10 @@ namespace VE2.Core.VComponents.Internal
     {
         public ColliderInteractionModule(GeneralInteractionConfig config) : base(config) { }
 
-        public event Action<ushort> OnCollideEnter;
-        public event Action<ushort> OnCollideExit;
+        public event Action<InteractorID> OnCollideEnter;
+        public event Action<InteractorID> OnCollideExit;
 
-        public void InvokeOnCollideEnter(ushort id) => OnCollideEnter?.Invoke(id);
-        public void InvokeOnCollideExit(ushort id) => OnCollideExit?.Invoke(id);
+        public void InvokeOnCollideEnter(InteractorID id) => OnCollideEnter?.Invoke(id);
+        public void InvokeOnCollideExit(InteractorID id) => OnCollideExit?.Invoke(id);
     }
 }
