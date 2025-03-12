@@ -627,8 +627,9 @@ MonoBehaviour:
     IsNetworked: 1
     RepeatedTransmissionConfig:
       TransmissionType: 0
-      TransmissionFrequency: 1
-    LogDebugMessages: 1
+      TransmissionFrequency: 50
+    LogSendReceiveDebugMessages: 0
+    LogInterpolationDebug: 1
   _state:
     FromHost: 0
     FixedTime: 0
@@ -3955,7 +3956,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _connectOnStart: 1
   _config:
-    _artificialAddedPing: 0
+    _artificialAddedPing: 100
   _debugServerSettings:
     Username: dev
     Password: dev
@@ -6212,7 +6213,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1499303677
 Transform:
   m_ObjectHideFlags: 0

@@ -1,7 +1,9 @@
 using Codice.Client.Common;
+using log4net.Util;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 using UnityEngine;
 using VE2.Core.VComponents.API;
 using VE2.NonCore.Instancing.API;
@@ -30,6 +32,7 @@ namespace VE2.NonCore.Instancing.Internal
         private float _timeDifferenceFromHost;
 
         private readonly float _timeBehind = 0.04f;
+        private readonly float _lagCompensationAdditionalTime = 0.4f;
 
         private bool _isGrabbed = false;
         private bool _recentlyDropped = false;
@@ -48,8 +51,6 @@ namespace VE2.NonCore.Instancing.Internal
                 _grabbableRigidbody.InternalOnGrab += HandleOnGrab;
                 _grabbableRigidbody.InternalOnDrop += HandleOnDrop;
             }
-
-            SetupNonHostRigidbody();
 
             _receivedRigidbodyStates = new();
 
@@ -98,7 +99,7 @@ namespace VE2.NonCore.Instancing.Internal
                 rigidbodyInSceneWrapper.isKinematic = true;
             }
 
-            float lagCompensationTime = _timeBehind + roundTripTimeNonHost/1000f;
+            float lagCompensationTime = _timeBehind + (roundTripTimeNonHost + _lagCompensationAdditionalTime)/1000f;
             int cyclesToSimulate = Mathf.CeilToInt(lagCompensationTime / Time.fixedDeltaTime) + 1;
 
             // Simulate physics in full steps
@@ -121,7 +122,7 @@ namespace VE2.NonCore.Instancing.Internal
 
             if (_stateModule.IsHost && !_isGrabbed)
             {
-                if (_config.LogDebugMessages)
+                if (_config.LogSendReceiveDebugMessages)
                 { 
                     Debug.Log($"Setting state fixed time {Time.fixedTime}, position {_rigidbody.position}, rotation {_rigidbody.rotation}");
                 }
@@ -137,7 +138,6 @@ namespace VE2.NonCore.Instancing.Internal
             {
                 InterpolateRigidbody();
             }
-
         }
 
         public void TearDown()
@@ -181,7 +181,7 @@ namespace VE2.NonCore.Instancing.Internal
         #region Receive States Logic
         public void HandleReceiveRigidbodyState(RigidbodySyncableState receivedState)
         {
-            if (_config.LogDebugMessages)
+            if (_config.LogSendReceiveDebugMessages)
             {
                 Debug.Log($"Received state from host {receivedState.FromHost}, fixed time {receivedState.FixedTime}, position {receivedState.Position}, rotation {receivedState.Rotation}");
             }
@@ -194,12 +194,18 @@ namespace VE2.NonCore.Instancing.Internal
             } 
             else if (!_stateModule.IsHost)
             {
+                if (_isGrabbed)
+                {
+                    // Throw away any received states while grabbing
+                    return;
+                }
+
                 // When we start receiving rigidbody states again, we stop doing our own simulation
                 _recentlyDropped = false;
 
                 if (_receivedRigidbodyStates.Count == 0)
                 {
-                    _timeDifferenceFromHost = receivedState.FixedTime - Time.realtimeSinceStartup;
+                    _timeDifferenceFromHost = receivedState.FixedTime - Time.fixedTime;
                 }
                     
                 AddReceivedStateToHistory(new(receivedState.FixedTime, receivedState.Position, receivedState.Rotation));
@@ -208,7 +214,13 @@ namespace VE2.NonCore.Instancing.Internal
 
         private void AddReceivedStateToHistory(RigidbodySyncableState newState)
         {
-            int index = _receivedRigidbodyStates.FindIndex(rbState => rbState.FixedTime > newState.FixedTime);
+            if (_config.LogInterpolationDebug)
+            {
+                // Draw wire sphere outline.
+                Debug.DrawLine(_rigidbody.position, _rigidbody.position + Vector3.Cross(_rigidbody.linearVelocity, Vector3.up).normalized / 5, Color.green, 20f);
+            }
+
+                int index = _receivedRigidbodyStates.FindIndex(rbState => rbState.FixedTime > newState.FixedTime);
 
             if (index == -1)
             {
@@ -232,12 +244,12 @@ namespace VE2.NonCore.Instancing.Internal
 
             if (numStates == 1)
             {
-                SetRigidbodyValues(_receivedRigidbodyStates[0]);
+                // SetRigidbodyValues(_receivedRigidbodyStates[0]);
             }
             else if (numStates >= 2)
             {
                 // Calculate the time the rigidbody should be displayed at
-                float delayedLocalTime = Time.realtimeSinceStartup + _timeDifferenceFromHost - _timeBehind;
+                float delayedLocalTime = Time.time + _timeDifferenceFromHost - _timeBehind;
                 
                 // Calculate index of next state
                 int index = _receivedRigidbodyStates.FindIndex(rbState => rbState.FixedTime > delayedLocalTime);
@@ -248,11 +260,20 @@ namespace VE2.NonCore.Instancing.Internal
                 ClearHistoricalStates(index);
 
                 // Calculate interpolation parameter
-                float lerpParameter = Mathf.InverseLerp(previousState.FixedTime, nextState.FixedTime, delayedLocalTime);
+                float lerpParameter = InverseLerpUnclamped(previousState.FixedTime, nextState.FixedTime, delayedLocalTime);
 
                 // Do the interpolation
                 SetRigidbodyValues(Vector3.Lerp(previousState.Position, nextState.Position, lerpParameter),
                     Quaternion.Slerp(previousState.Rotation, nextState.Rotation, lerpParameter));
+
+                if (_config.LogInterpolationDebug)
+                {
+                    // Draw wire sphere outline
+                    Color lineColour = lerpParameter >= 0 ? Color.white : Color.red;
+                    Debug.DrawLine(_rigidbody.position, _rigidbody.position + Vector3.Cross(_rigidbody.linearVelocity, Vector3.up).normalized / 5, Color.white, 20f);
+
+                    Debug.Log($"LocalTime = {delayedLocalTime}, StateFixedTimes = {previousState.FixedTime} & {nextState.FixedTime}, lerpParam = {lerpParameter}");
+                }
             }
         }
 
@@ -280,6 +301,16 @@ namespace VE2.NonCore.Instancing.Internal
                     break;
             }
             return (previousState, nextState);
+        }
+
+        private float InverseLerpUnclamped (float a, float b, float value)
+        {
+            if (a != b)
+            {
+                return (value - a) / (b - a);
+            }
+
+            return 0f;
         }
 
         private void ClearHistoricalStates(int indexOfNextState)
@@ -368,12 +399,5 @@ namespace VE2.NonCore.Instancing.Internal
             Debug.Log(stateString);
         }
 
-        private void SetupNonHostRigidbody()
-        {
-            if (!_stateModule.IsHost)
-            {
-                _rigidbody.isKinematic = true;
-            }
-        }
     }
 }

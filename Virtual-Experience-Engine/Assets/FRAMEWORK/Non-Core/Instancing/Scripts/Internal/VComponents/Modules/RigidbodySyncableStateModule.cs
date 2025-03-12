@@ -11,7 +11,8 @@ namespace VE2.NonCore.Instancing.Internal
     [Serializable]
     internal class RigidbodySyncableStateConfig : BaseWorldStateConfig {
 
-        public bool LogDebugMessages = false;
+        public bool LogSendReceiveDebugMessages = false;
+        public bool LogInterpolationDebug = false;
     }
 
     internal class RigidbodySyncableStateModule : BaseWorldStateModule, IRigidbodySyncableStateModule
