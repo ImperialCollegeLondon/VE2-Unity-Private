@@ -450,6 +450,7 @@ GameObject:
   - component: {fileID: 227671776}
   - component: {fileID: 227671775}
   - component: {fileID: 227671774}
+  - component: {fileID: 227671780}
   m_Layer: 0
   m_Name: Grabbable
   m_TagString: Untagged
@@ -610,6 +611,28 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &227671780
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 227671773}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b21d18ebf1323c64ab9ac2b227222645, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _config:
+    IsNetworked: 1
+    RepeatedTransmissionConfig:
+      TransmissionType: 0
+      TransmissionFrequency: 1
+    LogDebugMessages: 1
+  _state:
+    FromHost: 0
+    FixedTime: 0
+    LatestRoundTripTime: 0
 --- !u!1 &255650761
 GameObject:
   m_ObjectHideFlags: 0

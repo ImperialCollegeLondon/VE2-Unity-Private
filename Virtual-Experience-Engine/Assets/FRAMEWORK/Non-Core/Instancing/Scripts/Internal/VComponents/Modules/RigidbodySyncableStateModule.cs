@@ -19,7 +19,7 @@ namespace VE2.NonCore.Instancing.Internal
         /// <value>
         /// <see cref="float"/>: Fixed time sent, <see cref="Vector3"/>: Position, <see cref="Quaternion"/>: Rotation
         /// </value>
-        public UnityEvent<float, Vector3, Quaternion> OnReceiveState = new();
+        public UnityEvent<RigidbodySyncableState> OnReceiveState = new();
         private RigidbodySyncableState _state => (RigidbodySyncableState)State;
         private RigidbodySyncableStateConfig _config => (RigidbodySyncableStateConfig)Config;
 
@@ -47,7 +47,7 @@ namespace VE2.NonCore.Instancing.Internal
             _state.Bytes = newBytes;
             try
             {
-                OnReceiveState?.Invoke(_state.FixedTime, _state.Position, _state.Rotation);
+                OnReceiveState?.Invoke(_state);
             }
             catch (Exception e)
             {
@@ -55,11 +55,23 @@ namespace VE2.NonCore.Instancing.Internal
             }
         }
 
-        public void SetState(float fixedTime, Vector3 position, Quaternion rotation)
+        public void SetStateFromHost(float fixedTime, Vector3 position, Quaternion rotation)
         {
+            _state.FromHost = true;
             _state.FixedTime = fixedTime;
             _state.Position = position;
             _state.Rotation = rotation;
+        }
+
+        public void SetStateFromNonHost(float fixedTime, Vector3 position, Quaternion rotation, float latestPing, Vector3 velocity, Vector3 angularVelocity)
+        {
+            _state.FromHost = false;
+            _state.FixedTime = fixedTime;
+            _state.Position = position;
+            _state.Rotation = rotation;
+            _state.LatestRoundTripTime = latestPing;
+            _state.Velocity = velocity;
+            _state.AngularVelocity = angularVelocity;
         }
 
         public void HandleHostChange(ushort hostID)
@@ -72,11 +84,19 @@ namespace VE2.NonCore.Instancing.Internal
     [Serializable]
     public class RigidbodySyncableState : VE2Serializable
     {
+        public bool FromHost;
+
         public float FixedTime;
         public Vector3 Position { get; set; }
         public Quaternion Rotation { get; set; }
 
+        // Non host sends ping on drop for smoothing purposes
 
+        public float LatestRoundTripTime;
+        public Vector3 Velocity { get; set; }
+        public Vector3 AngularVelocity { get; set; }
+
+        // Host constructors
         public RigidbodySyncableState()
         {
             Position = new();
@@ -85,9 +105,22 @@ namespace VE2.NonCore.Instancing.Internal
 
         public RigidbodySyncableState(float fixedTime, Vector3 position, Quaternion rotation)
         {
+            FromHost = true;
             FixedTime = fixedTime;
             Position = position;
             Rotation = rotation;
+        }
+
+        // Non host constructor
+        public RigidbodySyncableState(float fixedTime, Vector3 position, Quaternion rotation, float ping, Vector3 velocity, Vector3 angularVelocity)
+        {
+            FromHost = false;
+            FixedTime = fixedTime;
+            Position = position;
+            Rotation = rotation;
+            LatestRoundTripTime = ping;
+            Velocity = velocity;
+            AngularVelocity = angularVelocity;
         }
 
         protected override byte[] ConvertToBytes()
@@ -95,9 +128,17 @@ namespace VE2.NonCore.Instancing.Internal
             using MemoryStream stream = new();
             using BinaryWriter writer = new(stream);
 
+            writer.Write(FromHost);
             writer.Write(FixedTime);
             WriteVector3(writer, Position);
             WriteQuaternion(writer, Rotation);
+
+            if (!FromHost)
+            {
+                writer.Write(LatestRoundTripTime);
+                WriteVector3(writer, Velocity);
+                WriteVector3(writer, AngularVelocity);
+            }
 
             return stream.ToArray();
         }
@@ -107,9 +148,18 @@ namespace VE2.NonCore.Instancing.Internal
             using MemoryStream stream = new(data);
             using BinaryReader reader = new(stream);
 
+            FromHost = reader.ReadBoolean();
+
             FixedTime = reader.ReadSingle();
             Position = ReadVector3(reader);
             Rotation = ReadQuaternion(reader);
+
+            if (!FromHost)
+            {
+                LatestRoundTripTime = reader.ReadSingle();
+                Velocity = ReadVector3(reader);
+                AngularVelocity = ReadVector3(reader);
+            }
         }
 
         #region Vector and Quaternion Serialization Utilities

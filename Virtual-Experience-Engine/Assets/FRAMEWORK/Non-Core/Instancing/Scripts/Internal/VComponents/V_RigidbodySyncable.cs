@@ -29,12 +29,12 @@ namespace VE2.NonCore.Instancing.Internal
 
         private void FixedUpdate()
         {
-            _service?.HandleFixedUpdate(Time.fixedTime);
+            _service?.HandleFixedUpdate();
         }
 
         private void Update()
         {
-            _service?.HandleUpdate(Time.realtimeSinceStartup);
+            _service?.HandleUpdate();
         }
 
         private void OnDisable()
