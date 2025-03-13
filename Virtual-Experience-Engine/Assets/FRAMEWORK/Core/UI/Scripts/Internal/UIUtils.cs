@@ -27,7 +27,7 @@ namespace VE2.Core.UI.Internal
         //     panelToAddRect.ForceUpdateRectTransforms();
         // }
 
-        public static void MovePanelToFillCanvas(RectTransform panelRect, Canvas targetCanvas)
+        public static void MovePanelToFillRect(RectTransform panelRect, RectTransform targetRect)
         {
             if (panelRect == null)
             {
@@ -35,14 +35,14 @@ namespace VE2.Core.UI.Internal
                 return;
             }
 
-            if (targetCanvas == null)
+            if (targetRect == null)
             {
                 Debug.LogError("MovePanelToFillCanvas: target Canvas is null.");
                 return;
             }
 
             // Get the Canvas's RectTransform
-            RectTransform canvasRect = targetCanvas.GetComponent<RectTransform>();
+            RectTransform canvasRect = targetRect.GetComponent<RectTransform>();
             if (canvasRect == null)
             {
                 Debug.LogError("MovePanelToFillCanvas: Target Canvas does not have a RectTransform.");

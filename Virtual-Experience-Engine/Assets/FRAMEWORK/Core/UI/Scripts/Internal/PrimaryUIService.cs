@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using VE2.Core.Common;
 using VE2.Core.Player.API;
 using VE2.Core.UI.API;
@@ -27,17 +29,15 @@ namespace VE2.Core.UI.Internal
 
         public void MoveUIToCanvas(Canvas canvas)
         {
-            UIUtils.MovePanelToFillCanvas(_primaryUIGameObject.GetComponent<RectTransform>(), canvas);
+            UIUtils.MovePanelToFillRect(_primaryUIGameObject.GetComponent<RectTransform>(), canvas.GetComponent<RectTransform>());
         }
 
-        public void AddNewTab(GameObject tab, string tabName, IconType iconType)
-        {
-            throw new System.NotImplementedException();
-        }
+        public void AddNewTab(GameObject tab, string tabName, IconType iconType) => _centerPanelHandler.AddNewTab(tab, tabName, iconType);
         #endregion
 
-        private readonly GameObject _primaryUIGameObject;
         private readonly IPressableInput _onToggleUIPressed;
+        private readonly GameObject _primaryUIGameObject;
+        private readonly CenterPanelHandler _centerPanelHandler;
 
         public PrimaryUIService(IPressableInput onToggleUIPressed)
         {
@@ -48,9 +48,18 @@ namespace VE2.Core.UI.Internal
 
             PrimaryUIReferences primaryUIReferences = primaryUIGO.GetComponent<PrimaryUIReferences>();  
             _primaryUIGameObject = primaryUIReferences.PrimaryUI;
+            _centerPanelHandler = new CenterPanelHandler(primaryUIReferences.CenterPanelUIReferences);
 
             _onToggleUIPressed = onToggleUIPressed;
             _onToggleUIPressed.OnPressed += HandleToggleUIPressed;
+
+            Button test = primaryUIGO.GetComponent<Button>();  
+            test.onClick.AddListener(() => HandleTabPressed(0));
+        }
+
+        private void HandleTabPressed(int tabID)
+        {
+            //TODO - handle tab pressed
         }
 
         internal void HandleUpdate() 
@@ -76,5 +85,49 @@ namespace VE2.Core.UI.Internal
         {
             _onToggleUIPressed.OnPressed -= HandleToggleUIPressed;
         }
+    }
+
+    internal class CenterPanelHandler 
+    {
+        private readonly HorizontalLayoutGroup TabLayoutGroup;
+        private readonly GameObject TabPrefab;
+        private readonly RectTransform MainContentPanel;
+
+        private readonly List<V_ColorAssignment> _tabColorHandlers = new();
+        private readonly List<GameObject> _tabPanels = new();
+
+        private int _currentTab = 0;
+
+        public void AddNewTab(GameObject newTab, string tabName, IconType iconType) //TODO - perhaps wants to pass intended tab position?
+        {
+            _tabPanels.Add(newTab);
+
+            GameObject newTabButton = GameObject.Instantiate(TabPrefab, TabLayoutGroup.transform);
+            newTabButton.GetComponentInChildren<Text>().text = tabName;
+            newTabButton.GetComponent<Button>().onClick.AddListener(() => HandleTabPressed(_tabPanels.Count - 1));
+
+            _tabColorHandlers.Add(newTabButton.GetComponent<V_ColorAssignment>());
+
+            //TODO - handle icon... maybe the consumer should just pass a sprite?
+
+            UIUtils.MovePanelToFillRect(newTab.GetComponent<RectTransform>(), MainContentPanel);
+        }
+
+        internal CenterPanelHandler(CenterPanelUIReferences centerPanelUIReferences)
+        {
+            TabLayoutGroup = centerPanelUIReferences.TabLayoutGroup;
+            TabPrefab = centerPanelUIReferences.TabPrefab;
+            MainContentPanel = centerPanelUIReferences.MainContentPanel;
+        }
+
+        private void HandleTabPressed(int tabID)
+        {
+            _tabPanels[_currentTab].SetActive(false);
+            _tabPanels[tabID].SetActive(true);
+            _currentTab = tabID;
+
+            //TODO - change colors of tabs
+        }
+            
     }
 }

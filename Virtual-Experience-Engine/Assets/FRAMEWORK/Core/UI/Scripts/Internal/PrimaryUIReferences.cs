@@ -1,18 +1,23 @@
 using UnityEngine;
+using UnityEngine.UI;
 using VE2.Core.Common;
 
-public class PrimaryUIReferences : MonoBehaviour
+namespace VE2.Core.UI.Internal
 {
-    //Don't think we actually need to stub out GOs here, they're an implementation detail of the service
-    // private IGameObjectWrapper _primaryUI;
-    // public IGameObjectWrapper PrimaryUI 
-    // {
-    //     get 
-    //     {
-    //         _primaryUI ??= new GameObjectWrapper(gameObject);
-    //         return _primaryUI;
-    //     }
-    // }
+    internal class PrimaryUIReferences : MonoBehaviour
+    {
+        public GameObject PrimaryUI => gameObject;
 
-    public GameObject PrimaryUI => gameObject;
+        [IgnoreParent] public CenterPanelUIReferences CenterPanelUIReferences = new();
+        
+    }
+
+    internal class CenterPanelUIReferences : MonoBehaviour
+    {
+        public HorizontalLayoutGroup TabLayoutGroup;
+        public GameObject TabPrefab;
+        public RectTransform MainContentPanel;
+    }
 }
+
+
