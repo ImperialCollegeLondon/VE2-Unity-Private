@@ -10,10 +10,20 @@ namespace VE2.Core.UI.Internal
     {
         #region Interfaces
         public bool IsShowing => _primaryUIGameObject.activeSelf;
-        public void ShowUI() => _primaryUIGameObject.SetActive(true);
+        public void ShowUI() 
+        {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+            _primaryUIGameObject.SetActive(true);
+        }
         public event Action OnUIShow;
         public event Action OnUIHide;
-        public void HidePrimaryUI() => _primaryUIGameObject.SetActive(false);   
+        public void HidePrimaryUI() 
+        {
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;   
+            _primaryUIGameObject.SetActive(false);   
+        }
 
         public void MoveUIToCanvas(Canvas canvas)
         {

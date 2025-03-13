@@ -3569,8 +3569,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerConfig:
-    EnableVR: 1
-    Enable2D: 0
+    EnableVR: 0
+    Enable2D: 1
     HeadOverrideType: 0
     TorsoOverrideType: 0
     HeadOverrideOne: {fileID: 0}

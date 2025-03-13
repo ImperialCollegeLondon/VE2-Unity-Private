@@ -770,7 +770,7 @@ GameObject:
   - component: {fileID: 2500813392068913135}
   - component: {fileID: 8323829794686224336}
   m_Layer: 5
-  m_Name: PrimaryUI
+  m_Name: PrimaryUIOLD
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

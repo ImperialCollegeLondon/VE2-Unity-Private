@@ -55,7 +55,7 @@ namespace VE2.NonCore.Platform.Internal
 
             if (SceneManager.GetActiveScene().name != "Hub" && platformPersistentDataHandler.PlatformServerConnectionSettings != null) //If we're in a plugin, and have come from hub
                 _platformService.ConnectToPlatform();
-            //If we're in hub, or started in plugin. Don't connect. The hub will give us connection settings and fire off the connection
+            //If we're in hub, or started in plugin. Don't connect. The hub will give us connection settings and fire off the connection.... unless those connection settings instead come from an "Intro" scene.
         }
 
         private void FixedUpdate()
