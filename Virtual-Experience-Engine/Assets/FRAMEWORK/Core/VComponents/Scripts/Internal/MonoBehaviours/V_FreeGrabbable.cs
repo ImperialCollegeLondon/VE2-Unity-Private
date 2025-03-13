@@ -37,6 +37,9 @@ namespace VE2.Core.VComponents.Internal
             remove { _internalOnDrop -= value; }
         }
 
+        private bool _freeGrabbableHandlesKinematics = true;
+        public bool FreeGrabbableHandlesKinematics { get => _freeGrabbableHandlesKinematics; set => _freeGrabbableHandlesKinematics = value; }
+
         private void OnEnable()
         {
             string id = "FreeGrabbable-" + gameObject.name;
@@ -58,7 +61,8 @@ namespace VE2.Core.VComponents.Internal
                 VComponentsAPI.WorldStateSyncService,
                 VComponentsAPI.InteractorContainer,
                 _rigidbodyWrapper,
-                Resources.Load<PhysicsConstants>("PhysicsConstants"));
+                Resources.Load<PhysicsConstants>("PhysicsConstants"),
+                (IGrabbableRigidbody)this);
 
             _service.OnGrabConfirmed += HandleGrabConfirmed;
             _service.OnDropConfirmed += HandleDropConfirmed;

@@ -29,7 +29,8 @@ namespace VE2.Core.Tests
                 Substitute.For<IWorldStateSyncService>(),
                 InteractorContainerSetup.InteractorContainer,
                 Substitute.For<IRigidbodyWrapper>(), 
-                new PhysicsConstants());
+                new PhysicsConstants(),
+                new V_FreeGrabbable());
 
             //Stub out provider layer
             _v_freeGrabbableProviderStub = new(freeGrabbable);

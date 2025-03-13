@@ -7,5 +7,7 @@ namespace VE2.Core.VComponents.API
     {
         public event Action<ushort> InternalOnGrab;
         public event Action<ushort> InternalOnDrop;
+
+        public bool FreeGrabbableHandlesKinematics { get; set; }
     }
 }

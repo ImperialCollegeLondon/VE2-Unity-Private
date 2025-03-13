@@ -629,7 +629,8 @@ MonoBehaviour:
       TransmissionType: 0
       TransmissionFrequency: 50
     LogSendReceiveDebugMessages: 0
-    LogInterpolationDebug: 1
+    LogInterpolationDebug: 0
+    DrawInterpolationLines: 1
   _state:
     FromHost: 0
     FixedTime: 0

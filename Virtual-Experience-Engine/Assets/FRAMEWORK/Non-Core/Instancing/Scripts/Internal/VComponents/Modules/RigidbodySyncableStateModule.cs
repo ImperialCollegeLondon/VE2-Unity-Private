@@ -13,6 +13,7 @@ namespace VE2.NonCore.Instancing.Internal
 
         public bool LogSendReceiveDebugMessages = false;
         public bool LogInterpolationDebug = false;
+        public bool DrawInterpolationLines = false;
     }
 
     internal class RigidbodySyncableStateModule : BaseWorldStateModule, IRigidbodySyncableStateModule

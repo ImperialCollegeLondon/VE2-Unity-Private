@@ -56,6 +56,9 @@ namespace VE2.NonCore.Instancing.Internal
 
             _stateModule.OnReceiveState?.AddListener(HandleReceiveRigidbodyState);
             _stateModule.OnHostChanged += HandleHostChanged;
+
+            grabbableRigidbody.FreeGrabbableHandlesKinematics = false;
+
         }
 
         private void HandleOnGrab(ushort grabberClientID)
@@ -66,6 +69,12 @@ namespace VE2.NonCore.Instancing.Internal
             {
                 _receivedRigidbodyStates.Clear();
             }
+            else
+            {
+                _isKinematicOnStart = _rigidbody.isKinematic;
+            }
+
+            _rigidbody.isKinematic = false;
         }
 
         private void HandleOnDrop(ushort grabberClientID)
@@ -189,6 +198,7 @@ namespace VE2.NonCore.Instancing.Internal
             if (_stateModule.IsHost)
             {
                 // Infer that this is a drop message
+                _rigidbody.isKinematic = _isKinematicOnStart;
                 SetRigidbodyValuesFromDrop(receivedState);
                 PerformLagCompensationForDroppedGrabbable(receivedState.LatestRoundTripTime);
             } 
@@ -205,6 +215,8 @@ namespace VE2.NonCore.Instancing.Internal
 
                 if (_receivedRigidbodyStates.Count == 0)
                 {
+                    _isKinematicOnStart = _rigidbody.isKinematic;
+                    _rigidbody.isKinematic = true;
                     _timeDifferenceFromHost = receivedState.FixedTime - Time.fixedTime;
                 }
                     
@@ -214,9 +226,9 @@ namespace VE2.NonCore.Instancing.Internal
 
         private void AddReceivedStateToHistory(RigidbodySyncableState newState)
         {
-            if (_config.LogInterpolationDebug)
+            if (_config.DrawInterpolationLines)
             {
-                // Draw wire sphere outline.
+                // Draw lines for received states to compare to interpolation
                 Debug.DrawLine(_rigidbody.position, _rigidbody.position + Vector3.Cross(_rigidbody.linearVelocity, Vector3.up).normalized / 5, Color.green, 20f);
             }
 
@@ -247,7 +259,7 @@ namespace VE2.NonCore.Instancing.Internal
                 // SetRigidbodyValues(_receivedRigidbodyStates[0]);
             }
             else if (numStates >= 2)
-            {
+            { 
                 // Calculate the time the rigidbody should be displayed at
                 float delayedLocalTime = Time.time + _timeDifferenceFromHost - _timeBehind;
                 
@@ -266,12 +278,12 @@ namespace VE2.NonCore.Instancing.Internal
                 SetRigidbodyValues(Vector3.Lerp(previousState.Position, nextState.Position, lerpParameter),
                     Quaternion.Slerp(previousState.Rotation, nextState.Rotation, lerpParameter));
 
-                if (_config.LogInterpolationDebug)
+                if (_config.DrawInterpolationLines)
                 {
-                    // Draw wire sphere outline
                     Color lineColour = lerpParameter >= 0 ? Color.white : Color.red;
                     Debug.DrawLine(_rigidbody.position, _rigidbody.position + Vector3.Cross(_rigidbody.linearVelocity, Vector3.up).normalized / 5, Color.white, 20f);
-
+                }
+                if (_config.LogInterpolationDebug) { 
                     Debug.Log($"LocalTime = {delayedLocalTime}, StateFixedTimes = {previousState.FixedTime} & {nextState.FixedTime}, lerpParam = {lerpParameter}");
                 }
             }
