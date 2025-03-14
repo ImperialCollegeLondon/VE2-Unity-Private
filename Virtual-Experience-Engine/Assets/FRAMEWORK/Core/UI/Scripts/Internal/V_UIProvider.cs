@@ -10,8 +10,22 @@ namespace VE2.Core.UI.Internal
         [SerializeField] private bool _enablePrimaryUI = true;
         [SerializeField] private bool _enableSecondaryUI = true;
 
-        public IPrimaryUIService PrimaryUIService => _primaryUIService;
-        public ISecondaryUIService SecondaryUIService => _secondaryUIService;
+        public IPrimaryUIService PrimaryUIService {
+            get
+            {
+                if (_primaryUIService == null)
+                    OnEnable();
+                return _primaryUIService;
+            }
+        }
+        public ISecondaryUIService SecondaryUIService {
+            get
+            {
+                if (_secondaryUIService == null)
+                    OnEnable();
+                return _secondaryUIService;
+            }
+        }
         public string GameObjectName => gameObject.name;
         public bool IsEnabled => IsEnabled;
 
@@ -22,7 +36,7 @@ namespace VE2.Core.UI.Internal
         {
             UIAPI.UIProvider = this;
 
-            if (!Application.isPlaying)
+            if (!Application.isPlaying || (_enablePrimaryUI && _primaryUIService != null) || (_enableSecondaryUI && _secondaryUIService != null))
                 return;
 
             if (_primaryUIService == null && _enablePrimaryUI)

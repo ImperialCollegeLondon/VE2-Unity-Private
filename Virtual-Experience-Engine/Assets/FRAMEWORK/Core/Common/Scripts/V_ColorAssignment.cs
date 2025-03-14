@@ -106,6 +106,40 @@ namespace VE2.Core.Common
                     break;
             }
 
+            if (_hasButton)
+                SetNonHighlightedButtonColor();
+        }
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            if (!_hasButton)
+                return;
+
+            switch (_buttonType)
+            {
+                case ButtonType.Standard:
+                    if (_hasSubImage)
+                        _subImage.color = _colorConfiguration.TertiaryColor;
+                    if (_hasSubText)
+                        _subText.color = _colorConfiguration.TertiaryColor;
+                    break;
+                case ButtonType.Secondary:
+                    break;
+                case ButtonType.Close:
+                    break;
+            }
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            if (_hasButton)
+                SetNonHighlightedButtonColor();
+
+            
+        }
+
+        private void SetNonHighlightedButtonColor() 
+        {
             switch (_buttonType)
             {
                 case ButtonType.Standard:
@@ -151,31 +185,6 @@ namespace VE2.Core.Common
                         };
                     break;
             }
-        }
-
-        public void OnPointerEnter(PointerEventData eventData)
-        {
-            if (!_hasButton)
-                return;
-
-            switch (_buttonType)
-            {
-                case ButtonType.Standard:
-                    if (_hasSubImage)
-                        _subImage.color = _colorConfiguration.AccentSecondaryColor;
-                    if (_hasSubText)
-                        _subText.color = _colorConfiguration.AccentSecondaryColor;
-                    break;
-                case ButtonType.Secondary:
-                    break;
-                case ButtonType.Close:
-                    break;
-            }
-        }
-
-        public void OnPointerExit(PointerEventData eventData)
-        {
-            Debug.Log($"Button {_button.name} no longer highlighted.");
         }
     }
 }

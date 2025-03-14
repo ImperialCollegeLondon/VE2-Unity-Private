@@ -70,7 +70,7 @@ namespace VE2.Core.UI.API
         public void ShowUI();
         public event Action OnUIShow;
 
-        public void HidePrimaryUI();
+        public void HideUI();
         public event Action OnUIHide;
 
         public void MoveUIToCanvas(Canvas canvas);

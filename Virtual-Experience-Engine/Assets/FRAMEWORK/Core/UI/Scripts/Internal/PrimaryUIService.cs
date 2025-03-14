@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using VE2.Core.Common;
@@ -17,14 +18,16 @@ namespace VE2.Core.UI.Internal
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
             _primaryUIGameObject.SetActive(true);
+            OnUIShow?.Invoke();
         }
         public event Action OnUIShow;
         public event Action OnUIHide;
-        public void HidePrimaryUI() 
+        public void HideUI() 
         {
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;   
             _primaryUIGameObject.SetActive(false);   
+            OnUIHide?.Invoke();
         }
 
         public void MoveUIToCanvas(Canvas canvas)
@@ -44,22 +47,16 @@ namespace VE2.Core.UI.Internal
             //GameObject primaryUIGO = GameObject.Instantiate(Resources.Load<GameObject>("PrimaryUIHolder").transform.GetChild(0).gameObject);
             GameObject primaryUIGOCanvas = GameObject.Instantiate(Resources.Load<GameObject>("PrimaryUIHolder"));
             GameObject primaryUIGO = primaryUIGOCanvas.transform.GetChild(0).gameObject;
-            //primaryUIGO.SetActive(false);
+            primaryUIGO.SetActive(false);
 
             PrimaryUIReferences primaryUIReferences = primaryUIGO.GetComponent<PrimaryUIReferences>();  
             _primaryUIGameObject = primaryUIReferences.PrimaryUI;
             _centerPanelHandler = new CenterPanelHandler(primaryUIReferences.CenterPanelUIReferences);
 
+            primaryUIReferences.CloseButton.onClick.AddListener(HandleCloseButtonPressed);
+
             _onToggleUIPressed = onToggleUIPressed;
             _onToggleUIPressed.OnPressed += HandleToggleUIPressed;
-
-            Button test = primaryUIGO.GetComponent<Button>();  
-            test.onClick.AddListener(() => HandleTabPressed(0));
-        }
-
-        private void HandleTabPressed(int tabID)
-        {
-            //TODO - handle tab pressed
         }
 
         internal void HandleUpdate() 
@@ -70,15 +67,14 @@ namespace VE2.Core.UI.Internal
         private void HandleToggleUIPressed()
         {
             if (_primaryUIGameObject.activeSelf)
-            {
-                HidePrimaryUI();
-                OnUIHide?.Invoke();
-            }
+                HideUI();
             else
-            {
                 ShowUI();
-                OnUIShow?.Invoke();
-            }
+        }
+
+        private void HandleCloseButtonPressed()
+        {
+            HideUI();
         }
 
         internal void TearDown()
@@ -103,7 +99,7 @@ namespace VE2.Core.UI.Internal
             _tabPanels.Add(newTab);
 
             GameObject newTabButton = GameObject.Instantiate(TabPrefab, TabLayoutGroup.transform);
-            newTabButton.GetComponentInChildren<Text>().text = tabName;
+            newTabButton.GetComponentInChildren<TMP_Text>().text = tabName;
             newTabButton.GetComponent<Button>().onClick.AddListener(() => HandleTabPressed(_tabPanels.Count - 1));
 
             _tabColorHandlers.Add(newTabButton.GetComponent<V_ColorAssignment>());

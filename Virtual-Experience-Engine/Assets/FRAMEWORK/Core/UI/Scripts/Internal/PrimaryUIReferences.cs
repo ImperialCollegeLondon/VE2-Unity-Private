@@ -8,15 +8,9 @@ namespace VE2.Core.UI.Internal
     {
         public GameObject PrimaryUI => gameObject;
 
-        [IgnoreParent] public CenterPanelUIReferences CenterPanelUIReferences = new();
-        
-    }
+        [IgnoreParent] public CenterPanelUIReferences CenterPanelUIReferences;
 
-    internal class CenterPanelUIReferences : MonoBehaviour
-    {
-        public HorizontalLayoutGroup TabLayoutGroup;
-        public GameObject TabPrefab;
-        public RectTransform MainContentPanel;
+        public Button CloseButton;
     }
 }
 
