@@ -90,16 +90,11 @@ namespace VE2.Core.Player.Internal
             PlayerInputContainer playerInputContainer, IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerWrapper, 
             IPrimaryUIService primaryUIService, ISecondaryUIService secondaryUIService)
         {
-           // _playerStateModule = new(state, config, playerStateModuleContainer);
             PlayerTransformData = transformData;
             _config = config;
 
             _playerInputContainer = playerInputContainer;
             _playerSettingsHandler = playerSettingsHandler;
-            //_xrManagerWrapper = xrManagerWrapper;
-
-            //TODO, if primary UI exists, add the player settings and player controls to it
-            //_primaryUIService?.AddNewTab(/*The player settings and player controls*/);
 
             if (_config.EnableVR)
             {
@@ -134,6 +129,26 @@ namespace VE2.Core.Player.Internal
                 _player2D.ActivatePlayer(PlayerTransformData);
 
             _playerInputContainer.ChangeMode.OnPressed += HandleChangeModePressed;
+
+            if (UIAPI.PrimaryUIService != null)
+                SetupUI();
+        }
+
+        private void SetupUI()
+        {
+            GameObject settingsUIHolder = GameObject.Instantiate(Resources.Load<GameObject>("PlayerSettingsUIHolder"));
+            GameObject settingsUI = settingsUIHolder.transform.GetChild(0).gameObject;
+            settingsUI.SetActive(false);
+        
+            UIAPI.PrimaryUIService.AddNewTab(settingsUI, "Settings", IconType.Settings);
+            GameObject.Destroy(settingsUIHolder);
+            
+            GameObject helpUIHolder = GameObject.Instantiate(Resources.Load<GameObject>("PlayerHelpUIHolder"));
+            GameObject helpUI = helpUIHolder.transform.GetChild(0).gameObject;
+            helpUI.SetActive(false);
+
+            UIAPI.PrimaryUIService.AddNewTab(helpUI, "Help", IconType.Help);
+            GameObject.Destroy(helpUIHolder);
         }
 
         private void HandleChangeModePressed() 

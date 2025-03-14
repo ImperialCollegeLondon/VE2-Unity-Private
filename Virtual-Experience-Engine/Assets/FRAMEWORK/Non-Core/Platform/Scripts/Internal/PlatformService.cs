@@ -11,6 +11,7 @@ using VE2.Core.Player.API;
 using VE2.NonCore.Platform.API;
 using VE2.Core.Common;
 using static VE2.Core.Player.API.PlayerSerializables;
+using VE2.Core.UI.API;
 
 namespace VE2.NonCore.Platform.Internal
 {
@@ -133,6 +134,16 @@ namespace VE2.NonCore.Platform.Internal
             commsHandler.OnReceiveNetcodeConfirmation += HandleReceiveNetcodeVersion;
             commsHandler.OnReceiveServerRegistrationConfirmation += HandleReceiveServerRegistrationResponse;
             commsHandler.OnReceiveGlobalInfoUpdate += HandleReceiveGlobalInfoUpdate;
+
+            if (UIAPI.PrimaryUIService != null)
+            {
+                GameObject playerBrowserUIHolder = GameObject.Instantiate(Resources.Load<GameObject>("PlatformPlayerBrowserUIHolder"));
+                GameObject playerBrowserUI = playerBrowserUIHolder.transform.GetChild(0).gameObject;
+                playerBrowserUI.SetActive(false);
+            
+                UIAPI.PrimaryUIService.AddNewTab(playerBrowserUI, "Players", IconType.Settings);
+                GameObject.Destroy(playerBrowserUIHolder);   
+            }
         }
 
         private void HandleReceiveNetcodeVersion(byte[] bytes)
