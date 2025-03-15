@@ -46,13 +46,19 @@ namespace VE2.Core.UI.Internal
         #endregion
 
         private readonly IPressableInput _onToggleUIPressed;
+        private readonly EventSystem _eventSystem;
+
         private readonly GameObject _primaryUIHolderGameObject;
         private readonly GameObject _primaryUIGameObject;
         private readonly CenterPanelHandler _centerPanelHandler;
 
-        public PrimaryUIService(IPressableInput onToggleUIPressed)
+        public PrimaryUIService(IPressableInput onToggleUIPressed, EventSystem eventSystem)
         {
-            //GameObject primaryUIGO = GameObject.Instantiate(Resources.Load<GameObject>("PrimaryUIHolder").transform.GetChild(0).gameObject);
+            _onToggleUIPressed = onToggleUIPressed;
+            _onToggleUIPressed.OnPressed += HandleToggleUIPressed;
+
+            _eventSystem = eventSystem;
+
             _primaryUIHolderGameObject = GameObject.Instantiate(Resources.Load<GameObject>("PrimaryUIHolder"));
             GameObject primaryUIGO = _primaryUIHolderGameObject.transform.GetChild(0).gameObject;
             primaryUIGO.SetActive(false);
@@ -62,9 +68,6 @@ namespace VE2.Core.UI.Internal
             _centerPanelHandler = new CenterPanelHandler(primaryUIReferences.CenterPanelUIReferences);
 
             primaryUIReferences.CloseButton.onClick.AddListener(HandleCloseButtonPressed);
-
-            _onToggleUIPressed = onToggleUIPressed;
-            _onToggleUIPressed.OnPressed += HandleToggleUIPressed;
         }
 
         internal void HandleUpdate() 
