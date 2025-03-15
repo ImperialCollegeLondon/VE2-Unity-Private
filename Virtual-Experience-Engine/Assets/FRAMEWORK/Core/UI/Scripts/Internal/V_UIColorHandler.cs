@@ -9,7 +9,7 @@ namespace VE2.Core.UI.Internal
 {
 
     [ExecuteInEditMode]
-    internal class V_ColorAssignment : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    internal class V_UIColorHandler : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         private enum ColorType
         {
@@ -43,15 +43,27 @@ namespace VE2.Core.UI.Internal
         private TMP_Text _subText;
         private bool _hasSubText => _subText != null;
 
+        private bool _lockedToSelectedColor = false;
+        private bool _isHighlighted = false;
         private ColorBlock _buttonNonSelectedColors;
-
         private Color _buttonSubElementsSelectedColor;
         private Color _buttonSubElementsNonSelectedColor;
+        private Color _buttonSubElementsHighlightedColor;
 
         private ColorConfiguration _colorConfiguration;
 
+        private bool _doneSetup = false;
+
         private void Awake()
         {
+            Setup();
+        }
+
+        internal void Setup()
+        {
+            if (_doneSetup)
+                return;
+
             _image = GetComponent<Image>();
             _text = GetComponent<TMP_Text>();
 
@@ -62,32 +74,23 @@ namespace VE2.Core.UI.Internal
 
             _button = GetComponent<Button>();
             _colorConfiguration = (ColorConfiguration)Resources.Load("ColorConfiguration");
+
             UpdateColor();
+            AssignButtonColors();
+
+            _doneSetup = true;
         }
 
         internal void LockSelectedColor() 
         {
-            if (!_hasButton)
+            if (!_hasButton) //says there is a button, and awake has not been done
             {
-                Debug.LogError("Cannot lock selected color on a non-button object");
+                Debug.LogError("Cannot lock selected color on a non-button object - " + (GetComponent<Button>() == null ? "no button" : "has button") + " go name = " + gameObject.name + " doneAwake = " + _doneSetup); 
                 return;
             }
 
-            _button.colors = new ColorBlock {
-                normalColor = _buttonNonSelectedColors.selectedColor,
-                highlightedColor = _buttonNonSelectedColors.selectedColor,
-                pressedColor = _buttonNonSelectedColors.selectedColor,
-                selectedColor = _buttonNonSelectedColors.selectedColor,
-                disabledColor = _buttonNonSelectedColors.selectedColor,
-                colorMultiplier = 1,
-                fadeDuration = 0.1f,
-            };
-
-            if (_hasSubImage)
-                _subImage.color = _buttonSubElementsSelectedColor;
-
-            if (_hasSubText)
-                _subText.color =_buttonSubElementsSelectedColor;
+            _lockedToSelectedColor = true;
+            SetToSelectedColors();
         }
 
         internal void UnlockSelectedColor()
@@ -98,18 +101,14 @@ namespace VE2.Core.UI.Internal
                 return;
             }
 
-            _button.colors = _buttonNonSelectedColors;
-
-            if (_hasSubImage)
-                _subImage.color = _buttonSubElementsNonSelectedColor;
-
-            if (_hasSubText)
-                _subText.color =_buttonSubElementsNonSelectedColor;
+            _lockedToSelectedColor = false;
+            SetToNonSelectedColors();
         }
 
         private void OnValidate()
         {
-            UpdateColor();
+            if (!Application.isPlaying)
+                UpdateColor();
         }
 
         private void UpdateColor() 
@@ -155,36 +154,73 @@ namespace VE2.Core.UI.Internal
             }
 
             if (_hasButton)
-                SetNonHighlightedButtonColor();
+            {
+                AssignButtonColors();
+                SetToNonSelectedColors();
+            }
         }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
+            _isHighlighted = true;
+
             if (!_hasButton)
                 return;
 
-            switch (_buttonType)
-            {
-                case ButtonType.Standard:
-                    if (_hasSubImage)
-                        _subImage.color = _colorConfiguration.TertiaryColor;
-                    if (_hasSubText)
-                        _subText.color = _colorConfiguration.TertiaryColor;
-                    break;
-                case ButtonType.Secondary:
-                    break;
-                case ButtonType.Close:
-                    break;
-            }
+            if (_hasSubImage)
+                _subImage.color = _buttonSubElementsHighlightedColor;
+            if (_hasSubText)
+                _subText.color = _buttonSubElementsHighlightedColor;
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            if (_hasButton)
-                SetNonHighlightedButtonColor();
+            _isHighlighted = false;
+
+            if (!_hasButton)
+                return;
+            
+            if (_lockedToSelectedColor)
+                SetToSelectedColors();
+            else 
+                SetToNonSelectedColors();
+
         }
 
-        private void SetNonHighlightedButtonColor() 
+        private void SetToSelectedColors()
+        {
+            _button.colors = new ColorBlock {
+                normalColor = _buttonNonSelectedColors.selectedColor,
+                highlightedColor = _buttonNonSelectedColors.highlightedColor,
+                pressedColor = _buttonNonSelectedColors.pressedColor,
+                selectedColor = _buttonNonSelectedColors.selectedColor,
+                disabledColor = _buttonNonSelectedColors.disabledColor,
+                colorMultiplier = 1,
+                fadeDuration = 0.1f,
+            };
+
+            if (!_isHighlighted) //Otherwise, OnPointerExit will take care of this
+            {
+                if (_hasSubImage)
+                    _subImage.color = _buttonSubElementsSelectedColor;
+
+                if (_hasSubText)
+                    _subText.color =_buttonSubElementsSelectedColor;
+            }
+        }
+
+        private void SetToNonSelectedColors()
+        {
+            _button.colors = _buttonNonSelectedColors;
+
+            if (_hasSubImage)
+                _subImage.color = _buttonSubElementsNonSelectedColor;
+
+            if (_hasSubText)
+                _subText.color =_buttonSubElementsNonSelectedColor;
+        }
+
+        private void AssignButtonColors() 
         {
             if (!_hasButton)
                 return;
@@ -195,7 +231,6 @@ namespace VE2.Core.UI.Internal
                 {
                     _buttonNonSelectedColors = new ColorBlock
                     {
-                        //TODO: add explicit button colors to colour config
                         normalColor = _colorConfiguration.SecondaryColor,
                         highlightedColor = _colorConfiguration.AccentSecondaryColor,
                         pressedColor = _colorConfiguration.AccentSecondaryColor * 0.8f,
@@ -206,7 +241,7 @@ namespace VE2.Core.UI.Internal
                     };
                     _buttonSubElementsNonSelectedColor = _colorConfiguration.TertiaryColor;
                     _buttonSubElementsSelectedColor = _colorConfiguration.QuaternaryColor;
-                    
+                    _buttonSubElementsHighlightedColor = _colorConfiguration.TertiaryColor;
                     break;
                 }
                 case ButtonType.Secondary:
@@ -233,16 +268,10 @@ namespace VE2.Core.UI.Internal
 
                     _buttonSubElementsNonSelectedColor = _colorConfiguration.QuaternaryColor;
                     _buttonSubElementsSelectedColor = _colorConfiguration.TertiaryColor;
+                    _buttonSubElementsHighlightedColor = _colorConfiguration.QuaternaryColor;
                     break;
                 }
             }
-
-            _button.colors = _buttonNonSelectedColors;
-
-            if (_hasSubImage)
-                _subImage.color = _buttonSubElementsNonSelectedColor;
-            if (_hasSubText)
-                _subText.color = _buttonSubElementsNonSelectedColor;
         }
     }
 }

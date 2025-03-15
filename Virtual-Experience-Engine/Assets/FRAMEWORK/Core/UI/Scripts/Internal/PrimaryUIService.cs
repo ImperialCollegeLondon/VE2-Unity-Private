@@ -140,6 +140,7 @@ namespace VE2.Core.UI.Internal
 
             //Create the button for the tab ===
             GameObject newTabButton = GameObject.Instantiate(TabPrefab, TabLayoutGroup.transform); 
+            newTabButton.name = $"{tabName} Tab Button";
             newTabButton.GetComponentInChildren<TMP_Text>().text = tabName;
             newTabButton.GetComponent<Button>().onClick.AddListener(() => 
             {
@@ -151,20 +152,19 @@ namespace VE2.Core.UI.Internal
                 .FirstOrDefault(img => img.gameObject != newTabButton);
             buttonSubImage.sprite = icon;
 
-            V_ColorAssignment tabColorHandler = newTabButton.GetComponent<V_ColorAssignment>();
+            V_UIColorHandler tabColorHandler = newTabButton.GetComponent<V_UIColorHandler>();
             tabColorHandler.Setup(); //Starts inactive, so can't rely on Awake
 
             //Create a TabInfo to store ===
             TabInfo newTabInfo = new TabInfo(closestAvailableIndex, newTab, newTabButton, tabColorHandler);    
             _tabs.Add(tabName, newTabInfo);
             
-            //Reshuffle tab buttons - Loop through tabs in ascending order, setting their position in the layout group
+            //Reshuffle tab buttons - Loop through tabs in ascending order, setting their position in the layout group ===
             TabInfo[] tabsByIndex = _tabs.Values.OrderBy(tab => tab.Index).ToArray(); 
             foreach (TabInfo tab in tabsByIndex)
                 tab.TabButton.transform.SetSiblingIndex(tab.Index);
 
-            Debug.Log("Adding tab: " + tabName + " index: " + closestAvailableIndex); // Should log correct indices 0, 1, 2, etc.
-
+            //Open the tab if it is the only one ===
             if (_tabs.Values.Count == 1)
                OpenTab(tabName);
         }
@@ -195,9 +195,9 @@ namespace VE2.Core.UI.Internal
             public readonly int Index;
             public readonly GameObject Tab;
             public readonly GameObject TabButton;
-            public readonly V_ColorAssignment TabColorHandler;
+            public readonly V_UIColorHandler TabColorHandler;
 
-            public TabInfo(int index, GameObject tab, GameObject tabButton, V_ColorAssignment tabColorHandler)
+            public TabInfo(int index, GameObject tab, GameObject tabButton, V_UIColorHandler tabColorHandler)
             {
                 Index = index;
                 Tab = tab;
