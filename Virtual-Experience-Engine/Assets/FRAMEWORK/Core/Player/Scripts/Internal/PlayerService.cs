@@ -140,14 +140,14 @@ namespace VE2.Core.Player.Internal
             GameObject settingsUI = settingsUIHolder.transform.GetChild(0).gameObject;
             settingsUI.SetActive(false);
         
-            UIAPI.PrimaryUIService.AddNewTab(settingsUI, "Settings", IconType.Settings);
+            UIAPI.PrimaryUIService.AddNewTab("Settings", settingsUI, Resources.Load<Sprite>("PlayerSettingsUIIcon"), 2);
             GameObject.Destroy(settingsUIHolder);
             
             GameObject helpUIHolder = GameObject.Instantiate(Resources.Load<GameObject>("PlayerHelpUIHolder"));
             GameObject helpUI = helpUIHolder.transform.GetChild(0).gameObject;
             helpUI.SetActive(false);
 
-            UIAPI.PrimaryUIService.AddNewTab(helpUI, "Help", IconType.Help);
+            UIAPI.PrimaryUIService.AddNewTab("Help", helpUI, Resources.Load<Sprite>("PlayerHelpUIIcon"), 3);
             GameObject.Destroy(helpUIHolder);
         }
 

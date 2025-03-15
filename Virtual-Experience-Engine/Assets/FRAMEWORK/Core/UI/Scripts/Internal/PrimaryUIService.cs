@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -35,7 +36,9 @@ namespace VE2.Core.UI.Internal
             UIUtils.MovePanelToFillRect(_primaryUIGameObject.GetComponent<RectTransform>(), canvas.GetComponent<RectTransform>());
         }
 
-        public void AddNewTab(GameObject tab, string tabName, IconType iconType) => _centerPanelHandler.AddNewTab(tab, tabName, iconType);
+        public void AddNewTab(string tabName, GameObject tab, Sprite icon, int targetIndex) => _centerPanelHandler.AddNewTab(tabName, tab, icon, targetIndex);
+
+        public void ShowTab(string tabName) => _centerPanelHandler.OpenTab(tabName);
         #endregion
 
         private readonly IPressableInput _onToggleUIPressed;
@@ -89,25 +92,68 @@ namespace VE2.Core.UI.Internal
         private readonly GameObject TabPrefab;
         private readonly RectTransform MainContentPanel;
 
-        private readonly List<V_ColorAssignment> _tabColorHandlers = new();
-        private readonly List<GameObject> _tabPanels = new();
+        private readonly Dictionary<string, TabInfo> _tabs = new();
 
-        private int _currentTab = 0;
+        private string _currentTab = "none";
 
-        public void AddNewTab(GameObject newTab, string tabName, IconType iconType) //TODO - perhaps wants to pass intended tab position?
+        public void AddNewTab(string tabName, GameObject newTab, Sprite icon, int targetIndex)
         {
-            _tabPanels.Add(newTab);
+            if (_tabs.ContainsKey(tabName))
+            {
+                Debug.LogError("Tab with name " + tabName + " already exists");
+                return;
+            }
 
-            GameObject newTabButton = GameObject.Instantiate(TabPrefab, TabLayoutGroup.transform);
-            newTabButton.GetComponentInChildren<TMP_Text>().text = tabName;
-            newTabButton.GetComponent<Button>().onClick.AddListener(() => HandleTabPressed(_tabPanels.Count - 1));
-
-            _tabColorHandlers.Add(newTabButton.GetComponent<V_ColorAssignment>());
-
-            //TODO - handle icon... maybe the consumer should just pass a sprite?
-
+            //Move the panel into its new holder
             UIUtils.MovePanelToFillRect(newTab.GetComponent<RectTransform>(), MainContentPanel);
+            newTab.SetActive(false);
+
+            //Calculate the closest available index for the new tab, will be targetIndex if available
+            int[] usedTabIndices = _tabs.Values.Select(tab => tab.Index).ToArray();
+            int closestAvailableIndex = -1; 
+
+            if (!usedTabIndices.Contains(targetIndex))
+            {
+                closestAvailableIndex = targetIndex;
+            }
+            else 
+            {
+                foreach (int usedIndex in usedTabIndices)
+                {
+                    if (usedTabIndices.Contains(usedIndex + 1))
+                    {
+                        closestAvailableIndex = usedIndex + 1;
+                        break;
+                    }
+                }
+            }
+
+            //Create the button for the tab ===
+            GameObject newTabButton = GameObject.Instantiate(TabPrefab, TabLayoutGroup.transform); 
+            newTabButton.GetComponentInChildren<TMP_Text>().text = tabName;
+            newTabButton.GetComponent<Button>().onClick.AddListener(() => OpenTab(tabName));
+            
+            Image buttonSubImage = newTabButton.GetComponentsInChildren<Image>(true)
+                .FirstOrDefault(img => img.gameObject != newTabButton);
+            buttonSubImage.sprite = icon;
+
+            V_ColorAssignment tabColorHandler = newTabButton.GetComponent<V_ColorAssignment>();
+
+            //Create a TabInfo to store ===
+            TabInfo newTabInfo = new TabInfo(closestAvailableIndex, newTab, newTabButton, tabColorHandler);    
+            _tabs.Add(tabName, newTabInfo);
+            
+            //Reshuffle tab buttons - Loop through tabs in ascending order, setting their position in the layout group
+            TabInfo[] tabsByIndex = _tabs.Values.OrderBy(tab => tab.Index).ToArray(); 
+            foreach (TabInfo tab in tabsByIndex)
+                tab.TabButton.transform.SetSiblingIndex(tab.Index);
+
+            Debug.Log("Adding tab: " + tabName + " index: " + closestAvailableIndex); // Should log correct indices 0, 1, 2, etc.
+
+            if (_tabs.Values.Count == 1)
+               OpenTab(tabName);
         }
+
 
         internal CenterPanelHandler(CenterPanelUIReferences centerPanelUIReferences)
         {
@@ -116,14 +162,31 @@ namespace VE2.Core.UI.Internal
             MainContentPanel = centerPanelUIReferences.MainContentPanel;
         }
 
-        private void HandleTabPressed(int tabID)
+        internal void OpenTab(string tabName)
         {
-            _tabPanels[_currentTab].SetActive(false);
-            _tabPanels[tabID].SetActive(true);
-            _currentTab = tabID;
+            if (_currentTab != "none")
+                _tabs[_currentTab].Tab.SetActive(false);
 
-            //TODO - change colors of tabs
+            _tabs[tabName].Tab.SetActive(true);
+            _currentTab = tabName;
+
+            //TODO - change colors of tab buttons
         }
-            
+
+        private class TabInfo 
+        {
+            public readonly int Index;
+            public readonly GameObject Tab;
+            public readonly GameObject TabButton;
+            public readonly V_ColorAssignment TabColorHandler;
+
+            public TabInfo(int index, GameObject tab, GameObject tabButton, V_ColorAssignment tabColorHandler)
+            {
+                Index = index;
+                Tab = tab;
+                TabButton = tabButton;
+                TabColorHandler = tabColorHandler;
+            }
+        }  
     }
 }

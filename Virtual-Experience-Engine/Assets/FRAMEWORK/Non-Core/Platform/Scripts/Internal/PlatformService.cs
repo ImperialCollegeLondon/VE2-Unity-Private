@@ -141,7 +141,7 @@ namespace VE2.NonCore.Platform.Internal
                 GameObject playerBrowserUI = playerBrowserUIHolder.transform.GetChild(0).gameObject;
                 playerBrowserUI.SetActive(false);
             
-                UIAPI.PrimaryUIService.AddNewTab(playerBrowserUI, "Players", IconType.Settings);
+                UIAPI.PrimaryUIService.AddNewTab("Players", playerBrowserUI, Resources.Load<Sprite>("PlatformPlayerBrowserUIICon"), 1);
                 GameObject.Destroy(playerBrowserUIHolder);   
             }
         }

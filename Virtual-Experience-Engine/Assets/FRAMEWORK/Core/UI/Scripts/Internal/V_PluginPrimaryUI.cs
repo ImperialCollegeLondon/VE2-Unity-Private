@@ -5,9 +5,10 @@ namespace VE2.Core.UI.Internal
 {
     //TODO - also need some utils for confirming that the UI is confdiged correctly, only one child of the holder, etc
     [ExecuteAlways]
-    public class V_PluginPrimaryUI : MonoBehaviour
+    internal class V_PluginPrimaryUI : MonoBehaviour
     {
         [SerializeField, HideInInspector] private GameObject _pluginPrimaryUIHolder;
+        private string _tabName => "World Info";
 
         //TODO - when creating mono in edit mode, create prefab in scene 
 
@@ -15,10 +16,9 @@ namespace VE2.Core.UI.Internal
 
         private void Awake()
         {
-            Debug.Log("OnValidate");
             if (!Application.isPlaying && _pluginPrimaryUIHolder == null)
             {
-                GameObject pluginPrimaryUIHolderPrefab = Resources.Load<GameObject>("PrimaryPluginUIHolder");
+                GameObject pluginPrimaryUIHolderPrefab = Resources.Load<GameObject>("PluginPrimaryUIHolder");
                 _pluginPrimaryUIHolder = Instantiate(pluginPrimaryUIHolderPrefab, transform);
             }
         }
@@ -29,11 +29,14 @@ namespace VE2.Core.UI.Internal
                 return;
 
             GameObject pluginPrimaryUI = _pluginPrimaryUIHolder.transform.GetChild(0).gameObject;
+            Sprite icon = Resources.Load<Sprite>("PluginPrimaryUIIcon");
 
             UIAPI.PrimaryUIService.AddNewTab(
+                _tabName, 
                 pluginPrimaryUI, 
-                "My World", 
-                IconType.Plugin);
+                icon,
+                0);
+            UIAPI.PrimaryUIService.ShowTab(_tabName);
 
             Destroy(_pluginPrimaryUIHolder);
         }
