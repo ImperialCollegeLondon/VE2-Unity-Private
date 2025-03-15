@@ -44,6 +44,7 @@ namespace VE2.Core.UI.Internal
                 _primaryUIService = new PrimaryUIService(PlayerAPI.InputHandler.ToggleMenu);
             };
 
+            return; //TODO
             if (_secondaryUIService == null && _enableSecondaryUI)
             {
                 GameObject secondaryUIGO = GameObject.Instantiate(Resources.Load<GameObject>("SecondaryUI"));

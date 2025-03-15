@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using VE2.Core.Common;
 using VE2.Core.Player.API;
@@ -34,6 +35,9 @@ namespace VE2.Core.UI.Internal
         public void MoveUIToCanvas(Canvas canvas)
         {
             UIUtils.MovePanelToFillRect(_primaryUIGameObject.GetComponent<RectTransform>(), canvas.GetComponent<RectTransform>());
+
+            if (_primaryUIHolderGameObject != null)
+                GameObject.Destroy(_primaryUIHolderGameObject);
         }
 
         public void AddNewTab(string tabName, GameObject tab, Sprite icon, int targetIndex) => _centerPanelHandler.AddNewTab(tabName, tab, icon, targetIndex);
@@ -42,14 +46,15 @@ namespace VE2.Core.UI.Internal
         #endregion
 
         private readonly IPressableInput _onToggleUIPressed;
+        private readonly GameObject _primaryUIHolderGameObject;
         private readonly GameObject _primaryUIGameObject;
         private readonly CenterPanelHandler _centerPanelHandler;
 
         public PrimaryUIService(IPressableInput onToggleUIPressed)
         {
             //GameObject primaryUIGO = GameObject.Instantiate(Resources.Load<GameObject>("PrimaryUIHolder").transform.GetChild(0).gameObject);
-            GameObject primaryUIGOCanvas = GameObject.Instantiate(Resources.Load<GameObject>("PrimaryUIHolder"));
-            GameObject primaryUIGO = primaryUIGOCanvas.transform.GetChild(0).gameObject;
+            _primaryUIHolderGameObject = GameObject.Instantiate(Resources.Load<GameObject>("PrimaryUIHolder"));
+            GameObject primaryUIGO = _primaryUIHolderGameObject.transform.GetChild(0).gameObject;
             primaryUIGO.SetActive(false);
 
             PrimaryUIReferences primaryUIReferences = primaryUIGO.GetComponent<PrimaryUIReferences>();  
@@ -131,13 +136,18 @@ namespace VE2.Core.UI.Internal
             //Create the button for the tab ===
             GameObject newTabButton = GameObject.Instantiate(TabPrefab, TabLayoutGroup.transform); 
             newTabButton.GetComponentInChildren<TMP_Text>().text = tabName;
-            newTabButton.GetComponent<Button>().onClick.AddListener(() => OpenTab(tabName));
+            newTabButton.GetComponent<Button>().onClick.AddListener(() => 
+            {
+                OpenTab(tabName);
+                EventSystem.current.SetSelectedGameObject(null);
+            });
             
             Image buttonSubImage = newTabButton.GetComponentsInChildren<Image>(true)
                 .FirstOrDefault(img => img.gameObject != newTabButton);
             buttonSubImage.sprite = icon;
 
             V_ColorAssignment tabColorHandler = newTabButton.GetComponent<V_ColorAssignment>();
+            tabColorHandler.Setup(); //Starts inactive, so can't rely on Awake
 
             //Create a TabInfo to store ===
             TabInfo newTabInfo = new TabInfo(closestAvailableIndex, newTab, newTabButton, tabColorHandler);    
@@ -165,12 +175,14 @@ namespace VE2.Core.UI.Internal
         internal void OpenTab(string tabName)
         {
             if (_currentTab != "none")
+            {
                 _tabs[_currentTab].Tab.SetActive(false);
+                _tabs[_currentTab].TabColorHandler.UnlockSelectedColor(); 
+            }
 
             _tabs[tabName].Tab.SetActive(true);
+            _tabs[tabName].TabColorHandler.LockSelectedColor();
             _currentTab = tabName;
-
-            //TODO - change colors of tab buttons
         }
 
         private class TabInfo 
