@@ -1,10 +1,12 @@
 using UnityEngine;
+using VE2.Core.UI.API;
 
 namespace VE2.Core.Player.Internal
 {
     public class VRCanvasTracker : MonoBehaviour
     {
         [SerializeField] private Transform _cameraTransform; 
+        [SerializeField] private Collider _canvasCollider;
 
         [SerializeField] private float _distanceFromCamera = 1.5f;
         [SerializeField] private float _distanceTolerance = 0.2f; // Tolerance in meters.
@@ -23,6 +25,21 @@ namespace VE2.Core.Player.Internal
 
         private Vector3 targetLocalPosition;
         private Quaternion targetLocalRotation;
+        private IPrimaryUIService _primaryUIService;
+
+        private void Awake()
+        {
+            _primaryUIService = UIAPI.PrimaryUIService;
+            if (_primaryUIService != null)
+            {
+                _primaryUIService.OnUIShow += HandlePrimaryUIShown;
+                _primaryUIService.OnUIHide += HandlePrimaryUIHidden;
+            }
+            else 
+            {
+                HandlePrimaryUIHidden();
+            }
+        }
 
         void Update()
         {
@@ -87,6 +104,16 @@ namespace VE2.Core.Player.Internal
             transform.SetLocalPositionAndRotation(
                 Vector3.Lerp(transform.localPosition, targetLocalPosition, Time.deltaTime * _moveSpeed), 
                 Quaternion.Slerp(transform.localRotation, targetLocalRotation, Time.deltaTime * _moveSpeed));
+        }
+
+        private void HandlePrimaryUIShown() 
+        {
+            _canvasCollider.enabled = true;
+        }
+
+        private void HandlePrimaryUIHidden() 
+        {
+            _canvasCollider.enabled = false;
         }
     }
 }

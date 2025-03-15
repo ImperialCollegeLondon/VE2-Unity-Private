@@ -42,6 +42,7 @@ namespace VE2.Core.Player.Internal
         //That suggests we probably want this in a base class? Think about refactoring
         private readonly IPrimaryUIService _primaryUIService; //Secondary lives on the hands
         private readonly Canvas _primaryUICanvas;
+        private Collider _primaryUICollider;
 
         internal PlayerControllerVR(InteractorContainer interactorContainer, PlayerVRInputContainer playerVRInputContainer, IPlayerPersistentDataHandler playerSettingsHandler, PlayerVRControlConfig controlConfig, 
             IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper, ILocalClientIDProvider localClientIDProvider, IPrimaryUIService primaryUIService, ISecondaryUIService secondaryUIService)
@@ -149,7 +150,7 @@ namespace VE2.Core.Player.Internal
             _xrManagerSettingsWrapper.StartSubsystems(); 
         }
 
-        public void HandleLocalAvatarColorChanged(Color newColor)
+        internal void HandleLocalAvatarColorChanged(Color newColor)
         {
             _handControllerLeft.HandleLocalAvatarColorChanged(newColor);
             _handControllerRight.HandleLocalAvatarColorChanged(newColor);

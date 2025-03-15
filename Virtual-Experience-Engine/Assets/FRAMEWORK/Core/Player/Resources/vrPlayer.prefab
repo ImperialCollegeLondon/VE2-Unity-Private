@@ -100,6 +100,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _cameraTransform: {fileID: 292132094415373342}
+  _canvasCollider: {fileID: 295431133941835490}
   _distanceFromCamera: 1.7
   _distanceTolerance: 0.2
   _verticalOffset: -0.085
