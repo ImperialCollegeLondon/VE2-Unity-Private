@@ -40,7 +40,7 @@ namespace VE2.Core.Player.Internal
 
         public override void HandleOnDisable()
         {
-            base.HandleOnEnable();
+            base.HandleOnDisable();
             _collisionDetector.OnCollideStart += HandleCollideStart;
             _collisionDetector.OnCollideEnd += HandleCollideEnd;
         }
