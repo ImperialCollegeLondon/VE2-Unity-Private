@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
 using VE2.Core.Player.API;
 using VE2.Core.UI.API;
 
@@ -41,7 +43,11 @@ namespace VE2.Core.UI.Internal
 
             if (_primaryUIService == null && _enablePrimaryUI)
             {
-                _primaryUIService = new PrimaryUIService(PlayerAPI.InputHandler.ToggleMenu);
+                InputSystemUIInputModule inputSystemUIInputModule = FindFirstObjectByType<InputSystemUIInputModule>();
+                if (inputSystemUIInputModule == null)
+                    inputSystemUIInputModule = new GameObject("InputSystemUIInputModule").AddComponent<InputSystemUIInputModule>();
+
+                _primaryUIService = new PrimaryUIService(PlayerAPI.InputHandler.ToggleMenu, inputSystemUIInputModule);
             };
 
             return; //TODO

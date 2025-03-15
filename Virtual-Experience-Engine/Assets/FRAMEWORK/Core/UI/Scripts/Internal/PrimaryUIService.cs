@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.InputSystem.UI;
 using VE2.Core.Common;
 using VE2.Core.Player.API;
 using VE2.Core.UI.API;
@@ -46,18 +47,19 @@ namespace VE2.Core.UI.Internal
         #endregion
 
         private readonly IPressableInput _onToggleUIPressed;
-        private readonly EventSystem _eventSystem;
+        private readonly InputSystemUIInputModule _UIInputModule;
 
         private readonly GameObject _primaryUIHolderGameObject;
         private readonly GameObject _primaryUIGameObject;
         private readonly CenterPanelHandler _centerPanelHandler;
 
-        public PrimaryUIService(IPressableInput onToggleUIPressed, EventSystem eventSystem)
+        public PrimaryUIService(IPressableInput onToggleUIPressed, InputSystemUIInputModule uiInputModule)
         {
             _onToggleUIPressed = onToggleUIPressed;
             _onToggleUIPressed.OnPressed += HandleToggleUIPressed;
 
-            _eventSystem = eventSystem;
+            _UIInputModule = uiInputModule;
+            _UIInputModule.cursorLockBehavior = InputSystemUIInputModule.CursorLockBehavior.OutsideScreen;
 
             _primaryUIHolderGameObject = GameObject.Instantiate(Resources.Load<GameObject>("PrimaryUIHolder"));
             GameObject primaryUIGO = _primaryUIHolderGameObject.transform.GetChild(0).gameObject;
