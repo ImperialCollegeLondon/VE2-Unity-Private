@@ -12,9 +12,9 @@ using VE2.Core.UI.API;
 
 namespace VE2.Core.UI.Internal
 {
-    internal class PrimaryUIService : IPrimaryUIService
+    internal class PrimaryUIService : IPrimaryUIServiceInternal
     {
-        #region Interfaces
+        #region Public Interfaces
         public bool IsShowing => _primaryUIGameObject.activeSelf;
         public void ShowUI() 
         {
@@ -46,12 +46,23 @@ namespace VE2.Core.UI.Internal
         public void ShowTab(string tabName) => _centerPanelHandler.OpenTab(tabName);
         #endregion
 
+        #region Internal Interfaces     
+        public void SetPlatformQuickpanel(GameObject platformQuickPanel) 
+        {
+            UIUtils.MovePanelToFillRect(platformQuickPanel.GetComponent<RectTransform>(), _platformQuickPanelHolder.GetComponent<RectTransform>());
+            platformQuickPanel.SetActive(true);
+            _platformPromoPanel.SetActive(false);
+        }
+        #endregion
+
         private readonly IPressableInput _onToggleUIPressed;
         private readonly InputSystemUIInputModule _UIInputModule;
 
         private readonly GameObject _primaryUIHolderGameObject;
         private readonly GameObject _primaryUIGameObject;
-        private readonly CenterPanelHandler _centerPanelHandler;
+        private readonly PrimaryUICenterPanelHandler _centerPanelHandler;
+        private readonly GameObject _platformQuickPanelHolder;
+        private readonly GameObject _platformPromoPanel;
 
         public PrimaryUIService(IPressableInput onToggleUIPressed, InputSystemUIInputModule uiInputModule)
         {
@@ -67,7 +78,9 @@ namespace VE2.Core.UI.Internal
 
             PrimaryUIReferences primaryUIReferences = primaryUIGO.GetComponent<PrimaryUIReferences>();  
             _primaryUIGameObject = primaryUIReferences.PrimaryUI;
-            _centerPanelHandler = new CenterPanelHandler(primaryUIReferences.CenterPanelUIReferences);
+            _centerPanelHandler = new PrimaryUICenterPanelHandler(primaryUIReferences.CenterPanelUIReferences);
+            _platformQuickPanelHolder = primaryUIReferences.PlatformQuickPanelHolder;
+            _platformPromoPanel = primaryUIReferences.PlatformPromoPanel;
 
             primaryUIReferences.CloseButton.onClick.AddListener(HandleCloseButtonPressed);
         }
@@ -94,116 +107,5 @@ namespace VE2.Core.UI.Internal
         {
             _onToggleUIPressed.OnPressed -= HandleToggleUIPressed;
         }
-    }
-
-    internal class CenterPanelHandler 
-    {
-        private readonly HorizontalLayoutGroup TabLayoutGroup;
-        private readonly GameObject TabPrefab;
-        private readonly RectTransform MainContentPanel;
-
-        private readonly Dictionary<string, TabInfo> _tabs = new();
-
-        private string _currentTab = "none";
-
-        public void AddNewTab(string tabName, GameObject newTab, Sprite icon, int targetIndex)
-        {
-            if (_tabs.ContainsKey(tabName))
-            {
-                Debug.LogError("Tab with name " + tabName + " already exists");
-                return;
-            }
-
-            //Move the panel into its new holder
-            UIUtils.MovePanelToFillRect(newTab.GetComponent<RectTransform>(), MainContentPanel);
-            newTab.SetActive(false);
-
-            //Calculate the closest available index for the new tab, will be targetIndex if available
-            int[] usedTabIndices = _tabs.Values.Select(tab => tab.Index).ToArray();
-            int closestAvailableIndex = -1; 
-
-            if (!usedTabIndices.Contains(targetIndex))
-            {
-                closestAvailableIndex = targetIndex;
-            }
-            else 
-            {
-                foreach (int usedIndex in usedTabIndices)
-                {
-                    if (usedTabIndices.Contains(usedIndex + 1))
-                    {
-                        closestAvailableIndex = usedIndex + 1;
-                        break;
-                    }
-                }
-            }
-
-            //Create the button for the tab ===
-            GameObject newTabButton = GameObject.Instantiate(TabPrefab, TabLayoutGroup.transform); 
-            newTabButton.name = $"{tabName} Tab Button";
-            newTabButton.GetComponentInChildren<TMP_Text>().text = tabName;
-            newTabButton.GetComponent<Button>().onClick.AddListener(() => 
-            {
-                OpenTab(tabName);
-                EventSystem.current.SetSelectedGameObject(null);
-            });
-            
-            Image buttonSubImage = newTabButton.GetComponentsInChildren<Image>(true)
-                .FirstOrDefault(img => img.gameObject != newTabButton);
-            buttonSubImage.sprite = icon;
-
-            V_UIColorHandler tabColorHandler = newTabButton.GetComponent<V_UIColorHandler>();
-            tabColorHandler.Setup(); //Starts inactive, so can't rely on Awake
-
-            //Create a TabInfo to store ===
-            TabInfo newTabInfo = new TabInfo(closestAvailableIndex, newTab, newTabButton, tabColorHandler);    
-            _tabs.Add(tabName, newTabInfo);
-            
-            //Reshuffle tab buttons - Loop through tabs in ascending order, setting their position in the layout group ===
-            TabInfo[] tabsByIndex = _tabs.Values.OrderBy(tab => tab.Index).ToArray(); 
-            foreach (TabInfo tab in tabsByIndex)
-                tab.TabButton.transform.SetSiblingIndex(tab.Index);
-
-            //Open the tab if it is the only one ===
-            if (_tabs.Values.Count == 1)
-               OpenTab(tabName);
-        }
-
-
-        internal CenterPanelHandler(CenterPanelUIReferences centerPanelUIReferences)
-        {
-            TabLayoutGroup = centerPanelUIReferences.TabLayoutGroup;
-            TabPrefab = centerPanelUIReferences.TabPrefab;
-            MainContentPanel = centerPanelUIReferences.MainContentPanel;
-        }
-
-        internal void OpenTab(string tabName)
-        {
-            if (_currentTab != "none")
-            {
-                _tabs[_currentTab].Tab.SetActive(false);
-                _tabs[_currentTab].TabColorHandler.UnlockSelectedColor(); 
-            }
-
-            _tabs[tabName].Tab.SetActive(true);
-            _tabs[tabName].TabColorHandler.LockSelectedColor();
-            _currentTab = tabName;
-        }
-
-        private class TabInfo 
-        {
-            public readonly int Index;
-            public readonly GameObject Tab;
-            public readonly GameObject TabButton;
-            public readonly V_UIColorHandler TabColorHandler;
-
-            public TabInfo(int index, GameObject tab, GameObject tabButton, V_UIColorHandler tabColorHandler)
-            {
-                Index = index;
-                Tab = tab;
-                TabButton = tabButton;
-                TabColorHandler = tabColorHandler;
-            }
-        }  
     }
 }

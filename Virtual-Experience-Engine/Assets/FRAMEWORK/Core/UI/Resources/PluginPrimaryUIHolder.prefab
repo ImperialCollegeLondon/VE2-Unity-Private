@@ -90,7 +90,6 @@ GameObject:
   - component: {fileID: 7833368062282062534}
   - component: {fileID: 1691822830291129200}
   - component: {fileID: 8236570160856748871}
-  - component: {fileID: 2533204792732271257}
   m_Layer: 5
   m_Name: PluginPrimaryUIHolder
   m_TagString: Untagged
@@ -163,7 +162,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &7833368062282062534
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -219,20 +218,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &2533204792732271257
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6409910089842888121}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 21ec275ee4cea234ab1db20e232c84d0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _colorType: 3
-  _buttonType: 0
 --- !u!1 &7314413490725695370
 GameObject:
   m_ObjectHideFlags: 0

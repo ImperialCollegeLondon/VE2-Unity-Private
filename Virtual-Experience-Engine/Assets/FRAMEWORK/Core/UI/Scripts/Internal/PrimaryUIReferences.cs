@@ -11,6 +11,9 @@ namespace VE2.Core.UI.Internal
         [IgnoreParent] public CenterPanelUIReferences CenterPanelUIReferences;
 
         public Button CloseButton;
+
+        public GameObject PlatformQuickPanelHolder;
+        public GameObject PlatformPromoPanel;
     }
 }
 

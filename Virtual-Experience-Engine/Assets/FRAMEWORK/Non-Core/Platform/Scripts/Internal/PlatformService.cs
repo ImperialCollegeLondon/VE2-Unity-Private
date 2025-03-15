@@ -22,7 +22,7 @@ namespace VE2.NonCore.Platform.Internal
             PlatformCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
             IPlayerServiceInternal playerService = PlayerAPI.Player as IPlayerServiceInternal;
             PluginLoader pluginLoader = new PluginLoader(platformSettingsHandler, playerService);
-            return new PlatformService(commsHandler, pluginLoader, playerService, platformSettingsHandler);
+            return new PlatformService(commsHandler, pluginLoader, playerService, platformSettingsHandler, UIAPI.PrimaryUIService as IPrimaryUIServiceInternal);
         }
     }
 
@@ -121,7 +121,7 @@ namespace VE2.NonCore.Platform.Internal
         private readonly IPlayerServiceInternal _playerService;
         private readonly IPlatformSettingsHandler _platformSettingsHandler;
 
-        internal PlatformService(IPlatformCommsHandler commsHandler, PluginLoader pluginLoader, IPlayerServiceInternal playerService, IPlatformSettingsHandler platformSettingsHandler)
+        internal PlatformService(IPlatformCommsHandler commsHandler, PluginLoader pluginLoader, IPlayerServiceInternal playerService, IPlatformSettingsHandler platformSettingsHandler, IPrimaryUIServiceInternal primaryUIService)
         {
             _commsHandler = commsHandler;
             _pluginLoader = pluginLoader;
@@ -135,14 +135,22 @@ namespace VE2.NonCore.Platform.Internal
             commsHandler.OnReceiveServerRegistrationConfirmation += HandleReceiveServerRegistrationResponse;
             commsHandler.OnReceiveGlobalInfoUpdate += HandleReceiveGlobalInfoUpdate;
 
-            if (UIAPI.PrimaryUIService != null)
+            if (primaryUIService != null)
             {
+                //Player browser=====
                 GameObject playerBrowserUIHolder = GameObject.Instantiate(Resources.Load<GameObject>("PlatformPlayerBrowserUIHolder"));
                 GameObject playerBrowserUI = playerBrowserUIHolder.transform.GetChild(0).gameObject;
                 playerBrowserUI.SetActive(false);
             
-                UIAPI.PrimaryUIService.AddNewTab("Players", playerBrowserUI, Resources.Load<Sprite>("PlatformPlayerBrowserUIICon"), 1);
+                primaryUIService.AddNewTab("Players", playerBrowserUI, Resources.Load<Sprite>("PlatformPlayerBrowserUIICon"), 1);
                 GameObject.Destroy(playerBrowserUIHolder);   
+
+                //Quick panel=====
+                GameObject platformQuickPanelUIHolder = GameObject.Instantiate(Resources.Load<GameObject>("PlatformQuickUIPanelHolder"));
+                GameObject platformQuickPanelUI = platformQuickPanelUIHolder.transform.GetChild(0).gameObject;
+
+                primaryUIService.SetPlatformQuickpanel(platformQuickPanelUI);
+                GameObject.Destroy(platformQuickPanelUIHolder);
             }
         }
 
