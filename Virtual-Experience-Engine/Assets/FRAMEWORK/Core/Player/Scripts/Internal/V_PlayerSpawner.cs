@@ -106,7 +106,7 @@ namespace VE2.Core.Player.Internal
                 xrManagerWrapper = new GameObject("XRManagerWrapper").AddComponent<XRManagerWrapper>();
 
             //May be null if UIs aren't available
-            IPrimaryUIService primaryUIService = UIAPI.PrimaryUIService;
+            IPrimaryUIServiceInternal primaryUIService = UIAPI.PrimaryUIService as IPrimaryUIServiceInternal;
             ISecondaryUIService secondaryUIService = UIAPI.SecondaryUIService;
 
             _playerService = VE2PlayerServiceFactory.Create(

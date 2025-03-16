@@ -120,7 +120,7 @@ namespace VE2.Core.Player.Internal
         internal void HandlePrimaryUIActivated() 
         {
             _overlayUI.SetActive(false);
-            _playerLocomotor2D.HandleOnDisable();
+            _playerLocomotor2D.HandleOnDisable(); 
             _interactor2D.HandleOnDisable(); //TODO - we don't want to drop grabbables 
         }
 

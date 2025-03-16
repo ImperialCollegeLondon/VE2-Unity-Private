@@ -9,14 +9,15 @@ using UnityEngine.InputSystem.UI;
 using VE2.Core.Common;
 using VE2.Core.Player.API;
 using VE2.Core.UI.API;
+using UnityEngine.SceneManagement;
 
 namespace VE2.Core.UI.Internal
 {
-    internal class PrimaryUIService : IPrimaryUIServiceInternal
+    internal class PrimaryUIService : IPrimaryUIServiceInternal //Acts as the "Controller" for the PrimaryUI Views 
     {
         #region Public Interfaces
         public bool IsShowing => _primaryUIGameObject.activeSelf;
-        public void ShowUI() 
+        public void ShowUI() //TODO - cursor locking should move into the player
         {
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
@@ -41,18 +42,29 @@ namespace VE2.Core.UI.Internal
                 GameObject.Destroy(_primaryUIHolderGameObject);
         }
 
-        public void AddNewTab(string tabName, GameObject tab, Sprite icon, int targetIndex) => _centerPanelHandler.AddNewTab(tabName, tab, icon, targetIndex);
+        public void AddNewTab(string tabName, GameObject tab, Sprite icon, int targetIndex) => _centerPanelView.AddNewTab(tabName, tab, icon, targetIndex);
 
-        public void ShowTab(string tabName) => _centerPanelHandler.OpenTab(tabName);
+        public void ShowTab(string tabName) => _centerPanelView.OpenTab(tabName);
         #endregion
 
         #region Internal Interfaces     
-        public void SetPlatformQuickpanel(GameObject platformQuickPanel) 
+        public void EnableModeSwitchButtons() => _utilsPanelView.EnableModeSwitchButtons();
+        public void ShowSwitchToVRButton() => _utilsPanelView.ShowSwitchToVRButton();
+        public void ShowSwitchTo2DButton() => _utilsPanelView.ShowSwitchTo2DButton();
+
+        public event Action OnSwitchTo2DButtonClicked
         {
-            UIUtils.MovePanelToFillRect(platformQuickPanel.GetComponent<RectTransform>(), _platformQuickPanelHolder.GetComponent<RectTransform>());
-            platformQuickPanel.SetActive(true);
-            _platformPromoPanel.SetActive(false);
+            add => _utilsPanelView.OnSwitchTo2DButtonClicked += value;
+            remove => _utilsPanelView.OnSwitchTo2DButtonClicked -= value;
         }
+
+        public event Action OnSwitchToVRButtonClicked
+        {
+            add => _utilsPanelView.OnSwitchToVRButtonClicked += value;
+            remove => _utilsPanelView.OnSwitchToVRButtonClicked -= value;
+        }
+
+        public void SetPlatformQuickpanel(GameObject platformQuickPanel) => _quickPanelView.SetPlatformQuickpanel(platformQuickPanel);
         #endregion
 
         private readonly IPressableInput _onToggleUIPressed;
@@ -60,9 +72,11 @@ namespace VE2.Core.UI.Internal
 
         private readonly GameObject _primaryUIHolderGameObject;
         private readonly GameObject _primaryUIGameObject;
-        private readonly PrimaryUICenterPanelHandler _centerPanelHandler;
-        private readonly GameObject _platformQuickPanelHolder;
-        private readonly GameObject _platformPromoPanel;
+
+        private readonly PrimaryUITopBarView _topBarView;
+        private readonly PrimaryUICenterPanelView _centerPanelView;
+        private readonly PrimaryUIQuickPanelView _quickPanelView;
+        private readonly PrimaryUIUtilsPanelView _utilsPanelView;
 
         public PrimaryUIService(IPressableInput onToggleUIPressed, InputSystemUIInputModule uiInputModule)
         {
@@ -73,16 +87,19 @@ namespace VE2.Core.UI.Internal
             _UIInputModule.cursorLockBehavior = InputSystemUIInputModule.CursorLockBehavior.OutsideScreen;
 
             _primaryUIHolderGameObject = GameObject.Instantiate(Resources.Load<GameObject>("PrimaryUIHolder"));
-            GameObject primaryUIGO = _primaryUIHolderGameObject.transform.GetChild(0).gameObject;
-            primaryUIGO.SetActive(false);
+            _primaryUIGameObject = _primaryUIHolderGameObject.transform.GetChild(0).gameObject;
+            _primaryUIGameObject.SetActive(false);
 
-            PrimaryUIReferences primaryUIReferences = primaryUIGO.GetComponent<PrimaryUIReferences>();  
-            _primaryUIGameObject = primaryUIReferences.PrimaryUI;
-            _centerPanelHandler = new PrimaryUICenterPanelHandler(primaryUIReferences.CenterPanelUIReferences);
-            _platformQuickPanelHolder = primaryUIReferences.PlatformQuickPanelHolder;
-            _platformPromoPanel = primaryUIReferences.PlatformPromoPanel;
+            _topBarView = _primaryUIGameObject.GetComponentInChildren<PrimaryUITopBarView>();
+            _topBarView.OnCloseButtonClicked += HideUI;
+            _topBarView.TitleText = SceneManager.GetActiveScene().name;
+            _topBarView.SubtitleText = "Solo Play";
 
-            primaryUIReferences.CloseButton.onClick.AddListener(HandleCloseButtonPressed);
+            _centerPanelView = _primaryUIGameObject.GetComponentInChildren<PrimaryUICenterPanelView>();
+            _quickPanelView = _primaryUIGameObject.GetComponentInChildren<PrimaryUIQuickPanelView>();
+
+            _utilsPanelView = _primaryUIGameObject.GetComponentInChildren<PrimaryUIUtilsPanelView>();
+            _utilsPanelView.OnQuitButtonClicked += HandleQuitButtonPressed;
         }
 
         internal void HandleUpdate() 
@@ -98,9 +115,17 @@ namespace VE2.Core.UI.Internal
                 ShowUI();
         }
 
-        private void HandleCloseButtonPressed()
+        private void HandleQuitButtonPressed()
         {
-            HideUI();
+            #if UNITY_EDITOR
+            if (Application.isEditor)
+            {
+                UnityEditor.EditorApplication.isPlaying = false;
+                return;
+            }
+            #endif
+
+            Application.Quit();
         }
 
         internal void TearDown()

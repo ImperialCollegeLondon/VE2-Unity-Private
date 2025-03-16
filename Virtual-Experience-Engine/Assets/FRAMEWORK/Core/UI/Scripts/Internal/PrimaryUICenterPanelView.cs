@@ -7,11 +7,11 @@ using UnityEngine.UI;
 
 namespace VE2.Core.UI.Internal
 {
-    internal class PrimaryUICenterPanelHandler 
+    internal class PrimaryUICenterPanelView : MonoBehaviour
     {
-        private readonly HorizontalLayoutGroup TabLayoutGroup;
-        private readonly GameObject TabPrefab;
-        private readonly RectTransform MainContentPanel;
+        [SerializeField] private HorizontalLayoutGroup _tabLayoutGroup;
+        [SerializeField] private GameObject _TabPrefab;
+        [SerializeField] private RectTransform _MainContentPanel;
 
         private readonly Dictionary<string, TabInfo> _tabs = new();
 
@@ -26,7 +26,7 @@ namespace VE2.Core.UI.Internal
             }
 
             //Move the panel into its new holder
-            UIUtils.MovePanelToFillRect(newTab.GetComponent<RectTransform>(), MainContentPanel);
+            UIUtils.MovePanelToFillRect(newTab.GetComponent<RectTransform>(), _MainContentPanel);
             newTab.SetActive(false);
 
             //Calculate the closest available index for the new tab, will be targetIndex if available
@@ -50,7 +50,7 @@ namespace VE2.Core.UI.Internal
             }
 
             //Create the button for the tab ===
-            GameObject newTabButton = GameObject.Instantiate(TabPrefab, TabLayoutGroup.transform); 
+            GameObject newTabButton = GameObject.Instantiate(_TabPrefab, _tabLayoutGroup.transform); 
             newTabButton.name = $"{tabName} Tab Button";
             newTabButton.GetComponentInChildren<TMP_Text>().text = tabName;
             newTabButton.GetComponent<Button>().onClick.AddListener(() => 
@@ -78,14 +78,6 @@ namespace VE2.Core.UI.Internal
             //Open the tab if it is the only one ===
             if (_tabs.Values.Count == 1)
                OpenTab(tabName);
-        }
-
-
-        internal PrimaryUICenterPanelHandler(CenterPanelUIReferences centerPanelUIReferences)
-        {
-            TabLayoutGroup = centerPanelUIReferences.TabLayoutGroup;
-            TabPrefab = centerPanelUIReferences.TabPrefab;
-            MainContentPanel = centerPanelUIReferences.MainContentPanel;
         }
 
         internal void OpenTab(string tabName)

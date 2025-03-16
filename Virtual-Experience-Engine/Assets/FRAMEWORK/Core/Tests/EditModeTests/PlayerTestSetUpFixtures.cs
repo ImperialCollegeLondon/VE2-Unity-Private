@@ -204,7 +204,7 @@ namespace VE2.Core.Tests
                 PlayerInputContainerSetup.PlayerInputContainerStub,
                 RayCastProviderSetup.RaycastProviderStub, 
                 Substitute.For<IXRManagerWrapper>(),
-                Substitute.For<IPrimaryUIService>(),
+                Substitute.For<IPrimaryUIServiceInternal>(),
                 Substitute.For<ISecondaryUIService>()
             );
         }
