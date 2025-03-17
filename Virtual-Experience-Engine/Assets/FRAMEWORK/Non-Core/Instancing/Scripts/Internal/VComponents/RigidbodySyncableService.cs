@@ -214,9 +214,9 @@ namespace VE2.NonCore.Instancing.Internal
             else if (!_stateModule.IsHost)
             {
 
-                if (receivedState.GrabID != _grabID)
+                if (receivedState.GrabID != _grabID || !receivedState.FromHost)
                 {
-                    // Ignore all states from before the latest grab
+                    // Ignore all states from before the latest grab, or from another non host
                     return;
                 }
 
