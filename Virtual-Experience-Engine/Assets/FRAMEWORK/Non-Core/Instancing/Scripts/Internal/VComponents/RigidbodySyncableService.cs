@@ -36,6 +36,7 @@ namespace VE2.NonCore.Instancing.Internal
 
         private bool _hostNotSendingStates = false;
         private bool _nonHostSimulating = false;
+        private ushort? _currentGrabberID;
 
         private uint _grabID = 0;
 
@@ -66,6 +67,7 @@ namespace VE2.NonCore.Instancing.Internal
         private void HandleOnGrab(ushort grabberClientID)
         {
             _grabID++;
+            _currentGrabberID = grabberClientID;
 
             if (_stateModule.IsHost)
             {
@@ -85,6 +87,8 @@ namespace VE2.NonCore.Instancing.Internal
 
         private void HandleOnDrop(ushort grabberClientID)
         {
+            _currentGrabberID = null;
+
             if (_instanceService.LocalClientID == grabberClientID)
             {
                 if (_stateModule.IsHost)
@@ -168,7 +172,15 @@ namespace VE2.NonCore.Instancing.Internal
         {
             // Find out who the new host is!
             if (_stateModule.IsHost)
-            {   
+            {
+                _rigidbody.isKinematic = _isKinematicOnStart;
+
+                // No longer non-host, return to default
+                _nonHostSimulating = false;
+                // If someone is grabbing, don't send states. Otherwise, start sending states
+                _hostNotSendingStates = (_currentGrabberID != null);
+
+
                 if (_receivedRigidbodyStates.Count >= 2)
                 {
                     // Calculate RB velocities, which we take to be the most recent we received for now
@@ -176,20 +188,14 @@ namespace VE2.NonCore.Instancing.Internal
                     Vector3 linearVelocity = GetVelocityFromStates(latestStates);
                     Vector3 angularVelocity = GetAngularVelocityFromStates(latestStates);
 
-                    _rigidbody.isKinematic = _isKinematicOnStart;
                     SetRigidbodyValues(latestStates.next.Position, latestStates.next.Rotation, linearVelocity, angularVelocity);
                 }
                 else if (_receivedRigidbodyStates.Count == 1)
                 {
                     // If we have fewer states, we have yet to receive many states and can't assume a velocity
-                    // Revert isKinematic
-                    _rigidbody.isKinematic = _isKinematicOnStart;
                     SetRigidbodyValues(_receivedRigidbodyStates[0].Position, _receivedRigidbodyStates[0].Rotation);
                 }
-                else
-                {
-                    _rigidbody.isKinematic = _isKinematicOnStart;
-                }
+
             }
 
             _receivedRigidbodyStates.Clear();
