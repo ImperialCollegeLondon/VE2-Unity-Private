@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 using UnityEngine;
+using UnityEngine.UIElements;
 using VE2.Core.VComponents.API;
 using VE2.NonCore.Instancing.API;
 using static VE2.Core.Common.CommonSerializables;
@@ -36,6 +37,11 @@ namespace VE2.NonCore.Instancing.Internal
 
         private bool _hostNotSendingStates = false;
         private bool _nonHostSimulating = false;
+
+        private readonly int NUM_SMOOTHING_FRAMES = 50;
+        private int _nonHostSmoothingFramesLeft = 0;
+
+
         private ushort? _currentGrabberID;
 
         private uint _grabID = 0;
@@ -89,18 +95,21 @@ namespace VE2.NonCore.Instancing.Internal
         {
             _currentGrabberID = null;
 
-            if (_instanceService.LocalClientID == grabberClientID)
+            if (_stateModule.IsHost && _instanceService.LocalClientID == grabberClientID)
             {
-                if (_stateModule.IsHost)
-                {
-                    // Host who dropped immediately starts sending messages again
-                    _hostNotSendingStates = false;
-                }
-                else
-                {
-                    // Non host dropper sends state to host
-                    _stateModule.SetStateFromNonHost(Time.fixedTime, _rigidbody.position, _rigidbody.rotation, _grabID, _instanceService.Ping, _rigidbody.linearVelocity, _rigidbody.angularVelocity);
-                }
+                // Host who dropped immediately starts sending messages again
+                _hostNotSendingStates = false;
+            }
+            else if (_instanceService.LocalClientID == grabberClientID)
+            {
+                // Non host dropper sends state to host
+                _stateModule.SetStateFromNonHost(Time.fixedTime, _rigidbody.position, _rigidbody.rotation, _grabID, _instanceService.Ping, _rigidbody.linearVelocity, _rigidbody.angularVelocity);
+            }
+            else
+            {
+                // Non Host non dropper needs to prep smoothing frames
+                _nonHostSmoothingFramesLeft = NUM_SMOOTHING_FRAMES;
+                Debug.Log($"Set number of smoothing frames left to {_nonHostSmoothingFramesLeft}");
             }
         }
 
@@ -180,6 +189,8 @@ namespace VE2.NonCore.Instancing.Internal
                 // If someone is grabbing, don't send states. Otherwise, start sending states
                 _hostNotSendingStates = (_currentGrabberID != null);
 
+                // If the change happened while non-dropper non-host smoothing, make sure to reset this value
+                _nonHostSmoothingFramesLeft = 0;
 
                 if (_receivedRigidbodyStates.Count >= 2)
                 {
@@ -228,7 +239,7 @@ namespace VE2.NonCore.Instancing.Internal
 
                 if (_receivedRigidbodyStates.Count == 0)
                 {
-                    // When we start receiving rigidbody states again, we stop doing our own simulation
+                    // When we start receiving rigidbody states again
                     _nonHostSimulating = false;
                     _isKinematicOnStart = _rigidbody.isKinematic;
                     _rigidbody.isKinematic = true;
@@ -289,9 +300,23 @@ namespace VE2.NonCore.Instancing.Internal
                 // Calculate interpolation parameter
                 float lerpParameter = InverseLerpUnclamped(previousState.FixedTime, nextState.FixedTime, delayedLocalTime);
 
+                // Find new position and rotation for object based on interpolation
+                Vector3 newPosition = Vector3.Lerp(previousState.Position, nextState.Position, lerpParameter);
+                Quaternion newRotation = Quaternion.Slerp(previousState.Rotation, nextState.Rotation, lerpParameter);
+
+                // If non host is smoothing, we have another interpolation step to perform
+                if (_nonHostSmoothingFramesLeft > 0)
+                {
+                    float smoothingParameter = 1 - (float)_nonHostSmoothingFramesLeft / NUM_SMOOTHING_FRAMES;
+
+                    newPosition = Vector3.Lerp(_rigidbody.position, newPosition, smoothingParameter);
+                    newRotation = Quaternion.Slerp(_rigidbody.rotation, newRotation, smoothingParameter);
+
+                    _nonHostSmoothingFramesLeft--;
+                }
+
                 // Do the interpolation
-                SetRigidbodyValues(Vector3.Lerp(previousState.Position, nextState.Position, lerpParameter),
-                    Quaternion.Slerp(previousState.Rotation, nextState.Rotation, lerpParameter));
+                SetRigidbodyValues(newPosition, newRotation);
 
                 if (_config.DrawInterpolationLines)
                 {
