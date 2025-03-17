@@ -34,8 +34,10 @@ namespace VE2.NonCore.Instancing.Internal
         private readonly float _timeBehind = 0.04f;
         private readonly float _lagCompensationAdditionalTime = 0.4f;
 
-        private bool _isGrabbed = false;
-        private bool _recentlyDropped = false;
+        private bool _hostNotSendingStates = false;
+        private bool _nonHostSimulating = false;
+
+        private uint _grabID = 0;
 
         public RigidbodySyncableService(RigidbodySyncableStateConfig config, VE2Serializable state, string id, IWorldStateSyncService worldStateSyncService, IInstanceService instanceService, IRigidbodyWrapper rigidbodyWrapper, IGrabbableRigidbody grabbableRigidbody)
         {
@@ -63,15 +65,19 @@ namespace VE2.NonCore.Instancing.Internal
 
         private void HandleOnGrab(ushort grabberClientID)
         {
-            _isGrabbed = true;
+            _grabID++;
 
-            if (!_stateModule.IsHost)
+            if (_stateModule.IsHost)
             {
-                _receivedRigidbodyStates.Clear();
+                // Host stops sending states, store kinematic state
+                _hostNotSendingStates = true;
+                _isKinematicOnStart = _rigidbody.isKinematic;
             }
             else
             {
-                _isKinematicOnStart = _rigidbody.isKinematic;
+                // Non host starts simulating for themselves, removes old states
+                _nonHostSimulating = true;
+                _receivedRigidbodyStates.Clear();
             }
 
             _rigidbody.isKinematic = false;
@@ -79,20 +85,24 @@ namespace VE2.NonCore.Instancing.Internal
 
         private void HandleOnDrop(ushort grabberClientID)
         {
-            _isGrabbed = false;
-
-            // Non hosts use this flag to continue simulating for themselves until they receive states from the host
-            _recentlyDropped = true;
-
             if (_instanceService.LocalClientID == grabberClientID)
             {
-                _stateModule.SetStateFromNonHost(Time.fixedTime, _rigidbody.position, _rigidbody.rotation, _instanceService.Ping, _rigidbody.linearVelocity, _rigidbody.angularVelocity);
+                if (_stateModule.IsHost)
+                {
+                    // Host who dropped immediately starts sending messages again
+                    _hostNotSendingStates = false;
+                }
+                else
+                {
+                    // Non host dropper sends state to host
+                    _stateModule.SetStateFromNonHost(Time.fixedTime, _rigidbody.position, _rigidbody.rotation, _grabID, _instanceService.Ping, _rigidbody.linearVelocity, _rigidbody.angularVelocity);
+                }
             }
-
         }
 
         private void PerformLagCompensationForDroppedGrabbable(float roundTripTimeNonHost)
         {
+
             // Make all rigidbodys in the scene, apart from this one, kinematic
             Dictionary<IRigidbodyWrapper, bool> kinematicStates = new();
 
@@ -121,29 +131,27 @@ namespace VE2.NonCore.Instancing.Internal
 
             foreach (KeyValuePair<IRigidbodyWrapper, bool> kinematicState in kinematicStates) //Unlock the RBs that we just locked
                 kinematicState.Key.isKinematic = kinematicState.Value;
-
-            
         }
 
         public void HandleFixedUpdate()
         {
             _stateModule.HandleFixedUpdate();
 
-            if (_stateModule.IsHost && !_isGrabbed)
+            // Hosts send states on FixedUpdate when hostNotSendingStates flag is false
+            if (_stateModule.IsHost && !_hostNotSendingStates)
             {
                 if (_config.LogSendReceiveDebugMessages)
                 { 
-                    Debug.Log($"Setting state fixed time {Time.fixedTime}, position {_rigidbody.position}, rotation {_rigidbody.rotation}");
+                    Debug.Log($"Setting state fixed time {Time.fixedTime}, position {_rigidbody.position}, rotation {_rigidbody.rotation}, grabID {_grabID}");
                 }
-                _stateModule.SetStateFromHost(Time.fixedTime, _rigidbody.position, _rigidbody.rotation);
+                _stateModule.SetStateFromHost(Time.fixedTime, _rigidbody.position, _rigidbody.rotation, _grabID);
             }
-
         }
 
         public void HandleUpdate()
         {
-
-            if (!_stateModule.IsHost && !_isGrabbed && !_recentlyDropped)
+            // Non host interpolates on Update when not simulating for themselves
+            if (!_stateModule.IsHost && !_nonHostSimulating)
             {
                 InterpolateRigidbody();
             }
@@ -192,35 +200,36 @@ namespace VE2.NonCore.Instancing.Internal
         {
             if (_config.LogSendReceiveDebugMessages)
             {
-                Debug.Log($"Received state from host {receivedState.FromHost}, fixed time {receivedState.FixedTime}, position {receivedState.Position}, rotation {receivedState.Rotation}");
+                Debug.Log($"Received state from host {receivedState.FromHost}, fixed time {receivedState.FixedTime}, position {receivedState.Position}, rotation {receivedState.Rotation}, grabID {_grabID}");
             }
 
             if (_stateModule.IsHost)
             {
-                // Infer that this is a drop message
+                // If a host receives a state, can we assume it's a drop state?
                 _rigidbody.isKinematic = _isKinematicOnStart;
                 SetRigidbodyValuesFromDrop(receivedState);
                 PerformLagCompensationForDroppedGrabbable(receivedState.LatestRoundTripTime);
+                _hostNotSendingStates = false;
             } 
             else if (!_stateModule.IsHost)
             {
-                if (_isGrabbed)
+
+                if (receivedState.GrabID != _grabID)
                 {
-                    // Throw away any received states while grabbing
+                    // Ignore all states from before the latest grab
                     return;
                 }
 
-                // When we start receiving rigidbody states again, we stop doing our own simulation
-                _recentlyDropped = false;
-
                 if (_receivedRigidbodyStates.Count == 0)
                 {
+                    // When we start receiving rigidbody states again, we stop doing our own simulation
+                    _nonHostSimulating = false;
                     _isKinematicOnStart = _rigidbody.isKinematic;
                     _rigidbody.isKinematic = true;
                     _timeDifferenceFromHost = receivedState.FixedTime - Time.fixedTime;
                 }
-                    
-                AddReceivedStateToHistory(new(receivedState.FixedTime, receivedState.Position, receivedState.Rotation));
+
+                AddReceivedStateToHistory(new(receivedState.FixedTime, receivedState.Position, receivedState.Rotation, receivedState.GrabID));
             }
         }
 
@@ -232,7 +241,7 @@ namespace VE2.NonCore.Instancing.Internal
                 Debug.DrawLine(_rigidbody.position, _rigidbody.position + Vector3.Cross(_rigidbody.linearVelocity, Vector3.up).normalized / 5, Color.green, 20f);
             }
 
-                int index = _receivedRigidbodyStates.FindIndex(rbState => rbState.FixedTime > newState.FixedTime);
+            int index = _receivedRigidbodyStates.FindIndex(rbState => rbState.FixedTime > newState.FixedTime);
 
             if (index == -1)
             {

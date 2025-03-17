@@ -57,20 +57,22 @@ namespace VE2.NonCore.Instancing.Internal
             }
         }
 
-        public void SetStateFromHost(float fixedTime, Vector3 position, Quaternion rotation)
+        public void SetStateFromHost(float fixedTime, Vector3 position, Quaternion rotation, uint grabID)
         {
             _state.FromHost = true;
             _state.FixedTime = fixedTime;
             _state.Position = position;
             _state.Rotation = rotation;
+            _state.GrabID = grabID;
         }
 
-        public void SetStateFromNonHost(float fixedTime, Vector3 position, Quaternion rotation, float latestPing, Vector3 velocity, Vector3 angularVelocity)
+        public void SetStateFromNonHost(float fixedTime, Vector3 position, Quaternion rotation, uint grabID, float latestPing, Vector3 velocity, Vector3 angularVelocity)
         {
             _state.FromHost = false;
             _state.FixedTime = fixedTime;
             _state.Position = position;
             _state.Rotation = rotation;
+            _state.GrabID = grabID;
             _state.LatestRoundTripTime = latestPing;
             _state.Velocity = velocity;
             _state.AngularVelocity = angularVelocity;
@@ -92,6 +94,8 @@ namespace VE2.NonCore.Instancing.Internal
         public Vector3 Position { get; set; }
         public Quaternion Rotation { get; set; }
 
+        public uint GrabID;
+
         // Non host sends ping on drop for smoothing purposes
 
         public float LatestRoundTripTime;
@@ -103,23 +107,26 @@ namespace VE2.NonCore.Instancing.Internal
         {
             Position = new();
             Rotation = new();
+            GrabID = 0;
         }
 
-        public RigidbodySyncableState(float fixedTime, Vector3 position, Quaternion rotation)
+        public RigidbodySyncableState(float fixedTime, Vector3 position, Quaternion rotation, uint grabID)
         {
             FromHost = true;
             FixedTime = fixedTime;
             Position = position;
             Rotation = rotation;
+            GrabID = grabID;
         }
 
         // Non host constructor
-        public RigidbodySyncableState(float fixedTime, Vector3 position, Quaternion rotation, float ping, Vector3 velocity, Vector3 angularVelocity)
+        public RigidbodySyncableState(float fixedTime, Vector3 position, Quaternion rotation, uint grabID, float ping, Vector3 velocity, Vector3 angularVelocity)
         {
             FromHost = false;
             FixedTime = fixedTime;
             Position = position;
             Rotation = rotation;
+            GrabID = grabID;
             LatestRoundTripTime = ping;
             Velocity = velocity;
             AngularVelocity = angularVelocity;
@@ -134,6 +141,7 @@ namespace VE2.NonCore.Instancing.Internal
             writer.Write(FixedTime);
             WriteVector3(writer, Position);
             WriteQuaternion(writer, Rotation);
+            writer.Write(GrabID);
 
             if (!FromHost)
             {
@@ -155,6 +163,7 @@ namespace VE2.NonCore.Instancing.Internal
             FixedTime = reader.ReadSingle();
             Position = ReadVector3(reader);
             Rotation = ReadQuaternion(reader);
+            GrabID = reader.ReadUInt32();
 
             if (!FromHost)
             {
