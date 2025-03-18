@@ -21,11 +21,13 @@ namespace VE2.Core.UI.Internal
 
         private void OnEnable()
         {
-            _pluginSecondaryUIHolder.SetActive(true);
-
             if (!Application.isPlaying)
+            {
+                _pluginSecondaryUIHolder.SetActive(true);
                 return;
+            }
 
+            _pluginSecondaryUIHolder.SetActive(false);
             GameObject pluginSecondaryUI = _pluginSecondaryUIHolder.transform.GetChild(0).gameObject;
 
             if (UIAPI.SecondaryUIService != null)

@@ -35,10 +35,8 @@ namespace VE2.Core.Player.Internal
                 _primaryUIService.OnUIShow += HandlePrimaryUIShown;
                 _primaryUIService.OnUIHide += HandlePrimaryUIHidden;
             }
-            else 
-            {
-                HandlePrimaryUIHidden();
-            }
+
+            _canvasCollider.enabled = false;
         }
 
         void Update()

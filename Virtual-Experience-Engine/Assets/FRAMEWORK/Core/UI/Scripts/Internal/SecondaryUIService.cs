@@ -13,6 +13,7 @@ namespace VE2.Core.UI.Internal
         public void MoveSecondaryUIToHolderRect(RectTransform rect)
         {
             UIUtils.MovePanelToFillRect(_secondaryUIGameObject.GetComponent<RectTransform>(), rect);
+            _secondaryUIGameObject.SetActive(true);
 
             if (_secondaryUIHolderGameObject != null)
                 GameObject.Destroy(_secondaryUIHolderGameObject);
@@ -27,7 +28,7 @@ namespace VE2.Core.UI.Internal
         {
             _secondaryUIHolderGameObject = GameObject.Instantiate(Resources.Load<GameObject>("SecondaryUIHolder"));
             _secondaryUIGameObject = _secondaryUIHolderGameObject.transform.GetChild(0).gameObject;
-            _secondaryUIGameObject.SetActive(true);
+            _secondaryUIGameObject.SetActive(false);
 
             _secondaryUIView = _secondaryUIGameObject.GetComponent<SecondaryUIView>();
         }

@@ -15,6 +15,9 @@ namespace VE2.Core.Player.Internal
         public DragLocomotorReferences LocomotorVRReferences => _locomotorVRReferences;
         [SerializeField] private DragLocomotorReferences _locomotorVRReferences;
 
+        public WristUIReferences WristUIReferences => _wristUIReferences;
+        [SerializeField] private WristUIReferences _wristUIReferences;
+
         //TODO: AnimationController?
         //TODO: Tooltips? 
     }
@@ -46,5 +49,15 @@ namespace VE2.Core.Player.Internal
 
         public GameObject SphereDragIcon => _sphereDragIcon;
         [SerializeField, IgnoreParent] public GameObject _sphereDragIcon;
+    }
+
+    [Serializable]
+    public class WristUIReferences
+    {
+        public Canvas WristUIHolder => _wristUIHolder;
+        [SerializeField] private Canvas _wristUIHolder;
+
+        public GameObject Indicator => _indicator;
+        [SerializeField] private GameObject _indicator;
     }
 }

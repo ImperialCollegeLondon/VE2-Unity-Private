@@ -19,9 +19,12 @@ namespace VE2.Core.Player.Internal
         private readonly DragLocomotor _dragLocomotor;
         private readonly SnapTurn _snapTurn;
         private readonly Teleport _teleport;
+        private readonly WristUIHandler _wristUIHandler;
+
         private List<Material> _colorMaterials = new();
 
-        public V_HandController(GameObject handGO, HandVRInputContainer handVRInputContainer, InteractorVR interactor, DragLocomotor dragLocomotor, SnapTurn snapTurn, Teleport teleport)
+        public V_HandController(GameObject handGO, HandVRInputContainer handVRInputContainer, InteractorVR interactor, 
+            DragLocomotor dragLocomotor, SnapTurn snapTurn, Teleport teleport, WristUIHandler wristUIHandler)
         {
             _handGO = handGO;
 
@@ -34,6 +37,7 @@ namespace VE2.Core.Player.Internal
             _dragLocomotor = dragLocomotor;
             _snapTurn = snapTurn;
             _teleport = teleport;
+            _wristUIHandler = wristUIHandler;
         }
 
         public void HandleOnEnable()
@@ -67,6 +71,7 @@ namespace VE2.Core.Player.Internal
             _dragLocomotor.HandleUpdate();
             _snapTurn.HandleUpdate();
             _teleport.HandleUpdate();
+            _wristUIHandler.HandleUpdate();
         }
 
         public void HandleLocalAvatarColorChanged(Color newColor)
