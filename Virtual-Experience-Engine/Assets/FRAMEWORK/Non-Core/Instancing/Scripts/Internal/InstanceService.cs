@@ -43,6 +43,7 @@ namespace VE2.NonCore.Instancing.Internal
         public void ConnectToInstance() => ConnectToServer();
         public void DisconnectFromInstance() => DisconnectFromServer();
         public bool IsHost => _instanceInfoContainer.IsHost;
+        public ushort HostID => _instanceInfoContainer.HostID;
 
         public event Action<ushort> OnHostChanged;
         public event Action<int> OnPingUpdate { add => _pingSyncer.OnPingUpdate += value; remove => _pingSyncer.OnPingUpdate -= value; }
@@ -293,6 +294,7 @@ namespace VE2.NonCore.Instancing.Internal
         public ushort LocalClientID { get => LocalClientIdWrapper.LocalClientID; set => LocalClientIdWrapper.LocalClientID = value; }
 
         public bool IsHost => InstanceInfo == null || InstanceInfo.HostID == LocalClientID;
+        public ushort HostID => InstanceInfo.HostID;
 
         public event Action<InstancedInstanceInfo> OnInstanceInfoChanged;
         private InstancedInstanceInfo _instanceInfo = null;

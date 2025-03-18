@@ -7,6 +7,7 @@ namespace VE2.NonCore.Instancing.API
         public ushort LocalClientID { get; }
 
         public bool IsHost { get; }
+        public ushort HostID { get; }
         public event Action<ushort> OnHostChanged; //TODO - maybe also want some convenient OnBecomeHost and OnLostHost?
 
         public bool IsConnectedToServer { get; }

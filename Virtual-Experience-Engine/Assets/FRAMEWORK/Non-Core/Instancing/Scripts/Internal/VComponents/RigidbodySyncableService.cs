@@ -105,9 +105,9 @@ namespace VE2.NonCore.Instancing.Internal
                 // Non host dropper sends state to host
                 _stateModule.SetStateFromNonHost(Time.fixedTime, _rigidbody.position, _rigidbody.rotation, _grabID, _instanceService.Ping, _rigidbody.linearVelocity, _rigidbody.angularVelocity);
             }
-            else
+            else if (!_stateModule.IsHost && _instanceService.HostID != grabberClientID)
             {
-                // Non Host non dropper needs to prep smoothing frames
+                // Non Host non dropper, when another non-host drops, needs to do smoothing
                 _nonHostSmoothingFramesLeft = NUM_SMOOTHING_FRAMES;
                 Debug.Log($"Set number of smoothing frames left to {_nonHostSmoothingFramesLeft}");
             }
