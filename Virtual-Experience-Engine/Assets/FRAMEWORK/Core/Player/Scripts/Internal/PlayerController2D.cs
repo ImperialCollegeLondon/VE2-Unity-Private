@@ -76,7 +76,6 @@ namespace VE2.Core.Player.Internal
             _playerLocomotor2D.HandleOnEnable();
 
             _interactor2D.GrabberTransform.SetLocalPositionAndRotation(initTransformData.Hand2DLocalPosition, initTransformData.Hand2DLocalRotation);
-            _interactor2D.HeldActivatableIDs = initTransformData.HeldActivatableIds2D;
             _interactor2D.HandleOnEnable();
         }
 

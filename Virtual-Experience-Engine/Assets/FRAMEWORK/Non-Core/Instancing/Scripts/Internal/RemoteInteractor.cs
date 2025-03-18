@@ -32,9 +32,9 @@ namespace VE2.NonCore.Instancing.Internal
 
         public void RemoveFromHeldActivatableIDs(string activatableID)
         {
-            _heldActivatableIDs.Remove(activatableID);
             var rangedClickInteractable = GetRangedClickInteractionModule(activatableID);
             rangedClickInteractable?.ClickUp(_interactorID);
+            _heldActivatableIDs.Remove(activatableID);
         }
 
         public IRangedClickInteractionModule GetRangedClickInteractionModule(string activatableID)
@@ -45,7 +45,7 @@ namespace VE2.NonCore.Instancing.Internal
                 GameObject activatableObject = GameObject.Find(cleanID);
 
                 if (activatableObject != null)
-                    return activatableObject.GetComponent<IRangedClickInteractionModule>();
+                    return activatableObject.GetComponent<IV_HoldActivatable>()._RangedClickModule;
                 else
                     return null;
             }
