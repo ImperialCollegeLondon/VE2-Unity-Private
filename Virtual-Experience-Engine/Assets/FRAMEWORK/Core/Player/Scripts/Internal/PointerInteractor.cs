@@ -93,6 +93,8 @@ namespace VE2.Core.Player.Internal
             _interactorInputContainer.ScrollTickUp.OnTickOver += HandleScrollUp;
             _interactorInputContainer.ScrollTickDown.OnTickOver += HandleScrollDown;
 
+            _heldActivatableIDs = new();
+
             if (_WaitingForLocalClientID)
                 _localClientIDProvider.OnClientIDReady += HandleLocalClientIDReady;
             else
@@ -107,6 +109,8 @@ namespace VE2.Core.Player.Internal
             _interactorInputContainer.Grab.OnPressed -= HandleGrabPressed;
             _interactorInputContainer.ScrollTickUp.OnTickOver -= HandleScrollUp;
             _interactorInputContainer.ScrollTickDown.OnTickOver -= HandleScrollDown;
+
+            _heldActivatableIDs = new();
 
             if (_localClientIDProvider != null)
                 _localClientIDProvider.OnClientIDReady -= HandleLocalClientIDReady;
@@ -216,7 +220,7 @@ namespace VE2.Core.Player.Internal
                 rangedClickInteractable.ClickDown(_InteractorID);
                 _CurrentRangedClickInteractable = rangedClickInteractable;
                 _heldActivatableIDs.Add(rangedClickInteractable.ID);
-                Debug.Log(_heldActivatableIDs.Count);
+                Debug.Log("Ranged handheld: " + HeldActivatableIDs.Count);
             }
             else if (raycastResultWrapper.HitUI && raycastResultWrapper.UIButton.IsInteractable())
             {
@@ -234,7 +238,7 @@ namespace VE2.Core.Player.Internal
                 _CurrentRangedClickInteractable.ClickUp(_InteractorID);
                 _heldActivatableIDs.Remove(_CurrentRangedClickInteractable.ID);
                 _CurrentRangedClickInteractable = null;
-                Debug.Log(_heldActivatableIDs.Count);
+                Debug.Log("Ranged handheld: " + HeldActivatableIDs.Count);
             }
         }
 

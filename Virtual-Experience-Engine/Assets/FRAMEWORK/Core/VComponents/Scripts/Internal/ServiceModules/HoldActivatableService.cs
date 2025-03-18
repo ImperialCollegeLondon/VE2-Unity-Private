@@ -31,7 +31,7 @@ namespace VE2.Core.VComponents.Internal
         {
             _StateModule = new(state, config.StateConfig, id);
             _RangedClickInteractionModule = new(config.RangedInteractionConfig, config.GeneralInteractionConfig, id);
-            _ColliderInteractionModule = new(config.GeneralInteractionConfig);
+            _ColliderInteractionModule = new(config.GeneralInteractionConfig, id);
 
             _RangedClickInteractionModule.OnClickDown += AddToInteractingInteractors;
             _RangedClickInteractionModule.OnClickUp += RemoveFromInteractingInteractors;

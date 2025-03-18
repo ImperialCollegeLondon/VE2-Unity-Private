@@ -37,7 +37,7 @@ namespace VE2.Core.Player.Internal
         private readonly Transform _rootTransform;
         private readonly Transform _verticalOffsetTransform;
         private readonly Transform _headTransform;
-        //private InteractorVR _interactorVR;
+        private InteractorVR _interactorVR;
 
         private readonly V_HandController _handControllerLeft;
         private readonly V_HandController _handControllerRight;
@@ -77,7 +77,7 @@ namespace VE2.Core.Player.Internal
             V_HandVRReferences thisHandVRReferences = handGO.GetComponent<V_HandVRReferences>();
             V_HandVRReferences otherHandVRReferences = otherHandGO.GetComponent<V_HandVRReferences>();
 
-            InteractorVR interactorVR = new(
+            _interactorVR = new(
                 interactorContainer, handVRInputContainer.InteractorVRInputContainer,
                 thisHandVRReferences.InteractorVRReferences,
                 interactorType, raycastProvider, multiplayerSupport, thisHandGrabbableWrapper);
@@ -95,7 +95,7 @@ namespace VE2.Core.Player.Internal
             Teleport teleport = new(
                 handVRInputContainer.TeleportInputContainer,
                 _rootTransform, thisHandVRReferences.InteractorVRReferences.RayOrigin, otherHandVRReferences.InteractorVRReferences.RayOrigin, thisHandGrabbableWrapper, otherHandGrabbableWrapper);
-            return new V_HandController(handGO, handVRInputContainer, interactorVR, dragLocomotor, snapTurn, teleport, interactorVR.HeldActivatableIDs);
+            return new V_HandController(handGO, handVRInputContainer, _interactorVR, dragLocomotor, snapTurn, teleport);
         }
 
         public void ActivatePlayer(PlayerTransformData initTransformData)

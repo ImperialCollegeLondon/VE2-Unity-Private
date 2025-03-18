@@ -48,13 +48,21 @@ namespace VE2.Core.Player.Internal
         private void HandleCollideStart(ICollideInteractionModule collideInteractionModule)
         {
             if (!_WaitingForLocalClientID && !collideInteractionModule.AdminOnly)
+            {
                 collideInteractionModule.InvokeOnCollideEnter(_InteractorID);
+                HeldActivatableIDs.Add(collideInteractionModule.ID);
+                Debug.Log("Collided HeldActivatableIDs: " + HeldActivatableIDs.Count);
+            }
         }
 
         private void HandleCollideEnd(ICollideInteractionModule collideInteractionModule)
         {
             if (!_WaitingForLocalClientID && !collideInteractionModule.AdminOnly)
+            {
                 collideInteractionModule.InvokeOnCollideExit(_InteractorID);
+                HeldActivatableIDs.Remove(collideInteractionModule.ID);
+                Debug.Log("Collided HeldActivatableIDs: " + HeldActivatableIDs.Count);
+            }
         }
 
         protected override void HandleRaycastDistance(float distance)
