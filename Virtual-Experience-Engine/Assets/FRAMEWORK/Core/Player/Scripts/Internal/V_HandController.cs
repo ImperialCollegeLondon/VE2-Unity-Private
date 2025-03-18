@@ -68,8 +68,6 @@ namespace VE2.Core.Player.Internal
             _dragLocomotor.HandleUpdate();
             _snapTurn.HandleUpdate();
             _teleport.HandleUpdate();
-
-            Debug.Log("Controller HeldActivatableIDs: " + _interactor.HeldActivatableIDs.Count);
         }
 
         public void HandleLocalAvatarColorChanged(Color newColor)

@@ -129,8 +129,6 @@ namespace VE2.Core.Player.API
                 writer.Write(HandVRRightLocalRotation.z);
                 writer.Write(HandVRRightLocalRotation.w);
 
-                Debug.Log("Writing held activatable ids: " + HeldActivatableIdsVRLeft.Count + " " + HeldActivatableIdsVRRight.Count);
-
                 foreach (string activatableID in HeldActivatableIdsVRLeft)
                     writer.Write(activatableID);
 

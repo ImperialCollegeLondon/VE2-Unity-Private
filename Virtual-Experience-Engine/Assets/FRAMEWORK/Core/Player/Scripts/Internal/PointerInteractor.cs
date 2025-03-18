@@ -221,7 +221,6 @@ namespace VE2.Core.Player.Internal
                 rangedClickInteractable.ClickDown(_InteractorID);
                 _CurrentRangedClickInteractable = rangedClickInteractable;
                 _heldActivatableIDs.Add(rangedClickInteractable.ID);
-                Debug.Log("Ranged handheld: " + HeldActivatableIDs.Count);
             }
             else if (raycastResultWrapper.HitUI && raycastResultWrapper.UIButton.IsInteractable())
             {
@@ -239,7 +238,6 @@ namespace VE2.Core.Player.Internal
                 _CurrentRangedClickInteractable.ClickUp(_InteractorID);
                 _heldActivatableIDs.Remove(_CurrentRangedClickInteractable.ID);
                 _CurrentRangedClickInteractable = null;
-                Debug.Log("Ranged handheld: " + HeldActivatableIDs.Count);
             }
         }
 

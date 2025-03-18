@@ -51,7 +51,6 @@ namespace VE2.Core.Player.Internal
             {
                 collideInteractionModule.InvokeOnCollideEnter(_InteractorID);
                 HeldActivatableIDs.Add(collideInteractionModule.ID);
-                Debug.Log("Collided HeldActivatableIDs: " + HeldActivatableIDs.Count);
             }
         }
 
@@ -61,7 +60,6 @@ namespace VE2.Core.Player.Internal
             {
                 collideInteractionModule.InvokeOnCollideExit(_InteractorID);
                 HeldActivatableIDs.Remove(collideInteractionModule.ID);
-                Debug.Log("Collided HeldActivatableIDs: " + HeldActivatableIDs.Count);
             }
         }
 
