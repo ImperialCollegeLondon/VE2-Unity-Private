@@ -228,10 +228,16 @@ namespace VE2.NonCore.Instancing.Internal
                 PerformLagCompensationForDroppedGrabbable(receivedState.LatestRoundTripTime);
                 _hostNotSendingStates = false;
             } 
-            else if (!_stateModule.IsHost)
+            else if (!_stateModule.IsHost && receivedState.FromHost)
             {
 
-                if (receivedState.GrabID != _grabID || !receivedState.FromHost)
+                if (receivedState.GrabID > _grabID)
+                {
+                    // We are behind grab IDs - likely because we joined the scene after grabs happened - better catch up
+                    _grabID = receivedState.GrabID;
+                }
+
+                if (receivedState.GrabID != _grabID)
                 {
                     // Ignore all states from before the latest grab, or from another non host
                     return;
