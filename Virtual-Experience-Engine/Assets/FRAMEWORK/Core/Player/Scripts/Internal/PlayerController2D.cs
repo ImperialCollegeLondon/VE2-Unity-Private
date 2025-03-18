@@ -28,7 +28,8 @@ namespace VE2.Core.Player.Internal
                     headPosition: _playerLocomotor2D.HeadLocalPosition,
                     headRotation: _playerLocomotor2D.HeadLocalRotation,
                     hand2DPosition: _interactor2D.GrabberTransform.localPosition, 
-                    hand2DRotation: _interactor2D.GrabberTransform.localRotation
+                    hand2DRotation: _interactor2D.GrabberTransform.localRotation,
+                    activatableIDs2D: _interactor2D.HeldActivatableIDs
                 );
             }
         }
@@ -55,6 +56,8 @@ namespace VE2.Core.Player.Internal
                 interactorContainer, player2DInputContainer.InteractorInputContainer2D,
                 player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, multiplayerSupport);
 
+            Debug.Log("Player2DReferences: " + _interactor2D.HeldActivatableIDs);
+
             _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences);
             
             //TODO: think about inspect mode, does that live in the interactor, or the player controller?
@@ -73,6 +76,7 @@ namespace VE2.Core.Player.Internal
             _playerLocomotor2D.HandleOnEnable();
 
             _interactor2D.GrabberTransform.SetLocalPositionAndRotation(initTransformData.Hand2DLocalPosition, initTransformData.Hand2DLocalRotation);
+            _interactor2D.HeldActivatableIDs = initTransformData.HeldActivatableIds2D;
             _interactor2D.HandleOnEnable();
         }
 
@@ -89,6 +93,7 @@ namespace VE2.Core.Player.Internal
         {
             _playerLocomotor2D.HandleUpdate();
             _interactor2D.HandleUpdate();
+            //Debug.Log("Player2DReferences: " + _interactor2D.HeldActivatableIDs.Count);
         }
     }
 }

@@ -80,14 +80,14 @@ public class PluginTest : MonoBehaviour
 
         public void OnHoldButtonActivate()
     {
-        ushort clientID = _holdActivatable.MostRecentInteractingClientID;
-        Debug.Log("Button activated! ");
-        Debug.Log($"Button state = {_holdActivatable.IsActivated}");
+        // ushort clientID = _holdActivatable.MostRecentInteractingClientID;
+        // Debug.Log("Button activated! ");
+        // Debug.Log($"Button state = {_holdActivatable.IsActivated}");
 
-        if (clientID != ushort.MaxValue) 
-            Debug.Log($"Activate by... {clientID}");
+        // if (clientID != ushort.MaxValue) 
+        //     Debug.Log($"Activate by... {clientID}");
 
-        Debug.Log($"Current Interacting Clients: {_holdActivatable.CurrentlyInteractingClientIDs.Count}");
+        // Debug.Log($"Current Interacting Clients: {_holdActivatable.CurrentlyInteractingClientIDs.Count}");
 
         _holdLightOn.SetActive(true);
         _holdLightOff.SetActive(false);
@@ -96,9 +96,9 @@ public class PluginTest : MonoBehaviour
 
     public void OnHoldButtonDeactivate()
     {
-        Debug.Log("Button deactivated!");
-        Debug.Log($"Button state = {_holdActivatable.IsActivated}");
-        Debug.Log($"Current Interacting Clients: {_holdActivatable.CurrentlyInteractingClientIDs.Count}");
+        // Debug.Log("Button deactivated!");
+        // Debug.Log($"Button state = {_holdActivatable.IsActivated}");
+        // Debug.Log($"Current Interacting Clients: {_holdActivatable.CurrentlyInteractingClientIDs.Count}");
 
         _holdLightOn.SetActive(false);
         _holdLightOff.SetActive(true);

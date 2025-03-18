@@ -32,7 +32,7 @@ namespace VE2.Core.VComponents.Internal
         public ToggleActivatableService(ToggleActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncService worldStateSyncService)
         {
             _StateModule = new(state, config.StateConfig, id, worldStateSyncService);
-            _RangedClickInteractionModule = new(config.RangedInteractionConfig, config.GeneralInteractionConfig);
+            _RangedClickInteractionModule = new(config.RangedInteractionConfig, config.GeneralInteractionConfig, id);
             _ColliderInteractionModule = new(config.GeneralInteractionConfig);
 
             _RangedClickInteractionModule.OnClickDown += HandleInteract;

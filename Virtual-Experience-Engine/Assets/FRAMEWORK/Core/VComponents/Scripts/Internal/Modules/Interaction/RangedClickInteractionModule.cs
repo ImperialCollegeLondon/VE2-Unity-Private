@@ -17,10 +17,14 @@ namespace VE2.Core.VComponents.Internal
             //only happens if is valid click
             OnClickUp?.Invoke(interactorID);
         }
+        public string ID { get; }
 
         public event Action<InteractorID> OnClickDown;
         public event Action<InteractorID> OnClickUp;
 
-        public RangedClickInteractionModule(RangedInteractionConfig rangedConfig, GeneralInteractionConfig generalConfig) : base(rangedConfig, generalConfig) { }  
+        public RangedClickInteractionModule(RangedInteractionConfig rangedConfig, GeneralInteractionConfig generalConfig, string id) : base(rangedConfig, generalConfig) 
+        {
+            ID = id;
+        }  
     }
 }

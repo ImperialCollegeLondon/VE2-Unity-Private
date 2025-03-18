@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using VE2.Core.Player.API;
@@ -36,15 +37,18 @@ namespace VE2.Core.Player.Internal
     internal abstract class PointerInteractor : IInteractor
     {
         public Transform GrabberTransform => _GrabberTransform;
+        public List<string> HeldActivatableIDs {get => _heldActivatableIDs; set => _heldActivatableIDs = value; }
 
         protected bool IsCurrentlyGrabbing => _CurrentGrabbingGrabbable != null;
         private ushort _localClientID => _localClientIDProvider == null ? (ushort)0 : _localClientIDProvider.LocalClientID;
         protected InteractorID _InteractorID => new(_localClientID, _InteractorType);
         protected bool _WaitingForLocalClientID => _localClientIDProvider != null && !_localClientIDProvider.IsClientIDReady;
+        protected List<string> _heldActivatableIDs = new();
 
         protected const float MAX_RAYCAST_DISTANCE = 10;
         protected IRangedGrabInteractionModule _CurrentGrabbingGrabbable;
         protected IRangedClickInteractionModule _CurrentRangedClickInteractable;
+        
 
         private GameObject lastHoveredUIObject = null; // Keep track of the last hovered UI object
 
@@ -55,7 +59,6 @@ namespace VE2.Core.Player.Internal
         protected readonly Transform _RayOrigin;
         private readonly LayerMask _layerMask;
         private readonly StringWrapper _raycastHitDebug;
-
 
         private readonly InteractorType _InteractorType;
         private readonly IRaycastProvider _RaycastProvider;
@@ -212,6 +215,8 @@ namespace VE2.Core.Player.Internal
             {
                 rangedClickInteractable.ClickDown(_InteractorID);
                 _CurrentRangedClickInteractable = rangedClickInteractable;
+                _heldActivatableIDs.Add(rangedClickInteractable.ID);
+                Debug.Log(_heldActivatableIDs.Count);
             }
             else if (raycastResultWrapper.HitUI && raycastResultWrapper.UIButton.IsInteractable())
             {
@@ -227,7 +232,9 @@ namespace VE2.Core.Player.Internal
             if (_CurrentRangedClickInteractable != null)
             {
                 _CurrentRangedClickInteractable.ClickUp(_InteractorID);
+                _heldActivatableIDs.Remove(_CurrentRangedClickInteractable.ID);
                 _CurrentRangedClickInteractable = null;
+                Debug.Log(_heldActivatableIDs.Count);
             }
         }
 

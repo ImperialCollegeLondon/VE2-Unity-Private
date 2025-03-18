@@ -35,13 +35,15 @@ namespace VE2.Core.VComponents.Internal
 
         private MultiInteractorActivatableState _state = null;
         private HoldActivatableStateConfig _config = null;
+        private string _id = null;
 
         private InteractorID _mostRecentInteractingInteractorID = new(ushort.MaxValue, InteractorType.None);
 
-        public MultiInteractorActivatableStateModule(MultiInteractorActivatableState state, HoldActivatableStateConfig config)
+        public MultiInteractorActivatableStateModule(MultiInteractorActivatableState state, HoldActivatableStateConfig config, string id)
         {
             _state = state;
             _config = config;
+            _id = id;
         }
 
         public void UpdateState(InteractorID interactorId)

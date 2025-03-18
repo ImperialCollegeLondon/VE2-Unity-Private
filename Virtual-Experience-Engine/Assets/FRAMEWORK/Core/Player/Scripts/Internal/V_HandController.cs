@@ -11,6 +11,7 @@ namespace VE2.Core.Player.Internal
         public Transform GrabberTransform => _interactor.GrabberTransform;
 
         internal Transform Transform => _handGO.transform;
+        internal List<string> HeldActivatableIDs => _heldActivatableIDs;
 
         private readonly GameObject _handGO;
         private readonly IValueInput<Vector3> _positionInput;
@@ -20,8 +21,9 @@ namespace VE2.Core.Player.Internal
         private readonly SnapTurn _snapTurn;
         private readonly Teleport _teleport;
         private List<Material> _colorMaterials = new();
+        private List<string> _heldActivatableIDs = new();
 
-        public V_HandController(GameObject handGO, HandVRInputContainer handVRInputContainer, InteractorVR interactor, DragLocomotor dragLocomotor, SnapTurn snapTurn, Teleport teleport)
+        public V_HandController(GameObject handGO, HandVRInputContainer handVRInputContainer, InteractorVR interactor, DragLocomotor dragLocomotor, SnapTurn snapTurn, Teleport teleport, List<string> heldActivatableIDs)
         {
             _handGO = handGO;
 
@@ -34,6 +36,7 @@ namespace VE2.Core.Player.Internal
             _dragLocomotor = dragLocomotor;
             _snapTurn = snapTurn;
             _teleport = teleport;
+            _heldActivatableIDs = heldActivatableIDs;
         }
 
         public void HandleOnEnable()

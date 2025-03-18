@@ -85,10 +85,37 @@ namespace VE2.NonCore.Instancing.Internal
             {
                 _interactorVRLeftGameObject.transform.SetLocalPositionAndRotation(playerState.HandVRLeftLocalPosition, playerState.HandVRLeftLocalRotation);
                 _interactorVRRightGameObject.transform.SetLocalPositionAndRotation(playerState.HandVRRightLocalPosition, playerState.HandVRRightLocalRotation);
+
+                foreach (var receivedActivatableID in playerState.HeldActivatableIdsVRLeft)
+                    if (!_interactorVRLeftGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs.Contains(receivedActivatableID))
+                        _interactorVRLeftGameObject.GetComponent<RemoteInteractor>().AddToHeldActivatableIDs(receivedActivatableID);
+
+                foreach(var localActivatableID in _interactorVRLeftGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs)
+                    if (!playerState.HeldActivatableIdsVRLeft.Contains(localActivatableID))
+                        _interactorVRLeftGameObject.GetComponent<RemoteInteractor>().RemoveFromHeldActivatableIDs(localActivatableID);
+
+
+                foreach (var receivedActivatableID in playerState.HeldActivatableIdsVRRight)
+                    if (!_interactorVRRightGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs.Contains(receivedActivatableID))
+                        _interactorVRRightGameObject.GetComponent<RemoteInteractor>().AddToHeldActivatableIDs(receivedActivatableID);
+
+                foreach(var localActivatableID in _interactorVRRightGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs)
+                    if (!playerState.HeldActivatableIdsVRRight.Contains(localActivatableID))
+                        _interactorVRRightGameObject.GetComponent<RemoteInteractor>().RemoveFromHeldActivatableIDs(localActivatableID);
             }
             else 
             {
                 _interactor2DGameObject.transform.SetLocalPositionAndRotation(playerState.Hand2DLocalPosition, playerState.Hand2DLocalRotation);
+
+                //Debug.Log("receiving Player2DReferences: " + playerState.HeldActivatableIds2D.Count);
+
+                foreach (var receivedActivatableID in playerState.HeldActivatableIds2D)
+                    if (!_interactor2DGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs.Contains(receivedActivatableID))
+                        Debug.Log("Adding " + receivedActivatableID + " to " + _interactor2DGameObject.name);
+                
+                foreach(var localActivatableID in _interactor2DGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs)
+                    if (!playerState.HeldActivatableIds2D.Contains(localActivatableID))
+                        _interactor2DGameObject.GetComponent<RemoteInteractor>().RemoveFromHeldActivatableIDs(localActivatableID);
             }
         }
 

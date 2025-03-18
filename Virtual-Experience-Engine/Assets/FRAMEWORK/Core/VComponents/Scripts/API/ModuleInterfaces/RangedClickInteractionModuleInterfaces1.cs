@@ -8,5 +8,6 @@ namespace VE2.Core.VComponents.API
     {
         public void ClickDown(InteractorID interactorID);
         public void ClickUp(InteractorID interactorID);
+        public string ID { get; }
     }
 }
