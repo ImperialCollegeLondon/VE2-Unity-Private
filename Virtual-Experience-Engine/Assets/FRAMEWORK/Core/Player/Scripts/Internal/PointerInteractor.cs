@@ -224,8 +224,6 @@ namespace VE2.Core.Player.Internal
             if (_WaitingForLocalClientID || IsCurrentlyGrabbing)
                 return;
 
-            RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
-
             if (_CurrentRangedClickInteractable != null)
             {
                 _CurrentRangedClickInteractable.ClickUp(_InteractorID);

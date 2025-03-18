@@ -114,7 +114,13 @@ namespace VE2.Core.VComponents.Internal
     internal class MultiInteractorActivatableState
     {
         public bool IsActivated { get; set; }
-        public HashSet<InteractorID> InteractingInteractorIds = new();
+        public HashSet<InteractorID> InteractingInteractorIds { get; set; }
+
+        public MultiInteractorActivatableState()
+        {
+            IsActivated = false;
+            InteractingInteractorIds = new HashSet<InteractorID>();
+        }
 
         public List<ushort> GetInteractingClientIDs()
         {
