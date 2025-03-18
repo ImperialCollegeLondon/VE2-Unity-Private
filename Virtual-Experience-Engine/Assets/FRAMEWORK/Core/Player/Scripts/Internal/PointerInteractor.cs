@@ -138,6 +138,7 @@ namespace VE2.Core.Player.Internal
                 if (raycastResultWrapper.RangedInteractable != _CurrentRangedClickInteractable)
                 {
                     _CurrentRangedClickInteractable.ClickUp(_InteractorID);
+                    _heldActivatableIDs.Remove(_CurrentRangedClickInteractable.ID);
                     _CurrentRangedClickInteractable = null;
                 }
             }
