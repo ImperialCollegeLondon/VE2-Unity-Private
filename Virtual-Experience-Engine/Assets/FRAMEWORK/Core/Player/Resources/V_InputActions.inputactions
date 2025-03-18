@@ -472,9 +472,18 @@
             "id": "75f0d35a-4ec0-4947-b080-17366f5c12db",
             "actions": [
                 {
-                    "name": "ToggleMenu",
+                    "name": "TogglePrimaryUI",
                     "type": "Button",
                     "id": "ddeda0b2-6ad7-4ca4-a800-560e5fb7bc17",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ToggleSecondaryUI",
+                    "type": "Button",
+                    "id": "195eabed-6d0f-409e-9209-94d2eefe2810",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -489,7 +498,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "ToggleMenu",
+                    "action": "TogglePrimaryUI",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -500,7 +509,29 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "ToggleMenu",
+                    "action": "TogglePrimaryUI",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "dbd22bee-15b6-44dc-8e0e-429a24b38ea1",
+                    "path": "<Keyboard>/leftAlt",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleSecondaryUI",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a876f9f8-9268-40d6-8a96-65475b296945",
+                    "path": "<Keyboard>/rightAlt",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleSecondaryUI",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

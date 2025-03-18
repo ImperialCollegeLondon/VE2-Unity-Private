@@ -38,6 +38,9 @@ namespace VE2.Core.Player.Internal
 
         internal void HandleUpdate()
         {
+            if (_secondaryUIService == null)
+                return;
+
             //Open canvas if we're looking directly at the indicator
             if (Vector3.Angle(_indicator.transform.up, _playerViewTransform.position - _indicator.transform.position) < (_showAngle * _wristLookPrecision) &&
                 Vector3.Angle(_playerViewTransform.forward, _indicator.transform.position - _playerViewTransform.position) < (22.5f * _wristLookPrecision) /*&&

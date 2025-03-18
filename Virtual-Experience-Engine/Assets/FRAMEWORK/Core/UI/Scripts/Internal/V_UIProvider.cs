@@ -48,12 +48,12 @@ namespace VE2.Core.UI.Internal
                 if (inputSystemUIInputModule == null)
                     inputSystemUIInputModule = new GameObject("InputSystemUIInputModule").AddComponent<InputSystemUIInputModule>();
 
-                _primaryUIService = new PrimaryUIService(PlayerAPI.InputHandler.ToggleMenu, inputSystemUIInputModule);
+                _primaryUIService = new PrimaryUIService(PlayerAPI.InputHandler.TogglePrimaryUI, inputSystemUIInputModule);
             };
 
             if (_secondaryUIService == null && _enableSecondaryUI)
             {                
-                _secondaryUIService = new SecondaryUIService();
+                _secondaryUIService = new SecondaryUIService(PlayerAPI.InputHandler.ToggleSecondaryUI);
             };
         }
 

@@ -30,9 +30,11 @@ namespace VE2.Core.UI.Internal
             _pluginSecondaryUIHolder.SetActive(false);
             GameObject pluginSecondaryUI = _pluginSecondaryUIHolder.transform.GetChild(0).gameObject;
 
-            if (UIAPI.SecondaryUIService != null)
+            ISecondaryUIServiceInternal secondaryUIService = UIAPI.SecondaryUIService as ISecondaryUIServiceInternal;
+
+            if (secondaryUIService != null)
             {
-                UIAPI.SecondaryUIService.SetContent(pluginSecondaryUI.GetComponent<RectTransform>());
+                secondaryUIService.SetContent(pluginSecondaryUI.GetComponent<RectTransform>());
             }
             else 
             {

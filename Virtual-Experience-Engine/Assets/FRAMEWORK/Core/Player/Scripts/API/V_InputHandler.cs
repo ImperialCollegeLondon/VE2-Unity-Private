@@ -405,7 +405,8 @@ namespace VE2.Core.Player.API
     public interface IInputHandler
     {
         public PlayerInputContainer PlayerInputContainer { get; }
-        public IPressableInput ToggleMenu { get; } 
+        public IPressableInput TogglePrimaryUI { get; } 
+        public IPressableInput ToggleSecondaryUI { get; }
     }
 
     //TODO: The actual handler could go into its own assembly... where to draw the line though? Each interface could also go into its own assembly too...
@@ -423,7 +424,7 @@ namespace VE2.Core.Player.API
         }
         
         public IPressableInput _toggleMenu { get; private set; }
-        public IPressableInput ToggleMenu {
+        public IPressableInput TogglePrimaryUI {
             get
             {
                 if (_toggleMenu == null)
@@ -431,6 +432,17 @@ namespace VE2.Core.Player.API
                 return _toggleMenu;
             }
             private set => _toggleMenu = value;
+        }
+
+        public IPressableInput _toggleSecondaryUI { get; private set; }
+        public IPressableInput ToggleSecondaryUI {
+            get
+            {
+                if (_toggleSecondaryUI == null)
+                    CreateInputs();
+                return _toggleSecondaryUI;
+            }
+            private set => _toggleSecondaryUI = value;
         }
 
         //Special cases, need to be updated manually to mimic the mouse scroll wheel notches
@@ -512,7 +524,8 @@ namespace VE2.Core.Player.API
 
             // UI Action Map 
             InputActionMap actionMapUI = inputActionAsset.FindActionMap("InputUI");
-            ToggleMenu = new PressableInput(actionMapUI.FindAction("ToggleMenu"));
+            TogglePrimaryUI = new PressableInput(actionMapUI.FindAction("TogglePrimaryUI"));
+            ToggleSecondaryUI = new PressableInput(actionMapUI.FindAction("ToggleSecondaryUI"));
 
             // VR Stick Press Left Action Map
             InputActionMap actionMapStickPressVRLeft = inputActionAsset.FindActionMap("StickPressVRLeft");

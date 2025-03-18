@@ -98,6 +98,7 @@ namespace VE2.Core.Player.Internal
 
             _primaryUIService?.MovePrimaryUIToHolderRect(_primaryUIHolderRect);
             _secondaryUIService?.MoveSecondaryUIToHolderRect(_secondaryUIHolder);
+            _secondaryUIService?.EnableShowHideKeyboardControl();
         }
 
         internal void DeactivatePlayer() 

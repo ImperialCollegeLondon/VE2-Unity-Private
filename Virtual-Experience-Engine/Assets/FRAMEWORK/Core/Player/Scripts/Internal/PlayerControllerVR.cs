@@ -42,6 +42,7 @@ namespace VE2.Core.Player.Internal
         //That suggests we probably want this in a base class? Think about refactoring
         private readonly IPrimaryUIServiceInternal _primaryUIService; //Secondary lives on the hands
         private readonly RectTransform _primaryUIHolderRect;
+        private readonly ISecondaryUIServiceInternal _secondaryUIService;
 
         internal PlayerControllerVR(InteractorContainer interactorContainer, PlayerVRInputContainer playerVRInputContainer, IPlayerPersistentDataHandler playerSettingsHandler, PlayerVRControlConfig controlConfig, 
             IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper, ILocalClientIDProvider localClientIDProvider, IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService)
@@ -55,10 +56,7 @@ namespace VE2.Core.Player.Internal
             _xrManagerSettingsWrapper = xrManagerSettingsWrapper;
 
             _primaryUIService = primaryUIService;
-            //_primaryUIService.AddNewTab(/*The player settings and player controls*/);
-            //Where do these panels come from? The player service? Or the player controllers?
-            //We do need logic for working out if we should show 2d/vr... but we already have PlayerService looking at those bools...
-            //and is probably easier to not have to pass in the tabs for both players?
+            _secondaryUIService = secondaryUIService;
 
             PlayerVRReferences playerVRReferences = _playerGO.GetComponent<PlayerVRReferences>();
             _rootTransform = playerVRReferences.RootTransform;
@@ -135,6 +133,7 @@ namespace VE2.Core.Player.Internal
             _handControllerRight.HandleOnEnable();
 
             _primaryUIService?.MovePrimaryUIToHolderRect(_primaryUIHolderRect);
+            _secondaryUIService?.DisableShowHideKeyboardControl();
         }
 
         public void DeactivatePlayer()

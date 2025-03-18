@@ -18,10 +18,14 @@ namespace VE2.Core.UI.Internal
             __defaultContent.SetActive(false);
         }
 
+        internal void EnableKeyPrompt() => _controlPromptText.gameObject.SetActive(true);
+        internal void DisableKeyPrompt() => _controlPromptText.gameObject.SetActive(false);
+
+        internal void ToggleBottomPanel() => _bottomPanel.SetActive(!_bottomPanel.activeSelf);
+
         private void Update()
         {
             _clockText.text = System.DateTime.Now.Hour.ToString("D2") + ":" + System.DateTime.Now.Minute.ToString("D2");
-            
         }
     }
 }
