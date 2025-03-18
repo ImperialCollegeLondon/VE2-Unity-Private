@@ -11,14 +11,14 @@ namespace VE2.Core.Player.Internal
         public Locomotor2DReferences Locomotor2DReferences => _locomotor2DReferences;
         [SerializeField, IgnoreParent] private Locomotor2DReferences _locomotor2DReferences;
 
-        public Canvas PrimaryUICanvas => _primaryUICanvas;
-        [SerializeField, IgnoreParent] private Canvas _primaryUICanvas;
+        public RectTransform PrimaryUIHolderRect => _primaryUIHolderRect;
+        [SerializeField, IgnoreParent] private RectTransform _primaryUIHolderRect;
 
         public GameObject OverlayUI => _overlayUI;  
         [SerializeField, IgnoreParent] private GameObject _overlayUI;
 
-        public Canvas SecondaryUICanvas => _secondaryUICanvas;
-        [SerializeField, IgnoreParent] private Canvas _secondaryUICanvas;
+        public RectTransform SecondaryUIHolderRect => _secondaryUIHolderRect;
+        [SerializeField, IgnoreParent] private RectTransform _secondaryUIHolderRect;
     }
 
     [Serializable]

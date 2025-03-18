@@ -3,8 +3,10 @@ using UnityEngine;
 
 namespace VE2.Core.UI.API
 {
-    public interface IPrimaryUIServiceInternal : IPrimaryUIService
+    internal interface IPrimaryUIServiceInternal : IPrimaryUIService
     {
+        public void MovePrimaryUIToHolderRect(RectTransform rect);
+
         public void SetPlatformQuickpanel(GameObject platformQuickPanel);
 
         public event Action OnSwitchTo2DButtonClicked;

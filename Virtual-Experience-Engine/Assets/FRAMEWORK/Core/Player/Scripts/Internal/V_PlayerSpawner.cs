@@ -107,7 +107,7 @@ namespace VE2.Core.Player.Internal
 
             //May be null if UIs aren't available
             IPrimaryUIServiceInternal primaryUIService = UIAPI.PrimaryUIService as IPrimaryUIServiceInternal;
-            ISecondaryUIService secondaryUIService = UIAPI.SecondaryUIService;
+            ISecondaryUIServiceInternal secondaryUIService = UIAPI.SecondaryUIService as ISecondaryUIServiceInternal;
 
             _playerService = VE2PlayerServiceFactory.Create(
                 _playerTransformData, 

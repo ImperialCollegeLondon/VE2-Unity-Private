@@ -13,8 +13,6 @@ namespace VE2.Core.UI.API
         public void HideUI();
         public event Action OnUIHide;
 
-        public void MoveUIToCanvas(Canvas canvas);
-
         /// <summary>
         /// Takes the target index, returns the actual index - the two may differ if another panel got that index first 
         /// </summary>

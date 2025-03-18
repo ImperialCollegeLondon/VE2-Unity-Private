@@ -454,7 +454,7 @@ MonoBehaviour:
   _rootTransform: {fileID: 7775038711954809053}
   _verticalOffsetTransform: {fileID: 2120674381144681540}
   _headTransform: {fileID: 292132094415373342}
-  _primaryUICanvas: {fileID: 194589020378214593}
+  _primaryUIHolderRect: {fileID: 852471172109446637}
 --- !u!1 &4207579046481561962
 GameObject:
   m_ObjectHideFlags: 0

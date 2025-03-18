@@ -9,8 +9,9 @@ namespace VE2.Core.UI.Internal
     [ExecuteAlways]
     public class V_UIProvider : MonoBehaviour, IUIProvider
     {
-        [SerializeField] private bool _enablePrimaryUI = true;
-        [SerializeField] private bool _enableSecondaryUI = true;
+        //Hidden for now, we always want both. 
+        [SerializeField, HideInInspector] private bool _enablePrimaryUI = true;
+        [SerializeField, HideInInspector] private bool _enableSecondaryUI = true;
 
         public IPrimaryUIService PrimaryUIService {
             get
@@ -50,12 +51,9 @@ namespace VE2.Core.UI.Internal
                 _primaryUIService = new PrimaryUIService(PlayerAPI.InputHandler.ToggleMenu, inputSystemUIInputModule);
             };
 
-            return; //TODO
             if (_secondaryUIService == null && _enableSecondaryUI)
-            {
-                GameObject secondaryUIGO = GameObject.Instantiate(Resources.Load<GameObject>("SecondaryUI"));
-                SecondaryUIReferences secondaryUIReferences = secondaryUIGO.GetComponent<SecondaryUIReferences>();
-                _secondaryUIService = new SecondaryUIService(secondaryUIReferences);
+            {                
+                _secondaryUIService = new SecondaryUIService();
             };
         }
 

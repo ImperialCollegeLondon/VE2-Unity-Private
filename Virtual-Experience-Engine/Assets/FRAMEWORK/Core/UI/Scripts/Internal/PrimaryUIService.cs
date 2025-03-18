@@ -34,9 +34,9 @@ namespace VE2.Core.UI.Internal
             OnUIHide?.Invoke();
         }
 
-        public void MoveUIToCanvas(Canvas canvas)
+        public void MovePrimaryUIToHolderRect(RectTransform rect)
         {
-            UIUtils.MovePanelToFillRect(_primaryUIGameObject.GetComponent<RectTransform>(), canvas.GetComponent<RectTransform>());
+            UIUtils.MovePanelToFillRect(_primaryUIGameObject.GetComponent<RectTransform>(), rect);
 
             if (_primaryUIHolderGameObject != null)
                 GameObject.Destroy(_primaryUIHolderGameObject);

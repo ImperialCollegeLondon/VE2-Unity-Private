@@ -62,17 +62,4 @@ namespace VE2.Core.UI.API
             //gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
         }
     }
-
-    public interface ISecondaryUIService
-    {
-        public void MoveUIToCanvas(Canvas canvas);
-    }
-
-    public enum IconType
-    {
-        Plugin,
-        PlayerBrowser, 
-        Settings, 
-        Help,
-    }
 }

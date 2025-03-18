@@ -40,12 +40,12 @@ namespace VE2.Core.Player.Internal
 
         //TODO - it's both players that need these. 
         //That suggests we probably want this in a base class? Think about refactoring
-        private readonly IPrimaryUIService _primaryUIService; //Secondary lives on the hands
-        private readonly Canvas _primaryUICanvas;
+        private readonly IPrimaryUIServiceInternal _primaryUIService; //Secondary lives on the hands
+        private readonly RectTransform _primaryUIHolderRect;
         private Collider _primaryUICollider;
 
         internal PlayerControllerVR(InteractorContainer interactorContainer, PlayerVRInputContainer playerVRInputContainer, IPlayerPersistentDataHandler playerSettingsHandler, PlayerVRControlConfig controlConfig, 
-            IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper, ILocalClientIDProvider localClientIDProvider, IPrimaryUIService primaryUIService, ISecondaryUIService secondaryUIService)
+            IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper, ILocalClientIDProvider localClientIDProvider, IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService)
         {
             GameObject playerVRPrefab = Resources.Load("vrPlayer") as GameObject;
             _playerGO = GameObject.Instantiate(playerVRPrefab, null, false);
@@ -65,7 +65,7 @@ namespace VE2.Core.Player.Internal
             _rootTransform = playerVRReferences.RootTransform;
             _verticalOffsetTransform = playerVRReferences.VerticalOffsetTransform;
             _headTransform = playerVRReferences.HeadTransform;
-            _primaryUICanvas = playerVRReferences.PrimaryUICanvas;
+            _primaryUIHolderRect = playerVRReferences.PrimaryUIHolderRect;
 
             GameObject handVRLeftPrefab = Resources.Load<GameObject>("HandVRLeft");
             GameObject handVRLeftGO = GameObject.Instantiate(handVRLeftPrefab, _verticalOffsetTransform, false);
@@ -127,7 +127,7 @@ namespace VE2.Core.Player.Internal
             _handControllerLeft.HandleOnEnable();
             _handControllerRight.HandleOnEnable();
 
-            _primaryUIService?.MoveUIToCanvas(_primaryUICanvas);
+            _primaryUIService?.MovePrimaryUIToHolderRect(_primaryUIHolderRect);
         }
 
         public void DeactivatePlayer()

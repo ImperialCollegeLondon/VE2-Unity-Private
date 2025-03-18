@@ -13,7 +13,7 @@ namespace VE2.Core.Player.Internal
         public Transform HeadTransform => _headTransform;
         [SerializeField] private Transform _headTransform;   
 
-        public Canvas PrimaryUICanvas => _primaryUICanvas;     
-        [SerializeField] private Canvas _primaryUICanvas;
+        public RectTransform PrimaryUIHolderRect => _primaryUIHolderRect;     
+        [SerializeField] private RectTransform _primaryUIHolderRect;
     }
 }

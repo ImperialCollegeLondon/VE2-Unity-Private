@@ -3,16 +3,13 @@ using VE2.Core.UI.API;
 
 namespace VE2.Core.UI.Internal
 {
-    //TODO - also need some utils for confirming that the UI is confdiged correctly, only one child of the holder, etc
+    //TODO - also need some utils for confirming that the UI is configured correctly, only one child of the holder, etc
+    //TODO - look at merging this with the other PluginUi script, as well as the UIProvider
     [ExecuteAlways]
     internal class V_PluginPrimaryUI : MonoBehaviour
     {
         [SerializeField, HideInInspector] private GameObject _pluginPrimaryUIHolder;
         private string _tabName => "World Info";
-
-        //TODO - when creating mono in edit mode, create prefab in scene 
-
-        //On enable in play mode, ask the PrimaryUIService to move our UI panel into the canvas - probably also destroy the surrounding canvas 
 
         private void Awake()
         {
@@ -31,12 +28,19 @@ namespace VE2.Core.UI.Internal
             GameObject pluginPrimaryUI = _pluginPrimaryUIHolder.transform.GetChild(0).gameObject;
             Sprite icon = Resources.Load<Sprite>("PluginPrimaryUIIcon");
 
-            UIAPI.PrimaryUIService.AddNewTab(
-                _tabName, 
-                pluginPrimaryUI, 
-                icon,
-                0);
-            UIAPI.PrimaryUIService.ShowTab(_tabName);
+            if (UIAPI.PrimaryUIService != null)
+            {
+                UIAPI.PrimaryUIService.AddNewTab(
+                    _tabName, 
+                    pluginPrimaryUI, 
+                    icon,
+                    0);
+                UIAPI.PrimaryUIService.ShowTab(_tabName);   
+            }
+            else 
+            {
+                Debug.LogError("Could not move plugin primary UI to primary UI - please add a V_UIProvider to the scene.");
+            }
 
             Destroy(_pluginPrimaryUIHolder);
         }

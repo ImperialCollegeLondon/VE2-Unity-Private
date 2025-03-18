@@ -35,6 +35,7 @@ namespace VE2.NonCore.Platform.Internal
             else
             {
                 globalInfoText.text = "No platform service provider found";
+                gameObject.SetActive(false);
             }
         }
 

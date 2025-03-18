@@ -205,7 +205,7 @@ namespace VE2.Core.Tests
                 RayCastProviderSetup.RaycastProviderStub, 
                 Substitute.For<IXRManagerWrapper>(),
                 Substitute.For<IPrimaryUIServiceInternal>(),
-                Substitute.For<ISecondaryUIService>()
+                Substitute.For<ISecondaryUIServiceInternal>()
             );
         }
 
