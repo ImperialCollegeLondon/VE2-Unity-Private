@@ -106,6 +106,9 @@ namespace VE2.Core.Player.API
                 writer.Write(Hand2DLocalRotation.z);
                 writer.Write(Hand2DLocalRotation.w);
 
+                if(HeldActivatableIds2D == null)
+                    HeldActivatableIds2D = new List<string>();
+
                 foreach (string activatableID in HeldActivatableIds2D)
                     writer.Write(activatableID);
             }
@@ -128,6 +131,12 @@ namespace VE2.Core.Player.API
                 writer.Write(HandVRRightLocalRotation.y);
                 writer.Write(HandVRRightLocalRotation.z);
                 writer.Write(HandVRRightLocalRotation.w);
+
+                if(HeldActivatableIdsVRLeft == null)
+                    HeldActivatableIdsVRLeft = new List<string>();
+
+                if(HeldActivatableIdsVRRight == null)
+                    HeldActivatableIdsVRRight = new List<string>();
 
                 foreach (string activatableID in HeldActivatableIdsVRLeft)
                     writer.Write(activatableID);
