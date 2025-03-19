@@ -8,7 +8,7 @@ namespace VE2.Core.Player.Internal
         private DragLocomotorInputContainer _otherVRHandInputContainer;
 
         private Vector3 _previousHandPosition;
-        private float _dragSpeed = 2.0f;
+        private float _dragSpeed = 4.0f;
         private bool _isDraggingHorizontal = false; //This is used to set the state of the current hand dragging horizontally based on the release/pressed events from the input container.
         private bool _isDraggingVertical = false; //This is used to set the state of the current hand dragging vertically based on the release/pressed events from the input container.
 
