@@ -2158,7 +2158,7 @@ GameObject:
   - component: {fileID: 563324681}
   - component: {fileID: 563324680}
   - component: {fileID: 563324679}
-  m_Layer: 3
+  m_Layer: 10
   m_Name: Ramp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2532,7 +2532,7 @@ GameObject:
   - component: {fileID: 715328357}
   - component: {fileID: 715328356}
   - component: {fileID: 715328355}
-  m_Layer: 3
+  m_Layer: 10
   m_Name: Ramp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3363,6 +3363,7 @@ MonoBehaviour:
   playerConfig:
     EnableVR: 1
     Enable2D: 1
+    EnableFreeFlyMode: 0
     HeadOverrideType: 0
     TorsoOverrideType: 0
     HeadOverrideOne: {fileID: 0}
@@ -3837,7 +3838,7 @@ GameObject:
   - component: {fileID: 815348235}
   - component: {fileID: 815348234}
   - component: {fileID: 815348233}
-  m_Layer: 3
+  m_Layer: 10
   m_Name: Floor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5153,7 +5154,7 @@ GameObject:
   - component: {fileID: 1209297799}
   - component: {fileID: 1209297798}
   - component: {fileID: 1209297797}
-  m_Layer: 3
+  m_Layer: 10
   m_Name: CubeFlat
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9134,7 +9135,7 @@ GameObject:
   - component: {fileID: 1911136196}
   - component: {fileID: 1911136195}
   - component: {fileID: 1911136194}
-  m_Layer: 3
+  m_Layer: 10
   m_Name: Ramp (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}

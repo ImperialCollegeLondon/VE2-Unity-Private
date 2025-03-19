@@ -21,7 +21,7 @@ namespace VE2.Core.Player.Internal
         private readonly Transform _rootTransform; //For horizontal drag
         private readonly Transform _headOffsetTransform; //For vertical drag
         private readonly Transform _handTransform; //For measuring drag delta 
-        private LayerMask groundLayerMask => LayerMask.GetMask("Ground");
+        private LayerMask groundLayerMask => LayerMask.GetMask("Traversible");
 
 
         public DragLocomotor(DragLocomotorReferences locomotorVRReferences, DragLocomotorInputContainer inputContainer, DragLocomotorInputContainer otherVRHandInputContainer,
