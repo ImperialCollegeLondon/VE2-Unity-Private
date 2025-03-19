@@ -630,11 +630,11 @@ MonoBehaviour:
       TransmissionFrequency: 50
     LogSendReceiveDebugMessages: 0
     LogInterpolationDebug: 0
-    DrawInterpolationLines: 1
+    DrawInterpolationLines: 0
   _state:
     FromHost: 0
     FixedTime: 0
-    GrabID: 0
+    GrabCounter: 0
     LatestRoundTripTime: 0
 --- !u!1 &255650761
 GameObject:

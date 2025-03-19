@@ -3,6 +3,7 @@ using log4net.Util;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -39,8 +40,10 @@ namespace VE2.NonCore.Instancing.Internal
         #region Grab-related variables
 
         // Lag compensation values to make non-host dropping smooth
-        private readonly float LAG_COMP_SMOOTHING_FRAMES = 10;
+        private readonly int LAG_COMP_SMOOTHING_FRAMES = 10;
         private readonly float LAG_COMP_EXTRA_TIME = 0.4f;
+        private int _hostSmoothingFramesLeft;
+        private List<RigidbodySyncableState> _storedHostLagCompensationStates = new();
 
         // Flags to track state & transition between grabbing / syncing
         private bool _hostNotSendingStates = false;
@@ -91,6 +94,7 @@ namespace VE2.NonCore.Instancing.Internal
             {
                 // Host stops sending states, store kinematic state
                 _hostNotSendingStates = true;
+                _hostSmoothingFramesLeft = 0;
                 _isKinematicOnStart = _rigidbody.isKinematic;
             }
             else
@@ -126,8 +130,7 @@ namespace VE2.NonCore.Instancing.Internal
         }
 
         private void PerformLagCompensationForDroppedGrabbable(float roundTripTimeNonHost)
-        {
-
+        { 
             // Make all rigidbodys in the scene, apart from this one, kinematic
             Dictionary<IRigidbodyWrapper, bool> kinematicStates = new();
 
@@ -144,18 +147,23 @@ namespace VE2.NonCore.Instancing.Internal
             }
 
             float lagCompensationTime = _timeBehind + (roundTripTimeNonHost + LAG_COMP_EXTRA_TIME) / 1000f;
-            int cyclesToSimulate = Mathf.CeilToInt(lagCompensationTime / Time.fixedDeltaTime) + 1;
+            int cyclesToSkipForward = Mathf.CeilToInt(lagCompensationTime / Time.fixedDeltaTime) + 1;
 
             // Simulate physics in full steps
             Physics.simulationMode = SimulationMode.Script;
 
-            for (int i = 0; i < cyclesToSimulate; i++)
+            for (int i = 0; i < cyclesToSkipForward + LAG_COMP_SMOOTHING_FRAMES; i++)
+            {
                 Physics.Simulate(UnityEngine.Time.fixedDeltaTime);
+                _storedHostLagCompensationStates.Add(new(Time.fixedTime, _rigidbody.position, _rigidbody.rotation, _grabCounter, 0, _rigidbody.linearVelocity, _rigidbody.angularVelocity));
+            }
 
             Physics.simulationMode = SimulationMode.FixedUpdate;
 
             foreach (KeyValuePair<IRigidbodyWrapper, bool> kinematicState in kinematicStates) //Unlock the RBs that we just locked
                 kinematicState.Key.isKinematic = kinematicState.Value;
+
+            _hostSmoothingFramesLeft = LAG_COMP_SMOOTHING_FRAMES;
         }
 
 
@@ -172,15 +180,52 @@ namespace VE2.NonCore.Instancing.Internal
                 }
                 _stateModule.SetStateFromHost(Time.fixedTime, _rigidbody.position, _rigidbody.rotation, _grabCounter);
             }
+
+            if (_stateModule.IsHost && _hostNotSendingStates && _hostSmoothingFramesLeft > 0)
+            {
+                // Convert host smoothing value to lerp parameter 
+                float interpolationValueAlongStoredStates = _storedHostLagCompensationStates.Count * (1 - (float)_hostSmoothingFramesLeft / LAG_COMP_SMOOTHING_FRAMES);
+                int indexToInterpolateFrom = (int)(interpolationValueAlongStoredStates);
+
+                float interpValue = interpolationValueAlongStoredStates - (float)indexToInterpolateFrom;
+
+                (RigidbodySyncableState previousState, RigidbodySyncableState nextState) = GetRelevantRigidbodyStates(_storedHostLagCompensationStates, indexToInterpolateFrom + 1);
+
+                SetRigidbodyValues(Vector3.Lerp(previousState.Position, nextState.Position, interpValue), Quaternion.Slerp(previousState.Rotation, nextState.Rotation, interpValue));
+
+                Debug.Log($"Smoothing on host over {_storedHostLagCompensationStates.Count} frames, with {_hostSmoothingFramesLeft} frames left. TotalVal = {interpolationValueAlongStoredStates}, indexFrom = {indexToInterpolateFrom}, interpVal = {interpValue}");
+
+                // Send state from list
+                RigidbodySyncableState syncState = _storedHostLagCompensationStates[^_hostSmoothingFramesLeft];
+                _stateModule.SetStateFromHost(syncState.FixedTime, syncState.Position, syncState.Rotation, syncState.GrabCounter);
+
+                _hostSmoothingFramesLeft--;
+
+                if (_hostSmoothingFramesLeft == 0)
+                {
+                    _hostNotSendingStates = false;
+                    _rigidbody.isKinematic = _isKinematicOnStart;
+
+                    RigidbodySyncableState mostRecentState = _storedHostLagCompensationStates[_storedHostLagCompensationStates.Count - 1];
+                    _rigidbody.position = mostRecentState.Position;
+                    _rigidbody.rotation = mostRecentState.Rotation;
+                    _rigidbody.linearVelocity = mostRecentState.Velocity;
+                    _rigidbody.angularVelocity = mostRecentState.AngularVelocity;
+
+                    _storedHostLagCompensationStates.Clear();
+                }
+            }
         }
 
         public void HandleUpdate()
         {
             // Non host interpolates on Update when not simulating for themselves
+
             if (!_stateModule.IsHost && !_nonHostSimulating)
             {
                 InterpolateRigidbody();
             }
+
         }
 
         public void TearDown()
@@ -208,7 +253,7 @@ namespace VE2.NonCore.Instancing.Internal
                 if (_receivedRigidbodyStates.Count >= 2)
                 {
                     // Calculate RB velocities, which we take to be the most recent we received for now
-                    (RigidbodySyncableState previous, RigidbodySyncableState next) latestStates = GetRelevantRigidbodyStates(_receivedRigidbodyStates.Count - 1);
+                    (RigidbodySyncableState previous, RigidbodySyncableState next) latestStates = GetRelevantRigidbodyStates(_receivedRigidbodyStates, _receivedRigidbodyStates.Count - 1);
                     Vector3 linearVelocity = GetVelocityFromStates(latestStates);
                     Vector3 angularVelocity = GetAngularVelocityFromStates(latestStates);
 
@@ -239,7 +284,7 @@ namespace VE2.NonCore.Instancing.Internal
                 _rigidbody.isKinematic = _isKinematicOnStart;
                 SetRigidbodyValuesFromDrop(receivedState);
                 PerformLagCompensationForDroppedGrabbable(receivedState.LatestRoundTripTime);
-                _hostNotSendingStates = false;
+                _rigidbody.isKinematic = true;
             } 
             else if (!_stateModule.IsHost && receivedState.FromHost)
             {
@@ -312,7 +357,7 @@ namespace VE2.NonCore.Instancing.Internal
                 int index = _receivedRigidbodyStates.FindIndex(rbState => rbState.FixedTime > delayedLocalTime);
 
                 // Get the previous and next states to interpolate betwen
-                (RigidbodySyncableState previousState, RigidbodySyncableState nextState) = GetRelevantRigidbodyStates(index);
+                (RigidbodySyncableState previousState, RigidbodySyncableState nextState) = GetRelevantRigidbodyStates(_receivedRigidbodyStates, index);
 
                 ClearHistoricalStates(index);
 
@@ -348,7 +393,7 @@ namespace VE2.NonCore.Instancing.Internal
             }
         }
 
-        private (RigidbodySyncableState previous, RigidbodySyncableState next) GetRelevantRigidbodyStates(int indexOfNextState)
+        private (RigidbodySyncableState previous, RigidbodySyncableState next) GetRelevantRigidbodyStates(List<RigidbodySyncableState> statesList, int indexOfNextState)
         {
             RigidbodySyncableState previousState;
             RigidbodySyncableState nextState;
@@ -357,18 +402,18 @@ namespace VE2.NonCore.Instancing.Internal
             {
                 case -1:
                     // In this case we're ahead and need to extrapolate from the last two
-                    previousState = _receivedRigidbodyStates[^2];
-                    nextState = _receivedRigidbodyStates[^1];
+                    previousState = statesList[^2];
+                    nextState = statesList[^1];
                     break;
                 case 0:
                     // In this case we're behind all states and need to extrapolate behind the first two states
-                    previousState = _receivedRigidbodyStates[0];
-                    nextState = _receivedRigidbodyStates[1];
+                    previousState = statesList[0];
+                    nextState = statesList[1];
                     break;
                 default:
                     // In the typical case we have two states that we can interpolate between
-                    previousState = _receivedRigidbodyStates[indexOfNextState - 1];
-                    nextState = _receivedRigidbodyStates[indexOfNextState];
+                    previousState = statesList[indexOfNextState - 1];
+                    nextState = statesList[indexOfNextState];
                     break;
             }
             return (previousState, nextState);
