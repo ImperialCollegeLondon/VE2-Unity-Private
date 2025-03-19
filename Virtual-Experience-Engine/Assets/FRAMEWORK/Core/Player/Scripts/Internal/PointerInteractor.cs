@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using VE2.Core.Player.API;
+using VE2.Core.UI.API;
 using VE2.Core.VComponents.API;
 
 namespace VE2.Core.Player.Internal
@@ -199,13 +200,11 @@ namespace VE2.Core.Player.Internal
             if (go == lastHoveredUIObject)
                 return;
 
-            lastHoveredUIObject = go;
+            if (lastHoveredUIObject != null)
+                InformUIObjectEndHover(lastHoveredUIObject);
 
-            ExecuteEvents.Execute<IPointerEnterHandler>(
-                go,
-                new PointerEventData(EventSystem.current),
-                (handler, eventData) => handler.OnPointerEnter((PointerEventData)eventData)
-            );
+            lastHoveredUIObject = go;
+            InformUIObjectStartHover(go);
         }
 
         private void HandleNoHoverOverUIGameObject()
@@ -213,13 +212,32 @@ namespace VE2.Core.Player.Internal
             if (lastHoveredUIObject == null)
                 return;
 
+            InformUIObjectEndHover(lastHoveredUIObject);
+            lastHoveredUIObject = null;
+        }
+
+        private void InformUIObjectStartHover(GameObject go)
+        {
+            ExecuteEvents.Execute<IPointerEnterHandler>(
+                go,
+                new PointerEventData(EventSystem.current),
+                (handler, eventData) => handler.OnPointerEnter((PointerEventData)eventData)
+            );
+
+            if (go.TryGetComponent(out IUIColorHandler colorHandler))
+                colorHandler.OnPointerEnter();
+        }
+
+        private void InformUIObjectEndHover(GameObject go)
+        {
             ExecuteEvents.Execute<IPointerExitHandler>(
-                lastHoveredUIObject,
+                go,
                 new PointerEventData(EventSystem.current),
                 (handler, eventData) => handler.OnPointerExit((PointerEventData)eventData)
             );
 
-            lastHoveredUIObject = null;
+            if (go.TryGetComponent(out IUIColorHandler colorHandler))
+                colorHandler.OnPointerExit();
         }
 
         protected virtual void HandleRaycastDistance(float distance) { } //TODO: Code smell? InteractorVR needs this to set the LineRenderer length

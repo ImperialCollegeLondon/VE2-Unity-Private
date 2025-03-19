@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using VE2.Core.Common;
 using VE2.Core.Player.API;
+using VE2.Core.UI.API;
 using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.Core.Player.Internal
@@ -107,11 +108,17 @@ namespace VE2.Core.Player.Internal
             if (xrManagerWrapper == null)
                 xrManagerWrapper = new GameObject("XRManagerWrapper").AddComponent<XRManagerWrapper>();
 
+            //May be null if UIs aren't available
+            IPrimaryUIServiceInternal primaryUIService = UIAPI.PrimaryUIService as IPrimaryUIServiceInternal;
+            ISecondaryUIServiceInternal secondaryUIService = UIAPI.SecondaryUIService as ISecondaryUIServiceInternal;
+
             _playerService = VE2PlayerServiceFactory.Create(
                 _playerTransformData, 
                 playerConfig, 
                 playerPersistentDataHandler,
-                xrManagerWrapper);
+                xrManagerWrapper,
+                primaryUIService,
+                secondaryUIService);
         }
 
         private void FixedUpdate() 
