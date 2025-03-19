@@ -38,8 +38,8 @@ namespace VE2.NonCore.Instancing.Internal
         private bool _hostNotSendingStates = false;
         private bool _nonHostSimulating = false;
 
-        private readonly int NUM_SMOOTHING_FRAMES = 50;
-        private int _nonHostSmoothingFramesLeft = 0;
+        private readonly float TOTAL_SMOOTHING_TIME_S = 0.2f;
+        private float _nonHostSmoothingTimeLeft = 0;
 
 
         private ushort? _currentGrabberID;
@@ -108,8 +108,7 @@ namespace VE2.NonCore.Instancing.Internal
             else if (!_stateModule.IsHost && _instanceService.HostID != grabberClientID)
             {
                 // Non Host non dropper, when another non-host drops, needs to do smoothing
-                _nonHostSmoothingFramesLeft = NUM_SMOOTHING_FRAMES;
-                Debug.Log($"Set number of smoothing frames left to {_nonHostSmoothingFramesLeft}");
+                _nonHostSmoothingTimeLeft = TOTAL_SMOOTHING_TIME_S;
             }
         }
 
@@ -190,7 +189,7 @@ namespace VE2.NonCore.Instancing.Internal
                 _hostNotSendingStates = (_currentGrabberID != null);
 
                 // If the change happened while non-dropper non-host smoothing, make sure to reset this value
-                _nonHostSmoothingFramesLeft = 0;
+                _nonHostSmoothingTimeLeft = 0;
 
                 if (_receivedRigidbodyStates.Count >= 2)
                 {
@@ -311,14 +310,14 @@ namespace VE2.NonCore.Instancing.Internal
                 Quaternion newRotation = Quaternion.Slerp(previousState.Rotation, nextState.Rotation, lerpParameter);
 
                 // If non host is smoothing, we have another interpolation step to perform
-                if (_nonHostSmoothingFramesLeft > 0)
+                if (_nonHostSmoothingTimeLeft > 0)
                 {
-                    float smoothingParameter = 1 - (float)_nonHostSmoothingFramesLeft / NUM_SMOOTHING_FRAMES;
+                    float smoothingParameter = 1 - _nonHostSmoothingTimeLeft / TOTAL_SMOOTHING_TIME_S;
 
                     newPosition = Vector3.Lerp(_rigidbody.position, newPosition, smoothingParameter);
                     newRotation = Quaternion.Slerp(_rigidbody.rotation, newRotation, smoothingParameter);
 
-                    _nonHostSmoothingFramesLeft--;
+                    _nonHostSmoothingTimeLeft -= Time.deltaTime;
                 }
 
                 // Do the interpolation

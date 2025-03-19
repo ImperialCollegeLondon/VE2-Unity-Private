@@ -634,6 +634,7 @@ MonoBehaviour:
   _state:
     FromHost: 0
     FixedTime: 0
+    GrabID: 0
     LatestRoundTripTime: 0
 --- !u!1 &255650761
 GameObject:
@@ -3957,7 +3958,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _connectOnStart: 1
   _config:
-    _artificialAddedPing: 100
+    _artificialAddedPing: 30
   _debugServerSettings:
     Username: dev
     Password: dev
