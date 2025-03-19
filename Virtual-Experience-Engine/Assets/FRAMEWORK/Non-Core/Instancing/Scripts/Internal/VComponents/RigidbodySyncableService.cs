@@ -17,7 +17,9 @@ namespace VE2.NonCore.Instancing.Internal
     {
         #region Interfaces
         public IRigidbodySyncableStateModule StateModule => _stateModule;
-        IGrabbableRigidbody _grabbableRigidbody;
+        private IGrabbableRigidbody _grabbableRigidbody;
+        private IRigidbodyWrapper _rigidbody;
+        private IInstanceService _instanceService;
         #endregion
 
         #region Modules
@@ -25,26 +27,36 @@ namespace VE2.NonCore.Instancing.Internal
         private readonly RigidbodySyncableStateConfig _config;
         #endregion
 
-        private IRigidbodyWrapper _rigidbody;
-        private IInstanceService _instanceService;
         private bool _isKinematicOnStart;
         private List<RigidbodySyncableState> _receivedRigidbodyStates;
 
+        // Baseline difference for interpolation purposes
         private float _timeDifferenceFromHost;
 
+        // Time delay for interpolation, so non host always behind host 
         private readonly float _timeBehind = 0.04f;
-        private readonly float _lagCompensationAdditionalTime = 0.4f;
 
+        #region Grab-related variables
+
+        // Lag compensation values to make non-host dropping smooth
+        private readonly float LAG_COMP_SMOOTHING_FRAMES = 10;
+        private readonly float LAG_COMP_EXTRA_TIME = 0.4f;
+
+        // Flags to track state & transition between grabbing / syncing
         private bool _hostNotSendingStates = false;
         private bool _nonHostSimulating = false;
 
+        // Smoothing values for non-host non-dropper when non-host drops
         private readonly float TOTAL_SMOOTHING_TIME_S = 0.2f;
         private float _nonHostSmoothingTimeLeft = 0;
 
-
+        // Track who is grabbing - currently only using for whether being grabbed or not
         private ushort? _currentGrabberID;
 
-        private uint _grabID = 0;
+        // Track how many times rbs is grabbed to prevent accidentally using data from before last grab
+        private uint _grabCounter = 0;
+
+        #endregion
 
         public RigidbodySyncableService(RigidbodySyncableStateConfig config, VE2Serializable state, string id, IWorldStateSyncService worldStateSyncService, IInstanceService instanceService, IRigidbodyWrapper rigidbodyWrapper, IGrabbableRigidbody grabbableRigidbody)
         {
@@ -72,7 +84,7 @@ namespace VE2.NonCore.Instancing.Internal
 
         private void HandleOnGrab(ushort grabberClientID)
         {
-            _grabID++;
+            _grabCounter++;
             _currentGrabberID = grabberClientID;
 
             if (_stateModule.IsHost)
@@ -88,6 +100,7 @@ namespace VE2.NonCore.Instancing.Internal
                 _receivedRigidbodyStates.Clear();
             }
 
+            // On grab, rb is not kinematic and FreeGrabbableService handles behaviour
             _rigidbody.isKinematic = false;
         }
 
@@ -103,11 +116,11 @@ namespace VE2.NonCore.Instancing.Internal
             else if (_instanceService.LocalClientID == grabberClientID)
             {
                 // Non host dropper sends state to host
-                _stateModule.SetStateFromNonHost(Time.fixedTime, _rigidbody.position, _rigidbody.rotation, _grabID, _instanceService.Ping, _rigidbody.linearVelocity, _rigidbody.angularVelocity);
+                _stateModule.SetStateFromNonHost(Time.fixedTime, _rigidbody.position, _rigidbody.rotation, _grabCounter, _instanceService.Ping, _rigidbody.linearVelocity, _rigidbody.angularVelocity);
             }
             else if (!_stateModule.IsHost && _instanceService.HostID != grabberClientID)
             {
-                // Non Host non dropper, when another non-host drops, needs to do smoothing
+                // When a non-host drops, all other non-hosts need to do extra smoothing
                 _nonHostSmoothingTimeLeft = TOTAL_SMOOTHING_TIME_S;
             }
         }
@@ -130,7 +143,7 @@ namespace VE2.NonCore.Instancing.Internal
                 rigidbodyInSceneWrapper.isKinematic = true;
             }
 
-            float lagCompensationTime = _timeBehind + (roundTripTimeNonHost + _lagCompensationAdditionalTime)/1000f;
+            float lagCompensationTime = _timeBehind + (roundTripTimeNonHost + LAG_COMP_EXTRA_TIME) / 1000f;
             int cyclesToSimulate = Mathf.CeilToInt(lagCompensationTime / Time.fixedDeltaTime) + 1;
 
             // Simulate physics in full steps
@@ -145,6 +158,7 @@ namespace VE2.NonCore.Instancing.Internal
                 kinematicState.Key.isKinematic = kinematicState.Value;
         }
 
+
         public void HandleFixedUpdate()
         {
             _stateModule.HandleFixedUpdate();
@@ -154,9 +168,9 @@ namespace VE2.NonCore.Instancing.Internal
             {
                 if (_config.LogSendReceiveDebugMessages)
                 { 
-                    Debug.Log($"Setting state fixed time {Time.fixedTime}, position {_rigidbody.position}, rotation {_rigidbody.rotation}, grabID {_grabID}");
+                    Debug.Log($"Setting state fixed time {Time.fixedTime}, position {_rigidbody.position}, rotation {_rigidbody.rotation}, grabID {_grabCounter}");
                 }
-                _stateModule.SetStateFromHost(Time.fixedTime, _rigidbody.position, _rigidbody.rotation, _grabID);
+                _stateModule.SetStateFromHost(Time.fixedTime, _rigidbody.position, _rigidbody.rotation, _grabCounter);
             }
         }
 
@@ -216,7 +230,7 @@ namespace VE2.NonCore.Instancing.Internal
         {
             if (_config.LogSendReceiveDebugMessages)
             {
-                Debug.Log($"Received state from host {receivedState.FromHost}, fixed time {receivedState.FixedTime}, position {receivedState.Position}, rotation {receivedState.Rotation}, grabID {_grabID}");
+                Debug.Log($"Received state from host {receivedState.FromHost}, fixed time {receivedState.FixedTime}, position {receivedState.Position}, rotation {receivedState.Rotation}, grabID {_grabCounter}");
             }
 
             if (_stateModule.IsHost)
@@ -230,13 +244,13 @@ namespace VE2.NonCore.Instancing.Internal
             else if (!_stateModule.IsHost && receivedState.FromHost)
             {
 
-                if (receivedState.GrabID > _grabID)
+                if (receivedState.GrabCounter > _grabCounter)
                 {
                     // We are behind grab IDs - likely because we joined the scene after grabs happened - better catch up
-                    _grabID = receivedState.GrabID;
+                    _grabCounter = receivedState.GrabCounter;
                 }
 
-                if (receivedState.GrabID != _grabID)
+                if (receivedState.GrabCounter != _grabCounter)
                 {
                     // Ignore all states from before the latest grab, or from another non host
                     return;
@@ -251,7 +265,7 @@ namespace VE2.NonCore.Instancing.Internal
                     _timeDifferenceFromHost = receivedState.FixedTime - Time.fixedTime;
                 }
 
-                AddReceivedStateToHistory(new(receivedState.FixedTime, receivedState.Position, receivedState.Rotation, receivedState.GrabID));
+                AddReceivedStateToHistory(new(receivedState.FixedTime, receivedState.Position, receivedState.Rotation, receivedState.GrabCounter));
             }
         }
 
