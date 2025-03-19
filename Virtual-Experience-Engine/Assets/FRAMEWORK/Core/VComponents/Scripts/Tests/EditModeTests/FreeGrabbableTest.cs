@@ -23,7 +23,7 @@ namespace VE2.Core.VComponents.Tests
             FreeGrabbableService freeGrabbable = new( 
                 new List<IHandheldInteractionModule>() {},
                 new FreeGrabbableConfig(),
-                new FreeGrabbableState(), 
+                new GrabbableState(), 
                 "debug",
                 Substitute.For<IWorldStateSyncService>(),
                 interactorContainerStub,
@@ -67,7 +67,7 @@ namespace VE2.Core.VComponents.Tests
     internal class V_FreeGrabbableProviderStub : IV_FreeGrabbable, IRangedGrabInteractionModuleProvider
     {
         #region Plugin Interfaces     
-        IFreeGrabbableStateModule IV_FreeGrabbable._StateModule => _service.StateModule;
+        IGrabbableStateModule IV_FreeGrabbable._StateModule => _service.StateModule;
         IRangedGrabInteractionModule IV_FreeGrabbable._RangedGrabModule => _service.RangedGrabInteractionModule;
         #endregion
 

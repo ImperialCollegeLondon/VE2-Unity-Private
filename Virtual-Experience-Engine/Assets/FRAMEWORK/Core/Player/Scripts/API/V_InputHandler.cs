@@ -439,7 +439,7 @@ namespace VE2.Core.Player.API
         private const float MIN_SCROLL_THRESHOLD_VR = 0.15f;
         private const float MAX_SCROLL_THRESHOLD_VR = 1;
         private const float MIN_SCROLL_TICKS_PER_SECOND_2D = 1;
-        private const float MAX_SCROLL_TICKS_PER_SECOND_2D = 10;
+        private const float MAX_SCROLL_TICKS_PER_SECOND_2D = 50;
         private const float MIN_SCROLL_TICKS_PER_SECOND_VR = 0.5f;
         private const float MAX_SCROLL_TICKS_PER_SECOND_VR = 5f;
 

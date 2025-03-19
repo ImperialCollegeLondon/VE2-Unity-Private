@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Virtual-Experience-Engine/Assets/YOUR_PLUGIN_HERE/ExtraAssets/ARPG Effects/Textures/questmarker2.png.meta
 guid: 83b0eb97f6ecbb64ba07ef012f1c9fa1
+========
+guid: 10e2d40e6d8a8ab4cb67301bf4b9f241
+>>>>>>>> origin/Sid/AdjustableUpdated:Virtual-Experience-Engine/Assets/FRAMEWORK/DevStuff/DevMats/ruler.jpg.meta
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -59,7 +63,7 @@ TextureImporter:
   textureFormatSet: 0
   applyGammaDecoding: 0
   platformSettings:
-  - serializedVersion: 3
+  - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -71,7 +75,7 @@ TextureImporter:
     overridden: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 3
+  - serializedVersion: 4
     buildTarget: Standalone
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -95,10 +99,24 @@ TextureImporter:
     overridden: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites: []
     outline: []
+    customData: 
     physicsShape: []
     bones: []
     spriteID: 
@@ -108,7 +126,14 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
+<<<<<<<< HEAD:Virtual-Experience-Engine/Assets/YOUR_PLUGIN_HERE/ExtraAssets/ARPG Effects/Textures/questmarker2.png.meta
   spritePackingTag: 
+========
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+>>>>>>>> origin/Sid/AdjustableUpdated:Virtual-Experience-Engine/Assets/FRAMEWORK/DevStuff/DevMats/ruler.jpg.meta
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
   userData: 

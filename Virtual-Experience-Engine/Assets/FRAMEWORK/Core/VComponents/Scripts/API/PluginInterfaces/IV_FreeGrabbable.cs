@@ -5,7 +5,8 @@ namespace VE2.Core.VComponents.API
     public interface IV_FreeGrabbable 
     {
         #region State Module Interface
-        internal IFreeGrabbableStateModule _StateModule { get; }
+
+        internal IGrabbableStateModule _StateModule { get; }
 
         public UnityEvent OnGrab => _StateModule.OnGrab;
         public UnityEvent OnDrop => _StateModule.OnDrop;

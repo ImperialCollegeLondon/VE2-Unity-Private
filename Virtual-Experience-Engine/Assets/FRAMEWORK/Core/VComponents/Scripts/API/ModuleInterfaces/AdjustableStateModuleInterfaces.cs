@@ -6,9 +6,11 @@ namespace VE2.Core.VComponents.API
     internal interface IAdjustableStateModule
     {
         public UnityEvent<float> OnValueAdjusted { get; }
-        public float Value { get; set; }
-        public float MinimumValue {  get; set; }
-        public float MaximumValue { get; set; }
+
+        public float OutputValue { get; set; }
+        public float MinimumOutputValue {  get; set; }
+        public float MaximumOutputValue { get; set; }
+        
         public ushort MostRecentInteractingClientID { get; }
     }
 }

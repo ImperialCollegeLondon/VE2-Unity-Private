@@ -23,11 +23,31 @@ namespace VE2.Core.Player.Internal
                 Button button = GetUIButton(raycastHit);
 
                 if (button != null) 
-                    result = new(null, button, raycastHit.distance);
-                else if (raycastHit.collider.TryGetComponent(out IRangedInteractionModuleProvider rangedPlayerInteractableIntegrator)) 
-                    result = new(rangedPlayerInteractableIntegrator.RangedInteractionModule, button, raycastHit.distance);
-                else 
-                    result = new(null, button, raycastHit.distance);
+                {
+                    result = new(null, button, raycastHit.distance);   
+                }
+                else //Search up through the heirarchy looking for 
+                {
+                    Transform currentTransform = raycastHit.collider.transform;
+                    IRangedInteractionModuleProvider rangedInteractionModuleProvider = null;
+
+                    while (currentTransform != null) 
+                    {
+                        if (currentTransform.TryGetComponent(out rangedInteractionModuleProvider)) 
+                            break;
+
+                        currentTransform = currentTransform.parent;
+                    }
+
+                    if (rangedInteractionModuleProvider != null) 
+                    {
+                        result = new(rangedInteractionModuleProvider.RangedInteractionModule, null, raycastHit.distance);
+                    }
+                    else 
+                    {
+                        result = new(null, null, raycastHit.distance);
+                    }
+                }
             }
             else 
             {

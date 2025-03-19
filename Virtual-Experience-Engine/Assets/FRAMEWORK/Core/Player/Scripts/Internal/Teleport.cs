@@ -9,50 +9,60 @@ namespace VE2.Core.Player.Internal
     {
         private readonly TeleportInputContainer _inputContainer;
         private readonly Transform _rootTransform; // For rotating the player
+
         private readonly Transform _headTransform; // For setting the player's position in free fly mode
+
         private readonly Transform _thisHandTeleportRaycastOrigin; // Position of the teleport raycast origin
         private readonly Transform _otherHandTeleportRaycastOrigin; // Position of the other hand teleport raycast origin
         private readonly FreeGrabbableWrapper _thisHandGrabbableWrapper;
         private readonly FreeGrabbableWrapper _otherHandGrabbableWrapper;
+
         private readonly bool _enableFreeFlyMode;
 
+        private readonly HoveringOverScrollableIndicator _hoveringOverScrollableIndicator;
+
+        private bool _teleporterActive = false;
         private GameObject _reticle;
         private LineRenderer _lineRenderer;
         private GameObject _lineRendererObject;
         private GameObject _arrowObject;
         private Vector3 _hitPoint;
+
         private Quaternion _teleportTargetRotation;
         private Quaternion _teleportRotation;
 
         private float _initialSpeed = 10f; // Initial speed of the projectile motion
         private float _simulationTimeStep = 0.05f;
 
-        private LayerMask _teleportLayerMask => LayerMask.GetMask("Traversible");
+        private LayerMask _teleportLayerMask => LayerMask.GetMask("Ground");
         private Vector2 _currentTeleportDirection;
         private int _lineSegmentCount = 20; // Number of segments in the Bezier curve
         private float _maxSlopeAngle = 45f; // Maximum slope angle in degrees
         private bool _isTeleportSuccessful = false;
-        private Color _teleportColor = new Color(0.0f, 0.9764706f, 0.7921569f, 0.3176471f); 
-        public Teleport(TeleportInputContainer inputContainer, Transform rootTransform, Transform headTransform, 
-            Transform thisHandTeleportRaycastOrigin, Transform otherHandTeleportRaycastOrigin, 
-            FreeGrabbableWrapper thisHandGrabbableWrapper, FreeGrabbableWrapper otherHandGrabbableWrapper, bool enableFreeFlyMode)
+        private Color _teleportColor = new Color(0.0f, 0.9764706f, 0.7921569f, 0.3176471f);  //TODO - wire into TP config
+
+        public Teleport(TeleportInputContainer inputContainer, Transform rootTransform, Transform thisHandTeleportRaycastOrigin, 
+            Transform otherHandTeleportRaycastOrigin, FreeGrabbableWrapper thisHandGrabbableWrapper, FreeGrabbableWrapper otherHandGrabbableWrapper,
+            HoveringOverScrollableIndicator hoveringOverScrollableIndicator, bool enableFreeFlyMode)
         {
             _inputContainer = inputContainer;
             _rootTransform = rootTransform;
-            _headTransform = headTransform;
+
             _thisHandTeleportRaycastOrigin = thisHandTeleportRaycastOrigin;
             _otherHandTeleportRaycastOrigin = otherHandTeleportRaycastOrigin;
             _thisHandGrabbableWrapper = thisHandGrabbableWrapper;
             _otherHandGrabbableWrapper = otherHandGrabbableWrapper;
+
             _enableFreeFlyMode = enableFreeFlyMode;
+
+            _hoveringOverScrollableIndicator = hoveringOverScrollableIndicator;
+
         }
 
         public void HandleUpdate()
         {
-            if (_inputContainer.Teleport.IsPressed)
-            {
+            if (_teleporterActive) 
                 CastTeleportRay();
-            }
         }
 
         public void HandleOEnable()
@@ -69,37 +79,39 @@ namespace VE2.Core.Player.Internal
             _inputContainer.Teleport.OnReleased -= HandleTeleportDeactivated;
         }
 
-        private void HandleTeleportActivated() { }
+        private void HandleTeleportActivated() 
+        { 
+            //only handle TP if that we were clear of interactables at the time of activation
+            //Fixes case of "point at a scrollable, hold up, point away, release stick", which causees an unexpected TP
+            if (!_hoveringOverScrollableIndicator.IsHoveringOverScrollableObject && _thisHandGrabbableWrapper.RangedFreeGrabInteraction == null)
+                _teleporterActive = true;
+        }
 
         private void HandleTeleportDeactivated()
         {
-            if (_thisHandGrabbableWrapper.RangedFreeGrabInteraction != null)
+            bool wasTeleporterActive = _teleporterActive;
+            _teleporterActive = false;
+
+            if (!wasTeleporterActive)
                 return;
 
             // Teleport User
-            if (_isTeleportSuccessful)
-            {
-                Vector3 initialHandPosition = _otherHandTeleportRaycastOrigin.position;
-                Quaternion initialHandRotation = _otherHandTeleportRaycastOrigin.rotation;
+            Vector3 initialHandPosition = _otherHandTeleportRaycastOrigin.position;
+            Quaternion initialHandRotation = _otherHandTeleportRaycastOrigin.rotation;
 
-                _rootTransform.position = _hitPoint;
-                _rootTransform.rotation = _teleportRotation;
+            _rootTransform.position = _hitPoint;
+            _rootTransform.rotation = _teleportRotation;
 
+            Vector3 finallHandPosition = _otherHandTeleportRaycastOrigin.position;
+            Quaternion finalHandRotation = _otherHandTeleportRaycastOrigin.rotation;
+            //Get raycast origin pos/rot again 
 
-                Vector3 finallHandPosition = _otherHandTeleportRaycastOrigin.position;
-                Quaternion finalHandRotation = _otherHandTeleportRaycastOrigin.rotation;
-                //Get raycast origin pos/rot again 
+            //Delta between the two 
+            Vector3 deltaPosition = finallHandPosition - initialHandPosition;
+            Quaternion deltaRotation = finalHandRotation * Quaternion.Inverse(initialHandRotation);
 
-                //Delta between the two 
-                Vector3 deltaPosition = finallHandPosition - initialHandPosition;
-                Quaternion deltaRotation = finalHandRotation * Quaternion.Inverse(initialHandRotation);
+            _otherHandGrabbableWrapper.RangedFreeGrabInteraction?.ApplyDeltaWhenGrabbed(deltaPosition, deltaRotation); //Handle the teleportation for the ranged grab interaction module
 
-                if (_otherHandGrabbableWrapper.RangedFreeGrabInteraction != null)
-                {
-                    _otherHandGrabbableWrapper.RangedFreeGrabInteraction.ApplyDeltaWhenGrabbed(deltaPosition, deltaRotation); //Handle the teleportation for the ranged grab interaction module
-                }
-            }
-            
             CancelTeleport();
         }
 
@@ -185,7 +197,7 @@ namespace VE2.Core.Player.Internal
                     RaycastHit blockingHit;
                     if (Physics.Raycast(previousPoint, segmentDir, out blockingHit, segmentDistance, ~_teleportLayerMask))
                     {
-                        // A non-traversible object is in the way – cancel teleport.
+                        // A non-traversible object is in the way Â– cancel teleport.
                         hitFound = false;
                         break;
                     }
@@ -238,8 +250,6 @@ namespace VE2.Core.Player.Internal
             _lineRendererObject.SetActive(true);
         }
 
-
-
         private bool IsValidSurface(Vector3 normal)
         {
             // Check if the surface normal is within the acceptable slope angle
@@ -277,6 +287,7 @@ namespace VE2.Core.Player.Internal
                 {
                     _reticle = GameObject.Instantiate(teleportCursorPrefab);
                     _arrowObject = _reticle.transform.Find("TeleportationCursorChild").gameObject;
+
                 }
                 else
                 {
@@ -336,5 +347,10 @@ namespace VE2.Core.Player.Internal
 
             return true; // No obstacles, can teleport
         }
+    }
+    
+    internal class HoveringOverScrollableIndicator
+    {
+        public bool IsHoveringOverScrollableObject = false;
     }
 }

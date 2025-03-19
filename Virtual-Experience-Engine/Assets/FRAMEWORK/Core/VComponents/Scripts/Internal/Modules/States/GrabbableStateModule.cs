@@ -8,37 +8,40 @@ using static VE2.Core.Common.CommonSerializables;
 namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
-    internal class FreeGrabbableStateConfig : BaseWorldStateConfig
+    internal class GrabbableStateConfig : BaseWorldStateConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Grab State Settings", ApplyCondition = true)]
+        [SerializeField] public Transform AttachPoint = null;
         [SerializeField] public UnityEvent OnGrab = new();
 
         [EndGroup(Order = 1)]
         [SpaceArea(spaceAfter: 10, Order = -1), SerializeField] public UnityEvent OnDrop = new();
     }
 
-    internal class FreeGrabbableStateModule : BaseWorldStateModule, IFreeGrabbableStateModule
+    internal class GrabbableStateModule : BaseWorldStateModule, IGrabbableStateModule
     {
         #region Interfaces
         public UnityEvent OnGrab => _config.OnGrab;
         public UnityEvent OnDrop => _config.OnDrop;
         public bool IsGrabbed { get => _state.IsGrabbed; private set => _state.IsGrabbed = value; }
+        public bool IsLocalGrabbed => _isLocalGrabbed;
+        private bool _isLocalGrabbed;
         public ushort MostRecentInteractingClientID => _state.MostRecentInteractingInteractorID.ClientID;
         #endregion
 
-        private FreeGrabbableState _state => (FreeGrabbableState)State;
-        private FreeGrabbableStateConfig _config => (FreeGrabbableStateConfig)Config;
+        private GrabbableState _state => (GrabbableState)State;
+        private GrabbableStateConfig _config => (GrabbableStateConfig)Config;
 
         private readonly InteractorContainer _interactorContainer;
-        private readonly IRangedFreeGrabInteractionModule _rangedGrabInteractionModule;
+        private readonly IRangedGrabInteractionModule _rangedGrabInteractionModule;
 
         internal IInteractor CurrentGrabbingInteractor { get; private set; }
         internal event Action OnGrabConfirmed;
         internal event Action OnDropConfirmed;
 
-        public FreeGrabbableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, 
-            IWorldStateSyncService worldStateSyncService, InteractorContainer interactorContainer, IRangedFreeGrabInteractionModule rangedGrabInteractionModule) : 
+        public GrabbableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, 
+            IWorldStateSyncService worldStateSyncService, InteractorContainer interactorContainer, IRangedGrabInteractionModule rangedGrabInteractionModule) : 
             base(state, config, id, worldStateSyncService)
         {
             _interactorContainer = interactorContainer;
@@ -54,6 +57,7 @@ namespace VE2.Core.VComponents.Internal
             {
                 CurrentGrabbingInteractor = interactor;
                 _state.IsGrabbed = true;
+                _isLocalGrabbed = CurrentGrabbingInteractor is ILocalInteractor; 
                 _state.MostRecentInteractingInteractorID = interactorID;
                 _state.StateChangeNumber++;
 
@@ -83,6 +87,7 @@ namespace VE2.Core.VComponents.Internal
             //Different validation to SetGrabbed. The interactor may have been destroyed (and is thus no longer present), but we still want to set the state to dropped
             CurrentGrabbingInteractor = null;
             _state.IsGrabbed = false;
+            _isLocalGrabbed = false;
             _state.StateChangeNumber++;
 
             if (_interactorContainer.Interactors.TryGetValue(interactorID.ToString(), out IInteractor interactor))
@@ -102,7 +107,7 @@ namespace VE2.Core.VComponents.Internal
 
         protected override void UpdateBytes(byte[] newBytes)
         {
-            FreeGrabbableState receiveState = new(newBytes);
+            GrabbableState receiveState = new(newBytes);
 
             if (receiveState.IsGrabbed)
             {
@@ -125,19 +130,19 @@ namespace VE2.Core.VComponents.Internal
     }
 
     [Serializable]
-    public class FreeGrabbableState : VE2Serializable
+    public class GrabbableState : VE2Serializable
     {
         public ushort StateChangeNumber { get; set; }
         public bool IsGrabbed { get; set; }
         public InteractorID MostRecentInteractingInteractorID { get; set; } //TODO: - maybe this should just be a string? Maybe InteractorID doesn't need to be a VE2Serializable
 
-        public FreeGrabbableState()
+        public GrabbableState()
         {
             StateChangeNumber = 0;
             IsGrabbed = false;
             MostRecentInteractingInteractorID = new InteractorID(ushort.MaxValue,InteractorType.None);
         }
-        public FreeGrabbableState(byte[] bytes): base(bytes) { }
+        public GrabbableState(byte[] bytes): base(bytes) { }
 
         protected override byte[] ConvertToBytes()
         {

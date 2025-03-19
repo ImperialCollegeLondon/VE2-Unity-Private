@@ -21,6 +21,7 @@ namespace VE2.Core.VComponents.Internal
 
         public void RequestLocalGrab(InteractorID interactorID)
         {
+            Debug.Log("RequestLocalGrab - " + interactorID.InteractorType);
             OnLocalInteractorRequestGrab?.Invoke(interactorID);
         }
 

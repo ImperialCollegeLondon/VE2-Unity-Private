@@ -1,18 +1,18 @@
 using System;
 using UnityEngine;
-using VE2.Core.VComponents.Internal;
 using System.Collections.Generic;
+using VE2.Common.TransformWrapper;
 using VE2.Core.VComponents.API;
 
-namespace VE2.Core.VComponents.Integration
+namespace VE2.Core.VComponents.Internal
 {
     internal class V_FreeGrabbable : MonoBehaviour, IV_FreeGrabbable, IRangedGrabInteractionModuleProvider
     {
         [SerializeField, HideLabel, IgnoreParent] private FreeGrabbableConfig _config = new();
-        [SerializeField, HideInInspector] private FreeGrabbableState _state = new();
+        [SerializeField, HideInInspector] private GrabbableState _state = new();
 
         #region Plugin Interfaces     
-        IFreeGrabbableStateModule IV_FreeGrabbable._StateModule => _service.StateModule;
+        IGrabbableStateModule IV_FreeGrabbable._StateModule => _service.StateModule;
         IRangedGrabInteractionModule IV_FreeGrabbable._RangedGrabModule => _service.RangedGrabInteractionModule;
         #endregion
 
@@ -22,6 +22,7 @@ namespace VE2.Core.VComponents.Integration
 
         private FreeGrabbableService _service = null;
         private RigidbodyWrapper _rigidbodyWrapper = null;
+        private TransformWrapper _transformWrapper = null;
         private void OnEnable()
         {
             string id = "FreeGrabbable-" + gameObject.name;

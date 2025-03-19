@@ -16,6 +16,10 @@ public class PluginTest : MonoBehaviour
     [SerializeField] private GameObject _handheldActivatableGO;
     [SerializeField] private GameObject _handheldAdjustableGO;
     [SerializeField] private GameObject _networkObjectGO;
+    [SerializeField] private GameObject _linearAdjustableGO;
+    [SerializeField] private GameObject _rotationalAdjustableGO;
+
+    [SerializeField] private TMP_Text _roomColorText;
 
     private IV_ToggleActivatable _pushActivatable => _pushButtonGO.GetComponent<IV_ToggleActivatable>();
     private IV_FreeGrabbable _freeGrabbable => _freeGrabbableGO.GetComponent<IV_FreeGrabbable>();
@@ -23,20 +27,32 @@ public class PluginTest : MonoBehaviour
     private IV_HandheldAdjustable _handheldAdjustable => _handheldAdjustableGO.GetComponent<IV_HandheldAdjustable>();
     private IV_NetworkObject _networkObject => _networkObjectGO.GetComponent<IV_NetworkObject>();
 
+    private IV_LinearAdjustable _linearAdjustable => _linearAdjustableGO.GetComponent<IV_LinearAdjustable>();
+    private IV_RotationalAdjustable _rotationalAdjustable => _rotationalAdjustableGO.GetComponent<IV_RotationalAdjustable>();
+
     private int _counter = 0;
 
     // Start is called before the first frame update
     void Start()
     {
+        _roomColorText.text = "Blue Room";
+        _roomColorText.color = Color.blue;
+
         //_pushActivatable.OnActivate.AddListener(OnButtonActivate);
         //_pushActivatable.OnDeactivate.AddListener(OnButtonDeactivate);
 
         _freeGrabbable.OnGrab.AddListener(OnFreeGrabbableGrab);
         _freeGrabbable.OnDrop.AddListener(OnFreeGrabbableDrop);
 
+        _linearAdjustable.OnGrab.AddListener(OnLinearAdjustableGrab);
+        _linearAdjustable.OnDrop.AddListener(OnLinearAdjustableDrop);
+
         _handheldActivatable.OnActivate.AddListener(OnHandheldActivatableActivate);
         _handheldActivatable.OnDeactivate.AddListener(OnHandheldActivatableDeactivate);
         _handheldAdjustable.OnValueAdjusted.AddListener(OnHandheldAdjustableValueAdjusted);
+
+        _linearAdjustable.OnValueAdjusted.AddListener(OnLinearAdjustableValueAdjusted);
+        _rotationalAdjustable.OnValueAdjusted.AddListener(OnRotationalAdjustableValueAdjusted);
 
         _networkObject.OnStateChange.AddListener(HandleNetworkObjectStateChange);
 
@@ -77,6 +93,19 @@ public class PluginTest : MonoBehaviour
         Debug.Log($"Free Grabbable State = {_freeGrabbable.IsGrabbed}");
     }
 
+
+    public void OnLinearAdjustableGrab()
+    {
+        Debug.Log("Adjustable grabbed!");
+        Debug.Log($"Adjustable State = {_linearAdjustable.IsGrabbed}");
+    }
+
+    public void OnLinearAdjustableDrop()
+    {
+        Debug.Log("Adjustable dropped!");
+        Debug.Log($"Adjustable State = {_linearAdjustable.IsGrabbed}");
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -96,6 +125,14 @@ public class PluginTest : MonoBehaviour
         else if (Keyboard.current.digit6Key.wasPressedThisFrame)
             _handheldAdjustable.Value++;
 
+        else if(Keyboard.current.digit7Key.wasPressedThisFrame)
+        {
+            _linearAdjustable.OutputValue = Random.Range(_linearAdjustable.MinimumOutputValue, _linearAdjustable.MaximumOutputValue);
+        }
+        else if(Keyboard.current.digit8Key.wasPressedThisFrame)
+        {
+            _rotationalAdjustable.OutputValue = Random.Range(_rotationalAdjustable.MinimumOutputValue, _rotationalAdjustable.MaximumOutputValue);
+        }
     }
 
     private void OnHandheldActivatableActivate()
@@ -114,6 +151,19 @@ public class PluginTest : MonoBehaviour
     {
         Debug.Log("Handheld Adjustable Adjusted!");
         Debug.Log($"Handheld Adjustable Value = {_handheldAdjustable.Value}");
+    }
+    private void OnLinearAdjustableValueAdjusted(float value)
+    {
+        Debug.Log("Linear Adjustable Adjusted!");
+        Debug.Log($"Linear Adjustable Value = {_linearAdjustable.OutputValue}");
+        Debug.Log($"Linear Adjustable Output Value = {_linearAdjustable.SpatialValue}");
+    }
+
+    private void OnRotationalAdjustableValueAdjusted(float value)
+    {
+        Debug.Log("Rotational Adjustable Adjusted!");
+        Debug.Log($"Rotational Adjustable Value = {_rotationalAdjustable.OutputValue}");
+        Debug.Log($"Rotational Adjustable Output Value = {_rotationalAdjustable.SpatialValue}");
     }
 
     private void HandleNetworkObjectStateChange(object data)

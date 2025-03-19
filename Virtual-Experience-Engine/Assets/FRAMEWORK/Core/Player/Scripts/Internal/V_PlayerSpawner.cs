@@ -12,7 +12,9 @@ namespace VE2.Core.Player.Internal
     {
         [SerializeField] public bool EnableVR = false;
         [SerializeField] public bool Enable2D = true;
-        [SerializeField] public bool EnableFreeFlyMode = false;
+
+        [SerializeField] public bool EnableFreeFlyMode = false; //TODO - encapsulate in some config object?
+
 
         [Title("Avatar Presentation Override Selection")]
         [BeginGroup(Style = GroupStyle.Round), SerializeField] public AvatarAppearanceOverrideType HeadOverrideType = AvatarAppearanceOverrideType.None;

@@ -44,7 +44,7 @@ namespace VE2.Core.Tests
             FreeGrabbableService freeGrabbable = new(
                 new List<IHandheldInteractionModule>() { _handheldAdjustablePlayerInterface },
                 new FreeGrabbableConfig(),
-                new FreeGrabbableState(),
+                new GrabbableState(),
                 "debug",
                 Substitute.For<IWorldStateSyncService>(),
                 InteractorContainerSetup.InteractorContainer,
@@ -60,12 +60,12 @@ namespace VE2.Core.Tests
         public void WithHandheldAdjustable_OnUserScroll_CustomerScriptReceiveOnValueAdjusted([Random(-100f, 0f, 1)] float minValue, [Random(0f, 100f, 1)] float maxValue)
         {
             //get starting and increment values
-            float startingValue = _handheldAdjustableConfig.StateConfig.StartingValue;
-            float increment = _handheldAdjustableConfig.HandheldAdjustableServiceConfig.IncrementPerScrollTick;
+            float startingValue = _handheldAdjustableConfig.StateConfig.StartingOutputValue;
+            float increment = _handheldAdjustableConfig.StateConfig.IncrementPerScrollTick;
 
             //assign min and max values
-            _handheldAdjustableConfig.StateConfig.MinimumValue = minValue;
-            _handheldAdjustableConfig.StateConfig.MaximumValue = maxValue;
+            _handheldAdjustableConfig.StateConfig.MinimumOutputValue = minValue;
+            _handheldAdjustableConfig.StateConfig.MaximumOutputValue = maxValue;
 
             //stub out the raycast result to return the grabbable's interaction module
             RayCastProviderSetup.StubRangedInteractionModuleForRaycastProviderStub(_grabbableRaycastInterface.RangedGrabInteractionModule);

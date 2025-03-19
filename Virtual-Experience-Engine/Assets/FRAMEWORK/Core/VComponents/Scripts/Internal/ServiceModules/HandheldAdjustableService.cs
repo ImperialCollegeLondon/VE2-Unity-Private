@@ -20,8 +20,6 @@ namespace VE2.Core.VComponents.Internal
         [Title("Scroll Settings")]
         [SerializeField] public bool LoopValues = false;
 
-        [EndGroup, SerializeField] public float IncrementPerScrollTick = 1;
-
         // [SerializeField] public bool SinglePressScroll = false;
         // [ShowIf("SinglePressScroll", false)]
         // [EndGroup, SerializeField] public float IncrementPerSecondVRStickHeld = 4;
@@ -39,10 +37,13 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         private readonly HandheldAdjustableServiceConfig  _handheldAdjustableServiceConfig;
+
         private HandheldAdjustableConfig config;
         private AdjustableState state;
         private string id;
         private IWorldStateSyncService worldStateSyncService;
+
+        private readonly AdjustableStateConfig  _adjustableStateConfig;
 
         public HandheldAdjustableService(HandheldAdjustableConfig config, VE2Serializable state, string id, IWorldStateSyncService worldStateSyncService)
         {
@@ -50,6 +51,7 @@ namespace VE2.Core.VComponents.Internal
             _HandheldScrollInteractionModule = new(config.GeneralInteractionConfig);
 
             _handheldAdjustableServiceConfig = config.HandheldAdjustableServiceConfig;
+            _adjustableStateConfig = config.StateConfig;
             _HandheldScrollInteractionModule.OnScrollUp += HandleScrollUp;
             _HandheldScrollInteractionModule.OnScrollDown += HandleScrollDown;
         }
@@ -61,7 +63,7 @@ namespace VE2.Core.VComponents.Internal
 
         private void HandleScrollUp(ushort clientID)
         {
-            float targetValue = _StateModule.Value + _handheldAdjustableServiceConfig.IncrementPerScrollTick;
+            float targetValue = _StateModule.OutputValue + _adjustableStateConfig.IncrementPerScrollTick;
 
             if (_StateModule.IsAtMaximumValue)
             {
@@ -77,7 +79,7 @@ namespace VE2.Core.VComponents.Internal
 
         private void HandleScrollDown(ushort clientID)
         {
-            float targetValue = _StateModule.Value - _handheldAdjustableServiceConfig.IncrementPerScrollTick;
+            float targetValue = _StateModule.OutputValue - _adjustableStateConfig.IncrementPerScrollTick;
 
             if (_StateModule.IsAtMinimumValue)
             {

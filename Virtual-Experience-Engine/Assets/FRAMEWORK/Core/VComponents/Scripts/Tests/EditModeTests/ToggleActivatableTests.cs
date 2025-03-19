@@ -15,8 +15,12 @@ namespace VE2.Core.VComponents.Tests
 
         //Setup Once for every single test in this test class
         [OneTimeSetUp]
-        public void SetUpOnce()
-        {
+        public void SetUpOnce() { }
+
+        //setup that runs before every test method in this class
+        [SetUp]
+        public void SetUpBeforeEveryTest() 
+        { 
             //Create the activatable
             ToggleActivatableService toggleActivatable = new(new ToggleActivatableConfig(), new SingleInteractorActivatableState(), "debug", Substitute.For<IWorldStateSyncService>());
 
@@ -57,6 +61,10 @@ namespace VE2.Core.VComponents.Tests
 
             _v_toggleActivatableProviderStub.TearDown();
         }
+
+        //tear down that runs once after all the tests in this class
+        [OneTimeTearDown]
+        public void TearDownOnce() { }
     }
 
     internal class PluginActivatableScript
@@ -68,6 +76,7 @@ namespace VE2.Core.VComponents.Tests
     internal class V_ToggleActivatableProviderStub : IV_ToggleActivatable, IRangedClickInteractionModuleProvider, ICollideInteractionModuleProvider
     {
         #region Plugin Interfaces
+
         ISingleInteractorActivatableStateModule IV_ToggleActivatable._StateModule => _ToggleActivatable.StateModule;
         IRangedClickInteractionModule IV_ToggleActivatable._RangedClickModule => _ToggleActivatable.RangedClickInteractionModule;
         #endregion

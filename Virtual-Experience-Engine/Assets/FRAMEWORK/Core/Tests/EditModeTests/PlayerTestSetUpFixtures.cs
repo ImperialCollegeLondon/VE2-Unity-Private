@@ -13,6 +13,7 @@ namespace VE2.Core.Tests
     {
         public static ILocalClientIDProvider LocalClientIDProviderStub { get; private set; }
         public static InteractorID InteractorID { get; private set; }
+        public static ushort LocalClientID => LocalClientIDProviderStub.LocalClientID;
         public static string InteractorGameobjectName { get; private set; }
 
         [OneTimeSetUp]

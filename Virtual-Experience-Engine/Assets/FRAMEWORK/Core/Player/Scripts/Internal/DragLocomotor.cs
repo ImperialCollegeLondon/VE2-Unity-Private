@@ -21,8 +21,8 @@ namespace VE2.Core.Player.Internal
         private readonly Transform _rootTransform; //For horizontal drag
         private readonly Transform _headOffsetTransform; //For vertical drag
         private readonly Transform _handTransform; //For measuring drag delta 
-        private LayerMask groundLayerMask => LayerMask.GetMask("Traversible");
 
+        private LayerMask _groundLayerMask => LayerMask.GetMask("Ground");
 
         public DragLocomotor(DragLocomotorReferences locomotorVRReferences, DragLocomotorInputContainer inputContainer, DragLocomotorInputContainer otherVRHandInputContainer,
             Transform rootTransform, Transform headOffsetTransform, Transform handTransform)
@@ -171,12 +171,12 @@ namespace VE2.Core.Player.Internal
             Vector3 targetRaycastPosition = currentRaycastPosition + moveVector;
 
             // Perform raycast from current raycast position to check for ground
-            if (Physics.Raycast(currentRaycastPosition, Vector3.down, out RaycastHit currentHit, Mathf.Infinity, groundLayerMask))
+            if (Physics.Raycast(currentRaycastPosition, Vector3.down, out RaycastHit currentHit, Mathf.Infinity, _groundLayerMask))
             {
                 float currentGroundHeight = currentHit.point.y;
 
                 // Perform raycast from target position to check for ground
-                if (Physics.Raycast(targetRaycastPosition, Vector3.down, out RaycastHit targetHit, Mathf.Infinity, groundLayerMask))
+                if (Physics.Raycast(targetRaycastPosition, Vector3.down, out RaycastHit targetHit, Mathf.Infinity, _groundLayerMask))
                 {
                     float targetGroundHeight = targetHit.point.y;
                     float heightDifference = Mathf.Abs(targetGroundHeight - currentGroundHeight);

@@ -101,7 +101,7 @@ namespace VE2.Core.Player.Internal
                 _playerVR = new PlayerControllerVR(
                     interactorContainer, _playerInputContainer.PlayerVRInputContainer,
                     playerSettingsHandler, new PlayerVRControlConfig(), //TODO: 
-                    raycastProvider, xrManagerWrapper, playerSyncer, config.EnableFreeFlyMode);
+                    raycastProvider, xrManagerWrapper, playerSyncer, config.EnableFreeFlyMode); //TODO: can't pass free fly in by val like this
             }
 
             if (_config.Enable2D)
