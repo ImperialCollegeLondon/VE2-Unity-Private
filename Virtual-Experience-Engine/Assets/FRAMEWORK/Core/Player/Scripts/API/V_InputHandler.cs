@@ -446,7 +446,7 @@ namespace VE2.Core.Player.API
         //Minimum threshold to detect thumbstick movement to process stick press input and teleport input
         private const float MIN_STICKPRESS_THRESHOLD = 0.8f;
         private const float MIN_TELEPORT_STICKPRESS_THRESHOLD = 0.8f;
-        private const float MAX_TELEPORT_NEUTRAL_THRESHOLD = 0.3f;
+        private const float MAX_TELEPORT_NEUTRAL_THRESHOLD = 0.45f;
         private List<StickPressInput> _stickPressInputs;
         private List<TeleportInput> _teleportInputs;
         private void CreateInputs()

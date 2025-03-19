@@ -10,7 +10,7 @@ namespace VE2.Core.Player.Internal
         private readonly TeleportInputContainer _inputContainer;
         private readonly Transform _rootTransform; // For rotating the player
 
-        private readonly Transform _headTransform; // For setting the player's position in free fly mode
+        private readonly Transform _headTransform; // For setting the player's position in free fly mode TODO: Doesn't seem to be assigned
 
         private readonly Transform _thisHandTeleportRaycastOrigin; // Position of the teleport raycast origin
         private readonly Transform _otherHandTeleportRaycastOrigin; // Position of the other hand teleport raycast origin
@@ -95,22 +95,25 @@ namespace VE2.Core.Player.Internal
             if (!wasTeleporterActive)
                 return;
 
-            // Teleport User
-            Vector3 initialHandPosition = _otherHandTeleportRaycastOrigin.position;
-            Quaternion initialHandRotation = _otherHandTeleportRaycastOrigin.rotation;
+            if (_isTeleportSuccessful)
+            {
+                // Teleport User
+                Vector3 initialHandPosition = _otherHandTeleportRaycastOrigin.position;
+                Quaternion initialHandRotation = _otherHandTeleportRaycastOrigin.rotation;
 
-            _rootTransform.position = _hitPoint;
-            _rootTransform.rotation = _teleportRotation;
+                _rootTransform.position = _hitPoint;
+                _rootTransform.rotation = _teleportRotation;
 
-            Vector3 finallHandPosition = _otherHandTeleportRaycastOrigin.position;
-            Quaternion finalHandRotation = _otherHandTeleportRaycastOrigin.rotation;
-            //Get raycast origin pos/rot again 
+                Vector3 finallHandPosition = _otherHandTeleportRaycastOrigin.position;
+                Quaternion finalHandRotation = _otherHandTeleportRaycastOrigin.rotation;
+                //Get raycast origin pos/rot again 
 
-            //Delta between the two 
-            Vector3 deltaPosition = finallHandPosition - initialHandPosition;
-            Quaternion deltaRotation = finalHandRotation * Quaternion.Inverse(initialHandRotation);
+                //Delta between the two 
+                Vector3 deltaPosition = finallHandPosition - initialHandPosition;
+                Quaternion deltaRotation = finalHandRotation * Quaternion.Inverse(initialHandRotation);
 
-            _otherHandGrabbableWrapper.RangedFreeGrabInteraction?.ApplyDeltaWhenGrabbed(deltaPosition, deltaRotation); //Handle the teleportation for the ranged grab interaction module
+                _otherHandGrabbableWrapper.RangedFreeGrabInteraction?.ApplyDeltaWhenGrabbed(deltaPosition, deltaRotation); //Handle the teleportation for the ranged grab interaction module
+            }
 
             CancelTeleport();
         }
