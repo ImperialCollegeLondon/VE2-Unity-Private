@@ -45993,8 +45993,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: PLUGIN UI CONTENT
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 255bb2044a857ba4ab56cf90fe8ef86c, type: 2}
-  m_sharedMaterial: {fileID: 7957192588435596465, guid: 255bb2044a857ba4ab56cf90fe8ef86c,
+  m_fontAsset: {fileID: 11400000, guid: 5e9555234a448f74fa4a573202db0160, type: 2}
+  m_sharedMaterial: {fileID: -7190921755893868752, guid: 5e9555234a448f74fa4a573202db0160,
     type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
