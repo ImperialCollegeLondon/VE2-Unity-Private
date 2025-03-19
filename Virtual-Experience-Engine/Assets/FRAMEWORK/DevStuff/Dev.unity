@@ -3533,8 +3533,8 @@ GameObject:
   m_Component:
   - component: {fileID: 798246511}
   - component: {fileID: 798246512}
-  - component: {fileID: 798246513}
   - component: {fileID: 798246514}
+  - component: {fileID: 798246515}
   m_Layer: 0
   m_Name: PlayerSpawner
   m_TagString: Untagged
@@ -3595,20 +3595,6 @@ MonoBehaviour:
     AvatarRed: 255
     AvatarGreen: 60
     AvatarBlue: 60
---- !u!114 &798246513
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 798246509}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7e4caf408e1554349b678c8f692a6636, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _enablePrimaryUI: 1
-  _enableSecondaryUI: 0
 --- !u!114 &798246514
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3622,6 +3608,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _pluginPrimaryUIHolder: {fileID: 1757859854}
+--- !u!114 &798246515
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 798246509}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e4caf408e1554349b678c8f692a6636, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _enablePrimaryUI: 1
+  _enableSecondaryUI: 1
 --- !u!1 &803663753
 GameObject:
   m_ObjectHideFlags: 0

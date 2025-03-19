@@ -6041,7 +6041,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3045147985085253072
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6193,8 +6193,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.00016784668, y: 0.000091552734}
-  m_SizeDelta: {x: -115.21, y: -41.56}
+  m_AnchoredPosition: {x: -0.0019378662, y: 0.000091552734}
+  m_SizeDelta: {x: -130.96, y: -41.56}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8920911291854665038
 CanvasRenderer:
@@ -6259,7 +6259,7 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 4
+  m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -6290,7 +6290,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 51.729446, y: 0, z: 19.83873, w: 0}
+  m_margin: {x: 77.69474, y: 0, z: 19.83873, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -6694,7 +6694,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -105.458626, y: 0.048291}
+  m_AnchoredPosition: {x: -123, y: 2.6921e-10}
   m_SizeDelta: {x: 72.1918, y: 73.6561}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &162227409166493640
