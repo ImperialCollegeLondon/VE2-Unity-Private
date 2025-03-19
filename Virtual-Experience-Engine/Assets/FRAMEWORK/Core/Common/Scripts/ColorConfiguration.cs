@@ -16,6 +16,9 @@ namespace VE2.Core.Common
 
         public Color PointerIdleColor; 
         public Color PointerHighlightColor;
+
+        public Color TeleportValidColor;
+        public Color TeleportInvalidColor;
     }
 }
 

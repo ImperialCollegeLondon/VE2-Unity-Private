@@ -3,7 +3,7 @@ using VE2.Core.Player.API;
 
 namespace VE2.Core.Player.Internal
 {
-    internal class DragLocomotor
+    internal class DragLocomotorController
     {   
         private DragLocomotorInputContainer _otherVRHandInputContainer;
 
@@ -20,12 +20,13 @@ namespace VE2.Core.Player.Internal
         private readonly DragLocomotorInputContainer _inputContainer;
         private readonly Transform _rootTransform; //For horizontal drag
         private readonly Transform _headOffsetTransform; //For vertical drag
+        private readonly Transform _headTransform; //For orienting the drag icons towards the camera
         private readonly Transform _handTransform; //For measuring drag delta 
 
         private LayerMask _groundLayerMask => LayerMask.GetMask("Ground");
 
-        public DragLocomotor(DragLocomotorReferences locomotorVRReferences, DragLocomotorInputContainer inputContainer, DragLocomotorInputContainer otherVRHandInputContainer,
-            Transform rootTransform, Transform headOffsetTransform, Transform handTransform)
+        public DragLocomotorController(DragLocomotorReferences locomotorVRReferences, DragLocomotorInputContainer inputContainer, DragLocomotorInputContainer otherVRHandInputContainer,
+            Transform rootTransform, Transform headOffsetTransform, Transform headTransform, Transform handTransform)
         {
             _iconHolder = locomotorVRReferences.DragIconHolder;
             _horizontalMoveIndicator = locomotorVRReferences.HorizontalDragIndicator;
@@ -37,12 +38,13 @@ namespace VE2.Core.Player.Internal
 
             _rootTransform = rootTransform;
             _headOffsetTransform = headOffsetTransform;
+            _headTransform = headTransform;
             _handTransform = handTransform;
         }
 
         public void HandleUpdate()
         {
-            Vector3 cameraToIcon = _sphereIcon.transform.position - _headOffsetTransform.position;
+            Vector3 cameraToIcon = _sphereIcon.transform.position - _headTransform.position;
             Vector3 forwardDirection = Vector3.ProjectOnPlane(cameraToIcon, Vector3.up);
             _horizontalMoveIndicator.transform.forward = forwardDirection;
             _verticalMoveIndicator.transform.forward = forwardDirection;

@@ -15,6 +15,9 @@ namespace VE2.Core.Player.Internal
         public DragLocomotorReferences LocomotorVRReferences => _locomotorVRReferences;
         [SerializeField] private DragLocomotorReferences _locomotorVRReferences;
 
+        public TeleporterReferences TeleporterReferences => _teleporterReferences;
+        [SerializeField] private TeleporterReferences _teleporterReferences;
+
         public WristUIReferences WristUIReferences => _wristUIReferences;
         [SerializeField] private WristUIReferences _wristUIReferences;
 
@@ -22,7 +25,7 @@ namespace VE2.Core.Player.Internal
         //TODO: Tooltips? 
     }
 
-[Serializable]
+    [Serializable]
     internal class InteractorVRReferences : InteractorReferences
     {
         public LineRenderer LineRenderer => _lineRenderer;
@@ -49,6 +52,16 @@ namespace VE2.Core.Player.Internal
 
         public GameObject SphereDragIcon => _sphereDragIcon;
         [SerializeField, IgnoreParent] public GameObject _sphereDragIcon;
+    }
+
+    [Serializable]
+    public class TeleporterReferences
+    {
+        public LineRenderer TeleportLineRenderer => _teleportLineRenderer;
+        [SerializeField] private  LineRenderer _teleportLineRenderer;
+
+        public GameObject TeleportCursorPrefab => _teleportCursorPrefab;
+        [SerializeField] private  GameObject _teleportCursorPrefab;
     }
 
     [Serializable]

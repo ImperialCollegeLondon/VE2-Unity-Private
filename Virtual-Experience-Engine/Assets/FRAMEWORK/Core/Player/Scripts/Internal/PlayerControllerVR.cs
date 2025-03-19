@@ -95,21 +95,22 @@ namespace VE2.Core.Player.Internal
                 thisHandVRReferences.InteractorVRReferences,
                 interactorType, raycastProvider, multiplayerSupport, thisHandGrabbableWrapper, hoveringOverScrollableIndicator);
 
-            DragLocomotor dragLocomotor = new(
+            DragLocomotorController dragLocomotor = new(
                 thisHandVRReferences.LocomotorVRReferences,
                 handVRInputContainer.DragLocomotorInputContainer,
                 otherHandDragInputContainer,
-                _rootTransform, _verticalOffsetTransform, handGO.transform);
+                _rootTransform, _verticalOffsetTransform, _headTransform, handGO.transform);
 
-            SnapTurn snapTurn = new(
+            SnapTurnController snapTurn = new(
                 handVRInputContainer.SnapTurnInputContainer,
                 _rootTransform,
                 handVRInputContainer.TeleportInputContainer, thisHandGrabbableWrapper,otherHandGrabbableWrapper, thisHandVRReferences.InteractorVRReferences.RayOrigin, otherHandVRReferences.InteractorVRReferences.RayOrigin);
-            
-            Teleport teleport = new(
+
+            TeleportController teleport = new(
                 handVRInputContainer.TeleportInputContainer,
-                _rootTransform, thisHandVRReferences.InteractorVRReferences.RayOrigin, 
-                otherHandVRReferences.InteractorVRReferences.RayOrigin, thisHandGrabbableWrapper, otherHandGrabbableWrapper, hoveringOverScrollableIndicator, _enableFreeFlyMode);
+                thisHandVRReferences.TeleporterReferences.TeleportLineRenderer, thisHandVRReferences.InteractorVRReferences.LineRenderer, thisHandVRReferences.TeleporterReferences.TeleportCursorPrefab,
+                _rootTransform, _headTransform, otherHandVRReferences.InteractorVRReferences.RayOrigin,
+                thisHandGrabbableWrapper, otherHandGrabbableWrapper, hoveringOverScrollableIndicator, _enableFreeFlyMode);
 
             WristUIHandler wristUIHandler = new(
                 secondaryUIService, thisHandVRReferences.WristUIReferences.WristUIHolder, _headTransform, thisHandVRReferences.WristUIReferences.Indicator, needsToFlip);

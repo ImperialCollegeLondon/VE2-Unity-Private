@@ -4,7 +4,7 @@ using VE2.Core.Player.API;
 
 namespace VE2.Core.Player.Internal
 {
-    internal class SnapTurn
+    internal class SnapTurnController
     {   
         private float _snapTurnAmount = 45.0f;
 
@@ -16,7 +16,7 @@ namespace VE2.Core.Player.Internal
         private readonly Transform _handTransform;
         private readonly Transform _otherHandTransform;
         
-        public SnapTurn(SnapTurnInputContainer inputContainer, Transform rootTransform, TeleportInputContainer teleportInputContainer, FreeGrabbableWrapper thisHandGrabbableWrapper, FreeGrabbableWrapper otherHandGrabbaleWrapper, Transform handTransform, Transform otherHandTransform)
+        public SnapTurnController(SnapTurnInputContainer inputContainer, Transform rootTransform, TeleportInputContainer teleportInputContainer, FreeGrabbableWrapper thisHandGrabbableWrapper, FreeGrabbableWrapper otherHandGrabbaleWrapper, Transform handTransform, Transform otherHandTransform)
         {
             _inputContainer = inputContainer;
             _rootTransform = rootTransform;

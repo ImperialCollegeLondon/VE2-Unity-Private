@@ -16,15 +16,15 @@ namespace VE2.Core.Player.Internal
         private readonly IValueInput<Vector3> _positionInput;
         private readonly IValueInput<Quaternion> _rotationInput;
         private readonly InteractorVR _interactor;
-        private readonly DragLocomotor _dragLocomotor;
-        private readonly SnapTurn _snapTurn;
-        private readonly Teleport _teleport;
+        private readonly DragLocomotorController _dragLocomotor;
+        private readonly SnapTurnController _snapTurn;
+        private readonly TeleportController _teleport;
         private readonly WristUIHandler _wristUIHandler;
 
         private List<Material> _colorMaterials = new();
 
         public V_HandController(GameObject handGO, HandVRInputContainer handVRInputContainer, InteractorVR interactor, 
-            DragLocomotor dragLocomotor, SnapTurn snapTurn, Teleport teleport, WristUIHandler wristUIHandler)
+            DragLocomotorController dragLocomotor, SnapTurnController snapTurn, TeleportController teleport, WristUIHandler wristUIHandler)
         {
             _handGO = handGO;
 

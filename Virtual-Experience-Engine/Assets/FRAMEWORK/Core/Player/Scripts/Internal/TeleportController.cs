@@ -1,31 +1,39 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using VE2.Core.Common;
 using VE2.Core.Player.API;
 
 namespace VE2.Core.Player.Internal
 {
-    internal class Teleport
+    internal class TeleportController
     {
+        #region Dependencies
         private readonly TeleportInputContainer _inputContainer;
+
+        private LineRenderer _teleportLineRenderer;
+        private readonly LineRenderer _interactorLineRenderer; // Position of the teleport raycast origin
+        private readonly Material _teleportLineMaterial;
+        private readonly ColorConfiguration _colorConfig;
+        private readonly GameObject _teleportCursor;
+        private const float LINE_EMISSION_INTENSITY = 15;
+
+        private LayerMask _teleportLayerMask => LayerMask.GetMask("Ground"); //TODO - inject?
+
         private readonly Transform _rootTransform; // For rotating the player
-
         private readonly Transform _headTransform; // For setting the player's position in free fly mode TODO: Doesn't seem to be assigned
+        private readonly Transform _otherHandTransformReference; // Position of the other hand teleport raycast origin
+        private Transform _teleportRayOrigin => _teleportLineRenderer.transform;
 
-        private readonly Transform _thisHandTeleportRaycastOrigin; // Position of the teleport raycast origin
-        private readonly Transform _otherHandTeleportRaycastOrigin; // Position of the other hand teleport raycast origin
         private readonly FreeGrabbableWrapper _thisHandGrabbableWrapper;
         private readonly FreeGrabbableWrapper _otherHandGrabbableWrapper;
 
-        private readonly bool _enableFreeFlyMode;
-
         private readonly HoveringOverScrollableIndicator _hoveringOverScrollableIndicator;
+        private readonly bool _enableFreeFlyMode; //TODO - needs to be wired in by ref
+        #endregion
 
+        #region Runtime data
         private bool _teleporterActive = false;
-        private GameObject _reticle;
-        private LineRenderer _lineRenderer;
-        private GameObject _lineRendererObject;
-        private GameObject _arrowObject;
         private Vector3 _hitPoint;
 
         private Quaternion _teleportTargetRotation;
@@ -34,41 +42,52 @@ namespace VE2.Core.Player.Internal
         private float _initialSpeed = 10f; // Initial speed of the projectile motion
         private float _simulationTimeStep = 0.05f;
 
-        private LayerMask _teleportLayerMask => LayerMask.GetMask("Ground");
         private Vector2 _currentTeleportDirection;
         private int _lineSegmentCount = 20; // Number of segments in the Bezier curve
         private float _maxSlopeAngle = 45f; // Maximum slope angle in degrees
-        private bool _isTeleportSuccessful = false;
-        private Color _teleportColor = new Color(0.0f, 0.9764706f, 0.7921569f, 0.3176471f);  //TODO - wire into TP config
+        private bool _isTeleportTargetValid = false;
+        #endregion
 
-        public Teleport(TeleportInputContainer inputContainer, Transform rootTransform, Transform thisHandTeleportRaycastOrigin, 
-            Transform otherHandTeleportRaycastOrigin, FreeGrabbableWrapper thisHandGrabbableWrapper, FreeGrabbableWrapper otherHandGrabbableWrapper,
+        public TeleportController(TeleportInputContainer inputContainer,
+            LineRenderer teleportLineRenderer, LineRenderer interactorLineRenderer, GameObject teleportCursorPrefab,
+            Transform rootTransform, Transform headTransform, Transform otherHandTransformReference,  
+            FreeGrabbableWrapper thisHandGrabbableWrapper, FreeGrabbableWrapper otherHandGrabbableWrapper,
             HoveringOverScrollableIndicator hoveringOverScrollableIndicator, bool enableFreeFlyMode)
         {
             _inputContainer = inputContainer;
             _rootTransform = rootTransform;
+            _headTransform = headTransform;
 
-            _thisHandTeleportRaycastOrigin = thisHandTeleportRaycastOrigin;
-            _otherHandTeleportRaycastOrigin = otherHandTeleportRaycastOrigin;
+            _interactorLineRenderer = interactorLineRenderer.GetComponent<LineRenderer>();
+            _otherHandTransformReference = otherHandTransformReference;
+
+            _colorConfig = Resources.Load<ColorConfiguration>("ColorConfiguration"); //TODO: Inject
+            _teleportLineRenderer = teleportLineRenderer;
+            _teleportLineRenderer.positionCount = _lineSegmentCount + 1;
+            _teleportLineRenderer.enabled = false;
+            _teleportLineRenderer.useWorldSpace = false;
+            _teleportLineMaterial = _teleportLineRenderer.material;
+            _teleportLineMaterial.EnableKeyword("_EMISSION");
+
+            _teleportCursor = GameObject.Instantiate(teleportCursorPrefab);
+            _teleportCursor.transform.SetParent(_teleportRayOrigin.parent);
+            _teleportCursor.SetActive(false);
+
             _thisHandGrabbableWrapper = thisHandGrabbableWrapper;
             _otherHandGrabbableWrapper = otherHandGrabbableWrapper;
-
-            _enableFreeFlyMode = enableFreeFlyMode;
-
             _hoveringOverScrollableIndicator = hoveringOverScrollableIndicator;
 
+            _enableFreeFlyMode = enableFreeFlyMode;
         }
 
         public void HandleUpdate()
         {
             if (_teleporterActive) 
-                CastTeleportRay();
+                UpdateTeleportRay();
         }
 
         public void HandleOEnable()
         {
-            CreateTeleportRayAndReticle();
-
             _inputContainer.Teleport.OnPressed += HandleTeleportActivated;
             _inputContainer.Teleport.OnReleased += HandleTeleportDeactivated;
         }
@@ -83,92 +102,103 @@ namespace VE2.Core.Player.Internal
         { 
             //only handle TP if that we were clear of interactables at the time of activation
             //Fixes case of "point at a scrollable, hold up, point away, release stick", which causees an unexpected TP
-            if (!_hoveringOverScrollableIndicator.IsHoveringOverScrollableObject && _thisHandGrabbableWrapper.RangedFreeGrabInteraction == null)
-                _teleporterActive = true;
+            if (_hoveringOverScrollableIndicator.IsHoveringOverScrollableObject || _thisHandGrabbableWrapper.RangedFreeGrabInteraction != null)
+                return; 
+
+            _teleporterActive = true;
+            ToggleTeleportVisual(true);
         }
 
         private void HandleTeleportDeactivated()
         {
-            bool wasTeleporterActive = _teleporterActive;
-            _teleporterActive = false;
-
-            if (!wasTeleporterActive)
+            if (!_teleporterActive)
                 return;
 
-            if (_isTeleportSuccessful)
-            {
-                // Teleport User
-                Vector3 initialHandPosition = _otherHandTeleportRaycastOrigin.position;
-                Quaternion initialHandRotation = _otherHandTeleportRaycastOrigin.rotation;
+            _teleporterActive = false;
+            ToggleTeleportVisual(false);
 
+            if (_isTeleportTargetValid)
+            {
+                //Get raycast origin pos/rot
+                Vector3 initialHandPosition = _otherHandTransformReference.position;
+                Quaternion initialHandRotation = _otherHandTransformReference.rotation;
+
+                // Teleport User
                 _rootTransform.position = _hitPoint;
                 _rootTransform.rotation = _teleportRotation;
 
-                Vector3 finallHandPosition = _otherHandTeleportRaycastOrigin.position;
-                Quaternion finalHandRotation = _otherHandTeleportRaycastOrigin.rotation;
                 //Get raycast origin pos/rot again 
+                Vector3 finallHandPosition = _otherHandTransformReference.position;
+                Quaternion finalHandRotation = _otherHandTransformReference.rotation;
 
                 //Delta between the two 
                 Vector3 deltaPosition = finallHandPosition - initialHandPosition;
                 Quaternion deltaRotation = finalHandRotation * Quaternion.Inverse(initialHandRotation);
 
-                _otherHandGrabbableWrapper.RangedFreeGrabInteraction?.ApplyDeltaWhenGrabbed(deltaPosition, deltaRotation); //Handle the teleportation for the ranged grab interaction module
+                //if the other hand is grabbing something, teleport it along with us 
+                //We don't have to worry about that for this hand, can't be teleporting if we're grabbing!
+                _otherHandGrabbableWrapper.RangedFreeGrabInteraction?.ApplyDeltaWhenGrabbed(deltaPosition, deltaRotation); 
             }
-
-            CancelTeleport();
         }
 
-        private void CastTeleportRay()
+        private void ToggleTeleportVisual(bool toggle)
         {
-            if (_thisHandGrabbableWrapper.RangedFreeGrabInteraction != null)
-                return;
+            if (!toggle) //If turning on, wait until it has its position
+                _teleportCursor.SetActive(toggle);
 
-            Vector3 startPosition = _thisHandTeleportRaycastOrigin.position;
-            Vector3 direction = _thisHandTeleportRaycastOrigin.forward;
+            _teleportLineRenderer.enabled = toggle;
+            _interactorLineRenderer.enabled = !toggle;
+        }
 
-            _thisHandTeleportRaycastOrigin.gameObject.SetActive(false);
+        private void UpdateTeleportRay()
+        {
+            Vector3 startPosition = _teleportRayOrigin.position;
+            Vector3 direction = _teleportRayOrigin.forward;
 
             if (_enableFreeFlyMode)
             {
-                // Free-fly mode remains unchanged.
                 float stickX = _inputContainer.TeleportDirection.Value.x;
                 float distance = Mathf.Lerp(1f, 3f, stickX); // TODO: Make this configurable
                 Vector3 teleportDestination = startPosition + direction * distance;
+                
+                DrawStraightLine(startPosition, teleportDestination);
+
                 if (CanTeleport(startPosition, teleportDestination))
                 {
-                    _reticle.transform.position = teleportDestination;
+                    _teleportCursor.transform.position = teleportDestination;
 
+                    /*TODO: We'll need to rething this. Terrain below may not be level, or even present at all 
+                    When entering freefly, maybe we should intead reconfigure the rig so the head is always at the root 
+                    Then we just teleport the whole root to the target, and verticalDragMove up by root?
+                    Would need to reconfigure the rig back when leaving freefly though
+                    not ideal... means the drag loco needs to know about FreeFly - will have to think!*/
                     Vector3 delta = teleportDestination - _headTransform.position;
-                    Vector3 finalPosition = _rootTransform.position + delta;
+                    Vector3 newRootPosition = _rootTransform.position + delta;
                     if (Physics.Raycast(teleportDestination, Vector3.down, out RaycastHit hit, _teleportLayerMask))
                     {
-                        finalPosition.y = Mathf.Max(finalPosition.y, hit.point.y);
+                        newRootPosition.y = Mathf.Max(newRootPosition.y, hit.point.y);
                     }
 
-                    _hitPoint = finalPosition;
-                    Vector3 arrowDirection = _thisHandTeleportRaycastOrigin.forward;
+                    _hitPoint = newRootPosition;
+                    Vector3 arrowDirection = _teleportRayOrigin.forward;
                     arrowDirection.y = 0;
                     if (arrowDirection != Vector3.zero)
                     {
                         arrowDirection.Normalize();
                     }
-                    _arrowObject.transform.rotation = Quaternion.LookRotation(arrowDirection, Vector3.up);
-                    _teleportRotation = _arrowObject.transform.rotation;
+                    _teleportRotation =  Quaternion.LookRotation(arrowDirection, Vector3.up);
 
-                    DrawStraightLine(startPosition, teleportDestination);
+                    ToggleTeleportLineVisualShowsValid(true);
 
-                    _lineRenderer.material.color = Color.green;
-                    _reticle.SetActive(true);
-                    _arrowObject.SetActive(true);
-                    _isTeleportSuccessful = true;
+                    _teleportCursor.SetActive(true);
+                    _isTeleportTargetValid = true;
                 }
                 else
                 {
-                    DrawStraightLine(startPosition, teleportDestination);
-                    _lineRenderer.material.color = Color.red;
-                    _reticle.SetActive(false);
-                    _arrowObject.SetActive(false);
-                    _isTeleportSuccessful = false;
+                    ToggleTeleportLineVisualShowsValid(false);
+
+                    _teleportCursor.SetActive(false);
+                    _isTeleportTargetValid = false;
                 }
             }
             else
@@ -180,8 +210,7 @@ namespace VE2.Core.Player.Internal
                 // We simulate projectile motion: position = start + v0 * t + 0.5 * g * t^2.
                 _simulationTimeStep = Mathf.Clamp(_simulationTimeStep, 0.001f, 0.1f); // Ensure it doesn't go above 0.1 seconds.
                 float simulationMaxTime = 5.0f; // Adjust maximum simulation time if needed.
-                List<Vector3> trajectoryPoints = new List<Vector3>();
-                trajectoryPoints.Add(startPosition);
+                List<Vector3> trajectoryPoints = new List<Vector3> { startPosition };
 
                 bool hitFound = false;
                 RaycastHit hit = new RaycastHit();
@@ -220,37 +249,40 @@ namespace VE2.Core.Player.Internal
                 if (hitFound && IsValidSurface(hit.normal))
                 {
                     _hitPoint = hit.point;
-                    _reticle.transform.position = _hitPoint;
+                    _teleportCursor.transform.position = _hitPoint;
 
                     UpdateTargetRotation(hit.normal);
 
                     // Update the line renderer with the simulated trajectory points.
-                    _lineRenderer.positionCount = trajectoryPoints.Count;
+                    _teleportLineRenderer.positionCount = trajectoryPoints.Count;
                     for (int i = 0; i < trajectoryPoints.Count; i++)
                     {
-                        _lineRenderer.SetPosition(i, trajectoryPoints[i]);
+                        _teleportLineRenderer.SetPosition(i, _teleportLineRenderer.transform.InverseTransformPoint(trajectoryPoints[i]));
                     }
-                    _lineRenderer.material.color = _teleportColor;
-                    _reticle.SetActive(true);
-                    _arrowObject.SetActive(true);
-                    _isTeleportSuccessful = true;
+                    ToggleTeleportLineVisualShowsValid(true);
+                    _teleportCursor.SetActive(true);
+                    _isTeleportTargetValid = true;
                 }
                 else
                 {
                     // If no valid hit, render the full arc in red.
-                    _lineRenderer.positionCount = trajectoryPoints.Count;
+                    _teleportLineRenderer.positionCount = trajectoryPoints.Count;
                     for (int i = 0; i < trajectoryPoints.Count; i++)
                     {
-                        _lineRenderer.SetPosition(i, trajectoryPoints[i]);
+                        _teleportLineRenderer.SetPosition(i, _teleportLineRenderer.transform.InverseTransformPoint(trajectoryPoints[i]));
                     }
-                    _lineRenderer.material.color = Color.red;
-                    _reticle.SetActive(false);
-                    _arrowObject.SetActive(false);
-                    _isTeleportSuccessful = false;
+                    ToggleTeleportLineVisualShowsValid(false);
+                    _teleportCursor.SetActive(false);
+                    _isTeleportTargetValid = false;
                 }
             }
+        }
 
-            _lineRendererObject.SetActive(true);
+        private void ToggleTeleportLineVisualShowsValid(bool toggle)
+        {
+            Color newColor = toggle ? _colorConfig.TeleportValidColor : _colorConfig.TeleportInvalidColor;
+            _teleportLineMaterial.color = newColor;
+            _teleportLineMaterial.SetColor("_EmissionColor", newColor * LINE_EMISSION_INTENSITY);
         }
 
         private bool IsValidSurface(Vector3 normal)
@@ -260,62 +292,20 @@ namespace VE2.Core.Player.Internal
             return angle <= _maxSlopeAngle;
         }
 
-        private void CancelTeleport()
-        {
-            _reticle.SetActive(false);
-            _lineRendererObject.SetActive(false);
-            _arrowObject.SetActive(false);
-            _thisHandTeleportRaycastOrigin.gameObject.SetActive(true);
-        }
-
-        private void CreateTeleportRayAndReticle()
-        {
-            if (_lineRendererObject == null)
-            {
-                _lineRendererObject = new GameObject("LineRendererObject");
-                _lineRenderer = _lineRendererObject.AddComponent<LineRenderer>();
-                _lineRenderer.positionCount = _lineSegmentCount + 1;
-                _lineRenderer.startWidth = 0.01f;
-                _lineRenderer.endWidth = 0.01f;
-                _lineRenderer.material = new Material(Shader.Find("Unlit/Color"));
-                _lineRenderer.material.color = Color.yellow;
-                _lineRendererObject.SetActive(false);
-                _lineRendererObject.transform.SetParent(_thisHandTeleportRaycastOrigin.parent);
-                _lineRendererObject.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
-            }
-            if (_reticle == null)
-            {
-                GameObject teleportCursorPrefab = Resources.Load<GameObject>("TeleportationCursor");
-                if (teleportCursorPrefab != null)
-                {
-                    _reticle = GameObject.Instantiate(teleportCursorPrefab);
-                    _arrowObject = _reticle.transform.Find("TeleportationCursorChild").gameObject;
-
-                }
-                else
-                {
-                    Debug.LogError("TeleportCursor prefab not found in Resources.");
-                }
-            }
-
-            _reticle.SetActive(false);
-            _arrowObject.SetActive(false);
-        }
-
         private void UpdateTargetRotation(Vector3 surfaceNormal)
         {
             // Set arrow direction based on the raycast origin's horizontal forward.
-            Vector3 arrowDirection = _thisHandTeleportRaycastOrigin.forward;
+            Vector3 arrowDirection = _teleportRayOrigin.forward;
             arrowDirection.y = 0;
             if (arrowDirection != Vector3.zero)
                 arrowDirection.Normalize();
-            _arrowObject.transform.rotation = Quaternion.LookRotation(arrowDirection, Vector3.up);
+            _teleportCursor.transform.rotation = Quaternion.LookRotation(arrowDirection, Vector3.up);
 
             // Get input direction and compute an additional rotation from it.
             _currentTeleportDirection = _inputContainer.TeleportDirection.Value;
             float rotationAngle = Mathf.Atan2(_currentTeleportDirection.x, _currentTeleportDirection.y) * Mathf.Rad2Deg;
             _teleportTargetRotation = Quaternion.Euler(0, rotationAngle, 0);
-            _teleportRotation = _arrowObject.transform.rotation * _teleportTargetRotation;
+            _teleportRotation = _teleportCursor.transform.rotation * _teleportTargetRotation;
 
             // Use the input rotation to determine a desired forward direction.
             Vector3 desiredForward = _teleportTargetRotation * arrowDirection;
@@ -326,14 +316,14 @@ namespace VE2.Core.Player.Internal
                 // Fallback: if projection fails, use the original forward vector.
                 desiredForward = arrowDirection;
             }
-            _arrowObject.transform.rotation = Quaternion.LookRotation(desiredForward, surfaceNormal);
+            _teleportCursor.transform.rotation = Quaternion.LookRotation(desiredForward, surfaceNormal);
         }
 
         private void DrawStraightLine(Vector3 startPosition, Vector3 endPosition)
         {
-            _lineRenderer.positionCount = 2;
-            _lineRenderer.SetPosition(0, startPosition);
-            _lineRenderer.SetPosition(1, endPosition);
+            _teleportLineRenderer.positionCount = 2;
+            _teleportLineRenderer.SetPosition(0, _teleportLineRenderer.transform.InverseTransformPoint(startPosition));
+            _teleportLineRenderer.SetPosition(1, _teleportLineRenderer.transform.InverseTransformPoint(endPosition));
         }
 
         private bool CanTeleport(Vector3 startPosition, Vector3 teleportDestination)
