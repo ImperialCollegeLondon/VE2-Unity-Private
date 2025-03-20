@@ -8,6 +8,12 @@ using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.Core.Player.Internal
 {
+
+    /*
+        TODO - when attaching player spawner, deleting, and then undoing, we are missing the player preview 
+        This is likely also true for UI provider
+    */
+
     [Serializable]
     internal class PlayerConfig
     {
@@ -84,9 +90,8 @@ namespace VE2.Core.Player.Internal
 
         [SerializeField, HideInInspector] private bool _transformDataSetup = false;
         [SerializeField, HideInInspector] private PlayerTransformData _playerTransformData = new();
-        //[SerializeField, HideInInspector] private GameObject _playerPreview;
-        private string _playerPreviewName = "VE2PlayerPreviewVisualisation";
-        private GameObject _playerPreview => GameObject.Find(_playerPreviewName); //Can't just store GO reference, as that'll get wiped as the inspector resets
+
+        private GameObject _playerPreview => FindFirstObjectByType<PlayerPreviewTag>(FindObjectsInactive.Include)?.gameObject; //Can't just store GO reference, as that'll get wiped as the inspector resets
 
         private void Reset()
         {
@@ -181,8 +186,7 @@ namespace VE2.Core.Player.Internal
 
         private void CreatePlayerPreview()
         {
-            GameObject playerPreview = GameObject.Instantiate<GameObject>(Resources.Load<GameObject>(_playerPreviewName));
-            playerPreview.name = _playerPreviewName;
+            GameObject playerPreview = GameObject.Instantiate<GameObject>(Resources.Load<GameObject>("VE2PlayerPreviewVisualisation"));
             playerPreview.transform.SetParent(transform);
             playerPreview.transform.localPosition = Vector3.zero;
             playerPreview.transform.localRotation = Quaternion.identity;
