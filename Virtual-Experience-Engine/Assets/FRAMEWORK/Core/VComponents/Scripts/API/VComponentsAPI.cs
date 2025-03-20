@@ -46,11 +46,18 @@ namespace VE2.Core.VComponents.API
         }
 
         private InteractorContainer _interactorContainer = new();
+
+        private ActivatableGroupsContainer _activatableGroupsContainer = new(); 
+
         /// <summary>
         /// Contains all interactors (local or otherwise) in the scene, allows grabbables to perform validation on grab
         /// </summary>
         internal static InteractorContainer InteractorContainer { get => Instance._interactorContainer; private set => Instance._interactorContainer = value; }
 
+        /// <summary>
+        /// Contains all activatable groups in the scene, allows activatables to perform validation on activation  within their group 
+        /// </summary>
+        internal static ActivatableGroupsContainer ActivatableGroupsContainer { get => Instance._activatableGroupsContainer; private set => Instance._activatableGroupsContainer = value; }
         private void Awake()
         {
             _instance = this;
@@ -82,5 +89,39 @@ namespace VE2.Core.VComponents.API
         }
 
         public void Reset() => _interactors.Clear();
+    }
+
+    internal class ActivatableGroupsContainer
+    {
+        private Dictionary<string, List<ISingleInteractorActivatableStateModule>> _activatableGroups = new();
+        public IReadOnlyDictionary<string, List<ISingleInteractorActivatableStateModule>> ActivatableGroups => _activatableGroups;
+
+        public void RegisterActivatable(string activatableGroupID, ISingleInteractorActivatableStateModule singleInteractorActivatableStateModule)
+        {
+            if (!_activatableGroups.ContainsKey(activatableGroupID))
+                _activatableGroups[activatableGroupID] = new List<ISingleInteractorActivatableStateModule>();
+
+            _activatableGroups[activatableGroupID].Add(singleInteractorActivatableStateModule);
+        }
+
+        public void DeregisterActivatable(string activatableGroupID, ISingleInteractorActivatableStateModule singleInteractorActivatableStateModule)
+        {
+            _activatableGroups[activatableGroupID].Remove(singleInteractorActivatableStateModule);  
+        }   
+
+        public void ActivateGroup(string activatableGroupID, ISingleInteractorActivatableStateModule singleInteractorActivatableStateModule)
+        {
+            if (!_activatableGroups.ContainsKey(activatableGroupID))
+                return;
+
+            foreach (ISingleInteractorActivatableStateModule activatable in _activatableGroups[activatableGroupID])
+            {
+                if (activatable != singleInteractorActivatableStateModule)
+                {
+                    activatable.OnDeactivate.Invoke();  
+                }             
+            }
+        }
+        public void Reset() => _activatableGroups.Clear();   
     }
 }

@@ -28,7 +28,8 @@ namespace VE2.Core.Tests
                 new ToggleActivatableConfig(),
                 new SingleInteractorActivatableState(),
                 "debug",
-                Substitute.For<IWorldStateSyncService>());
+                Substitute.For<IWorldStateSyncService>(),
+                new ActivatableGroupsContainer());
             
             //Stub out the provider layer
             _v_activatableProviderStub = new(toggleActivatableService);

@@ -22,7 +22,7 @@ namespace VE2.Core.VComponents.Tests
         public void SetUpBeforeEveryTest() 
         { 
             //Create the activatable
-            ToggleActivatableService toggleActivatable = new(new ToggleActivatableConfig(), new SingleInteractorActivatableState(), "debug", Substitute.For<IWorldStateSyncService>());
+            ToggleActivatableService toggleActivatable = new(new ToggleActivatableConfig(), new SingleInteractorActivatableState(), "debug", Substitute.For<IWorldStateSyncService>(), new ActivatableGroupsContainer());
 
             //Stub out the VC (provider layer) with the activatable
             _v_toggleActivatableProviderStub = new(toggleActivatable);
