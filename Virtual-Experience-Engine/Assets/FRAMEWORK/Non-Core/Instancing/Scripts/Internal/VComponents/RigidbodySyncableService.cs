@@ -129,7 +129,7 @@ namespace VE2.NonCore.Instancing.Internal
             }
         }
 
-        private void PerformLagCompensationForDroppedGrabbable(float roundTripTimeNonHost)
+        private void HandleLagCompensationForNonHostDrop(float roundTripTimeNonHost)
         { 
             // Make all rigidbodys in the scene, apart from this one, kinematic
             Dictionary<IRigidbodyWrapper, bool> kinematicStates = new();
@@ -146,23 +146,28 @@ namespace VE2.NonCore.Instancing.Internal
                 rigidbodyInSceneWrapper.isKinematic = true;
             }
 
+            // Simulate a "lag compensation time" into the future so that the non-host starts receiving states
+            // for a smooth drop on their side
             float lagCompensationTime = _timeBehind + (roundTripTimeNonHost + LAG_COMP_EXTRA_TIME) / 1000f;
             int cyclesToSkipForward = Mathf.CeilToInt(lagCompensationTime / Time.fixedDeltaTime) + 1;
 
-            // Simulate physics in full steps
+            // Simulate physics into the future in steps
             Physics.simulationMode = SimulationMode.Script;
 
             for (int i = 0; i < cyclesToSkipForward + LAG_COMP_SMOOTHING_FRAMES; i++)
             {
                 Physics.Simulate(UnityEngine.Time.fixedDeltaTime);
+                // Keep a record of simulated steps for host smoothing purposes
                 _storedHostLagCompensationStates.Add(new(Time.fixedTime, _rigidbody.position, _rigidbody.rotation, _grabCounter, 0, _rigidbody.linearVelocity, _rigidbody.angularVelocity));
             }
 
+            // Return physics and the locked rigidbodies back to normal
             Physics.simulationMode = SimulationMode.FixedUpdate;
 
-            foreach (KeyValuePair<IRigidbodyWrapper, bool> kinematicState in kinematicStates) //Unlock the RBs that we just locked
+            foreach (KeyValuePair<IRigidbodyWrapper, bool> kinematicState in kinematicStates)
                 kinematicState.Key.isKinematic = kinematicState.Value;
 
+            // Set a > 0 value for host smoothing frames, which are then handled in FixedUpdate
             _hostSmoothingFramesLeft = LAG_COMP_SMOOTHING_FRAMES;
         }
 
@@ -181,23 +186,26 @@ namespace VE2.NonCore.Instancing.Internal
                 _stateModule.SetStateFromHost(Time.fixedTime, _rigidbody.position, _rigidbody.rotation, _grabCounter);
             }
 
+            // If _hostSmoothingFramesLeft > 0, extra processing has to be done for host-side
             if (_stateModule.IsHost && _hostNotSendingStates && _hostSmoothingFramesLeft > 0)
             {
-                // Convert host smoothing value to lerp parameter 
-                float interpolationValueAlongStoredStates = _storedHostLagCompensationStates.Count * (1 - (float)_hostSmoothingFramesLeft / LAG_COMP_SMOOTHING_FRAMES);
-                int indexToInterpolateFrom = (int)(interpolationValueAlongStoredStates);
-
-                float interpValue = interpolationValueAlongStoredStates - (float)indexToInterpolateFrom;
-
-                (RigidbodySyncableState previousState, RigidbodySyncableState nextState) = GetRelevantRigidbodyStates(_storedHostLagCompensationStates, indexToInterpolateFrom + 1);
-
-                SetRigidbodyValues(Vector3.Lerp(previousState.Position, nextState.Position, interpValue), Quaternion.Slerp(previousState.Rotation, nextState.Rotation, interpValue));
-
-                Debug.Log($"Smoothing on host over {_storedHostLagCompensationStates.Count} frames, with {_hostSmoothingFramesLeft} frames left. TotalVal = {interpolationValueAlongStoredStates}, indexFrom = {indexToInterpolateFrom}, interpVal = {interpValue}");
-
-                // Send state from list
+                // Send state from list instead of current _rigidbody state
                 RigidbodySyncableState syncState = _storedHostLagCompensationStates[^_hostSmoothingFramesLeft];
                 _stateModule.SetStateFromHost(syncState.FixedTime, syncState.Position, syncState.Rotation, syncState.GrabCounter);
+
+                // Then do host smoothing
+                // Figure out which store states to interpolate between, and where in between those states
+                float interpolationValueAlongStoredStates = _storedHostLagCompensationStates.Count * (1 - (float)_hostSmoothingFramesLeft / LAG_COMP_SMOOTHING_FRAMES);
+                int indexOfStateToInterpolateFrom = (int)(interpolationValueAlongStoredStates);
+
+                float interpValueBetweenStates = interpolationValueAlongStoredStates - (float)indexOfStateToInterpolateFrom;
+
+                (RigidbodySyncableState previousState, RigidbodySyncableState nextState) = GetRelevantRigidbodyStates(_storedHostLagCompensationStates, indexOfStateToInterpolateFrom + 1);
+
+                SetRigidbodyValues(Vector3.Lerp(previousState.Position, nextState.Position, interpValueBetweenStates), Quaternion.Slerp(previousState.Rotation, nextState.Rotation, interpValueBetweenStates));
+
+                Debug.Log($"Smoothing on host over {_storedHostLagCompensationStates.Count} frames, with {_hostSmoothingFramesLeft} frames left. TotalVal = {interpolationValueAlongStoredStates}, indexFrom = {indexOfStateToInterpolateFrom}, interpVal = {interpValueBetweenStates}");
+
 
                 _hostSmoothingFramesLeft--;
 
@@ -207,10 +215,7 @@ namespace VE2.NonCore.Instancing.Internal
                     _rigidbody.isKinematic = _isKinematicOnStart;
 
                     RigidbodySyncableState mostRecentState = _storedHostLagCompensationStates[_storedHostLagCompensationStates.Count - 1];
-                    _rigidbody.position = mostRecentState.Position;
-                    _rigidbody.rotation = mostRecentState.Rotation;
-                    _rigidbody.linearVelocity = mostRecentState.Velocity;
-                    _rigidbody.angularVelocity = mostRecentState.AngularVelocity;
+                    SetRigidbodyValuesWithVelocity(mostRecentState);
 
                     _storedHostLagCompensationStates.Clear();
                 }
@@ -278,12 +283,14 @@ namespace VE2.NonCore.Instancing.Internal
                 Debug.Log($"Received state from host {receivedState.FromHost}, fixed time {receivedState.FixedTime}, position {receivedState.Position}, rotation {receivedState.Rotation}, grabID {_grabCounter}");
             }
 
-            if (_stateModule.IsHost)
+            if (_stateModule.IsHost && !receivedState.FromHost)
             {
-                // If a host receives a state, can we assume it's a drop state?
+                // If a host receives a state from a non-host, we'll assume it's a drop state
                 _rigidbody.isKinematic = _isKinematicOnStart;
-                SetRigidbodyValuesFromDrop(receivedState);
-                PerformLagCompensationForDroppedGrabbable(receivedState.LatestRoundTripTime);
+                SetRigidbodyValuesWithVelocity(receivedState);
+
+                // Do the special lag compensation required by the host when the non-host drops, and set kinematic
+                HandleLagCompensationForNonHostDrop(receivedState.LatestRoundTripTime);
                 _rigidbody.isKinematic = true;
             } 
             else if (!_stateModule.IsHost && receivedState.FromHost)
@@ -379,7 +386,7 @@ namespace VE2.NonCore.Instancing.Internal
                     _nonHostSmoothingTimeLeft -= Time.deltaTime;
                 }
 
-                // Do the interpolation
+                // Set values based on interp positions
                 SetRigidbodyValues(newPosition, newRotation);
 
                 if (_config.DrawInterpolationLines)
@@ -478,7 +485,7 @@ namespace VE2.NonCore.Instancing.Internal
             _rigidbody.rotation = newState.Rotation;
         }
 
-        private void SetRigidbodyValuesFromDrop(RigidbodySyncableState newState)
+        private void SetRigidbodyValuesWithVelocity(RigidbodySyncableState newState)
         {
             _rigidbody.position = newState.Position;
             _rigidbody.rotation = newState.Rotation;
