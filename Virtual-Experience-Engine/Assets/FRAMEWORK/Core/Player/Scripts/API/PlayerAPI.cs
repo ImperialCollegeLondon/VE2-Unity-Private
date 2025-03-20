@@ -6,6 +6,7 @@ using VE2.Core.VComponents.API;
 
 namespace VE2.Core.Player.API
 {
+    [ExecuteAlways]
     public class PlayerAPI : MonoBehaviour 
     {
         private static PlayerAPI _instance;

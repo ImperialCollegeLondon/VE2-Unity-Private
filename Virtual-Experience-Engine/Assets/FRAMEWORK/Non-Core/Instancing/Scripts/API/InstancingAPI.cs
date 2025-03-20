@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 
 namespace VE2.NonCore.Instancing.API
 {
+    [ExecuteAlways]
     public class InstancingAPI : MonoBehaviour
     {
         private static InstancingAPI _instance;
