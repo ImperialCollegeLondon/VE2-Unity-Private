@@ -59,6 +59,7 @@ namespace VE2.Core.VComponents.Internal
 
         private void HandleInteract(ushort clientID)
         {
+            Debug.Log($"HandleInteract {_isInActivationGroup} with {_activationGroupID}");
             if (_isInActivationGroup)
                 VComponentsAPI.ActivatableGroupsContainer.ActivateGroup(_activationGroupID, _StateModule);
 
