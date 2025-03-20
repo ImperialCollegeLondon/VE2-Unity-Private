@@ -12024,8 +12024,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea5830b1d78a6804c9c44ba68f3bacd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerConfig:
-    EnableVR: 1
+  _playerConfig:
+    EnableVR: 0
     Enable2D: 1
     MovementModeConfig:
       TraversableLayers:
@@ -31448,6 +31448,8 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+      UseActivationGroup: 0
+      ActivationGroupID: None
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
@@ -35766,6 +35768,8 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+      UseActivationGroup: 0
+      ActivationGroupID: None
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
