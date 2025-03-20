@@ -27,8 +27,8 @@ namespace VE2.Core.VComponents.Internal
         private readonly ColliderInteractionModule _ColliderInteractionModule;
         #endregion
 
-        private readonly string _activationGroupID = "None";
-        private readonly bool _isInActivationGroup = false;     
+        //private readonly string _activationGroupID = "None";
+        //private readonly bool _isInActivationGroup = false;     
         internal bool test = false;
 
         public ToggleActivatableService(ToggleActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncService worldStateSyncService, ActivatableGroupsContainer activatableGroupsContainer)
@@ -36,17 +36,6 @@ namespace VE2.Core.VComponents.Internal
             _StateModule = new(state, config.StateConfig, id, worldStateSyncService,activatableGroupsContainer);
             _RangedClickInteractionModule = new(config.RangedInteractionConfig, config.GeneralInteractionConfig);
             _ColliderInteractionModule = new(config.GeneralInteractionConfig);
-            _activationGroupID = config.StateConfig.ActivationGroupID;   
-
-            if (_activationGroupID != "None")
-            {
-                VComponentsAPI.ActivatableGroupsContainer.RegisterActivatable(_activationGroupID, _StateModule);
-                _isInActivationGroup = true;
-            }
-            else
-            {
-                _isInActivationGroup = false;
-            }
 
             _RangedClickInteractionModule.OnClickDown += HandleInteract;
             _ColliderInteractionModule.OnCollideEnter += HandleInteract;
@@ -59,16 +48,12 @@ namespace VE2.Core.VComponents.Internal
 
         private void HandleInteract(ushort clientID)
         {
-            Debug.Log($"HandleInteract {_isInActivationGroup} with {_activationGroupID}");
-            if (_isInActivationGroup)
-                VComponentsAPI.ActivatableGroupsContainer.ActivateGroup(_activationGroupID, _StateModule);
-
-            _StateModule.InvertState(clientID);
+            _StateModule.HandleActivatableState(clientID);
         }
 
         public void TearDown() 
         {
-            VComponentsAPI.ActivatableGroupsContainer.DeregisterActivatable(_activationGroupID, _StateModule); 
+            //VComponentsAPI.ActivatableGroupsContainer.DeregisterActivatable(_activationGroupID, _StateModule); 
             _StateModule.TearDown();
         }
     }

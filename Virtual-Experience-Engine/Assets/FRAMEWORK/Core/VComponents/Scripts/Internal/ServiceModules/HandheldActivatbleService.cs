@@ -23,9 +23,9 @@ namespace VE2.Core.VComponents.Internal
         private readonly HandheldClickInteractionModule _HandheldClickInteractionModule;
         #endregion
 
-        public HandheldActivatableService(HandheldActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncService worldStateSyncService)
+        public HandheldActivatableService(HandheldActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncService worldStateSyncService, ActivatableGroupsContainer activatableGroupsContainer)
         {
-            _StateModule = new(state, config.StateConfig, id, worldStateSyncService);
+            _StateModule = new(state, config.StateConfig, id, worldStateSyncService, activatableGroupsContainer);
             _HandheldClickInteractionModule = new(config.GeneralInteractionConfig);
 
             _HandheldClickInteractionModule.OnClickDown += HandleInteract;
@@ -38,7 +38,7 @@ namespace VE2.Core.VComponents.Internal
 
         private void HandleInteract(ushort clientID)
         {
-            _StateModule.InvertState(clientID);
+            _StateModule.HandleActivatableState(clientID);
         }
 
         public void TearDown()
