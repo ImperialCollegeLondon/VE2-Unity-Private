@@ -41,7 +41,7 @@ namespace VE2.Core.Player.Internal
 
         [Title("Transmission Settings", ApplyCondition = true)]
         [HideIf(nameof(_hasMultiplayerSupport), false)]
-        [SpaceArea(spaceAfter: 10, Order = -1), BeginGroup(Style = GroupStyle.Round, ApplyCondition = true), EndGroup, SerializeField, IgnoreParent] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new(TransmissionProtocol.UDP, 35);
+        [SpaceArea(spaceAfter: 10), BeginGroup(Style = GroupStyle.Round, ApplyCondition = true), EndGroup(ApplyCondition = true), SerializeField, IgnoreParent] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new(TransmissionProtocol.UDP, 35);
         
         private bool _hasMultiplayerSupport => PlayerAPI.HasMultiPlayerSupport;
     }
@@ -49,7 +49,7 @@ namespace VE2.Core.Player.Internal
     [Serializable]
     internal class MovementModeConfig
     {
-        [SerializeField] internal LayerMask TraversableLayers = LayerMask.GetMask("Ground"); 
+        [SerializeField] internal LayerMask TraversableLayers; 
         [SerializeField] internal bool EnableFreeFlyMode = false;
         [SerializeField] internal float TeleportRangeMultiplier = 1.0f;
     }
@@ -58,9 +58,9 @@ namespace VE2.Core.Player.Internal
     internal class V_PlayerSpawner : MonoBehaviour, IPlayerServiceProvider
     {
         //TODO, configs for each player, OnTeleport, DragHeight, FreeFlyMode, etc
-        [SerializeField, IgnoreParent] public PlayerConfig playerConfig = new();
+        [SerializeField, IgnoreParent] private PlayerConfig _playerConfig = new();
 
-        [Help("If running standalone, this presentation config will be used, if integrated with the ViRSE platform, the platform will provide the presentation config.")]
+        [SpaceArea(spaceBefore: 10), Help("If running standalone, this presentation config will be used, if integrated with the VE2 platform, the platform will provide the presentation config.")]
         [BeginGroup("Debug settings"), SerializeField, DisableInPlayMode, EndGroup]  private PlayerPresentationConfig _defaultPlayerPresentationConfig = new();
 
         #region Provider Interfaces
@@ -84,6 +84,11 @@ namespace VE2.Core.Player.Internal
 
         private bool _transformDataSetup = false;
         private PlayerTransformData _playerTransformData = new();
+
+        private void Reset()
+        {
+            _playerConfig.MovementModeConfig.TraversableLayers = LayerMask.GetMask("Ground"); //Can't set LayerMask in serialization, so we do it here
+        }
 
         private void OnEnable() 
         {
@@ -109,8 +114,8 @@ namespace VE2.Core.Player.Internal
 
             if (Application.platform == RuntimePlatform.Android && !Application.isEditor)
             {
-                playerConfig.EnableVR = true;
-                playerConfig.Enable2D = false;
+                _playerConfig.EnableVR = true;
+                _playerConfig.Enable2D = false;
             }
 
             XRManagerWrapper xrManagerWrapper = FindFirstObjectByType<XRManagerWrapper>();
@@ -123,7 +128,7 @@ namespace VE2.Core.Player.Internal
 
             _playerService = VE2PlayerServiceFactory.Create(
                 _playerTransformData, 
-                playerConfig, 
+                _playerConfig, 
                 playerPersistentDataHandler,
                 xrManagerWrapper,
                 primaryUIService,
