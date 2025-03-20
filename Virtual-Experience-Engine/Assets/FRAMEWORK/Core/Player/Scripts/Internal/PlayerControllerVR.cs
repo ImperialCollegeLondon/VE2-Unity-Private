@@ -44,10 +44,8 @@ namespace VE2.Core.Player.Internal
         private readonly RectTransform _primaryUIHolderRect;
         private readonly ISecondaryUIServiceInternal _secondaryUIService;
 
-        private readonly bool _enableFreeFlyMode; //TODO - this is a val, needs to be passed to TP (and maybe also to drag move) by ref, maybe in some config object?
-
-        internal PlayerControllerVR(InteractorContainer interactorContainer, PlayerVRInputContainer playerVRInputContainer, IPlayerPersistentDataHandler playerSettingsHandler, PlayerVRControlConfig controlConfig, 
-            IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper, ILocalClientIDProvider localClientIDProvider, bool enableFreeFlyMode, IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService)
+        internal PlayerControllerVR(InteractorContainer interactorContainer, PlayerVRInputContainer playerVRInputContainer, IPlayerPersistentDataHandler playerSettingsHandler, PlayerVRControlConfig controlConfig, MovementModeConfig movementModeConfig,
+            IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper, ILocalClientIDProvider localClientIDProvider, IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService)
         {
             GameObject playerVRPrefab = Resources.Load("vrPlayer") as GameObject;
             _playerGO = GameObject.Instantiate(playerVRPrefab, null, false);
@@ -75,15 +73,20 @@ namespace VE2.Core.Player.Internal
             FreeGrabbableWrapper leftHandGrabbableWrapper = new FreeGrabbableWrapper();
             FreeGrabbableWrapper rightHandGrabbableWrapper = new FreeGrabbableWrapper();
 
-            _handControllerLeft = CreateHandController(handVRLeftGO, handVRRightGO, interactorContainer, playerVRInputContainer.HandVRLeftInputContainer, playerVRInputContainer.HandVRRightInputContainer.DragLocomotorInputContainer, InteractorType.LeftHandVR, raycastProvider, localClientIDProvider, leftHandGrabbableWrapper, rightHandGrabbableWrapper, secondaryUIService, false);
-            _handControllerRight = CreateHandController(handVRRightGO, handVRLeftGO, interactorContainer, playerVRInputContainer.HandVRRightInputContainer,playerVRInputContainer.HandVRLeftInputContainer.DragLocomotorInputContainer, InteractorType.RightHandVR, raycastProvider, localClientIDProvider, rightHandGrabbableWrapper, leftHandGrabbableWrapper, secondaryUIService, true);
+            _handControllerLeft = CreateHandController(handVRLeftGO, handVRRightGO, interactorContainer, 
+                playerVRInputContainer.HandVRLeftInputContainer, playerVRInputContainer.HandVRRightInputContainer.DragLocomotorInputContainer, 
+                InteractorType.LeftHandVR, raycastProvider, localClientIDProvider, leftHandGrabbableWrapper, rightHandGrabbableWrapper, secondaryUIService, movementModeConfig, false);
+            
+            _handControllerRight = CreateHandController(handVRRightGO, handVRLeftGO, interactorContainer, 
+                playerVRInputContainer.HandVRRightInputContainer,playerVRInputContainer.HandVRLeftInputContainer.DragLocomotorInputContainer, 
+                InteractorType.RightHandVR, raycastProvider, localClientIDProvider, rightHandGrabbableWrapper, leftHandGrabbableWrapper, secondaryUIService, movementModeConfig, true);
         }
 
         
         private V_HandController CreateHandController(GameObject handGO, GameObject otherHandGO, InteractorContainer interactorContainer, 
             HandVRInputContainer handVRInputContainer, DragLocomotorInputContainer otherHandDragInputContainer, InteractorType interactorType, 
             IRaycastProvider raycastProvider, ILocalClientIDProvider multiplayerSupport, FreeGrabbableWrapper thisHandGrabbableWrapper, 
-            FreeGrabbableWrapper otherHandGrabbableWrapper, ISecondaryUIServiceInternal secondaryUIService, bool needsToFlip)
+            FreeGrabbableWrapper otherHandGrabbableWrapper, ISecondaryUIServiceInternal secondaryUIService, MovementModeConfig movementModeConfig, bool needsToFlip)
         {
             V_HandVRReferences thisHandVRReferences = handGO.GetComponent<V_HandVRReferences>();
             V_HandVRReferences otherHandVRReferences = otherHandGO.GetComponent<V_HandVRReferences>();
@@ -97,9 +100,9 @@ namespace VE2.Core.Player.Internal
 
             DragLocomotorController dragLocomotor = new(
                 thisHandVRReferences.LocomotorVRReferences,
-                handVRInputContainer.DragLocomotorInputContainer,
-                otherHandDragInputContainer,
-                _rootTransform, _verticalOffsetTransform, _headTransform, handGO.transform);
+                handVRInputContainer.DragLocomotorInputContainer, otherHandDragInputContainer,
+                _rootTransform, _verticalOffsetTransform, _headTransform, handGO.transform,
+                movementModeConfig);
 
             SnapTurnController snapTurn = new(
                 handVRInputContainer.SnapTurnInputContainer,
@@ -110,7 +113,7 @@ namespace VE2.Core.Player.Internal
                 handVRInputContainer.TeleportInputContainer,
                 thisHandVRReferences.TeleporterReferences.TeleportLineRenderer, thisHandVRReferences.InteractorVRReferences.LineRenderer, thisHandVRReferences.TeleporterReferences.TeleportCursorPrefab,
                 _rootTransform, _headTransform, otherHandVRReferences.InteractorVRReferences.RayOrigin,
-                thisHandGrabbableWrapper, otherHandGrabbableWrapper, hoveringOverScrollableIndicator, _enableFreeFlyMode);
+                thisHandGrabbableWrapper, otherHandGrabbableWrapper, hoveringOverScrollableIndicator, movementModeConfig);
 
             WristUIHandler wristUIHandler = new(
                 secondaryUIService, thisHandVRReferences.WristUIReferences.WristUIHolder, _headTransform, thisHandVRReferences.WristUIReferences.Indicator, needsToFlip);

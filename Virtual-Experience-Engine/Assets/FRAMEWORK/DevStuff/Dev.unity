@@ -12027,7 +12027,12 @@ MonoBehaviour:
   playerConfig:
     EnableVR: 1
     Enable2D: 0
-    EnableFreeFlyMode: 1
+    MovementModeConfig:
+      TraversableLayers:
+        serializedVersion: 2
+        m_Bits: 8
+      EnableFreeFlyMode: 0
+      TeleportRangeMultiplier: 1
     HeadOverrideType: 0
     TorsoOverrideType: 0
     HeadOverrideOne: {fileID: 0}

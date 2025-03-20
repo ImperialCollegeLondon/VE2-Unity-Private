@@ -14,7 +14,8 @@ namespace VE2.Core.Player.Internal
         [SerializeField] public bool EnableVR = false;
         [SerializeField] public bool Enable2D = true;
 
-        [SerializeField] public bool EnableFreeFlyMode = false; //TODO - encapsulate in some config object?
+        [Title("Movement Mode Config")]
+        [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public MovementModeConfig MovementModeConfig;
 
 
         [Title("Avatar Presentation Override Selection")]
@@ -43,6 +44,14 @@ namespace VE2.Core.Player.Internal
         [SpaceArea(spaceAfter: 10, Order = -1), BeginGroup(Style = GroupStyle.Round, ApplyCondition = true), EndGroup, SerializeField, IgnoreParent] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new(TransmissionProtocol.UDP, 35);
         
         private bool _hasMultiplayerSupport => PlayerAPI.HasMultiPlayerSupport;
+    }
+
+    [Serializable]
+    internal class MovementModeConfig
+    {
+        [SerializeField] internal LayerMask TraversableLayers = LayerMask.GetMask("Ground"); 
+        [SerializeField] internal bool EnableFreeFlyMode = false;
+        [SerializeField] internal float TeleportRangeMultiplier = 1.0f;
     }
 
     [ExecuteAlways]

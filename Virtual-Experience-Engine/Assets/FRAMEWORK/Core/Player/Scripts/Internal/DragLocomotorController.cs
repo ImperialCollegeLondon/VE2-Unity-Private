@@ -5,7 +5,6 @@ namespace VE2.Core.Player.Internal
 {
     internal class DragLocomotorController
     {   
-        private DragLocomotorInputContainer _otherVRHandInputContainer;
 
         private Vector3 _previousHandPosition;
         private float _dragSpeed = 4.0f;
@@ -18,15 +17,15 @@ namespace VE2.Core.Player.Internal
         private readonly GameObject _sphereIcon;
 
         private readonly DragLocomotorInputContainer _inputContainer;
+        private readonly DragLocomotorInputContainer _otherVRHandInputContainer;
         private readonly Transform _rootTransform; //For horizontal drag
         private readonly Transform _headOffsetTransform; //For vertical drag
         private readonly Transform _headTransform; //For orienting the drag icons towards the camera
         private readonly Transform _handTransform; //For measuring drag delta 
-
-        private LayerMask _groundLayerMask => LayerMask.GetMask("Ground");
+        private MovementModeConfig _movementModeConfig;
 
         public DragLocomotorController(DragLocomotorReferences locomotorVRReferences, DragLocomotorInputContainer inputContainer, DragLocomotorInputContainer otherVRHandInputContainer,
-            Transform rootTransform, Transform headOffsetTransform, Transform headTransform, Transform handTransform)
+            Transform rootTransform, Transform headOffsetTransform, Transform headTransform, Transform handTransform, MovementModeConfig movementModeConfig)
         {
             _iconHolder = locomotorVRReferences.DragIconHolder;
             _horizontalMoveIndicator = locomotorVRReferences.HorizontalDragIndicator;
@@ -40,6 +39,8 @@ namespace VE2.Core.Player.Internal
             _headOffsetTransform = headOffsetTransform;
             _headTransform = headTransform;
             _handTransform = handTransform;
+
+            _movementModeConfig = movementModeConfig;
         }
 
         public void HandleUpdate()
@@ -173,12 +174,12 @@ namespace VE2.Core.Player.Internal
             Vector3 targetRaycastPosition = currentRaycastPosition + moveVector;
 
             // Perform raycast from current raycast position to check for ground
-            if (Physics.Raycast(currentRaycastPosition, Vector3.down, out RaycastHit currentHit, Mathf.Infinity, _groundLayerMask))
+            if (Physics.Raycast(currentRaycastPosition, Vector3.down, out RaycastHit currentHit, Mathf.Infinity, _movementModeConfig.TraversableLayers))
             {
                 float currentGroundHeight = currentHit.point.y;
 
                 // Perform raycast from target position to check for ground
-                if (Physics.Raycast(targetRaycastPosition, Vector3.down, out RaycastHit targetHit, Mathf.Infinity, _groundLayerMask))
+                if (Physics.Raycast(targetRaycastPosition, Vector3.down, out RaycastHit targetHit, Mathf.Infinity, _movementModeConfig.TraversableLayers))
                 {
                     float targetGroundHeight = targetHit.point.y;
                     float heightDifference = Mathf.Abs(targetGroundHeight - currentGroundHeight);

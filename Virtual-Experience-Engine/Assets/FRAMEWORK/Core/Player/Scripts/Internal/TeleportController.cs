@@ -18,8 +18,6 @@ namespace VE2.Core.Player.Internal
         private readonly GameObject _teleportCursor;
         private const float LINE_EMISSION_INTENSITY = 15;
 
-        private LayerMask _teleportLayerMask => LayerMask.GetMask("Ground"); //TODO - inject?
-
         private readonly Transform _rootTransform; // For rotating the player
         private readonly Transform _headTransform; // For setting the player's position in free fly mode TODO: Doesn't seem to be assigned
         private readonly Transform _otherHandTransformReference; // Position of the other hand teleport raycast origin
@@ -29,7 +27,7 @@ namespace VE2.Core.Player.Internal
         private readonly FreeGrabbableWrapper _otherHandGrabbableWrapper;
 
         private readonly HoveringOverScrollableIndicator _hoveringOverScrollableIndicator;
-        private readonly bool _enableFreeFlyMode; //TODO - needs to be wired in by ref
+        private readonly MovementModeConfig _movementModeConfig;
         #endregion
 
         #region Runtime data
@@ -39,7 +37,7 @@ namespace VE2.Core.Player.Internal
         private Quaternion _teleportTargetRotation;
         private Quaternion _teleportRotation;
 
-        private float _initialSpeed = 10f; // Initial speed of the projectile motion
+        private float _initialTeleportProjectileSpeed => 10f * _movementModeConfig.TeleportRangeMultiplier; // Initial speed of the projectile motion
         private float _simulationTimeStep = 0.05f;
 
         private Vector2 _currentTeleportDirection;
@@ -52,7 +50,7 @@ namespace VE2.Core.Player.Internal
             LineRenderer teleportLineRenderer, LineRenderer interactorLineRenderer, GameObject teleportCursorPrefab,
             Transform rootTransform, Transform headTransform, Transform otherHandTransformReference,  
             FreeGrabbableWrapper thisHandGrabbableWrapper, FreeGrabbableWrapper otherHandGrabbableWrapper,
-            HoveringOverScrollableIndicator hoveringOverScrollableIndicator, bool enableFreeFlyMode)
+            HoveringOverScrollableIndicator hoveringOverScrollableIndicator, MovementModeConfig movementModeConfig)
         {
             _inputContainer = inputContainer;
             _rootTransform = rootTransform;
@@ -77,7 +75,7 @@ namespace VE2.Core.Player.Internal
             _otherHandGrabbableWrapper = otherHandGrabbableWrapper;
             _hoveringOverScrollableIndicator = hoveringOverScrollableIndicator;
 
-            _enableFreeFlyMode = enableFreeFlyMode;
+            _movementModeConfig = movementModeConfig;
         }
 
         public void HandleUpdate()
@@ -155,7 +153,7 @@ namespace VE2.Core.Player.Internal
             Vector3 startPosition = _teleportRayOrigin.position;
             Vector3 direction = _teleportRayOrigin.forward;
 
-            if (_enableFreeFlyMode)
+            if (_movementModeConfig.EnableFreeFlyMode)
             {
                 float stickX = _inputContainer.TeleportDirection.Value.x;
                 float distance = Mathf.Lerp(1f, 3f, stickX); // TODO: Make this configurable
@@ -167,14 +165,15 @@ namespace VE2.Core.Player.Internal
                 {
                     _teleportCursor.transform.position = teleportDestination;
 
-                    /*TODO: We'll need to rething this. Terrain below may not be level, or even present at all 
+                    /*TODO: We may need to rethink this. Terrain below may not be level, or even present at all 
                     When entering freefly, maybe we should intead reconfigure the rig so the head is always at the root 
                     Then we just teleport the whole root to the target, and verticalDragMove up by root?
                     Would need to reconfigure the rig back when leaving freefly though
-                    not ideal... means the drag loco needs to know about FreeFly - will have to think!*/
+                    not ideal... means the drag loco needs to know about FreeFly - will have to think!
+                    Think drag loco DOES nees to know though. if we drag in the air, we don't want our elevation to change if the floor below changes*/
                     Vector3 delta = teleportDestination - _headTransform.position;
                     Vector3 newRootPosition = _rootTransform.position + delta;
-                    if (Physics.Raycast(teleportDestination, Vector3.down, out RaycastHit hit, _teleportLayerMask))
+                    if (Physics.Raycast(teleportDestination, Vector3.down, out RaycastHit hit, _movementModeConfig.TraversableLayers))
                     {
                         newRootPosition.y = Mathf.Max(newRootPosition.y, hit.point.y);
                     }
@@ -204,8 +203,7 @@ namespace VE2.Core.Player.Internal
             else
             {
                 // Adjust initialSpeed to control how far/fast the arc travels.
-                _initialSpeed = 10f; // Configurable: tweak to change the arc length and curvature.
-                Vector3 initialVelocity = direction.normalized * _initialSpeed;
+                Vector3 initialVelocity = direction.normalized * _initialTeleportProjectileSpeed;
 
                 // We simulate projectile motion: position = start + v0 * t + 0.5 * g * t^2.
                 _simulationTimeStep = Mathf.Clamp(_simulationTimeStep, 0.001f, 0.1f); // Ensure it doesn't go above 0.1 seconds.
@@ -227,7 +225,7 @@ namespace VE2.Core.Player.Internal
 
                     // First check: is there any object not on the Traversible layer blocking this segment?
                     RaycastHit blockingHit;
-                    if (Physics.Raycast(previousPoint, segmentDir, out blockingHit, segmentDistance, ~_teleportLayerMask))
+                    if (Physics.Raycast(previousPoint, segmentDir, out blockingHit, segmentDistance, ~_movementModeConfig.TraversableLayers))
                     {
                         // A non-traversible object is in the way  cancel teleport.
                         hitFound = false;
@@ -235,7 +233,7 @@ namespace VE2.Core.Player.Internal
                     }
 
                     // Second check: does the segment hit a valid teleport surface (i.e. on the Traversible layer)?
-                    if (Physics.Raycast(previousPoint, segmentDir, out hit, segmentDistance, _teleportLayerMask))
+                    if (Physics.Raycast(previousPoint, segmentDir, out hit, segmentDistance, _movementModeConfig.TraversableLayers))
                     {
                         // If a valid hit is detected, update the trajectory point and mark teleport as possible.
                         trajectoryPoints[trajectoryPoints.Count - 1] = hit.point;
