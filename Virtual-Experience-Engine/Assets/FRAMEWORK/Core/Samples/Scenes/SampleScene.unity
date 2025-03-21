@@ -93,7 +93,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 112000000, guid: 64324b8647a958145af04b15d6e81376,
+  m_LightingDataAsset: {fileID: 112000000, guid: 7017ddecb955dc94c9ebbc96a6fd3bb6,
     type: 2}
   m_LightingSettings: {fileID: 4890085278179872738, guid: da08218c0648ab045bb0f9c4449e6133,
     type: 2}
@@ -4715,7 +4715,7 @@ Light:
   serializedVersion: 11
   m_Type: 3
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 15
+  m_Intensity: 18
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -4756,7 +4756,7 @@ Light:
   m_RenderingLayerMask: 1
   m_Lightmapping: 2
   m_LightShadowCasterMode: 0
-  m_AreaSize: {x: 1.84, y: 5.9868355}
+  m_AreaSize: {x: 1.84, y: 4.40522}
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
@@ -5248,7 +5248,7 @@ Light:
   serializedVersion: 11
   m_Type: 3
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 15
+  m_Intensity: 18
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -5289,7 +5289,7 @@ Light:
   m_RenderingLayerMask: 1
   m_Lightmapping: 2
   m_LightShadowCasterMode: 0
-  m_AreaSize: {x: 1.84, y: 8.503315}
+  m_AreaSize: {x: 1.84, y: 6.286154}
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
@@ -10171,7 +10171,7 @@ Light:
   serializedVersion: 11
   m_Type: 3
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 15
+  m_Intensity: 18
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -10212,7 +10212,7 @@ Light:
   m_RenderingLayerMask: 1
   m_Lightmapping: 2
   m_LightShadowCasterMode: 0
-  m_AreaSize: {x: 1.84, y: 5.9868355}
+  m_AreaSize: {x: 1.84, y: 4.4345837}
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
@@ -12627,25 +12627,25 @@ MonoBehaviour:
       OnActivate:
         m_PersistentCalls:
           m_Calls:
-          - m_Target: {fileID: 0}
-            m_TargetAssemblyTypeName: PluginTest, ViRSE_Plugin_Sample
-            m_MethodName: OnButtonActivate
-            m_Mode: 1
+          - m_Target: {fileID: 548330449}
+            m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+            m_MethodName: SetActive
+            m_Mode: 6
             m_Arguments:
               m_ObjectArgument: {fileID: 0}
               m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
               m_IntArgument: 0
               m_FloatArgument: 0
               m_StringArgument: 
-              m_BoolArgument: 0
+              m_BoolArgument: 1
             m_CallState: 2
       OnDeactivate:
         m_PersistentCalls:
           m_Calls:
-          - m_Target: {fileID: 0}
-            m_TargetAssemblyTypeName: PluginTest, ViRSE_Plugin_Sample
-            m_MethodName: OnButtonDeactivate
-            m_Mode: 1
+          - m_Target: {fileID: 548330449}
+            m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+            m_MethodName: SetActive
+            m_Mode: 6
             m_Arguments:
               m_ObjectArgument: {fileID: 0}
               m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -19052,7 +19052,7 @@ Transform:
   m_GameObject: {fileID: 2033696689}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.03, y: 5.73, z: 9.997999}
+  m_LocalPosition: {x: 0.03, y: 5.07, z: 9.997999}
   m_LocalScale: {x: -6.2774262, y: -4.42266, z: 0.15790465}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -20294,7 +20294,7 @@ Light:
   serializedVersion: 11
   m_Type: 3
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 15
+  m_Intensity: 18
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -20335,7 +20335,7 @@ Light:
   m_RenderingLayerMask: 1
   m_Lightmapping: 2
   m_LightShadowCasterMode: 0
-  m_AreaSize: {x: 1.84, y: 8.503315}
+  m_AreaSize: {x: 1.84, y: 6.209279}
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
