@@ -178,12 +178,6 @@ namespace VE2.Core.Player.Internal
             _playerService = null;
         }
 
-        private void OnDestroy()
-        {
-            if (_playerPreview != null)
-                DestroyImmediate(_playerPreview);
-        }
-
         private void CreatePlayerPreview()
         {
             GameObject playerPreview = GameObject.Instantiate<GameObject>(Resources.Load<GameObject>("VE2PlayerPreviewVisualisation"));
