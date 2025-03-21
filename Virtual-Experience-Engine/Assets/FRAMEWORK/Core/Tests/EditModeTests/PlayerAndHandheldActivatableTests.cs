@@ -34,7 +34,8 @@ namespace VE2.Core.Tests
                 new HandheldActivatableConfig(), 
                 new SingleInteractorActivatableState(), 
                 "debug", 
-                Substitute.For<IWorldStateSyncService>());
+                Substitute.For<IWorldStateSyncService>(),
+                new ActivatableGroupsContainer());
 
             //Stub out provider layer
             _v_handheldActivatableProviderStub = new(handheldActivatable);
