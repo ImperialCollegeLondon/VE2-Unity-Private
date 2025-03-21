@@ -9,9 +9,9 @@ namespace VE2.Core.UI.Internal
     [ExecuteAlways]
     public class V_UIProvider : MonoBehaviour, IUIProvider
     {
-        //Hidden for now, we always want both. 
-        [SerializeField, HideInInspector] private bool _enablePrimaryUI = true;
-        [SerializeField, HideInInspector] private bool _enableSecondaryUI = true;
+        //For now, we always want both. 
+        private bool _enablePrimaryUI => true;
+        private bool _enableSecondaryUI => true;
 
         public IPrimaryUIService PrimaryUIService {
             get
@@ -32,8 +32,32 @@ namespace VE2.Core.UI.Internal
         public string GameObjectName => gameObject.name;
         public bool IsEnabled => IsEnabled;
 
+        [Help("If enabled, the secondary UI can be customised. If disabled, the secondary UI  This is always enabled for the primary UI.")]
+        [SerializeField] private bool _useCustomSecondaryUI = true;
+
         private PrimaryUIService _primaryUIService;
         private SecondaryUIService _secondaryUIService;
+
+        private GameObject _pluginPrimaryUIHolder => FindFirstObjectByType<PluginPrimaryHolderUITag>(FindObjectsInactive.Include)?.gameObject;
+        private GameObject _pluginSecondaryUIHolder => FindFirstObjectByType<PluginSecondaryUIHolderTag>(FindObjectsInactive.Include)?.gameObject;
+        private string _primaryUIPluginTabName => "World Info";
+
+        private void OnValidate()
+        {
+            _pluginSecondaryUIHolder?.SetActive(_useCustomSecondaryUI);
+        }
+
+        private void Awake()
+        {
+            if (Application.isPlaying)
+                return;
+
+            if (_pluginPrimaryUIHolder == null)
+                Instantiate(Resources.Load<GameObject>("PluginPrimaryUIHolder"), transform);
+
+            if (_pluginSecondaryUIHolder == null)
+                Instantiate(Resources.Load<GameObject>("PluginSecondaryUIHolder"), transform);
+        }
 
         private void OnEnable()
         {
@@ -44,17 +68,45 @@ namespace VE2.Core.UI.Internal
 
             if (_primaryUIService == null && _enablePrimaryUI)
             {
+                //Create Primary UI Service==========
                 InputSystemUIInputModule inputSystemUIInputModule = FindFirstObjectByType<InputSystemUIInputModule>();
                 if (inputSystemUIInputModule == null)
                     inputSystemUIInputModule = new GameObject("InputSystemUIInputModule").AddComponent<InputSystemUIInputModule>();
 
                 _primaryUIService = new PrimaryUIService(PlayerAPI.InputHandler.TogglePrimaryUI, inputSystemUIInputModule);
+
+                //Move plugin primary UI to primary UI==========
+                GameObject pluginPrimaryUI = _pluginPrimaryUIHolder.transform.GetChild(0).gameObject;
+                Sprite icon = Resources.Load<Sprite>("PluginPrimaryUIIcon");
+
+                UIAPI.PrimaryUIService.AddNewTab(
+                    _primaryUIPluginTabName, 
+                    pluginPrimaryUI, 
+                    icon,
+                    0);
+
+                UIAPI.PrimaryUIService.ShowTab(_primaryUIPluginTabName);   
             };
 
             if (_secondaryUIService == null && _enableSecondaryUI)
             {                
+                //Create Secondary UI Service==========
                 _secondaryUIService = new SecondaryUIService(PlayerAPI.InputHandler.ToggleSecondaryUI);
+
+                //Move plugin secondary UI to secondary UI==========
+                if (_useCustomSecondaryUI)
+                {
+                    GameObject pluginSecondaryUI = _pluginSecondaryUIHolder.transform.GetChild(0).gameObject;
+                    ISecondaryUIServiceInternal secondaryUIService = UIAPI.SecondaryUIService as ISecondaryUIServiceInternal;
+                    secondaryUIService.SetContent(pluginSecondaryUI.GetComponent<RectTransform>());
+                }
             };
+
+            if (_pluginPrimaryUIHolder != null)
+                Destroy(_pluginPrimaryUIHolder);
+
+            if (_pluginSecondaryUIHolder != null)
+                Destroy(_pluginSecondaryUIHolder);
         }
 
         private void OnDisable()
@@ -64,6 +116,18 @@ namespace VE2.Core.UI.Internal
 
             _primaryUIService?.TearDown();
             _secondaryUIService?.TearDown();
+        }
+
+        private void OnDestroy()
+        {
+            if (Application.isPlaying)
+            return;
+
+            if (_pluginPrimaryUIHolder != null)
+                DestroyImmediate(_pluginPrimaryUIHolder);
+
+            if (_pluginSecondaryUIHolder != null)
+                DestroyImmediate(_pluginSecondaryUIHolder);
         }
     }
 

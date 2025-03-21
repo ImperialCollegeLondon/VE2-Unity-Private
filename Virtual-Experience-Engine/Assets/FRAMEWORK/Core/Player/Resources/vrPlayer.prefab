@@ -103,7 +103,7 @@ MonoBehaviour:
   _canvasCollider: {fileID: 295431133941835490}
   _distanceFromCamera: 1.7
   _distanceTolerance: 0.2
-  _verticalOffset: -0.085
+  _verticalOffset: -0.1
   _angleToStartMoving: 40
   _timeToBeWithinStopMovingAngleToStopMoving: 0.5
   _angleToStopMoving: 5
@@ -298,7 +298,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: cced4ea1a2addb447bc6770a6ccd3ff6, type: 2}
-  - {fileID: 4205193752437191520, guid: 58e64c1d67e504b40bfb6ed85893bf73, type: 3}
+  - {fileID: 2100000, guid: cced4ea1a2addb447bc6770a6ccd3ff6, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

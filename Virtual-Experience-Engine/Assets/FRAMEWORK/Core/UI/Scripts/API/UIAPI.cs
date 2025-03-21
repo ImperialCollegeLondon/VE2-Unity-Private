@@ -7,6 +7,7 @@ namespace VE2.Core.UI.API
     /// <summary>
     /// TODO: Document
     /// </summary>
+    [ExecuteAlways]
     public class UIAPI : MonoBehaviour
     {
         private static UIAPI _instance;

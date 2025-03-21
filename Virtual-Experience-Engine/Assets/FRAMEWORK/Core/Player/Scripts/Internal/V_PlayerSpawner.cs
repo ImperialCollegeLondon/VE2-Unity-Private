@@ -8,6 +8,12 @@ using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.Core.Player.Internal
 {
+
+    /*
+        TODO - when attaching player spawner, deleting, and then undoing, we are missing the player preview 
+        This is likely also true for UI provider
+    */
+
     [Serializable]
     internal class PlayerConfig
     {
@@ -15,7 +21,7 @@ namespace VE2.Core.Player.Internal
         [SerializeField] public bool Enable2D = true;
 
         [Title("Movement Mode Config")]
-        [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public MovementModeConfig MovementModeConfig;
+        [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public MovementModeConfig MovementModeConfig = new();
 
 
         [Title("Avatar Presentation Override Selection")]
@@ -82,12 +88,21 @@ namespace VE2.Core.Player.Internal
         public string GameObjectName { get => gameObject.name; }
         #endregion
 
-        private bool _transformDataSetup = false;
-        private PlayerTransformData _playerTransformData = new();
+        [SerializeField, HideInInspector] private bool _transformDataSetup = false;
+        [SerializeField, HideInInspector] private PlayerTransformData _playerTransformData = new();
+
+        private GameObject _playerPreview => FindFirstObjectByType<PlayerPreviewTag>(FindObjectsInactive.Include)?.gameObject; //Can't just store GO reference, as that'll get wiped as the inspector resets
 
         private void Reset()
         {
+            _playerConfig = new();
             _playerConfig.MovementModeConfig.TraversableLayers = LayerMask.GetMask("Ground"); //Can't set LayerMask in serialization, so we do it here
+
+            //Debug.Log("Resetting - " + (_playerPreview != null));
+            if (_playerPreview != null)
+                DestroyImmediate(_playerPreview);
+                
+            CreatePlayerPreview();
         }
 
         private void OnEnable() 
@@ -96,6 +111,8 @@ namespace VE2.Core.Player.Internal
 
             if (!Application.isPlaying || _playerService != null)
                 return;
+
+            _playerPreview?.SetActive(false);
 
             PlayerPersistentDataHandler playerPersistentDataHandler = FindFirstObjectByType<PlayerPersistentDataHandler>();
             if (playerPersistentDataHandler == null)
@@ -160,5 +177,36 @@ namespace VE2.Core.Player.Internal
             _playerService?.TearDown();
             _playerService = null;
         }
+
+        private void CreatePlayerPreview()
+        {
+            GameObject playerPreview = GameObject.Instantiate<GameObject>(Resources.Load<GameObject>("VE2PlayerPreviewVisualisation"));
+            playerPreview.transform.SetParent(transform);
+            playerPreview.transform.localPosition = Vector3.zero;
+            playerPreview.transform.localRotation = Quaternion.identity;
+
+            foreach (Transform child in playerPreview.GetComponentsInChildren<Transform>(true))
+                child.gameObject.hideFlags = HideFlags.HideInHierarchy | HideFlags.NotEditable;
+        }
+
+// #if UNITY_EDITOR
+//         private void OnSelectionChanged()
+//         {
+//             if (_playerPreview == null) 
+//                 return;
+
+//             // Check if the selected object is the target or a child of it
+//             foreach (var selected in UnityEditor.Selection.gameObjects)
+//             {
+//                 if (IsChildOrSelf(_playerPreview, selected))
+//                 {
+//                     UnityEditor.Selection.activeGameObject = gameObject;
+//                     break;
+//                 }
+//             }
+//         }
+
+//         private bool IsChildOrSelf(GameObject parent, GameObject obj) => obj == parent || obj.transform.IsChildOf(parent.transform);
+//         #endif
     }
 }

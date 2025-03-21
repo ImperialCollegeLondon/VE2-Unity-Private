@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 namespace VE2.Core.VComponents.API
 {
     //Internal as plugin doesn't talk to this - it talks to the interfaces on the VCs directly
+    [ExecuteAlways]
     internal class VComponentsAPI : MonoBehaviour
     {
         private static VComponentsAPI _instance;
@@ -61,8 +62,8 @@ namespace VE2.Core.VComponents.API
         private void Awake()
         {
             _instance = this;
-            //gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
-            gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
+            gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
+            //gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
         }
 
         private void OnDestroy()
