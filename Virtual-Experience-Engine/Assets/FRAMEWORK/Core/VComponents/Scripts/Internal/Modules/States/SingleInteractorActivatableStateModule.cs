@@ -14,8 +14,13 @@ namespace VE2.Core.VComponents.Internal
         [Title("Activation Settings", ApplyCondition = true)]
         [SerializeField] public UnityEvent OnActivate = new();
 
-        [EndGroup(Order = 1)]
         [SpaceArea(spaceAfter: 10, Order = -1), SerializeField] public UnityEvent OnDeactivate = new();
+
+        [SpaceArea(spaceAfter: 10, Order = -2), SerializeField] public bool UseActivationGroup = false;
+
+        [EndGroup(Order = 2)]
+        [SpaceArea(spaceAfter: 5, Order = -3), ShowIf("UseActivationGroup",true), Disable, SerializeField] public string ActivationGroupID = "None";
+
     }
 
     internal class SingleInteractorActivatableStateModule : BaseWorldStateModule, ISingleInteractorActivatableStateModule
@@ -28,7 +33,7 @@ namespace VE2.Core.VComponents.Internal
         private SingleInteractorActivatableState _state => (SingleInteractorActivatableState)State;
         private ToggleActivatableStateConfig _config => (ToggleActivatableStateConfig)Config;
 
-        public SingleInteractorActivatableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncService worldStateSyncService) : base(state, config, id, worldStateSyncService) { }
+        public SingleInteractorActivatableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncService worldStateSyncService, ActivatableGroupsContainer activatableGroupsContainer = null) : base(state, config, id, worldStateSyncService) { }
 
         private void HandleExternalActivation(bool newIsActivated)
         {

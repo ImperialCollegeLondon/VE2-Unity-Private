@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Virtual-Experience-Engine/Assets/FRAMEWORK/DevStuff/PluginTest.cs.meta
 guid: adfdcc31471e02e40860dcd8cd809d9d
+========
+guid: a70487891441c7845af2938069a01056
+>>>>>>>> origin/Sid/AdjustableUpdated:Virtual-Experience-Engine/Assets/FRAMEWORK/Non-Core/Platform/API/IPlatformInternal.cs.meta
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2

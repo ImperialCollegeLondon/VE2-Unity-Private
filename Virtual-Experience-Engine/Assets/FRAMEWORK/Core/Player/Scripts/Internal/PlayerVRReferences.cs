@@ -11,6 +11,9 @@ namespace VE2.Core.Player.Internal
         [SerializeField] private Transform _verticalOffsetTransform;
 
         public Transform HeadTransform => _headTransform;
-        [SerializeField] private Transform _headTransform;        
+        [SerializeField] private Transform _headTransform;   
+
+        public RectTransform PrimaryUIHolderRect => _primaryUIHolderRect;     
+        [SerializeField] private RectTransform _primaryUIHolderRect;
     }
 }

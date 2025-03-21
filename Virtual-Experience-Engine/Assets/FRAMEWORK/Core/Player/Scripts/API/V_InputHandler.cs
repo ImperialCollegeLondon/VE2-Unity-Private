@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+//TODO: Perhaps these should live in common, rather than player? UI needs them too, and UI is separate from player
 namespace VE2.Core.Player.API
 {
     #region Input Types 
@@ -404,7 +405,8 @@ namespace VE2.Core.Player.API
     public interface IInputHandler
     {
         public PlayerInputContainer PlayerInputContainer { get; }
-        public IPressableInput ToggleMenu { get; }
+        public IPressableInput TogglePrimaryUI { get; } 
+        public IPressableInput ToggleSecondaryUI { get; }
     }
 
     //TODO: The actual handler could go into its own assembly... where to draw the line though? Each interface could also go into its own assembly too...
@@ -422,7 +424,7 @@ namespace VE2.Core.Player.API
         }
         
         public IPressableInput _toggleMenu { get; private set; }
-        public IPressableInput ToggleMenu {
+        public IPressableInput TogglePrimaryUI {
             get
             {
                 if (_toggleMenu == null)
@@ -432,6 +434,17 @@ namespace VE2.Core.Player.API
             private set => _toggleMenu = value;
         }
 
+        public IPressableInput _toggleSecondaryUI { get; private set; }
+        public IPressableInput ToggleSecondaryUI {
+            get
+            {
+                if (_toggleSecondaryUI == null)
+                    CreateInputs();
+                return _toggleSecondaryUI;
+            }
+            private set => _toggleSecondaryUI = value;
+        }
+
         //Special cases, need to be updated manually to mimic the mouse scroll wheel notches
         private List<ScrollInput> _scrollInputs;
         private const float MIN_SCROLL_THRESHOLD_2D = 0.1f;
@@ -439,14 +452,14 @@ namespace VE2.Core.Player.API
         private const float MIN_SCROLL_THRESHOLD_VR = 0.15f;
         private const float MAX_SCROLL_THRESHOLD_VR = 1;
         private const float MIN_SCROLL_TICKS_PER_SECOND_2D = 1;
-        private const float MAX_SCROLL_TICKS_PER_SECOND_2D = 10;
+        private const float MAX_SCROLL_TICKS_PER_SECOND_2D = 50;
         private const float MIN_SCROLL_TICKS_PER_SECOND_VR = 0.5f;
         private const float MAX_SCROLL_TICKS_PER_SECOND_VR = 5f;
 
         //Minimum threshold to detect thumbstick movement to process stick press input and teleport input
         private const float MIN_STICKPRESS_THRESHOLD = 0.8f;
         private const float MIN_TELEPORT_STICKPRESS_THRESHOLD = 0.8f;
-        private const float MAX_TELEPORT_NEUTRAL_THRESHOLD = 0.3f;
+        private const float MAX_TELEPORT_NEUTRAL_THRESHOLD = 0.45f;
         private List<StickPressInput> _stickPressInputs;
         private List<TeleportInput> _teleportInputs;
         private void CreateInputs()
@@ -511,7 +524,8 @@ namespace VE2.Core.Player.API
 
             // UI Action Map 
             InputActionMap actionMapUI = inputActionAsset.FindActionMap("InputUI");
-            ToggleMenu = new PressableInput(actionMapUI.FindAction("ToggleMenu"));
+            TogglePrimaryUI = new PressableInput(actionMapUI.FindAction("TogglePrimaryUI"));
+            ToggleSecondaryUI = new PressableInput(actionMapUI.FindAction("ToggleSecondaryUI"));
 
             // VR Stick Press Left Action Map
             InputActionMap actionMapStickPressVRLeft = inputActionAsset.FindActionMap("StickPressVRLeft");

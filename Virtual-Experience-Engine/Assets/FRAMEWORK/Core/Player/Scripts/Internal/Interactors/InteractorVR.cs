@@ -7,6 +7,9 @@ namespace VE2.Core.Player.Internal
 {
     internal class InteractorVR : PointerInteractor
     {
+
+        private Vector3 _grabberTransformOffset;
+
         private readonly V_CollisionDetector _collisionDetector;
         private readonly GameObject _handVisualGO;
         private readonly LineRenderer _lineRenderer;
@@ -15,9 +18,11 @@ namespace VE2.Core.Player.Internal
         private const float LINE_EMISSION_INTENSITY = 15;
 
         internal InteractorVR(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
-            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, ILocalClientIDProvider multiplayerSupport, FreeGrabbableWrapper grabbableWrapper) :
+            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, 
+            ILocalClientIDProvider multiplayerSupport, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator) :
             base(interactorContainer, interactorInputContainer,
-                interactorReferences, interactorType, raycastProvider, multiplayerSupport, grabbableWrapper)
+                interactorReferences, interactorType, raycastProvider, multiplayerSupport, grabbableWrapper, hoveringOverScrollableIndicator)
+
         {
             InteractorVRReferences interactorVRReferences = interactorReferences as InteractorVRReferences;
 
@@ -40,7 +45,7 @@ namespace VE2.Core.Player.Internal
 
         public override void HandleOnDisable()
         {
-            base.HandleOnEnable();
+            base.HandleOnDisable();
             _collisionDetector.OnCollideStart += HandleCollideStart;
             _collisionDetector.OnCollideEnd += HandleCollideEnd;
         }
@@ -92,5 +97,27 @@ namespace VE2.Core.Player.Internal
                     break;
             }
         }
+
+        protected override void HandleStartGrabbingAdjustable(IRangedAdjustableInteractionModule rangedAdjustableInteraction)
+        {
+            //We'll control its position in Update - it needs an offset towards the adjustable, without being affected by the parent transform's rotation
+            _GrabberTransform.SetParent(_interactorParentTransform.parent); 
+            _grabberTransformOffset = rangedAdjustableInteraction.Transform.position - GrabberTransform.position;
+        }
+
+        protected override void HandleUpdateGrabbingAdjustable()
+        {
+            //offset the virtual grabber transform to the grabbable's position
+            GrabberTransform.SetPositionAndRotation(_interactorParentTransform.position + _grabberTransformOffset, _interactorParentTransform.rotation);
+        }
+
+        protected override void HandleStopGrabbingAdjustable()
+        {
+            //No longer apply offset to grabber, it can return to the parent 
+            _GrabberTransform.SetParent(_interactorParentTransform); 
+            _GrabberTransform.localPosition = Vector3.zero;
+            _GrabberTransform.localRotation = Quaternion.identity;
+        }
+
     }
 }

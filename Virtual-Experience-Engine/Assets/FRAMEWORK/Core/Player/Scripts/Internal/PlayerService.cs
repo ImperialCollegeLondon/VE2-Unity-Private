@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using VE2.Core.Common;
 using VE2.Core.Player.API;
+using VE2.Core.UI.API;
 using VE2.Core.VComponents.API;
 using static VE2.Core.Player.API.PlayerSerializables;
 
@@ -10,15 +11,18 @@ namespace VE2.Core.Player.Internal
 {
     internal static class VE2PlayerServiceFactory
     {
-        internal static PlayerService Create(PlayerTransformData state, PlayerConfig config, IPlayerPersistentDataHandler playerPersistentDataHandler, IXRManagerWrapper xrManagerWrapper)
+        internal static PlayerService Create(PlayerTransformData state, PlayerConfig config, IPlayerPersistentDataHandler playerPersistentDataHandler, 
+            IXRManagerWrapper xrManagerWrapper, IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService)
         {
             return new PlayerService(state, config, 
             VComponentsAPI.InteractorContainer,
             playerPersistentDataHandler,
             PlayerAPI.LocalClientIDProvider,
             PlayerAPI.InputHandler.PlayerInputContainer,
-                new RaycastProvider(),
-                xrManagerWrapper);
+            new RaycastProvider(),
+            xrManagerWrapper,
+            primaryUIService,
+            secondaryUIService);
         }
     }
 
@@ -79,29 +83,27 @@ namespace VE2.Core.Player.Internal
         private readonly PlayerInputContainer _playerInputContainer;
         private readonly IPlayerPersistentDataHandler _playerSettingsHandler;
 
-        //private readonly IXRManagerWrapper _xrManagerWrapper;
+        private readonly IPrimaryUIServiceInternal _primaryUIService;
 
-        internal PlayerService(PlayerTransformData transformData, PlayerConfig config,
-            InteractorContainer interactorContainer, IPlayerPersistentDataHandler playerSettingsHandler, 
-            ILocalClientIDProvider playerSyncer, PlayerInputContainer playerInputContainer, IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerWrapper)
+        internal PlayerService(PlayerTransformData transformData, PlayerConfig config, InteractorContainer interactorContainer, 
+            IPlayerPersistentDataHandler playerSettingsHandler, ILocalClientIDProvider playerSyncer, 
+            PlayerInputContainer playerInputContainer, IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerWrapper, 
+            IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService)
         {
-           // _playerStateModule = new(state, config, playerStateModuleContainer);
             PlayerTransformData = transformData;
             _config = config;
 
             _playerInputContainer = playerInputContainer;
             _playerSettingsHandler = playerSettingsHandler;
-            //_xrManagerWrapper = xrManagerWrapper;
 
             if (_config.EnableVR)
             {
-                Debug.Log("calling init XR Loader");
                 xrManagerWrapper.InitializeLoader(); 
 
                 _playerVR = new PlayerControllerVR(
                     interactorContainer, _playerInputContainer.PlayerVRInputContainer,
-                    playerSettingsHandler, new PlayerVRControlConfig(), //TODO: 
-                    raycastProvider, xrManagerWrapper, playerSyncer);
+                    playerSettingsHandler, new PlayerVRControlConfig(), _config.MovementModeConfig,
+                    raycastProvider, xrManagerWrapper, playerSyncer, primaryUIService, secondaryUIService);
             }
 
             if (_config.Enable2D)
@@ -109,7 +111,7 @@ namespace VE2.Core.Player.Internal
                 _player2D = new PlayerController2D(
                     interactorContainer, _playerInputContainer.Player2DInputContainer,
                     playerSettingsHandler, new Player2DControlConfig(), //TODO:
-                    raycastProvider, playerSyncer);
+                    raycastProvider, playerSyncer, primaryUIService, secondaryUIService);
             }
 
             _playerSettingsHandler.OnDebugSaveAppearance += HandlePlayerPresentationChanged;
@@ -127,6 +129,38 @@ namespace VE2.Core.Player.Internal
                 _player2D.ActivatePlayer(PlayerTransformData);
 
             _playerInputContainer.ChangeMode.OnPressed += HandleChangeModePressed;
+
+            _primaryUIService = primaryUIService;
+            if (_primaryUIService != null)
+                SetupUI();
+        }
+
+        private void SetupUI()
+        {
+            GameObject settingsUIHolder = GameObject.Instantiate(Resources.Load<GameObject>("PlayerSettingsUIHolder"));
+            GameObject settingsUI = settingsUIHolder.transform.GetChild(0).gameObject;
+            settingsUI.SetActive(false);
+        
+            _primaryUIService.AddNewTab("Settings", settingsUI, Resources.Load<Sprite>("PlayerSettingsUIIcon"), 2);
+            GameObject.Destroy(settingsUIHolder);
+            
+            GameObject helpUIHolder = GameObject.Instantiate(Resources.Load<GameObject>("PlayerHelpUIHolder"));
+            GameObject helpUI = helpUIHolder.transform.GetChild(0).gameObject;
+            helpUI.SetActive(false);
+
+            _primaryUIService.AddNewTab("Help", helpUI, Resources.Load<Sprite>("PlayerHelpUIIcon"), 3);
+            GameObject.Destroy(helpUIHolder);
+
+            if (_config.Enable2D && _config.EnableVR)
+                _primaryUIService.EnableModeSwitchButtons();
+
+            _primaryUIService.OnSwitchTo2DButtonClicked += () => HandleChangeModePressed();
+            _primaryUIService.OnSwitchToVRButtonClicked += () => HandleChangeModePressed();
+
+            if (PlayerTransformData.IsVRMode)
+                _primaryUIService.ShowSwitchTo2DButton();
+            else 
+                _primaryUIService.ShowSwitchToVRButton();
         }
 
         private void HandleChangeModePressed() 
@@ -136,15 +170,21 @@ namespace VE2.Core.Player.Internal
 
             try 
             {
-                if (PlayerTransformData.IsVRMode)
+                if (PlayerTransformData.IsVRMode) //switch to 2d
                 {
                     _playerVR.DeactivatePlayer();
                     _player2D.ActivatePlayer(PlayerTransformData);
+
+                    if (_primaryUIService != null)
+                        _primaryUIService.ShowSwitchToVRButton();
                 }
-                else
+                else //switch to vr
                 {
                     _player2D.DeactivatePlayer();
                     _playerVR.ActivatePlayer(PlayerTransformData);
+
+                    if (_primaryUIService != null)
+                        _primaryUIService.ShowSwitchTo2DButton();
                 }
 
                 PlayerTransformData.IsVRMode = !PlayerTransformData.IsVRMode;
@@ -196,6 +236,12 @@ namespace VE2.Core.Player.Internal
             {
                 _playerVR.DeactivatePlayer();
                 _playerVR.TearDown();
+            }
+
+            if (_primaryUIService != null)
+            {
+                _primaryUIService.OnSwitchTo2DButtonClicked -= HandleChangeModePressed;
+                _primaryUIService.OnSwitchToVRButtonClicked -= HandleChangeModePressed;
             }
 
             _playerInputContainer.ChangeMode.OnPressed -= HandleChangeModePressed;

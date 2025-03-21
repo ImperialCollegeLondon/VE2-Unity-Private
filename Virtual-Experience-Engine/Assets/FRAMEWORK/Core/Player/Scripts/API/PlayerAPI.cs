@@ -96,8 +96,8 @@ namespace VE2.Core.Player.API
             }
 
             _instance = this;
-            //gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
-            gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
+            gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
+            //gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
         }
     }
 }

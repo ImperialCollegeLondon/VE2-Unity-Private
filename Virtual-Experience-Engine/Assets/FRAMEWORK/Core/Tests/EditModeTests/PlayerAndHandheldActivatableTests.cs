@@ -47,7 +47,7 @@ namespace VE2.Core.Tests
             FreeGrabbableService freeGrabbable = new(
                 new List<IHandheldInteractionModule>() { _handheldActivatablePlayerInterface },
                 new FreeGrabbableConfig(),
-                new FreeGrabbableState(),
+                new GrabbableState(),
                 "debug",
                 Substitute.For<IWorldStateSyncService>(),
                 InteractorContainerSetup.InteractorContainer,

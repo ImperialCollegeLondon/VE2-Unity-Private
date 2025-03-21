@@ -1,10 +1,11 @@
 using NSubstitute;
 using NUnit.Framework;
 using System;
-using VE2.Core.VComponents.Tests;
 using UnityEngine;
 using VE2.Core.VComponents.Internal;
 using VE2.Core.VComponents.API;
+using VE2.Core.VComponents.Tests;
+
 
 namespace VE2.Core.Tests
 {
@@ -27,7 +28,8 @@ namespace VE2.Core.Tests
                 new ToggleActivatableConfig(),
                 new SingleInteractorActivatableState(),
                 "debug",
-                Substitute.For<IWorldStateSyncService>());
+                Substitute.For<IWorldStateSyncService>(),
+                new ActivatableGroupsContainer());
             
             //Stub out the provider layer
             _v_activatableProviderStub = new(toggleActivatableService);
@@ -40,22 +42,21 @@ namespace VE2.Core.Tests
 
         //test method to confirm that the activatable emits the correct events when the player interacts with it
         [Test]
-        public void OnUserClick_WithHoveringActivatable_CustomerScriptReceivesOnActivate( [Random((ushort) 0, ushort.MaxValue, 1)] ushort localClientID)
+        public void WithHoveringActivatable_OnUserClick_CustomerScriptReceivesOnActivate()
         {
             RayCastProviderSetup.StubRangedInteractionModuleForRaycastProviderStub(_activatableRaycastInterface.RangedClickInteractionModule);
-            LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID.Returns(localClientID);
 
             //Check customer received the activation, and that the interactorID is set
             PlayerInputContainerSetup.RangedClick2D.OnPressed += Raise.Event<Action>();
             _customerScript.Received(1).HandleActivateReceived();
             Assert.IsTrue(_activatablePluginInterface.IsActivated, "Activatable should be activated");
-            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, localClientID);
+            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, LocalClientIDProviderSetup.LocalClientID);
 
             // Invoke the click to deactivate
             PlayerInputContainerSetup.RangedClick2D.OnPressed += Raise.Event<Action>();
             _customerScript.Received(1).HandleDeactivateReceived();
             Assert.IsFalse(_activatablePluginInterface.IsActivated, "Activatable should be deactivated");
-            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, localClientID);
+            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, LocalClientIDProviderSetup.LocalClientID);
         }
 
         //tear down that runs after every test method in this test fixture
