@@ -66,6 +66,7 @@ namespace VE2.Core.Player.Internal
         protected readonly Transform _interactorParentTransform;
         protected readonly Transform _GrabberTransform;
         protected readonly GameObject _GrabberVisualisation;
+        private readonly LineRenderer _grabbableLineVisLineRenderer;
 
         protected readonly Transform _RayOrigin;
         private readonly LayerMask _layerMask;
@@ -90,6 +91,7 @@ namespace VE2.Core.Player.Internal
             _interactorParentTransform = interactorReferences.InteractorParentTransform;
             _GrabberTransform = interactorReferences.GrabberTransform;
             _GrabberVisualisation = interactorReferences.GrabberVisualisation;
+            _grabbableLineVisLineRenderer = _GrabberVisualisation.GetComponent<LineRenderer>();
             _RayOrigin = interactorReferences.RayOrigin;
             _layerMask = interactorReferences.LayerMask;
             _raycastHitDebug = interactorReferences.RaycastHitDebug;
@@ -147,9 +149,6 @@ namespace VE2.Core.Player.Internal
 
         public void HandleUpdate()
         {
-            if (IsCurrentlyGrabbing)
-                return;
-
             RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
 
             //If we've just pointed away from a ranged activatable we were holding down, release it
@@ -168,10 +167,11 @@ namespace VE2.Core.Player.Internal
             {
                 _hoveringOverScrollableIndicator.IsHoveringOverScrollableObject = false;
 
-                var lineRenderer = _GrabberVisualisation.GetComponent<LineRenderer>();
-                lineRenderer.startWidth = lineRenderer.endWidth = 0.005f;
-                lineRenderer.SetPosition(0, GrabberTransform.position);
-                lineRenderer.SetPosition(1, rangedAdjustableInteraction.Transform.position);
+                _grabbableLineVisLineRenderer.startWidth = _grabbableLineVisLineRenderer.endWidth = 0.005f;
+                _grabbableLineVisLineRenderer.SetPosition(0, GrabberTransform.position);
+                _grabbableLineVisLineRenderer.SetPosition(1, rangedAdjustableInteraction.Transform.position);
+
+                Debug.Log("Doing things");
                 
                 HandleUpdateGrabbingAdjustable();
             }

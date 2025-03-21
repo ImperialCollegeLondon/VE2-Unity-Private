@@ -7,8 +7,8 @@ namespace VE2.Core.Player.Internal
     {
         //TODO: make private, could be wired in via scriptable object?
         // Public variables
-        public float moveSpeed = 2f;
-        public float mouseSensitivity = 0.15f;
+        public float moveSpeed = 5f;
+        public float mouseSensitivity = 0.3f;
         public float jumpForce = 5f;
         public float crouchHeight = 0.7f;
         public float minVerticalAngle = -90f; // Minimum vertical angle (looking down)
