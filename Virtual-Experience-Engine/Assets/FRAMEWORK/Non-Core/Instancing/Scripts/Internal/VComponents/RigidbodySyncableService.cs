@@ -115,7 +115,8 @@ namespace VE2.NonCore.Instancing.Internal
             if (_stateModule.IsHost && _instanceService.LocalClientID == grabberClientID)
             {
                 // Host who dropped immediately starts sending messages again
-                _hostNotSendingStates = false;
+                HandleLagCompensationForNonHostDrop(0);
+                //_hostNotSendingStates = false;
             }
             else if (_instanceService.LocalClientID == grabberClientID)
             {
@@ -308,13 +309,13 @@ namespace VE2.NonCore.Instancing.Internal
                     return;
                 }
 
-                if (_receivedRigidbodyStates.Count == 0)
+                if (_receivedRigidbodyStates.Count == 1)
                 {
-                    // When we start receiving rigidbody states again
+                    // Let's try only syncing once we have at least 2 states to interp between
+                    _timeDifferenceFromHost = receivedState.FixedTime - Time.fixedTime;
                     _nonHostSimulating = false;
                     _isKinematicOnStart = _rigidbody.isKinematic;
                     _rigidbody.isKinematic = true;
-                    _timeDifferenceFromHost = receivedState.FixedTime - Time.fixedTime;
                 }
 
                 AddReceivedStateToHistory(new(receivedState.FixedTime, receivedState.Position, receivedState.Rotation, receivedState.GrabCounter));
