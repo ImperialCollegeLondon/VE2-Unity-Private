@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -31,6 +32,12 @@ namespace VE2.Core.VComponents.API
                    ClientID == iD.ClientID &&
                    InteractorType == iD.InteractorType;
         }
+        
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(ClientID, InteractorType);
+        }
+
         protected override byte[] ConvertToBytes()
         {
             using MemoryStream stream = new();

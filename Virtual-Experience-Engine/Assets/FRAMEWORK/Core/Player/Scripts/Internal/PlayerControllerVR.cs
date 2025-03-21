@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using VE2.Core.Player.API;
 using VE2.Core.UI.API;
@@ -22,7 +23,10 @@ namespace VE2.Core.Player.Internal
                     handVRLeftPosition: _handControllerLeft.Transform.localPosition,
                     handVRLeftRotation: _handControllerLeft.Transform.localRotation,
                     handVRRightPosition: _handControllerRight.Transform.localPosition,
-                    handVRRightRotation: _handControllerRight.Transform.localRotation
+                    handVRRightRotation: _handControllerRight.Transform.localRotation,
+                    activatableIDsVRLeft: _handControllerLeft.HeldActivatableIDs,
+                    activatableIDsVRRight: _handControllerRight.HeldActivatableIDs
+                    
                 );
             }
         }
@@ -34,6 +38,7 @@ namespace VE2.Core.Player.Internal
         private readonly Transform _rootTransform;
         private readonly Transform _verticalOffsetTransform;
         private readonly Transform _headTransform;
+        private InteractorVR _interactorVR;
 
         private readonly V_HandController _handControllerLeft;
         private readonly V_HandController _handControllerRight;

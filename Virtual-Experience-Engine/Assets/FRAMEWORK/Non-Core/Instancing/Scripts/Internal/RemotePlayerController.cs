@@ -34,16 +34,16 @@ namespace VE2.NonCore.Instancing.Internal
         private List<GameObject> _avatarHeadOverrideGameObjects;
         private List<GameObject> _avatarTorsoOverrideGameObjects;
 
-        private void Awake() 
+        private void Awake()
         {
             _torsoOffsetFromHead = _torsoHolder.position.y - _headHolder.position.y;
             _activeHead = _headHolder.transform.GetChild(0).gameObject;
-            _activeTorso = _torsoHolder.transform.GetChild(0).gameObject;   
+            _activeTorso = _torsoHolder.transform.GetChild(0).gameObject;
 
             RefreshMaterials();
         }
 
-        private void RefreshMaterials() 
+        private void RefreshMaterials()
         {
             _colorMaterials = CommonUtils.GetAvatarColorMaterialsForGameObject(gameObject);
         }
@@ -51,8 +51,8 @@ namespace VE2.NonCore.Instancing.Internal
         /// <summary>
         /// Note, this WON'T set the initial appearance, HandleReceiveAvatarAppearance should be called after initialization
         /// </summary>
-        public void Initialize(ushort clientID, InteractorContainer interactorContainer, 
-            List<GameObject> virseAvatarHeadGameObjects, List<GameObject> virseAvatarTorsoGameObjects, 
+        public void Initialize(ushort clientID, InteractorContainer interactorContainer,
+            List<GameObject> virseAvatarHeadGameObjects, List<GameObject> virseAvatarTorsoGameObjects,
             List<GameObject> avatarHeadOverrideGameObjects, List<GameObject> avatarTorsoOverrideGameObjects)
         {
             _interactorVRLeftGameObject.name = $"Interactor{clientID}-{InteractorType.LeftHandVR}";
@@ -85,10 +85,52 @@ namespace VE2.NonCore.Instancing.Internal
             {
                 _interactorVRLeftGameObject.transform.SetLocalPositionAndRotation(playerState.HandVRLeftLocalPosition, playerState.HandVRLeftLocalRotation);
                 _interactorVRRightGameObject.transform.SetLocalPositionAndRotation(playerState.HandVRRightLocalPosition, playerState.HandVRRightLocalRotation);
+
+                foreach (var receivedActivatableID in playerState.HeldActivatableIdsVRLeft)
+                    if (!_interactorVRLeftGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs.Contains(receivedActivatableID))
+                        _interactorVRLeftGameObject.GetComponent<RemoteInteractor>().AddToHeldActivatableIDs(receivedActivatableID);
+
+                var activatableIDsToRemoveVRLeft = new List<string>();
+
+                foreach (var localActivatableID in _interactorVRLeftGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs)
+                    if (!playerState.HeldActivatableIdsVRLeft.Contains(localActivatableID))
+                        activatableIDsToRemoveVRLeft.Add(localActivatableID);
+
+                foreach (var idToRemove in activatableIDsToRemoveVRLeft)
+                    _interactorVRLeftGameObject.GetComponent<RemoteInteractor>().RemoveFromHeldActivatableIDs(idToRemove);
+
+
+                foreach (var receivedActivatableID in playerState.HeldActivatableIdsVRRight)
+                    if (!_interactorVRRightGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs.Contains(receivedActivatableID))
+                        _interactorVRRightGameObject.GetComponent<RemoteInteractor>().AddToHeldActivatableIDs(receivedActivatableID);
+
+                var activatableIDsToRemoveVRRight = new List<string>();
+
+                foreach (var localActivatableID in _interactorVRRightGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs)
+                    if (!playerState.HeldActivatableIdsVRRight.Contains(localActivatableID))
+                        activatableIDsToRemoveVRRight.Add(localActivatableID);
+
+                foreach (var idToRemove in activatableIDsToRemoveVRRight)
+                    _interactorVRRightGameObject.GetComponent<RemoteInteractor>().RemoveFromHeldActivatableIDs(idToRemove);
             }
-            else 
+            else
             {
                 _interactor2DGameObject.transform.SetLocalPositionAndRotation(playerState.Hand2DLocalPosition, playerState.Hand2DLocalRotation);
+
+                //Debug.Log("receiving Player2DReferences: " + playerState.HeldActivatableIds2D.Count);
+
+                foreach (var receivedActivatableID in playerState.HeldActivatableIds2D)
+                    if (!_interactor2DGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs.Contains(receivedActivatableID))
+                        _interactor2DGameObject.GetComponent<RemoteInteractor>().AddToHeldActivatableIDs(receivedActivatableID);
+
+                var activatableIDsToRemove = new List<string>();
+
+                foreach (var localActivatableID in _interactor2DGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs)
+                    if (!playerState.HeldActivatableIds2D.Contains(localActivatableID))
+                        activatableIDsToRemove.Add(localActivatableID);
+
+                foreach (var idToRemove in activatableIDsToRemove)
+                    _interactor2DGameObject.GetComponent<RemoteInteractor>().RemoveFromHeldActivatableIDs(idToRemove);
             }
         }
 
@@ -158,7 +200,7 @@ namespace VE2.NonCore.Instancing.Internal
                 overrideGO = overrideGameObjects[index];
                 return true;
             }
-            else 
+            else
             {
                 overrideGO = null;
                 return false;
@@ -166,7 +208,7 @@ namespace VE2.NonCore.Instancing.Internal
 
         }
 
-        private void Update() 
+        private void Update()
         {
             if (Camera.main == null)
                 return;
@@ -176,7 +218,7 @@ namespace VE2.NonCore.Instancing.Internal
             _namePlateTransform.LookAt(lookPosition);
         }
 
-        private void OnDisable() 
+        private void OnDisable()
         {
             //Destroy GO for domain reload
             if (gameObject != null)

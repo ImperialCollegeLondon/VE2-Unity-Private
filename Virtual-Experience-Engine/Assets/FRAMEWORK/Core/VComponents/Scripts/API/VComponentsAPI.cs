@@ -107,22 +107,18 @@ namespace VE2.Core.VComponents.API
 
         public void DeregisterActivatable(string activatableGroupID, ISingleInteractorActivatableStateModule singleInteractorActivatableStateModule)
         {
-            _activatableGroups[activatableGroupID].Remove(singleInteractorActivatableStateModule);  
-        }   
+            if (_activatableGroups.ContainsKey(activatableGroupID))
+                _activatableGroups[activatableGroupID].Remove(singleInteractorActivatableStateModule);
+        }
 
-        public void ActivateGroup(string activatableGroupID, ISingleInteractorActivatableStateModule singleInteractorActivatableStateModule)
+        public List<ISingleInteractorActivatableStateModule> GetSingleInteractorActivatableStateModule(string activatableGroupID)
         {
             if (!_activatableGroups.ContainsKey(activatableGroupID))
-                return;
+                return new List<ISingleInteractorActivatableStateModule>();
 
-            foreach (ISingleInteractorActivatableStateModule activatable in _activatableGroups[activatableGroupID])
-            {
-                if (activatable != singleInteractorActivatableStateModule)
-                {
-                    activatable.OnDeactivate.Invoke();  
-                }             
-            }
+            return _activatableGroups[activatableGroupID];
         }
-        public void Reset() => _activatableGroups.Clear();   
+
+        public void Reset() => _activatableGroups.Clear();
     }
 }

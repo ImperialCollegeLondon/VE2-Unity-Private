@@ -24,7 +24,8 @@ namespace VE2.Core.VComponents.Tests
                 new HandheldActivatableConfig(), 
                 new SingleInteractorActivatableState(), 
                 "debug", 
-                Substitute.For<IWorldStateSyncService>());
+                Substitute.For<IWorldStateSyncService>(),
+                new ActivatableGroupsContainer());
 
             //Stub out the VC (provider layer) with the activatable
             _v_handheldActivatableProviderStub = new(toggleActivatable);

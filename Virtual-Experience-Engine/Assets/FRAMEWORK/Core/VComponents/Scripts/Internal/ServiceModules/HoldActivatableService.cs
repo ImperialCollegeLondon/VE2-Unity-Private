@@ -1,45 +1,43 @@
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 using VE2.Core.VComponents.API;
-using static VE2.Core.Common.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
-    internal class ToggleActivatableConfig
+    internal class HoldActivatableConfig
     {
-        [SerializeField, IgnoreParent] public ToggleActivatableStateConfig StateConfig = new();
+        [SerializeField, IgnoreParent] public HoldActivatableStateConfig StateConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
         [SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfig = new();
     }
 
-    internal class ToggleActivatableService
+    internal class HoldActivatableService
     {
         #region Interfaces
-        public ISingleInteractorActivatableStateModule StateModule => _StateModule;
+        public IMultiInteractorActivatableStateModule StateModule => _StateModule;
         public IRangedClickInteractionModule RangedClickInteractionModule => _RangedClickInteractionModule;
         public ICollideInteractionModule ColliderInteractionModule => _ColliderInteractionModule;
         #endregion
 
         #region Modules
-        private readonly SingleInteractorActivatableStateModule _StateModule;
+        private readonly MultiInteractorActivatableStateModule _StateModule;
         private readonly RangedClickInteractionModule _RangedClickInteractionModule;
         private readonly ColliderInteractionModule _ColliderInteractionModule;
         #endregion
 
-        //private readonly string _activationGroupID = "None";
-        //private readonly bool _isInActivationGroup = false;     
-        internal bool test = false;
-
-        public ToggleActivatableService(ToggleActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncService worldStateSyncService, ActivatableGroupsContainer activatableGroupsContainer)
+        public HoldActivatableService(HoldActivatableConfig config, MultiInteractorActivatableState state, string id)
         {
-            _StateModule = new(state, config.StateConfig, id, worldStateSyncService,activatableGroupsContainer);
-
+            _StateModule = new(state, config.StateConfig, id);
             _RangedClickInteractionModule = new(config.RangedInteractionConfig, config.GeneralInteractionConfig, id);
             _ColliderInteractionModule = new(config.GeneralInteractionConfig, id);
 
-            _RangedClickInteractionModule.OnClickDown += HandleInteract;
-            _ColliderInteractionModule.OnCollideEnter += HandleInteract;
+            _RangedClickInteractionModule.OnClickDown += AddToInteractingInteractors;
+            _RangedClickInteractionModule.OnClickUp += RemoveFromInteractingInteractors;
+            
+            _ColliderInteractionModule.OnCollideEnter += AddToInteractingInteractors;
+            _ColliderInteractionModule.OnCollideExit += RemoveFromInteractingInteractors;
         }
 
         public void HandleFixedUpdate()
@@ -47,15 +45,18 @@ namespace VE2.Core.VComponents.Internal
             _StateModule.HandleFixedUpdate();
         }
 
-        private void HandleInteract(InteractorID interactorID)
+        private void AddToInteractingInteractors(InteractorID interactorID)
         {
+            _StateModule.AddInteractorToState(interactorID);
+        }
 
-            _StateModule.HandleActivatableState(interactorID.ClientID);
+        private void RemoveFromInteractingInteractors(InteractorID interactorID)
+        {
+            _StateModule.RemoveInteractorFromState(interactorID);
         }
 
         public void TearDown() 
         {
-            //VComponentsAPI.ActivatableGroupsContainer.DeregisterActivatable(_activationGroupID, _StateModule); 
             _StateModule.TearDown();
         }
     }

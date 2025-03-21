@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 using UnityEngine;
 using UnityEngine.Events;
 using VE2.Core.Common;
@@ -39,12 +40,12 @@ namespace VE2.Core.VComponents.Internal
 
         internal event Action<float> OnValueChangedInternal;
 
-        public AdjustableStateModule(CommonSerializables.VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncService worldStateSyncService) : base(state, config, id, worldStateSyncService)
+        public AdjustableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncService worldStateSyncService) : base(state, config, id, worldStateSyncService)
         {
-            if (_config.EmitValueOnStart == true)
-            {
-                OnValueAdjusted?.Invoke(OutputValue);
-            }
+            _state.Value = _config.StartingOutputValue;
+
+            if (_config.EmitValueOnStart)
+                InvokeOnValueAdjustedEvents(_state.Value);
         }
 
         private void HandleExternalAdjust(float newValue)
@@ -56,7 +57,7 @@ namespace VE2.Core.VComponents.Internal
         {   
             if (value < _config.MinimumOutputValue || value > _config.MaximumOutputValue)
             {
-                Debug.LogError("Value is beyond limits");
+                Debug.LogError($"Value ({value}) is beyond limits");
                 return;
             }
 
