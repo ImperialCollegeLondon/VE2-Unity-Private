@@ -9,9 +9,9 @@ namespace VE2.Core.UI.Internal
     [ExecuteAlways]
     public class V_UIProvider : MonoBehaviour, IUIProvider
     {
-        //Hidden for now, we always want both. 
-        [SerializeField, HideInInspector] private bool _enablePrimaryUI = true;
-        [SerializeField, HideInInspector] private bool _enableSecondaryUI = true;
+        //For now, we always want both. 
+        private bool _enablePrimaryUI => true;
+        private bool _enableSecondaryUI => true;
 
         public IPrimaryUIService PrimaryUIService {
             get
