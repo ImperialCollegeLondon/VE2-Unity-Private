@@ -84,10 +84,13 @@ namespace VE2.Core.Player.Internal
         public IRangedInteractionModule RangedInteractable { get; private set; }
         public Button UIButton;
         public float HitDistance { get; private set; }
-        public bool HitInteractableOrUI => HitInteractable || HitUI;
+        public bool HitInteractableOrUI => HitInteractable || HitUIButton;
         public bool HitInteractable => RangedInteractable != null;
-        public bool HitUI => UIButton != null;
+        public bool HitInteractableInRange => HitInteractable && RangedInteractableIsInRange;
+        public bool HitUIButton => UIButton != null;
         public bool RangedInteractableIsInRange => RangedInteractable != null && HitDistance <= RangedInteractable.InteractRange;
+        public bool HitScrollableInteractableInRange => HitInteractableInRange && RangedInteractable is IRangedAdjustableInteractionModule;
+        public bool HitScrollableUI => HitUIButton && false /*TODO: replace w/ && UIButton is IScrollableUI*/;
 
         public RaycastResultWrapper(IRangedInteractionModule rangedInteractable, Button uiButton, float distance) 
         {

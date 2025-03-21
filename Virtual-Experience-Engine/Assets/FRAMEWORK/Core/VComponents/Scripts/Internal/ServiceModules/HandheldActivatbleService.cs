@@ -8,7 +8,7 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class HandheldActivatableConfig
     {
-        [SerializeField, IgnoreParent] public ActivatableStateConfig StateConfig = new();
+        [SerializeField, IgnoreParent] public ToggleActivatableStateConfig StateConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
     }
     internal class HandheldActivatableService

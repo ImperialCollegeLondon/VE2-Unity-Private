@@ -6,14 +6,25 @@ namespace VE2.Core.VComponents.Internal
 {
     internal class RangedClickInteractionModule : RangedInteractionModule, IRangedClickInteractionModule
     {
-        public void Click(ushort clientID)
+        public void ClickDown(InteractorID interactorID)
         {
             //only happens if is valid click
-            OnClickDown?.Invoke(clientID);
+            OnClickDown?.Invoke(interactorID);
         }
 
-        public event Action<ushort> OnClickDown;
+        public void ClickUp(InteractorID interactorID)
+        {
+            //only happens if is valid click
+            OnClickUp?.Invoke(interactorID);
+        }
+        public string ID { get; }
 
-        public RangedClickInteractionModule(RangedInteractionConfig rangedConfig, GeneralInteractionConfig generalConfig) : base(rangedConfig, generalConfig) { }  
+        public event Action<InteractorID> OnClickDown;
+        public event Action<InteractorID> OnClickUp;
+
+        public RangedClickInteractionModule(RangedInteractionConfig rangedConfig, GeneralInteractionConfig generalConfig, string id) : base(rangedConfig, generalConfig) 
+        {
+            ID = id;
+        }  
     }
 }

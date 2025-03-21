@@ -8,7 +8,7 @@ using static VE2.Core.Common.CommonSerializables;
 namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
-    internal class ActivatableStateConfig : BaseWorldStateConfig
+    internal class ToggleActivatableStateConfig : BaseWorldStateConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Activation Settings", ApplyCondition = true)]
@@ -31,7 +31,7 @@ namespace VE2.Core.VComponents.Internal
         public ushort MostRecentInteractingClientID => _state.MostRecentInteractingClientID;
 
         private SingleInteractorActivatableState _state => (SingleInteractorActivatableState)State;
-        private ActivatableStateConfig _config => (ActivatableStateConfig)Config;
+        private ToggleActivatableStateConfig _config => (ToggleActivatableStateConfig)Config;
 
         public SingleInteractorActivatableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncService worldStateSyncService, ActivatableGroupsContainer activatableGroupsContainer = null) : base(state, config, id, worldStateSyncService) { }
 

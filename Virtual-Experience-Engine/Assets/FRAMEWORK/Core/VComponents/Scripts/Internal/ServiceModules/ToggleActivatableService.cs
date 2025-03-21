@@ -8,7 +8,7 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class ToggleActivatableConfig
     {
-        [SerializeField, IgnoreParent] public ActivatableStateConfig StateConfig = new();
+        [SerializeField, IgnoreParent] public ToggleActivatableStateConfig StateConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
         [SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfig = new();
     }
@@ -34,8 +34,8 @@ namespace VE2.Core.VComponents.Internal
         public ToggleActivatableService(ToggleActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncService worldStateSyncService, ActivatableGroupsContainer activatableGroupsContainer)
         {
             _StateModule = new(state, config.StateConfig, id, worldStateSyncService,activatableGroupsContainer);
-            _RangedClickInteractionModule = new(config.RangedInteractionConfig, config.GeneralInteractionConfig);
-            _ColliderInteractionModule = new(config.GeneralInteractionConfig);
+            _RangedClickInteractionModule = new(config.RangedInteractionConfig, config.GeneralInteractionConfig, id);
+            _ColliderInteractionModule = new(config.GeneralInteractionConfig, id);
             _activationGroupID = config.StateConfig.ActivationGroupID;   
 
             if (_activationGroupID != "None")
@@ -57,13 +57,13 @@ namespace VE2.Core.VComponents.Internal
             _StateModule.HandleFixedUpdate();
         }
 
-        private void HandleInteract(ushort clientID)
+        private void HandleInteract(InteractorID interactorID)
         {
             Debug.Log($"HandleInteract {_isInActivationGroup} with {_activationGroupID}");
             if (_isInActivationGroup)
                 VComponentsAPI.ActivatableGroupsContainer.ActivateGroup(_activationGroupID, _StateModule);
 
-            _StateModule.InvertState(clientID);
+            _StateModule.InvertState(interactorID.ClientID);
         }
 
         public void TearDown() 

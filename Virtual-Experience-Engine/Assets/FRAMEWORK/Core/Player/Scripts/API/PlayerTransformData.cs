@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using static VE2.Core.Common.CommonSerializables;
@@ -23,12 +24,15 @@ namespace VE2.Core.Player.API
         public Quaternion HandVRLeftLocalRotation { get; private set; }
         public Vector3 HandVRRightLocalPosition { get; private set; }
         public Quaternion HandVRRightLocalRotation { get; private set; }
+        public List<string> HeldActivatableIds2D { get; private set; }
+        public List<string> HeldActivatableIdsVRLeft { get; private set; }
+        public List<string> HeldActivatableIdsVRRight { get; private set; }
 
         public PlayerTransformData(byte[] bytes) : base(bytes) { }
 
         public PlayerTransformData() : base() { }
 
-        public PlayerTransformData(bool IsVRMode, Vector3 rootPosition, Quaternion rootRotation, float verticalOffset, Vector3 headPosition, Quaternion headRotation, Vector3 hand2DPosition, Quaternion hand2DRotation)
+        public PlayerTransformData(bool IsVRMode, Vector3 rootPosition, Quaternion rootRotation, float verticalOffset, Vector3 headPosition, Quaternion headRotation, Vector3 hand2DPosition, Quaternion hand2DRotation, List<string> activatableIDs2D)
         {
             this.IsVRMode = IsVRMode;
             if (IsVRMode)
@@ -41,9 +45,10 @@ namespace VE2.Core.Player.API
             HeadLocalRotation = headRotation;
             Hand2DLocalPosition = hand2DPosition;
             Hand2DLocalRotation = hand2DRotation;
+            HeldActivatableIds2D = activatableIDs2D;
         }
 
-        public PlayerTransformData(bool IsVRMode, Vector3 rootPosition, Quaternion rootRotation, float verticalOffset, Vector3 headPosition, Quaternion headRotation, Vector3 handVRLeftPosition, Quaternion handVRLeftRotation, Vector3 handVRRightPosition, Quaternion handVRRightRotation)
+        public PlayerTransformData(bool IsVRMode, Vector3 rootPosition, Quaternion rootRotation, float verticalOffset, Vector3 headPosition, Quaternion headRotation, Vector3 handVRLeftPosition, Quaternion handVRLeftRotation, Vector3 handVRRightPosition, Quaternion handVRRightRotation, List<string> activatableIDsVRLeft, List<string> activatableIDsVRRight)
         {
             this.IsVRMode = IsVRMode;
             if (!IsVRMode)
@@ -58,6 +63,8 @@ namespace VE2.Core.Player.API
             HandVRLeftLocalRotation = handVRLeftRotation;
             HandVRRightLocalPosition = handVRRightPosition;
             HandVRRightLocalRotation = handVRRightRotation;
+            HeldActivatableIdsVRLeft = activatableIDsVRLeft;
+            HeldActivatableIdsVRRight = activatableIDsVRRight;
         }
 
 
@@ -98,6 +105,12 @@ namespace VE2.Core.Player.API
                 writer.Write(Hand2DLocalRotation.y);
                 writer.Write(Hand2DLocalRotation.z);
                 writer.Write(Hand2DLocalRotation.w);
+
+                if(HeldActivatableIds2D == null)
+                    HeldActivatableIds2D = new List<string>();
+
+                foreach (string activatableID in HeldActivatableIds2D)
+                    writer.Write(activatableID);
             }
             else
             {
@@ -118,6 +131,18 @@ namespace VE2.Core.Player.API
                 writer.Write(HandVRRightLocalRotation.y);
                 writer.Write(HandVRRightLocalRotation.z);
                 writer.Write(HandVRRightLocalRotation.w);
+
+                if(HeldActivatableIdsVRLeft == null)
+                    HeldActivatableIdsVRLeft = new List<string>();
+
+                if(HeldActivatableIdsVRRight == null)
+                    HeldActivatableIdsVRRight = new List<string>();
+
+                foreach (string activatableID in HeldActivatableIdsVRLeft)
+                    writer.Write(activatableID);
+
+                foreach (string activatableID in HeldActivatableIdsVRRight)
+                    writer.Write(activatableID);
             }
 
             return stream.ToArray();
@@ -139,6 +164,10 @@ namespace VE2.Core.Player.API
             {
                 Hand2DLocalPosition = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
                 Hand2DLocalRotation = new Quaternion(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+
+                HeldActivatableIds2D = new();
+                while (stream.Position < stream.Length)
+                    HeldActivatableIds2D.Add(reader.ReadString());
             }
             else
             {
@@ -146,6 +175,15 @@ namespace VE2.Core.Player.API
                 HandVRLeftLocalRotation = new Quaternion(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
                 HandVRRightLocalPosition = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
                 HandVRRightLocalRotation = new Quaternion(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+
+                HeldActivatableIdsVRLeft = new();
+                while (stream.Position < stream.Length)
+                    HeldActivatableIdsVRLeft.Add(reader.ReadString());
+
+                HeldActivatableIdsVRRight = new();
+                while (stream.Position < stream.Length)
+                    HeldActivatableIdsVRRight.Add(reader.ReadString());
+
             }
         }
     }

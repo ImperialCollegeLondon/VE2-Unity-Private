@@ -29,7 +29,8 @@ namespace VE2.Core.Player.Internal
                     headPosition: _playerLocomotor2D.HeadLocalPosition,
                     headRotation: _playerLocomotor2D.HeadLocalRotation,
                     hand2DPosition: _interactor2D.GrabberTransform.localPosition, 
-                    hand2DRotation: _interactor2D.GrabberTransform.localRotation
+                    hand2DRotation: _interactor2D.GrabberTransform.localRotation,
+                    activatableIDs2D: _interactor2D.HeldActivatableIDs
                 );
             }
         }
@@ -69,6 +70,8 @@ namespace VE2.Core.Player.Internal
             _interactor2D = new(
                 interactorContainer, player2DInputContainer.InteractorInputContainer2D,
                 player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, multiplayerSupport);
+
+            Debug.Log("Player2DReferences: " + _interactor2D.HeldActivatableIDs);
 
             _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences);
 
@@ -112,6 +115,9 @@ namespace VE2.Core.Player.Internal
 
         internal void HandleUpdate() 
         {
+            _playerLocomotor2D.HandleUpdate();
+            _interactor2D.HandleUpdate();
+
             if (_primaryUIService == null || !_primaryUIService.IsShowing)
             {
                 _playerLocomotor2D.HandleUpdate();

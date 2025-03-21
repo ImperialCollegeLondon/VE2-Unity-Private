@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using VE2.Core.Player.API;
@@ -7,7 +8,7 @@ using VE2.Core.VComponents.API;
 
 namespace VE2.Core.Player.Internal
 {
-    internal class InteractorReferences 
+    internal class InteractorReferences
     {
         public Transform InteractorParentTransform => _interactorParentTransform;
         [SerializeField, IgnoreParent] private Transform _interactorParentTransform;
@@ -43,14 +44,18 @@ namespace VE2.Core.Player.Internal
     internal abstract class PointerInteractor : ILocalInteractor
     {
         public Transform GrabberTransform => _GrabberTransform;
+        public List<string> HeldActivatableIDs {get => _heldActivatableIDs; set => _heldActivatableIDs = value; }
 
         protected bool IsCurrentlyGrabbing => _CurrentGrabbingGrabbable != null;
         private ushort _localClientID => _localClientIDProvider == null ? (ushort)0 : _localClientIDProvider.LocalClientID;
         protected InteractorID _InteractorID => new(_localClientID, _InteractorType);
         protected bool _WaitingForLocalClientID => _localClientIDProvider != null && !_localClientIDProvider.IsClientIDReady;
+        protected List<string> _heldActivatableIDs = new();
 
         protected const float MAX_RAYCAST_DISTANCE = 10;
         protected IRangedGrabInteractionModule _CurrentGrabbingGrabbable;
+        protected IRangedClickInteractionModule _CurrentRangedClickInteractable;
+        
 
         private GameObject lastHoveredUIObject = null; // Keep track of the last hovered UI object
 
@@ -65,7 +70,6 @@ namespace VE2.Core.Player.Internal
         protected readonly Transform _RayOrigin;
         private readonly LayerMask _layerMask;
         private readonly StringWrapper _raycastHitDebug;
-
 
         private readonly InteractorType _InteractorType;
         private readonly IRaycastProvider _RaycastProvider;
@@ -102,10 +106,13 @@ namespace VE2.Core.Player.Internal
         public virtual void HandleOnEnable()
         {
             _interactorInputContainer.RangedClick.OnPressed += HandleRangedClickPressed;
+            _interactorInputContainer.RangedClick.OnReleased += HandleRangedClickReleased;
             _interactorInputContainer.HandheldClick.OnPressed += HandleHandheldClickPressed;
             _interactorInputContainer.Grab.OnPressed += HandleGrabPressed;
             _interactorInputContainer.ScrollTickUp.OnTickOver += HandleScrollUp;
             _interactorInputContainer.ScrollTickDown.OnTickOver += HandleScrollDown;
+
+            _heldActivatableIDs = new();
 
             if (_WaitingForLocalClientID)
                 _localClientIDProvider.OnClientIDReady += HandleLocalClientIDReady;
@@ -116,10 +123,13 @@ namespace VE2.Core.Player.Internal
         public virtual void HandleOnDisable()
         {
             _interactorInputContainer.RangedClick.OnPressed -= HandleRangedClickPressed;
+            _interactorInputContainer.RangedClick.OnReleased -= HandleRangedClickReleased;
             _interactorInputContainer.HandheldClick.OnPressed -= HandleHandheldClickPressed;
             _interactorInputContainer.Grab.OnPressed -= HandleGrabPressed;
             _interactorInputContainer.ScrollTickUp.OnTickOver -= HandleScrollUp;
             _interactorInputContainer.ScrollTickDown.OnTickOver -= HandleScrollDown;
+
+            _heldActivatableIDs = new();
 
             if (_localClientIDProvider != null)
                 _localClientIDProvider.OnClientIDReady -= HandleLocalClientIDReady;
@@ -127,7 +137,7 @@ namespace VE2.Core.Player.Internal
             _interactorContainer.DeregisterInteractor(_InteractorID.ToString());
         }
 
-        private void HandleLocalClientIDReady(ushort clientID) 
+        private void HandleLocalClientIDReady(ushort clientID)
         {
             if (_localClientIDProvider != null)
                 _localClientIDProvider.OnClientIDReady -= HandleLocalClientIDReady;
@@ -137,54 +147,65 @@ namespace VE2.Core.Player.Internal
 
         public void HandleUpdate()
         {
-            if (IsCurrentlyGrabbing && _CurrentGrabbingGrabbable is IRangedAdjustableInteractionModule rangedAdjustableInteraction) //if grabbing and grabbed object is an adjustable module
+            if (IsCurrentlyGrabbing)
+                return;
+
+            RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
+
+            //If we've just pointed away from a ranged activatable we were holding down, release it
+            if (_CurrentRangedClickInteractable != null && _interactorInputContainer.RangedClick.IsPressed)
             {
+                if (raycastResultWrapper.RangedInteractable != _CurrentRangedClickInteractable)
+                {
+                    _CurrentRangedClickInteractable.ClickUp(_InteractorID);
+                    _heldActivatableIDs.Remove(_CurrentRangedClickInteractable.ID);
+                    _CurrentRangedClickInteractable = null;
+                }
+            }
+
+            //if grabbing an adjustable module, update the visualisation, and update input value
+            if (IsCurrentlyGrabbing && _CurrentGrabbingGrabbable is IRangedAdjustableInteractionModule rangedAdjustableInteraction)
+            {
+                _hoveringOverScrollableIndicator.IsHoveringOverScrollableObject = false;
+
                 var lineRenderer = _GrabberVisualisation.GetComponent<LineRenderer>();
                 lineRenderer.startWidth = lineRenderer.endWidth = 0.005f;
                 lineRenderer.SetPosition(0, GrabberTransform.position);
                 lineRenderer.SetPosition(1, rangedAdjustableInteraction.Transform.position);
-
+                
                 HandleUpdateGrabbingAdjustable();
             }
             else if (!IsCurrentlyGrabbing)
             {
-                RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
-
-                if (!_WaitingForLocalClientID && raycastResultWrapper.HitInteractableOrUI && !(raycastResultWrapper.HitInteractable && !raycastResultWrapper.RangedInteractableIsInRange))
+                //If hovering over an interactable, handle interactor and hover=========
+                if (!_WaitingForLocalClientID && (raycastResultWrapper.HitUIButton || raycastResultWrapper.HitInteractableInRange))
                 {
-                    bool isAllowedToInteract = (raycastResultWrapper.HitInteractable && !raycastResultWrapper.RangedInteractable.AdminOnly) || 
-                        (raycastResultWrapper.HitUI && raycastResultWrapper.UIButton.interactable);
+                    bool isAllowedToInteract = false;
 
-                    SetInteractorState(isAllowedToInteract ? InteractorState.InteractionAvailable : InteractorState.InteractionLocked);
-
-                    if (raycastResultWrapper.HitUI)
+                    if (raycastResultWrapper.HitInteractable)
                     {
+                        isAllowedToInteract = !raycastResultWrapper.RangedInteractable.AdminOnly;
+                        _hoveringOverScrollableIndicator.IsHoveringOverScrollableObject = raycastResultWrapper.HitScrollableInteractableInRange;
+                        _raycastHitDebug.Value = raycastResultWrapper.RangedInteractable.ToString();
+                    }
+                    else if (raycastResultWrapper.HitUIButton)
+                    {
+                        isAllowedToInteract = raycastResultWrapper.UIButton.interactable;
+                        _hoveringOverScrollableIndicator.IsHoveringOverScrollableObject = raycastResultWrapper.HitScrollableUI;
+                        _raycastHitDebug.Value = raycastResultWrapper.HitInteractable ? raycastResultWrapper.RangedInteractable.ToString() : raycastResultWrapper.UIButton.name;
+
                         if (isAllowedToInteract)
                             HandleHoverOverUIGameObject(raycastResultWrapper.UIButton.gameObject);
                         else
                             HandleNoHoverOverUIGameObject();
                     }
-
-                    _raycastHitDebug.Value = raycastResultWrapper.HitInteractable ? raycastResultWrapper.RangedInteractable.ToString() : raycastResultWrapper.UIButton.name;
-                }
-                else
-                {
-                    HandleNoHoverOverUIGameObject();
-                }
-
-                if (!_WaitingForLocalClientID && raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange)
-                {
-                    bool isAllowedToInteract = !raycastResultWrapper.RangedInteractable.AdminOnly;
-
-                    _hoveringOverScrollableIndicator.IsHoveringOverScrollableObject = isAllowedToInteract && raycastResultWrapper.RangedInteractable is IRangedAdjustableInteractionModule; //TODO: Or a UIScrollable
-
+                    
                     SetInteractorState(isAllowedToInteract ? InteractorState.InteractionAvailable : InteractorState.InteractionLocked);
-                    _raycastHitDebug.Value = raycastResultWrapper.RangedInteractable.ToString();
                 }
                 else
                 {
                     _hoveringOverScrollableIndicator.IsHoveringOverScrollableObject = false;
-
+                    HandleNoHoverOverUIGameObject();
                     SetInteractorState(InteractorState.Idle);
                     _raycastHitDebug.Value = "none";
                 }
@@ -244,7 +265,7 @@ namespace VE2.Core.Player.Internal
 
         private RaycastResultWrapper GetRayCastResult()
         {
-            if (_RayOrigin == null) 
+            if (_RayOrigin == null)
                 return null;
 
             return _RaycastProvider.Raycast(_RayOrigin.position, _RayOrigin.forward, MAX_RAYCAST_DISTANCE, _layerMask);
@@ -260,11 +281,26 @@ namespace VE2.Core.Player.Internal
             if (raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange &&
                 raycastResultWrapper.RangedInteractable is IRangedClickInteractionModule rangedClickInteractable)
             {
-                rangedClickInteractable.Click(_InteractorID.ClientID);
+                rangedClickInteractable.ClickDown(_InteractorID);
+                _CurrentRangedClickInteractable = rangedClickInteractable;
+                _heldActivatableIDs.Add(rangedClickInteractable.ID);
             }
-            else if (raycastResultWrapper.HitUI && raycastResultWrapper.UIButton.IsInteractable())
+            else if (raycastResultWrapper.HitUIButton && raycastResultWrapper.UIButton.IsInteractable())
             {
                 raycastResultWrapper.UIButton.onClick.Invoke();
+            }
+        }
+
+        private void HandleRangedClickReleased()
+        {
+            if (_WaitingForLocalClientID || IsCurrentlyGrabbing)
+                return;
+
+            if (_CurrentRangedClickInteractable != null)
+            {
+                _CurrentRangedClickInteractable.ClickUp(_InteractorID);
+                _heldActivatableIDs.Remove(_CurrentRangedClickInteractable.ID);
+                _CurrentRangedClickInteractable = null;
             }
         }
 
@@ -275,12 +311,12 @@ namespace VE2.Core.Player.Internal
                 IRangedGrabInteractionModule rangedGrabInteractableToDrop = _CurrentGrabbingGrabbable;
                 rangedGrabInteractableToDrop.RequestLocalDrop(_InteractorID);
             }
-            else 
+            else
             {
                 RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
 
-                if (!_WaitingForLocalClientID && raycastResultWrapper != null && raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange )
-                {   
+                if (!_WaitingForLocalClientID && raycastResultWrapper != null && raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange)
+                {
                     if (!raycastResultWrapper.RangedInteractable.AdminOnly)
                     {
                         if (raycastResultWrapper.RangedInteractable is IRangedGrabInteractionModule rangedGrabInteractable)
@@ -320,7 +356,7 @@ namespace VE2.Core.Player.Internal
         {
             SetInteractorState(InteractorState.Idle);
 
-            if (_CurrentGrabbingGrabbable is IRangedAdjustableInteractionModule rangedAdjustableInteraction)
+            if (_CurrentGrabbingGrabbable is IRangedAdjustableInteractionModule)
                 HandleStopGrabbingAdjustable();
 
             _CurrentGrabbingGrabbable = null;
