@@ -115,9 +115,6 @@ namespace VE2.Core.Player.Internal
 
         internal void HandleUpdate() 
         {
-            _playerLocomotor2D.HandleUpdate();
-            _interactor2D.HandleUpdate();
-
             if (_primaryUIService == null || !_primaryUIService.IsShowing)
             {
                 _playerLocomotor2D.HandleUpdate();
