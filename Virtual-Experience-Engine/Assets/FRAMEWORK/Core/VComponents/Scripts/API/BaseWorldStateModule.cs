@@ -10,15 +10,15 @@ namespace VE2.Core.VComponents.API
     {
         [BeginGroup(Style = GroupStyle.Round, ApplyCondition = true)]
         [Title("Transmission Settings", ApplyCondition = true)]
-        [HideIf(nameof(MultiplayerSupportPresent), false)]
+        [HideIf("MultiplayerSupportPresent", false)]
         [SerializeField] public bool IsNetworked = true;
 
-        [HideIf(nameof(MultiplayerSupportPresent), false)]
+        [HideIf("MultiplayerSupportPresent", false)]
         [DisableIf(nameof(IsNetworked), false)]
         [EndGroup(ApplyCondition = true, Order = 5)]
         [SpaceArea(spaceAfter: 10, Order = -1), SerializeField, IgnoreParent] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new(TransmissionProtocol.UDP, 1);
 
-        private bool MultiplayerSupportPresent => VComponentsAPI.HasMultiPlayerSupport;
+        public bool MultiplayerSupportPresent => VComponentsAPI.HasMultiPlayerSupport;
     }
 
     //Note - this lives here so other packages can use it

@@ -30,8 +30,14 @@ namespace VE2.Core.Common
 
         private void Awake()
         {
-            _renderer.material.EnableKeyword("_EMISSION");
-            _emissiveMaterial = _renderer.materials[_emissiveMaterialIndex];
+            Debug.Log("Awake");
+
+            if (_tweenEmission)
+            {
+                _emissiveMaterial = _renderer.materials[_emissiveMaterialIndex];
+                _emissiveMaterial.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
+                _renderer.material.EnableKeyword("_EMISSION");
+            }
 
             if (_startAtMin)
                 GoToMin();
@@ -52,6 +58,7 @@ namespace VE2.Core.Common
                 {
                     _currentEmissiveIntensity = value;
                     _emissiveMaterial.SetColor("_EmissionColor", _emissiveColor * _currentEmissiveIntensity);
+                    DynamicGI.SetEmissive(_renderer, _emissiveColor * _currentEmissiveIntensity);
                 }).SetEase(_easeType);
             }
         }
@@ -71,6 +78,7 @@ namespace VE2.Core.Common
                 {
                     _currentEmissiveIntensity = value;
                     _emissiveMaterial.SetColor("_EmissionColor", _emissiveColor * _currentEmissiveIntensity);
+                    DynamicGI.SetEmissive(_renderer, _emissiveColor * _currentEmissiveIntensity);
                 }).SetEase(_easeType);
             }
         }
@@ -92,6 +100,7 @@ namespace VE2.Core.Common
                 {
                     _currentEmissiveIntensity = v;
                     _emissiveMaterial.SetColor("_EmissionColor", _emissiveColor * _currentEmissiveIntensity);
+                    DynamicGI.SetEmissive(_renderer, _emissiveColor * _currentEmissiveIntensity);
                 }).SetEase(_easeType);
             }
         }
