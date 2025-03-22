@@ -168,7 +168,7 @@ namespace VE2.Core.Player.Internal
             Vector3 moveVector = dragVector * _dragSpeed;
             float maxStepHeight = 0.5f; // Maximum step height the player can have 
             float stepHeight = 0.5f; // User-defined step height. TODO: Make it configurable
-            float collisionOffset = 0.5f; // Collision offset to stop player entering into walls
+            float collisionOffset = 0.05f; // Collision offset to stop player entering into walls
 
             Vector3 currentRaycastPosition = _rootTransform.position + new Vector3(0, maxStepHeight, 0);
             Vector3 targetRaycastPosition = currentRaycastPosition + moveVector;
