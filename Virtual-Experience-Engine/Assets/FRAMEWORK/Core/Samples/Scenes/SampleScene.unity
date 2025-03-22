@@ -6000,6 +6000,7 @@ MonoBehaviour:
   _emissiveColor: {r: 0, g: 0.7221868, b: 0.9622642, a: 1}
   _tweenDuration: 0.5
   _easeType: 1
+  _startAtMin: 1
 --- !u!114 &548330454
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8420,18 +8421,6 @@ MonoBehaviour:
       OnActivate:
         m_PersistentCalls:
           m_Calls:
-          - m_Target: {fileID: 548330453}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMax
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
           - m_Target: {fileID: 618853152}
             m_TargetAssemblyTypeName: V_PositionTweener, VE2.Core.Common
             m_MethodName: GoToMax
@@ -8444,7 +8433,7 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-          - m_Target: {fileID: 756509174}
+          - m_Target: {fileID: 548330453}
             m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
             m_MethodName: GoToMax
             m_Mode: 1
@@ -8459,18 +8448,6 @@ MonoBehaviour:
       OnDeactivate:
         m_PersistentCalls:
           m_Calls:
-          - m_Target: {fileID: 548330453}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMin
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
           - m_Target: {fileID: 618853152}
             m_TargetAssemblyTypeName: V_PositionTweener, VE2.Core.Common
             m_MethodName: GoToMin
@@ -8483,7 +8460,7 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-          - m_Target: {fileID: 756509174}
+          - m_Target: {fileID: 548330453}
             m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
             m_MethodName: GoToMin
             m_Mode: 1
@@ -8505,10 +8482,34 @@ MonoBehaviour:
       InteractionRange: 5
       OnLocalHoverEnter:
         m_PersistentCalls:
-          m_Calls: []
+          m_Calls:
+          - m_Target: {fileID: 756509174}
+            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
+            m_MethodName: GoToMax
+            m_Mode: 1
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
       OnLocalHoverExit:
         m_PersistentCalls:
-          m_Calls: []
+          m_Calls:
+          - m_Target: {fileID: 756509174}
+            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
+            m_MethodName: GoToMin
+            m_Mode: 1
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
 --- !u!114 &756509174
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8528,11 +8529,12 @@ MonoBehaviour:
   _tweenEmission: 1
   _renderer: {fileID: 756509170}
   _minEmissiveIntensity: 0
-  _maxEmissiveIntensity: 3
+  _maxEmissiveIntensity: 8
   _emissiveMaterialIndex: 1
-  _emissiveColor: {r: 1, g: 1, b: 1, a: 1}
+  _emissiveColor: {r: 0.9433962, g: 0.5905627, b: 0.06674972, a: 1}
   _tweenDuration: 0.3
   _easeType: 1
+  _startAtMin: 1
 --- !u!1 &758950301
 GameObject:
   m_ObjectHideFlags: 0
@@ -11678,7 +11680,7 @@ Light:
   serializedVersion: 11
   m_Type: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 3000
+  m_Intensity: 2500
   m_Range: 14.636511
   m_SpotAngle: 40.732666
   m_InnerSpotAngle: 35.460167
@@ -14081,7 +14083,7 @@ Light:
   serializedVersion: 11
   m_Type: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 63
+  m_Intensity: 50
   m_Range: 14.636511
   m_SpotAngle: 40.732666
   m_InnerSpotAngle: 35.460167

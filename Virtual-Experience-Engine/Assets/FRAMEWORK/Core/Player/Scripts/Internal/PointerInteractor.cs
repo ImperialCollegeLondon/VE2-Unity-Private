@@ -53,8 +53,9 @@ namespace VE2.Core.Player.Internal
         protected List<string> _heldActivatableIDs = new();
 
         protected const float MAX_RAYCAST_DISTANCE = 10;
+        protected IRangedInteractionModule _CurrentHoveringInteractable;
+        protected IRangedClickInteractionModule _CurrentHoveringClickInteractable => _CurrentHoveringInteractable as IRangedClickInteractionModule;
         protected IRangedGrabInteractionModule _CurrentGrabbingGrabbable;
-        protected IRangedClickInteractionModule _CurrentRangedClickInteractable;
         
 
         private GameObject lastHoveredUIObject = null; // Keep track of the last hovered UI object
@@ -151,16 +152,24 @@ namespace VE2.Core.Player.Internal
         {
             RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
 
-            //If we've just pointed away from a ranged activatable we were holding down, release it
-            if (_CurrentRangedClickInteractable != null && _interactorInputContainer.RangedClick.IsPressed)
+            IRangedInteractionModule previousHoveringInteractable = _CurrentHoveringInteractable;
+            _CurrentHoveringInteractable = raycastResultWrapper.RangedInteractableInRange;
+
+            //If we've stopped hovering over something, call exit hover. If we were holding its click down, release
+            if (previousHoveringInteractable != null && previousHoveringInteractable != _CurrentHoveringInteractable)
             {
-                if (raycastResultWrapper.RangedInteractable != _CurrentRangedClickInteractable)
+                previousHoveringInteractable.ExitHover();
+
+                if (previousHoveringInteractable is IRangedClickInteractionModule previousRangedClickInteractable)
                 {
-                    _CurrentRangedClickInteractable.ClickUp(_InteractorID);
-                    _heldActivatableIDs.Remove(_CurrentRangedClickInteractable.ID);
-                    _CurrentRangedClickInteractable = null;
+                    previousRangedClickInteractable.ClickUp(_InteractorID);
+                    _heldActivatableIDs.Remove(previousRangedClickInteractable.ID);
                 }
             }
+
+            //If we've started hovering over something, call enter hover
+            if (_CurrentHoveringInteractable != null && _CurrentHoveringInteractable != previousHoveringInteractable)
+                _CurrentHoveringInteractable.EnterHover();
 
             //if grabbing an adjustable module, update the visualisation, and update input value
             if (IsCurrentlyGrabbing && _CurrentGrabbingGrabbable is IRangedAdjustableInteractionModule rangedAdjustableInteraction)
@@ -170,8 +179,6 @@ namespace VE2.Core.Player.Internal
                 _grabbableLineVisLineRenderer.startWidth = _grabbableLineVisLineRenderer.endWidth = 0.005f;
                 _grabbableLineVisLineRenderer.SetPosition(0, GrabberTransform.position);
                 _grabbableLineVisLineRenderer.SetPosition(1, rangedAdjustableInteraction.Transform.position);
-
-                Debug.Log("Doing things");
                 
                 HandleUpdateGrabbingAdjustable();
             }
@@ -282,7 +289,6 @@ namespace VE2.Core.Player.Internal
                 raycastResultWrapper.RangedInteractable is IRangedClickInteractionModule rangedClickInteractable)
             {
                 rangedClickInteractable.ClickDown(_InteractorID);
-                _CurrentRangedClickInteractable = rangedClickInteractable;
                 _heldActivatableIDs.Add(rangedClickInteractable.ID);
             }
             else if (raycastResultWrapper.HitUIButton && raycastResultWrapper.UIButton.IsInteractable())
@@ -296,11 +302,10 @@ namespace VE2.Core.Player.Internal
             if (_WaitingForLocalClientID || IsCurrentlyGrabbing)
                 return;
 
-            if (_CurrentRangedClickInteractable != null)
+            if (_CurrentHoveringClickInteractable != null)
             {
-                _CurrentRangedClickInteractable.ClickUp(_InteractorID);
-                _heldActivatableIDs.Remove(_CurrentRangedClickInteractable.ID);
-                _CurrentRangedClickInteractable = null;
+                _CurrentHoveringClickInteractable.ClickUp(_InteractorID);
+                _heldActivatableIDs.Remove(_CurrentHoveringClickInteractable.ID);
             }
         }
 

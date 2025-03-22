@@ -82,6 +82,7 @@ namespace VE2.Core.Player.Internal
     internal class RaycastResultWrapper 
     {
         public IRangedInteractionModule RangedInteractable { get; private set; }
+        public IRangedInteractionModule RangedInteractableInRange => HitInteractableInRange ? RangedInteractable : null;
         public Button UIButton;
         public float HitDistance { get; private set; }
         public bool HitInteractableOrUI => HitInteractable || HitUIButton;
