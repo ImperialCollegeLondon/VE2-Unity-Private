@@ -20,7 +20,6 @@ public class V_PositionTweener : MonoBehaviour
 
     public void GoToMax()
     {
-        Debug.Log("GoToMax"); //being called, _maxPosition is set, but the transform wont move!
         _currentPosTween?.Kill();
         _currentPosTween = transform.DOMove(_maxPosition, _duration).SetEase(_easeType);
 
