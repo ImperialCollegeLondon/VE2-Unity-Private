@@ -322,8 +322,8 @@ MonoBehaviour:
   _maxOffsetUpdateTime: 1
   _brightnessCycleDuration: 1
   _emissiveColor: {r: 0.3236027, g: 0.51981926, b: 0.6792453, a: 1}
-  _maxEmissiveIntensity: 8
-  _minEmissiveIntensity: 4
+  _maxEmissiveIntensity: 6.5
+  _minEmissiveIntensity: 5
 --- !u!1 &402758775208757913
 GameObject:
   m_ObjectHideFlags: 0
