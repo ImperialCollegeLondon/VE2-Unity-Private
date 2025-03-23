@@ -153,7 +153,10 @@ namespace VE2.Core.Player.Internal
             RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
 
             IRangedInteractionModule previousHoveringInteractable = _CurrentHoveringInteractable;
-            _CurrentHoveringInteractable = raycastResultWrapper.RangedInteractableInRange;
+
+            //If we were hovering over a grabbable, and are now grabbing it, remain hovered 
+            if (!(previousHoveringInteractable is IRangedGrabInteractionModule previousRangedGrabInteractable && _CurrentGrabbingGrabbable == previousRangedGrabInteractable))
+                _CurrentHoveringInteractable = raycastResultWrapper.RangedInteractableInRange;
 
             //If we've stopped hovering over something, call exit hover. If we were holding its click down, release
             if (previousHoveringInteractable != null && previousHoveringInteractable != _CurrentHoveringInteractable)
