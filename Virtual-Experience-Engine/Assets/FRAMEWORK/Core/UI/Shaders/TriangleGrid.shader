@@ -7,6 +7,12 @@ Shader "Custom/TriangleGridUI"
         _GridScale ("Grid Scale", Float) = 10.0
         _FlickerSpeed ("Flicker Speed", Float) = 2.0
         _Distortion ("Distortion Strength", Float) = 0.1
+        _LineWidth ("Line Width", Float) = 0.1
+        _PatternSpeed ("Pattern Speed", Float) = 1.0
+        _NoiseIntensity ("Noise Intensity", Float) = 1.0
+        _MainTex ("Sprite Texture", 2D) = "white" {}
+        _TilingX ("Tiling X", Float) = 1.0
+        _TilingY ("Tiling Y", Float) = 1.0
     }
     SubShader
     {
@@ -32,9 +38,15 @@ Shader "Custom/TriangleGridUI"
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
+            sampler2D _MainTex;
             float _GridScale;
             float _FlickerSpeed;
             float _Distortion;
+            float _LineWidth;
+            float _PatternSpeed;
+            float _NoiseIntensity;
+            float _TilingX;
+            float _TilingY;
             fixed4 _ColorA;
             fixed4 _ColorB;
 
@@ -56,19 +68,30 @@ Shader "Custom/TriangleGridUI"
 
             fixed4 frag (v2f i) : SV_Target
             {
-                float2 uv = i.uv * _GridScale;
+                float2 uv = i.uv * float2(_TilingX, _TilingY) * _GridScale;
                 float2 grid = floor(uv);
                 float3 noise = hash(grid);
-                float flicker = abs(sin(_Time.y * _FlickerSpeed + noise.x * 10.0));
+                float flicker = abs(sin(_Time.y * _FlickerSpeed + noise.x * 10.0 * _NoiseIntensity));
 
                 // Offset UVs for distortion effect
-                uv += sin(uv.yx * 10.0 + _Time.y) * _Distortion;
+                uv += sin(uv.yx * 10.0 + _Time.y * _PatternSpeed) * _Distortion;
 
-                // Create a triangular grid effect using a diagonal checker pattern
-                float pattern = step(frac(uv.x + uv.y), 0.5);
+                // Create diagonal grid effect in both directions
+                float distA = abs(frac(uv.x + uv.y) - 0.5); // Distance from diagonal center
+                float distB = abs(frac(uv.x - uv.y) - 0.5); // Distance from opposite diagonal
 
-                // Blend colors based on flicker and pattern
+                float patternA = smoothstep(_LineWidth, _LineWidth * 0.5, distA); 
+                float patternB = smoothstep(_LineWidth, _LineWidth * 0.5, distB); 
+
+                float pattern = max(patternA, patternB); // Combine both patterns
+
+                // Sample the sprite's alpha channel
+                fixed4 spriteColor = tex2D(_MainTex, i.uv);
+                float alpha = spriteColor.a;
+
+                // Blend colors based on flicker and pattern, and mask with sprite's alpha
                 fixed4 col = lerp(_ColorA, _ColorB, pattern * flicker);
+                col.a *= alpha;
 
                 return col;
             }
