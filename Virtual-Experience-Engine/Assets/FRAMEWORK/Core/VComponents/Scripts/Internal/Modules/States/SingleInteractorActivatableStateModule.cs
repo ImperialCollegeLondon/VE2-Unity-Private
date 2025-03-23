@@ -57,6 +57,8 @@ namespace VE2.Core.VComponents.Internal
         {
             if (newIsActivated != _state.IsActivated)
                 InvertState(ushort.MaxValue);
+            else
+                Debug.LogWarning($"Tried to set activated state on {ID} to {newIsActivated} but state is already {_state.IsActivated}");
         }
 
         public void HandleActivatableState(ushort clientID)

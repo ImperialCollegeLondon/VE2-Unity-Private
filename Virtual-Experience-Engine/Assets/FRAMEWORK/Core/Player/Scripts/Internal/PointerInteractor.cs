@@ -160,7 +160,7 @@ namespace VE2.Core.Player.Internal
             {
                 previousHoveringInteractable.ExitHover();
 
-                if (previousHoveringInteractable is IRangedClickInteractionModule previousRangedClickInteractable)
+                if (previousHoveringInteractable is IRangedClickInteractionModule previousRangedClickInteractable && _heldActivatableIDs.Contains(previousRangedClickInteractable.ID))
                 {
                     previousRangedClickInteractable.ClickUp(_InteractorID);
                     _heldActivatableIDs.Remove(previousRangedClickInteractable.ID);
