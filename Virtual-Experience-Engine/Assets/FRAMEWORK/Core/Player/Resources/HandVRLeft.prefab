@@ -223,6 +223,7 @@ GameObject:
   - component: {fileID: 8065037182743641704}
   - component: {fileID: 2981176943585874531}
   - component: {fileID: 1640714760757306095}
+  - component: {fileID: 6770877770135779167}
   m_Layer: 6
   m_Name: Hand
   m_TagString: Untagged
@@ -281,7 +282,7 @@ MeshRenderer:
   - {fileID: 2100000, guid: cf5b7902c1017194c9d4b935f662f983, type: 2}
   - {fileID: 2100000, guid: 8784e7e5d9339f745b1879399c9a236d, type: 2}
   - {fileID: 2100000, guid: cced4ea1a2addb447bc6770a6ccd3ff6, type: 2}
-  - {fileID: 2100000, guid: cf5b7902c1017194c9d4b935f662f983, type: 2}
+  - {fileID: 2100000, guid: 5d93b081fc334c14a94b72d80281d7ed, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -303,6 +304,26 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &6770877770135779167
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 368941316019869461}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af51d4e07c94b6649b9d0618ca0453d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _handRenderer: {fileID: 1640714760757306095}
+  _materialIndex: 4
+  _minOffsetUpdateTime: 0.2
+  _maxOffsetUpdateTime: 1
+  _brightnessCycleDuration: 1
+  _emissiveColor: {r: 0.3236027, g: 0.51981926, b: 0.6792453, a: 1}
+  _maxEmissiveIntensity: 8
+  _minEmissiveIntensity: 4
 --- !u!1 &402758775208757913
 GameObject:
   m_ObjectHideFlags: 0
