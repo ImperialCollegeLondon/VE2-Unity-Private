@@ -13,6 +13,8 @@ Shader "Custom/TriangleGridUI"
         _MainTex ("Sprite Texture", 2D) = "white" {}
         _TilingX ("Tiling X", Float) = 1.0
         _TilingY ("Tiling Y", Float) = 1.0
+        _OffsetX ("Offset X", Float) = 0.0
+        _OffsetY ("Offset Y", Float) = 0.0
     }
     SubShader
     {
@@ -47,6 +49,8 @@ Shader "Custom/TriangleGridUI"
             float _NoiseIntensity;
             float _TilingX;
             float _TilingY;
+            float _OffsetX;
+            float _OffsetY;
             fixed4 _ColorA;
             fixed4 _ColorB;
 
@@ -68,7 +72,8 @@ Shader "Custom/TriangleGridUI"
 
             fixed4 frag (v2f i) : SV_Target
             {
-                float2 uv = i.uv * float2(_TilingX, _TilingY) * _GridScale;
+                // Use sprite UV coordinates to ensure consistent pattern display
+                float2 uv = (i.uv * float2(_TilingX, _TilingY) + float2(_OffsetX, _OffsetY)) * _GridScale;
                 float2 grid = floor(uv);
                 float3 noise = hash(grid);
                 float flicker = abs(sin(_Time.y * _FlickerSpeed + noise.x * 10.0 * _NoiseIntensity));

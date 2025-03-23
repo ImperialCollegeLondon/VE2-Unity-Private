@@ -8592,7 +8592,7 @@ GameObject:
   - component: {fileID: 713453712}
   - component: {fileID: 713453711}
   m_Layer: 5
-  m_Name: PanelCover
+  m_Name: TopBarCover
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16968,7 +16968,7 @@ GameObject:
   - component: {fileID: 1446426598}
   - component: {fileID: 1446426597}
   m_Layer: 5
-  m_Name: PanelCover
+  m_Name: CenterPanelCover
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -21103,7 +21103,7 @@ GameObject:
   - component: {fileID: 1998338059}
   - component: {fileID: 1998338058}
   m_Layer: 5
-  m_Name: PanelCover
+  m_Name: CloseCover
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -26235,7 +26235,7 @@ GameObject:
   - component: {fileID: 979533462660683626}
   - component: {fileID: 9107484160148775311}
   m_Layer: 5
-  m_Name: Panel
+  m_Name: CenterPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
