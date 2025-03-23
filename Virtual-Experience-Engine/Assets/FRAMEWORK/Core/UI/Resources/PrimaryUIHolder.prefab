@@ -5799,7 +5799,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7465945303577481393}
   - component: {fileID: 3481289968241280088}
-  - component: {fileID: 8494564203967481754}
+  - component: {fileID: 1458938176048821802}
   m_Layer: 5
   m_Name: CoverEffect
   m_TagString: Untagged
@@ -5834,7 +5834,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3841607760218750532}
   m_CullTransparentMesh: 1
---- !u!114 &8494564203967481754
+--- !u!114 &1458938176048821802
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5843,24 +5843,27 @@ MonoBehaviour:
   m_GameObject: {fileID: 3841607760218750532}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 2100000, guid: 61f745b0cf3be574f85a3ee422d7f692, type: 2}
-  m_Color: {r: 0.509434, g: 0.509434, b: 0.509434, a: 1}
-  m_RaycastTarget: 0
+  m_Material: {fileID: 2100000, guid: 172d50469698b864a88dea8953d61c92, type: 2}
+  m_Color: {r: 0, g: 0.2392157, b: 0.454902, a: 1}
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 0
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 0}
-  m_UVRect:
-    serializedVersion: 2
-    x: 0
-    y: 0
-    width: 1
-    height: 1
+  m_Sprite: {fileID: -1134602345, guid: 3ca8d7b2d7f7cf04c8b22146284b1142, type: 3}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1.87
 --- !u!1 &3907191762230673298
 GameObject:
   m_ObjectHideFlags: 0
@@ -6716,7 +6719,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &652728222258081664
 MonoBehaviour:
   m_ObjectHideFlags: 0
