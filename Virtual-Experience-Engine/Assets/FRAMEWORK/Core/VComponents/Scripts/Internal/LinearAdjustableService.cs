@@ -208,6 +208,9 @@ namespace VE2.Core.VComponents.Internal
         and sets it to tthe state module */
         private void SetValueOnStateModule(float value)
         {
+            if (value == _AdjustableStateModule.OutputValue)
+                return;
+
             if (_adjustmentProperty == SpatialAdjustmentProperty.Discrete)
                 SetValueByStep(value);
             else

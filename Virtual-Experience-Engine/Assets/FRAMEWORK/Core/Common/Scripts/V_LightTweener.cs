@@ -26,15 +26,12 @@ namespace VE2.Core.Common
         private Tween _currentLightTween;
         private Tween _currentEmissiveTween;
         private float _currentEmissiveIntensity;
-        private Material _emissiveMaterial;
+        private Material _emissiveMaterial => _renderer.materials[_emissiveMaterialIndex];
 
         private void Awake()
         {
-            Debug.Log("Awake");
-
             if (_tweenEmission)
             {
-                _emissiveMaterial = _renderer.materials[_emissiveMaterialIndex];
                 _emissiveMaterial.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
                 _renderer.material.EnableKeyword("_EMISSION");
             }
@@ -87,16 +84,16 @@ namespace VE2.Core.Common
         {
             if (_tweenLight)
             {
-                float newIntensity = Mathf.Lerp(_minIntensity, _maxIntensity, value);
+                float targetIntensity = Mathf.Lerp(_minIntensity, _maxIntensity, value);
                 _currentLightTween?.Kill();
-                _currentLightTween = _light.DOIntensity(newIntensity, _tweenDuration).SetEase(_easeType);
+                _currentLightTween = _light.DOIntensity(targetIntensity, _tweenDuration).SetEase(_easeType);
             }
 
             if (_tweenEmission)
             {
-                float newEmmissiveIntensity = Mathf.Lerp(_minEmissiveIntensity, _maxEmissiveIntensity, value);
+                float targetEmmissiveIntensity = Mathf.Lerp(_minEmissiveIntensity, _maxEmissiveIntensity, value);
                 _currentEmissiveTween?.Kill();
-                _currentEmissiveTween = DOVirtual.Float(_currentEmissiveIntensity, value, _tweenDuration, v =>
+                _currentEmissiveTween = DOVirtual.Float(_currentEmissiveIntensity, targetEmmissiveIntensity, _tweenDuration, v =>
                 {
                     _currentEmissiveIntensity = v;
                     _emissiveMaterial.SetColor("_EmissionColor", _emissiveColor * _currentEmissiveIntensity);
