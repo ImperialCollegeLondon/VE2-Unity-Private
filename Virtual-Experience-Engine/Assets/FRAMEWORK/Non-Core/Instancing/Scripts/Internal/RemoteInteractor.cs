@@ -49,6 +49,16 @@ namespace VE2.NonCore.Instancing.Internal
                 else
                     return null;
             }
+            else if (activatableID.Contains("PressurePlate-"))
+            {
+                string cleanID = activatableID.Replace("PressurePlate-", "");
+                GameObject activatableObject = GameObject.Find(cleanID);
+
+                if (activatableObject != null)
+                    return activatableObject.GetComponent<IRangedClickInteractionModule>();
+                else
+                    return null;
+            }
             else
                 return null;
         }

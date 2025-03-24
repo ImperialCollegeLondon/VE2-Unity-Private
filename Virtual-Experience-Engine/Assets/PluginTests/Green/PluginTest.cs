@@ -13,6 +13,8 @@ public class PluginTest : MonoBehaviour
     [SerializeField] private GameObject _pushLightOff;
     [SerializeField] private GameObject _holdLightOn;
     [SerializeField] private GameObject _holdLightOff;
+    [SerializeField] private GameObject _pressurePlateLightOff;
+    [SerializeField] private GameObject _pressurePlateLightOn;
     [SerializeField] private GameObject _pushButtonGO;
     [SerializeField] private GameObject _holdButtonGO;
     [SerializeField] private GameObject _freeGrabbableGO;
@@ -104,6 +106,24 @@ public class PluginTest : MonoBehaviour
         _holdLightOff.SetActive(true);
     }
 
+    public void OnPressurePlateActivate()
+    {
+        Debug.Log("Pressure Plate activated!");
+        Debug.Log($"Pressure Plate state = {_holdActivatable.IsActivated}");
+
+        _pressurePlateLightOn.SetActive(true);
+        _pressurePlateLightOff.SetActive(false);
+    }
+
+    public void OnPressurePlateDeactivate()
+    {
+        Debug.Log("Pressure Plate deactivated!");
+        Debug.Log($"Pressure Plate state = {_holdActivatable.IsActivated}");
+
+        _pressurePlateLightOn.SetActive(false);
+        _pressurePlateLightOff.SetActive(true);
+    }
+    
     public void OnFreeGrabbableGrab()
     {
         Debug.Log("Free Grabbable grabbed!");

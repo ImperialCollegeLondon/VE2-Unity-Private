@@ -14,6 +14,8 @@ namespace VE2.Core.Player.Internal
     {
         public Image ReticuleImage => _reticuleImage;
         [SerializeField, IgnoreParent] private Image _reticuleImage;
+        public V_CollisionDetector CollisionDetector => _collisionDetector;
+        [SerializeField, IgnoreParent] private V_CollisionDetector _collisionDetector;
     }
 
     internal class PlayerController2D 
