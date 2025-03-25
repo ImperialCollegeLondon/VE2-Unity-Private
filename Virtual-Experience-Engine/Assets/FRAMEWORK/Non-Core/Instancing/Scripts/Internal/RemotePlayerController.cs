@@ -22,6 +22,7 @@ namespace VE2.NonCore.Instancing.Internal
         [SerializeField] private GameObject _interactor2DGameObject;
         [SerializeField] private GameObject _interactorVRLeftGameObject;
         [SerializeField] private GameObject _interactorVRRightGameObject;
+        [SerializeField] private GameObject _interactorFeetGameObject;
 
         private List<Material> _colorMaterials = new();
 
@@ -58,10 +59,12 @@ namespace VE2.NonCore.Instancing.Internal
             _interactorVRLeftGameObject.name = $"Interactor{clientID}-{InteractorType.LeftHandVR}";
             _interactorVRRightGameObject.name = $"Interactor{clientID}-{InteractorType.RightHandVR}";
             _interactor2DGameObject.name = $"Interactor{clientID}-{InteractorType.Mouse2D}";
+            _interactorFeetGameObject.name = $"Interactor{clientID}-{InteractorType.Feet}";
 
             _interactorVRLeftGameObject.GetComponent<RemoteInteractor>().Initialize(clientID, InteractorType.LeftHandVR, interactorContainer);
             _interactorVRRightGameObject.GetComponent<RemoteInteractor>().Initialize(clientID, InteractorType.RightHandVR, interactorContainer);
             _interactor2DGameObject.GetComponent<RemoteInteractor>().Initialize(clientID, InteractorType.Mouse2D, interactorContainer);
+            _interactorFeetGameObject.GetComponent<RemoteInteractor>().Initialize(clientID, InteractorType.Feet, interactorContainer);
 
             _virseAvatarHeadGameObjects = virseAvatarHeadGameObjects;
             _virseAvatarTorsoGameObjects = virseAvatarTorsoGameObjects;
@@ -86,32 +89,35 @@ namespace VE2.NonCore.Instancing.Internal
                 _interactorVRLeftGameObject.transform.SetLocalPositionAndRotation(playerState.HandVRLeftLocalPosition, playerState.HandVRLeftLocalRotation);
                 _interactorVRRightGameObject.transform.SetLocalPositionAndRotation(playerState.HandVRRightLocalPosition, playerState.HandVRRightLocalRotation);
 
-                foreach (var receivedActivatableID in playerState.HeldActivatableIdsVRLeft)
-                    if (!_interactorVRLeftGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs.Contains(receivedActivatableID))
-                        _interactorVRLeftGameObject.GetComponent<RemoteInteractor>().AddToHeldActivatableIDs(receivedActivatableID);
+                // foreach (string receivedActivatableID in playerState.HeldActivatableIdsVRLeft)
+                //     if (!_interactorVRLeftGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs.Contains(receivedActivatableID))
+                //         _interactorVRLeftGameObject.GetComponent<RemoteInteractor>().AddToHeldActivatableIDs(receivedActivatableID);
 
-                var activatableIDsToRemoveVRLeft = new List<string>();
+                // List<string> activatableIDsToRemoveVRLeft = new List<string>();
 
-                foreach (var localActivatableID in _interactorVRLeftGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs)
-                    if (!playerState.HeldActivatableIdsVRLeft.Contains(localActivatableID))
-                        activatableIDsToRemoveVRLeft.Add(localActivatableID);
+                // foreach (string localActivatableID in _interactorVRLeftGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs)
+                //     if (!playerState.HeldActivatableIdsVRLeft.Contains(localActivatableID))
+                //         activatableIDsToRemoveVRLeft.Add(localActivatableID);
 
-                foreach (var idToRemove in activatableIDsToRemoveVRLeft)
-                    _interactorVRLeftGameObject.GetComponent<RemoteInteractor>().RemoveFromHeldActivatableIDs(idToRemove);
+                // foreach (string idToRemove in activatableIDsToRemoveVRLeft)
+                //     _interactorVRLeftGameObject.GetComponent<RemoteInteractor>().RemoveFromHeldActivatableIDs(idToRemove);
 
 
-                foreach (var receivedActivatableID in playerState.HeldActivatableIdsVRRight)
-                    if (!_interactorVRRightGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs.Contains(receivedActivatableID))
-                        _interactorVRRightGameObject.GetComponent<RemoteInteractor>().AddToHeldActivatableIDs(receivedActivatableID);
+                // foreach (string receivedActivatableID in playerState.HeldActivatableIdsVRRight)
+                //     if (!_interactorVRRightGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs.Contains(receivedActivatableID))
+                //         _interactorVRRightGameObject.GetComponent<RemoteInteractor>().AddToHeldActivatableIDs(receivedActivatableID);
 
-                var activatableIDsToRemoveVRRight = new List<string>();
+                // List<string> activatableIDsToRemoveVRRight = new List<string>();
 
-                foreach (var localActivatableID in _interactorVRRightGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs)
-                    if (!playerState.HeldActivatableIdsVRRight.Contains(localActivatableID))
-                        activatableIDsToRemoveVRRight.Add(localActivatableID);
+                // foreach (string localActivatableID in _interactorVRRightGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs)
+                //     if (!playerState.HeldActivatableIdsVRRight.Contains(localActivatableID))
+                //         activatableIDsToRemoveVRRight.Add(localActivatableID);
 
-                foreach (var idToRemove in activatableIDsToRemoveVRRight)
-                    _interactorVRRightGameObject.GetComponent<RemoteInteractor>().RemoveFromHeldActivatableIDs(idToRemove);
+                // foreach (string idToRemove in activatableIDsToRemoveVRRight)
+                //     _interactorVRRightGameObject.GetComponent<RemoteInteractor>().RemoveFromHeldActivatableIDs(idToRemove);
+
+                UpdateHeldActivatableIDs(_interactorVRLeftGameObject, playerState.HeldActivatableIdsVRLeft);
+                UpdateHeldActivatableIDs(_interactorVRRightGameObject, playerState.HeldActivatableIdsVRRight);
             }
             else
             {
@@ -119,20 +125,56 @@ namespace VE2.NonCore.Instancing.Internal
 
                 //Debug.Log("receiving Player2DReferences: " + playerState.HeldActivatableIds2D.Count);
 
-                foreach (var receivedActivatableID in playerState.HeldActivatableIds2D)
-                    if (!_interactor2DGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs.Contains(receivedActivatableID))
-                        _interactor2DGameObject.GetComponent<RemoteInteractor>().AddToHeldActivatableIDs(receivedActivatableID);
+                // foreach (string receivedActivatableID in playerState.HeldActivatableIds2D)
+                //     if (!_interactor2DGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs.Contains(receivedActivatableID))
+                //         _interactor2DGameObject.GetComponent<RemoteInteractor>().AddToHeldActivatableIDs(receivedActivatableID);
 
-                var activatableIDsToRemove = new List<string>();
+                // List<string> activatableIDsToRemove = new List<string>();
 
-                foreach (var localActivatableID in _interactor2DGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs)
-                    if (!playerState.HeldActivatableIds2D.Contains(localActivatableID))
-                        activatableIDsToRemove.Add(localActivatableID);
+                // foreach (string localActivatableID in _interactor2DGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs)
+                //     if (!playerState.HeldActivatableIds2D.Contains(localActivatableID))
+                //         activatableIDsToRemove.Add(localActivatableID);
 
-                foreach (var idToRemove in activatableIDsToRemove)
-                    _interactor2DGameObject.GetComponent<RemoteInteractor>().RemoveFromHeldActivatableIDs(idToRemove);
+                // foreach (string idToRemove in activatableIDsToRemove)
+                //     _interactor2DGameObject.GetComponent<RemoteInteractor>().RemoveFromHeldActivatableIDs(idToRemove);
+
+                UpdateHeldActivatableIDs(_interactor2DGameObject, playerState.HeldActivatableIds2D);
             }
+
+            // foreach (string receivedActivatableID in playerState.HeldActivatableIdsFeet)
+            //     if (!_interactorFeetGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs.Contains(receivedActivatableID))
+            //         _interactorFeetGameObject.GetComponent<RemoteInteractor>().AddToHeldActivatableIDs(receivedActivatableID);
+
+            // List<string> activatableIDsToRemoveFeet = new List<string>();
+
+            // foreach (string localActivatableID in _interactorFeetGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs)
+            //     if (!playerState.HeldActivatableIdsFeet.Contains(localActivatableID))
+            //         activatableIDsToRemoveFeet.Add(localActivatableID);
+
+            // foreach (string idToRemove in activatableIDsToRemoveFeet)
+            //     _interactorFeetGameObject.GetComponent<RemoteInteractor>().RemoveFromHeldActivatableIDs(idToRemove);
+
+            UpdateHeldActivatableIDs(_interactorFeetGameObject, playerState.HeldActivatableIdsFeet);
         }
+
+        public void UpdateHeldActivatableIDs(GameObject interactorGameObject, List<string> receivedHeldActivatableIDs)
+        {
+            RemoteInteractor remoteInteractor = interactorGameObject.GetComponent<RemoteInteractor>();
+
+            foreach (string receivedActivatableID in receivedHeldActivatableIDs)
+                if (!remoteInteractor.HeldActivatableIDs.Contains(receivedActivatableID))
+                    remoteInteractor.AddToHeldActivatableIDs(receivedActivatableID);
+
+            List<string> activatableIDsToRemove = new List<string>();
+
+            foreach (string localActivatableID in remoteInteractor.HeldActivatableIDs)
+                if (!receivedHeldActivatableIDs.Contains(localActivatableID))
+                    activatableIDsToRemove.Add(localActivatableID);
+
+            foreach (string idToRemove in activatableIDsToRemove)
+                remoteInteractor.RemoveFromHeldActivatableIDs(idToRemove);
+        }
+
 
         public void HandleReceiveAvatarAppearance(OverridableAvatarAppearance newAvatarAppearance)
         {

@@ -4011,7 +4011,7 @@ Transform:
   m_GameObject: {fileID: 798246509}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.22493754, z: -0, w: 0.97437316}
-  m_LocalPosition: {x: -0.49, y: 0, z: 0.27}
+  m_LocalPosition: {x: -0.681, y: 0, z: -1.89}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4030,7 +4030,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerConfig:
-    EnableVR: 0
+    EnableVR: 1
     Enable2D: 1
     MovementModeConfig:
       TraversableLayers:

@@ -25,7 +25,8 @@ namespace VE2.Core.Player.Internal
                     handVRRightPosition: _handControllerRight.Transform.localPosition,
                     handVRRightRotation: _handControllerRight.Transform.localRotation,
                     activatableIDsVRLeft: _handControllerLeft.HeldActivatableIDs,
-                    activatableIDsVRRight: _handControllerRight.HeldActivatableIDs
+                    activatableIDsVRRight: _handControllerRight.HeldActivatableIDs,
+                    activatableIDsFeet: _feetInteractorVR.HeldActivatableIDs
                     
                 );
             }
@@ -38,7 +39,8 @@ namespace VE2.Core.Player.Internal
         private readonly Transform _rootTransform;
         private readonly Transform _verticalOffsetTransform;
         private readonly Transform _headTransform;
-        private InteractorVR _interactorVR;
+        private readonly V_CollisionDetector _feetCollisionDetector;
+        private readonly FeetInteractor _feetInteractorVR;
 
         private readonly V_HandController _handControllerLeft;
         private readonly V_HandController _handControllerRight;
@@ -68,6 +70,9 @@ namespace VE2.Core.Player.Internal
             _verticalOffsetTransform = playerVRReferences.VerticalOffsetTransform;
             _headTransform = playerVRReferences.HeadTransform;
             _primaryUIHolderRect = playerVRReferences.PrimaryUIHolderRect;
+            _feetCollisionDetector = playerVRReferences.FeetCollisionDetector;
+    
+            _feetInteractorVR = new FeetInteractor(_feetCollisionDetector, InteractorType.Feet, localClientIDProvider);
 
             GameObject handVRLeftPrefab = Resources.Load<GameObject>("HandVRLeft");
             GameObject handVRLeftGO = GameObject.Instantiate(handVRLeftPrefab, _verticalOffsetTransform, false);
@@ -145,6 +150,7 @@ namespace VE2.Core.Player.Internal
 
             _handControllerLeft.HandleOnEnable();
             _handControllerRight.HandleOnEnable();
+            _feetInteractorVR.HandleOnEnable();
 
             _primaryUIService?.MovePrimaryUIToHolderRect(_primaryUIHolderRect);
             _secondaryUIService?.DisableShowHideKeyboardControl();
@@ -162,6 +168,7 @@ namespace VE2.Core.Player.Internal
 
             _handControllerLeft.HandleOnDisable();
             _handControllerRight.HandleOnDisable();
+            _feetInteractorVR.HandleOnDisable();
         }
 
         private void HandleXRInitComplete()
@@ -180,6 +187,11 @@ namespace VE2.Core.Player.Internal
         {
             _handControllerLeft.HandleUpdate();
             _handControllerRight.HandleUpdate();
+
+            if (Physics.Raycast(_headTransform.position, Vector3.down, out RaycastHit hit, 50, LayerMask.GetMask("Ground")))
+                _feetCollisionDetector.transform.position = hit.point;
+
+
         }
 
         private void HandleResetViewPressed()
