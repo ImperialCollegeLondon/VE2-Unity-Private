@@ -26,11 +26,11 @@ namespace VE2.Core.Common
 
         private void OnDestroy()
         {
-            if (isSubscribed)
-            {
-                EditorApplication.update -= CheckForAutoSave;
-                isSubscribed = false;
-            }
+            if (Application.isPlaying || !isSubscribed)
+                return;
+
+            EditorApplication.update -= CheckForAutoSave;
+            isSubscribed = false;
         }
 
         private void CheckForAutoSave()
