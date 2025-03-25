@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using VE2.Core.Player.API;
 using VE2.Core.VComponents.API;
 using VE2.NonCore.Instancing.API;
@@ -19,16 +20,23 @@ namespace VE2.NonCore.Instancing.Internal
         private void DebugDisconnect() => _instanceService.DisconnectFromInstance();
         [EditorButton(nameof(DebugConnect), "Connect", activityType: ButtonActivityType.OnPlayMode)] 
         [EditorButton(nameof(DebugDisconnect), "Disconnect", activityType: ButtonActivityType.OnPlayMode)] 
-        [SerializeField] private bool _connectOnStart = true;
+        [SerializeField, DisableInPlayMode] private bool _connectOnStart = true;
+        [SerializeField, Disable, HideLabel, IgnoreParent] private ConnectionStateDebugWrapper _connectionStateDebug;
 
-        [Help("These settings will be used when testing in editor. In build, the platform service will provide the correct settings.")]
-        [SerializeField, BeginGroup("Debug Settings"), DisableInPlayMode] private ServerConnectionSettings _debugServerSettings = new("dev", "dev", "127.0.0.1", 4297);
-        [SerializeField, EndGroup, DisableInPlayMode] private string _debugInstanceCode = "Misc-Dev-00-NoVersion";
+        [SerializeField, IgnoreParent, DisableInPlayMode] private DebugInstancingSettings _debugServerSettings = new();
+
+        [Serializable]
+        private class DebugInstancingSettings
+        {
+            [Help("These settings will be used when testing in editor. In build, the platform service will provide the correct settings.")]
+            [SerializeField, BeginGroup("Debug Settings"), DisableInPlayMode] internal string IpAddress = "127.0.0.1";
+            [SerializeField, DisableInPlayMode] internal ushort Port = 4297;
+            [SerializeField, EndGroup, DisableInPlayMode] internal string InstanceCode = "00";
+        }
         #endregion
 
 
         #region Runtime data
-        [SerializeField, Disable, HideLabel, IgnoreParent] private ConnectionStateDebugWrapper _connectionStateDebug;
         [SerializeField, HideInInspector] private LocalClientIdWrapper _localClientIDWrapper = new();
         #endregion
 
@@ -48,11 +56,13 @@ namespace VE2.NonCore.Instancing.Internal
         }
 
         //Note - we want to go through the public getter for this, so we trigger lazy init
-        public IWorldStateSyncService WorldStateSyncService => ((InstanceService)InstanceService).WorldStateSyncService;
+        public IWorldStateSyncService WorldStateSyncService => ((InstanceService)InstanceService)?.WorldStateSyncService;
 
         public ushort LocalClientID => _localClientIDWrapper.LocalClientID;
         public event Action<ushort> OnClientIDReady {add => _localClientIDWrapper.OnLocalClientIDSet += value; remove => _localClientIDWrapper.OnLocalClientIDSet -= value; }
         #endregion
+
+        private bool _bootErrorLogged = false;
 
         private void OnEnable()
         {
@@ -66,20 +76,48 @@ namespace VE2.NonCore.Instancing.Internal
                 return;
             }
 
-            Debug.Log("init instancing");
-
             if (PlatformAPI.PlatformService == null)
             {
-                Debug.LogError("Can't boot instance integration, no platform service found");
+                if (!_bootErrorLogged)
+                {
+                    _bootErrorLogged = true;
+                    Debug.LogError("Can't boot instance integration, V_PlatformIntegration must be present in the scene, even when using debug settings");
+                }
                 return;
             }
 
-            _instanceService = InstanceServiceFactory.Create(_localClientIDWrapper, _connectOnStart, _connectionStateDebug, _debugServerSettings, _debugInstanceCode);
+            ServerConnectionSettings instancingSettings = ((IPlatformServiceInternal)PlatformAPI.PlatformService).GetInstanceServerSettingsForCurrentWorld();
+            string instanceCode;
+
+            if (instancingSettings != null)
+            {
+                instanceCode = PlatformAPI.PlatformService.CurrentInstanceCode;
+            }
+            else 
+            {
+                if (Application.isEditor)
+                {
+                    instancingSettings = new ServerConnectionSettings("username", "pass", _debugServerSettings.IpAddress, _debugServerSettings.Port);
+                    instanceCode = $"NoCat-{SceneManager.GetActiveScene().name}-{_debugServerSettings.InstanceCode}-NoVersion";
+                    Debug.Log("Using debug settings");
+                }
+                else
+                {
+                    if (!_bootErrorLogged)
+                    {
+                        _bootErrorLogged = true;
+                        Debug.LogError("Can't boot instance integration, no instancing settings found - cannot use debug instance settings in Build");
+                    }
+                    return;
+                }   
+            }
+
+            _instanceService = InstanceServiceFactory.Create(_localClientIDWrapper, _connectOnStart, _connectionStateDebug, instancingSettings, instanceCode);
         }
 
         private void FixedUpdate()
         {
-            _instanceService.NetworkUpdate();
+            _instanceService?.NetworkUpdate();
         }
 
         private void OnDisable()
@@ -87,7 +125,7 @@ namespace VE2.NonCore.Instancing.Internal
             if (!Application.isPlaying)
                 return;
 
-            _instanceService.TearDown();
+            _instanceService?.TearDown();
             _instanceService = null;
         }
     }

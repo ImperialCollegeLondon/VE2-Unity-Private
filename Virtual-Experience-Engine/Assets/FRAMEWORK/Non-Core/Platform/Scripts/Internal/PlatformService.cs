@@ -87,8 +87,19 @@ namespace VE2.NonCore.Platform.Internal
                 return _platformSettingsHandler.FallbackInstanceServerSettings;
         }
 
-        public ServerConnectionSettings GetInstanceServerSettingsForCurrentWorld() => GetInstanceServerSettingsForWorld(SceneManager.GetActiveScene().name); //TODO: Should come from settings?
+        public ServerConnectionSettings GetInstanceServerSettingsForCurrentWorld() => GetInstanceServerSettingsForWorld(SceneManager.GetActiveScene().name); 
 
+        private ServerConnectionSettings GetFTPSettingsForWorld(string worldName)
+        {
+            if (ActiveWorlds != null && ActiveWorlds.ContainsKey(worldName) && ActiveWorlds[worldName].HasCustomFTPServer)
+                return ActiveWorlds[worldName].CustomFTPServerSettings;
+            else
+                return _platformSettingsHandler.FallbackWorldSubStoreFTPServerSettings;
+        }
+
+        public ServerConnectionSettings GetWorldSubStoreFTPSettingsForCurrentWorld() => GetFTPSettingsForWorld(SceneManager.GetActiveScene().name);
+
+        public ServerConnectionSettings GetInternalWorldStoreFTPSettings() => _platformSettingsHandler.WorldBuildsFTPServerSettings;
 
         //Called by hub
         public void UpdateSettings(ServerConnectionSettings serverConnectionSettings, string instanceCode)

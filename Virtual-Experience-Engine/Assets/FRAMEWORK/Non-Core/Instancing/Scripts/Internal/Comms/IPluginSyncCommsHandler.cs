@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading.Tasks;
 using VE2.Core.Common;
 
 namespace VE2.NonCore.Instancing.Internal
@@ -18,7 +19,7 @@ namespace VE2.NonCore.Instancing.Internal
         public event Action<byte[]> OnReceiveRemotePlayerState;
         public event Action<byte[]> OnReceiveInstantMessage;
 
-        public void ConnectToServer(IPAddress ipAddress, int portNumber);
+        public Task ConnectToServerAsync(IPAddress ipAddress, int portNumber);
         public void SendMessage(byte[] messageAsBytes, InstanceSyncSerializables.InstanceNetworkingMessageCodes messageCode, TransmissionProtocol transmissionProtocol);
         public void MainThreadUpdate();
         public void DisconnectFromServer();

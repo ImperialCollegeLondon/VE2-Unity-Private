@@ -131,9 +131,9 @@ namespace VE2.NonCore.FileSystem.Internal
             {
                 foreach (FileDetails file in _task.FoundFilesDetails)
                 {
-                    RemoteFileDetails remoteFile = new(file.fileName, file.fileSize);
-
                     string fileFoundPath = _searchPath == "/" || _searchPath == "" ? file.fileName : $"{_searchPath}/{file.fileName}";
+
+                    RemoteFileDetails remoteFile = new(fileFoundPath, file.fileSize);
                     FilesFound.Add(fileFoundPath, remoteFile);
                 }
             }

@@ -147,8 +147,6 @@ namespace VE2.NonCore.FileSystem.Internal
             string fileName = workingFileNameAndPath.Substring(workingFileNameAndPath.LastIndexOf("/") + 1);
             string remoteCorrectedFileNameAndPath = workingFileNameAndPath;
             string remotePathFromWorking = remoteCorrectedFileNameAndPath.Contains("/") ? remoteCorrectedFileNameAndPath.Substring(0, remoteCorrectedFileNameAndPath.LastIndexOf("/")) : "";
-
-            Debug.Log($"Remote path from working: {remotePathFromWorking}");
             FTPUploadTask task = _ftpService.UploadFile(remotePathFromWorking, fileName); //No need to refresh manually, will happen automatically
 
             RemoteFileTaskInfo taskInfo = new(task, RemoteTaskType.Upload, 0, workingFileNameAndPath);

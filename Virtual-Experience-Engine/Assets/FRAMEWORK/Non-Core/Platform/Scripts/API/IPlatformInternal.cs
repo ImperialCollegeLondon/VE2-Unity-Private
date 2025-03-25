@@ -27,6 +27,10 @@ namespace VE2.NonCore.Platform.API
 
         public ServerConnectionSettings GetInstanceServerSettingsForCurrentWorld();
 
+        public ServerConnectionSettings GetWorldSubStoreFTPSettingsForCurrentWorld();
+
+        public ServerConnectionSettings GetInternalWorldStoreFTPSettings();
+
         public void TearDown();
     }
 }

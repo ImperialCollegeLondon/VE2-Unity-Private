@@ -86,17 +86,12 @@ namespace VE2.NonCore.FileSystem.Internal
         /// <param name="relativePath">path should use / as separator not \ if file is at root, should be empty string</param>
         /// <param name="filename"></param>
         /// <returns>Task (for checking status/progress, or for cancelling)</returns>
-        public FTPUploadTask UploadFile(string relativePath, string filename)
+        public FTPUploadTask UploadFile(string relativePath, string filename) //relative path may be "" or "/" _remoteWorkingPath has "sampleScene" thing in, no slash at the end. 
         {
-            //Need to ensure the remote directory exists. If it already does, this wont do anything
-            string pathToFolder = relativePath.Contains("/") ? relativePath.Substring(0, relativePath.LastIndexOf("/")) : "";
-            string folderName = relativePath.Contains("/") ? relativePath.Substring(relativePath.LastIndexOf("/") + 1) : relativePath;
+            string remotePath = relativePath.StartsWith("/")? $"{_remoteWorkingPath}{relativePath}" : $"{_remoteWorkingPath}/{relativePath}";
+            string localPath = relativePath.StartsWith("/")? $"{_localWorkingPath}{relativePath}" : $"{_localWorkingPath}/{relativePath}";
 
-            if (folderName != "")
-                MakeRemoteFolder(pathToFolder, folderName); //Queue a task to make a remote folder
-
-            string remotePath = $"{_remoteWorkingPath}/{relativePath}";
-            string localPath = $"{_localWorkingPath}/{relativePath}";
+            MakeRemoteFolder(remotePath); //Queue a task to make a remote folder - if it exists, nothing will happen
 
             FTPUploadTask task = new(remotePath, localPath, filename);
             task.OnComplete += OnUploadFileComplete;
@@ -146,14 +141,16 @@ namespace VE2.NonCore.FileSystem.Internal
         /// <summary>
         /// Queue a request to create a remote folder (does not create it locally)
         /// </summary>
-        /// <param name="remotePath">path should use / as separator not \</param>
+        /// <param name="remoteFolderPathAndName">path should use / as separator not \</param>
         /// <param name="filename"></param>
         /// <returns>Task (for checking status/progress, or for cancelling)</returns>
-        public FTPMakeFolderTask MakeRemoteFolder(string remotePath, string folderName)
+        public FTPMakeFolderTask MakeRemoteFolder(string remoteFolderPathAndName)
         {
-            remotePath = $"{_remoteWorkingPath}/{remotePath}";
-            Debug.Log($"Creating remote directory at {remotePath}-{folderName}");
-            FTPMakeFolderTask task = new(remotePath, folderName);
+            string remotePathWithoutTrailingSlash = remoteFolderPathAndName.EndsWith("/") ? remoteFolderPathAndName.Substring(0, remoteFolderPathAndName.Length - 1) : remoteFolderPathAndName;
+            string newFolderName = remotePathWithoutTrailingSlash.Substring(remotePathWithoutTrailingSlash.LastIndexOf("/") + 1);
+            string newFolderPath = remotePathWithoutTrailingSlash.Substring(0, remotePathWithoutTrailingSlash.LastIndexOf("/")); 
+
+            FTPMakeFolderTask task = new(newFolderPath, newFolderName);
             Enqueue(task);
             return task;
         }

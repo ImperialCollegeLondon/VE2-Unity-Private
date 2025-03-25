@@ -6,6 +6,7 @@ using DRMessageReader = DarkRift.DarkRiftReader;
 using DRMessageWrapper = DarkRift.Message;
 using System.Collections.Generic;
 using VE2.Core.Common;
+using System.Threading.Tasks;
 
 namespace VE2.NonCore.Instancing.Internal
 {
@@ -24,7 +25,10 @@ namespace VE2.NonCore.Instancing.Internal
         public event Action<byte[]> OnReceiveRemotePlayerState;
         public event Action<byte[]> OnReceiveInstantMessage;
 
-        public void ConnectToServer(IPAddress ipAddress, int port) => _drClient.Connect(ipAddress, port, false);
+        public async Task ConnectToServerAsync(IPAddress ipAddress, int port)
+        {
+            await Task.Run(() => _drClient.Connect(ipAddress, port, false));
+        }
 
         public void SendMessage(byte[] messageAsBytes, InstanceSyncSerializables.InstanceNetworkingMessageCodes messageCode, TransmissionProtocol transmissionProtocol)
         {

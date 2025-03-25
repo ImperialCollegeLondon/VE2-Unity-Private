@@ -25,12 +25,15 @@ namespace VE2.NonCore.Instancing.Internal
             {
                 instanceService = (InstanceService)instancingProvider.InstanceService;
 
-                //If we're already connected to the server, display initial global info rather than waiting for an update
-                if (instanceService.IsConnectedToServer)
-                    HandleInstanceInfoChanged(instanceService.InstanceInfo);
+                if (instanceService != null)
+                {
+                    //If we're already connected to the server, display initial global info rather than waiting for an update
+                    if (instanceService.IsConnectedToServer)
+                        HandleInstanceInfoChanged(instanceService.InstanceInfo);
 
-                instanceService.OnInstanceInfoChanged += HandleInstanceInfoChanged;
-                instanceService.OnDisconnectedFromInstance += HandleDisconnectFromServer;
+                    instanceService.OnInstanceInfoChanged += HandleInstanceInfoChanged;
+                    instanceService.OnDisconnectedFromInstance += HandleDisconnectFromServer;
+                }
             }
             else
             {

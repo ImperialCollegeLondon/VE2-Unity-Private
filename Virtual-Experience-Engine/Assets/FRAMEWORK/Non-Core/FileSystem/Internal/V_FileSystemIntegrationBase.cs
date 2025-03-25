@@ -1,23 +1,20 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using UnityEngine;
 using VE2.NonCore.FileSystem.API;
+using VE2.NonCore.Platform.API;
 using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
+using Debug = UnityEngine.Debug;
 
 namespace VE2.NonCore.FileSystem.Internal
 {
     internal abstract class V_FileSystemIntegrationBase : MonoBehaviour
     {
-        [SerializeField, SpaceArea(spaceAfter: 10)] private ServerConnectionSettings ftpNetworkSettings;
-
-
-        [SerializeField, IgnoreParent, BeginGroup("Remote File Tasks")] private List<RemoteFileTaskInfo> _queuedTasks = new(); 
-        [EditorButton(nameof(CancelAllTasks), "Cancel All Tasks", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
-        [EditorButton(nameof(OpenLocalWorkingFolder), "Open Local Working Folder", activityType: ButtonActivityType.Everything, Order = -2)]
-        [SerializeField, IgnoreParent, EndGroup] private List<RemoteFileTaskInfo> _completedTasks = new();
+        // [SerializeField, IgnoreParent, BeginGroup("Remote File Tasks")] private List<RemoteFileTaskInfo> _queuedTasks = new(); 
+        // [EditorButton(nameof(CancelAllTasks), "Cancel All Tasks", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
+        // [EditorButton(nameof(OpenLocalWorkingFolder), "Open Local Working Folder", activityType: ButtonActivityType.Everything, Order = -2)]
+        // [SerializeField, IgnoreParent, EndGroup] private List<RemoteFileTaskInfo> _completedTasks = new();
 
 
         #region Interfaces 
@@ -43,22 +40,7 @@ namespace VE2.NonCore.FileSystem.Internal
 
         internal FileSystemService _FileStorageService; 
 
-        private void OnEnable()
-        {
-            _FileStorageService = FileSystemServiceFactory.CreateFileStorageService(ftpNetworkSettings, LocalWorkingPath);
-
-            IsFileSystemReady = true;
-            try
-            {
-                OnFileSystemReady?.Invoke();
-            }
-            catch (Exception e)
-            {
-                UnityEngine.Debug.LogError($"Error invoking OnFileSystemReady: {e.Message}");
-            }
-        }
-
-        public void Update() => _FileStorageService.Update();
+        public void Update() => _FileStorageService?.Update();
 
         public void OpenLocalWorkingFolder()
         {
@@ -67,16 +49,10 @@ namespace VE2.NonCore.FileSystem.Internal
             UnityEngine.Debug.Log("Try open " + path);
             try
             {
-                // Check if the file or directory exists
-                if (System.IO.Directory.Exists(path))
-                {
-                    // Open Windows Explorer with the specified path
-                    Process.Start("explorer.exe", path);
-                }
-                else
-                {
-                    UnityEngine.Debug.LogError("The specified path does not exist.");
-                }
+                if (!System.IO.Directory.Exists(path))
+                    System.IO.Directory.CreateDirectory(path);
+
+                Process.Start("explorer.exe", path);
             }
             catch (Exception ex)
             {
@@ -84,19 +60,34 @@ namespace VE2.NonCore.FileSystem.Internal
             }
         }
 
+        protected void CreateFileSystem(ServerConnectionSettings serverSettings)
+        {
+            _FileStorageService = FileSystemServiceFactory.CreateFileStorageService(serverSettings, LocalWorkingPath);
+
+            IsFileSystemReady = true;
+            try
+            {
+                OnFileSystemReady?.Invoke();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Error invoking OnFileSystemReady: {e.Message}");
+            }
+        }
+
         private void OnDisable()
         {
             IsFileSystemReady = false;
             _FileStorageService.TearDown();
-            _queuedTasks.Clear();
-            _completedTasks.Clear();
+            // _queuedTasks.Clear();
+            // _completedTasks.Clear();
         }
 
         private void CancelAllTasks()
         {
-            List<IRemoteFileTaskInfo> tasks = new(_queuedTasks);
-            foreach (RemoteFileTaskInfo task in tasks)
-                task.CancelRemoteFileTask();
+            // List<IRemoteFileTaskInfo> tasks = new(_queuedTasks);
+            // foreach (RemoteFileTaskInfo task in tasks)
+            //     task.CancelRemoteFileTask();
         }
     }
 }
