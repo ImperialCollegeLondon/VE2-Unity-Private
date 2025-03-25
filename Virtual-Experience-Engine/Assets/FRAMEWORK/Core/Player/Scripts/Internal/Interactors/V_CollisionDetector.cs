@@ -19,7 +19,6 @@ namespace VE2.Core.Player.Internal
         {
             if (other.gameObject.TryGetComponent(out ICollideInteractionModuleProvider collidable))
             {
-                Debug.Log("Collide Start");
                 OnCollideStart?.Invoke(collidable.CollideInteractionModule);
             }
         }

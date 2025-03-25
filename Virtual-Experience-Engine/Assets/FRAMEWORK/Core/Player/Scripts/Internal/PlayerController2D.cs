@@ -58,8 +58,6 @@ namespace VE2.Core.Player.Internal
                 interactorContainer, player2DInputContainer.InteractorInputContainer2D,
                 player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, multiplayerSupport);
 
-            Debug.Log("Player2DReferences: " + _interactor2D.HeldActivatableIDs);
-
             _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences);
             
             //TODO: think about inspect mode, does that live in the interactor, or the player controller?
