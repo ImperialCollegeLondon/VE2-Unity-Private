@@ -77,7 +77,7 @@ namespace VE2.Core.VComponents.Internal
         private readonly float _incrementPerScrollTick;
 
         public LinearAdjustableService(ITransformWrapper transformWrapper, List<IHandheldInteractionModule> handheldInteractions, LinearAdjustableConfig config, VE2Serializable adjustableState, VE2Serializable grabbableState, string id,
-            IWorldStateSyncService worldStateSyncService, InteractorContainer interactorContainer)
+            IWorldStateSyncService worldStateSyncService, HandInteractorContainer interactorContainer)
         {
             //get attach point transform, if null, use the transform wrapper (the object itself)
             _attachPointTransform = config.GrabbableStateConfig.AttachPoint == null ? transformWrapper : new TransformWrapper(config.GrabbableStateConfig.AttachPoint);

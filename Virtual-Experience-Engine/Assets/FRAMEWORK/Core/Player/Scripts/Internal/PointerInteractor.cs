@@ -60,7 +60,7 @@ namespace VE2.Core.Player.Internal
 
         private GameObject lastHoveredUIObject = null; // Keep track of the last hovered UI object
 
-        private readonly InteractorContainer _interactorContainer;
+        private readonly HandInteractorContainer _interactorContainer;
         private readonly InteractorInputContainer _interactorInputContainer;
 
 
@@ -81,7 +81,7 @@ namespace VE2.Core.Player.Internal
 
         private readonly HoveringOverScrollableIndicator _hoveringOverScrollableIndicator;
 
-        internal PointerInteractor(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
+        internal PointerInteractor(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
             InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, 
             ILocalClientIDProvider localClientIDProvider, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator)
         {

@@ -51,7 +51,7 @@ namespace VE2.NonCore.Instancing.Internal
         /// <summary>
         /// Note, this WON'T set the initial appearance, HandleReceiveAvatarAppearance should be called after initialization
         /// </summary>
-        public void Initialize(ushort clientID, InteractorContainer interactorContainer,
+        public void Initialize(ushort clientID, HandInteractorContainer interactorContainer,
             List<GameObject> virseAvatarHeadGameObjects, List<GameObject> virseAvatarTorsoGameObjects,
             List<GameObject> avatarHeadOverrideGameObjects, List<GameObject> avatarTorsoOverrideGameObjects)
         {

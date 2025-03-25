@@ -17,7 +17,7 @@ namespace VE2.Core.VComponents.Tests
             InteractorID interactorID = new(localClientID, InteractorType.Mouse2D);
 
             IInteractor interactorStub = Substitute.For<IInteractor>();
-            InteractorContainer interactorContainerStub = new();
+            HandInteractorContainer interactorContainerStub = new();
             interactorContainerStub.RegisterInteractor(interactorID.ToString(), interactorStub);
 
             FreeGrabbableService freeGrabbable = new( 

@@ -9,11 +9,11 @@ namespace VE2.NonCore.Instancing.Internal
     {
         public Transform GrabberTransform => transform;
         public List<string> HeldActivatableIDs => _heldActivatableIDs;
-        private InteractorContainer _interactorContainer;
+        private HandInteractorContainer _interactorContainer;
         private InteractorID _interactorID;
         private List<string> _heldActivatableIDs;
 
-        public void Initialize(ushort clientID, InteractorType interactorType, InteractorContainer interactorContainer)
+        public void Initialize(ushort clientID, InteractorType interactorType, HandInteractorContainer interactorContainer)
         {
             _interactorID = new InteractorID(clientID, interactorType);
 

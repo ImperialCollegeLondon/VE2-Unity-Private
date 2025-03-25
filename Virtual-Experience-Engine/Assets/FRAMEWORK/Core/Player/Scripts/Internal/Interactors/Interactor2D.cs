@@ -8,12 +8,10 @@ namespace VE2.Core.Player.Internal
 {
     internal class Interactor2D : PointerInteractor
     {
-        private readonly V_CollisionDetector _collisionDetector;
         private readonly Image _reticuleImage;
         private readonly ColorConfiguration _colorConfig;
 
-        internal Interactor2D(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
-
+        internal Interactor2D(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
             InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, 
             ILocalClientIDProvider localClientIDProvider) : 
             base(interactorContainer, interactorInputContainer,
@@ -21,42 +19,8 @@ namespace VE2.Core.Player.Internal
         {
             Interactor2DReferences interactor2DReferences = interactorReferences as Interactor2DReferences;
             _reticuleImage = interactor2DReferences.ReticuleImage;
-            _collisionDetector = interactor2DReferences.CollisionDetector;
 
             _colorConfig = Resources.Load<ColorConfiguration>("ColorConfiguration"); //TODO: Inject, can probably actually go into the base class
-        }
-
-        public override void HandleOnEnable()
-        {
-            base.HandleOnEnable();
-            _collisionDetector.OnCollideStart += HandleCollideStart;
-            _collisionDetector.OnCollideEnd += HandleCollideEnd;
-        }
-
-        public override void HandleOnDisable()
-        {
-            base.HandleOnEnable();
-            _collisionDetector.OnCollideStart -= HandleCollideStart;
-            _collisionDetector.OnCollideEnd -= HandleCollideEnd;
-        }
-
-        private void HandleCollideStart(ICollideInteractionModule collideInteractionModule)
-        {
-            if (!_WaitingForLocalClientID && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Feet)
-            {
-                collideInteractionModule.InvokeOnCollideEnter(_InteractorID);
-                HeldActivatableIDs.Add(collideInteractionModule.ID);
-            }
-
-        }
-
-        private void HandleCollideEnd(ICollideInteractionModule collideInteractionModule)
-        {
-            if (!_WaitingForLocalClientID && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Feet)
-            {
-                collideInteractionModule.InvokeOnCollideExit(_InteractorID);
-                HeldActivatableIDs.Remove(collideInteractionModule.ID);
-            }
         }
 
         protected override void SetInteractorState(InteractorState newState)

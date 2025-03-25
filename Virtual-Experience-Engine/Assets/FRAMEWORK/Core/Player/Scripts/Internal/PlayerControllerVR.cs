@@ -49,7 +49,7 @@ namespace VE2.Core.Player.Internal
         private readonly RectTransform _primaryUIHolderRect;
         private readonly ISecondaryUIServiceInternal _secondaryUIService;
 
-        internal PlayerControllerVR(InteractorContainer interactorContainer, PlayerVRInputContainer playerVRInputContainer, IPlayerPersistentDataHandler playerSettingsHandler, PlayerVRControlConfig controlConfig, MovementModeConfig movementModeConfig,
+        internal PlayerControllerVR(HandInteractorContainer interactorContainer, PlayerVRInputContainer playerVRInputContainer, IPlayerPersistentDataHandler playerSettingsHandler, PlayerVRControlConfig controlConfig, MovementModeConfig movementModeConfig,
             IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper, ILocalClientIDProvider localClientIDProvider, IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService)
         {
             GameObject playerVRPrefab = Resources.Load("vrPlayer") as GameObject;
@@ -88,7 +88,7 @@ namespace VE2.Core.Player.Internal
         }
 
         
-        private V_HandController CreateHandController(GameObject handGO, GameObject otherHandGO, InteractorContainer interactorContainer, 
+        private V_HandController CreateHandController(GameObject handGO, GameObject otherHandGO, HandInteractorContainer interactorContainer, 
             HandVRInputContainer handVRInputContainer, DragLocomotorInputContainer otherHandDragInputContainer, InteractorType interactorType, 
             IRaycastProvider raycastProvider, ILocalClientIDProvider multiplayerSupport, FreeGrabbableWrapper thisHandGrabbableWrapper, 
             FreeGrabbableWrapper otherHandGrabbableWrapper, ISecondaryUIServiceInternal secondaryUIService, MovementModeConfig movementModeConfig, bool needsToFlip)

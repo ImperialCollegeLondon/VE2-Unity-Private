@@ -29,7 +29,7 @@ namespace VE2.Core.VComponents.Tests
                 new GrabbableState(),
                 "debug",
                 Substitute.For<IWorldStateSyncService>(),
-                new InteractorContainer());
+                new HandInteractorContainer());
 
             _v_linearAdjustableProviderStub = new(linearAdjustable);
 
