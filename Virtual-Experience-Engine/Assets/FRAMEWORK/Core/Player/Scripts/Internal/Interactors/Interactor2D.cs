@@ -70,11 +70,7 @@ namespace VE2.Core.Player.Internal
         {
             base.HandleLocalClientIDReady(clientID);
 
-            DOVirtual.DelayedCall(2, () =>
-            {
-                _connectionPromptHandler.NotifyConnected();
-            });
-
+            _connectionPromptHandler.NotifyConnected();
         }
     }
 

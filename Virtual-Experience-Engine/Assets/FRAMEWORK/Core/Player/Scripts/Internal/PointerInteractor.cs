@@ -153,8 +153,8 @@ namespace VE2.Core.Player.Internal
 
             IRangedInteractionModule previousHoveringInteractable = _CurrentHoveringInteractable;
 
-            //If we were hovering over a grabbable, and are now grabbing it, remain hovered 
-            if (!(previousHoveringInteractable is IRangedGrabInteractionModule previousRangedGrabInteractable && _CurrentGrabbingGrabbable == previousRangedGrabInteractable))
+            //Update the current hovering interactable, as long as we're not waiting for id, and it's not a grabbable that we were previously hovering over
+            if (!_WaitingForLocalClientID && !(previousHoveringInteractable is IRangedGrabInteractionModule previousRangedGrabInteractable && _CurrentGrabbingGrabbable == previousRangedGrabInteractable))
                 _CurrentHoveringInteractable = raycastResultWrapper.RangedInteractableInRange;
 
             //If we've stopped hovering over something, call exit hover. If we were holding its click down, release
@@ -170,7 +170,7 @@ namespace VE2.Core.Player.Internal
             }
 
             //If we've started hovering over something, call enter hover
-            if (_CurrentHoveringInteractable != null && _CurrentHoveringInteractable != previousHoveringInteractable)
+            if (!_WaitingForLocalClientID && _CurrentHoveringInteractable != null && _CurrentHoveringInteractable != previousHoveringInteractable)
                 _CurrentHoveringInteractable.EnterHover();
 
             //if grabbing an adjustable module, update the visualisation, and update input value
