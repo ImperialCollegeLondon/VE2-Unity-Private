@@ -109,6 +109,8 @@ namespace VE2.Core.Player.API
                 if(HeldActivatableIds2D == null)
                     HeldActivatableIds2D = new List<string>();
 
+                Debug.Log("HeldActivatableIds2D: " + HeldActivatableIds2D.Count);
+
                 foreach (string activatableID in HeldActivatableIds2D)
                     writer.Write(activatableID);
             }

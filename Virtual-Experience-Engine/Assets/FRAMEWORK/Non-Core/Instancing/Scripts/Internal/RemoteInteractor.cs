@@ -26,15 +26,24 @@ namespace VE2.NonCore.Instancing.Internal
         public void AddToHeldActivatableIDs(string activatableID)
         {
             _heldActivatableIDs.Add(activatableID);
+            
             var rangedClickInteractable = GetRangedClickInteractionModule(activatableID);
             rangedClickInteractable?.ClickDown(_interactorID);
+
+            var collideInteractable = GetCollideInteractionModule(activatableID);
+            collideInteractable?.InvokeOnCollideEnter(_interactorID);
         }
 
         public void RemoveFromHeldActivatableIDs(string activatableID)
         {
             var rangedClickInteractable = GetRangedClickInteractionModule(activatableID);
             rangedClickInteractable?.ClickUp(_interactorID);
+
+            var collideInteractable = GetCollideInteractionModule(activatableID);
+            collideInteractable?.InvokeOnCollideExit(_interactorID);
+
             _heldActivatableIDs.Remove(activatableID);
+
         }
 
         public IRangedClickInteractionModule GetRangedClickInteractionModule(string activatableID)
@@ -49,13 +58,19 @@ namespace VE2.NonCore.Instancing.Internal
                 else
                     return null;
             }
-            else if (activatableID.Contains("PressurePlate-"))
+            else
+                return null;
+        }
+
+        public ICollideInteractionModule GetCollideInteractionModule(string activatableID)
+        {
+            if (activatableID.Contains("PressurePlate-"))
             {
                 string cleanID = activatableID.Replace("PressurePlate-", "");
                 GameObject activatableObject = GameObject.Find(cleanID);
 
                 if (activatableObject != null)
-                    return activatableObject.GetComponent<IRangedClickInteractionModule>();
+                    return activatableObject.GetComponent<IV_PressurePlate>()._ColliderModule;
                 else
                     return null;
             }
