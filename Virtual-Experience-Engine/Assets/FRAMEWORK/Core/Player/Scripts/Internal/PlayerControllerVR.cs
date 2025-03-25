@@ -37,7 +37,7 @@ namespace VE2.Core.Player.Internal
         private readonly Transform _rootTransform;
         private readonly Transform _verticalOffsetTransform;
         private readonly Transform _headTransform;
-        private InteractorVR _interactorVR;
+        private V_CollisionDetector _groundCollisionDetector;
 
         private readonly V_HandController _handControllerLeft;
         private readonly V_HandController _handControllerRight;
@@ -57,6 +57,7 @@ namespace VE2.Core.Player.Internal
             _rootTransform = playerVRReferences.RootTransform;
             _verticalOffsetTransform = playerVRReferences.VerticalOffsetTransform;
             _headTransform = playerVRReferences.HeadTransform;
+            _groundCollisionDetector = playerVRReferences.GroundCollisionDetector;
 
             GameObject handVRLeftPrefab = Resources.Load<GameObject>("HandVRLeft");
             GameObject handVRLeftGO = GameObject.Instantiate(handVRLeftPrefab, _verticalOffsetTransform, false);
@@ -77,7 +78,7 @@ namespace VE2.Core.Player.Internal
             V_HandVRReferences thisHandVRReferences = handGO.GetComponent<V_HandVRReferences>();
             V_HandVRReferences otherHandVRReferences = otherHandGO.GetComponent<V_HandVRReferences>();
 
-            _interactorVR = new(
+            InteractorVR interactorVR = new(
                 interactorContainer, handVRInputContainer.InteractorVRInputContainer,
                 thisHandVRReferences.InteractorVRReferences,
                 interactorType, raycastProvider, multiplayerSupport, thisHandGrabbableWrapper);
@@ -95,7 +96,7 @@ namespace VE2.Core.Player.Internal
             Teleport teleport = new(
                 handVRInputContainer.TeleportInputContainer,
                 _rootTransform, thisHandVRReferences.InteractorVRReferences.RayOrigin, otherHandVRReferences.InteractorVRReferences.RayOrigin, thisHandGrabbableWrapper, otherHandGrabbableWrapper);
-            return new V_HandController(handGO, handVRInputContainer, _interactorVR, dragLocomotor, snapTurn, teleport);
+            return new V_HandController(handGO, handVRInputContainer, interactorVR, dragLocomotor, snapTurn, teleport);
         }
 
         public void ActivatePlayer(PlayerTransformData initTransformData)
@@ -149,6 +150,10 @@ namespace VE2.Core.Player.Internal
         {
             _handControllerLeft.HandleUpdate();
             _handControllerRight.HandleUpdate();
+
+            RaycastHit hit;
+            if (Physics.Raycast(_headTransform.position, Vector3.down, out hit, 200f))
+                _groundCollisionDetector.transform.position = hit.point;
         }
 
         private void HandleResetViewPressed()

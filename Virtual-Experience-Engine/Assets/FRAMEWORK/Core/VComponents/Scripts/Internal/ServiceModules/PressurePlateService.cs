@@ -26,7 +26,7 @@ namespace VE2.Core.VComponents.Internal
         public PressurePlateService(PressurePlateConfig config, MultiInteractorActivatableState state, string id)
         {
             _StateModule = new(state, config.StateConfig, id);
-            _ColliderInteractionModule = new(config.GeneralInteractionConfig, id);
+            _ColliderInteractionModule = new(config.GeneralInteractionConfig, id, CollideInteractionType.Feet);
 
             _ColliderInteractionModule.OnCollideEnter += AddToInteractingInteractors;
             _ColliderInteractionModule.OnCollideExit += RemoveFromInteractingInteractors;
