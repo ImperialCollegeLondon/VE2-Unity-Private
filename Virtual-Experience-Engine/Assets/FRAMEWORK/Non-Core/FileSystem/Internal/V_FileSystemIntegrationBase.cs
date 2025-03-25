@@ -16,7 +16,6 @@ namespace VE2.NonCore.FileSystem.Internal
         // [EditorButton(nameof(OpenLocalWorkingFolder), "Open Local Working Folder", activityType: ButtonActivityType.Everything, Order = -2)]
         // [SerializeField, IgnoreParent, EndGroup] private List<RemoteFileTaskInfo> _completedTasks = new();
 
-
         #region Interfaces 
         public bool IsFileSystemReady {get; private set;} = false;
         public event Action OnFileSystemReady;

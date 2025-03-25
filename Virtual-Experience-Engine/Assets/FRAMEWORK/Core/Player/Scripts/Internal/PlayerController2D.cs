@@ -15,6 +15,9 @@ namespace VE2.Core.Player.Internal
     {
         public Image ReticuleImage => _reticuleImage;
         [SerializeField, IgnoreParent] private Image _reticuleImage;
+
+        public PlayerConnectionPromptHandler ConnectionPromptHandler => _connectionPromptHandler;
+        [SerializeField, IgnoreParent] PlayerConnectionPromptHandler _connectionPromptHandler;
     }
 
     internal class PlayerController2D 

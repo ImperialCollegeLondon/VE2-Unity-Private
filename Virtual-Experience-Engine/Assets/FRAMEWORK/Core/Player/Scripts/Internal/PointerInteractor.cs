@@ -88,7 +88,6 @@ namespace VE2.Core.Player.Internal
             _interactorContainer = interactorContainer;
             _interactorInputContainer = interactorInputContainer;
 
-
             _interactorParentTransform = interactorReferences.InteractorParentTransform;
             _GrabberTransform = interactorReferences.GrabberTransform;
             _GrabberVisualisation = interactorReferences.GrabberVisualisation;
@@ -140,7 +139,7 @@ namespace VE2.Core.Player.Internal
             _interactorContainer.DeregisterInteractor(_InteractorID.ToString());
         }
 
-        private void HandleLocalClientIDReady(ushort clientID)
+        protected virtual void HandleLocalClientIDReady(ushort clientID)
         {
             if (_localClientIDProvider != null)
                 _localClientIDProvider.OnClientIDReady -= HandleLocalClientIDReady;
