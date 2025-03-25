@@ -4035,7 +4035,7 @@ MonoBehaviour:
     MovementModeConfig:
       TraversableLayers:
         serializedVersion: 2
-        m_Bits: 0
+        m_Bits: 8
       EnableFreeFlyMode: 0
       TeleportRangeMultiplier: 1
     HeadOverrideType: 0

@@ -46,7 +46,7 @@ namespace VE2.NonCore.Instancing.Internal
 
         }
 
-        public IRangedClickInteractionModule GetRangedClickInteractionModule(string activatableID)
+        public IRangedHoldClickInteractionModule GetRangedClickInteractionModule(string activatableID)
         {
             if (activatableID.Contains("HoldActivatable-"))
             {
@@ -54,7 +54,7 @@ namespace VE2.NonCore.Instancing.Internal
                 GameObject activatableObject = GameObject.Find(cleanID);
 
                 if (activatableObject != null)
-                    return activatableObject.GetComponent<IV_HoldActivatable>()._RangedClickModule;
+                    return activatableObject.GetComponent<IV_HoldActivatable>()._RangedHoldClickModule;
                 else
                     return null;
             }

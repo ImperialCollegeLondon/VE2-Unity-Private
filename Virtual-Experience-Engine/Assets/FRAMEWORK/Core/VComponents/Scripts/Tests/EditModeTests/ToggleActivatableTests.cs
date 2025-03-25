@@ -78,7 +78,7 @@ namespace VE2.Core.VComponents.Tests
         #region Plugin Interfaces
 
         ISingleInteractorActivatableStateModule IV_ToggleActivatable._StateModule => _ToggleActivatable.StateModule;
-        IRangedClickInteractionModule IV_ToggleActivatable._RangedClickModule => _ToggleActivatable.RangedClickInteractionModule;
+        IRangedToggleClickInteractionModule IV_ToggleActivatable._RangedToggleClickModule => _ToggleActivatable.RangedClickInteractionModule;
         #endregion
 
         #region Player Interfaces

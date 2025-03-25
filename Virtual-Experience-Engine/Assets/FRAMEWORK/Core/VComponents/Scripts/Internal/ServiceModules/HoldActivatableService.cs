@@ -17,24 +17,24 @@ namespace VE2.Core.VComponents.Internal
     {
         #region Interfaces
         public IMultiInteractorActivatableStateModule StateModule => _StateModule;
-        public IRangedClickInteractionModule RangedClickInteractionModule => _RangedClickInteractionModule;
+        public IRangedHoldClickInteractionModule RangedClickInteractionModule => _RangedHoldClickInteractionModule;
         public ICollideInteractionModule ColliderInteractionModule => _ColliderInteractionModule;
         #endregion
 
         #region Modules
         private readonly MultiInteractorActivatableStateModule _StateModule;
-        private readonly RangedClickInteractionModule _RangedClickInteractionModule;
+        private readonly RangedHoldClickInteractionModule _RangedHoldClickInteractionModule;
         private readonly ColliderInteractionModule _ColliderInteractionModule;
         #endregion
 
         public HoldActivatableService(HoldActivatableConfig config, MultiInteractorActivatableState state, string id)
         {
             _StateModule = new(state, config.StateConfig, id);
-            _RangedClickInteractionModule = new(config.RangedInteractionConfig, config.GeneralInteractionConfig, id);
+            _RangedHoldClickInteractionModule = new(config.RangedInteractionConfig, config.GeneralInteractionConfig, id);
             _ColliderInteractionModule = new(config.GeneralInteractionConfig, id, CollideInteractionType.Hand);
 
-            _RangedClickInteractionModule.OnClickDown += AddToInteractingInteractors;
-            _RangedClickInteractionModule.OnClickUp += RemoveFromInteractingInteractors;
+            _RangedHoldClickInteractionModule.OnClickDown += AddToInteractingInteractors;
+            _RangedHoldClickInteractionModule.OnClickUp += RemoveFromInteractingInteractors;
             
             _ColliderInteractionModule.OnCollideEnter += AddToInteractingInteractors;
             _ColliderInteractionModule.OnCollideExit += RemoveFromInteractingInteractors;

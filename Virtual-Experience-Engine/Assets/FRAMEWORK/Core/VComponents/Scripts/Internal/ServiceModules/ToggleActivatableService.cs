@@ -17,13 +17,13 @@ namespace VE2.Core.VComponents.Internal
     {
         #region Interfaces
         public ISingleInteractorActivatableStateModule StateModule => _StateModule;
-        public IRangedClickInteractionModule RangedClickInteractionModule => _RangedClickInteractionModule;
+        public IRangedToggleClickInteractionModule RangedClickInteractionModule => _RangedClickInteractionModule;
         public ICollideInteractionModule ColliderInteractionModule => _ColliderInteractionModule;
         #endregion
 
         #region Modules
         private readonly SingleInteractorActivatableStateModule _StateModule;
-        private readonly RangedClickInteractionModule _RangedClickInteractionModule;
+        private readonly RangedToggleClickInteractionModule _RangedClickInteractionModule;
         private readonly ColliderInteractionModule _ColliderInteractionModule;
         #endregion
 
