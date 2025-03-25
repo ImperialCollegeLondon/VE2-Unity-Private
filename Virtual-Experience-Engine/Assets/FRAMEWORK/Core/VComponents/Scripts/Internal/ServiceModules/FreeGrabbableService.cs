@@ -3,13 +3,14 @@ using UnityEngine;
 using System.Collections.Generic;
 using VE2.Core.VComponents.API;
 using static VE2.Core.Common.CommonSerializables;
+using VE2.Common.TransformWrapper;
 
 namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
     internal class FreeGrabbableConfig
     {
-        [SerializeField, IgnoreParent] public FreeGrabbableStateConfig StateConfig = new();
+        [SerializeField, IgnoreParent] public GrabbableStateConfig StateConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
         [SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfig = new();
     }
@@ -17,18 +18,17 @@ namespace VE2.Core.VComponents.Internal
     internal class FreeGrabbableService
     {
         #region Interfacess
-        public IFreeGrabbableStateModule StateModule => _StateModule;
+        public IGrabbableStateModule StateModule => _StateModule;
         public IRangedFreeGrabInteractionModule RangedGrabInteractionModule => _RangedGrabInteractionModule;
         #endregion
 
         #region Modules
-        private readonly FreeGrabbableStateModule _StateModule;
+        private readonly GrabbableStateModule _StateModule;
         private readonly RangedFreeGrabInteractionModule _RangedGrabInteractionModule;
         #endregion
 
-        public bool IsGrabbed => _StateModule.IsGrabbed;
-
         private IRigidbodyWrapper _rigidbody;
+        private ITransformWrapper _transform;
         private bool _isKinematicOnStart;
         private PhysicsConstants _physicsConstants;
 
@@ -40,6 +40,7 @@ namespace VE2.Core.VComponents.Internal
             _StateModule = new(state, config.StateConfig, id, worldStateSyncService, interactorContainer, RangedGrabInteractionModule);
             
             _rigidbody  = rigidbody;
+            _transform = config.StateConfig.AttachPoint == null ? new TransformWrapper(_rigidbody.transform) : new TransformWrapper(config.StateConfig.AttachPoint);
             _physicsConstants = physicsConstants;
             _isKinematicOnStart = _rigidbody.isKinematic;
 
@@ -90,7 +91,7 @@ namespace VE2.Core.VComponents.Internal
 
         private void TrackPosition(Vector3 targetPosition)
         {
-            Vector3 directionToGrabber = targetPosition - _rigidbody.position;
+            Vector3 directionToGrabber = targetPosition - _transform.position;
             float directionToGrabberMaxVelocityMagnitudeRatio = directionToGrabber.magnitude / _physicsConstants.DefaultMaxAngularVelocity;
             if (directionToGrabberMaxVelocityMagnitudeRatio > 1)
                 directionToGrabber /= directionToGrabberMaxVelocityMagnitudeRatio;
@@ -100,7 +101,7 @@ namespace VE2.Core.VComponents.Internal
 
         private void TrackRotation(Quaternion targetRotation)
         {
-            var rotationDelta = targetRotation * Quaternion.Inverse(_rigidbody.rotation);
+            var rotationDelta = targetRotation * Quaternion.Inverse(_transform.rotation);
             rotationDelta.ToAngleAxis(out var angleInDegrees, out var rotationAxis);
             if (angleInDegrees > 180f)
                 angleInDegrees -= 360f;

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
@@ -14,8 +15,14 @@ namespace VE2.Core.VComponents.Internal
         [Title("Activation Settings", ApplyCondition = true)]
         [SerializeField] public UnityEvent OnActivate = new();
 
-        [EndGroup(Order = 1)]
         [SpaceArea(spaceAfter: 10, Order = -1), SerializeField] public UnityEvent OnDeactivate = new();
+
+
+        [EndGroup(Order = 2)]
+        [SpaceArea(spaceAfter: 10, Order = -2), SerializeField] public bool UseActivationGroup = false;
+        
+        [SpaceArea(spaceAfter: 5, Order = -3), ShowIf("UseActivationGroup",true), DisableInPlayMode(), SerializeField] public string ActivationGroupID = "None";
+
     }
 
     internal class SingleInteractorActivatableStateModule : BaseWorldStateModule, ISingleInteractorActivatableStateModule
@@ -25,17 +32,56 @@ namespace VE2.Core.VComponents.Internal
         public bool IsActivated { get => _state.IsActivated; set => HandleExternalActivation(value); }
         public ushort MostRecentInteractingClientID => _state.MostRecentInteractingClientID;
 
+        private string _activationGroupID = "None";
+        private bool _isInActivationGroup = false;     
         private SingleInteractorActivatableState _state => (SingleInteractorActivatableState)State;
         private ToggleActivatableStateConfig _config => (ToggleActivatableStateConfig)Config;
 
-        public SingleInteractorActivatableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncService worldStateSyncService) : base(state, config, id, worldStateSyncService) { }
+        private ActivatableGroupsContainer _activatableGroupsContainer;
+        public SingleInteractorActivatableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncService worldStateSyncService, ActivatableGroupsContainer activatableGroupsContainer) : base(state, config, id, worldStateSyncService)
+        {
+            _activationGroupID = _config.ActivationGroupID;
+            _activatableGroupsContainer = activatableGroupsContainer;
+            if (_activationGroupID != "None")
+            {
+                _activatableGroupsContainer.RegisterActivatable(_activationGroupID, this);
+                _isInActivationGroup = true;
+            }
+            else
+            {
+                _isInActivationGroup = false;
+            }
+        }
 
         private void HandleExternalActivation(bool newIsActivated)
         {
             if (newIsActivated != _state.IsActivated)
                 InvertState(ushort.MaxValue);
+            else
+                Debug.LogWarning($"Tried to set activated state on {ID} to {newIsActivated} but state is already {_state.IsActivated}");
         }
 
+        public void HandleActivatableState(ushort clientID)
+        {
+            if (_isInActivationGroup)
+            {
+                List<ISingleInteractorActivatableStateModule> singleInteractorActivatableStateModules = _activatableGroupsContainer.GetSingleInteractorActivatableStateModule(_activationGroupID);
+
+                foreach (ISingleInteractorActivatableStateModule activatable in singleInteractorActivatableStateModules)
+                {
+                    if (activatable != this && activatable.IsActivated)
+                    {
+                        activatable.IsActivated = false;
+                    }
+                }
+
+                InvertState(clientID);
+            }
+            else
+            {
+                InvertState(clientID);
+            }
+        }
         public void InvertState(ushort clientID)
         {
             _state.IsActivated = !_state.IsActivated;

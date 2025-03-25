@@ -11,6 +11,7 @@ namespace VE2.Core.VComponents.API
         public Vector3 angularVelocity { get => _Rigidbody.angularVelocity; set => _Rigidbody.angularVelocity = value; }
         public Vector3 position { get => _Rigidbody.position; set => _Rigidbody.position = value; }
         public Quaternion rotation { get => _Rigidbody.rotation; set => _Rigidbody.rotation = value; }
+        public Transform transform { get => _Rigidbody.transform; }
     }
     public class RigidbodyWrapper : IRigidbodyWrapper
     {

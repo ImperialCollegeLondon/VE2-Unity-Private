@@ -3,15 +3,26 @@ using System.Collections.Generic;
 using UnityEngine;
 using VE2.Core.Common;
 using VE2.Core.Player.API;
+using VE2.Core.UI.API;
 using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.Core.Player.Internal
 {
+
+    /*
+        TODO - when attaching player spawner, deleting, and then undoing, we are missing the player preview 
+        This is likely also true for UI provider
+    */
+
     [Serializable]
     internal class PlayerConfig
     {
         [SerializeField] public bool EnableVR = false;
         [SerializeField] public bool Enable2D = true;
+
+        [Title("Movement Mode Config")]
+        [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public MovementModeConfig MovementModeConfig = new();
+
 
         [Title("Avatar Presentation Override Selection")]
         [BeginGroup(Style = GroupStyle.Round), SerializeField] public AvatarAppearanceOverrideType HeadOverrideType = AvatarAppearanceOverrideType.None;
@@ -36,18 +47,26 @@ namespace VE2.Core.Player.Internal
 
         [Title("Transmission Settings", ApplyCondition = true)]
         [HideIf(nameof(_hasMultiplayerSupport), false)]
-        [SpaceArea(spaceAfter: 10, Order = -1), BeginGroup(Style = GroupStyle.Round, ApplyCondition = true), EndGroup, SerializeField, IgnoreParent] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new(TransmissionProtocol.UDP, 35);
+        [SpaceArea(spaceAfter: 10), BeginGroup(Style = GroupStyle.Round, ApplyCondition = true), EndGroup(ApplyCondition = true), SerializeField, IgnoreParent] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new(TransmissionProtocol.UDP, 35);
         
         private bool _hasMultiplayerSupport => PlayerAPI.HasMultiPlayerSupport;
+    }
+
+    [Serializable]
+    internal class MovementModeConfig
+    {
+        [SerializeField] internal LayerMask TraversableLayers; 
+        [SerializeField] internal bool EnableFreeFlyMode = false;
+        [SerializeField] internal float TeleportRangeMultiplier = 1.0f;
     }
 
     [ExecuteAlways]
     internal class V_PlayerSpawner : MonoBehaviour, IPlayerServiceProvider
     {
         //TODO, configs for each player, OnTeleport, DragHeight, FreeFlyMode, etc
-        [SerializeField, IgnoreParent] public PlayerConfig playerConfig = new();
+        [SerializeField, IgnoreParent] private PlayerConfig _playerConfig = new();
 
-        [Help("If running standalone, this presentation config will be used, if integrated with the ViRSE platform, the platform will provide the presentation config.")]
+        [SpaceArea(spaceBefore: 10), Help("If running standalone, this presentation config will be used, if integrated with the VE2 platform, the platform will provide the presentation config.")]
         [BeginGroup("Debug settings"), SerializeField, DisableInPlayMode, EndGroup]  private PlayerPresentationConfig _defaultPlayerPresentationConfig = new();
 
         #region Provider Interfaces
@@ -69,8 +88,22 @@ namespace VE2.Core.Player.Internal
         public string GameObjectName { get => gameObject.name; }
         #endregion
 
-        private bool _transformDataSetup = false;
-        private PlayerTransformData _playerTransformData = new();
+        [SerializeField, HideInInspector] private bool _transformDataSetup = false;
+        [SerializeField, HideInInspector] private PlayerTransformData _playerTransformData = new();
+
+        private GameObject _playerPreview => FindFirstObjectByType<PlayerPreviewTag>(FindObjectsInactive.Include)?.gameObject; //Can't just store GO reference, as that'll get wiped as the inspector resets
+
+        private void Reset()
+        {
+            _playerConfig = new();
+            _playerConfig.MovementModeConfig.TraversableLayers = LayerMask.GetMask("Ground"); //Can't set LayerMask in serialization, so we do it here
+
+            //Debug.Log("Resetting - " + (_playerPreview != null));
+            if (_playerPreview != null)
+                DestroyImmediate(_playerPreview);
+                
+            CreatePlayerPreview();
+        }
 
         private void OnEnable() 
         {
@@ -78,6 +111,8 @@ namespace VE2.Core.Player.Internal
 
             if (!Application.isPlaying || _playerService != null)
                 return;
+
+            _playerPreview?.SetActive(false);
 
             PlayerPersistentDataHandler playerPersistentDataHandler = FindFirstObjectByType<PlayerPersistentDataHandler>();
             if (playerPersistentDataHandler == null)
@@ -96,19 +131,25 @@ namespace VE2.Core.Player.Internal
 
             if (Application.platform == RuntimePlatform.Android && !Application.isEditor)
             {
-                playerConfig.EnableVR = true;
-                playerConfig.Enable2D = false;
+                _playerConfig.EnableVR = true;
+                _playerConfig.Enable2D = false;
             }
 
             XRManagerWrapper xrManagerWrapper = FindFirstObjectByType<XRManagerWrapper>();
             if (xrManagerWrapper == null)
                 xrManagerWrapper = new GameObject("XRManagerWrapper").AddComponent<XRManagerWrapper>();
 
+            //May be null if UIs aren't available
+            IPrimaryUIServiceInternal primaryUIService = UIAPI.PrimaryUIService as IPrimaryUIServiceInternal;
+            ISecondaryUIServiceInternal secondaryUIService = UIAPI.SecondaryUIService as ISecondaryUIServiceInternal;
+
             _playerService = VE2PlayerServiceFactory.Create(
                 _playerTransformData, 
-                playerConfig, 
+                _playerConfig, 
                 playerPersistentDataHandler,
-                xrManagerWrapper);
+                xrManagerWrapper,
+                primaryUIService,
+                secondaryUIService);
         }
 
         private void FixedUpdate() 
@@ -136,5 +177,36 @@ namespace VE2.Core.Player.Internal
             _playerService?.TearDown();
             _playerService = null;
         }
+
+        private void CreatePlayerPreview()
+        {
+            GameObject playerPreview = GameObject.Instantiate<GameObject>(Resources.Load<GameObject>("VE2PlayerPreviewVisualisation"));
+            playerPreview.transform.SetParent(transform);
+            playerPreview.transform.localPosition = Vector3.zero;
+            playerPreview.transform.localRotation = Quaternion.identity;
+
+            foreach (Transform child in playerPreview.GetComponentsInChildren<Transform>(true))
+                child.gameObject.hideFlags = HideFlags.HideInHierarchy | HideFlags.NotEditable;
+        }
+
+// #if UNITY_EDITOR
+//         private void OnSelectionChanged()
+//         {
+//             if (_playerPreview == null) 
+//                 return;
+
+//             // Check if the selected object is the target or a child of it
+//             foreach (var selected in UnityEditor.Selection.gameObjects)
+//             {
+//                 if (IsChildOrSelf(_playerPreview, selected))
+//                 {
+//                     UnityEditor.Selection.activeGameObject = gameObject;
+//                     break;
+//                 }
+//             }
+//         }
+
+//         private bool IsChildOrSelf(GameObject parent, GameObject obj) => obj == parent || obj.transform.IsChildOf(parent.transform);
+//         #endif
     }
 }

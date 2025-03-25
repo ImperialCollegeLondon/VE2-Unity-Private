@@ -98,6 +98,9 @@ namespace VE2.Core.Player.Internal
 
         public void HandleUpdate() //TODO: Should listen to InputHandler, this should maybe go in FixedUpdate to keep grabbables happy (they are updated in FixedUpdate) 
         {
+            //TODO: This should be in a separate class, maybe even in the interactor2D? 
+            //Needs to be injected with UIService, needs to know to not lock cursor when detecting left click if UI is showing
+
             // Handle Escape key to unlock the cursor
             if (Keyboard.current.escapeKey.wasPressedThisFrame)
             {

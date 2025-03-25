@@ -1,6 +1,5 @@
 using UnityEngine;
 using VE2.Core.VComponents.API;
-using VE2.Core.VComponents.Internal;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -20,7 +19,7 @@ namespace VE2.Core.VComponents.Internal
         private void OnEnable()
         {
             string id = "HHActivatable-" + gameObject.name; 
-            _service = new(_config, _state, id, VComponentsAPI.HasMultiPlayerSupport? VComponentsAPI.WorldStateSyncService : null);
+            _service = new(_config, _state, id, VComponentsAPI.HasMultiPlayerSupport? VComponentsAPI.WorldStateSyncService : null, VComponentsAPI.ActivatableGroupsContainer);
         }
 
         private void FixedUpdate()

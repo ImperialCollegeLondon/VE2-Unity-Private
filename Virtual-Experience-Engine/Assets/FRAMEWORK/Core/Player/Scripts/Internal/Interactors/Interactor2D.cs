@@ -13,9 +13,11 @@ namespace VE2.Core.Player.Internal
         private readonly ColorConfiguration _colorConfig;
 
         internal Interactor2D(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
-            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, ILocalClientIDProvider playerSyncer) : 
+
+            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, 
+            ILocalClientIDProvider localClientIDProvider) : 
             base(interactorContainer, interactorInputContainer,
-                interactorReferences, interactorType, raycastProvider, playerSyncer)   
+                interactorReferences, interactorType, raycastProvider, localClientIDProvider, null, new HoveringOverScrollableIndicator())   
         {
             Interactor2DReferences interactor2DReferences = interactorReferences as Interactor2DReferences;
             _reticuleImage = interactor2DReferences.ReticuleImage;
@@ -76,6 +78,21 @@ namespace VE2.Core.Player.Internal
                     //No colour 
                     break;
             }
+        }
+
+        protected override void HandleStartGrabbingAdjustable(IRangedAdjustableInteractionModule rangedAdjustableInteraction)
+        {
+            //Unlike VR, we should just apply a one-time offset on grab, and have the grabber behave like its on the end of a stick
+            //I.E, it's position is affected by the rotation of its parent 
+            Vector3 directionToGrabber = rangedAdjustableInteraction.Transform.position - GrabberTransform.position;
+            GrabberTransform.position += directionToGrabber;
+        }
+
+        protected override void HandleUpdateGrabbingAdjustable() { } //Nothing needed here
+
+        protected override void HandleStopGrabbingAdjustable()
+        {
+            GrabberTransform.localPosition = Vector3.zero;
         }
     }
 

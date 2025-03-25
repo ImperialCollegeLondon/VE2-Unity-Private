@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using VE2.Core.Player.API;
+using VE2.Core.UI.API;
 using VE2.Core.VComponents.API;
 using static VE2.Core.Player.API.PlayerSerializables;
 
@@ -42,8 +43,16 @@ namespace VE2.Core.Player.Internal
         private readonly Player2DLocomotor _playerLocomotor2D;
         private readonly Interactor2D _interactor2D;
 
+        private readonly IPrimaryUIServiceInternal _primaryUIService;
+        private readonly RectTransform _primaryUIHolderRect;
+        private readonly GameObject _overlayUI; 
+
+        private readonly ISecondaryUIServiceInternal _secondaryUIService;
+        private readonly RectTransform _secondaryUIHolder;
+
         internal PlayerController2D(InteractorContainer interactorContainer, Player2DInputContainer player2DInputContainer, IPlayerPersistentDataHandler playerPersistentDataHandler,
-            Player2DControlConfig controlConfig, IRaycastProvider raycastProvider, ILocalClientIDProvider multiplayerSupport) 
+            Player2DControlConfig controlConfig, IRaycastProvider raycastProvider, ILocalClientIDProvider multiplayerSupport, 
+            IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService) 
         {
             GameObject player2DPrefab = Resources.Load("2dPlayer") as GameObject;
             _playerGO = GameObject.Instantiate(player2DPrefab, null, false);
@@ -52,19 +61,31 @@ namespace VE2.Core.Player.Internal
             _controlConfig = controlConfig;
             _player2DInputContainer = player2DInputContainer;
 
+            _primaryUIService = primaryUIService;
+            _secondaryUIService = secondaryUIService;
+
             Player2DReferences player2DReferences = _playerGO.GetComponent<Player2DReferences>();
+            _primaryUIHolderRect = player2DReferences.PrimaryUIHolderRect;
+            _secondaryUIHolder = player2DReferences.SecondaryUIHolderRect;
+            _overlayUI = player2DReferences.OverlayUI;
 
             _interactor2D = new(
                 interactorContainer, player2DInputContainer.InteractorInputContainer2D,
                 player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, multiplayerSupport);
 
             _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences);
+
+            if (_primaryUIService != null)
+            {
+                _primaryUIService.OnUIShow += HandlePrimaryUIActivated;
+                _primaryUIService.OnUIHide += HandlePrimaryUIDeactivated;
+            }
             
             //TODO: think about inspect mode, does that live in the interactor, or the player controller?
             //If interactor, will need to make the interactor2d constructor take a this as a param, and forward the other params to the base constructor
         }
 
-        public void ActivatePlayer(PlayerTransformData initTransformData)
+        internal void ActivatePlayer(PlayerTransformData initTransformData)
         {
             _playerGO.gameObject.SetActive(true);
 
@@ -77,9 +98,13 @@ namespace VE2.Core.Player.Internal
 
             _interactor2D.GrabberTransform.SetLocalPositionAndRotation(initTransformData.Hand2DLocalPosition, initTransformData.Hand2DLocalRotation);
             _interactor2D.HandleOnEnable();
+
+            _primaryUIService?.MovePrimaryUIToHolderRect(_primaryUIHolderRect);
+            _secondaryUIService?.MoveSecondaryUIToHolderRect(_secondaryUIHolder);
+            _secondaryUIService?.EnableShowHideKeyboardControl();
         }
 
-        public void DeactivatePlayer() 
+        internal void DeactivatePlayer() 
         {
             if (_playerGO != null)
                 _playerGO.gameObject.SetActive(false);
@@ -88,11 +113,42 @@ namespace VE2.Core.Player.Internal
             _interactor2D.HandleOnDisable();
         }
 
-        public void HandleUpdate() 
+        internal void HandleUpdate() 
         {
-            _playerLocomotor2D.HandleUpdate();
-            _interactor2D.HandleUpdate();
-            //Debug.Log("Player2DReferences: " + _interactor2D.HeldActivatableIDs.Count);
+            if (_primaryUIService == null || !_primaryUIService.IsShowing)
+            {
+                _playerLocomotor2D.HandleUpdate();
+                _interactor2D.HandleUpdate();   
+            }
+        }
+
+        internal void HandlePrimaryUIActivated() 
+        {
+            _overlayUI.SetActive(false);
+            _playerLocomotor2D.HandleOnDisable(); 
+            _interactor2D.HandleOnDisable(); //TODO - we don't want to drop grabbables 
+        }
+
+        internal void HandlePrimaryUIDeactivated() 
+        {
+            _overlayUI.SetActive(true);
+            _playerLocomotor2D.HandleOnEnable();
+            _interactor2D.HandleOnEnable(); 
+        }
+
+        internal void TearDown() 
+        {
+            _playerLocomotor2D?.HandleOnDisable();
+            _interactor2D?.HandleOnDisable();
+
+            if (_primaryUIService != null)
+            {
+                _primaryUIService.OnUIShow -= HandlePrimaryUIActivated;
+                _primaryUIService.OnUIHide -= HandlePrimaryUIDeactivated;
+            }
+
+            if (_playerGO != null)
+                GameObject.Destroy(_playerGO);
         }
     }
 }

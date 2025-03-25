@@ -23,8 +23,8 @@ namespace VE2.Core.VComponents.Internal
 
         private void OnEnable()
         {
-            string id = "Activatable-" + gameObject.name; 
-            _service = new ToggleActivatableService(_config, _state, id, VComponentsAPI.WorldStateSyncService);
+            string id = "Activatable-" + gameObject.name;
+            _service = new ToggleActivatableService(_config, _state, id, VComponentsAPI.WorldStateSyncService, VComponentsAPI.ActivatableGroupsContainer);
         }
 
         private void FixedUpdate()

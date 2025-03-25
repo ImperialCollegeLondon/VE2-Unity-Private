@@ -27,11 +27,14 @@ namespace VE2.Core.VComponents.Internal
         private readonly ColliderInteractionModule _ColliderInteractionModule;
         #endregion
 
+        //private readonly string _activationGroupID = "None";
+        //private readonly bool _isInActivationGroup = false;     
         internal bool test = false;
 
-        public ToggleActivatableService(ToggleActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncService worldStateSyncService)
+        public ToggleActivatableService(ToggleActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncService worldStateSyncService, ActivatableGroupsContainer activatableGroupsContainer)
         {
-            _StateModule = new(state, config.StateConfig, id, worldStateSyncService);
+            _StateModule = new(state, config.StateConfig, id, worldStateSyncService,activatableGroupsContainer);
+
             _RangedClickInteractionModule = new(config.RangedInteractionConfig, config.GeneralInteractionConfig, id);
             _ColliderInteractionModule = new(config.GeneralInteractionConfig, id, CollideInteractionType.Hand);
 
@@ -46,11 +49,13 @@ namespace VE2.Core.VComponents.Internal
 
         private void HandleInteract(InteractorID interactorID)
         {
-            _StateModule.InvertState(interactorID.ClientID);
+
+            _StateModule.HandleActivatableState(interactorID.ClientID);
         }
 
         public void TearDown() 
         {
+            //VComponentsAPI.ActivatableGroupsContainer.DeregisterActivatable(_activationGroupID, _StateModule); 
             _StateModule.TearDown();
         }
     }

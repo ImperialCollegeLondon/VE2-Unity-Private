@@ -1,0 +1,22 @@
+{
+    "name": "VE2.Core.UI.Internal",
+    "rootNamespace": "",
+    "references": [
+        "GUID:ff046aa714328534ba481891b8887cca",
+        "GUID:111c54dcd318c434faa4cad0b1ad6d57",
+        "GUID:a846559b89903a647be42d7c2e0e6032",
+        "GUID:696a0953692949b40bec8730e64e1fdd",
+        "GUID:1b845e2499b39be4aab3e6ac2c8aa02a",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f",
+        "GUID:75469ad4d38634e559750d17036d5f7c"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -3,6 +3,7 @@ using UnityEngine;
 using VE2.Core.Player.API;
 using VE2.Core.VComponents.API;
 using VE2.NonCore.Instancing.API;
+using VE2.NonCore.Platform.API;
 using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 
 namespace VE2.NonCore.Instancing.Internal

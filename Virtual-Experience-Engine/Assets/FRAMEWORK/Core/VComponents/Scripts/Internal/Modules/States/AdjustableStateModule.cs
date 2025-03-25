@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 using UnityEngine;
 using UnityEngine.Events;
 using VE2.Core.Common;
@@ -14,46 +15,49 @@ namespace VE2.Core.VComponents.Internal
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Adjustable State Settings", ApplyCondition = true)]
         [SerializeField] public UnityEvent<float> OnValueAdjusted = new();
-        [SerializeField] public float MinimumValue = 0;
-        [SerializeField] public float MaximumValue = 1;
-        [SerializeField] public float StartingValue = 0;
-        [EndGroup, SerializeField] public bool EmitValueOnStart = true;
+        [SerializeField] public float MinimumOutputValue = 0;
+        [SerializeField] public float MaximumOutputValue = 1;
+        [SerializeField] public float StartingOutputValue = 0;
+        [SerializeField] public bool EmitValueOnStart = true; 
+        [Title("Scroll Settings")]
+        [EndGroup, SerializeField] public float IncrementPerScrollTick = 0.1f;    
+
     }
     internal class AdjustableStateModule : BaseWorldStateModule, IAdjustableStateModule
     {
-        public float Value { get => _state.Value; set => HandleExternalAdjust(value); }
+        public float OutputValue { get => _state.Value; set => HandleExternalAdjust(value); }
         public UnityEvent<float> OnValueAdjusted => _config.OnValueAdjusted;
         public ushort MostRecentInteractingClientID => _state.MostRecentInteractingClientID;
 
-        public float MinimumValue { get => _config.MinimumValue; set => _config.MinimumValue = value; }
-        public float MaximumValue { get => _config.MaximumValue; set => _config.MaximumValue = value; }
+        public float MinimumOutputValue { get => _config.MinimumOutputValue; set => _config.MinimumOutputValue = value; }
+        public float MaximumOutputValue { get => _config.MaximumOutputValue; set => _config.MaximumOutputValue = value; }
         private AdjustableState _state => (AdjustableState)State;
         private AdjustableStateConfig _config => (AdjustableStateConfig)Config;
 
-        internal float Range => (MaximumValue - MinimumValue) + 1;
-        internal bool IsAtMinimumValue => Value == _config.MinimumValue;
-        internal bool IsAtMaximumValue => Value == _config.MaximumValue;
+        internal float Range => (MaximumOutputValue - MinimumOutputValue) + 1;
+        internal bool IsAtMinimumValue => OutputValue == _config.MinimumOutputValue;
+        internal bool IsAtMaximumValue => OutputValue == _config.MaximumOutputValue;
 
-        public AdjustableStateModule(CommonSerializables.VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncService worldStateSyncService) : base(state, config, id, worldStateSyncService)
+        internal event Action<float> OnValueChangedInternal;
+
+        public AdjustableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncService worldStateSyncService) : base(state, config, id, worldStateSyncService)
         {
-            if (_config.EmitValueOnStart == true)
-            {
-                OnValueAdjusted?.Invoke(Value);
-            }
-        }
+            _state.Value = _config.StartingOutputValue;
 
+            if (_config.EmitValueOnStart)
+                InvokeOnValueAdjustedEvents(_state.Value);
+        }
 
         private void HandleExternalAdjust(float newValue)
         {
-            if (newValue != _state.Value)
-                SetValue(newValue, ushort.MaxValue);
+            SetValue(newValue, ushort.MaxValue);
         }
 
         public void SetValue(float value, ushort clientID)
         {   
-            if (value < _config.MinimumValue || value > _config.MaximumValue)
+            if (value < _config.MinimumOutputValue || value > _config.MaximumOutputValue)
             {
-                Debug.LogError("Value is beyond limits");
+                Debug.LogError($"Value ({value}) is beyond limits");
                 return;
             }
 
@@ -64,14 +68,16 @@ namespace VE2.Core.VComponents.Internal
 
             _state.StateChangeNumber++;
 
-            InvokeCustomerOnValueAdjustedEvent(_state.Value);
+            InvokeOnValueAdjustedEvents(_state.Value);
         }
 
-        private void InvokeCustomerOnValueAdjustedEvent(float value)
+        private void InvokeOnValueAdjustedEvents(float value)
         {
+            OnValueChangedInternal?.Invoke(value);
+
             try
             {
-                _config.OnValueAdjusted?.Invoke(value);
+                OnValueAdjusted?.Invoke(value);
             }
             catch (Exception e)
             {
@@ -85,7 +91,7 @@ namespace VE2.Core.VComponents.Internal
             State.Bytes = newBytes;
 
             if (oldValue != _state.Value) 
-                InvokeCustomerOnValueAdjustedEvent(_state.Value);
+                InvokeOnValueAdjustedEvents(_state.Value);
         }
     }
 

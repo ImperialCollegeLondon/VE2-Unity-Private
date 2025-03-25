@@ -724,6 +724,7 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      AttachPoint: {fileID: 0}
       OnGrab:
         m_PersistentCalls:
           m_Calls: []
@@ -3135,6 +3136,8 @@ MonoBehaviour:
       OnDeactivate:
         m_PersistentCalls:
           m_Calls: []
+      UseActivationGroup: 0
+      ActivationGroupID: None
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
@@ -4026,9 +4029,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea5830b1d78a6804c9c44ba68f3bacd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerConfig:
-    EnableVR: 1
+  _playerConfig:
+    EnableVR: 0
     Enable2D: 1
+    MovementModeConfig:
+      TraversableLayers:
+        serializedVersion: 2
+        m_Bits: 0
+      EnableFreeFlyMode: 0
+      TeleportRangeMultiplier: 1
     HeadOverrideType: 0
     TorsoOverrideType: 0
     HeadOverrideOne: {fileID: 0}
@@ -4948,74 +4957,6 @@ MonoBehaviour:
   m_PointerBehavior: 0
   m_CursorLockBehavior: 1
   m_ScrollDeltaPerTick: 6
---- !u!1001 &877883369
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: -8679921383154817045, guid: a90659158cbe4194c96bd8e01333b271,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 2.1850195
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a90659158cbe4194c96bd8e01333b271,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.08636975
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a90659158cbe4194c96bd8e01333b271,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 1.450138
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a90659158cbe4194c96bd8e01333b271,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a90659158cbe4194c96bd8e01333b271,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a90659158cbe4194c96bd8e01333b271,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a90659158cbe4194c96bd8e01333b271,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a90659158cbe4194c96bd8e01333b271,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a90659158cbe4194c96bd8e01333b271,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a90659158cbe4194c96bd8e01333b271,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 919132149155446097, guid: a90659158cbe4194c96bd8e01333b271,
-        type: 3}
-      propertyPath: m_Name
-      value: Slider
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: a90659158cbe4194c96bd8e01333b271, type: 3}
 --- !u!1 &889208497
 GameObject:
   m_ObjectHideFlags: 0
@@ -6497,6 +6438,8 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+      UseActivationGroup: 0
+      ActivationGroupID: None
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
@@ -8643,6 +8586,8 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+      UseActivationGroup: 0
+      ActivationGroupID: None
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
@@ -8665,6 +8610,7 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      AttachPoint: {fileID: 0}
       OnGrab:
         m_PersistentCalls:
           m_Calls: []
@@ -8806,13 +8752,13 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-      MinimumValue: 0
-      MaximumValue: 3
-      StartingValue: 0
+      MinimumOutputValue: 0
+      MaximumOutputValue: 1
+      StartingOutputValue: 0
       EmitValueOnStart: 1
+      IncrementPerScrollTick: 0.1
     HandheldAdjustableServiceConfig:
       LoopValues: 1
-      IncrementPerScrollTick: 1
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
@@ -12393,7 +12339,6 @@ SceneRoots:
   - {fileID: 523475250}
   - {fileID: 227671779}
   - {fileID: 1542206486}
-  - {fileID: 877883369}
   - {fileID: 1044589119}
   - {fileID: 1765855120}
   - {fileID: 700580562}

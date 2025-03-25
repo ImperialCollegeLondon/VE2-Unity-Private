@@ -23,11 +23,31 @@ namespace VE2.Core.Player.Internal
                 Button button = GetUIButton(raycastHit);
 
                 if (button != null) 
-                    result = new(null, button, raycastHit.distance);
-                else if (raycastHit.collider.TryGetComponent(out IRangedInteractionModuleProvider rangedPlayerInteractableIntegrator)) 
-                    result = new(rangedPlayerInteractableIntegrator.RangedInteractionModule, button, raycastHit.distance);
-                else 
-                    result = new(null, button, raycastHit.distance);
+                {
+                    result = new(null, button, raycastHit.distance);   
+                }
+                else //Search up through the heirarchy looking for 
+                {
+                    Transform currentTransform = raycastHit.collider.transform;
+                    IRangedInteractionModuleProvider rangedInteractionModuleProvider = null;
+
+                    while (currentTransform != null) 
+                    {
+                        if (currentTransform.TryGetComponent(out rangedInteractionModuleProvider)) 
+                            break;
+
+                        currentTransform = currentTransform.parent;
+                    }
+
+                    if (rangedInteractionModuleProvider != null) 
+                    {
+                        result = new(rangedInteractionModuleProvider.RangedInteractionModule, null, raycastHit.distance);
+                    }
+                    else 
+                    {
+                        result = new(null, null, raycastHit.distance);
+                    }
+                }
             }
             else 
             {
@@ -62,12 +82,16 @@ namespace VE2.Core.Player.Internal
     internal class RaycastResultWrapper 
     {
         public IRangedInteractionModule RangedInteractable { get; private set; }
+        public IRangedInteractionModule RangedInteractableInRange => HitInteractableInRange ? RangedInteractable : null;
         public Button UIButton;
         public float HitDistance { get; private set; }
-        public bool HitInteractableOrUI => HitInteractable || HitUI;
+        public bool HitInteractableOrUI => HitInteractable || HitUIButton;
         public bool HitInteractable => RangedInteractable != null;
-        public bool HitUI => UIButton != null;
+        public bool HitInteractableInRange => HitInteractable && RangedInteractableIsInRange;
+        public bool HitUIButton => UIButton != null;
         public bool RangedInteractableIsInRange => RangedInteractable != null && HitDistance <= RangedInteractable.InteractRange;
+        public bool HitScrollableInteractableInRange => HitInteractableInRange && RangedInteractable is IRangedAdjustableInteractionModule;
+        public bool HitScrollableUI => HitUIButton && false /*TODO: replace w/ && UIButton is IScrollableUI*/;
 
         public RaycastResultWrapper(IRangedInteractionModule rangedInteractable, Button uiButton, float distance) 
         {
