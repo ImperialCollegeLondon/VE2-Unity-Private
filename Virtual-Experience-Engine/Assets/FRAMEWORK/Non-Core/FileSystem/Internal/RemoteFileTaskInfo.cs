@@ -110,8 +110,8 @@ namespace VE2.NonCore.FileSystem.Internal
     [Serializable]
     internal class RemoteFileSearchInfo : IRemoteFileSearchInfo
     {
-        [SerializeField, LabelWidth(110f), Disable] private string _path; //Relative to working path
-        public string Path => _path;
+        [SerializeField, LabelWidth(110f), Disable] private string _searchPath; //Relative to working path
+        public string Path => _searchPath;
 
         public Dictionary<string, RemoteFileDetails> FilesFound { get; } = new();
         public event Action<IRemoteFileSearchInfo> OnSearchComplete;
@@ -121,7 +121,7 @@ namespace VE2.NonCore.FileSystem.Internal
         public RemoteFileSearchInfo(FTPRemoteFileListTask task, string path)
         {
             _task = task;
-            _path = path;
+            _searchPath = path;
             _task.OnComplete += OnTaskComplete;
         }
 
@@ -132,7 +132,9 @@ namespace VE2.NonCore.FileSystem.Internal
                 foreach (FileDetails file in _task.FoundFilesDetails)
                 {
                     RemoteFileDetails remoteFile = new(file.fileName, file.fileSize);
-                    FilesFound.Add($"{_path}/{file.fileName}", remoteFile);
+
+                    string fileFoundPath = _searchPath == "/" || _searchPath == "" ? file.fileName : $"{_searchPath}/{file.fileName}";
+                    FilesFound.Add(fileFoundPath, remoteFile);
                 }
             }
 
@@ -150,8 +152,8 @@ namespace VE2.NonCore.FileSystem.Internal
     [Serializable]
     internal class RemoteFolderSearchInfo : IRemoteFolderSearchInfo
     {
-        [SerializeField, LabelWidth(110f), Disable] private string _path; //Relative to working path
-        public string Path => _path;
+        [SerializeField, LabelWidth(110f), Disable] private string _searchPath; //Relative to working path
+        public string Path => _searchPath;
 
         public List<string> FoldersFound => _task.FoundFolderNames;
         public event Action<IRemoteFolderSearchInfo> OnSearchComplete;
@@ -163,7 +165,7 @@ namespace VE2.NonCore.FileSystem.Internal
         public RemoteFolderSearchInfo(FTPRemoteFolderListTask task, string nameAndPath)
         {
             _task = task;
-            _path = nameAndPath;
+            _searchPath = nameAndPath;
             _task.OnComplete += OnTaskComplete;
         }
 
