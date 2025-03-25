@@ -37,7 +37,6 @@ namespace VE2.Core.Player.Internal
         private readonly Transform _rootTransform;
         private readonly Transform _verticalOffsetTransform;
         private readonly Transform _headTransform;
-        private V_CollisionDetector _groundCollisionDetector;
 
         private readonly V_HandController _handControllerLeft;
         private readonly V_HandController _handControllerRight;
@@ -57,7 +56,6 @@ namespace VE2.Core.Player.Internal
             _rootTransform = playerVRReferences.RootTransform;
             _verticalOffsetTransform = playerVRReferences.VerticalOffsetTransform;
             _headTransform = playerVRReferences.HeadTransform;
-            _groundCollisionDetector = playerVRReferences.GroundCollisionDetector;
 
             GameObject handVRLeftPrefab = Resources.Load<GameObject>("HandVRLeft");
             GameObject handVRLeftGO = GameObject.Instantiate(handVRLeftPrefab, _verticalOffsetTransform, false);
@@ -150,10 +148,6 @@ namespace VE2.Core.Player.Internal
         {
             _handControllerLeft.HandleUpdate();
             _handControllerRight.HandleUpdate();
-
-            RaycastHit hit;
-            if (Physics.Raycast(_headTransform.position, Vector3.down, out hit, 200f))
-                _groundCollisionDetector.transform.position = hit.point;
         }
 
         private void HandleResetViewPressed()
