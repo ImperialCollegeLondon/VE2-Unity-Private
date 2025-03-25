@@ -40,16 +40,17 @@ namespace VE2.Core.Player.Internal
 
         private void HandleCollideStart(ICollideInteractionModule collideInteractionModule)
         {
-            if (!_WaitingForLocalClientID && !collideInteractionModule.AdminOnly)
+            if (!_WaitingForLocalClientID && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Feet)
             {
                 collideInteractionModule.InvokeOnCollideEnter(_InteractorID);
                 HeldActivatableIDs.Add(collideInteractionModule.ID);
             }
+
         }
 
         private void HandleCollideEnd(ICollideInteractionModule collideInteractionModule)
         {
-            if (!_WaitingForLocalClientID && !collideInteractionModule.AdminOnly)
+            if (!_WaitingForLocalClientID && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Feet)
             {
                 collideInteractionModule.InvokeOnCollideExit(_InteractorID);
                 HeldActivatableIDs.Remove(collideInteractionModule.ID);
