@@ -494,7 +494,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &116127080
 GameObject:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -511,7 +511,7 @@ GameObject:
   m_IsActive: 1
 --- !u!114 &116127081
 MonoBehaviour:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -524,7 +524,7 @@ MonoBehaviour:
   _instanceProviderGOName: InstanceIntegration
 --- !u!4 &116127082
 Transform:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -4060,6 +4060,12 @@ MonoBehaviour:
     AvatarRed: 255
     AvatarGreen: 60
     AvatarBlue: 60
+  _transformDataSetup: 0
+  _playerTransformData:
+    IsVRMode: 0
+    RootPosition: {x: 0, y: 0, z: 0}
+    RootRotation: {x: 0, y: 0, z: 0, w: 0}
+    VerticalOffset: 0
 --- !u!1 &803663753
 GameObject:
   m_ObjectHideFlags: 0
@@ -4610,7 +4616,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &819448255
 GameObject:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -4627,7 +4633,7 @@ GameObject:
   m_IsActive: 1
 --- !u!114 &819448256
 MonoBehaviour:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -4641,7 +4647,7 @@ MonoBehaviour:
   _playerSyncProviderGOName: InstanceIntegration
 --- !u!4 &819448257
 Transform:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -7362,7 +7368,7 @@ MeshFilter:
   m_Mesh: {fileID: 5624137735255851107, guid: 26dd2801b508a1b46bde3ceb472fcc7c, type: 3}
 --- !u!1 &1483898041
 GameObject:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -7379,7 +7385,7 @@ GameObject:
   m_IsActive: 1
 --- !u!114 &1483898042
 MonoBehaviour:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -7392,7 +7398,7 @@ MonoBehaviour:
   platformProviderGOName: PlatformIntegration
 --- !u!4 &1483898043
 Transform:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -10709,7 +10715,7 @@ SphereCollider:
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1878451777
 GameObject:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -10726,7 +10732,7 @@ GameObject:
   m_IsActive: 1
 --- !u!114 &1878451778
 MonoBehaviour:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -10739,7 +10745,7 @@ MonoBehaviour:
   _worldStateSyncProviderGOName: InstanceIntegration
 --- !u!4 &1878451779
 Transform:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
