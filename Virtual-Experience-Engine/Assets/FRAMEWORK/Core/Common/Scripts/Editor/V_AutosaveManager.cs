@@ -14,7 +14,7 @@ namespace VE2.Core.Common
         private double timeOfLastAutosave;
         private bool isSubscribed = false;
 
-        private void Awake()
+        private void OnEnable()
         {
             if (Application.isPlaying || isSubscribed)
                 return;
@@ -24,7 +24,7 @@ namespace VE2.Core.Common
             timeOfLastAutosave = EditorApplication.timeSinceStartup;
         }
 
-        private void OnDestroy()
+        private void OnDisable()
         {
             if (Application.isPlaying || !isSubscribed)
                 return;

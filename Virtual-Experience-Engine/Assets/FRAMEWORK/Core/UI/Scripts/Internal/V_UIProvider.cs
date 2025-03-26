@@ -33,6 +33,7 @@ namespace VE2.Core.UI.Internal
         public bool IsEnabled => IsEnabled;
 
         [Help("If enabled, the secondary UI can be customised. If disabled, the secondary UI  This is always enabled for the primary UI.")]
+        [SerializeField, HideInInspector] private bool _lastUseSecondaryUI;
         [SerializeField] private bool _useCustomSecondaryUI = true;
 
         private PrimaryUIService _primaryUIService;
@@ -44,7 +45,11 @@ namespace VE2.Core.UI.Internal
 
         private void OnValidate()
         {
-            _pluginSecondaryUIHolder?.SetActive(_useCustomSecondaryUI);
+            if (_useCustomSecondaryUI != _lastUseSecondaryUI)
+            {
+                _lastUseSecondaryUI = _useCustomSecondaryUI;
+                _pluginSecondaryUIHolder?.SetActive(_useCustomSecondaryUI);
+            }
         }
 
         private void Awake()

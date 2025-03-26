@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using VE2.Core.Common;
 using VE2.Core.Player.API;
@@ -17,7 +18,7 @@ namespace VE2.Core.Player.Internal
     [Serializable]
     internal class PlayerConfig
     {
-        [SerializeField] public bool EnableVR = false;
+        [SerializeField] public bool EnableVR = true;
         [SerializeField] public bool Enable2D = true;
 
         [Title("Movement Mode Config")]
@@ -90,6 +91,7 @@ namespace VE2.Core.Player.Internal
 
         [SerializeField, HideInInspector] private bool _transformDataSetup = false;
         [SerializeField, HideInInspector] private PlayerTransformData _playerTransformData = new();
+        private bool _listeningForSelection = false;
 
         private GameObject _playerPreview => FindFirstObjectByType<PlayerPreviewTag>(FindObjectsInactive.Include)?.gameObject; //Can't just store GO reference, as that'll get wiped as the inspector resets
 
@@ -107,6 +109,12 @@ namespace VE2.Core.Player.Internal
 
         private void OnEnable() 
         {
+            if (!Application.isPlaying && !_listeningForSelection)
+            {
+                _listeningForSelection = true;
+                Selection.selectionChanged += OnSelectionChanged;
+            }
+
             PlayerAPI.PlayerServiceProvider = this;
 
             if (!Application.isPlaying || _playerService != null)
@@ -170,6 +178,12 @@ namespace VE2.Core.Player.Internal
 
         private void OnDisable() 
         {
+            if (!Application.isPlaying && _listeningForSelection)
+            {
+                _listeningForSelection = false;
+                Selection.selectionChanged -= OnSelectionChanged;
+            }
+
             if (!Application.isPlaying)
                 return;
                 
@@ -186,27 +200,35 @@ namespace VE2.Core.Player.Internal
             playerPreview.transform.localRotation = Quaternion.identity;
 
             foreach (Transform child in playerPreview.GetComponentsInChildren<Transform>(true))
-                child.gameObject.hideFlags = HideFlags.HideInHierarchy | HideFlags.NotEditable;
+            {
+                child.hideFlags = HideFlags.HideInHierarchy; // Keep it hidden
+                SceneVisibilityManager.instance.EnablePicking(child.gameObject, true); // Allow clicking in Scene view   
+            }
+
+            // foreach (Transform child in playerPreview.GetComponentsInChildren<Transform>(true))
+            //     child.gameObject.hideFlags = HideFlags.HideInHierarchy;
+                //child.gameObject.hideFlags = HideFlags.HideInHierarchy | HideFlags.NotEditable;
         }
 
-// #if UNITY_EDITOR
-//         private void OnSelectionChanged()
-//         {
-//             if (_playerPreview == null) 
-//                 return;
+#if UNITY_EDITOR
+        private void OnSelectionChanged()
+        {
+            if (_playerPreview == null) 
+                return;
 
-//             // Check if the selected object is the target or a child of it
-//             foreach (var selected in UnityEditor.Selection.gameObjects)
-//             {
-//                 if (IsChildOrSelf(_playerPreview, selected))
-//                 {
-//                     UnityEditor.Selection.activeGameObject = gameObject;
-//                     break;
-//                 }
-//             }
-//         }
+            // Check if the selected object is the target or a child of it
+            foreach (var selected in UnityEditor.Selection.gameObjects)
+            {
+                if (IsChildOrSelf(_playerPreview, selected))
+                {
+                    EditorApplication.delayCall += () => UnityEditor.Selection.activeGameObject = gameObject;
+                    EditorApplication.delayCall += () => EditorApplication.RepaintHierarchyWindow();
+                    break;
+                }
+            }
+        }
 
-//         private bool IsChildOrSelf(GameObject parent, GameObject obj) => obj == parent || obj.transform.IsChildOf(parent.transform);
-//         #endif
+        private bool IsChildOrSelf(GameObject parent, GameObject obj) => obj == parent || obj.transform.IsChildOf(parent.transform);
+        #endif
     }
 }

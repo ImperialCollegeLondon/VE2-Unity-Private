@@ -68,7 +68,7 @@ namespace VE2.Core.VComponents.API
 
         private void OnDestroy()
         {
-            InteractorContainer.Reset();
+            InteractorContainer?.Reset();
         }
     }
 
