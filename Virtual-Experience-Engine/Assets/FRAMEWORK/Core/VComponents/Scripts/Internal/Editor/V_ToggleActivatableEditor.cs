@@ -2,20 +2,19 @@
 using Toolbox.Editor;
 using UnityEditor;
 using UnityEngine;
+using VE2.Core.VComponents.Internal;
 
 namespace VE2.Core.VComponents.Internal
 {
-    [CustomEditor(typeof(V_FreeGrabbable))]
-    public class V_FreeGrabbableEditor : ToolboxEditor
+    [CustomEditor(typeof(V_ToggleActivatable))]
+    public class V_ToggleActivatableEditor : ToolboxEditor
     {
         public override void DrawCustomInspector()
         {
-            V_FreeGrabbable freeGrababble = (V_FreeGrabbable)target;
+            V_ToggleActivatable toggleActivatable = (V_ToggleActivatable)target;
+            Collider collider = toggleActivatable.Collider;
 
-            Collider collider = freeGrababble.Collider;
-            Rigidbody rigidbody = freeGrababble.Rigidbody;
-
-            if (collider == null || collider.isTrigger || rigidbody == null)
+            if (collider == null || collider.isTrigger)
             {
                 string error = "";
 
@@ -23,8 +22,6 @@ namespace VE2.Core.VComponents.Internal
                         error += "This GameObject requires a Collider\n";
                     else if (collider.isTrigger)
                         error += "This GameObject's Collider cannot be a trigger\n";
-                    if (rigidbody == null)
-                        error += "This GameObject requires a Rigidbody\n";
 
                 if (error.EndsWith("\n"))
                     error = error.Remove(error.Length - 1);

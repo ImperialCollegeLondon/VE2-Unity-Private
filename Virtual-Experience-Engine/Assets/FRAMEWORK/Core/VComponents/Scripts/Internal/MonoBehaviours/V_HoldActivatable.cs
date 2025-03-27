@@ -18,6 +18,19 @@ namespace VE2.Core.VComponents.Internal
         IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _service.RangedClickInteractionModule;
         #endregion
 
+        #region Inspector Utils
+        internal Collider Collider 
+        {
+            get 
+            {
+                if (_collider == null)
+                    _collider = GetComponent<Collider>();
+                return _collider;
+            }
+        }
+        [SerializeField, HideInInspector] private Collider _collider = null;
+        #endregion
+
         private HoldActivatableService _service = null;
 
         private void OnEnable()

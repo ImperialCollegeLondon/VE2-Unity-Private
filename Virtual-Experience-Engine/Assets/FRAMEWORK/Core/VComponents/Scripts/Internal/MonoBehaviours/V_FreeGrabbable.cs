@@ -27,7 +27,7 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         #region Inspector Utils
-        public Collider Collider 
+        internal Collider Collider 
         {
             get 
             {
@@ -38,7 +38,7 @@ namespace VE2.Core.VComponents.Internal
         }
         [SerializeField, HideInInspector] private Collider _collider = null;
 
-        public Rigidbody Rigidbody
+        internal Rigidbody Rigidbody
         {
             get
             {
@@ -66,20 +66,7 @@ namespace VE2.Core.VComponents.Internal
                 gameObject.AddComponent<Rigidbody>();
 
             if (GetComponent<Collider>() == null)
-            {
-                Collider collider;
-                if (gameObject.name.ToUpper().Contains("CUBE") || gameObject.name.ToUpper().Contains("BOX"))
-                    collider = gameObject.AddComponent<BoxCollider>();
-                else if (gameObject.name.ToUpper().Contains("SPHERE") || gameObject.name.ToUpper().Contains("BALL"))
-                    collider =gameObject.AddComponent<SphereCollider>();
-                else
-                {
-                    collider = gameObject.AddComponent<MeshCollider>();
-                    ((MeshCollider)collider).convex = true;
-                }
-
-                collider.isTrigger = false;
-            }
+                VComponentUtils.CreateCollider(gameObject);
         }
 
         private void OnEnable()

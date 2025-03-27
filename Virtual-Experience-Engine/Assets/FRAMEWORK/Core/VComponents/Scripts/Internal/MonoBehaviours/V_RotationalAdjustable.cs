@@ -1,10 +1,9 @@
 using UnityEngine;
-using VE2.Core.VComponents.Internal;
 using System.Collections.Generic;
 using VE2.Common.TransformWrapper;
 using VE2.Core.VComponents.API;
 
-namespace VE2.Core.VComponents.Integration
+namespace VE2.Core.VComponents.Internal
 {
     public class V_RotationalAdjustable : MonoBehaviour, IV_RotationalAdjustable, IRangedGrabInteractionModuleProvider
     {
@@ -20,6 +19,19 @@ namespace VE2.Core.VComponents.Integration
 
         #region Player Interfaces
         IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _service.RangedAdjustableInteractionModule;
+        #endregion
+
+        #region Inspector Utils
+        internal Collider Collider 
+        {
+            get 
+            {
+                if (_config.GrabbableStateConfig.AttachPoint == null)
+                    _config.GrabbableStateConfig.AttachPoint = transform;
+                return _config.GrabbableStateConfig.AttachPoint.GetComponent<Collider>();
+            }
+        }
+        internal string AttachPointGOName => _config.GrabbableStateConfig.AttachPoint.name;
         #endregion
 
         public float MinimumSpatialValue { get => _service.MinimumSpatialValue; set => _service.MinimumSpatialValue = value; }
