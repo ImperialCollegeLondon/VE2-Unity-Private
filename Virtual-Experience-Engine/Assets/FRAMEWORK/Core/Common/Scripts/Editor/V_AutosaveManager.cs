@@ -42,7 +42,7 @@ namespace VE2.Core.Common
             {
                 if (SceneManager.GetActiveScene().isDirty)
                 {
-                    Debug.Log($"[AutoSave] Saving scene: {SceneManager.GetActiveScene().name}");
+                    Debug.Log($"[VE2 AutoSave] Saving scene: {SceneManager.GetActiveScene().name}");
                     timeOfLastAutosave = EditorApplication.timeSinceStartup;
                     EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
                 }
