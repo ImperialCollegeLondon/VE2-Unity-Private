@@ -21148,7 +21148,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1915259172
 RectTransform:
   m_ObjectHideFlags: 0
@@ -21455,8 +21455,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerConfig:
-    EnableVR: 1
-    Enable2D: 1
+    SupportedPlayerModes: 2
     MovementModeConfig:
       TraversableLayers:
         serializedVersion: 2
