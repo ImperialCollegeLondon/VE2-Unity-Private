@@ -48,6 +48,7 @@ namespace VE2.Core.Player.Internal
         private readonly Player2DLocomotor _playerLocomotor2D;
         private readonly Interactor2D _interactor2D;
         private readonly FeetInteractor _feetInteractor2D;
+        private readonly LocalAvatarHandler _localAvatarHandler;
 
         private readonly IPrimaryUIServiceInternal _primaryUIService;
         private readonly RectTransform _primaryUIHolderRect;
@@ -71,6 +72,7 @@ namespace VE2.Core.Player.Internal
             _secondaryUIService = secondaryUIService;
 
             Player2DReferences player2DReferences = _playerGO.GetComponent<Player2DReferences>();
+            _localAvatarHandler = player2DReferences.LocalAvatarHandler;
             _primaryUIHolderRect = player2DReferences.PrimaryUIHolderRect;
             _secondaryUIHolder = player2DReferences.SecondaryUIHolderRect;
             _overlayUI = player2DReferences.OverlayUI;
@@ -145,6 +147,11 @@ namespace VE2.Core.Player.Internal
             _overlayUI.SetActive(true);
             _playerLocomotor2D.HandleOnEnable();
             _interactor2D.HandleOnEnable(); 
+        }
+
+        internal void HandleLocalAvatarColorChanged(Color newColor)
+        {
+            _localAvatarHandler.HandleLocalAvatarColorChanged(newColor);
         }
 
         internal void TearDown() 

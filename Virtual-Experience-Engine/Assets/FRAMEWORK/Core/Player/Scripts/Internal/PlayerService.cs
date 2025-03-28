@@ -197,15 +197,17 @@ namespace VE2.Core.Player.Internal
 
         private void HandlePlayerPresentationChanged(PlayerPresentationConfig presentationConfig)
         {
-            //TODO - same for 2d
-            //We need local avatars for both actually, beyond just the hands!
-
             OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
 
-            _playerVR?.HandleLocalAvatarColorChanged(new Color(
+            Color newCol = new Color(
                 presentationConfig.AvatarRed,
                 presentationConfig.AvatarGreen,
-                presentationConfig.AvatarBlue) / 255f);
+                presentationConfig.AvatarBlue) / 255f;
+
+            //TODO - should the individual player controllers be in charge of this? 
+            //We need to emit the event just from a single place, though
+            _playerVR?.HandleLocalAvatarColorChanged(newCol);
+            _player2D?.HandleLocalAvatarColorChanged(newCol);
         }
 
         public void HandleFixedUpdate()

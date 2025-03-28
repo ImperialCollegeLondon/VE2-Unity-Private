@@ -21572,8 +21572,8 @@ MonoBehaviour:
     AvatarHeadType: 0
     AvatarTorsoType: 0
     AvatarRed: 255
-    AvatarGreen: 60
-    AvatarBlue: 60
+    AvatarGreen: 0
+    AvatarBlue: 0
   _transformDataSetup: 0
   _playerTransformData:
     IsVRMode: 0
