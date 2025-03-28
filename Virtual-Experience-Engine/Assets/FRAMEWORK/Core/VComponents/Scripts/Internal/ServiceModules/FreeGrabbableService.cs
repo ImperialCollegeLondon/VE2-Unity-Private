@@ -33,7 +33,7 @@ namespace VE2.Core.VComponents.Internal
         private PhysicsConstants _physicsConstants;
 
         public FreeGrabbableService(List<IHandheldInteractionModule> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id, 
-            IWorldStateSyncService worldStateSyncService, InteractorContainer interactorContainer, 
+            IWorldStateSyncService worldStateSyncService, HandInteractorContainer interactorContainer, 
             IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants)
         {
             _RangedGrabInteractionModule = new(handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);

@@ -1,41 +1,33 @@
 using System;
 using UnityEngine;
-using UnityEngine.Events;
 using VE2.Core.VComponents.API;
-
 namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
-    internal class HoldActivatableConfig
+    internal class PressurePlateConfig
     {
         [SerializeField, IgnoreParent] public HoldActivatableStateConfig StateConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
         [SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfig = new();
     }
-
-    internal class HoldActivatableService
+    
+    internal class PressurePlateService
     {
         #region Interfaces
         public IMultiInteractorActivatableStateModule StateModule => _StateModule;
-        public IRangedHoldClickInteractionModule RangedClickInteractionModule => _RangedHoldClickInteractionModule;
         public ICollideInteractionModule ColliderInteractionModule => _ColliderInteractionModule;
         #endregion
 
         #region Modules
         private readonly MultiInteractorActivatableStateModule _StateModule;
-        private readonly RangedHoldClickInteractionModule _RangedHoldClickInteractionModule;
         private readonly ColliderInteractionModule _ColliderInteractionModule;
         #endregion
 
-        public HoldActivatableService(HoldActivatableConfig config, MultiInteractorActivatableState state, string id)
+        public PressurePlateService(PressurePlateConfig config, MultiInteractorActivatableState state, string id)
         {
             _StateModule = new(state, config.StateConfig, id);
-            _RangedHoldClickInteractionModule = new(config.RangedInteractionConfig, config.GeneralInteractionConfig, id);
-            _ColliderInteractionModule = new(config.GeneralInteractionConfig, id, CollideInteractionType.Hand);
+            _ColliderInteractionModule = new(config.GeneralInteractionConfig, id, CollideInteractionType.Feet);
 
-            _RangedHoldClickInteractionModule.OnClickDown += AddToInteractingInteractors;
-            _RangedHoldClickInteractionModule.OnClickUp += RemoveFromInteractingInteractors;
-            
             _ColliderInteractionModule.OnCollideEnter += AddToInteractingInteractors;
             _ColliderInteractionModule.OnCollideExit += RemoveFromInteractingInteractors;
         }
@@ -47,6 +39,7 @@ namespace VE2.Core.VComponents.Internal
 
         private void AddToInteractingInteractors(InteractorID interactorID)
         {
+            Debug.Log("PressurePlateService: AddToInteractingInteractors");
             _StateModule.AddInteractorToState(interactorID);
         }
 

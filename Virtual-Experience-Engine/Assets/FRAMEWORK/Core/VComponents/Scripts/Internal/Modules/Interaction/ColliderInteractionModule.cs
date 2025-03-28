@@ -6,13 +6,16 @@ namespace VE2.Core.VComponents.Internal
 {
     internal class ColliderInteractionModule : GeneralInteractionModule, ICollideInteractionModule
     {
-        public ColliderInteractionModule(GeneralInteractionConfig config, string id) : base(config)
+        public ColliderInteractionModule(GeneralInteractionConfig config, string id, CollideInteractionType collideInteractionType) : base(config)
         {
             ID = id;
+            _collideInteractionType = collideInteractionType;
         }
+        private CollideInteractionType _collideInteractionType { get; set; }
 
         public event Action<InteractorID> OnCollideEnter;
         public event Action<InteractorID> OnCollideExit;
+        public CollideInteractionType CollideInteractionType => _collideInteractionType;
 
         public string ID { get; }
 

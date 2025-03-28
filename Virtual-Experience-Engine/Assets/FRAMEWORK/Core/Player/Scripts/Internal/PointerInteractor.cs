@@ -60,7 +60,7 @@ namespace VE2.Core.Player.Internal
 
         private GameObject lastHoveredUIObject = null; // Keep track of the last hovered UI object
 
-        private readonly InteractorContainer _interactorContainer;
+        private readonly HandInteractorContainer _interactorContainer;
         private readonly InteractorInputContainer _interactorInputContainer;
 
 
@@ -81,7 +81,7 @@ namespace VE2.Core.Player.Internal
 
         private readonly HoveringOverScrollableIndicator _hoveringOverScrollableIndicator;
 
-        internal PointerInteractor(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
+        internal PointerInteractor(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
             InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, 
             ILocalClientIDProvider localClientIDProvider, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator)
         {
@@ -162,7 +162,7 @@ namespace VE2.Core.Player.Internal
             {
                 previousHoveringInteractable.ExitHover();
 
-                if (previousHoveringInteractable is IRangedClickInteractionModule previousRangedClickInteractable && _heldActivatableIDs.Contains(previousRangedClickInteractable.ID))
+                if (previousHoveringInteractable is IRangedHoldClickInteractionModule previousRangedClickInteractable && _heldActivatableIDs.Contains(previousRangedClickInteractable.ID))
                 {
                     previousRangedClickInteractable.ClickUp(_InteractorID);
                     _heldActivatableIDs.Remove(previousRangedClickInteractable.ID);
@@ -291,7 +291,9 @@ namespace VE2.Core.Player.Internal
                 raycastResultWrapper.RangedInteractable is IRangedClickInteractionModule rangedClickInteractable)
             {
                 rangedClickInteractable.ClickDown(_InteractorID);
-                _heldActivatableIDs.Add(rangedClickInteractable.ID);
+
+                if(rangedClickInteractable is IRangedHoldClickInteractionModule)
+                    _heldActivatableIDs.Add(rangedClickInteractable.ID);
             }
             else if (raycastResultWrapper.HitUIButton && raycastResultWrapper.UIButton.IsInteractable())
             {
@@ -304,10 +306,10 @@ namespace VE2.Core.Player.Internal
             if (_WaitingForLocalClientID || IsCurrentlyGrabbing)
                 return;
 
-            if (_CurrentHoveringClickInteractable != null)
+            if (_CurrentHoveringClickInteractable != null && _CurrentHoveringClickInteractable is IRangedHoldClickInteractionModule _CurrentHoveringHoldClickInteractable)
             {
-                _CurrentHoveringClickInteractable.ClickUp(_InteractorID);
-                _heldActivatableIDs.Remove(_CurrentHoveringClickInteractable.ID);
+                _CurrentHoveringHoldClickInteractable.ClickUp(_InteractorID);
+                _heldActivatableIDs.Remove(_CurrentHoveringHoldClickInteractable.ID);
             }
         }
 

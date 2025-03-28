@@ -17,7 +17,7 @@ namespace VE2.Core.Player.Internal
         private readonly ColorConfiguration _colorConfig;
         private const float LINE_EMISSION_INTENSITY = 15;
 
-        internal InteractorVR(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
+        internal InteractorVR(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
             InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, 
             ILocalClientIDProvider multiplayerSupport, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator) :
             base(interactorContainer, interactorInputContainer,
@@ -46,8 +46,8 @@ namespace VE2.Core.Player.Internal
         public override void HandleOnDisable()
         {
             base.HandleOnDisable();
-            _collisionDetector.OnCollideStart += HandleCollideStart;
-            _collisionDetector.OnCollideEnd += HandleCollideEnd;
+            _collisionDetector.OnCollideStart -= HandleCollideStart;
+            _collisionDetector.OnCollideEnd -= HandleCollideEnd;
         }
 
         private void HandleCollideStart(ICollideInteractionModule collideInteractionModule)

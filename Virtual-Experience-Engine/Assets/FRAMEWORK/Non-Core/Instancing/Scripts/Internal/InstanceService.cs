@@ -67,7 +67,7 @@ namespace VE2.NonCore.Instancing.Internal
         private readonly IPluginSyncCommsHandler _commsHandler;
         private readonly ConnectionStateDebugWrapper _connectionStateDebugWrapper;
         private readonly IPlayerServiceInternal _playerService;
-        private readonly InteractorContainer _interactorContainer;
+        private readonly HandInteractorContainer _interactorContainer;
         private readonly InstanceInfoContainer _instanceInfoContainer;
         private readonly ServerConnectionSettings _serverSettings;
         private readonly string _instanceCode;
@@ -78,7 +78,7 @@ namespace VE2.NonCore.Instancing.Internal
 
         public InstanceService(IPluginSyncCommsHandler commsHandler, LocalClientIdWrapper localClientIDWrapper, 
             ConnectionStateDebugWrapper connectionStateDebugWrapper,
-            InteractorContainer interactorContainer, IPlayerServiceInternal playerServiceInternal,
+            HandInteractorContainer interactorContainer, IPlayerServiceInternal playerServiceInternal,
             bool connectAutomatically, ServerConnectionSettings serverSettings, string instanceCode)
         {
             _commsHandler = commsHandler;

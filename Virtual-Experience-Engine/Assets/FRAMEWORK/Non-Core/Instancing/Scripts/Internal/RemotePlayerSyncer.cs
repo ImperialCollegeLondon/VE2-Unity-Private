@@ -11,7 +11,7 @@ namespace VE2.NonCore.Instancing.Internal
     {
        private readonly IPluginSyncCommsHandler _commsHandler;
         private readonly InstanceInfoContainer _instanceInfoContainer;
-        private readonly InteractorContainer _interactorContainer;
+        private readonly HandInteractorContainer _interactorContainer;
 
         private readonly List<GameObject> _virseAvatarHeadGameObjects;
         private readonly List<GameObject> _virseAvatarTorsoGameObjects;
@@ -20,7 +20,7 @@ namespace VE2.NonCore.Instancing.Internal
 
         private Dictionary<ushort, RemoteAvatarController> _remoteAvatars = new();
 
-        public RemotePlayerSyncer(IPluginSyncCommsHandler commsHandler, InstanceInfoContainer instanceInfoContainer, InteractorContainer interactorContainer, IPlayerServiceInternal playerService)
+        public RemotePlayerSyncer(IPluginSyncCommsHandler commsHandler, InstanceInfoContainer instanceInfoContainer, HandInteractorContainer interactorContainer, IPlayerServiceInternal playerService)
         {
             _commsHandler = commsHandler;
             _commsHandler.OnReceiveRemotePlayerState += HandleReceiveRemotePlayerState;

@@ -4,7 +4,7 @@ using UnityEngine.Events;
 
 namespace VE2.Core.VComponents.API
 {
-    public interface IV_HoldActivatable
+    public interface IV_PressurePlate
     {
         #region State Module Interface
         internal IMultiInteractorActivatableStateModule _StateModule { get; }
@@ -18,15 +18,14 @@ namespace VE2.Core.VComponents.API
         #endregion
 
         #region Ranged Interaction Module Interface
-        internal IRangedHoldClickInteractionModule _RangedHoldClickModule { get; }
-        public float InteractRange { get => _RangedHoldClickModule.InteractRange; set => _RangedHoldClickModule.InteractRange = value; }
+        internal ICollideInteractionModule _ColliderModule { get; }
         #endregion
 
         #region General Interaction Module Interface
         //We have two General Interaction Modules here, it doesn't matter which one we point to, both share the same General Interaction Config object!
-        public bool AdminOnly { get => _RangedHoldClickModule.AdminOnly; set => _RangedHoldClickModule.AdminOnly = value; }
-        public bool EnableControllerVibrations { get => _RangedHoldClickModule.EnableControllerVibrations; set => _RangedHoldClickModule.EnableControllerVibrations = value; }
-        public bool ShowTooltipsAndHighlight { get => _RangedHoldClickModule.ShowTooltipsAndHighlight; set => _RangedHoldClickModule.ShowTooltipsAndHighlight = value; }
+        public bool AdminOnly { get => _ColliderModule.AdminOnly; set => _ColliderModule.AdminOnly = value; }
+        public bool EnableControllerVibrations { get => _ColliderModule.EnableControllerVibrations; set => _ColliderModule.EnableControllerVibrations = value; }
+        public bool ShowTooltipsAndHighlight { get => _ColliderModule.ShowTooltipsAndHighlight; set => _ColliderModule.ShowTooltipsAndHighlight = value; }
         #endregion
     }
 }

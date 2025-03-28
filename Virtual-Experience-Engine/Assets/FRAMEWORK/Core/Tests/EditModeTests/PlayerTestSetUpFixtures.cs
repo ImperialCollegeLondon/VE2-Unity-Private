@@ -54,7 +54,7 @@ namespace VE2.Core.Tests
     [SetUpFixture]
     internal class InteractorContainerSetup
     {
-        public static InteractorContainer InteractorContainer { get; private set; }
+        public static HandInteractorContainer InteractorContainer { get; private set; }
 
         [OneTimeSetUp]
         public static void InteractorContainerSetupOnce()

@@ -85,7 +85,7 @@ namespace VE2.Core.Player.Internal
 
         private readonly IPrimaryUIServiceInternal _primaryUIService;
 
-        internal PlayerService(PlayerTransformData transformData, PlayerConfig config, InteractorContainer interactorContainer, 
+        internal PlayerService(PlayerTransformData transformData, PlayerConfig config, HandInteractorContainer interactorContainer, 
             IPlayerPersistentDataHandler playerSettingsHandler, ILocalClientIDProvider playerSyncer, 
             PlayerInputContainer playerInputContainer, IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerWrapper, 
             IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService)

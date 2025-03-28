@@ -27,12 +27,13 @@ namespace VE2.Core.Player.API
         public List<string> HeldActivatableIds2D { get; private set; }
         public List<string> HeldActivatableIdsVRLeft { get; private set; }
         public List<string> HeldActivatableIdsVRRight { get; private set; }
+        public List<string> HeldActivatableIdsFeet { get; private set; }
 
         public PlayerTransformData(byte[] bytes) : base(bytes) { }
 
         public PlayerTransformData() : base() { }
 
-        public PlayerTransformData(bool IsVRMode, Vector3 rootPosition, Quaternion rootRotation, float verticalOffset, Vector3 headPosition, Quaternion headRotation, Vector3 hand2DPosition, Quaternion hand2DRotation, List<string> activatableIDs2D)
+        public PlayerTransformData(bool IsVRMode, Vector3 rootPosition, Quaternion rootRotation, float verticalOffset, Vector3 headPosition, Quaternion headRotation, Vector3 hand2DPosition, Quaternion hand2DRotation, List<string> activatableIDs2D, List<string> activatableIDsFeet)
         {
             this.IsVRMode = IsVRMode;
             if (IsVRMode)
@@ -46,9 +47,10 @@ namespace VE2.Core.Player.API
             Hand2DLocalPosition = hand2DPosition;
             Hand2DLocalRotation = hand2DRotation;
             HeldActivatableIds2D = activatableIDs2D;
+            HeldActivatableIdsFeet = activatableIDsFeet;
         }
 
-        public PlayerTransformData(bool IsVRMode, Vector3 rootPosition, Quaternion rootRotation, float verticalOffset, Vector3 headPosition, Quaternion headRotation, Vector3 handVRLeftPosition, Quaternion handVRLeftRotation, Vector3 handVRRightPosition, Quaternion handVRRightRotation, List<string> activatableIDsVRLeft, List<string> activatableIDsVRRight)
+        public PlayerTransformData(bool IsVRMode, Vector3 rootPosition, Quaternion rootRotation, float verticalOffset, Vector3 headPosition, Quaternion headRotation, Vector3 handVRLeftPosition, Quaternion handVRLeftRotation, Vector3 handVRRightPosition, Quaternion handVRRightRotation, List<string> activatableIDsVRLeft, List<string> activatableIDsVRRight, List<string> activatableIDsFeet)
         {
             this.IsVRMode = IsVRMode;
             if (!IsVRMode)
@@ -65,6 +67,7 @@ namespace VE2.Core.Player.API
             HandVRRightLocalRotation = handVRRightRotation;
             HeldActivatableIdsVRLeft = activatableIDsVRLeft;
             HeldActivatableIdsVRRight = activatableIDsVRRight;
+            HeldActivatableIdsFeet = activatableIDsFeet;
         }
 
 
@@ -145,6 +148,9 @@ namespace VE2.Core.Player.API
                     writer.Write(activatableID);
             }
 
+            foreach (string activatableID in HeldActivatableIdsFeet)
+                writer.Write(activatableID);
+
             return stream.ToArray();
         }
 
@@ -185,6 +191,10 @@ namespace VE2.Core.Player.API
                     HeldActivatableIdsVRRight.Add(reader.ReadString());
 
             }
+
+            HeldActivatableIdsFeet = new();
+            while (stream.Position < stream.Length)
+                HeldActivatableIdsFeet.Add(reader.ReadString());
         }
     }
 }

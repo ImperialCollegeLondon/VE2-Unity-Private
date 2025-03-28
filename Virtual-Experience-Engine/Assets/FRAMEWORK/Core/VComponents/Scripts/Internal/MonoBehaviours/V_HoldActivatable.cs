@@ -10,7 +10,7 @@ namespace VE2.Core.VComponents.Internal
 
         #region Plugin Interfaces
         IMultiInteractorActivatableStateModule IV_HoldActivatable._StateModule => _service.StateModule;
-        IRangedClickInteractionModule IV_HoldActivatable._RangedClickModule => _service.RangedClickInteractionModule;
+        IRangedHoldClickInteractionModule IV_HoldActivatable._RangedHoldClickModule => _service.RangedClickInteractionModule;
         #endregion
 
         #region Player Interfaces

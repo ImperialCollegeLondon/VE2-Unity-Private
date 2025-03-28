@@ -8,7 +8,7 @@ namespace VE2.Core.VComponents.Tests
     {
         #region Plugin Interfaces
         IMultiInteractorActivatableStateModule IV_HoldActivatable._StateModule => _HoldActivatable.StateModule;
-        IRangedClickInteractionModule IV_HoldActivatable._RangedClickModule => _HoldActivatable.RangedClickInteractionModule;
+        IRangedHoldClickInteractionModule IV_HoldActivatable._RangedHoldClickModule => _HoldActivatable.RangedClickInteractionModule;
         #endregion
 
         #region Player Interfaces

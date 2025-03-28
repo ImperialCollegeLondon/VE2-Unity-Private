@@ -53,7 +53,7 @@ namespace VE2.Core.VComponents.Internal
         private int _maxRevs => (int)_maximumSpatialValue / 360;
 
         public RotationalAdjustableService(ITransformWrapper transformWrapper, List<IHandheldInteractionModule> handheldInteractions, RotationalAdjustableConfig config, VE2Serializable adjustableState, VE2Serializable grabbableState, string id,
-            IWorldStateSyncService worldStateSyncService, InteractorContainer interactorContainer)
+            IWorldStateSyncService worldStateSyncService, HandInteractorContainer interactorContainer)
         {
             //get attach point transform if it exists, if null take the transform wrapper of the object itself
             _attachPointTransform = config.GrabbableStateConfig.AttachPoint == null ? transformWrapper : new TransformWrapper(config.GrabbableStateConfig.AttachPoint);

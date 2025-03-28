@@ -33,7 +33,7 @@ namespace VE2.Core.VComponents.Internal
         private GrabbableState _state => (GrabbableState)State;
         private GrabbableStateConfig _config => (GrabbableStateConfig)Config;
 
-        private readonly InteractorContainer _interactorContainer;
+        private readonly HandInteractorContainer _interactorContainer;
         private readonly IRangedGrabInteractionModule _rangedGrabInteractionModule;
 
         internal IInteractor CurrentGrabbingInteractor { get; private set; }
@@ -41,7 +41,7 @@ namespace VE2.Core.VComponents.Internal
         internal event Action OnDropConfirmed;
 
         public GrabbableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, 
-            IWorldStateSyncService worldStateSyncService, InteractorContainer interactorContainer, IRangedGrabInteractionModule rangedGrabInteractionModule) : 
+            IWorldStateSyncService worldStateSyncService, HandInteractorContainer interactorContainer, IRangedGrabInteractionModule rangedGrabInteractionModule) : 
             base(state, config, id, worldStateSyncService)
         {
             _interactorContainer = interactorContainer;

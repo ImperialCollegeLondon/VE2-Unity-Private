@@ -13,7 +13,7 @@ namespace VE2.Core.Player.Internal
         private readonly ColorConfiguration _colorConfig;
         private readonly PlayerConnectionPromptHandler _connectionPromptHandler;
 
-        internal Interactor2D(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
+        internal Interactor2D(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
             InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, 
             ILocalClientIDProvider localClientIDProvider) : 
             base(interactorContainer, interactorInputContainer,
