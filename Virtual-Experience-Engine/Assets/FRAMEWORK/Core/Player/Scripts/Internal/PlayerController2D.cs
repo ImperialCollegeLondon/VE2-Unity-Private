@@ -48,7 +48,7 @@ namespace VE2.Core.Player.Internal
         private readonly Player2DLocomotor _playerLocomotor2D;
         private readonly Interactor2D _interactor2D;
         private readonly FeetInteractor _feetInteractor2D;
-        private readonly LocalAvatarHandler _localAvatarHandler;
+        private readonly AvatarVisHandler _localAvatarHandler;
 
         private readonly IPrimaryUIServiceInternal _primaryUIService;
         private readonly RectTransform _primaryUIHolderRect;
@@ -59,7 +59,7 @@ namespace VE2.Core.Player.Internal
 
         internal PlayerController2D(HandInteractorContainer interactorContainer, Player2DInputContainer player2DInputContainer, IPlayerPersistentDataHandler playerPersistentDataHandler,
             Player2DControlConfig controlConfig, IRaycastProvider raycastProvider, ILocalClientIDProvider multiplayerSupport, 
-            IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService) 
+            IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IPlayerServiceInternal playerService) 
         {
             GameObject player2DPrefab = Resources.Load("2dPlayer") as GameObject;
             _playerGO = GameObject.Instantiate(player2DPrefab, null, false);
@@ -73,6 +73,8 @@ namespace VE2.Core.Player.Internal
 
             Player2DReferences player2DReferences = _playerGO.GetComponent<Player2DReferences>();
             _localAvatarHandler = player2DReferences.LocalAvatarHandler;
+            _localAvatarHandler.Initialize(playerService);
+
             _primaryUIHolderRect = player2DReferences.PrimaryUIHolderRect;
             _secondaryUIHolder = player2DReferences.SecondaryUIHolderRect;
             _overlayUI = player2DReferences.OverlayUI;
@@ -149,9 +151,9 @@ namespace VE2.Core.Player.Internal
             _interactor2D.HandleOnEnable(); 
         }
 
-        internal void HandleLocalAvatarColorChanged(Color newColor)
+        internal void HandleReceiveAvatarAppearance(OverridableAvatarAppearance newAvatarAppearance) 
         {
-            _localAvatarHandler.HandleLocalAvatarColorChanged(newColor);
+            _localAvatarHandler.HandleReceiveAvatarAppearance(newAvatarAppearance);
         }
 
         internal void TearDown() 

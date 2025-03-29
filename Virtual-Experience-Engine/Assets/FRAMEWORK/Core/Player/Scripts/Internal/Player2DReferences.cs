@@ -20,8 +20,8 @@ namespace VE2.Core.Player.Internal
         public RectTransform SecondaryUIHolderRect => _secondaryUIHolderRect;
         [SerializeField, IgnoreParent] private RectTransform _secondaryUIHolderRect;
 
-        public LocalAvatarHandler LocalAvatarHandler => _localAvatarHandler;
-        [SerializeField, IgnoreParent] private LocalAvatarHandler _localAvatarHandler;
+        public AvatarVisHandler LocalAvatarHandler => _localAvatarHandler;
+        [SerializeField, IgnoreParent] private AvatarVisHandler _localAvatarHandler;
     }
 
     [Serializable]

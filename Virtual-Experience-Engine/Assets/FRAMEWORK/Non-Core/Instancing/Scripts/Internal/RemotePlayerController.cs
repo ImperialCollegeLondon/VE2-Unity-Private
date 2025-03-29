@@ -4,8 +4,8 @@ using TMPro;
 using UnityEngine;
 using VE2.Core.Common;
 using VE2.Core.Player.API;
+using VE2.Core.Player.Internal;
 using VE2.Core.VComponents.API;
-using VE2.NonCore.Instancing.API;
 using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.NonCore.Instancing.Internal
@@ -14,8 +14,6 @@ namespace VE2.NonCore.Instancing.Internal
     {
         [SerializeField] private Transform _headHolder;
         [SerializeField] private Transform _verticalOffsetTransform;
-        [SerializeField] private Transform _torsoHolder;
-        private float _torsoOffsetFromHead;
 
         [SerializeField] private TMP_Text _playerNameText;
         [SerializeField] private Transform _namePlateTransform;
@@ -24,37 +22,10 @@ namespace VE2.NonCore.Instancing.Internal
         [SerializeField] private GameObject _interactorVRRightGameObject;
         [SerializeField] private GameObject _interactorFeetGameObject;
 
-        private List<Material> _colorMaterials = new();
+        [SerializeField] private AvatarVisHandler _localAvatarHandler;
 
-        private OverridableAvatarAppearance _currentRemoteAvatarAppearance;
-        private GameObject _activeHead;
-        private GameObject _activeTorso;
-
-        private List<GameObject> _virseAvatarHeadGameObjects;
-        private List<GameObject> _virseAvatarTorsoGameObjects;
-        private List<GameObject> _avatarHeadOverrideGameObjects;
-        private List<GameObject> _avatarTorsoOverrideGameObjects;
-
-        private void Awake()
-        {
-            _torsoOffsetFromHead = _torsoHolder.position.y - _headHolder.position.y;
-            _activeHead = _headHolder.transform.GetChild(0).gameObject;
-            _activeTorso = _torsoHolder.transform.GetChild(0).gameObject;
-
-            RefreshMaterials();
-        }
-
-        private void RefreshMaterials()
-        {
-            _colorMaterials = CommonUtils.GetAvatarColorMaterialsForGameObject(gameObject);
-        }
-
-        /// <summary>
-        /// Note, this WON'T set the initial appearance, HandleReceiveAvatarAppearance should be called after initialization
-        /// </summary>
-        public void Initialize(ushort clientID, HandInteractorContainer interactorContainer,
-            List<GameObject> virseAvatarHeadGameObjects, List<GameObject> virseAvatarTorsoGameObjects,
-            List<GameObject> avatarHeadOverrideGameObjects, List<GameObject> avatarTorsoOverrideGameObjects)
+        internal void Initialize(ushort clientID, HandInteractorContainer interactorContainer,
+            IPlayerServiceInternal playerService)
         {
             _interactorVRLeftGameObject.name = $"Interactor{clientID}-{InteractorType.LeftHandVR}";
             _interactorVRRightGameObject.name = $"Interactor{clientID}-{InteractorType.RightHandVR}";
@@ -66,18 +37,14 @@ namespace VE2.NonCore.Instancing.Internal
             _interactor2DGameObject.GetComponent<RemoteInteractor>().Initialize(clientID, InteractorType.Mouse2D, interactorContainer);
             _interactorFeetGameObject.GetComponent<RemoteInteractor>().Initialize(clientID, InteractorType.Feet, interactorContainer);
 
-            _virseAvatarHeadGameObjects = virseAvatarHeadGameObjects;
-            _virseAvatarTorsoGameObjects = virseAvatarTorsoGameObjects;
-            _avatarHeadOverrideGameObjects = avatarHeadOverrideGameObjects;
-            _avatarTorsoOverrideGameObjects = avatarTorsoOverrideGameObjects;
+            _localAvatarHandler.Initialize(playerService);
         }
 
-        public void HandleReceiveRemotePlayerState(PlayerTransformData playerState)
+        internal void HandleReceiveRemotePlayerState(PlayerTransformData playerState)
         {
             transform.SetPositionAndRotation(playerState.RootPosition, playerState.RootRotation);
             _verticalOffsetTransform.localPosition = new Vector3(0, playerState.VerticalOffset, 0);
             _headHolder.SetLocalPositionAndRotation(playerState.HeadLocalPosition, playerState.HeadLocalRotation);
-            _torsoHolder.position = _headHolder.position + (_torsoOffsetFromHead * Vector3.up);
 
             //We only want to show the VR hands if we're in VR mode, AND the hands are actually tracking
             _interactorVRLeftGameObject.SetActive(playerState.IsVRMode && playerState.HandVRLeftLocalPosition != Vector3.zero);
@@ -89,75 +56,19 @@ namespace VE2.NonCore.Instancing.Internal
                 _interactorVRLeftGameObject.transform.SetLocalPositionAndRotation(playerState.HandVRLeftLocalPosition, playerState.HandVRLeftLocalRotation);
                 _interactorVRRightGameObject.transform.SetLocalPositionAndRotation(playerState.HandVRRightLocalPosition, playerState.HandVRRightLocalRotation);
 
-                // foreach (string receivedActivatableID in playerState.HeldActivatableIdsVRLeft)
-                //     if (!_interactorVRLeftGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs.Contains(receivedActivatableID))
-                //         _interactorVRLeftGameObject.GetComponent<RemoteInteractor>().AddToHeldActivatableIDs(receivedActivatableID);
-
-                // List<string> activatableIDsToRemoveVRLeft = new List<string>();
-
-                // foreach (string localActivatableID in _interactorVRLeftGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs)
-                //     if (!playerState.HeldActivatableIdsVRLeft.Contains(localActivatableID))
-                //         activatableIDsToRemoveVRLeft.Add(localActivatableID);
-
-                // foreach (string idToRemove in activatableIDsToRemoveVRLeft)
-                //     _interactorVRLeftGameObject.GetComponent<RemoteInteractor>().RemoveFromHeldActivatableIDs(idToRemove);
-
-
-                // foreach (string receivedActivatableID in playerState.HeldActivatableIdsVRRight)
-                //     if (!_interactorVRRightGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs.Contains(receivedActivatableID))
-                //         _interactorVRRightGameObject.GetComponent<RemoteInteractor>().AddToHeldActivatableIDs(receivedActivatableID);
-
-                // List<string> activatableIDsToRemoveVRRight = new List<string>();
-
-                // foreach (string localActivatableID in _interactorVRRightGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs)
-                //     if (!playerState.HeldActivatableIdsVRRight.Contains(localActivatableID))
-                //         activatableIDsToRemoveVRRight.Add(localActivatableID);
-
-                // foreach (string idToRemove in activatableIDsToRemoveVRRight)
-                //     _interactorVRRightGameObject.GetComponent<RemoteInteractor>().RemoveFromHeldActivatableIDs(idToRemove);
-
                 UpdateHeldActivatableIDs(_interactorVRLeftGameObject, playerState.HeldActivatableIdsVRLeft);
                 UpdateHeldActivatableIDs(_interactorVRRightGameObject, playerState.HeldActivatableIdsVRRight);
             }
             else
             {
                 _interactor2DGameObject.transform.SetLocalPositionAndRotation(playerState.Hand2DLocalPosition, playerState.Hand2DLocalRotation);
-
-                //Debug.Log("receiving Player2DReferences: " + playerState.HeldActivatableIds2D.Count);
-
-                // foreach (string receivedActivatableID in playerState.HeldActivatableIds2D)
-                //     if (!_interactor2DGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs.Contains(receivedActivatableID))
-                //         _interactor2DGameObject.GetComponent<RemoteInteractor>().AddToHeldActivatableIDs(receivedActivatableID);
-
-                // List<string> activatableIDsToRemove = new List<string>();
-
-                // foreach (string localActivatableID in _interactor2DGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs)
-                //     if (!playerState.HeldActivatableIds2D.Contains(localActivatableID))
-                //         activatableIDsToRemove.Add(localActivatableID);
-
-                // foreach (string idToRemove in activatableIDsToRemove)
-                //     _interactor2DGameObject.GetComponent<RemoteInteractor>().RemoveFromHeldActivatableIDs(idToRemove);
-
                 UpdateHeldActivatableIDs(_interactor2DGameObject, playerState.HeldActivatableIds2D);
             }
-
-            // foreach (string receivedActivatableID in playerState.HeldActivatableIdsFeet)
-            //     if (!_interactorFeetGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs.Contains(receivedActivatableID))
-            //         _interactorFeetGameObject.GetComponent<RemoteInteractor>().AddToHeldActivatableIDs(receivedActivatableID);
-
-            // List<string> activatableIDsToRemoveFeet = new List<string>();
-
-            // foreach (string localActivatableID in _interactorFeetGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs)
-            //     if (!playerState.HeldActivatableIdsFeet.Contains(localActivatableID))
-            //         activatableIDsToRemoveFeet.Add(localActivatableID);
-
-            // foreach (string idToRemove in activatableIDsToRemoveFeet)
-            //     _interactorFeetGameObject.GetComponent<RemoteInteractor>().RemoveFromHeldActivatableIDs(idToRemove);
 
             UpdateHeldActivatableIDs(_interactorFeetGameObject, playerState.HeldActivatableIdsFeet);
         }
 
-        public void UpdateHeldActivatableIDs(GameObject interactorGameObject, List<string> receivedHeldActivatableIDs)
+        internal void UpdateHeldActivatableIDs(GameObject interactorGameObject, List<string> receivedHeldActivatableIDs)
         {
             RemoteInteractor remoteInteractor = interactorGameObject.GetComponent<RemoteInteractor>();
 
@@ -175,79 +86,10 @@ namespace VE2.NonCore.Instancing.Internal
                 remoteInteractor.RemoveFromHeldActivatableIDs(idToRemove);
         }
 
-
-        public void HandleReceiveAvatarAppearance(OverridableAvatarAppearance newAvatarAppearance)
+        internal void HandleReceiveAvatarAppearance(OverridableAvatarAppearance newAvatarAppearance)
         {
-            if (_currentRemoteAvatarAppearance != null && _currentRemoteAvatarAppearance.Equals(newAvatarAppearance))
-                return;
-
             _playerNameText.text = newAvatarAppearance.PresentationConfig.PlayerName;
-
-            bool headChanged = SetHead(newAvatarAppearance.PresentationConfig.AvatarHeadType, newAvatarAppearance.HeadOverrideType);
-            bool torsoChanged = SetTorso(newAvatarAppearance.PresentationConfig.AvatarTorsoType, newAvatarAppearance.TorsoOverrideType);
-
-            if (headChanged || torsoChanged)
-                RefreshMaterials();
-
-            foreach (Material material in _colorMaterials)
-                material.color = new Color(newAvatarAppearance.PresentationConfig.AvatarRed, newAvatarAppearance.PresentationConfig.AvatarGreen, newAvatarAppearance.PresentationConfig.AvatarBlue) / 255f;
-
-            _currentRemoteAvatarAppearance = newAvatarAppearance;
-        }
-
-
-        private bool SetHead(VE2AvatarHeadAppearanceType avatarHeadType, AvatarAppearanceOverrideType headOverrideType)
-        {
-            if (_currentRemoteAvatarAppearance != null && _currentRemoteAvatarAppearance.PresentationConfig.AvatarHeadType == avatarHeadType && _currentRemoteAvatarAppearance.HeadOverrideType == headOverrideType)
-                return false;
-
-            GameObject newHead;
-            if (headOverrideType != AvatarAppearanceOverrideType.None && TryGetOverrideGO(headOverrideType, _avatarHeadOverrideGameObjects, out GameObject headOverrideGO))
-                newHead = headOverrideGO;
-            else
-                newHead = _virseAvatarHeadGameObjects[(int)avatarHeadType];
-
-            if (_activeHead != null)
-                GameObject.Destroy(_activeHead);
-
-            _activeHead = GameObject.Instantiate(newHead, _headHolder.transform.position, _headHolder.transform.rotation, _headHolder);
-
-            return true;
-        }
-
-        private bool SetTorso(VE2AvatarTorsoAppearanceType avatarTorsoType, AvatarAppearanceOverrideType torsoOverrideType)
-        {
-            if (_currentRemoteAvatarAppearance != null && _currentRemoteAvatarAppearance.PresentationConfig.AvatarTorsoType == avatarTorsoType && _currentRemoteAvatarAppearance.TorsoOverrideType == torsoOverrideType)
-                return false;
-
-            GameObject newTorso;
-            if (torsoOverrideType != AvatarAppearanceOverrideType.None && TryGetOverrideGO(torsoOverrideType, _avatarTorsoOverrideGameObjects, out GameObject torsoOverrideGO))
-                newTorso = torsoOverrideGO;
-            else
-                newTorso = _virseAvatarTorsoGameObjects[(int)avatarTorsoType];
-
-            if (_activeTorso != null)
-                GameObject.Destroy(_activeTorso);
-
-            _activeTorso = GameObject.Instantiate(newTorso, _torsoHolder.transform.position, _torsoHolder.transform.rotation, _torsoHolder);
-
-            return true;
-        }
-
-        private bool TryGetOverrideGO(AvatarAppearanceOverrideType overrideType, List<GameObject> overrideGameObjects, out GameObject overrideGO)
-        {
-            int index = (int)overrideType - 1; //-1 as 0 is "no override"
-            if (overrideGameObjects.Count > index && overrideGameObjects[index] != null)
-            {
-                overrideGO = overrideGameObjects[index];
-                return true;
-            }
-            else
-            {
-                overrideGO = null;
-                return false;
-            }
-
+            _localAvatarHandler.HandleReceiveAvatarAppearance(newAvatarAppearance);
         }
 
         private void Update()

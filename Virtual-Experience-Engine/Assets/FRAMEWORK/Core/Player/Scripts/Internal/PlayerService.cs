@@ -58,7 +58,6 @@ namespace VE2.Core.Player.Internal
         public bool IsVRMode => PlayerTransformData.IsVRMode;
 
         public List<GameObject> HeadOverrideGOs => _config.HeadOverrideGOs;
-
         public List<GameObject> TorsoOverrideGOs => _config.TorsoOverrideGOs;
 
         public void SetAvatarHeadOverride(AvatarAppearanceOverrideType type) 
@@ -111,7 +110,7 @@ namespace VE2.Core.Player.Internal
                 _player2D = new PlayerController2D(
                     interactorContainer, _playerInputContainer.Player2DInputContainer,
                     playerSettingsHandler, new Player2DControlConfig(), //TODO:
-                    raycastProvider, playerSyncer, primaryUIService, secondaryUIService);
+                    raycastProvider, playerSyncer, primaryUIService, secondaryUIService, this);
             }
 
             _playerSettingsHandler.OnDebugSaveAppearance += HandlePlayerPresentationChanged;
@@ -207,7 +206,7 @@ namespace VE2.Core.Player.Internal
             //TODO - should the individual player controllers be in charge of this? 
             //We need to emit the event just from a single place, though
             _playerVR?.HandleLocalAvatarColorChanged(newCol);
-            _player2D?.HandleLocalAvatarColorChanged(newCol);
+            _player2D?.HandleReceiveAvatarAppearance(OverridableAvatarAppearance);
         }
 
         public void HandleFixedUpdate()

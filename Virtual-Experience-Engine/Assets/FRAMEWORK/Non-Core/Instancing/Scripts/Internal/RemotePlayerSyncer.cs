@@ -12,11 +12,7 @@ namespace VE2.NonCore.Instancing.Internal
        private readonly IPluginSyncCommsHandler _commsHandler;
         private readonly InstanceInfoContainer _instanceInfoContainer;
         private readonly HandInteractorContainer _interactorContainer;
-
-        private readonly List<GameObject> _virseAvatarHeadGameObjects;
-        private readonly List<GameObject> _virseAvatarTorsoGameObjects;
-        private readonly List<GameObject> _avatarHeadOverrideGameObjects;
-        private readonly List<GameObject> _avatarTorsoOverrideGameObjects;
+        private readonly IPlayerServiceInternal _playerService;
 
         private Dictionary<ushort, RemoteAvatarController> _remoteAvatars = new();
 
@@ -29,20 +25,7 @@ namespace VE2.NonCore.Instancing.Internal
             _instanceInfoContainer.OnInstanceInfoChanged += HandleInstanceInfoChanged;
 
             _interactorContainer = interactorContainer;
-
-            _virseAvatarHeadGameObjects = new List<GameObject>()
-            {
-                Resources.Load<GameObject>("Avatars/Heads/V_Avatar_Head_Default_1"),
-                Resources.Load<GameObject>("Avatars/Heads/V_Avatar_Head_Default_2"),
-            };
-
-            _virseAvatarTorsoGameObjects = new List<GameObject>()
-            {
-                Resources.Load<GameObject>("Avatars/Torsos/V_Avatar_Torso_Default_1"),
-            };
-
-            _avatarHeadOverrideGameObjects = playerService.HeadOverrideGOs;
-            _avatarTorsoOverrideGameObjects = playerService.HeadOverrideGOs;
+            _playerService = playerService;
         }
 
         private void HandleInstanceInfoChanged(InstancedInstanceInfo newInstanceInfo)
@@ -65,10 +48,7 @@ namespace VE2.NonCore.Instancing.Internal
                     remotePlayerGO.GetComponent<RemoteAvatarController>().Initialize(
                         receivedRemoteClientInfoWithAppearance.ClientID,
                         _interactorContainer,
-                        _virseAvatarHeadGameObjects, 
-                        _virseAvatarTorsoGameObjects, 
-                        _avatarHeadOverrideGameObjects, 
-                        _avatarTorsoOverrideGameObjects);
+                        _playerService);
 
                     _remoteAvatars.Add(receivedRemoteClientInfoWithAppearance.ClientID, remotePlayerGO.GetComponent<RemoteAvatarController>());
                 }

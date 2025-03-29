@@ -3188,13 +3188,13 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3390235951253090660}
+  - {fileID: 239686385899314633}
   - {fileID: 639465888347864237}
   - {fileID: 3873235100419239308}
   - {fileID: 5410099844071915973}
   - {fileID: 2860861352685153444}
   - {fileID: 5665946001610465812}
   - {fileID: 8473840053617823969}
-  - {fileID: 239686385899314633}
   - {fileID: 6802004769895050863}
   - {fileID: 6578118185898353493}
   m_Father: {fileID: 1668494007563671424}
@@ -7306,6 +7306,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1668494007563671424}
   - component: {fileID: 6498460620545972080}
+  - component: {fileID: 3623029543306159528}
   m_Layer: 0
   m_Name: RemoteAvatar
   m_TagString: Untagged
@@ -7343,13 +7344,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _headHolder: {fileID: 3390235951253090660}
   _verticalOffsetTransform: {fileID: 447392441967709921}
-  _torsoHolder: {fileID: 239686385899314633}
   _playerNameText: {fileID: 4005611094915045051}
   _namePlateTransform: {fileID: 6802004769895050863}
   _interactor2DGameObject: {fileID: 8140952436229972246}
   _interactorVRLeftGameObject: {fileID: 5864581236906259765}
   _interactorVRRightGameObject: {fileID: 547645932810410104}
   _interactorFeetGameObject: {fileID: 1607372436580782194}
+  _localAvatarHandler: {fileID: 3623029543306159528}
+--- !u!114 &3623029543306159528
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8890935028787704109}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a80d1dec71e34d44bef3cbedadabad1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _headHolder: {fileID: 3390235951253090660}
+  _torsoHolder: {fileID: 239686385899314633}
 --- !u!1 &8893887085767688282
 GameObject:
   m_ObjectHideFlags: 0
