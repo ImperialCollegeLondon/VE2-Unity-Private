@@ -99,7 +99,6 @@ namespace VE2.NonCore.Instancing.Internal
                 {
                     instancingSettings = new ServerConnectionSettings("username", "pass", _debugServerSettings.IpAddress, _debugServerSettings.Port);
                     instanceCode = $"NoCat-{SceneManager.GetActiveScene().name}-{_debugServerSettings.InstanceCode}-NoVersion";
-                    Debug.Log("Using debug settings");
                 }
                 else
                 {

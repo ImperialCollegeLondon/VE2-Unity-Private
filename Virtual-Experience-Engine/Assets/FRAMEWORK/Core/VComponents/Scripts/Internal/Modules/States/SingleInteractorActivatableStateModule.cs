@@ -28,15 +28,15 @@ namespace VE2.Core.VComponents.Internal
     {
         [Title("Debug Output", ApplyCondition = true, Order = 50), SerializeField, ShowDisabledIf(nameof(IsInPlayMode), true)] public bool IsActivated = false;
         [SerializeField, ShowDisabledIf(nameof(IsInPlayMode), true)] public ushort ClientID = ushort.MaxValue;
-        [EditorButton(nameof(HandleDebugTogglePressed), "Toggle State", activityType: ButtonActivityType.OnPlayMode, ApplyCondition = true, Order = 10), SpaceArea(spaceAfter:15, ApplyCondition = true)]
+        [EditorButton(nameof(HandleDebugUpdateStatePressed), "Update State", activityType: ButtonActivityType.OnPlayMode, ApplyCondition = true, Order = 10), SpaceArea(spaceAfter:15, ApplyCondition = true)]
         [Title("Debug Input", ApplyCondition = true), SerializeField, HideIf(nameof(IsInPlayMode), false)] private bool _newState = false;
 
-        public void HandleDebugTogglePressed() 
+        public void HandleDebugUpdateStatePressed() 
         {
             Debug.Log($"Debug button pressed");
-            OnDebugTogglePressed?.Invoke(_newState);
+            OnDebugUpdateStatePressed?.Invoke(_newState);
         }
-        internal event Action<bool> OnDebugTogglePressed;
+        internal event Action<bool> OnDebugUpdateStatePressed;
 
         protected bool IsInPlayMode => Application.isPlaying;
     }
@@ -68,7 +68,7 @@ namespace VE2.Core.VComponents.Internal
                 _isInActivationGroup = false;
             }
 
-            _config.InspectorDebug.OnDebugTogglePressed += (bool newState) => HandleExternalActivation(newState);
+            _config.InspectorDebug.OnDebugUpdateStatePressed += (bool newState) => HandleExternalActivation(newState);
         }
 
         private void HandleExternalActivation(bool newIsActivated)

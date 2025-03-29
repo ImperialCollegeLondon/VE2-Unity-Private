@@ -507,8 +507,8 @@ MonoBehaviour:
         TransmissionType: 0
         TransmissionFrequency: 1
       InspectorDebug:
-        isActivatedDebug: 0
-        recentClientIDDebug: 65535
+        IsActivated: 0
+        ClientID: 65535
         _newState: 0
       OnActivate:
         m_PersistentCalls:
@@ -6274,8 +6274,8 @@ MonoBehaviour:
         TransmissionType: 0
         TransmissionFrequency: 1
       InspectorDebug:
-        isActivatedDebug: 0
-        recentClientIDDebug: 65535
+        IsActivated: 0
+        ClientID: 65535
         _newState: 0
       OnActivate:
         m_PersistentCalls:
@@ -8874,8 +8874,8 @@ MonoBehaviour:
         TransmissionType: 0
         TransmissionFrequency: 1
       InspectorDebug:
-        isActivatedDebug: 0
-        recentClientIDDebug: 65535
+        IsActivated: 0
+        ClientID: 65535
         _newState: 0
       OnActivate:
         m_PersistentCalls:
@@ -13330,8 +13330,8 @@ MonoBehaviour:
         TransmissionType: 0
         TransmissionFrequency: 1
       InspectorDebug:
-        isActivatedDebug: 0
-        recentClientIDDebug: 65535
+        IsActivated: 0
+        ClientID: 65535
         _newState: 0
       OnActivate:
         m_PersistentCalls:
@@ -23666,8 +23666,8 @@ MonoBehaviour:
         TransmissionType: 0
         TransmissionFrequency: 1
       InspectorDebug:
-        isActivatedDebug: 0
-        recentClientIDDebug: 65535
+        IsActivated: 0
+        ClientID: 65535
         _newState: 0
       OnActivate:
         m_PersistentCalls:
