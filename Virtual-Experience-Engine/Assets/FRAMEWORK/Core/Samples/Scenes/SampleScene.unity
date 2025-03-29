@@ -506,6 +506,10 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        isActivatedDebug: 0
+        recentClientIDDebug: 65535
+        _newState: 0
       OnActivate:
         m_PersistentCalls:
           m_Calls:
@@ -6269,6 +6273,10 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        isActivatedDebug: 0
+        recentClientIDDebug: 65535
+        _newState: 0
       OnActivate:
         m_PersistentCalls:
           m_Calls:
@@ -8865,6 +8873,10 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        isActivatedDebug: 0
+        recentClientIDDebug: 65535
+        _newState: 0
       OnActivate:
         m_PersistentCalls:
           m_Calls:
@@ -13317,6 +13329,10 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        isActivatedDebug: 0
+        recentClientIDDebug: 65535
+        _newState: 0
       OnActivate:
         m_PersistentCalls:
           m_Calls:
@@ -21568,12 +21584,12 @@ MonoBehaviour:
       TransmissionType: 0
       TransmissionFrequency: 35
   _defaultPlayerPresentationConfig:
-    PlayerName: Unknown
+    PlayerName: DebugName
     AvatarHeadType: 0
     AvatarTorsoType: 0
-    AvatarRed: 129
-    AvatarGreen: 211
-    AvatarBlue: 175
+    AvatarRed: 255
+    AvatarGreen: 0
+    AvatarBlue: 0
   _transformDataSetup: 0
   _playerTransformData:
     IsVRMode: 0
@@ -23649,6 +23665,10 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        isActivatedDebug: 0
+        recentClientIDDebug: 65535
+        _newState: 0
       OnActivate:
         m_PersistentCalls:
           m_Calls:
@@ -24175,12 +24195,12 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2118330372}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a8995ff54d324b04ea0f50966b2be213, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _connectOnStart: 1
+  _connectOnStart: 0
   _connectionStateDebug:
     ConnectionState: 0
   _debugServerSettings:
