@@ -12,16 +12,26 @@ namespace VE2.Core.VComponents.Internal
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Activation Settings", ApplyCondition = true)]
-        [SerializeField] public UnityEvent OnActivate = new();
+        [SerializeField, IgnoreParent] internal MultiInteractorActivatableStateDebug InspectorDebug = new();
+
+        [SerializeField] internal UnityEvent OnActivate = new();
 
         [EndGroup(Order = 1)]
-        [SpaceArea(spaceAfter: 10, Order = -1), SerializeField] public UnityEvent OnDeactivate = new();
+        [SpaceArea(spaceAfter: 10, Order = -1), SerializeField] internal UnityEvent OnDeactivate = new();
 
         [BeginGroup(Style = GroupStyle.Round, ApplyCondition = true)]
         [Title("Transmission Settings", ApplyCondition = true)]
         [EndGroup(ApplyCondition = true, Order = 5)]
-        [SerializeField] public bool IsNetworked = true;
+        [SerializeField] internal bool IsNetworked = true;
+    }
 
+    [Serializable]
+    internal class MultiInteractorActivatableStateDebug
+    {
+        [Title("Debug Output", ApplyCondition = true, Order = 50), SerializeField, ShowDisabledIf(nameof(IsInPlayMode), true)] public bool IsActivated = false;
+        [InspectorName("Client IDs"), SerializeField, ShowDisabledIf(nameof(IsInPlayMode), true), SpaceArea(spaceAfter:15, ApplyCondition = true)] public List<ushort> ClientIDs = new();
+
+        protected bool IsInPlayMode => Application.isPlaying;
     }
 
     internal class MultiInteractorActivatableStateModule : IMultiInteractorActivatableStateModule
@@ -62,6 +72,9 @@ namespace VE2.Core.VComponents.Internal
                 _mostRecentInteractingInteractorID = _state.InteractingInteractorIds.Last();
             else
                 _mostRecentInteractingInteractorID = interactorId;
+
+            _config.InspectorDebug.IsActivated = _state.IsActivated;
+            _config.InspectorDebug.ClientIDs = _state.GetInteractingClientIDs();
         }
 
         public void AddInteractorToState(InteractorID interactorId)

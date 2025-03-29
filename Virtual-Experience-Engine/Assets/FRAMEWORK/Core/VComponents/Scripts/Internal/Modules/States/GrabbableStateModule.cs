@@ -12,11 +12,21 @@ namespace VE2.Core.VComponents.Internal
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Grab State Settings", ApplyCondition = true)]
+        [SerializeField, IgnoreParent] internal GrabbableStateDebug InspectorDebug = new();
         [SerializeField] public Transform AttachPoint = null;
         [SerializeField] public UnityEvent OnGrab = new();
 
         [EndGroup(Order = 1)]
         [SpaceArea(spaceAfter: 10, Order = -1), SerializeField] public UnityEvent OnDrop = new();
+    }
+
+    [Serializable]
+    internal class GrabbableStateDebug
+    {
+        [Title("Debug Output", ApplyCondition = true, Order = 50), SerializeField, ShowDisabledIf(nameof(IsInPlayMode), true)] public bool IsGrabbed = false;
+        [InspectorName("Client IDs"), SerializeField, ShowDisabledIf(nameof(IsInPlayMode), true), SpaceArea(spaceAfter:15, ApplyCondition = true)] public ushort ClientID = ushort.MaxValue;
+
+        protected bool IsInPlayMode => Application.isPlaying;
     }
 
     internal class GrabbableStateModule : BaseWorldStateModule, IGrabbableStateModule
@@ -61,6 +71,9 @@ namespace VE2.Core.VComponents.Internal
                 _state.MostRecentInteractingInteractorID = interactorID;
                 _state.StateChangeNumber++;
 
+                _config.InspectorDebug.IsGrabbed = true;
+                _config.InspectorDebug.ClientID = interactorID.ClientID;
+
                 interactor.ConfirmGrab(_rangedGrabInteractionModule);
                 OnGrabConfirmed?.Invoke();
 
@@ -89,6 +102,9 @@ namespace VE2.Core.VComponents.Internal
             _state.IsGrabbed = false;
             _isLocalGrabbed = false;
             _state.StateChangeNumber++;
+
+            _config.InspectorDebug.IsGrabbed = true;
+            _config.InspectorDebug.ClientID = interactorID.ClientID;
 
             if (_interactorContainer.Interactors.TryGetValue(interactorID.ToString(), out IInteractor interactor))
                 interactor.ConfirmDrop();
