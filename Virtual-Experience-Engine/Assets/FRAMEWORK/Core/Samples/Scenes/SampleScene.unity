@@ -1194,6 +1194,10 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        Value: 0
+        ClientID: 65535
+        _newOutputValue: 0
       OnValueAdjusted:
         m_PersistentCalls:
           m_Calls: []
@@ -1207,6 +1211,9 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        IsGrabbed: 0
+        ClientID: 0
       AttachPoint: {fileID: 619064477}
       OnGrab:
         m_PersistentCalls:
@@ -4931,6 +4938,10 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        Value: 0
+        ClientID: 65535
+        _newOutputValue: 0
       OnValueAdjusted:
         m_PersistentCalls:
           m_Calls:
@@ -4969,6 +4980,9 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        IsGrabbed: 0
+        ClientID: 0
       AttachPoint: {fileID: 5476167600612595522}
       OnGrab:
         m_PersistentCalls:
@@ -13911,6 +13925,9 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        IsGrabbed: 0
+        ClientID: 0
       AttachPoint: {fileID: 0}
       OnGrab:
         m_PersistentCalls:
@@ -15126,6 +15143,9 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        IsGrabbed: 0
+        ClientID: 0
       AttachPoint: {fileID: 1215851363}
       OnGrab:
         m_PersistentCalls:
@@ -19444,6 +19464,10 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        Value: 0
+        ClientID: 65535
+        _newOutputValue: 0
       OnValueAdjusted:
         m_PersistentCalls:
           m_Calls:
@@ -19482,6 +19506,9 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        IsGrabbed: 0
+        ClientID: 0
       AttachPoint: {fileID: 931179260}
       OnGrab:
         m_PersistentCalls:
@@ -23621,6 +23648,10 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        Value: 0
+        ClientID: 65535
+        _newOutputValue: 0
       OnValueAdjusted:
         m_PersistentCalls:
           m_Calls:
@@ -23723,6 +23754,9 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        IsGrabbed: 0
+        ClientID: 0
       AttachPoint: {fileID: 302427551}
       OnGrab:
         m_PersistentCalls:
@@ -24195,12 +24229,12 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2118330372}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a8995ff54d324b04ea0f50966b2be213, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _connectOnStart: 0
+  _connectOnStart: 1
   _connectionStateDebug:
     ConnectionState: 0
   _debugServerSettings:
@@ -24708,6 +24742,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config:
     StateConfig:
+      InspectorDebug:
+        IsActivated: 0
+        ClientIDs: 
       OnActivate:
         m_PersistentCalls:
           m_Calls:
@@ -25430,6 +25467,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config:
     StateConfig:
+      InspectorDebug:
+        IsActivated: 0
+        ClientIDs: 
       OnActivate:
         m_PersistentCalls:
           m_Calls:
@@ -26846,6 +26886,9 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        IsGrabbed: 0
+        ClientID: 0
       AttachPoint: {fileID: 543450651613274442}
       OnGrab:
         m_PersistentCalls:
@@ -28036,6 +28079,9 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        IsGrabbed: 0
+        ClientID: 0
       AttachPoint: {fileID: 1907100095}
       OnGrab:
         m_PersistentCalls:
@@ -29115,6 +29161,10 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        Value: 0
+        ClientID: 65535
+        _newOutputValue: 0
       OnValueAdjusted:
         m_PersistentCalls:
           m_Calls:
@@ -29153,6 +29203,9 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        IsGrabbed: 0
+        ClientID: 0
       AttachPoint: {fileID: 2966522815027014209}
       OnGrab:
         m_PersistentCalls:

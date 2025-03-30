@@ -73,6 +73,8 @@ namespace VE2.Core.Player.Internal
         }
 
         public AndroidJavaObject AddArgsToIntent(AndroidJavaObject intent) => _playerSettingsHandler.AddArgsToIntent(intent);
+
+        public void AddPanelTo2DOverlayUI(RectTransform rect) => _player2D.MoveRectToOverlayUI(rect);
         #endregion
 
         private readonly PlayerConfig _config;

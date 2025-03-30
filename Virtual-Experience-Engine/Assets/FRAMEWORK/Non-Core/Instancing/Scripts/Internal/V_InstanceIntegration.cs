@@ -112,6 +112,14 @@ namespace VE2.NonCore.Instancing.Internal
             }
 
             _instanceService = InstanceServiceFactory.Create(_localClientIDWrapper, _connectOnStart, _connectionStateDebug, instancingSettings, instanceCode);
+
+            if (Application.isEditor)
+            {
+                GameObject debugUIHolder = GameObject.Instantiate(Resources.Load<GameObject>("HostDebugRectHolder"));
+                RectTransform debugUIRect = debugUIHolder.transform.GetChild(0).GetComponent<RectTransform>();
+                (PlayerAPI.Player as IPlayerServiceInternal).AddPanelTo2DOverlayUI(debugUIRect);
+                GameObject.Destroy(debugUIHolder);
+            }
         }
 
         private void FixedUpdate()

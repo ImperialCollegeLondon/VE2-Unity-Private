@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using VE2.Core.Common;
 using VE2.Core.Player.API;
 using VE2.Core.UI.API;
 using VE2.Core.VComponents.API;
@@ -52,10 +53,10 @@ namespace VE2.Core.Player.Internal
 
         private readonly IPrimaryUIServiceInternal _primaryUIService;
         private readonly RectTransform _primaryUIHolderRect;
-        private readonly GameObject _overlayUI; 
 
         private readonly ISecondaryUIServiceInternal _secondaryUIService;
         private readonly RectTransform _secondaryUIHolder;
+        private readonly RectTransform _overlayUIRect;
 
         internal PlayerController2D(HandInteractorContainer interactorContainer, Player2DInputContainer player2DInputContainer, IPlayerPersistentDataHandler playerPersistentDataHandler,
             Player2DControlConfig controlConfig, IRaycastProvider raycastProvider, ILocalClientIDProvider multiplayerSupport, 
@@ -77,7 +78,7 @@ namespace VE2.Core.Player.Internal
 
             _primaryUIHolderRect = player2DReferences.PrimaryUIHolderRect;
             _secondaryUIHolder = player2DReferences.SecondaryUIHolderRect;
-            _overlayUI = player2DReferences.OverlayUI;
+            _overlayUIRect = player2DReferences.OverlayUIRect;
 
             _interactor2D = new(
                 interactorContainer, player2DInputContainer.InteractorInputContainer2D,
@@ -139,14 +140,14 @@ namespace VE2.Core.Player.Internal
 
         internal void HandlePrimaryUIActivated() 
         {
-            _overlayUI.SetActive(false);
+            _overlayUIRect.gameObject.SetActive(false);
             _playerLocomotor2D.HandleOnDisable(); 
             _interactor2D.HandleOnDisable(); //TODO - we don't want to drop grabbables 
         }
 
         internal void HandlePrimaryUIDeactivated() 
         {
-            _overlayUI.SetActive(true);
+            _overlayUIRect.gameObject.SetActive(true);
             _playerLocomotor2D.HandleOnEnable();
             _interactor2D.HandleOnEnable(); 
         }
@@ -154,6 +155,11 @@ namespace VE2.Core.Player.Internal
         internal void HandleReceiveAvatarAppearance(OverridableAvatarAppearance newAvatarAppearance) 
         {
             _localAvatarHandler.HandleReceiveAvatarAppearance(newAvatarAppearance);
+        }
+
+        internal void MoveRectToOverlayUI(RectTransform newRect)
+        {
+            CommonUtils.MovePanelToFillRect(newRect, _overlayUIRect);
         }
 
         internal void TearDown() 

@@ -36,7 +36,7 @@ namespace VE2.Core.UI.Internal
 
         public void MovePrimaryUIToHolderRect(RectTransform rect)
         {
-            UIUtils.MovePanelToFillRect(_primaryUIGameObject.GetComponent<RectTransform>(), rect);
+            CommonUtils.MovePanelToFillRect(_primaryUIGameObject.GetComponent<RectTransform>(), rect);
 
             if (_primaryUIHolderGameObject != null)
                 GameObject.Destroy(_primaryUIHolderGameObject);

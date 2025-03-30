@@ -1,86 +1,69 @@
 using TMPro;
 using UnityEngine;
-using System.Collections;
-using static VE2.NonCore.Instancing.Internal.InstanceSyncSerializables;
+using VE2.NonCore.Instancing.API;
+using VE2.Core.Common;
 
 namespace VE2.NonCore.Instancing.Internal
 {
     internal class DebugInstanceInfoUI : MonoBehaviour
     {
-        [SerializeField] private TMP_Text globalInfoText;
+        [SerializeField] private TMP_Text hostIndicatorText;
 
-        private InstanceService instanceService;
+        private IInstanceService _instanceService;
+        private ColorConfiguration _colorConfig;
 
         void OnEnable()
         {
-            StartCoroutine(DelayedOnEnable());
-        }
+            _instanceService = InstancingAPI.InstanceService;
+            _colorConfig = Resources.Load<ColorConfiguration>("ColorConfiguration"); //TODO: think of a centralised place to fetch this from
 
-        private IEnumerator DelayedOnEnable()
-        {
-            yield return new WaitForSeconds(0.1f);
+            _instanceService.OnConnectedToInstance += HandleConnectToServer;
+            _instanceService.OnDisconnectedFromInstance += HandleDisconnectFromServer;
+            _instanceService.OnLoseHost += HandleLoseHost;
+            _instanceService.OnBecomeHost += HandleBecomeHost;
 
-            V_InstanceIntegration instancingProvider = FindFirstObjectByType<V_InstanceIntegration>();
-            if (instancingProvider != null)
-            {
-                instanceService = (InstanceService)instancingProvider.InstanceService;
-
-                if (instanceService != null)
-                {
-                    //If we're already connected to the server, display initial global info rather than waiting for an update
-                    if (instanceService.IsConnectedToServer)
-                        HandleInstanceInfoChanged(instanceService.InstanceInfo);
-
-                    instanceService.OnInstanceInfoChanged += HandleInstanceInfoChanged;
-                    instanceService.OnDisconnectedFromInstance += HandleDisconnectFromServer;
-                }
-            }
+            if (_instanceService.IsConnectedToServer)
+                HandleConnectToServer();
             else
-            {
-                globalInfoText.text = "No instance service provider found";
-            }
+                HandleDisconnectFromServer();
         }
 
-        private void HandleInstanceInfoChanged(InstancedInstanceInfo instanceInfo)
+        private void HandleConnectToServer()
         {
-            string instanceInfoString = $"<b>INSTANCE</b> {instanceInfo.FullInstanceCode} \nLocal ID = <color=green>{instanceService.LocalClientID}</color>\n";
-
-            //Debug.Log("NUM PLAYERS IN ISNTANCE = " + instanceInfo.ClientInfos.Values.Count + "=============");
-            foreach (InstancedClientInfo clientInfo in instanceInfo.ClientInfos.Values)
-            {
-                if (clientInfo.ClientID.Equals(instanceService.LocalClientID))
-                    instanceInfoString += $"<color=green>";
-
-                instanceInfoString += $"{clientInfo.ClientID}";
-                if (clientInfo.InstancedAvatarAppearance.UsingFrameworkPlayer)
-                    instanceInfoString += $"({ clientInfo.InstancedAvatarAppearance.OverridableAvatarAppearance.PresentationConfig.PlayerName}): ";
-                else
-                    instanceInfoString += $"(Name N/A): "; 
-                instanceInfoString += $"Host = { clientInfo.ClientID.Equals(instanceInfo.HostID).ToString()}\n";
-
-
-                if (clientInfo.ClientID.Equals(instanceService.LocalClientID))
-                    instanceInfoString += $"</color>";
-            }
-
-            globalInfoText.text = instanceInfoString;
-        }   
+            if (_instanceService.IsHost)
+                HandleBecomeHost();
+            else
+                HandleLoseHost();
+        }
 
         private void HandleDisconnectFromServer()
         {
-            globalInfoText.text = "Disconnected";
+            Debug.Log("handle Disconnected from server");
+            hostIndicatorText.text = "Not Connected";
+            hostIndicatorText.color = Color.red;
+            hostIndicatorText.rectTransform.ForceUpdateRectTransforms();
+        }
+
+        private void HandleBecomeHost()
+        {
+            Debug.Log("handle Become Host");
+            hostIndicatorText.text = "Host";
+            hostIndicatorText.color = _colorConfig.AccentPrimaryColor;
+        }
+
+        private void HandleLoseHost() 
+        {
+            Debug.Log("handle Lose Host");
+            hostIndicatorText.text = "Non-Host";
+            hostIndicatorText.color = _colorConfig.AccentSecondaryColor;
         }
 
         private void OnDisable()
         {
-            if (instanceService != null)
-            {
-                if (instanceService.IsConnectedToServer)
-                {
-                    instanceService.OnInstanceInfoChanged -= HandleInstanceInfoChanged;
-                    instanceService.OnDisconnectedFromInstance -= HandleDisconnectFromServer;
-                }
-            }
+            _instanceService.OnConnectedToInstance -= HandleConnectToServer;
+            _instanceService.OnDisconnectedFromInstance -= HandleDisconnectFromServer;
+            _instanceService.OnLoseHost -= HandleLoseHost;
+            _instanceService.OnBecomeHost -= HandleBecomeHost;
         }
     }
 }

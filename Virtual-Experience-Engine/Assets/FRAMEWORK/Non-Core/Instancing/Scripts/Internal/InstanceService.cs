@@ -41,11 +41,14 @@ namespace VE2.NonCore.Instancing.Internal
         public void ConnectToInstance() => ConnectToServer();
         public void DisconnectFromInstance() => DisconnectFromServer();
         public bool IsHost => _instanceInfoContainer.IsHost;
+        public event Action OnBecomeHost {add => _instanceInfoContainer.OnBecomeHost += value; remove => _instanceInfoContainer.OnBecomeHost -= value;}
+        public event Action OnLoseHost {add => _instanceInfoContainer.OnLoseHost += value; remove => _instanceInfoContainer.OnLoseHost -= value;}
         #endregion
 
 
         #region Internal interfaces
         public event Action<ushort> OnClientIDReady;
+
         internal IWorldStateSyncService WorldStateSyncService => _worldStateSyncer;
         #endregion
 
@@ -162,7 +165,10 @@ namespace VE2.NonCore.Instancing.Internal
             OnConnectedToInstance?.Invoke();
         }
 
-        private void HandleReceiveInstanceInfoUpdate(byte[] bytes) =>  _instanceInfoContainer.InstanceInfo = new InstancedInstanceInfo(bytes);
+        private void HandleReceiveInstanceInfoUpdate(byte[] bytes) 
+        {
+            _instanceInfoContainer.InstanceInfo = new InstancedInstanceInfo(bytes);
+        }
 
         internal void NetworkUpdate() 
         {
@@ -193,6 +199,8 @@ namespace VE2.NonCore.Instancing.Internal
             _worldStateSyncer.TearDown();
             _localPlayerSyncer.TearDown();
             _remotePlayerSyncer.TearDown();
+
+            Debug.Log("Disconnected from server");
 
             _connectionStateDebugWrapper.ConnectionState = ConnectionState.LostConnection;
             OnDisconnectedFromInstance?.Invoke();
@@ -235,6 +243,8 @@ namespace VE2.NonCore.Instancing.Internal
         public ushort LocalClientID { get => LocalClientIdWrapper.LocalClientID; set => LocalClientIdWrapper.LocalClientID = value; }
 
         public bool IsHost => InstanceInfo.HostID == LocalClientID;
+        public event Action OnBecomeHost;
+        public event Action OnLoseHost;
 
         public event Action<InstancedInstanceInfo> OnInstanceInfoChanged;
         private InstancedInstanceInfo _instanceInfo = null;
@@ -244,7 +254,39 @@ namespace VE2.NonCore.Instancing.Internal
                 if (_instanceInfo != null && _instanceInfo.Equals(value))
                     return; 
 
-                _instanceInfo = value;
+                if (_instanceInfo == null)
+                {
+                    _instanceInfo = value;
+                }
+                else
+                {
+                    bool wasHost = IsHost;
+                    _instanceInfo = value;
+
+                    if (!wasHost &&IsHost)
+                    {
+                        try 
+                        {
+                            OnBecomeHost?.Invoke(); 
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.LogError("ERROR when emitting OnBecomeHost: " + e.Message + " - " + e.StackTrace);
+                        }
+                    }
+                    else if (wasHost && !IsHost)
+                    {
+                        try 
+                        {
+                            OnLoseHost?.Invoke(); 
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.LogError("ERROR when emitting OnLoseHost: " + e.Message + " - " + e.StackTrace);
+                        }
+                    }
+                }
+
                 OnInstanceInfoChanged?.Invoke(_instanceInfo);
              } 
         }

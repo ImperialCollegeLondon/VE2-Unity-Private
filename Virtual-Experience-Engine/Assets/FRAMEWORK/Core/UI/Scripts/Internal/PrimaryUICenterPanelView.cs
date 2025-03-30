@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using VE2.Core.Common;
 
 namespace VE2.Core.UI.Internal
 {
@@ -26,7 +27,7 @@ namespace VE2.Core.UI.Internal
             }
 
             //Move the panel into its new holder
-            UIUtils.MovePanelToFillRect(newTab.GetComponent<RectTransform>(), _MainContentPanel);
+            CommonUtils.MovePanelToFillRect(newTab.GetComponent<RectTransform>(), _MainContentPanel);
             newTab.SetActive(false);
 
             //Calculate the closest available index for the new tab, will be targetIndex if available
