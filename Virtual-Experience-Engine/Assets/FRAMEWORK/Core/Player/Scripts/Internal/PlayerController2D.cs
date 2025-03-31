@@ -79,8 +79,8 @@ namespace VE2.Core.Player.Internal
 
             _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences);
 
-            base._playerHeadTransform = _playerLocomotor2D.HeadTransform;
-            base._feetCollisionDetector = player2DReferences.Interactor2DReferences.CollisionDetector;
+            base._PlayerHeadTransform = _playerLocomotor2D.HeadTransform;
+            base._FeetCollisionDetector = player2DReferences.Interactor2DReferences.CollisionDetector;
 
             if (_primaryUIService != null)
             {

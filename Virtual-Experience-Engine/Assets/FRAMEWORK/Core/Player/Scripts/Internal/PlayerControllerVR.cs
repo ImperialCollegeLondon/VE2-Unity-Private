@@ -70,10 +70,10 @@ namespace VE2.Core.Player.Internal
             _headTransform = playerVRReferences.HeadTransform;
             _primaryUIHolderRect = playerVRReferences.PrimaryUIHolderRect;
 
-            base._playerHeadTransform = _headTransform;
-            base._feetCollisionDetector = playerVRReferences.FeetCollisionDetector;
+            base._PlayerHeadTransform = _headTransform;
+            base._FeetCollisionDetector = playerVRReferences.FeetCollisionDetector;
     
-            _feetInteractorVR = new FeetInteractor(_feetCollisionDetector, InteractorType.Feet, localClientIDProvider);
+            _feetInteractorVR = new FeetInteractor(_FeetCollisionDetector, InteractorType.Feet, localClientIDProvider);
 
             GameObject handVRLeftPrefab = Resources.Load<GameObject>("HandVRLeft");
             GameObject handVRLeftGO = GameObject.Instantiate(handVRLeftPrefab, _verticalOffsetTransform, false);

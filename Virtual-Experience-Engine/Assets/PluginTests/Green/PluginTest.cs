@@ -120,7 +120,7 @@ public class PluginTest : MonoBehaviour
     public void OnPressurePlateDeactivate()
     {
         Debug.Log("Pressure Plate deactivated!");
-        Debug.Log($"Pressure Plate state = {_holdActivatable.IsActivated}");
+        Debug.Log($"Pressure Plate state = {_pressurePlate.IsActivated}");
 
         _pressurePlateLightOn.SetActive(false);
         _pressurePlateLightOff.SetActive(true);

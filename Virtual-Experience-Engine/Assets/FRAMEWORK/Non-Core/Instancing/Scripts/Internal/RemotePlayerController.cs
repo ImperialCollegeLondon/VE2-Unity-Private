@@ -89,33 +89,6 @@ namespace VE2.NonCore.Instancing.Internal
                 _interactorVRLeftGameObject.transform.SetLocalPositionAndRotation(playerState.HandVRLeftLocalPosition, playerState.HandVRLeftLocalRotation);
                 _interactorVRRightGameObject.transform.SetLocalPositionAndRotation(playerState.HandVRRightLocalPosition, playerState.HandVRRightLocalRotation);
 
-                // foreach (string receivedActivatableID in playerState.HeldActivatableIdsVRLeft)
-                //     if (!_interactorVRLeftGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs.Contains(receivedActivatableID))
-                //         _interactorVRLeftGameObject.GetComponent<RemoteInteractor>().AddToHeldActivatableIDs(receivedActivatableID);
-
-                // List<string> activatableIDsToRemoveVRLeft = new List<string>();
-
-                // foreach (string localActivatableID in _interactorVRLeftGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs)
-                //     if (!playerState.HeldActivatableIdsVRLeft.Contains(localActivatableID))
-                //         activatableIDsToRemoveVRLeft.Add(localActivatableID);
-
-                // foreach (string idToRemove in activatableIDsToRemoveVRLeft)
-                //     _interactorVRLeftGameObject.GetComponent<RemoteInteractor>().RemoveFromHeldActivatableIDs(idToRemove);
-
-
-                // foreach (string receivedActivatableID in playerState.HeldActivatableIdsVRRight)
-                //     if (!_interactorVRRightGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs.Contains(receivedActivatableID))
-                //         _interactorVRRightGameObject.GetComponent<RemoteInteractor>().AddToHeldActivatableIDs(receivedActivatableID);
-
-                // List<string> activatableIDsToRemoveVRRight = new List<string>();
-
-                // foreach (string localActivatableID in _interactorVRRightGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs)
-                //     if (!playerState.HeldActivatableIdsVRRight.Contains(localActivatableID))
-                //         activatableIDsToRemoveVRRight.Add(localActivatableID);
-
-                // foreach (string idToRemove in activatableIDsToRemoveVRRight)
-                //     _interactorVRRightGameObject.GetComponent<RemoteInteractor>().RemoveFromHeldActivatableIDs(idToRemove);
-
                 UpdateHeldActivatableIDs(_interactorVRLeftGameObject, playerState.HeldActivatableIdsVRLeft);
                 UpdateHeldActivatableIDs(_interactorVRRightGameObject, playerState.HeldActivatableIdsVRRight);
             }
@@ -123,36 +96,8 @@ namespace VE2.NonCore.Instancing.Internal
             {
                 _interactor2DGameObject.transform.SetLocalPositionAndRotation(playerState.Hand2DLocalPosition, playerState.Hand2DLocalRotation);
 
-                //Debug.Log("receiving Player2DReferences: " + playerState.HeldActivatableIds2D.Count);
-
-                // foreach (string receivedActivatableID in playerState.HeldActivatableIds2D)
-                //     if (!_interactor2DGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs.Contains(receivedActivatableID))
-                //         _interactor2DGameObject.GetComponent<RemoteInteractor>().AddToHeldActivatableIDs(receivedActivatableID);
-
-                // List<string> activatableIDsToRemove = new List<string>();
-
-                // foreach (string localActivatableID in _interactor2DGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs)
-                //     if (!playerState.HeldActivatableIds2D.Contains(localActivatableID))
-                //         activatableIDsToRemove.Add(localActivatableID);
-
-                // foreach (string idToRemove in activatableIDsToRemove)
-                //     _interactor2DGameObject.GetComponent<RemoteInteractor>().RemoveFromHeldActivatableIDs(idToRemove);
-
                 UpdateHeldActivatableIDs(_interactor2DGameObject, playerState.HeldActivatableIds2D);
             }
-
-            // foreach (string receivedActivatableID in playerState.HeldActivatableIdsFeet)
-            //     if (!_interactorFeetGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs.Contains(receivedActivatableID))
-            //         _interactorFeetGameObject.GetComponent<RemoteInteractor>().AddToHeldActivatableIDs(receivedActivatableID);
-
-            // List<string> activatableIDsToRemoveFeet = new List<string>();
-
-            // foreach (string localActivatableID in _interactorFeetGameObject.GetComponent<RemoteInteractor>().HeldActivatableIDs)
-            //     if (!playerState.HeldActivatableIdsFeet.Contains(localActivatableID))
-            //         activatableIDsToRemoveFeet.Add(localActivatableID);
-
-            // foreach (string idToRemove in activatableIDsToRemoveFeet)
-            //     _interactorFeetGameObject.GetComponent<RemoteInteractor>().RemoveFromHeldActivatableIDs(idToRemove);
 
             UpdateHeldActivatableIDs(_interactorFeetGameObject, playerState.HeldActivatableIdsFeet);
         }
@@ -265,6 +210,14 @@ namespace VE2.NonCore.Instancing.Internal
             //Destroy GO for domain reload
             if (gameObject != null)
                 Destroy(gameObject);
+        }
+
+        private void OnDestroy()
+        {
+            _interactorFeetGameObject.GetComponent<RemoteInteractor>().HandleOnDestroy();
+            _interactorVRLeftGameObject.GetComponent<RemoteInteractor>().HandleOnDestroy();
+            _interactorVRRightGameObject.GetComponent<RemoteInteractor>().HandleOnDestroy();
+            _interactor2DGameObject.GetComponent<RemoteInteractor>().HandleOnDestroy();
         }
     }
 }

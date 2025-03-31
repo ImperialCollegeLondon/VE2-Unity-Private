@@ -52,7 +52,7 @@ namespace VE2.Core.Player.Internal
 
         private void HandleCollideStart(ICollideInteractionModule collideInteractionModule)
         {
-            if (!_WaitingForLocalClientID && !collideInteractionModule.AdminOnly)
+            if (!_WaitingForLocalClientID && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Hand)
             {
                 collideInteractionModule.InvokeOnCollideEnter(_InteractorID);
                 HeldActivatableIDs.Add(collideInteractionModule.ID);
@@ -61,7 +61,7 @@ namespace VE2.Core.Player.Internal
 
         private void HandleCollideEnd(ICollideInteractionModule collideInteractionModule)
         {
-            if (!_WaitingForLocalClientID && !collideInteractionModule.AdminOnly)
+            if (!_WaitingForLocalClientID && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Hand)
             {
                 collideInteractionModule.InvokeOnCollideExit(_InteractorID);
                 HeldActivatableIDs.Remove(collideInteractionModule.ID);
