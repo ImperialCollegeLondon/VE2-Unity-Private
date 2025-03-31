@@ -19,7 +19,7 @@ namespace VE2.Core.Player.Internal
         [SerializeField, IgnoreParent] private V_CollisionDetector _collisionDetector;
     }
 
-    internal class PlayerController2D 
+    internal class PlayerController2D : BasePlayerController
     {
         public PlayerTransformData PlayerTransformData {
             get {
@@ -79,6 +79,9 @@ namespace VE2.Core.Player.Internal
 
             _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences);
 
+            base._headTransform = _playerLocomotor2D.HeadTransform;
+            base._feetCollisionDetector = player2DReferences.Interactor2DReferences.CollisionDetector;
+
             if (_primaryUIService != null)
             {
                 _primaryUIService.OnUIShow += HandlePrimaryUIActivated;
@@ -120,12 +123,14 @@ namespace VE2.Core.Player.Internal
             _feetInteractor2D.HandleOnDisable();
         }
 
-        internal void HandleUpdate() 
+        internal override void HandleUpdate() 
         {
+            base.HandleUpdate();
+
             if (_primaryUIService == null || !_primaryUIService.IsShowing)
             {
                 _playerLocomotor2D.HandleUpdate();
-                _interactor2D.HandleUpdate();   
+                _interactor2D.HandleUpdate(); 
             }
         }
 
