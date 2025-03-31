@@ -70,7 +70,7 @@ namespace VE2.Core.Player.Internal
             _headTransform = playerVRReferences.HeadTransform;
             _primaryUIHolderRect = playerVRReferences.PrimaryUIHolderRect;
 
-            base._headTransform = _headTransform;
+            base._playerHeadTransform = _headTransform;
             base._feetCollisionDetector = playerVRReferences.FeetCollisionDetector;
     
             _feetInteractorVR = new FeetInteractor(_feetCollisionDetector, InteractorType.Feet, localClientIDProvider);
