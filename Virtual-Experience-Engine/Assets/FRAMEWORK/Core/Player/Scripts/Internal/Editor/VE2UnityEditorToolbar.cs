@@ -23,7 +23,7 @@ namespace VE2.Core.Player
 
         static VE2UnityEditorToolbar()
         {
-            ToolboxEditorToolbar.OnToolbarGui += OnToolbarGui;
+            ToolboxEditorToolbar.OnToolbarGuiLeft  += OnToolbarGui;
         }
 
         private static void OnToolbarGui()

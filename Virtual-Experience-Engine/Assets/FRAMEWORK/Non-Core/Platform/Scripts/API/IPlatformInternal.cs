@@ -10,6 +10,8 @@ namespace VE2.NonCore.Platform.API
 
         public void ConnectToPlatform();
 
+        public string PlayerDisplayName { get; }
+
         public ushort LocalClientID { get; }
         public bool IsAuthFailed { get; }
         public event Action OnAuthFailed;

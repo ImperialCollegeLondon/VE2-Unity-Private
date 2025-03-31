@@ -198,6 +198,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e82cd7a96d589048b5391b79630457d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _playerNameText: {fileID: 6587129084830524521}
+  _connectedText: {fileID: 8609995464192323516}
+  _domainText: {fileID: 8004402695087425865}
+  _pingText: {fileID: 1019688720270499192}
+  _hostshipText: {fileID: 6405806110092167861}
+  _backToHubButton: {fileID: 1633280067100321020}
+  _toggleVoiceChatButton: {fileID: 7663561570993496710}
 --- !u!1 &1996819374105965849
 GameObject:
   m_ObjectHideFlags: 0
@@ -438,7 +445,7 @@ GameObject:
   - component: {fileID: 8004402695087425865}
   - component: {fileID: 7704130970629179467}
   m_Layer: 5
-  m_Name: ServerValue
+  m_Name: DomainValue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -491,7 +498,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Live
+  m_text: Debug
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 255bb2044a857ba4ab56cf90fe8ef86c, type: 2}
   m_sharedMaterial: {fileID: 7957192588435596465, guid: 255bb2044a857ba4ab56cf90fe8ef86c,
@@ -590,7 +597,7 @@ GameObject:
   - component: {fileID: 5211644194750064790}
   - component: {fileID: 240720016563439330}
   m_Layer: 5
-  m_Name: Server Label
+  m_Name: Domain Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -643,7 +650,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Server:'
+  m_text: 'Domain:'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 255bb2044a857ba4ab56cf90fe8ef86c, type: 2}
   m_sharedMaterial: {fileID: 7957192588435596465, guid: 255bb2044a857ba4ab56cf90fe8ef86c,
@@ -1578,7 +1585,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &5260592820029019962
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2178,7 +2185,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: TestName
+  m_text: Unknown
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 255bb2044a857ba4ab56cf90fe8ef86c, type: 2}
   m_sharedMaterial: {fileID: 7957192588435596465, guid: 255bb2044a857ba4ab56cf90fe8ef86c,
@@ -2206,12 +2213,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 42
+  m_fontSize: 40
   m_fontSizeBase: 42
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 40
   m_fontStyle: 0
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 512

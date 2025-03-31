@@ -1241,6 +1241,10 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        IsActivated: 0
+        ClientID: 65535
+        _newState: 0
       OnActivate:
         m_PersistentCalls:
           m_Calls:
@@ -1273,6 +1277,7 @@ MonoBehaviour:
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
+  _collider: {fileID: 0}
 --- !u!65 &481441531
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1642,6 +1647,10 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        IsActivated: 0
+        ClientID: 65535
+        _newState: 0
       OnActivate:
         m_PersistentCalls:
           m_Calls:
@@ -1674,6 +1683,7 @@ MonoBehaviour:
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
+  _collider: {fileID: 0}
 --- !u!65 &607023618
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -17389,6 +17399,43 @@ Transform:
   - {fileID: 463467099}
   m_Father: {fileID: 670374472}
   m_LocalEulerAnglesHint: {x: 0, y: -60, z: 0}
+--- !u!84 &931264590
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_IsAlphaChannelOptional: 0
+  serializedVersion: 6
+  m_Width: 1996
+  m_Height: 690
+  m_AntiAliasing: 1
+  m_MipCount: -1
+  m_DepthStencilFormat: 90
+  m_ColorFormat: 8
+  m_MipMap: 1
+  m_GenerateMips: 1
+  m_SRGB: 0
+  m_UseDynamicScale: 0
+  m_UseDynamicScaleExplicit: 0
+  m_BindMS: 0
+  m_EnableCompatibleFormat: 1
+  m_EnableRandomWrite: 0
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
+  m_ShadowSamplingMode: 2
 --- !u!1 &961237055
 GameObject:
   m_ObjectHideFlags: 0
@@ -24053,7 +24100,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_TargetTexture
       value: 
-      objectReference: {fileID: 1373091006}
+      objectReference: {fileID: 931264590}
     - target: {fileID: 7584404486134375354, guid: b08cdd5bb92d2124ab625ea1e5e17415,
         type: 3}
       propertyPath: m_Name
@@ -24892,43 +24939,6 @@ Transform:
   - {fileID: 1586388099}
   m_Father: {fileID: 670374472}
   m_LocalEulerAnglesHint: {x: 0, y: -120, z: 0}
---- !u!84 &1373091006
-RenderTexture:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_IsAlphaChannelOptional: 0
-  serializedVersion: 6
-  m_Width: 1113
-  m_Height: 482
-  m_AntiAliasing: 1
-  m_MipCount: -1
-  m_DepthStencilFormat: 90
-  m_ColorFormat: 8
-  m_MipMap: 1
-  m_GenerateMips: 1
-  m_SRGB: 0
-  m_UseDynamicScale: 0
-  m_UseDynamicScaleExplicit: 0
-  m_BindMS: 0
-  m_EnableCompatibleFormat: 1
-  m_EnableRandomWrite: 0
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 1
-    m_WrapV: 1
-    m_WrapW: 1
-  m_Dimension: 2
-  m_VolumeDepth: 1
-  m_ShadowSamplingMode: 2
 --- !u!1 &1385185564
 GameObject:
   m_ObjectHideFlags: 0
@@ -26137,6 +26147,10 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        IsActivated: 0
+        ClientID: 65535
+        _newState: 0
       OnActivate:
         m_PersistentCalls:
           m_Calls:
@@ -26301,6 +26315,7 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+  _collider: {fileID: 0}
 --- !u!23 &1540130739
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -27054,6 +27069,10 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        IsActivated: 0
+        ClientID: 65535
+        _newState: 0
       OnActivate:
         m_PersistentCalls:
           m_Calls:
@@ -27086,6 +27105,7 @@ MonoBehaviour:
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
+  _collider: {fileID: 0}
 --- !u!1 &1745958809
 GameObject:
   m_ObjectHideFlags: 0
@@ -27685,8 +27705,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerConfig:
-    EnableVR: 0
-    Enable2D: 1
+    SupportedPlayerModes: 2
     MovementModeConfig:
       TraversableLayers:
         serializedVersion: 2
@@ -27750,6 +27769,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e4caf408e1554349b678c8f692a6636, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _lastUseSecondaryUI: 1
   _useCustomSecondaryUI: 1
 --- !u!1 &1890418704
 GameObject:
@@ -29312,6 +29332,7 @@ GameObject:
   - component: {fileID: 2053880857845292552}
   - component: {fileID: 1217551333283553617}
   - component: {fileID: 6741471357907500661}
+  - component: {fileID: 6741471357907500662}
   m_Layer: 8
   m_Name: Walls
   m_TagString: Untagged
@@ -29381,8 +29402,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 5446078106991619965}
   m_HandleRect: {fileID: 1218663160943845413}
   m_Direction: 2
-  m_Value: 1
-  m_Size: 1
+  m_Value: 0
+  m_Size: 0.50000006
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -29928,6 +29949,26 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &6741471357907500662
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3070730027416761050}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af51d4e07c94b6649b9d0618ca0453d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _handRenderer: {fileID: 6741471357907500661}
+  _materialIndex: 1
+  _minOffsetUpdateTime: 0.6
+  _maxOffsetUpdateTime: 1
+  _brightnessCycleDuration: 1
+  _emissiveColor: {r: 0.6734603, g: 0.86267984, b: 0.8867924, a: 1}
+  _maxEmissiveIntensity: 0.2
+  _minEmissiveIntensity: 0.5
 --- !u!222 &6771380048407243922
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -29952,7 +29993,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 15281, y: 5697.1943}
+  m_AnchoredPosition: {x: 15281, y: 5697.1934}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!1 &7129766439557370346

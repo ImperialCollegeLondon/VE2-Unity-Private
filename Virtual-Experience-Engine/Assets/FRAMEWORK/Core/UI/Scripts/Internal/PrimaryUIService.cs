@@ -104,7 +104,7 @@ namespace VE2.Core.UI.Internal
 
         internal void HandleUpdate() 
         {
-
+            
         }
 
         private void HandleToggleUIPressed()

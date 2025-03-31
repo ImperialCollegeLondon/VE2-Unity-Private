@@ -22,7 +22,7 @@ namespace VE2.NonCore.Instancing.API
             }
         }
 
-        internal static IInstanceService InstanceService => InstanceProvider.InstanceService;
+        public static IInstanceService InstanceService => InstanceProvider?.InstanceService;
 
         [SerializeField, HideInInspector] private string _instanceProviderGOName;
         private IInstanceProvider _instanceProvider;
@@ -30,16 +30,24 @@ namespace VE2.NonCore.Instancing.API
         {
             get
             {
+                if (Instance == null)
+                    return null;
+
                 if (Instance._instanceProvider == null && !string.IsNullOrEmpty(Instance._instanceProviderGOName))
-                    Instance._instanceProvider = GameObject.Find(Instance._instanceProviderGOName)?.GetComponent<IInstanceProvider>();
+                {
+                    GameObject instanceProviderGO = GameObject.Find(Instance._instanceProviderGOName);
 
-                    if (Instance._instanceProvider == null)
-                    {
-                        Debug.LogError("InstanceService is not available");
-                        return null;
-                    }  
+                    if (instanceProviderGO != null)
+                        Instance._instanceProvider = instanceProviderGO.GetComponent<IInstanceProvider>();
+                }
 
-                    return Instance._instanceProvider;
+                if (Instance._instanceProvider == null)
+                {
+                    Debug.LogError("InstanceService is not available");
+                    return null;
+                }  
+
+                return Instance._instanceProvider;
 
             }
             set //Will need to be called externally

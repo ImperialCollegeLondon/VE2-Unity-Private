@@ -1,7 +1,10 @@
 using UnityEngine;
 
-internal interface IPlatformProvider
+namespace VE2.NonCore.Platform.API
 {
-    public IPlatformService PlatformService { get; }
-    public string GameObjectName { get; }
+    internal interface IPlatformProvider
+    {
+        public IPlatformService PlatformService { get; }
+        public string GameObjectName { get; }
+    }
 }

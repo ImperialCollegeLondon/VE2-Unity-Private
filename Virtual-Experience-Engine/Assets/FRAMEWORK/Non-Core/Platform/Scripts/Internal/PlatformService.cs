@@ -12,6 +12,7 @@ using VE2.NonCore.Platform.API;
 using VE2.Core.Common;
 using static VE2.Core.Player.API.PlayerSerializables;
 using VE2.Core.UI.API;
+using VE2.NonCore.Instancing.API;
 
 namespace VE2.NonCore.Platform.Internal
 {
@@ -22,12 +23,18 @@ namespace VE2.NonCore.Platform.Internal
             PlatformCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
             IPlayerServiceInternal playerService = PlayerAPI.Player as IPlayerServiceInternal;
             PluginLoader pluginLoader = new PluginLoader(platformSettingsHandler, playerService);
-            return new PlatformService(commsHandler, pluginLoader, playerService, platformSettingsHandler, UIAPI.PrimaryUIService as IPrimaryUIServiceInternal);
+            return new PlatformService(
+                commsHandler, 
+                pluginLoader, 
+                playerService, 
+                platformSettingsHandler, 
+                UIAPI.PrimaryUIService as IPrimaryUIServiceInternal);
         }
     }
 
     internal class PlatformService: IPlatformServiceInternal
     {
+        #region Interfaces
         public ushort LocalClientID { get => _platformSettingsHandler.PlatformClientID; private set => _platformSettingsHandler.PlatformClientID = value; }
         public Dictionary<string, WorldDetails> ActiveWorlds { get => _platformSettingsHandler.ActiveWorlds; private set => _platformSettingsHandler.ActiveWorlds = value; }
         public string CurrentInstanceCode { get => _platformSettingsHandler.InstanceCode; private set => _platformSettingsHandler.InstanceCode = value; }
@@ -125,14 +132,16 @@ namespace VE2.NonCore.Platform.Internal
                 Instead, maybe we can just show the platform's user settings directly into the debug thing?
 
         */
+        public string PlayerDisplayName => _playerService.OverridableAvatarAppearance.PresentationConfig.PlayerName;
+        #endregion
 
-
-        private IPlatformCommsHandler _commsHandler;
+        private readonly IPlatformCommsHandler _commsHandler;
         private readonly PluginLoader _pluginLoader;
         private readonly IPlayerServiceInternal _playerService;
         private readonly IPlatformSettingsHandler _platformSettingsHandler;
 
-        internal PlatformService(IPlatformCommsHandler commsHandler, PluginLoader pluginLoader, IPlayerServiceInternal playerService, IPlatformSettingsHandler platformSettingsHandler, IPrimaryUIServiceInternal primaryUIService)
+        internal PlatformService(IPlatformCommsHandler commsHandler, PluginLoader pluginLoader, IPlayerServiceInternal playerService, 
+            IPlatformSettingsHandler platformSettingsHandler, IPrimaryUIServiceInternal primaryUIService)
         {
             _commsHandler = commsHandler;
             _pluginLoader = pluginLoader;
