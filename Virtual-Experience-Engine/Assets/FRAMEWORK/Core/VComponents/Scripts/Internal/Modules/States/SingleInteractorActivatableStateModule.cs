@@ -56,7 +56,7 @@ namespace VE2.Core.VComponents.Internal
         private void HandleExternalActivation(bool newIsActivated)
         {
             if (newIsActivated != _state.IsActivated)
-                InvertState(ushort.MaxValue);
+                HandleActivatableState(ushort.MaxValue);
         }
 
         public void HandleActivatableState(ushort clientID)
@@ -128,6 +128,16 @@ namespace VE2.Core.VComponents.Internal
                 InvokeCustomerOnActivateEvent();
             else if (!_state.IsActivated && oldIsActivated)
                 InvokeCustomerOnDeactivateEvent();
+        }
+
+        public override void TearDown()
+        {   
+            base.TearDown();
+
+            if (_isInActivationGroup)
+            {
+                _activatableGroupsContainer.DeregisterActivatable(_activationGroupID, this);
+            }
         }
     }
 

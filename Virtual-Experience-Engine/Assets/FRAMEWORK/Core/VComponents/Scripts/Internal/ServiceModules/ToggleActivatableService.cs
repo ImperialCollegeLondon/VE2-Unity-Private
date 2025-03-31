@@ -53,7 +53,6 @@ namespace VE2.Core.VComponents.Internal
 
         public void TearDown() 
         {
-            //VComponentsAPI.ActivatableGroupsContainer.DeregisterActivatable(_activationGroupID, _StateModule); 
             _StateModule.TearDown();
         }
     }
