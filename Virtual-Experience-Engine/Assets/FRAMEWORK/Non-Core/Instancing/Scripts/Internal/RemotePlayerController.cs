@@ -42,6 +42,8 @@ namespace VE2.NonCore.Instancing.Internal
             _localAvatarHandler.Initialize(playerService);
         }
 
+        public void ToggleAvatarsTransparent(bool isTransparent) => _localAvatarHandler.SetTransparent(isTransparent);
+
         public void HandleReceiveRemotePlayerState(PlayerTransformData playerState)
         {
             transform.SetPositionAndRotation(playerState.RootPosition, playerState.RootRotation);

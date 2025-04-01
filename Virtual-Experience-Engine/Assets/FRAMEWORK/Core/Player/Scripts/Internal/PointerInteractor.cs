@@ -345,7 +345,6 @@ namespace VE2.Core.Player.Internal
 
         public void ConfirmGrab(IRangedGrabInteractionModule rangedGrabInteractable)
         {
-            Debug.Log("ConfirmGrab - null? " + (rangedGrabInteractable == null));
             _CurrentGrabbingGrabbable = rangedGrabInteractable;
 
             SetInteractorState(InteractorState.Grabbing);

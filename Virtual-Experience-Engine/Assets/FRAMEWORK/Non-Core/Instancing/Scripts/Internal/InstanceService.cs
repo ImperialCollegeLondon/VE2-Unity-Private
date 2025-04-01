@@ -141,6 +141,7 @@ namespace VE2.NonCore.Instancing.Internal
             }
 
             _connectionStateWrapper.ConnectionState = ConnectionState.Connecting;
+            _remotePlayerSyncer.ToggleAvatarsTransparent(false);
 
             Debug.Log("Try connect to instance... " + _serverSettings.ServerAddress);
             _shouldConnectToServer = true;
@@ -244,6 +245,8 @@ namespace VE2.NonCore.Instancing.Internal
         private void HandleDisconnectFromServer() 
         {
             Debug.Log("Disconnected from server");
+
+            _remotePlayerSyncer.ToggleAvatarsTransparent(true);
 
             _connectionStateWrapper.ConnectionState = ConnectionState.LostConnection;
             OnDisconnectedFromInstance?.Invoke();

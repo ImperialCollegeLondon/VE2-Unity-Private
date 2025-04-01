@@ -1215,6 +1215,7 @@ MonoBehaviour:
         IsGrabbed: 0
         ClientID: 0
       AttachPoint: {fileID: 619064477}
+      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls: []
@@ -4984,6 +4985,7 @@ MonoBehaviour:
         IsGrabbed: 0
         ClientID: 0
       AttachPoint: {fileID: 5476167600612595522}
+      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls:
@@ -13929,6 +13931,7 @@ MonoBehaviour:
         IsGrabbed: 0
         ClientID: 0
       AttachPoint: {fileID: 0}
+      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls: []
@@ -15147,6 +15150,7 @@ MonoBehaviour:
         IsGrabbed: 0
         ClientID: 0
       AttachPoint: {fileID: 1215851363}
+      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls:
@@ -19510,6 +19514,7 @@ MonoBehaviour:
         IsGrabbed: 0
         ClientID: 0
       AttachPoint: {fileID: 931179260}
+      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls:
@@ -23758,6 +23763,7 @@ MonoBehaviour:
         IsGrabbed: 0
         ClientID: 0
       AttachPoint: {fileID: 302427551}
+      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls:
@@ -24241,6 +24247,8 @@ MonoBehaviour:
     IpAddress: 127.0.0.1
     Port: 4297
     InstanceCode: 00
+  _config:
+    _artificialAddedPingMs: 0
 --- !u!1 &2119604979
 GameObject:
   m_ObjectHideFlags: 0
@@ -25721,7 +25729,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -26890,6 +26898,7 @@ MonoBehaviour:
         IsGrabbed: 0
         ClientID: 0
       AttachPoint: {fileID: 543450651613274442}
+      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls:
@@ -28083,6 +28092,7 @@ MonoBehaviour:
         IsGrabbed: 0
         ClientID: 0
       AttachPoint: {fileID: 1907100095}
+      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls:
@@ -29207,6 +29217,7 @@ MonoBehaviour:
         IsGrabbed: 0
         ClientID: 0
       AttachPoint: {fileID: 2966522815027014209}
+      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls:

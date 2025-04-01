@@ -28,6 +28,12 @@ namespace VE2.NonCore.Instancing.Internal
             _playerService = playerService;
         }
 
+        public void ToggleAvatarsTransparent(bool isTransparent)
+        {
+            foreach (RemoteAvatarController remotePlayerController in _remoteAvatars.Values)
+                remotePlayerController.ToggleAvatarsTransparent(isTransparent);
+        }
+
         private void HandleInstanceInfoChanged(InstancedInstanceInfo newInstanceInfo)
         {
             //Debug.Log("RemotePlayerSyncer: HandleInstanceInfoChanged");
