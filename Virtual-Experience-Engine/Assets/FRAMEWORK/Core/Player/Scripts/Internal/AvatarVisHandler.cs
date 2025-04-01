@@ -83,63 +83,62 @@ namespace VE2.Core.Player.Internal
             _currentRemoteAvatarAppearance = newAvatarAppearance;
         }
 
-private Dictionary<(Renderer, int), (Material originalMaterial, Shader originalShader, Color originalColor)> originalMaterials = new();
-    private bool _hasBeenMadeTransparentBefore = false;
+        private Dictionary<(Renderer, int), (Material originalMaterial, Shader originalShader, Color originalColor)> originalMaterials = new();
+        private bool _hasBeenMadeTransparentBefore = false;
 
-    public void SetTransparent(bool isTransparent)
-    {
-        foreach (Renderer renderer in GetComponentsInChildren<Renderer>())
+        public void SetTransparent(bool isTransparent)
         {
-            Material[] materials = renderer.materials;
-
-            for (int i = 0; i < materials.Length; i++)
+            foreach (Renderer renderer in GetComponentsInChildren<Renderer>())
             {
-                Material material = materials[i];
-                var key = (renderer, i);
+                Material[] materials = renderer.materials;
 
-                if (isTransparent)
+                for (int i = 0; i < materials.Length; i++)
                 {
-                    if (!originalMaterials.ContainsKey(key))
+                    Material material = materials[i];
+                    var key = (renderer, i);
+
+                    if (isTransparent)
                     {
+                        // Save the original material's properties
                         originalMaterials[key] = (new Material(material), material.shader, material.color);
+                        
+                        // Switch to transparent rendering
+                        material.SetOverrideTag("RenderType", "Transparent");
+                        material.SetInt("_Surface", 1); // Surface Type: Transparent
+                        material.SetInt("_Blend", 2); // Blend Mode: Alpha
+                        material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                        material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                        material.SetInt("_ZWrite", 0);
+                        material.DisableKeyword("_ALPHATEST_ON");
+                        material.EnableKeyword("_ALPHABLEND_ON");
+                        material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+                        material.renderQueue = 3000; // Transparent queue
+
+                        // Reduce alpha to make it transparent
+                        Color color = material.color;
+                        color.a = 0.05f;
+                        material.color = color;
+                        
+                        _hasBeenMadeTransparentBefore = true;
                     }
-
-                    // Switch to transparent rendering
-                    material.SetOverrideTag("RenderType", "Transparent");
-                    material.SetInt("_Surface", 1);
-                    material.SetInt("_Blend", 2);
-                    material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-                    material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-                    material.SetInt("_ZWrite", 0);
-                    material.DisableKeyword("_ALPHATEST_ON");
-                    material.EnableKeyword("_ALPHABLEND_ON");
-                    material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
-                    material.renderQueue = 3000;
-
-                    // Reduce alpha
-                    Color color = material.color;
-                    color.a = 0.1f;
-                    material.color = color;
-                    
-                    _hasBeenMadeTransparentBefore = true;
-                }
-                else if (_hasBeenMadeTransparentBefore)
-                {
-                    if (originalMaterials.TryGetValue(key, out var originalData))
+                    else if (_hasBeenMadeTransparentBefore)
                     {
-                        // Explicitly reassign the original material to the renderer
-                        materials[i] = originalData.originalMaterial;
-                        renderer.materials = materials;
+                        // Restore original material properties if they were stored
+                        if (originalMaterials.TryGetValue(key, out var originalData))
+                        {
+                            // Explicitly reassign the original material to the renderer at index `i`
+                            materials[i] = originalData.originalMaterial;
+                            renderer.materials = materials; // Reassign materials array to the renderer
+                        }
                     }
                 }
             }
-        }
 
-        if (!isTransparent)
-        {
-            originalMaterials.Clear();
+            if (!isTransparent)
+            {
+                originalMaterials.Clear(); // Clear stored original materials after switching back
+            }
         }
-    }
 
         private bool SetHead(VE2AvatarHeadAppearanceType avatarHeadType, AvatarAppearanceOverrideType headOverrideType)
         {
