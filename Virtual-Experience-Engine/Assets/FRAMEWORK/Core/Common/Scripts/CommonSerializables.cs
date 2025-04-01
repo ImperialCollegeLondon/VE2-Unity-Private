@@ -1,9 +1,6 @@
 using System;
 using System.IO;
-
-#if UNITY_EDITOR
 using UnityEngine;
-#endif
 
 namespace VE2.Core.Common 
 {
