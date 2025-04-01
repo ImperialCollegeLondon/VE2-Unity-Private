@@ -292,6 +292,7 @@ namespace VE2.Core.Player.Internal
                 raycastResultWrapper.RangedInteractable is IRangedClickInteractionModule rangedClickInteractable)
             {
                 rangedClickInteractable.ClickDown(_InteractorID);
+                _CurrentHoveringInteractable = rangedClickInteractable;
 
                 if(rangedClickInteractable is IRangedHoldClickInteractionModule)
                     _heldActivatableIDs.Add(rangedClickInteractable.ID);
