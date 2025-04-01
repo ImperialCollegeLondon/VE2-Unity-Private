@@ -1,4 +1,4 @@
-#if UnityEditor
+#if UNITY_EDITOR
 
 using System.IO;
 using UnityEditor;
@@ -9,7 +9,8 @@ namespace VE2.NonCore.Instancing.Internal
     [CreateAssetMenu(fileName = "InstancingProjectReferences", menuName = "Scriptable Objects/InstancingProjectReferences")]
     public class InstancingProjectReferences : ScriptableObject
     {
-        [SerializeField] private DefaultAsset localServerExecutable;
+        public DefaultAsset LocalServerExecutable => _localServerExecutable;
+        [SerializeField] private DefaultAsset _localServerExecutable;
     }
 }
 
