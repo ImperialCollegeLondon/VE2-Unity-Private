@@ -14,6 +14,13 @@ namespace VE2.NonCore.Instancing.Internal
         #region syncer interfaces
         public void RegisterWorldStateModule(IWorldStateModule stateModule)
         {
+            if (_syncInfosAgainstIDs.ContainsKey(stateModule.ID))
+            {
+                Debug.LogError("Tried to register a world state module that was already registered: " + stateModule.ID);
+                _debugClashedStateModules.Add(stateModule);
+                return;
+            }
+
             PredictiveWorldStateHistoryQueue historyQueue = new(WorldStateHistoryQueueSize); 
             SyncInfo syncInfo = new() { HostSyncOffset = GenerateNewHostSyncOffset(), HistoryQueue = historyQueue, StateModule = stateModule, PreviousState = null };
 
@@ -45,7 +52,7 @@ namespace VE2.NonCore.Instancing.Internal
 
         private readonly Dictionary<string, SyncInfo> _syncInfosAgainstIDs = new();
         private readonly List<WorldStateBundle> _incommingWorldStateBundleBuffer = new();
-        private readonly string _localInstanceCode;
+        private readonly List<IWorldStateModule> _debugClashedStateModules = new();
         private int _cycleNumber = 0;
 
         private const int WORLD_STATE_SYNC_INTERVAL_MS = 20;
@@ -89,6 +96,7 @@ namespace VE2.NonCore.Instancing.Internal
 
             ProcessReceivedWorldStates();
             TransmitLocalWorldStates();
+            HandleDebugClashStateModules();
         }
 
         private void ProcessReceivedWorldStates()
@@ -169,6 +177,23 @@ namespace VE2.NonCore.Instancing.Internal
                 WorldStateBundle UDPBundle = new(outgoingSyncableStateBufferUDP);
                 _commsHandler.SendMessage(UDPBundle.Bytes, InstanceSyncSerializables.InstanceNetworkingMessageCodes.WorldstateSyncableBundle, TransmissionProtocol.UDP);
             }
+        }
+
+        private void HandleDebugClashStateModules()
+        {
+            #if UNITY_EDITOR
+
+            if (!Application.isEditor || _debugClashedStateModules.Count == 0)
+                return;
+
+            string clashedModules = "Please update the names on the following synced gameobjects to be unique:\n\n";
+            for (int i = 0; i < _debugClashedStateModules.Count; i++)
+                clashedModules += $"{i}: {_debugClashedStateModules[i].ID}\n";
+
+            _debugClashedStateModules.Clear();
+
+            UnityEditor.EditorUtility.DisplayDialog("Syncer clashes", clashedModules, "OK");
+            #endif
         }
 
         public void SetNewBufferLength(int newLength)
