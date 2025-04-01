@@ -39,7 +39,6 @@ namespace VE2.Core.VComponents.Internal
 
         private void AddToInteractingInteractors(InteractorID interactorID)
         {
-            Debug.Log("PressurePlateService: AddToInteractingInteractors");
             _StateModule.AddInteractorToState(interactorID);
         }
 

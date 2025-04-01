@@ -26,20 +26,20 @@ namespace VE2.NonCore.Instancing.Internal
         public void AddToHeldActivatableIDs(string activatableID)
         {
             _heldActivatableIDs.Add(activatableID);
-            
-            var rangedClickInteractable = GetRangedClickInteractionModule(activatableID);
+
+            IRangedHoldClickInteractionModule rangedClickInteractable = GetRangedClickInteractionModule(activatableID);
             rangedClickInteractable?.ClickDown(_interactorID);
 
-            var collideInteractable = GetCollideInteractionModule(activatableID);
+            ICollideInteractionModule collideInteractable = GetCollideInteractionModule(activatableID);
             collideInteractable?.InvokeOnCollideEnter(_interactorID);
         }
 
         public void RemoveFromHeldActivatableIDs(string activatableID)
         {
-            var rangedClickInteractable = GetRangedClickInteractionModule(activatableID);
+            IRangedHoldClickInteractionModule rangedClickInteractable = GetRangedClickInteractionModule(activatableID);
             rangedClickInteractable?.ClickUp(_interactorID);
 
-            var collideInteractable = GetCollideInteractionModule(activatableID);
+            ICollideInteractionModule collideInteractable = GetCollideInteractionModule(activatableID);
             collideInteractable?.InvokeOnCollideExit(_interactorID);
 
             _heldActivatableIDs.Remove(activatableID);
@@ -91,6 +91,20 @@ namespace VE2.NonCore.Instancing.Internal
         public void ConfirmDrop()
         {
             //TODO: Show 
+        }
+
+        public void HandleOnDestroy()
+        {
+            foreach (string activatableID in _heldActivatableIDs)
+            {
+                IRangedHoldClickInteractionModule rangedClickInteractable = GetRangedClickInteractionModule(activatableID);
+                rangedClickInteractable?.ClickUp(_interactorID);
+
+                ICollideInteractionModule collideInteractable = GetCollideInteractionModule(activatableID);
+                collideInteractable?.InvokeOnCollideExit(_interactorID);
+            }
+
+            _heldActivatableIDs.Clear();
         }
     }
 }

@@ -73,7 +73,7 @@ namespace VE2.Core.VComponents.Tests
         public virtual void HandleDeactivateReceived() { }
     }
 
-    internal class V_ToggleActivatableProviderStub : IV_ToggleActivatable, IRangedClickInteractionModuleProvider, ICollideInteractionModuleProvider
+    internal class V_ToggleActivatableProviderStub : IV_ToggleActivatable, IRangedToggleClickInteractionModuleProvider, ICollideInteractionModuleProvider
     {
         #region Plugin Interfaces
 

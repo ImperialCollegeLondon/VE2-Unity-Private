@@ -7,7 +7,7 @@ using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.Core.Player.Internal
 {
-    internal class PlayerControllerVR
+    internal class PlayerControllerVR : BasePlayerController
     {
         public PlayerTransformData PlayerTransformData
         {
@@ -39,7 +39,6 @@ namespace VE2.Core.Player.Internal
         private readonly Transform _rootTransform;
         private readonly Transform _verticalOffsetTransform;
         private readonly Transform _headTransform;
-        private readonly V_CollisionDetector _feetCollisionDetector;
         private readonly FeetInteractor _feetInteractorVR;
 
         private readonly V_HandController _handControllerLeft;
@@ -52,7 +51,7 @@ namespace VE2.Core.Player.Internal
         private readonly ISecondaryUIServiceInternal _secondaryUIService;
 
         internal PlayerControllerVR(HandInteractorContainer interactorContainer, PlayerVRInputContainer playerVRInputContainer, IPlayerPersistentDataHandler playerSettingsHandler, PlayerVRControlConfig controlConfig, MovementModeConfig movementModeConfig,
-            IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper, ILocalClientIDProvider localClientIDProvider, IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService)
+            IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper, ILocalClientIDProvider localClientIDProvider, IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService) 
         {
             GameObject playerVRPrefab = Resources.Load("vrPlayer") as GameObject;
             _playerGO = GameObject.Instantiate(playerVRPrefab, null, false);
@@ -70,9 +69,11 @@ namespace VE2.Core.Player.Internal
             _verticalOffsetTransform = playerVRReferences.VerticalOffsetTransform;
             _headTransform = playerVRReferences.HeadTransform;
             _primaryUIHolderRect = playerVRReferences.PrimaryUIHolderRect;
-            _feetCollisionDetector = playerVRReferences.FeetCollisionDetector;
+
+            base._PlayerHeadTransform = _headTransform;
+            base._FeetCollisionDetector = playerVRReferences.FeetCollisionDetector;
     
-            _feetInteractorVR = new FeetInteractor(_feetCollisionDetector, InteractorType.Feet, localClientIDProvider);
+            _feetInteractorVR = new FeetInteractor(_FeetCollisionDetector, InteractorType.Feet, localClientIDProvider);
 
             GameObject handVRLeftPrefab = Resources.Load<GameObject>("HandVRLeft");
             GameObject handVRLeftGO = GameObject.Instantiate(handVRLeftPrefab, _verticalOffsetTransform, false);
@@ -183,15 +184,11 @@ namespace VE2.Core.Player.Internal
             _handControllerRight.HandleLocalAvatarColorChanged(newColor);
         }
 
-        public void HandleUpdate()
+        internal override void HandleUpdate()
         {
+            base.HandleUpdate();
             _handControllerLeft.HandleUpdate();
             _handControllerRight.HandleUpdate();
-
-            if (Physics.Raycast(_headTransform.position, Vector3.down, out RaycastHit hit, 50, LayerMask.GetMask("Ground")))
-                _feetCollisionDetector.transform.position = hit.point;
-
-
         }
 
         private void HandleResetViewPressed()

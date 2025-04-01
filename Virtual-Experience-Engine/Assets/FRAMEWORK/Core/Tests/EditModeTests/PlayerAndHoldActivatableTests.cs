@@ -13,7 +13,7 @@ namespace VE2.Core.Tests
     internal class PlayerAndHoldActivatableTests : PlayerServiceSetupFixture
     {
         private IV_HoldActivatable _holdActivatablePluginInterface => _v_holdActivatableProviderStub;
-        private IRangedClickInteractionModuleProvider _holdActivatableRaycastInterface => _v_holdActivatableProviderStub;
+        private IRangedHoldClickInteractionModuleProvider _holdActivatableRaycastInterface => _v_holdActivatableProviderStub;
         private V_HoldActivatableProviderStub _v_holdActivatableProviderStub;
         private PluginActivatableScript _customerScript;
 

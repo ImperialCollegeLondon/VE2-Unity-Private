@@ -15,7 +15,7 @@ namespace VE2.Core.Tests
     {
         //variables that will be reused in the tests
         private IV_ToggleActivatable _activatablePluginInterface => _v_activatableProviderStub;
-        private IRangedClickInteractionModuleProvider _activatableRaycastInterface => _v_activatableProviderStub;
+        private IRangedToggleClickInteractionModuleProvider _activatableRaycastInterface => _v_activatableProviderStub;
         private V_ToggleActivatableProviderStub _v_activatableProviderStub;
         private PluginActivatableScript _customerScript;
 
@@ -44,7 +44,7 @@ namespace VE2.Core.Tests
         [Test]
         public void WithHoveringActivatable_OnUserClick_CustomerScriptReceivesOnActivate()
         {
-            RayCastProviderSetup.StubRangedInteractionModuleForRaycastProviderStub(_activatableRaycastInterface.RangedClickInteractionModule);
+            RayCastProviderSetup.StubRangedInteractionModuleForRaycastProviderStub(_activatableRaycastInterface.RangedToggleClickInteractionModule);
 
             //Check customer received the activation, and that the interactorID is set
             PlayerInputContainerSetup.RangedClick2D.OnPressed += Raise.Event<Action>();

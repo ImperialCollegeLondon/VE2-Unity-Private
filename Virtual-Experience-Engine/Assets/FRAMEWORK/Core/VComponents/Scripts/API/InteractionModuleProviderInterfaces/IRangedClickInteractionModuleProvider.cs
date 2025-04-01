@@ -2,8 +2,13 @@
 
 namespace VE2.Core.VComponents.API
 {
-    internal interface IRangedClickInteractionModuleProvider : IRangedInteractionModuleProvider
+    internal interface IRangedToggleClickInteractionModuleProvider : IRangedInteractionModuleProvider
     {
-        public IRangedClickInteractionModule RangedClickInteractionModule => (IRangedClickInteractionModule)RangedInteractionModule;
+        public IRangedToggleClickInteractionModule RangedToggleClickInteractionModule => (IRangedToggleClickInteractionModule)RangedInteractionModule;
+    }
+
+    internal interface IRangedHoldClickInteractionModuleProvider : IRangedInteractionModuleProvider
+    {
+        public IRangedHoldClickInteractionModule RangedHoldClickInteractionModule => (IRangedHoldClickInteractionModule)RangedInteractionModule;
     }
 }

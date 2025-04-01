@@ -6,6 +6,7 @@ using VE2.Core.Common;
 using VE2.Core.Player.API;
 using VE2.Core.Player.Internal;
 using VE2.Core.VComponents.API;
+using VE2.NonCore.Instancing.API;
 using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.NonCore.Instancing.Internal
@@ -21,11 +22,12 @@ namespace VE2.NonCore.Instancing.Internal
         [SerializeField] private GameObject _interactorVRLeftGameObject;
         [SerializeField] private GameObject _interactorVRRightGameObject;
         [SerializeField] private GameObject _interactorFeetGameObject;
-
         [SerializeField] private AvatarVisHandler _localAvatarHandler;
 
-        internal void Initialize(ushort clientID, HandInteractorContainer interactorContainer,
-            IPlayerServiceInternal playerService)
+        /// <summary>
+        /// Note, this WON'T set the initial appearance, HandleReceiveAvatarAppearance should be called after initialization
+        /// </summary>
+        public void Initialize(ushort clientID, HandInteractorContainer interactorContainer, IPlayerServiceInternal playerService)
         {
             _interactorVRLeftGameObject.name = $"Interactor{clientID}-{InteractorType.LeftHandVR}";
             _interactorVRRightGameObject.name = $"Interactor{clientID}-{InteractorType.RightHandVR}";
@@ -40,7 +42,7 @@ namespace VE2.NonCore.Instancing.Internal
             _localAvatarHandler.Initialize(playerService);
         }
 
-        internal void HandleReceiveRemotePlayerState(PlayerTransformData playerState)
+        public void HandleReceiveRemotePlayerState(PlayerTransformData playerState)
         {
             transform.SetPositionAndRotation(playerState.RootPosition, playerState.RootRotation);
             _verticalOffsetTransform.localPosition = new Vector3(0, playerState.VerticalOffset, 0);
@@ -62,13 +64,14 @@ namespace VE2.NonCore.Instancing.Internal
             else
             {
                 _interactor2DGameObject.transform.SetLocalPositionAndRotation(playerState.Hand2DLocalPosition, playerState.Hand2DLocalRotation);
+
                 UpdateHeldActivatableIDs(_interactor2DGameObject, playerState.HeldActivatableIds2D);
             }
 
             UpdateHeldActivatableIDs(_interactorFeetGameObject, playerState.HeldActivatableIdsFeet);
         }
 
-        internal void UpdateHeldActivatableIDs(GameObject interactorGameObject, List<string> receivedHeldActivatableIDs)
+        public void UpdateHeldActivatableIDs(GameObject interactorGameObject, List<string> receivedHeldActivatableIDs)
         {
             RemoteInteractor remoteInteractor = interactorGameObject.GetComponent<RemoteInteractor>();
 
@@ -86,11 +89,13 @@ namespace VE2.NonCore.Instancing.Internal
                 remoteInteractor.RemoveFromHeldActivatableIDs(idToRemove);
         }
 
+
         internal void HandleReceiveAvatarAppearance(OverridableAvatarAppearance newAvatarAppearance)
         {
             _playerNameText.text = newAvatarAppearance.PresentationConfig.PlayerName;
             _localAvatarHandler.HandleReceiveAvatarAppearance(newAvatarAppearance);
         }
+
 
         private void Update()
         {
@@ -107,6 +112,14 @@ namespace VE2.NonCore.Instancing.Internal
             //Destroy GO for domain reload
             if (gameObject != null)
                 Destroy(gameObject);
+        }
+
+        private void OnDestroy()
+        {
+            _interactorFeetGameObject.GetComponent<RemoteInteractor>().HandleOnDestroy();
+            _interactorVRLeftGameObject.GetComponent<RemoteInteractor>().HandleOnDestroy();
+            _interactorVRRightGameObject.GetComponent<RemoteInteractor>().HandleOnDestroy();
+            _interactor2DGameObject.GetComponent<RemoteInteractor>().HandleOnDestroy();
         }
     }
 }

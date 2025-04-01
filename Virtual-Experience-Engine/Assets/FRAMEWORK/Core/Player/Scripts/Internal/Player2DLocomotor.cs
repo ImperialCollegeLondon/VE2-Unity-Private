@@ -41,7 +41,9 @@ namespace VE2.Core.Player.Internal
         {
             get => _transform.rotation;
             set => _transform.rotation = value;
-        } 
+        }
+
+        public Transform HeadTransform => _cameraTransform;
 
         public Vector3 HeadLocalPosition 
         {
