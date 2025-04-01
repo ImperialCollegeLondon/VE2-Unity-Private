@@ -15,5 +15,7 @@ namespace VE2.Core.UI.API
         public void EnableModeSwitchButtons();
         public void ShowSwitchToVRButton();
         public void ShowSwitchTo2DButton();
+
+        public void SetInstanceCodeText(string text);
     }
 }

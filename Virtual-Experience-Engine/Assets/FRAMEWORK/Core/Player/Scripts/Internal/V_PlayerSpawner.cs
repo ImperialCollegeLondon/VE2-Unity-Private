@@ -85,11 +85,7 @@ namespace VE2.Core.Player.Internal
             get 
             {
                 if (_playerService == null)
-                {
                     OnEnable();
-                    Debug.Log("Player service is null, re-enabling");   
-                }
-
 
                 return _playerService;
             }

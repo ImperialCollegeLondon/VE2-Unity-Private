@@ -130,7 +130,9 @@ namespace VE2.NonCore.Platform.Internal
         /*
                 We should probably just be hiding UserSettingsDebug when there IS a platform service?
                 Instead, maybe we can just show the platform's user settings directly into the debug thing?
-
+                really, it's the instancing instance code we want to see here. 
+                The platform doesn't know about the instancce service
+                Yeah ok so the instance service should find the primary UI service 
         */
         public string PlayerDisplayName => _playerService.OverridableAvatarAppearance.PresentationConfig.PlayerName;
         #endregion

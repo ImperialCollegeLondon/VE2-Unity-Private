@@ -8,6 +8,7 @@ using static VE2.NonCore.Instancing.Internal.InstanceSyncSerializables;
 using VE2.Core.VComponents.API;
 using VE2.Core.Common;
 using VE2.NonCore.Platform.API;
+using VE2.Core.UI.API;
 
 namespace VE2.NonCore.Instancing.Internal
 {
@@ -24,6 +25,7 @@ namespace VE2.NonCore.Instancing.Internal
                 connectionStateDebugWrapper,
                 VComponentsAPI.InteractorContainer,
                 PlayerAPI.Player as IPlayerServiceInternal,
+                UIAPI.PrimaryUIService as IPrimaryUIServiceInternal,
                 connectAutomatically,
                 debugServerSettings,
                 debugInstanceCode);
@@ -70,6 +72,7 @@ namespace VE2.NonCore.Instancing.Internal
         private readonly IPluginSyncCommsHandler _commsHandler;
         private readonly ConnectionStateDebugWrapper _connectionStateDebugWrapper;
         private readonly IPlayerServiceInternal _playerService;
+        private readonly IPrimaryUIServiceInternal _primaryUIService;
         private readonly HandInteractorContainer _interactorContainer;
         private readonly InstanceInfoContainer _instanceInfoContainer;
         private readonly ServerConnectionSettings _serverSettings;
@@ -81,13 +84,14 @@ namespace VE2.NonCore.Instancing.Internal
 
         public InstanceService(IPluginSyncCommsHandler commsHandler, LocalClientIdWrapper localClientIDWrapper, 
             ConnectionStateDebugWrapper connectionStateDebugWrapper,
-            HandInteractorContainer interactorContainer, IPlayerServiceInternal playerServiceInternal,
+            HandInteractorContainer interactorContainer, IPlayerServiceInternal playerServiceInternal, IPrimaryUIServiceInternal primaryUIService,
             bool connectAutomatically, ServerConnectionSettings serverSettings, string instanceCode)
         {
             _commsHandler = commsHandler;
             _connectionStateDebugWrapper = connectionStateDebugWrapper;
             _interactorContainer = interactorContainer;
             _playerService = playerServiceInternal;
+            _primaryUIService = primaryUIService;
             _serverSettings = serverSettings;
             _instanceCode = instanceCode;
 
@@ -101,6 +105,8 @@ namespace VE2.NonCore.Instancing.Internal
             _worldStateSyncer = new(_commsHandler, _instanceInfoContainer); //receives and transmits
             _localPlayerSyncer = new(_commsHandler, playerServiceInternal, _instanceInfoContainer); //only transmits
             _remotePlayerSyncer = new(_commsHandler, _instanceInfoContainer, _interactorContainer, _playerService); //only receives
+
+            _primaryUIService.SetInstanceCodeText(_instanceCode);
 
             if (connectAutomatically)
                 ConnectToServer();

@@ -38,7 +38,6 @@ namespace VE2.NonCore.Instancing.Internal
 
         private void HandleDisconnectFromServer()
         {
-            Debug.Log("handle Disconnected from server");
             hostIndicatorText.text = "Not Connected";
             hostIndicatorText.color = Color.red;
             hostIndicatorText.rectTransform.ForceUpdateRectTransforms();
@@ -46,7 +45,6 @@ namespace VE2.NonCore.Instancing.Internal
 
         private void HandleBecomeHost()
         {
-            Debug.Log("handle Become Host");
             hostIndicatorText.text = "Host";
             hostIndicatorText.color = _colorConfig.AccentPrimaryColor;
         }

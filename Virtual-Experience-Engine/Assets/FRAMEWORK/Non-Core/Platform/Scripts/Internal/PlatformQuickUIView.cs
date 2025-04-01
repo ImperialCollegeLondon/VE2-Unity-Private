@@ -51,8 +51,6 @@ namespace VE2.NonCore.Platform.Internal
             _colorConfiguration = Resources.Load<ColorConfiguration>("ColorConfiguration"); //TODO: Inject
 
             PlatformQuickUIHandler handler = new(this);
-
-            Debug.Log("Color config loaded: " + _colorConfiguration);
         }
 
         private void HandleBackToHubButtonClicked()

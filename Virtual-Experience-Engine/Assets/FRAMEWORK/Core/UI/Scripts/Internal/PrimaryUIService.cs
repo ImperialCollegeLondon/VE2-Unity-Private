@@ -65,6 +65,8 @@ namespace VE2.Core.UI.Internal
         }
 
         public void SetPlatformQuickpanel(GameObject platformQuickPanel) => _quickPanelView.SetPlatformQuickpanel(platformQuickPanel);
+
+        public void SetInstanceCodeText(string text) => _topBarView.SubtitleText = text;
         #endregion
 
         private readonly IPressableInput _onToggleUIPressed;
