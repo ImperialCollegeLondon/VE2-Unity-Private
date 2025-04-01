@@ -142,14 +142,14 @@ namespace VE2.Core.Player.Internal
             settingsUI.SetActive(false);
         
             _primaryUIService.AddNewTab("Settings", settingsUI, Resources.Load<Sprite>("PlayerSettingsUIIcon"), 2);
-            GameObject.Destroy(settingsUIHolder);
+            GameObject.DestroyImmediate(settingsUIHolder);
             
             GameObject helpUIHolder = GameObject.Instantiate(Resources.Load<GameObject>("PlayerHelpUIHolder"));
             GameObject helpUI = helpUIHolder.transform.GetChild(0).gameObject;
             helpUI.SetActive(false);
 
             _primaryUIService.AddNewTab("Help", helpUI, Resources.Load<Sprite>("PlayerHelpUIIcon"), 3);
-            GameObject.Destroy(helpUIHolder);
+            GameObject.DestroyImmediate(helpUIHolder);
 
             if (_config.Enable2D && _config.EnableVR)
                 _primaryUIService.EnableModeSwitchButtons();
