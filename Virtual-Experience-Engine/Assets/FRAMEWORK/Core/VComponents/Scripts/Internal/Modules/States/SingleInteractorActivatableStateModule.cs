@@ -53,7 +53,8 @@ namespace VE2.Core.VComponents.Internal
         private SingleInteractorActivatableState _state => (SingleInteractorActivatableState)State;
         private ToggleActivatableStateConfig _config => (ToggleActivatableStateConfig)Config;
 
-        private ActivatableGroupsContainer _activatableGroupsContainer;
+        private readonly ActivatableGroupsContainer _activatableGroupsContainer;
+
         public SingleInteractorActivatableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncService worldStateSyncService, ActivatableGroupsContainer activatableGroupsContainer) : base(state, config, id, worldStateSyncService)
         {
             _activationGroupID = _config.ActivationGroupID;
@@ -74,12 +75,12 @@ namespace VE2.Core.VComponents.Internal
         private void HandleExternalActivation(bool newIsActivated)
         {
             if (newIsActivated != _state.IsActivated)
-                InvertState(ushort.MaxValue);
+                ToggleActivatableState(ushort.MaxValue);
             else
                 Debug.LogWarning($"Tried to set activated state on {ID} to {newIsActivated} but state is already {_state.IsActivated}");
         }
 
-        public void HandleActivatableState(ushort clientID)
+        public void ToggleActivatableState(ushort clientID)
         {
             if (_isInActivationGroup)
             {
@@ -150,6 +151,16 @@ namespace VE2.Core.VComponents.Internal
                 InvokeCustomerOnActivateEvent();
             else if (!_state.IsActivated && oldIsActivated)
                 InvokeCustomerOnDeactivateEvent();
+        }
+
+        public override void TearDown()
+        {   
+            base.TearDown();
+
+            if (_isInActivationGroup)
+            {
+                _activatableGroupsContainer.DeregisterActivatable(_activationGroupID, this);
+            }
         }
     }
 

@@ -13,62 +13,143 @@ namespace VE2.Core.Tests
     [Category("Player and Toggle Activatable Tests")]
     internal class PlayerAndToggleActivatableTests : PlayerServiceSetupFixture
     {
-        //variables that will be reused in the tests
-        private IV_ToggleActivatable _activatablePluginInterface => _v_activatableProviderStub;
-        private IRangedToggleClickInteractionModuleProvider _activatableRaycastInterface => _v_activatableProviderStub;
+        // Using more descriptive names
+        private IV_ToggleActivatable _firstActivatablePluginInterface => _v_activatableProviderStub;
+        private IRangedToggleClickInteractionModuleProvider _firstActivatableRaycastInterface => _v_activatableProviderStub;
+
         private V_ToggleActivatableProviderStub _v_activatableProviderStub;
         private PluginActivatableScript _customerScript;
 
-        //Setup Once for every single test in this test fixture
+        private IV_ToggleActivatable _secondActivatablePluginInterface => _v_activatableProviderStub2;
+        private IRangedToggleClickInteractionModuleProvider _secondActivatableRaycastInterface => _v_activatableProviderStub2;
+        private V_ToggleActivatableProviderStub _v_activatableProviderStub2;
+        private PluginActivatableScript _customerScript2;
+
+        private ActivatableGroupsContainer _activatableGroupsContainer;
+
+        #region Setup & Helper Methods
+
+        private (V_ToggleActivatableProviderStub provider, PluginActivatableScript script) CreateActivatable(string debugLabel)
+        {
+            var config = new ToggleActivatableConfig
+            {
+                StateConfig = new ToggleActivatableStateConfig
+                {
+                    UseActivationGroup = true,
+                    ActivationGroupID = "TestGroup"
+                },
+                GeneralInteractionConfig = new GeneralInteractionConfig(),
+                RangedInteractionConfig = new RangedInteractionConfig()
+            };
+
+            var service = new ToggleActivatableService(
+                config,
+                new SingleInteractorActivatableState(),
+                debugLabel,
+                Substitute.For<IWorldStateSyncService>(),
+                _activatableGroupsContainer);
+
+            var providerStub = new V_ToggleActivatableProviderStub(service);
+            var customerScript = Substitute.For<PluginActivatableScript>();
+
+            // Cast to IV_ToggleActivatable to access OnActivate/OnDeactivate.
+            ((IV_ToggleActivatable)providerStub).OnActivate.AddListener(customerScript.HandleActivateReceived);
+            ((IV_ToggleActivatable)providerStub).OnDeactivate.AddListener(customerScript.HandleDeactivateReceived);
+
+            return (providerStub, customerScript);
+        }
+
+        private void SimulateClick()
+        {
+            PlayerInputContainerSetup.RangedClick2D.OnPressed += Raise.Event<Action>();
+        }
+
         [SetUp]
         public void SetUpBeforeEveryTest()
         {
-            //Create the activatable
-            ToggleActivatableService toggleActivatableService = new(
-                new ToggleActivatableConfig(),
-                new SingleInteractorActivatableState(),
-                "debug",
-                Substitute.For<IWorldStateSyncService>(),
-                new ActivatableGroupsContainer());
-            
-            //Stub out the provider layer
-            _v_activatableProviderStub = new(toggleActivatableService);
+            _activatableGroupsContainer = new ActivatableGroupsContainer();
 
-            //Wire up the customer script to receive the events           
-            _customerScript = Substitute.For<PluginActivatableScript>();
-            _activatablePluginInterface.OnActivate.AddListener(_customerScript.HandleActivateReceived);
-            _activatablePluginInterface.OnDeactivate.AddListener(_customerScript.HandleDeactivateReceived);
+            // Initialize first activatable
+            var first = CreateActivatable("debug");
+            _v_activatableProviderStub = first.provider;
+            _customerScript = first.script;
+
+            // Initialize second activatable
+            var second = CreateActivatable("debug2");
+            _v_activatableProviderStub2 = second.provider;
+            _customerScript2 = second.script;
         }
+        #endregion
 
-        //test method to confirm that the activatable emits the correct events when the player interacts with it
+        #region Test Cases
+
         [Test]
-        public void WithHoveringActivatable_OnUserClick_CustomerScriptReceivesOnActivate()
+        public void OnUserClick_WithHoveringActivatable_CustomerScriptReceivesOnActivate([Random((ushort)0, ushort.MaxValue, 1)] ushort localClientID)
         {
-            RayCastProviderSetup.StubRangedInteractionModuleForRaycastProviderStub(_activatableRaycastInterface.RangedToggleClickInteractionModule);
+            RayCastProviderSetup.StubRangedInteractionModuleForRaycastProviderStub(_firstActivatableRaycastInterface.RangedToggleClickInteractionModule);
+            LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID.Returns(localClientID);
 
-            //Check customer received the activation, and that the interactorID is set
-            PlayerInputContainerSetup.RangedClick2D.OnPressed += Raise.Event<Action>();
+            // Simulate click to activate
+            SimulateClick();
             _customerScript.Received(1).HandleActivateReceived();
-            Assert.IsTrue(_activatablePluginInterface.IsActivated, "Activatable should be activated");
-            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, LocalClientIDProviderSetup.LocalClientID);
 
-            // Invoke the click to deactivate
-            PlayerInputContainerSetup.RangedClick2D.OnPressed += Raise.Event<Action>();
+            Assert.IsTrue(_firstActivatablePluginInterface.IsActivated, "Activatable should be activated");
+            Assert.AreEqual(_firstActivatablePluginInterface.MostRecentInteractingClientID, localClientID);
+
+            // Simulate click to deactivate
+            SimulateClick();
             _customerScript.Received(1).HandleDeactivateReceived();
-            Assert.IsFalse(_activatablePluginInterface.IsActivated, "Activatable should be deactivated");
-            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, LocalClientIDProviderSetup.LocalClientID);
+
+            Assert.IsFalse(_firstActivatablePluginInterface.IsActivated, "Activatable should be deactivated");
+            Assert.AreEqual(_firstActivatablePluginInterface.MostRecentInteractingClientID, localClientID);
         }
 
-        //tear down that runs after every test method in this test fixture
+        [Test]
+        public void OnUserClick_WithHoveringActivatable_CustomerScriptReceivesOnActivate_DeactivatesOthersInGroup([Random((ushort)0, ushort.MaxValue, 1)] ushort localClientID)
+        {
+            // Stub first activatable's module and set client ID
+            RayCastProviderSetup.StubRangedInteractionModuleForRaycastProviderStub(_firstActivatableRaycastInterface.RangedToggleClickInteractionModule);
+            LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID.Returns(localClientID);
+
+            // Activate first activatable
+            SimulateClick();
+            _customerScript.Received(1).HandleActivateReceived();
+            Assert.IsTrue(_firstActivatablePluginInterface.IsActivated, "First activatable should be activated");
+            Assert.AreEqual(_firstActivatablePluginInterface.MostRecentInteractingClientID, localClientID);
+
+            // Stub second activatable's module
+            RayCastProviderSetup.StubRangedInteractionModuleForRaycastProviderStub(_secondActivatableRaycastInterface.RangedToggleClickInteractionModule);
+
+            // Activate second activatable
+            SimulateClick();
+            _customerScript2.Received(1).HandleActivateReceived();
+            Assert.IsTrue(_secondActivatablePluginInterface.IsActivated, "Second activatable should be activated");
+            Assert.AreEqual(_secondActivatablePluginInterface.MostRecentInteractingClientID, localClientID);
+
+            // Verify first activatable deactivation
+            Assert.IsFalse(_firstActivatablePluginInterface.IsActivated, "First activatable should be deactivated");
+            _customerScript.Received(1).HandleDeactivateReceived();
+        }
+
+        #endregion
+
+        #region Teardown
+
         [TearDown]
         public void TearDownAfterEveryTest()
         {
             _customerScript.ClearReceivedCalls();
-            
-            _activatablePluginInterface.OnActivate.RemoveAllListeners();
-            _activatablePluginInterface.OnDeactivate.RemoveAllListeners();
+            _customerScript2?.ClearReceivedCalls();
+
+            _firstActivatablePluginInterface.OnActivate.RemoveAllListeners();
+            _firstActivatablePluginInterface.OnDeactivate.RemoveAllListeners();
+
+            _secondActivatablePluginInterface?.OnActivate.RemoveAllListeners();
+            _secondActivatablePluginInterface?.OnDeactivate.RemoveAllListeners();
 
             _v_activatableProviderStub.TearDown();
+            _v_activatableProviderStub2?.TearDown();
         }
+        #endregion
     }
 }

@@ -49,13 +49,11 @@ namespace VE2.Core.VComponents.Internal
 
         private void HandleInteract(InteractorID interactorID)
         {
-
-            _StateModule.HandleActivatableState(interactorID.ClientID);
+            _StateModule.ToggleActivatableState(interactorID.ClientID);
         }
 
         public void TearDown() 
         {
-            //VComponentsAPI.ActivatableGroupsContainer.DeregisterActivatable(_activationGroupID, _StateModule); 
             _StateModule.TearDown();
         }
     }

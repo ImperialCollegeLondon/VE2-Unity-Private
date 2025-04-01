@@ -64,8 +64,8 @@ namespace VE2.Core.Player.Internal
             _teleportLineRenderer.positionCount = _lineSegmentCount + 1;
             _teleportLineRenderer.enabled = false;
             _teleportLineRenderer.useWorldSpace = false;
-            _teleportLineMaterial = _teleportLineRenderer.material;
-            _teleportLineMaterial.EnableKeyword("_EMISSION");
+            _teleportLineMaterial = Application.isPlaying ? _teleportLineRenderer.material : null;
+            _teleportLineMaterial?.EnableKeyword("_EMISSION");
 
             _teleportCursor = GameObject.Instantiate(teleportCursorPrefab);
             _teleportCursor.transform.SetParent(_teleportRayOrigin.parent);
@@ -278,6 +278,9 @@ namespace VE2.Core.Player.Internal
 
         private void ToggleTeleportLineVisualShowsValid(bool toggle)
         {
+            if (_teleportLineMaterial == null)
+                return;
+
             Color newColor = toggle ? _colorConfig.TeleportValidColor : _colorConfig.TeleportInvalidColor;
             _teleportLineMaterial.color = newColor;
             _teleportLineMaterial.SetColor("_EmissionColor", newColor * LINE_EMISSION_INTENSITY);

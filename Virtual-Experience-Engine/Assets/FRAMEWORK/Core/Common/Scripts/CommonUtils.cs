@@ -9,6 +9,10 @@ namespace VE2.Core.Common
         {
             List<Material> colorMaterials = new();
 
+            //If we're in edit mode (i.e, a test) just return empty list
+            if (!Application.isPlaying)
+                return colorMaterials;
+
             foreach (Renderer renderer in go.GetComponentsInChildren<Renderer>())
             {
                 for (int i = 0; i < renderer.materials.Length; i++)

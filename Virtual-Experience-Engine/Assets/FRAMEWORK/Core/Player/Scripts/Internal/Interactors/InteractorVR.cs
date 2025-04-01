@@ -30,8 +30,8 @@ namespace VE2.Core.Player.Internal
             _handVisualGO = interactorVRReferences.HandVisualGO;
 
             _lineRenderer = interactorVRReferences.LineRenderer;
-            _lineMaterial = _lineRenderer.material;
-            _lineMaterial.EnableKeyword("_EMISSION");
+            _lineMaterial = Application.isPlaying ? _lineRenderer.material : null; //SetUp : Unhandled log message: '[Error] Instantiating material due to calling renderer.material during edit mode. This will leak materials into the scene. You most likely want to use renderer.sharedMaterial instead.'. Use UnityEngine.TestTools.LogAssert.Expect
+            _lineMaterial?.EnableKeyword("_EMISSION");
 
             _colorConfig = Resources.Load<ColorConfiguration>("ColorConfiguration"); //TODO: Inject
         }
@@ -76,6 +76,9 @@ namespace VE2.Core.Player.Internal
         protected override void SetInteractorState(InteractorState newState)
         {
             _handVisualGO.SetActive(newState != InteractorState.Grabbing);
+
+            if (_lineMaterial == null)
+                return;
 
             switch (newState)
             {

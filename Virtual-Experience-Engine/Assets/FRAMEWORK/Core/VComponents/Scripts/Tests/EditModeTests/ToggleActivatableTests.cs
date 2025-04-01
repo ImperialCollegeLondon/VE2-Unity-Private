@@ -12,22 +12,34 @@ namespace VE2.Core.VComponents.Tests
         private IV_ToggleActivatable _activatablePluginInterface => _v_toggleActivatableProviderStub;
         private V_ToggleActivatableProviderStub _v_toggleActivatableProviderStub;
         private PluginActivatableScript _customerScript;
-
+        private ActivatableGroupsContainer _activatableGroupsContainer = new();
+        private IV_ToggleActivatable _activatablePluginInterface2 => _v_toggleActivatableProviderStub2;
+        private V_ToggleActivatableProviderStub _v_toggleActivatableProviderStub2;
         //Setup Once for every single test in this test class
         [OneTimeSetUp]
         public void SetUpOnce() { }
 
-        //setup that runs before every test method in this class
         [SetUp]
-        public void SetUpBeforeEveryTest() 
-        { 
-            //Create the activatable
-            ToggleActivatableService toggleActivatable = new(new ToggleActivatableConfig(), new SingleInteractorActivatableState(), "debug", Substitute.For<IWorldStateSyncService>(), new ActivatableGroupsContainer());
+        public void SetUpBeforeEveryTest()
+        {
+            _activatableGroupsContainer.Reset();
 
-            //Stub out the VC (provider layer) with the activatable
+            // Create the activatable with an activation group
+            ToggleActivatableStateConfig stateConfig = new();
+            stateConfig.ActivationGroupID = "testGroup";
+            stateConfig.UseActivationGroup = true;
+            var config = new ToggleActivatableConfig
+            {
+                StateConfig = stateConfig,
+                GeneralInteractionConfig = new(),
+                RangedInteractionConfig = new()
+            };
+            ToggleActivatableService toggleActivatable = new(config, new SingleInteractorActivatableState(), "debug", Substitute.For<IWorldStateSyncService>(), _activatableGroupsContainer);
+
+            // Stub out the VC (provider layer) with the activatable
             _v_toggleActivatableProviderStub = new(toggleActivatable);
 
-            //Wire up the customer script to receive the events           
+            // Wire up the customer script to receive the events
             _customerScript = Substitute.For<PluginActivatableScript>();
             _activatablePluginInterface.OnActivate.AddListener(_customerScript.HandleActivateReceived);
             _activatablePluginInterface.OnDeactivate.AddListener(_customerScript.HandleDeactivateReceived);
@@ -65,6 +77,45 @@ namespace VE2.Core.VComponents.Tests
         //tear down that runs once after all the tests in this class
         [OneTimeTearDown]
         public void TearDownOnce() { }
+
+        // New test method
+        [Test]
+        public void PushActivatableInActivationGroup_WhenActivated_DeactivatesOthersInGroup()
+        {
+            // Setup a second ToggleActivatableService with the same activation group
+            ToggleActivatableStateConfig stateConfig = new();
+            stateConfig.ActivationGroupID = "testGroup";
+            stateConfig.UseActivationGroup = true;
+            var config = new ToggleActivatableConfig
+            {
+                StateConfig = stateConfig,
+                GeneralInteractionConfig = new(),
+                RangedInteractionConfig = new()
+            };
+            ToggleActivatableService toggleActivatable2 = new(config, new SingleInteractorActivatableState(), "debug2", Substitute.For<IWorldStateSyncService>(), _activatableGroupsContainer);
+
+            // Stub out the VC (provider layer) with the activatable
+            _v_toggleActivatableProviderStub2 = new(toggleActivatable2);
+
+            // Wire up the second customer script to receive the events
+            var customerScript2 = Substitute.For<PluginActivatableScript>();
+            _activatablePluginInterface2.OnActivate.AddListener(customerScript2.HandleActivateReceived);
+            _activatablePluginInterface2.OnDeactivate.AddListener(customerScript2.HandleDeactivateReceived);
+
+            // Activate the first activatable
+            _activatablePluginInterface.IsActivated = true;
+            _customerScript.Received(1).HandleActivateReceived();
+            Assert.IsTrue(_activatablePluginInterface.IsActivated, "First activatable should be activated");
+
+            // Activate the second activatable
+            _activatablePluginInterface2.IsActivated = true;
+            customerScript2.Received(1).HandleActivateReceived();
+            Assert.IsTrue(_activatablePluginInterface2.IsActivated, "Second activatable should be activated");
+
+            // Check that the first activatable is deactivated
+            Assert.IsFalse(_activatablePluginInterface.IsActivated, "First activatable should be deactivated");
+            _customerScript.Received(1).HandleDeactivateReceived();
+        }
     }
 
     internal class PluginActivatableScript
