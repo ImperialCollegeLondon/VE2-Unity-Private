@@ -124,7 +124,7 @@ namespace VE2.NonCore.Instancing.Internal
 
         private void FixedUpdate()
         {
-            _instanceService?.NetworkUpdate();
+            _instanceService?.HandleUpdate();
         }
 
         private void OnDisable()

@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d4a234baed2ed34ab35694ab0f3e598, type: 3}
   m_Name: InstancingProjectReferences
   m_EditorClassIdentifier: 
-  localServerExecutable: {fileID: 0}
-  test: 0
+  _localServerExecutable: {fileID: 102900000, guid: 6dd36061986082444afdd8bdb24f3c00,
+    type: 3}

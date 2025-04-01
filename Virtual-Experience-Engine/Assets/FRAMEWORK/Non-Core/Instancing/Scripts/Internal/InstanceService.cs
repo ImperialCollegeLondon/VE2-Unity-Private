@@ -69,6 +69,10 @@ namespace VE2.NonCore.Instancing.Internal
         #endregion
 
 
+        private bool _shouldConnectToServer = false;
+        private float _timeOfLastConnectionAttempt = 0f;
+        private float _timeBetweenConnectionAttempts = 5f;
+
         private readonly IPluginSyncCommsHandler _commsHandler;
         private readonly ConnectionStateDebugWrapper _connectionStateDebugWrapper;
         private readonly IPlayerServiceInternal _playerService;
@@ -124,11 +128,22 @@ namespace VE2.NonCore.Instancing.Internal
             _connectionStateDebugWrapper.ConnectionState = ConnectionState.Connecting;
 
             Debug.Log("Try connect to instance... " + _serverSettings.ServerAddress);
+            _shouldConnectToServer = true;
+            AttemptConnection();
+        }
 
-            if (IPAddress.TryParse(_serverSettings.ServerAddress, out IPAddress ipAddress))
-                _commsHandler.ConnectToServerAsync(ipAddress, _serverSettings.ServerPort);
-            else
+        private void AttemptConnection()
+        {
+            if (!IPAddress.TryParse(_serverSettings.ServerAddress, out IPAddress ipAddress))
+            {
                 Debug.LogError("Could not connect to server, invalid IP address");
+                _shouldConnectToServer = false;
+            }
+            else
+            {
+                _timeOfLastConnectionAttempt = Time.time;
+                _commsHandler.ConnectToServerAsync(ipAddress, _serverSettings.ServerPort);
+            }
         }
 
         private void HandleReceiveNetcodeVersion(byte[] bytes)
@@ -148,7 +163,7 @@ namespace VE2.NonCore.Instancing.Internal
 
         private void SendServerRegistration() 
         {
-            Debug.Log("<color=green> Try connect to server with instance code - " + _instanceCode);
+            //Debug.Log("<color=green> Try register to server pop'n with instance code - " + _instanceCode);
 
             bool usingFrameworkAvatar = true; //TODO
             AvatarAppearanceWrapper avatarAppearanceWrapper = new(usingFrameworkAvatar, _playerService.OverridableAvatarAppearance);
@@ -176,11 +191,15 @@ namespace VE2.NonCore.Instancing.Internal
             _instanceInfoContainer.InstanceInfo = new InstancedInstanceInfo(bytes);
         }
 
-        internal void NetworkUpdate() 
+        internal void HandleUpdate() 
         {
             _commsHandler.MainThreadUpdate();
 
-            if (IsConnectedToServer)
+            if (!IsConnectedToServer && _shouldConnectToServer && Time.time - _timeOfLastConnectionAttempt > _timeBetweenConnectionAttempts)
+            {
+                AttemptConnection();
+            }
+            else if (IsConnectedToServer)
             {
                 _worldStateSyncer.NetworkUpdate();
                 _localPlayerSyncer.NetworkUpdate();
@@ -197,6 +216,8 @@ namespace VE2.NonCore.Instancing.Internal
                 Debug.LogWarning("Attempted to disconnect to server while not connected");
                 return;
             }
+
+            _shouldConnectToServer = false;
             _commsHandler.DisconnectFromServer();
         } 
 

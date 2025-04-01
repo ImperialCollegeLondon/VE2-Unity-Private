@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using VE2.NonCore.Instancing.API;
 using VE2.Core.Common;
+using UnityEngine.UI;
 
 namespace VE2.NonCore.Instancing.Internal
 {
@@ -38,20 +39,21 @@ namespace VE2.NonCore.Instancing.Internal
 
         private void HandleDisconnectFromServer()
         {
+            //Debug.Log("handle Disconnect from Server DEBUG UI");
             hostIndicatorText.text = "Not Connected";
             hostIndicatorText.color = Color.red;
-            hostIndicatorText.rectTransform.ForceUpdateRectTransforms();
         }
 
         private void HandleBecomeHost()
         {
+            //Debug.Log("handle become Host");
             hostIndicatorText.text = "Host";
             hostIndicatorText.color = _colorConfig.AccentPrimaryColor;
         }
 
         private void HandleLoseHost() 
         {
-            Debug.Log("handle Lose Host");
+            //Debug.Log("handle Lose Host");
             hostIndicatorText.text = "Non-Host";
             hostIndicatorText.color = _colorConfig.AccentSecondaryColor;
         }

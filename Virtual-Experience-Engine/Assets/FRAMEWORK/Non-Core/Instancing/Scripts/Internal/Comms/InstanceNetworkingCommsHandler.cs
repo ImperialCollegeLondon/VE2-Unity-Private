@@ -100,8 +100,16 @@ namespace VE2.NonCore.Instancing.Internal
             }
         }
 
-        private void HandleDisconnected(object sender, DisconnectedEventArgs e) => OnDisconnectedFromServer?.Invoke();
-
+        private void HandleDisconnected(object sender, DisconnectedEventArgs e) 
+        {
+            lock (executionQueue)
+            {
+                executionQueue.Enqueue(() =>
+                {
+                    OnDisconnectedFromServer?.Invoke();
+                });
+            }
+        }
 
         private class RawBytesMessage : IDarkRiftSerializable
         {
