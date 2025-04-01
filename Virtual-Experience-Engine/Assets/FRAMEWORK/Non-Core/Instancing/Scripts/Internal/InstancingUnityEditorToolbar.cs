@@ -55,15 +55,27 @@ namespace VE2.Core.Player
 
             if (!serverAlreadyRunning)
             {
-                string executableName = "DarkRift.Server.Console.exe";
-                string pathToServer = $"{Application.dataPath}/FRAMEWORK/Non-Core/Instancing/LocalServer";
-                string nameAndPath = $"{pathToServer}/{executableName}";
+                InstancingProjectReferences instancingProjectReferences = Resources.Load<InstancingProjectReferences>("InstancingProjectReferences");
+                if (instancingProjectReferences == null)
+                {
+                    UnityEngine.Debug.LogError("Couldn't get path to exe");
+                    return;
+                }
 
-                UnityEngine.Debug.Log($"Launching local server: {nameAndPath}");
+                string assetPath = AssetDatabase.GetAssetPath(instancingProjectReferences.LocalServerExecutable);
+                string fullPath = Path.GetFullPath(assetPath);
+
+                if (File.Exists(fullPath) == false)
+                {
+                    UnityEngine.Debug.LogError($"Couldn't find local server executable");
+                    return;
+                }
+
+                UnityEngine.Debug.Log($"Launching local server...");
 
                 ProcessStartInfo startInfo = new();
-                startInfo.WorkingDirectory = pathToServer;
-                startInfo.FileName = nameAndPath;
+                startInfo.WorkingDirectory = Path.GetDirectoryName(fullPath);
+                startInfo.FileName = fullPath;
                 Process.Start(startInfo);
             }
         }
