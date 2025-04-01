@@ -18,10 +18,12 @@ namespace VE2.NonCore.Instancing.Internal
         public event Action<byte[]> OnReceiveWorldStateSyncableBundle;
         public event Action<byte[]> OnReceiveRemotePlayerState;
         public event Action<byte[]> OnReceiveInstantMessage;
+        public event Action<byte[]> OnReceivePingMessage;
 
         public Task ConnectToServerAsync(IPAddress ipAddress, int portNumber);
         public void SendMessage(byte[] messageAsBytes, InstanceSyncSerializables.InstanceNetworkingMessageCodes messageCode, TransmissionProtocol transmissionProtocol);
         public void MainThreadUpdate();
         public void DisconnectFromServer();
+        public InstanceCommsHandlerConfig InstanceConfig { get; set; }
     }
 }

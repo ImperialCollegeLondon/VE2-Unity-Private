@@ -77,6 +77,7 @@ namespace VE2.Core.Player.Internal
         private readonly IRaycastProvider _RaycastProvider;
         private readonly ILocalClientIDProvider _localClientIDProvider;
 
+        //TODO - this can probably live just in InteractorVR... is there any reason the 2d interactor needs this? Think its just for teleporting?
         internal readonly FreeGrabbableWrapper GrabbableWrapper;
 
         private readonly HoveringOverScrollableIndicator _hoveringOverScrollableIndicator;

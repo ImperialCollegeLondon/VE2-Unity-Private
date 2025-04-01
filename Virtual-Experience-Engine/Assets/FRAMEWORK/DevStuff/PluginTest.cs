@@ -16,16 +16,18 @@ public class PluginTest : MonoBehaviour
     [SerializeField] private GameObject _handheldActivatableGO;
     [SerializeField] private GameObject _handheldAdjustableGO;
     [SerializeField] private GameObject _networkObjectGO;
+
     [SerializeField] private GameObject _linearAdjustableGO;
     [SerializeField] private GameObject _rotationalAdjustableGO;
 
-    [SerializeField] private TMP_Text _roomColorText;
+    [SerializeField] private GameObject _rbSyncableGO;
 
     private IV_ToggleActivatable _pushActivatable => _pushButtonGO.GetComponent<IV_ToggleActivatable>();
     private IV_FreeGrabbable _freeGrabbable => _freeGrabbableGO.GetComponent<IV_FreeGrabbable>();
     private IV_HandheldActivatable _handheldActivatable => _handheldActivatableGO.GetComponent<IV_HandheldActivatable>();
     private IV_HandheldAdjustable _handheldAdjustable => _handheldAdjustableGO.GetComponent<IV_HandheldAdjustable>();
     private IV_NetworkObject _networkObject => _networkObjectGO.GetComponent<IV_NetworkObject>();
+    private IV_RigidbodySyncable _rbSyncable => _rbSyncableGO.GetComponent<IV_RigidbodySyncable>();
 
     private IV_LinearAdjustable _linearAdjustable => _linearAdjustableGO.GetComponent<IV_LinearAdjustable>();
     private IV_RotationalAdjustable _rotationalAdjustable => _rotationalAdjustableGO.GetComponent<IV_RotationalAdjustable>();
@@ -35,27 +37,23 @@ public class PluginTest : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _roomColorText.text = "Blue Room";
-        _roomColorText.color = Color.blue;
+        _pushActivatable?.OnActivate.AddListener(OnButtonActivate);
+        _pushActivatable?.OnDeactivate.AddListener(OnButtonDeactivate);
 
-        //_pushActivatable.OnActivate.AddListener(OnButtonActivate);
-        //_pushActivatable.OnDeactivate.AddListener(OnButtonDeactivate);
+        _freeGrabbable?.OnGrab.AddListener(OnFreeGrabbableGrab);
+        _freeGrabbable?.OnDrop.AddListener(OnFreeGrabbableDrop);
 
-        _freeGrabbable.OnGrab.AddListener(OnFreeGrabbableGrab);
-        _freeGrabbable.OnDrop.AddListener(OnFreeGrabbableDrop);
+        _linearAdjustable?.OnGrab.AddListener(OnLinearAdjustableGrab);
+        _linearAdjustable?.OnDrop.AddListener(OnLinearAdjustableDrop);
 
-        _linearAdjustable.OnGrab.AddListener(OnLinearAdjustableGrab);
-        _linearAdjustable.OnDrop.AddListener(OnLinearAdjustableDrop);
+        _handheldActivatable?.OnActivate.AddListener(OnHandheldActivatableActivate);
+        _handheldActivatable?.OnDeactivate.AddListener(OnHandheldActivatableDeactivate);
+        _handheldAdjustable?.OnValueAdjusted.AddListener(OnHandheldAdjustableValueAdjusted);
 
-        _handheldActivatable.OnActivate.AddListener(OnHandheldActivatableActivate);
-        _handheldActivatable.OnDeactivate.AddListener(OnHandheldActivatableDeactivate);
-        _handheldAdjustable.OnValueAdjusted.AddListener(OnHandheldAdjustableValueAdjusted);
+        _linearAdjustable?.OnValueAdjusted.AddListener(OnLinearAdjustableValueAdjusted);
+        _rotationalAdjustable?.OnValueAdjusted.AddListener(OnRotationalAdjustableValueAdjusted);
 
-        _linearAdjustable.OnValueAdjusted.AddListener(OnLinearAdjustableValueAdjusted);
-        _rotationalAdjustable.OnValueAdjusted.AddListener(OnRotationalAdjustableValueAdjusted);
-
-        _networkObject.OnStateChange.AddListener(HandleNetworkObjectStateChange);
-
+        _networkObject?.OnStateChange.AddListener(HandleNetworkObjectStateChange);
     }
 
     public void OnButtonActivate()
@@ -118,12 +116,18 @@ public class PluginTest : MonoBehaviour
             _counter++;
             _networkObject.NetworkObject = _counter;
         }
-        else if(Keyboard.current.digit4Key.wasPressedThisFrame)
+        else if (Keyboard.current.digit4Key.wasPressedThisFrame)
             _handheldActivatable.IsActivated = !_handheldActivatable.IsActivated;
-        else if(Keyboard.current.digit5Key.wasPressedThisFrame)
+        else if (Keyboard.current.digit5Key.wasPressedThisFrame)
             _handheldAdjustable.Value--;
         else if (Keyboard.current.digit6Key.wasPressedThisFrame)
             _handheldAdjustable.Value++;
+        else if (Keyboard.current.digit7Key.wasPressedThisFrame)
+        {
+            _rbSyncableGO.GetComponent<Rigidbody>().AddForce(Quaternion.Euler(Random.Range(-30, 30), 0, 0)*Vector3.up*10, ForceMode.Impulse);
+            _rbSyncableGO.GetComponent<Rigidbody>().AddTorque(Random.Range(-30, 30) * Vector3.right);
+        }
+            
 
         else if(Keyboard.current.digit7Key.wasPressedThisFrame)
         {
@@ -171,29 +175,4 @@ public class PluginTest : MonoBehaviour
         _counter = (int)data;
         Debug.Log(_counter);
     }
-
-    // private void HandleNewColor()
-    // {
-    //     if (lightColor == LightColours.Bue)
-    //         lightColor = LightColours.White;
-    //     else
-    //         lightColor++;
-
-    //     _light.color = lightColor switch
-    //     {
-    //         LightColours.Red => Color.red,
-    //         LightColours.Green => Color.green,
-    //         LightColours.Bue => Color.blue,
-    //         _ => Color.white,
-    //     };
-    // }
-
-    // private LightColours lightColor = LightColours.White;
-    // private enum LightColours
-    // {
-    //     White, 
-    //     Red, 
-    //     Green,
-    //     Bue,
-    // }
 }

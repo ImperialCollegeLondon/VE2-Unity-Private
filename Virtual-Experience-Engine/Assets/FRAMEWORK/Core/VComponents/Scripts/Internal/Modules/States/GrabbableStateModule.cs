@@ -14,10 +14,15 @@ namespace VE2.Core.VComponents.Internal
         [Title("Grab State Settings", ApplyCondition = true)]
         [SerializeField, IgnoreParent] internal GrabbableStateDebug InspectorDebug = new();
         [SerializeField] public Transform AttachPoint = null;
+
+        [SpaceArea(spaceAfter: 10)]
+        [SerializeField] public DropBehaviour dropBehaviour = new();
+
         [SerializeField] public UnityEvent OnGrab = new();
 
-        [EndGroup(Order = 1)]
-        [SpaceArea(spaceAfter: 10, Order = -1), SerializeField] public UnityEvent OnDrop = new();
+        [EndGroup]
+        [SerializeField] public UnityEvent OnDrop = new();
+
     }
 
     [Serializable]
@@ -47,8 +52,8 @@ namespace VE2.Core.VComponents.Internal
         private readonly IRangedGrabInteractionModule _rangedGrabInteractionModule;
 
         internal IInteractor CurrentGrabbingInteractor { get; private set; }
-        internal event Action OnGrabConfirmed;
-        internal event Action OnDropConfirmed;
+        internal event Action<ushort> OnGrabConfirmed;
+        internal event Action<ushort> OnDropConfirmed;
 
         public GrabbableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, 
             IWorldStateSyncService worldStateSyncService, HandInteractorContainer interactorContainer, IRangedGrabInteractionModule rangedGrabInteractionModule) : 
@@ -75,7 +80,7 @@ namespace VE2.Core.VComponents.Internal
                 _config.InspectorDebug.ClientID = interactorID.ClientID;
 
                 interactor.ConfirmGrab(_rangedGrabInteractionModule);
-                OnGrabConfirmed?.Invoke();
+                OnGrabConfirmed?.Invoke(interactorID.ClientID);
 
                 try
                 {
@@ -109,7 +114,7 @@ namespace VE2.Core.VComponents.Internal
             if (_interactorContainer.Interactors.TryGetValue(interactorID.ToString(), out IInteractor interactor))
                 interactor.ConfirmDrop();
 
-            OnDropConfirmed?.Invoke();
+            OnDropConfirmed?.Invoke(interactorID.ClientID);
 
             try
             {

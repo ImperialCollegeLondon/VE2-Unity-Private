@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Events;
 using VE2.Core.Player.API;
 using VE2.Core.VComponents.API;
 using VE2.NonCore.Instancing.API;
@@ -9,6 +10,14 @@ using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 
 namespace VE2.NonCore.Instancing.Internal
 {
+    [Serializable]
+    internal class InstanceCommsHandlerConfig
+    {
+        [Min(0), Tooltip("Artifical delay added to *sending* all instance networking messages from this player, in ms.")]
+        [SerializeField] private float _artificialAddedPingMs;
+        public float ArtificialAddedPing { get => _artificialAddedPingMs; private set => _artificialAddedPingMs = value >= 0 ? value : 0; }
+    }
+
     //Note, ILocalClientIDProvider is implemented here, NOT on the service - it needs to exsit at edit-time
     //Since the platform inits the player, and instancing inits the platform, we can't have the player init the instancing
     //Otherwise we'd have a stack overflow, instead, provide ID from the mono here, without initing the instancing service
@@ -33,6 +42,9 @@ namespace VE2.NonCore.Instancing.Internal
             [SerializeField, DisableInPlayMode] internal ushort Port = 4297;
             [SerializeField, EndGroup, DisableInPlayMode] internal string InstanceCode = "00";
         }
+        [Space(10)]
+        [SerializeField, HideLabel, IgnoreParent] private InstanceCommsHandlerConfig _config = new();
+        [Space(10)]
         #endregion
 
 
@@ -63,6 +75,7 @@ namespace VE2.NonCore.Instancing.Internal
         #endregion
 
         private bool _bootErrorLogged = false;
+        private RectTransform _debugUIRect;
 
         private void OnEnable()
         {
@@ -111,13 +124,13 @@ namespace VE2.NonCore.Instancing.Internal
                 }   
             }
 
-            _instanceService = InstanceServiceFactory.Create(_localClientIDWrapper, _connectOnStart, _connectionStateDebug, instancingSettings, instanceCode);
+            _instanceService = InstanceServiceFactory.Create(_localClientIDWrapper, _connectOnStart, _connectionStateDebug, instancingSettings, instanceCode, _config);
 
             if (Application.isEditor)
             {
                 GameObject debugUIHolder = GameObject.Instantiate(Resources.Load<GameObject>("HostDebugRectHolder"));
-                RectTransform debugUIRect = debugUIHolder.transform.GetChild(0).GetComponent<RectTransform>();
-                (PlayerAPI.Player as IPlayerServiceInternal).AddPanelTo2DOverlayUI(debugUIRect);
+                _debugUIRect = debugUIHolder.transform.GetChild(0).GetComponent<RectTransform>();
+                (PlayerAPI.Player as IPlayerServiceInternal).AddPanelTo2DOverlayUI(_debugUIRect);
                 GameObject.Destroy(debugUIHolder);
             }
         }
@@ -134,6 +147,11 @@ namespace VE2.NonCore.Instancing.Internal
 
             _instanceService?.TearDown();
             _instanceService = null;
+
+            if (_debugUIRect != null)
+            {
+                DestroyImmediate(_debugUIRect.gameObject);
+            }
         }
     }
 

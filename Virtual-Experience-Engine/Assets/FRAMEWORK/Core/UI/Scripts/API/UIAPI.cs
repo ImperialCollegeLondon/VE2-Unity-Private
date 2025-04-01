@@ -40,7 +40,7 @@ namespace VE2.Core.UI.API
 
                     if (Instance._uiProvider == null)
                     {
-                        Debug.LogError("InstanceService is not available");
+                        //Debug.LogError("UIServices are not available");
                         return null;
                     }  
 

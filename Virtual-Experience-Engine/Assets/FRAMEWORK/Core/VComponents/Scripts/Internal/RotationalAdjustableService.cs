@@ -117,12 +117,12 @@ namespace VE2.Core.VComponents.Internal
             _numberOfRevolutions = Mathf.FloorToInt(_signedAngle / 360);
         }
 
-        private void OnGrabConfirmed()
+        private void OnGrabConfirmed(ushort id)
         {
 
         }
 
-        private void OnDropConfirmed()
+        private void OnDropConfirmed(ushort id)
         {
 
         }

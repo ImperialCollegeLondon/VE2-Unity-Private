@@ -6,6 +6,9 @@ namespace VE2.NonCore.Platform.Internal
 {
     internal class PlatformQuickUIHandler
     {
+        private float _lastPingUpdateTime = -1;
+        private const float PING_UPDATE_INTERVAL = 1f;
+
         private readonly V_PlatformQuickUIView _quickUIView;
         private readonly IPlatformServiceInternal _platformService;
         private readonly IInstanceService _instanceService;
@@ -41,6 +44,24 @@ namespace VE2.NonCore.Platform.Internal
                 _quickUIView.SetConnectionNA();
             }
 
+        }
+
+        internal void HandleUpdate() 
+        {
+            if (Time.time - _lastPingUpdateTime < PING_UPDATE_INTERVAL)
+                return;
+
+            _lastPingUpdateTime = Time.time;
+
+            if (_instanceService != null && _instanceService.IsConnectedToServer)
+            {
+                if (_instanceService.IsHost)
+                    _quickUIView.SetPingTextNA();
+                else
+                    _quickUIView.SetPingTextMS(_instanceService.SmoothPing);
+            }
+            else
+                _quickUIView.SetPingTextNA();
         }
 
         private void HandlePlatformConnected() => _quickUIView.SetConnectedText(true);

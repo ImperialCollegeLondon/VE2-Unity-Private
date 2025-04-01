@@ -15,6 +15,6 @@ MonoBehaviour:
   DefaultMaxVelocity: 9.69
   DefaultMaxAngularVelocity: 10
   VelocityScale: 0.35
-  VelocityDamping: 0.67
+  VelocityDamping: 0.45
   AngularVelocityScale: 0.35
   AngularVelocityDamping: 0.45

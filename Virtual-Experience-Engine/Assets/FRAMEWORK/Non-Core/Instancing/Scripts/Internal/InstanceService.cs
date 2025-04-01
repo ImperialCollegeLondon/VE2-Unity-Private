@@ -15,7 +15,7 @@ namespace VE2.NonCore.Instancing.Internal
     internal static class InstanceServiceFactory
     {
         internal static InstanceService Create(LocalClientIdWrapper localClientIDWrapper, bool connectAutomatically, 
-            ConnectionStateDebugWrapper connectionStateDebugWrapper, ServerConnectionSettings debugServerSettings, string debugInstanceCode) 
+            ConnectionStateDebugWrapper connectionStateDebugWrapper, ServerConnectionSettings debugServerSettings, string debugInstanceCode, InstanceCommsHandlerConfig config) 
         {
             InstanceNetworkingCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
 
@@ -28,7 +28,8 @@ namespace VE2.NonCore.Instancing.Internal
                 UIAPI.PrimaryUIService as IPrimaryUIServiceInternal,
                 connectAutomatically,
                 debugServerSettings,
-                debugInstanceCode);
+                debugInstanceCode,
+                config);
         }
     }
 
@@ -42,15 +43,18 @@ namespace VE2.NonCore.Instancing.Internal
         public event Action OnDisconnectedFromInstance;
         public void ConnectToInstance() => ConnectToServer();
         public void DisconnectFromInstance() => DisconnectFromServer();
+
         public bool IsHost => _instanceInfoContainer.IsHost;
         public event Action OnBecomeHost {add => _instanceInfoContainer.OnBecomeHost += value; remove => _instanceInfoContainer.OnBecomeHost -= value;}
         public event Action OnLoseHost {add => _instanceInfoContainer.OnLoseHost += value; remove => _instanceInfoContainer.OnLoseHost -= value;}
+        public ushort HostID => _instanceInfoContainer.HostID;
+
+        public event Action<int> OnPingUpdate { add => _pingSyncer.OnPingUpdate += value; remove => _pingSyncer.OnPingUpdate -= value; }
         #endregion
 
 
         #region Internal interfaces
         public event Action<ushort> OnClientIDReady;
-
         internal IWorldStateSyncService WorldStateSyncService => _worldStateSyncer;
         #endregion
 
@@ -62,6 +66,11 @@ namespace VE2.NonCore.Instancing.Internal
 
         #region Temp debug interfaces //TODO: remove once UI is in 
         public InstancedInstanceInfo InstanceInfo => _instanceInfoContainer.InstanceInfo;
+
+        public float Ping => _pingSyncer.Ping;
+
+        public int SmoothPing => _pingSyncer.SmoothPing;
+
         public event Action<InstancedInstanceInfo> OnInstanceInfoChanged { 
             add => _instanceInfoContainer.OnInstanceInfoChanged += value; 
             remove => _instanceInfoContainer.OnInstanceInfoChanged -= value; 
@@ -85,11 +94,13 @@ namespace VE2.NonCore.Instancing.Internal
         internal readonly WorldStateSyncer _worldStateSyncer;
         internal readonly LocalPlayerSyncer _localPlayerSyncer;
         internal readonly RemotePlayerSyncer _remotePlayerSyncer;
+        internal PingSyncer _pingSyncer;
 
         public InstanceService(IPluginSyncCommsHandler commsHandler, LocalClientIdWrapper localClientIDWrapper, 
             ConnectionStateDebugWrapper connectionStateDebugWrapper,
             HandInteractorContainer interactorContainer, IPlayerServiceInternal playerServiceInternal, IPrimaryUIServiceInternal primaryUIService,
-            bool connectAutomatically, ServerConnectionSettings serverSettings, string instanceCode)
+            bool connectAutomatically, ServerConnectionSettings serverSettings, string instanceCode, InstanceCommsHandlerConfig config)
+
         {
             _commsHandler = commsHandler;
             _connectionStateDebugWrapper = connectionStateDebugWrapper;
@@ -98,6 +109,7 @@ namespace VE2.NonCore.Instancing.Internal
             _primaryUIService = primaryUIService;
             _serverSettings = serverSettings;
             _instanceCode = instanceCode;
+            _commsHandler.InstanceConfig = config;
 
             _instanceInfoContainer = new(localClientIDWrapper);
 
@@ -109,8 +121,9 @@ namespace VE2.NonCore.Instancing.Internal
             _worldStateSyncer = new(_commsHandler, _instanceInfoContainer); //receives and transmits
             _localPlayerSyncer = new(_commsHandler, playerServiceInternal, _instanceInfoContainer); //only transmits
             _remotePlayerSyncer = new(_commsHandler, _instanceInfoContainer, _interactorContainer, _playerService); //only receives
+            _pingSyncer = new(_commsHandler, _instanceInfoContainer); //receives and transmits
 
-            _primaryUIService.SetInstanceCodeText(_instanceCode);
+            _primaryUIService?.SetInstanceCodeText(_instanceCode);
 
             if (connectAutomatically)
                 ConnectToServer();
@@ -204,10 +217,15 @@ namespace VE2.NonCore.Instancing.Internal
                 _worldStateSyncer.NetworkUpdate();
                 _localPlayerSyncer.NetworkUpdate();
                 _remotePlayerSyncer.NetworkUpdate();
+                _pingSyncer.NetworkUpdate();
             }
         }
 
-        private void ReceivePingFromHost() {} //TODO
+        //TODO - move to ping syncer? 
+        public void HandleReceivePingMessage(byte[] bytes)
+        {
+            _pingSyncer.HandleReceivePingMessage(bytes);
+        }
 
         private void DisconnectFromServer() 
         {
@@ -226,6 +244,7 @@ namespace VE2.NonCore.Instancing.Internal
             _worldStateSyncer.TearDown();
             _localPlayerSyncer.TearDown();
             _remotePlayerSyncer.TearDown();
+            _pingSyncer.TearDown();
 
             Debug.Log("Disconnected from server");
 
@@ -240,6 +259,7 @@ namespace VE2.NonCore.Instancing.Internal
                 _worldStateSyncer.TearDown();
                 _localPlayerSyncer.TearDown();
                 _remotePlayerSyncer.TearDown();
+                _pingSyncer.TearDown();
             }
 
             _commsHandler.DisconnectFromServer();
@@ -269,9 +289,11 @@ namespace VE2.NonCore.Instancing.Internal
         public readonly LocalClientIdWrapper LocalClientIdWrapper;
         public ushort LocalClientID { get => LocalClientIdWrapper.LocalClientID; set => LocalClientIdWrapper.LocalClientID = value; }
 
-        public bool IsHost => InstanceInfo.HostID == LocalClientID;
         public event Action OnBecomeHost;
         public event Action OnLoseHost;
+
+        public bool IsHost => InstanceInfo == null || InstanceInfo.HostID == LocalClientID;
+        public ushort HostID => InstanceInfo.HostID;
 
         public event Action<InstancedInstanceInfo> OnInstanceInfoChanged;
         private InstancedInstanceInfo _instanceInfo = null;

@@ -29,20 +29,31 @@ namespace VE2.Core.VComponents.Internal
 
         private IRigidbodyWrapper _rigidbody;
         private ITransformWrapper _transform;
-        private bool _isKinematicOnStart;
+        private bool _isKinematicOnGrab;
         private PhysicsConstants _physicsConstants;
+        private IGrabbableRigidbody _grabbableRigidbodyInterface;
+
+        public event Action<ushort> OnGrabConfirmed;
+        public event Action<ushort> OnDropConfirmed;
+
+        //TODO, state config shouldn't live in the service. DropBehaviour should be in ServiceConfig
+        private GrabbableStateConfig _stateConfig;
+
+        private Vector3 positionOnGrab = new();
 
         public FreeGrabbableService(List<IHandheldInteractionModule> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id, 
             IWorldStateSyncService worldStateSyncService, HandInteractorContainer interactorContainer, 
-            IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants)
+            IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants, IGrabbableRigidbody grabbableRigidbodyInterface)
         {
             _RangedGrabInteractionModule = new(handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
             _StateModule = new(state, config.StateConfig, id, worldStateSyncService, interactorContainer, RangedGrabInteractionModule);
-            
+            _stateConfig = config.StateConfig;
+
             _rigidbody  = rigidbody;
             _transform = config.StateConfig.AttachPoint == null ? new TransformWrapper(_rigidbody.transform) : new TransformWrapper(config.StateConfig.AttachPoint);
             _physicsConstants = physicsConstants;
-            _isKinematicOnStart = _rigidbody.isKinematic;
+            _isKinematicOnGrab = _rigidbody.isKinematic;
+            _grabbableRigidbodyInterface = grabbableRigidbodyInterface;
 
             _RangedGrabInteractionModule.OnLocalInteractorRequestGrab += (InteractorID interactorID) => _StateModule.SetGrabbed(interactorID);
             _RangedGrabInteractionModule.OnLocalInteractorRequestDrop += (InteractorID interactorID) => _StateModule.SetDropped(interactorID);
@@ -52,10 +63,7 @@ namespace VE2.Core.VComponents.Internal
             _StateModule.OnDropConfirmed += HandleDropConfirmed;
         }
 
-        // private void HandleLocalInteractorRequestGrab(InteractorID interactorID) =>  _StateModule.SetGrabbed(interactorID);
-
-        // private void HandleLocalInteractorRequestDrop(InteractorID interactorID) => _StateModule.SetDropped(interactorID);
-        
+        //This is for teleporting the grabbed object along with the player - TODO: Tweak names for clarity 
         private void ApplyDeltaWhenGrabbed(Vector3 deltaPosition, Quaternion deltaRotation)
         {
             Debug.Log("Applying delta when grabbed");   
@@ -66,17 +74,44 @@ namespace VE2.Core.VComponents.Internal
             _rigidbody.angularVelocity = Vector3.zero;
             _rigidbody.linearVelocity = Vector3.zero;
             _rigidbody.isKinematic = false;
-
-
         }
-        private void HandleGrabConfirmed()
+
+        // private void HandleLocalInteractorRequestGrab(InteractorID interactorID) =>  _StateModule.SetGrabbed(interactorID);
+
+        // private void HandleLocalInteractorRequestDrop(InteractorID interactorID) => _StateModule.SetDropped(interactorID);
+
+        private void HandleGrabConfirmed(ushort grabberClientID)
         {
-            _rigidbody.isKinematic = false;
+            if (_grabbableRigidbodyInterface.FreeGrabbableHandlesKinematics)
+            {
+                _isKinematicOnGrab = _rigidbody.isKinematic;
+                _rigidbody.isKinematic = false;
+            }
+            positionOnGrab = _rigidbody.position;
+            OnGrabConfirmed?.Invoke(grabberClientID);
         }
     
-        private void HandleDropConfirmed()
+        private void HandleDropConfirmed(ushort dropperClientID)
         {
-            _rigidbody.isKinematic = _isKinematicOnStart;
+            // Handle drop behaviours
+            if (_stateConfig.dropBehaviour == DropBehaviour.IgnoreMomentum)
+            {
+                _rigidbody.linearVelocity = Vector3.zero;
+                _rigidbody.angularVelocity = Vector3.zero;
+            }
+            else if (_stateConfig.dropBehaviour == DropBehaviour.ReturnToPositionBeforeGrab)
+            {
+                _rigidbody.position = positionOnGrab;
+                _rigidbody.linearVelocity = Vector3.zero;
+                _rigidbody.angularVelocity = Vector3.zero;
+            }
+
+            OnDropConfirmed?.Invoke(dropperClientID);
+
+            if (_grabbableRigidbodyInterface.FreeGrabbableHandlesKinematics)
+            {
+                _rigidbody.isKinematic = _isKinematicOnGrab;
+            }
         } 
 
         public void HandleFixedUpdate()
@@ -91,20 +126,24 @@ namespace VE2.Core.VComponents.Internal
 
         private void TrackPosition(Vector3 targetPosition)
         {
-            Vector3 directionToGrabber = targetPosition - _transform.position;
-            float directionToGrabberMaxVelocityMagnitudeRatio = directionToGrabber.magnitude / _physicsConstants.DefaultMaxAngularVelocity;
+            Vector3 directionToGrabber = targetPosition - _rigidbody.position;
+            float directionToGrabberMaxVelocityMagnitudeRatio = directionToGrabber.magnitude / _physicsConstants.DefaultMaxVelocity;
+
             if (directionToGrabberMaxVelocityMagnitudeRatio > 1)
                 directionToGrabber /= directionToGrabberMaxVelocityMagnitudeRatio;
+
             _rigidbody.linearVelocity *= _physicsConstants.VelocityDamping;
-            _rigidbody.linearVelocity += directionToGrabber / Time.fixedDeltaTime * _physicsConstants.VelocityScale;
+            _rigidbody.linearVelocity += (directionToGrabber / Time.fixedDeltaTime) * _physicsConstants.VelocityScale;
         }
 
         private void TrackRotation(Quaternion targetRotation)
         {
             var rotationDelta = targetRotation * Quaternion.Inverse(_transform.rotation);
             rotationDelta.ToAngleAxis(out var angleInDegrees, out var rotationAxis);
+
             if (angleInDegrees > 180f)
                 angleInDegrees -= 360f;
+
             var angularVelocity = rotationAxis * (angleInDegrees * Mathf.Deg2Rad);
             _rigidbody.angularVelocity *= _physicsConstants.AngularVelocityDamping;
             _rigidbody.angularVelocity += angularVelocity / Time.fixedDeltaTime * _physicsConstants.AngularVelocityScale;

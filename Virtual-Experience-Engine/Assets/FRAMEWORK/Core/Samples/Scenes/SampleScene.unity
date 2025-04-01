@@ -21588,7 +21588,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerConfig:
-    SupportedPlayerModes: 2
+    SupportedPlayerModes: 1
     MovementModeConfig:
       TraversableLayers:
         serializedVersion: 2

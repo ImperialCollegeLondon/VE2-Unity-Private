@@ -42,7 +42,10 @@ namespace VE2.NonCore.Platform.Internal
         internal void SetNonHost() => _hostshipText.text = "Non-Host";
         internal void SetHostNA() => _hostshipText.text = "N/A";
 
-        internal void SetPingTextMS(int ping) => _hostshipText.text = ping.ToString() + "ms";
+        internal void SetPingTextMS(int ping) => _pingText.text = ping.ToString() + "ms";
+        internal void SetPingTextNA() => _pingText.text = "N/A";
+
+        private PlatformQuickUIHandler _handler;
 
         private void Start()
         {
@@ -50,7 +53,12 @@ namespace VE2.NonCore.Platform.Internal
             _toggleVoiceChatButton.onClick.AddListener(HandleToggleVoiceChatButtonClicked);
             _colorConfiguration = Resources.Load<ColorConfiguration>("ColorConfiguration"); //TODO: Inject
 
-            PlatformQuickUIHandler handler = new(this);
+            _handler = new(this);
+        }
+
+        private void Update()
+        {
+            _handler.HandleUpdate();
         }
 
         private void HandleBackToHubButtonClicked()

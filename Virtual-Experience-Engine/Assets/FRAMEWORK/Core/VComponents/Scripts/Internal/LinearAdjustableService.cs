@@ -130,12 +130,12 @@ namespace VE2.Core.VComponents.Internal
             SetValueOnStateModule(targetValue);
         }
 
-        private void OnGrabConfirmed()
+        private void OnGrabConfirmed(ushort id)
         {
 
         }
 
-        private void OnDropConfirmed()
+        private void OnDropConfirmed(ushort id)
         {
 
         }
