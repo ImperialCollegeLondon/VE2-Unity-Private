@@ -7,6 +7,7 @@ using VE2.Core.VComponents.API;
 using VE2.NonCore.Instancing.API;
 using VE2.NonCore.Platform.API;
 using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
+using System.Collections.Generic;
 
 namespace VE2.NonCore.Instancing.Internal
 {
@@ -30,7 +31,7 @@ namespace VE2.NonCore.Instancing.Internal
         [EditorButton(nameof(DebugConnect), "Connect", activityType: ButtonActivityType.OnPlayMode)] 
         [EditorButton(nameof(DebugDisconnect), "Disconnect", activityType: ButtonActivityType.OnPlayMode)] 
         [SerializeField, DisableInPlayMode] private bool _connectOnStart = true;
-        [SerializeField, Disable, HideLabel, IgnoreParent] private ConnectionStateDebugWrapper _connectionStateDebug;
+        [SerializeField, Disable, HideLabel, IgnoreParent] private ConnectionStateWrapper _connectionStateDebug;
 
         [SerializeField, IgnoreParent, DisableInPlayMode] private DebugInstancingSettings _debugServerSettings = new();
 
@@ -50,6 +51,7 @@ namespace VE2.NonCore.Instancing.Internal
 
         #region Runtime data
         [SerializeField, HideInInspector] private LocalClientIdWrapper _localClientIDWrapper = new();
+        private SyncInfosContainer _syncInfosContainer = new(); //We store this here and inject it in so it persists between lifecycles of the instance service
         #endregion
 
         //We do this wiring here rather than the interface as the interface file needs to live in the VE2.common package
@@ -124,7 +126,7 @@ namespace VE2.NonCore.Instancing.Internal
                 }   
             }
 
-            _instanceService = InstanceServiceFactory.Create(_localClientIDWrapper, _connectOnStart, _connectionStateDebug, instancingSettings, instanceCode, _config);
+            _instanceService = InstanceServiceFactory.Create(_localClientIDWrapper, _connectOnStart, _connectionStateDebug, instancingSettings, instanceCode, _config, _syncInfosContainer);
 
             if (Application.isEditor)
             {
@@ -153,10 +155,15 @@ namespace VE2.NonCore.Instancing.Internal
                 DestroyImmediate(_debugUIRect.gameObject);
             }
         }
+
+        private void OnDestroy()
+        {
+            _syncInfosContainer._syncInfosAgainstIDs.Clear();            
+        }
     }
 
     [Serializable]
-    public class ConnectionStateDebugWrapper
+    public class ConnectionStateWrapper
     {
         [SerializeField, Disable, IgnoreParent] public ConnectionState ConnectionState = ConnectionState.NotYetConnected;
     }

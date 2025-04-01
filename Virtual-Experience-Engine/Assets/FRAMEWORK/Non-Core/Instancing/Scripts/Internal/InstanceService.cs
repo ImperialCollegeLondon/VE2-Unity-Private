@@ -9,13 +9,14 @@ using VE2.Core.VComponents.API;
 using VE2.Core.Common;
 using VE2.NonCore.Platform.API;
 using VE2.Core.UI.API;
+using System.Collections.Generic;
 
 namespace VE2.NonCore.Instancing.Internal
 {
     internal static class InstanceServiceFactory
     {
         internal static InstanceService Create(LocalClientIdWrapper localClientIDWrapper, bool connectAutomatically, 
-            ConnectionStateDebugWrapper connectionStateDebugWrapper, ServerConnectionSettings debugServerSettings, string debugInstanceCode, InstanceCommsHandlerConfig config) 
+            ConnectionStateWrapper connectionStateDebugWrapper, ServerConnectionSettings debugServerSettings, string debugInstanceCode, InstanceCommsHandlerConfig config, SyncInfosContainer syncInfosContainer) 
         {
             InstanceNetworkingCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
 
@@ -29,7 +30,8 @@ namespace VE2.NonCore.Instancing.Internal
                 connectAutomatically,
                 debugServerSettings,
                 debugInstanceCode,
-                config);
+                config,
+                syncInfosContainer);
         }
     }
 
@@ -38,7 +40,7 @@ namespace VE2.NonCore.Instancing.Internal
         //TODO, should take some config for events like "OnBecomeHost", "OnLoseHost"
 
         #region Public interfaces
-        public bool IsConnectedToServer => _connectionStateDebugWrapper.ConnectionState == ConnectionState.Connected;
+        public bool IsConnectedToServer => _connectionStateWrapper.ConnectionState == ConnectionState.Connected;
         public event Action OnConnectedToInstance;
         public event Action OnDisconnectedFromInstance;
         public void ConnectToInstance() => ConnectToServer();
@@ -83,7 +85,7 @@ namespace VE2.NonCore.Instancing.Internal
         private float _timeBetweenConnectionAttempts = 5f;
 
         private readonly IPluginSyncCommsHandler _commsHandler;
-        private readonly ConnectionStateDebugWrapper _connectionStateDebugWrapper;
+        private readonly ConnectionStateWrapper _connectionStateWrapper;
         private readonly IPlayerServiceInternal _playerService;
         private readonly IPrimaryUIServiceInternal _primaryUIService;
         private readonly HandInteractorContainer _interactorContainer;
@@ -97,13 +99,13 @@ namespace VE2.NonCore.Instancing.Internal
         internal PingSyncer _pingSyncer;
 
         public InstanceService(IPluginSyncCommsHandler commsHandler, LocalClientIdWrapper localClientIDWrapper, 
-            ConnectionStateDebugWrapper connectionStateDebugWrapper,
+            ConnectionStateWrapper connectionStateDebugWrapper,
             HandInteractorContainer interactorContainer, IPlayerServiceInternal playerServiceInternal, IPrimaryUIServiceInternal primaryUIService,
-            bool connectAutomatically, ServerConnectionSettings serverSettings, string instanceCode, InstanceCommsHandlerConfig config)
+            bool connectAutomatically, ServerConnectionSettings serverSettings, string instanceCode, InstanceCommsHandlerConfig config, SyncInfosContainer syncInfosContainer)
 
         {
             _commsHandler = commsHandler;
-            _connectionStateDebugWrapper = connectionStateDebugWrapper;
+            _connectionStateWrapper = connectionStateDebugWrapper;
             _interactorContainer = interactorContainer;
             _playerService = playerServiceInternal;
             _primaryUIService = primaryUIService;
@@ -118,7 +120,7 @@ namespace VE2.NonCore.Instancing.Internal
             _commsHandler.OnReceiveInstanceInfoUpdate += HandleReceiveInstanceInfoUpdate;
             _commsHandler.OnDisconnectedFromServer += HandleDisconnectFromServer;
 
-            _worldStateSyncer = new(_commsHandler, _instanceInfoContainer); //receives and transmits
+            _worldStateSyncer = new(_commsHandler, _instanceInfoContainer, syncInfosContainer); //receives and transmits
             _localPlayerSyncer = new(_commsHandler, playerServiceInternal, _instanceInfoContainer); //only transmits
             _remotePlayerSyncer = new(_commsHandler, _instanceInfoContainer, _interactorContainer, _playerService); //only receives
             _pingSyncer = new(_commsHandler, _instanceInfoContainer); //receives and transmits
@@ -131,14 +133,14 @@ namespace VE2.NonCore.Instancing.Internal
 
         private void ConnectToServer() //TODO: expose to plugin for delayed connection?
         {
-            if (_connectionStateDebugWrapper.ConnectionState == ConnectionState.Connecting &&
-                _connectionStateDebugWrapper.ConnectionState == ConnectionState.Connected)
+            if (_connectionStateWrapper.ConnectionState == ConnectionState.Connecting &&
+                _connectionStateWrapper.ConnectionState == ConnectionState.Connected)
             {
                 Debug.LogWarning("Attempted to connect to server while already connected or connecting");
                 return;
             }
 
-            _connectionStateDebugWrapper.ConnectionState = ConnectionState.Connecting;
+            _connectionStateWrapper.ConnectionState = ConnectionState.Connecting;
 
             Debug.Log("Try connect to instance... " + _serverSettings.ServerAddress);
             _shouldConnectToServer = true;
@@ -195,7 +197,7 @@ namespace VE2.NonCore.Instancing.Internal
 
             //Ready for syncing=======================================
 
-            _connectionStateDebugWrapper.ConnectionState = ConnectionState.Connected;
+            _connectionStateWrapper.ConnectionState = ConnectionState.Connected;
             OnConnectedToInstance?.Invoke();
         }
 
@@ -229,7 +231,7 @@ namespace VE2.NonCore.Instancing.Internal
 
         private void DisconnectFromServer() 
         {
-            if (_connectionStateDebugWrapper.ConnectionState != ConnectionState.Connected)
+            if (_connectionStateWrapper.ConnectionState != ConnectionState.Connected)
             {
                 Debug.LogWarning("Attempted to disconnect to server while not connected");
                 return;
@@ -241,14 +243,9 @@ namespace VE2.NonCore.Instancing.Internal
 
         private void HandleDisconnectFromServer() 
         {
-            _worldStateSyncer.TearDown();
-            _localPlayerSyncer.TearDown();
-            _remotePlayerSyncer.TearDown();
-            _pingSyncer.TearDown();
-
             Debug.Log("Disconnected from server");
 
-            _connectionStateDebugWrapper.ConnectionState = ConnectionState.LostConnection;
+            _connectionStateWrapper.ConnectionState = ConnectionState.LostConnection;
             OnDisconnectedFromInstance?.Invoke();
         }
 
@@ -268,7 +265,7 @@ namespace VE2.NonCore.Instancing.Internal
             _commsHandler.OnReceiveInstanceInfoUpdate -= HandleReceiveInstanceInfoUpdate;
             _commsHandler.OnDisconnectedFromServer -= HandleDisconnectFromServer;
 
-            _connectionStateDebugWrapper.ConnectionState = ConnectionState.NotYetConnected;
+            _connectionStateWrapper.ConnectionState = ConnectionState.NotYetConnected;
         }
     }
 

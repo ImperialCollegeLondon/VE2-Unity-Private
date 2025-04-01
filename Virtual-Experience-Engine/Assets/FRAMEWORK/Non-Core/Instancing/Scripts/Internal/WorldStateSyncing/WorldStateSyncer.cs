@@ -31,26 +31,17 @@ namespace VE2.NonCore.Instancing.Internal
         {
             if (_syncInfosAgainstIDs.TryGetValue(stateModule.ID, out SyncInfo syncInfo))
             {
-                _numOfSyncablesPerSyncOffsets[syncInfo.HostSyncOffset]--;
+                if (_numOfSyncablesPerSyncOffsets.ContainsKey(syncInfo.HostSyncOffset))
+                    _numOfSyncablesPerSyncOffsets[syncInfo.HostSyncOffset]--;
+
                 _syncInfosAgainstIDs.Remove(stateModule.ID);
             }
         }
         #endregion
 
         //public event Action<BytesAndProtocol> OnLocalChangeOrHostBroadcastWorldStateData; 
-
-        private class SyncInfo
-        {
-            public int HostSyncOffset;
-            public PredictiveWorldStateHistoryQueue HistoryQueue;
-            public IWorldStateModule StateModule;
-            public byte[] PreviousState;
-
-            public int HostSyncInterval => (int)(50 / StateModule.TransmissionFrequency);
-        }
         private readonly Dictionary<int, int> _numOfSyncablesPerSyncOffsets = new();
 
-        private readonly Dictionary<string, SyncInfo> _syncInfosAgainstIDs = new();
         private readonly List<WorldStateBundle> _incommingWorldStateBundleBuffer = new();
         private readonly List<IWorldStateModule> _debugClashedStateModules = new();
         private int _cycleNumber = 0;
@@ -61,27 +52,20 @@ namespace VE2.NonCore.Instancing.Internal
         private IPluginSyncCommsHandler _commsHandler;
         //private readonly WorldStateModulesContainer _worldStateModulesContainer; //TODO: remove
         private readonly InstanceInfoContainer _instanceInfoContainer;
+        private readonly SyncInfosContainer _syncInfosContainer;
+        private Dictionary<string, SyncInfo> _syncInfosAgainstIDs => _syncInfosContainer._syncInfosAgainstIDs;
 
-        public WorldStateSyncer(IPluginSyncCommsHandler commsHandler, InstanceInfoContainer instanceInfoContainer) 
+        public WorldStateSyncer(IPluginSyncCommsHandler commsHandler, InstanceInfoContainer instanceInfoContainer, SyncInfosContainer syncInfosContainer) 
         {
             _commsHandler = commsHandler;
             _commsHandler.OnReceiveWorldStateSyncableBundle += HandleReceiveWorldStateBundle;
 
             _instanceInfoContainer = instanceInfoContainer;
+            _syncInfosContainer = syncInfosContainer;
 
-            // _worldStateModulesContainer.OnWorldStateModuleRegistered += RegisterStateModule;
-            // _worldStateModulesContainer.OnWorldStateModuleDeregistered += DerigsterFromSyncer;
+            //Debug.Log("WorldStateSyncer created, syncinfos = " + _syncInfosAgainstIDs.Count + " - ID=" + _syncInfosContainer.ID);
 
-            // foreach (IWorldStateModule stateModule in _worldStateModulesContainer.WorldstateSyncableModules)
-            //     RegisterStateModule(stateModule);
-
-            //TODO: what exactly is the lifecycle of this? Destroyed between instances?
-            //Maybe even between different connections on the same plugin? 
-            //Seems cleaner to just tear everything down and start again when we reconnect?
-            //That potentially makes interface access difficult though? 
-            //Not really, these modules aren't going to be exposed to the plugin in any way 
-            //And if they are, we just have something wired in the interface to just say "if syncer doesn't exit, return empty rather than null"
-
+            //TODO: Rethink this container... maybe we should go back to the pattern of having the syncables put themselves into a container that lives in the VCAPI
         } 
 
         public void HandleReceiveWorldStateBundle(byte[] byteData)
@@ -261,7 +245,21 @@ namespace VE2.NonCore.Instancing.Internal
             // _worldStateModulesContainer.OnWorldStateModuleDeregistered -= DerigsterFromSyncer;
 
             _numOfSyncablesPerSyncOffsets.Clear();
-            _syncInfosAgainstIDs.Clear();
         }
+    }
+
+    internal class SyncInfosContainer
+    {
+        internal Dictionary<string, SyncInfo> _syncInfosAgainstIDs = new();
+    }
+
+    internal class SyncInfo
+    {
+        public int HostSyncOffset;
+        public PredictiveWorldStateHistoryQueue HistoryQueue;
+        public IWorldStateModule StateModule;
+        public byte[] PreviousState;
+
+        public int HostSyncInterval => (int)(50 / StateModule.TransmissionFrequency);
     }
 }
