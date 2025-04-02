@@ -44,7 +44,7 @@ namespace VE2.Core.VComponents.Tests
             //set the adjustable value, Check customer received the value adjusted, and that the interactorID is set
             _linearAdjustablePluginInterface.SpatialValue = randomValue;
             _customerScript.Received(1).HandleValueAdjusted(randomValue);
-            Assert.IsTrue(_linearAdjustablePluginInterface.OutputValue == randomValue);
+            Assert.IsTrue(_linearAdjustablePluginInterface.Value == randomValue);
             Assert.AreEqual(_linearAdjustablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
         }
 

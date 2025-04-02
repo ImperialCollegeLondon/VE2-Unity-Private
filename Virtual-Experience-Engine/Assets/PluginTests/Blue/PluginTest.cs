@@ -98,9 +98,9 @@ public class PluginTest : MonoBehaviour
         else if(Keyboard.current.digit4Key.wasPressedThisFrame)
             _handheldActivatable.SetActivated(!_pushActivatable.IsActivated);
         else if(Keyboard.current.digit5Key.wasPressedThisFrame)
-            _handheldAdjustable.Value--;
+            _handheldAdjustable.SetValue(_handheldAdjustable.Value - 1);
         else if (Keyboard.current.digit6Key.wasPressedThisFrame)
-            _handheldAdjustable.Value++;
+            _handheldAdjustable.SetValue(_handheldAdjustable.Value + 1);
 
     }
 

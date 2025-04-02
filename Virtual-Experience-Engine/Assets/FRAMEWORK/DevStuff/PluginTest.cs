@@ -118,10 +118,10 @@ public class PluginTest : MonoBehaviour
         }
         else if (Keyboard.current.digit4Key.wasPressedThisFrame)
             _handheldActivatable.SetActivated(!_pushActivatable.IsActivated);
-        else if (Keyboard.current.digit5Key.wasPressedThisFrame)
-            _handheldAdjustable.Value--;
+        else if(Keyboard.current.digit5Key.wasPressedThisFrame)
+            _handheldAdjustable.SetValue(_handheldAdjustable.Value - 1);
         else if (Keyboard.current.digit6Key.wasPressedThisFrame)
-            _handheldAdjustable.Value++;
+            _handheldAdjustable.SetValue(_handheldAdjustable.Value + 1);
         else if (Keyboard.current.digit7Key.wasPressedThisFrame)
         {
             _rbSyncableGO.GetComponent<Rigidbody>().AddForce(Quaternion.Euler(Random.Range(-30, 30), 0, 0)*Vector3.up*10, ForceMode.Impulse);
@@ -131,11 +131,11 @@ public class PluginTest : MonoBehaviour
 
         else if(Keyboard.current.digit7Key.wasPressedThisFrame)
         {
-            _linearAdjustable.OutputValue = Random.Range(_linearAdjustable.MinimumOutputValue, _linearAdjustable.MaximumOutputValue);
+            _linearAdjustable.SetValue(Random.Range(_linearAdjustable.MinimumOutputValue, _linearAdjustable.MaximumOutputValue));
         }
         else if(Keyboard.current.digit8Key.wasPressedThisFrame)
         {
-            _rotationalAdjustable.OutputValue = Random.Range(_rotationalAdjustable.MinimumOutputValue, _rotationalAdjustable.MaximumOutputValue);
+            _rotationalAdjustable.SetValue(Random.Range(_rotationalAdjustable.MinimumOutputValue, _rotationalAdjustable.MaximumOutputValue));
         }
     }
 
@@ -159,14 +159,14 @@ public class PluginTest : MonoBehaviour
     private void OnLinearAdjustableValueAdjusted(float value)
     {
         Debug.Log("Linear Adjustable Adjusted!");
-        Debug.Log($"Linear Adjustable Value = {_linearAdjustable.OutputValue}");
+        Debug.Log($"Linear Adjustable Value = {_linearAdjustable.Value}");
         Debug.Log($"Linear Adjustable Output Value = {_linearAdjustable.SpatialValue}");
     }
 
     private void OnRotationalAdjustableValueAdjusted(float value)
     {
         Debug.Log("Rotational Adjustable Adjusted!");
-        Debug.Log($"Rotational Adjustable Value = {_rotationalAdjustable.OutputValue}");
+        Debug.Log($"Rotational Adjustable Value = {_rotationalAdjustable.Value}");
         Debug.Log($"Rotational Adjustable Output Value = {_rotationalAdjustable.SpatialValue}");
     }
 

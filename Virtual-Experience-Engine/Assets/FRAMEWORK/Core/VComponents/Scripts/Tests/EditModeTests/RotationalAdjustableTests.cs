@@ -43,7 +43,7 @@ namespace VE2.Core.VComponents.Tests
             //set the adjustable value, Check customer received the value adjusted, and that the interactorID is set
             _rotationAdjustmentPluginInterface.SpatialValue = randomValue;
             _customerScript.Received(1).HandleValueAdjusted(randomValue);
-            Assert.IsTrue(_rotationAdjustmentPluginInterface.OutputValue == randomValue);
+            Assert.IsTrue(_rotationAdjustmentPluginInterface.Value == randomValue);
             Assert.AreEqual(_rotationAdjustmentPluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
         }
 

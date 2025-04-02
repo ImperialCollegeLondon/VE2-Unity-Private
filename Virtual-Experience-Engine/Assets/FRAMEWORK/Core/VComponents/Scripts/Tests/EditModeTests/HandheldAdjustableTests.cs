@@ -37,7 +37,7 @@ namespace VE2.Core.VComponents.Tests
         public void HandheldAdjustable_WhenAdjustedByPlugin_EmitsToPlugin([Random(0f, 1f, 1)] float randomValue)
         {
             //set the adjustable value
-            _handheldAdjustablePluginInterface.Value = randomValue;
+            _handheldAdjustablePluginInterface.SetValue(randomValue);
 
             //Check customer received the value adjusted, and that the interactorID is set
             _customerScript.Received(1).HandleValueAdjusted(randomValue);

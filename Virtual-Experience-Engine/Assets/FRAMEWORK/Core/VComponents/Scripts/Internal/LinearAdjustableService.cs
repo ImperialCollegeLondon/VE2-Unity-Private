@@ -214,7 +214,7 @@ namespace VE2.Core.VComponents.Internal
             if (_adjustmentProperty == SpatialAdjustmentProperty.Discrete)
                 SetValueByStep(value);
             else
-                _AdjustableStateModule.OutputValue = value;
+                _AdjustableStateModule.SetOutputValue(value);
         }
 
         private void UpdateSteps(int steps)
@@ -233,7 +233,7 @@ namespace VE2.Core.VComponents.Internal
 
             float newValue = _AdjustableStateModule.MinimumOutputValue + stepIndex * stepSize;
 
-            _AdjustableStateModule.OutputValue = newValue;
+            _AdjustableStateModule.SetOutputValue(value);
         }
 
         private float ConvertToSpatialValue(float outputValue)

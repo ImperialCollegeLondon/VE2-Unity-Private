@@ -43,7 +43,8 @@ namespace VE2.Core.VComponents.Internal
 
     internal class AdjustableStateModule : BaseWorldStateModule, IAdjustableStateModule
     {
-        public float OutputValue { get => _state.Value; set => HandleExternalAdjust(value); }
+        public float OutputValue => _state.Value;
+        public void SetOutputValue(float newValue) => SetValue(newValue, ushort.MaxValue);
         public UnityEvent<float> OnValueAdjusted => _config.OnValueAdjusted;
         public ushort MostRecentInteractingClientID => _state.MostRecentInteractingClientID;
 
@@ -65,14 +66,9 @@ namespace VE2.Core.VComponents.Internal
             if (_config.EmitValueOnStart)
                 InvokeOnValueAdjustedEvents(_state.Value);
 
-            _config.InspectorDebug.OnDebugUpdateStatePressed += HandleExternalAdjust;
+            _config.InspectorDebug.OnDebugUpdateStatePressed += SetOutputValue;
             _config.InspectorDebug.Value = _state.Value;
             _config.InspectorDebug.ClientID = _state.MostRecentInteractingClientID;
-        }
-
-        private void HandleExternalAdjust(float newValue)
-        {
-            SetValue(newValue, ushort.MaxValue);
         }
 
         public void SetValue(float value, ushort clientID)

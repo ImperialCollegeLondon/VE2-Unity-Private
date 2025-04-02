@@ -9,7 +9,8 @@ namespace VE2.Core.VComponents.API
         internal IAdjustableStateModule _StateModule { get; }
 
         public UnityEvent<float> OnValueAdjusted => _StateModule.OnValueAdjusted;
-        public float Value { get { return _StateModule.OutputValue; } set { _StateModule.OutputValue = value; } }
+        public float Value => _StateModule.OutputValue;
+        public void SetValue(float value) => _StateModule.SetOutputValue(value);
         public float MinimumValue { get => _StateModule.MinimumOutputValue; set => _StateModule.MinimumOutputValue = value; }
         public float MaximumValue { get => _StateModule.MaximumOutputValue; set => _StateModule.MaximumOutputValue = value; }
         public ushort MostRecentInteractingClientID => _StateModule.MostRecentInteractingClientID;

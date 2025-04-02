@@ -16,7 +16,8 @@ namespace VE2.Core.VComponents.API
 
         public bool IsGrabbed { get { return _GrabbableStateModule.IsGrabbed; } }
         public bool IsLocallyGrabbed { get { return _GrabbableStateModule.IsLocalGrabbed; } }
-        public float OutputValue { get { return _AdjustableStateModule.OutputValue; } set { _AdjustableStateModule.OutputValue = value; } }
+        public float Value => _AdjustableStateModule.OutputValue;
+        public void SetValue(float value) => _AdjustableStateModule.SetOutputValue(value);
         public float MinimumOutputValue { get => _AdjustableStateModule.MinimumOutputValue; set => _AdjustableStateModule.MinimumOutputValue = value; }
         public float MaximumOutputValue { get => _AdjustableStateModule.MaximumOutputValue; set => _AdjustableStateModule.MaximumOutputValue = value; }
 

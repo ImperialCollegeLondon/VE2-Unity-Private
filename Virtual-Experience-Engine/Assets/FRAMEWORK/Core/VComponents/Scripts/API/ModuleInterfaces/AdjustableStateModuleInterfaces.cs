@@ -7,7 +7,9 @@ namespace VE2.Core.VComponents.API
     {
         public UnityEvent<float> OnValueAdjusted { get; }
 
-        public float OutputValue { get; set; }
+        public float OutputValue { get; }
+        public void SetOutputValue(float value);
+
         public float MinimumOutputValue {  get; set; }
         public float MaximumOutputValue { get; set; }
         
