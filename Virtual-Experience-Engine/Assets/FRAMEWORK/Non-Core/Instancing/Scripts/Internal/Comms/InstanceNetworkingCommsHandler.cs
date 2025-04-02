@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 
 namespace VE2.NonCore.Instancing.Internal
 {
-
     internal class InstanceNetworkingCommsHandler : IPluginSyncCommsHandler
     {
         private DarkRiftClient _drClient;
