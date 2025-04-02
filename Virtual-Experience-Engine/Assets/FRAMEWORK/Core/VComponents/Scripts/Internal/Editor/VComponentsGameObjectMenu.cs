@@ -7,10 +7,40 @@ namespace VE2.VComponents.Internal
 {
     public class VComponentsEditorMenu
     {
-        [MenuItem("/GameObject/VE2/ToggleButton", priority = 1)]
+        [MenuItem("/GameObject/VE2/Interactables/ToggleButton", priority = 1)]
         private static void CreateToggleButton()
         {
             InstantiateVCResource("ToggleButton");
+        }
+
+        [MenuItem("/GameObject/VE2/Interactables/HoldButton", priority = 2)]
+        private static void CreateHoldButton()
+        {
+            InstantiateVCResource("HoldButton");
+        }
+
+        [MenuItem("/GameObject/VE2/Interactables/PressurePlate", priority = 3)]
+        private static void CreatePressurePlate()
+        {
+            InstantiateVCResource("PressurePlate");
+        }
+
+        [MenuItem("/GameObject/VE2/Interactables/AdjustableWheel", priority = 3)]
+        private static void CreateWheel()
+        {
+            InstantiateVCResource("AdjustableWheel");
+        }
+
+        [MenuItem("/GameObject/VE2/Interactables/AdjustableLever", priority = 3)]
+        private static void CreateLever()
+        {
+            InstantiateVCResource("AdjustableLever");
+        }
+
+        [MenuItem("/GameObject/VE2/Interactables/AdjustableSlider", priority = 3)]
+        private static void CreateSlider()
+        {
+            InstantiateVCResource("AdjustableSlider");
         }
 
         private static void InstantiateVCResource(string resourceName)

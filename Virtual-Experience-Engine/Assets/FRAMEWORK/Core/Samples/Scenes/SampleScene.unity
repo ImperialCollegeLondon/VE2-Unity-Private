@@ -4520,7 +4520,7 @@ MeshFilter:
   m_Mesh: {fileID: -342353668395933822, guid: f3cd08f05c8201b49b007343bf5d27a0, type: 3}
 --- !u!1 &401678549
 GameObject:
-  m_ObjectHideFlags: 1
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -4537,7 +4537,7 @@ GameObject:
   m_IsActive: 1
 --- !u!114 &401678550
 MonoBehaviour:
-  m_ObjectHideFlags: 1
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -4551,7 +4551,7 @@ MonoBehaviour:
   _playerSyncProviderGOName: PlatformIntegration
 --- !u!4 &401678551
 Transform:
-  m_ObjectHideFlags: 1
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}

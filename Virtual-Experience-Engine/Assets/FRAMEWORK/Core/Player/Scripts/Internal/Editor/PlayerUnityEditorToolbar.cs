@@ -18,11 +18,11 @@ namespace VE2.Core.Player
 
         public static bool PreferVRMode {get; private set;}
 
-
         private static V_PlayerSpawner _playerSpawner = null;
 
         static VE2UnityEditorToolbar()
         {
+            //Debug.Log("VE2UnityEditorToolbar initialized.");
             ToolboxEditorToolbar.OnToolbarGuiLeft  += OnToolbarGui;
         }
 
