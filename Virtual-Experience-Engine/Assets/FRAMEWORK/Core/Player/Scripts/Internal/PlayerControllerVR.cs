@@ -7,7 +7,7 @@ using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.Core.Player.Internal
 {
-    internal class PlayerControllerVR
+    internal class PlayerControllerVR : BasePlayerController
     {
         public PlayerTransformData PlayerTransformData
         {
@@ -25,7 +25,8 @@ namespace VE2.Core.Player.Internal
                     handVRRightPosition: _handControllerRight.Transform.localPosition,
                     handVRRightRotation: _handControllerRight.Transform.localRotation,
                     activatableIDsVRLeft: _handControllerLeft.HeldActivatableIDs,
-                    activatableIDsVRRight: _handControllerRight.HeldActivatableIDs
+                    activatableIDsVRRight: _handControllerRight.HeldActivatableIDs,
+                    activatableIDsFeet: _feetInteractorVR.HeldActivatableIDs
                     
                 );
             }
@@ -38,7 +39,7 @@ namespace VE2.Core.Player.Internal
         private readonly Transform _rootTransform;
         private readonly Transform _verticalOffsetTransform;
         private readonly Transform _headTransform;
-        private InteractorVR _interactorVR;
+        private readonly FeetInteractor _feetInteractorVR;
 
         private readonly V_HandController _handControllerLeft;
         private readonly V_HandController _handControllerRight;
@@ -49,8 +50,8 @@ namespace VE2.Core.Player.Internal
         private readonly RectTransform _primaryUIHolderRect;
         private readonly ISecondaryUIServiceInternal _secondaryUIService;
 
-        internal PlayerControllerVR(InteractorContainer interactorContainer, PlayerVRInputContainer playerVRInputContainer, IPlayerPersistentDataHandler playerSettingsHandler, PlayerVRControlConfig controlConfig, MovementModeConfig movementModeConfig,
-            IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper, ILocalClientIDProvider localClientIDProvider, IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService)
+        internal PlayerControllerVR(HandInteractorContainer interactorContainer, PlayerVRInputContainer playerVRInputContainer, IPlayerPersistentDataHandler playerSettingsHandler, PlayerVRControlConfig controlConfig, MovementModeConfig movementModeConfig,
+            IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper, ILocalClientIDProvider localClientIDProvider, IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService) 
         {
             GameObject playerVRPrefab = Resources.Load("vrPlayer") as GameObject;
             _playerGO = GameObject.Instantiate(playerVRPrefab, null, false);
@@ -68,6 +69,11 @@ namespace VE2.Core.Player.Internal
             _verticalOffsetTransform = playerVRReferences.VerticalOffsetTransform;
             _headTransform = playerVRReferences.HeadTransform;
             _primaryUIHolderRect = playerVRReferences.PrimaryUIHolderRect;
+
+            base._PlayerHeadTransform = _headTransform;
+            base._FeetCollisionDetector = playerVRReferences.FeetCollisionDetector;
+    
+            _feetInteractorVR = new FeetInteractor(_FeetCollisionDetector, InteractorType.Feet, localClientIDProvider);
 
             GameObject handVRLeftPrefab = Resources.Load<GameObject>("HandVRLeft");
             GameObject handVRLeftGO = GameObject.Instantiate(handVRLeftPrefab, _verticalOffsetTransform, false);
@@ -88,7 +94,7 @@ namespace VE2.Core.Player.Internal
         }
 
         
-        private V_HandController CreateHandController(GameObject handGO, GameObject otherHandGO, InteractorContainer interactorContainer, 
+        private V_HandController CreateHandController(GameObject handGO, GameObject otherHandGO, HandInteractorContainer interactorContainer, 
             HandVRInputContainer handVRInputContainer, DragLocomotorInputContainer otherHandDragInputContainer, InteractorType interactorType, 
             IRaycastProvider raycastProvider, ILocalClientIDProvider multiplayerSupport, FreeGrabbableWrapper thisHandGrabbableWrapper, 
             FreeGrabbableWrapper otherHandGrabbableWrapper, ISecondaryUIServiceInternal secondaryUIService, MovementModeConfig movementModeConfig, bool needsToFlip)
@@ -145,6 +151,7 @@ namespace VE2.Core.Player.Internal
 
             _handControllerLeft.HandleOnEnable();
             _handControllerRight.HandleOnEnable();
+            _feetInteractorVR.HandleOnEnable();
 
             _primaryUIService?.MovePrimaryUIToHolderRect(_primaryUIHolderRect);
             _secondaryUIService?.DisableShowHideKeyboardControl();
@@ -162,6 +169,7 @@ namespace VE2.Core.Player.Internal
 
             _handControllerLeft.HandleOnDisable();
             _handControllerRight.HandleOnDisable();
+            _feetInteractorVR.HandleOnDisable();
         }
 
         private void HandleXRInitComplete()
@@ -176,8 +184,9 @@ namespace VE2.Core.Player.Internal
             _handControllerRight.HandleLocalAvatarColorChanged(newColor);
         }
 
-        public void HandleUpdate()
+        internal override void HandleUpdate()
         {
+            base.HandleUpdate();
             _handControllerLeft.HandleUpdate();
             _handControllerRight.HandleUpdate();
         }

@@ -9,11 +9,11 @@ namespace VE2.NonCore.Instancing.Internal
     {
         public Transform GrabberTransform => transform;
         public List<string> HeldActivatableIDs => _heldActivatableIDs;
-        private InteractorContainer _interactorContainer;
+        private HandInteractorContainer _interactorContainer;
         private InteractorID _interactorID;
         private List<string> _heldActivatableIDs;
 
-        public void Initialize(ushort clientID, InteractorType interactorType, InteractorContainer interactorContainer)
+        public void Initialize(ushort clientID, InteractorType interactorType, HandInteractorContainer interactorContainer)
         {
             _interactorID = new InteractorID(clientID, interactorType);
 
@@ -26,18 +26,27 @@ namespace VE2.NonCore.Instancing.Internal
         public void AddToHeldActivatableIDs(string activatableID)
         {
             _heldActivatableIDs.Add(activatableID);
-            var rangedClickInteractable = GetRangedClickInteractionModule(activatableID);
+
+            IRangedHoldClickInteractionModule rangedClickInteractable = GetRangedClickInteractionModule(activatableID);
             rangedClickInteractable?.ClickDown(_interactorID);
+
+            ICollideInteractionModule collideInteractable = GetCollideInteractionModule(activatableID);
+            collideInteractable?.InvokeOnCollideEnter(_interactorID);
         }
 
         public void RemoveFromHeldActivatableIDs(string activatableID)
         {
-            var rangedClickInteractable = GetRangedClickInteractionModule(activatableID);
+            IRangedHoldClickInteractionModule rangedClickInteractable = GetRangedClickInteractionModule(activatableID);
             rangedClickInteractable?.ClickUp(_interactorID);
+
+            ICollideInteractionModule collideInteractable = GetCollideInteractionModule(activatableID);
+            collideInteractable?.InvokeOnCollideExit(_interactorID);
+
             _heldActivatableIDs.Remove(activatableID);
+
         }
 
-        public IRangedClickInteractionModule GetRangedClickInteractionModule(string activatableID)
+        public IRangedHoldClickInteractionModule GetRangedClickInteractionModule(string activatableID)
         {
             if (activatableID.Contains("HoldActivatable-"))
             {
@@ -45,7 +54,23 @@ namespace VE2.NonCore.Instancing.Internal
                 GameObject activatableObject = GameObject.Find(cleanID);
 
                 if (activatableObject != null)
-                    return activatableObject.GetComponent<IV_HoldActivatable>()._RangedClickModule;
+                    return activatableObject.GetComponent<IV_HoldActivatable>()._RangedHoldClickModule;
+                else
+                    return null;
+            }
+            else
+                return null;
+        }
+
+        public ICollideInteractionModule GetCollideInteractionModule(string activatableID)
+        {
+            if (activatableID.Contains("PressurePlate-"))
+            {
+                string cleanID = activatableID.Replace("PressurePlate-", "");
+                GameObject activatableObject = GameObject.Find(cleanID);
+
+                if (activatableObject != null)
+                    return activatableObject.GetComponent<IV_PressurePlate>()._ColliderModule;
                 else
                     return null;
             }
@@ -66,6 +91,20 @@ namespace VE2.NonCore.Instancing.Internal
         public void ConfirmDrop()
         {
             //TODO: Show 
+        }
+
+        public void HandleOnDestroy()
+        {
+            foreach (string activatableID in _heldActivatableIDs)
+            {
+                IRangedHoldClickInteractionModule rangedClickInteractable = GetRangedClickInteractionModule(activatableID);
+                rangedClickInteractable?.ClickUp(_interactorID);
+
+                ICollideInteractionModule collideInteractable = GetCollideInteractionModule(activatableID);
+                collideInteractable?.InvokeOnCollideExit(_interactorID);
+            }
+
+            _heldActivatableIDs.Clear();
         }
     }
 }

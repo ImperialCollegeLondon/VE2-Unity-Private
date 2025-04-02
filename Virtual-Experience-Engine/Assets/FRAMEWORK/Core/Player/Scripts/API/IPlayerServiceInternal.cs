@@ -26,5 +26,7 @@ namespace VE2.Core.Player.API
         public float TransmissionFrequency { get; }
 
         public AndroidJavaObject AddArgsToIntent(AndroidJavaObject intent);
+
+        public void AddPanelTo2DOverlayUI(RectTransform rect);
     }
 }

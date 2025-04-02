@@ -46,14 +46,14 @@ namespace VE2.Core.VComponents.API
             }
         }
 
-        private InteractorContainer _interactorContainer = new();
+        private HandInteractorContainer _interactorContainer = new();
 
         private ActivatableGroupsContainer _activatableGroupsContainer = new(); 
 
         /// <summary>
         /// Contains all interactors (local or otherwise) in the scene, allows grabbables to perform validation on grab
         /// </summary>
-        internal static InteractorContainer InteractorContainer { get => Instance._interactorContainer; private set => Instance._interactorContainer = value; }
+        internal static HandInteractorContainer InteractorContainer { get => Instance._interactorContainer; private set => Instance._interactorContainer = value; }
 
         /// <summary>
         /// Contains all activatable groups in the scene, allows activatables to perform validation on activation  within their group 
@@ -68,13 +68,13 @@ namespace VE2.Core.VComponents.API
 
         private void OnDestroy()
         {
-            InteractorContainer.Reset();
+            InteractorContainer?.Reset();
         }
     }
 
     //Note, the interactor stuff needs to live in the VC API rather than the Player API 
     //This is because the VC interfaces need to be passed interactor info
-    internal class InteractorContainer
+    internal class HandInteractorContainer
     {
         private Dictionary<string, IInteractor> _interactors = new();
         public IReadOnlyDictionary<string, IInteractor> Interactors => _interactors;

@@ -2109,6 +2109,7 @@ GameObject:
   - component: {fileID: 227671776}
   - component: {fileID: 227671775}
   - component: {fileID: 227671774}
+  - component: {fileID: 227671780}
   m_Layer: 0
   m_Name: Grabbable
   m_TagString: Untagged
@@ -2161,7 +2162,11 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
-      AttachPoint: {fileID: 0}
+      InspectorDebug:
+        IsGrabbed: 0
+        ClientID: 65535
+      AttachPoint: {fileID: 227671779}
+      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls: []
@@ -2180,6 +2185,8 @@ MonoBehaviour:
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
+  _collider: {fileID: 227671776}
+  _rigidbody: {fileID: 227671774}
 --- !u!135 &227671776
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2269,6 +2276,31 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &227671780
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 227671773}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b21d18ebf1323c64ab9ac2b227222645, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _config:
+    IsNetworked: 1
+    RepeatedTransmissionConfig:
+      TransmissionType: 0
+      TransmissionFrequency: 1
+    LogSendReceiveDebugMessages: 0
+    LogInterpolationDebug: 0
+    DrawInterpolationLines: 0
+  _state:
+    FromHost: 0
+    FixedTime: 0
+    GrabCounter: 0
+    LatestRoundTripTime: 0
 --- !u!1 &255650761
 GameObject:
   m_ObjectHideFlags: 0
@@ -2514,7 +2546,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &269500766
 Transform:
   m_ObjectHideFlags: 0
@@ -7267,6 +7299,10 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        IsActivated: 0
+        ClientID: 65535
+        _newState: 0
       OnActivate:
         m_PersistentCalls:
           m_Calls:
@@ -7311,6 +7347,7 @@ MonoBehaviour:
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
+  _collider: {fileID: 0}
 --- !u!65 &389759374
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7435,6 +7472,10 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        Value: 0
+        ClientID: 65535
+        _newOutputValue: 0
       OnValueAdjusted:
         m_PersistentCalls:
           m_Calls:
@@ -7460,7 +7501,11 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        IsGrabbed: 0
+        ClientID: 65535
       AttachPoint: {fileID: 6918387917109897462}
+      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls: []
@@ -8460,6 +8505,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e4caf408e1554349b678c8f692a6636, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _lastUseSecondaryUI: 1
   _useCustomSecondaryUI: 1
 --- !u!114 &487838682
 MonoBehaviour:
@@ -8474,8 +8520,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerConfig:
-    EnableVR: 0
-    Enable2D: 1
+    SupportedPlayerModes: 1
     MovementModeConfig:
       TraversableLayers:
         serializedVersion: 2
@@ -11965,6 +12010,10 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        Value: 0
+        ClientID: 65535
+        _newOutputValue: 0
       OnValueAdjusted:
         m_PersistentCalls:
           m_Calls:
@@ -11990,7 +12039,11 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        IsGrabbed: 0
+        ClientID: 65535
       AttachPoint: {fileID: 5476167600612595522}
+      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls: []
@@ -14129,7 +14182,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &835746392
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14143,14 +14196,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _connectOnStart: 1
-  _debugServerSettings:
-    Username: dev
-    Password: dev
-    ServerAddress: 127.0.0.1
-    ServerPort: 4297
-  _debugInstanceCode: Misc-Dev-00-NoVersion
   _connectionStateDebug:
     ConnectionState: 0
+  _debugServerSettings:
+    IpAddress: 127.0.0.1
+    Port: 4297
+    InstanceCode: 00
+  _config:
+    _artificialAddedPing: 0
 --- !u!4 &835746393
 Transform:
   m_ObjectHideFlags: 0
@@ -22192,6 +22245,10 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        IsActivated: 0
+        ClientID: 65535
+        _newState: 0
       OnActivate:
         m_PersistentCalls:
           m_Calls:
@@ -22236,6 +22293,7 @@ MonoBehaviour:
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
+  _collider: {fileID: 0}
 --- !u!65 &962310504
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -26391,6 +26449,10 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        IsActivated: 0
+        ClientID: 65535
+        _newState: 0
       OnActivate:
         m_PersistentCalls:
           m_Calls:
@@ -26435,6 +26497,7 @@ MonoBehaviour:
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
+  _collider: {fileID: 0}
 --- !u!65 &1109928073
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -33325,6 +33388,10 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        Value: 0
+        ClientID: 65535
+        _newOutputValue: 0
       OnValueAdjusted:
         m_PersistentCalls:
           m_Calls:
@@ -33350,7 +33417,11 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        IsGrabbed: 0
+        ClientID: 65535
       AttachPoint: {fileID: 851555096}
+      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls: []
@@ -33444,10 +33515,14 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        IsActivated: 0
+        ClientID: 65535
+        _newState: 0
       OnActivate:
         m_PersistentCalls:
           m_Calls:
-          - m_Target: {fileID: 1499303676}
+          - m_Target: {fileID: 0}
             m_TargetAssemblyTypeName: PluginTest, ViRSE_Plugin_Sample
             m_MethodName: OnButtonActivate
             m_Mode: 1
@@ -33462,7 +33537,7 @@ MonoBehaviour:
       OnDeactivate:
         m_PersistentCalls:
           m_Calls:
-          - m_Target: {fileID: 1499303676}
+          - m_Target: {fileID: 0}
             m_TargetAssemblyTypeName: PluginTest, ViRSE_Plugin_Sample
             m_MethodName: OnButtonDeactivate
             m_Mode: 1
@@ -33488,6 +33563,7 @@ MonoBehaviour:
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
+  _collider: {fileID: 0}
 --- !u!1 &1261217401
 GameObject:
   m_ObjectHideFlags: 0
@@ -36539,8 +36615,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1499303677}
-  - component: {fileID: 1499303676}
   - component: {fileID: 1499303678}
+  - component: {fileID: 1499303679}
   m_Layer: 0
   m_Name: PluginTest
   m_TagString: Untagged
@@ -36548,29 +36624,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
   m_IsActive: 1
---- !u!114 &1499303676
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1499303675}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5b3edd363d73a2945be8d78cb1d64128, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _pushLightOn: {fileID: 0}
-  _pushLightOff: {fileID: 0}
-  _holdLightOn: {fileID: 0}
-  _holdLightOff: {fileID: 0}
-  _pushButtonGO: {fileID: 1250561189}
-  _holdButtonGO: {fileID: 0}
-  _freeGrabbableGO: {fileID: 227671773}
-  _handheldActivatableGO: {fileID: 1542206479}
-  _handheldAdjustableGO: {fileID: 1542206479}
-  _networkObjectGO: {fileID: 1499303675}
-  _roomColorText: {fileID: 0}
 --- !u!4 &1499303677
 Transform:
   m_ObjectHideFlags: 0
@@ -36618,6 +36671,28 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
+--- !u!114 &1499303679
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1499303675}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adfdcc31471e02e40860dcd8cd809d9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _lightOn: {fileID: 0}
+  _lightOff: {fileID: 0}
+  _pushButtonGO: {fileID: 1250561189}
+  _freeGrabbableGO: {fileID: 227671773}
+  _handheldActivatableGO: {fileID: 1542206479}
+  _handheldAdjustableGO: {fileID: 1542206479}
+  _networkObjectGO: {fileID: 1499303675}
+  _linearAdjustableGO: {fileID: 919132147916918716}
+  _rotationalAdjustableGO: {fileID: 1248894219}
+  _rbSyncableGO: {fileID: 227671773}
 --- !u!1 &1506510364
 GameObject:
   m_ObjectHideFlags: 0
@@ -37985,6 +38060,10 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        IsActivated: 0
+        ClientID: 65535
+        _newState: 0
       OnActivate:
         m_PersistentCalls:
           m_Calls:
@@ -38039,7 +38118,11 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
-      AttachPoint: {fileID: 0}
+      InspectorDebug:
+        IsGrabbed: 0
+        ClientID: 65535
+      AttachPoint: {fileID: 1542206486}
+      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls: []
@@ -38058,6 +38141,8 @@ MonoBehaviour:
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
+  _collider: {fileID: 0}
+  _rigidbody: {fileID: 0}
 --- !u!65 &1542206483
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -38166,6 +38251,10 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        Value: 0
+        ClientID: 65535
+        _newOutputValue: 0
       OnValueAdjusted:
         m_PersistentCalls:
           m_Calls:
@@ -38363,6 +38452,10 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        Value: 0
+        ClientID: 65535
+        _newOutputValue: 0
       OnValueAdjusted:
         m_PersistentCalls:
           m_Calls:
@@ -38388,7 +38481,11 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        IsGrabbed: 0
+        ClientID: 65535
       AttachPoint: {fileID: 911695237}
+      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls:
@@ -52108,6 +52205,10 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        Value: 0
+        ClientID: 65535
+        _newOutputValue: 0
       OnValueAdjusted:
         m_PersistentCalls:
           m_Calls:
@@ -52133,7 +52234,11 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        IsGrabbed: 0
+        ClientID: 65535
       AttachPoint: {fileID: 2966522814636388414}
+      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls: []
@@ -52205,6 +52310,10 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        Value: 0
+        ClientID: 65535
+        _newOutputValue: 0
       OnValueAdjusted:
         m_PersistentCalls:
           m_Calls:
@@ -52230,7 +52339,11 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        IsGrabbed: 0
+        ClientID: 65535
       AttachPoint: {fileID: 2966522814514776822}
+      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls:
@@ -52326,6 +52439,10 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        Value: 0
+        ClientID: 65535
+        _newOutputValue: 0
       OnValueAdjusted:
         m_PersistentCalls:
           m_Calls:
@@ -52351,7 +52468,11 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        IsGrabbed: 0
+        ClientID: 65535
       AttachPoint: {fileID: 2966522815027014209}
+      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls:
@@ -52447,6 +52568,10 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        Value: 0
+        ClientID: 65535
+        _newOutputValue: 0
       OnValueAdjusted:
         m_PersistentCalls:
           m_Calls:
@@ -52472,7 +52597,11 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
+      InspectorDebug:
+        IsGrabbed: 0
+        ClientID: 65535
       AttachPoint: {fileID: 2966522813581182922}
+      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls: []

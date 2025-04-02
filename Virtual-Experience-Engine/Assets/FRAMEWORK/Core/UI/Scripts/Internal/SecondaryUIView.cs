@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using VE2.Core.Common;
 
 namespace VE2.Core.UI.Internal
 {
@@ -13,7 +14,7 @@ namespace VE2.Core.UI.Internal
 
         internal void SetContent(RectTransform content)
         {
-            UIUtils.MovePanelToFillRect(content.GetComponent<RectTransform>(), _contentPanel.GetComponent<RectTransform>());
+            CommonUtils.MovePanelToFillRect(content.GetComponent<RectTransform>(), _contentPanel.GetComponent<RectTransform>());
             content.gameObject.SetActive(true);
             __defaultContent.SetActive(false);
         }

@@ -58,7 +58,6 @@ namespace VE2.Core.Player.Internal
         public bool IsVRMode => PlayerTransformData.IsVRMode;
 
         public List<GameObject> HeadOverrideGOs => _config.HeadOverrideGOs;
-
         public List<GameObject> TorsoOverrideGOs => _config.TorsoOverrideGOs;
 
         public void SetAvatarHeadOverride(AvatarAppearanceOverrideType type) 
@@ -74,6 +73,8 @@ namespace VE2.Core.Player.Internal
         }
 
         public AndroidJavaObject AddArgsToIntent(AndroidJavaObject intent) => _playerSettingsHandler.AddArgsToIntent(intent);
+
+        public void AddPanelTo2DOverlayUI(RectTransform rect) => _player2D.MoveRectToOverlayUI(rect);
         #endregion
 
         private readonly PlayerConfig _config;
@@ -85,7 +86,7 @@ namespace VE2.Core.Player.Internal
 
         private readonly IPrimaryUIServiceInternal _primaryUIService;
 
-        internal PlayerService(PlayerTransformData transformData, PlayerConfig config, InteractorContainer interactorContainer, 
+        internal PlayerService(PlayerTransformData transformData, PlayerConfig config, HandInteractorContainer interactorContainer, 
             IPlayerPersistentDataHandler playerSettingsHandler, ILocalClientIDProvider playerSyncer, 
             PlayerInputContainer playerInputContainer, IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerWrapper, 
             IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService)
@@ -111,7 +112,7 @@ namespace VE2.Core.Player.Internal
                 _player2D = new PlayerController2D(
                     interactorContainer, _playerInputContainer.Player2DInputContainer,
                     playerSettingsHandler, new Player2DControlConfig(), //TODO:
-                    raycastProvider, playerSyncer, primaryUIService, secondaryUIService);
+                    raycastProvider, playerSyncer, primaryUIService, secondaryUIService, this);
             }
 
             _playerSettingsHandler.OnDebugSaveAppearance += HandlePlayerPresentationChanged;
@@ -142,14 +143,14 @@ namespace VE2.Core.Player.Internal
             settingsUI.SetActive(false);
         
             _primaryUIService.AddNewTab("Settings", settingsUI, Resources.Load<Sprite>("PlayerSettingsUIIcon"), 2);
-            GameObject.Destroy(settingsUIHolder);
+            GameObject.DestroyImmediate(settingsUIHolder);
             
             GameObject helpUIHolder = GameObject.Instantiate(Resources.Load<GameObject>("PlayerHelpUIHolder"));
             GameObject helpUI = helpUIHolder.transform.GetChild(0).gameObject;
             helpUI.SetActive(false);
 
             _primaryUIService.AddNewTab("Help", helpUI, Resources.Load<Sprite>("PlayerHelpUIIcon"), 3);
-            GameObject.Destroy(helpUIHolder);
+            GameObject.DestroyImmediate(helpUIHolder);
 
             if (_config.Enable2D && _config.EnableVR)
                 _primaryUIService.EnableModeSwitchButtons();
@@ -197,15 +198,17 @@ namespace VE2.Core.Player.Internal
 
         private void HandlePlayerPresentationChanged(PlayerPresentationConfig presentationConfig)
         {
-            //TODO - same for 2d
-            //We need local avatars for both actually, beyond just the hands!
-
             OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
 
-            _playerVR?.HandleLocalAvatarColorChanged(new Color(
+            Color newCol = new Color(
                 presentationConfig.AvatarRed,
                 presentationConfig.AvatarGreen,
-                presentationConfig.AvatarBlue) / 255f);
+                presentationConfig.AvatarBlue) / 255f;
+
+            //TODO - should the individual player controllers be in charge of this? 
+            //We need to emit the event just from a single place, though
+            _playerVR?.HandleLocalAvatarColorChanged(newCol);
+            _player2D?.HandleReceiveAvatarAppearance(OverridableAvatarAppearance);
         }
 
         public void HandleFixedUpdate()

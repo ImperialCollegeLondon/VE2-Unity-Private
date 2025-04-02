@@ -24,6 +24,41 @@ namespace VE2.NonCore.Instancing.Internal
             WorldstateSyncableBundle,
             PlayerState,
             UpdateAvatarPresentation,
+            PingMessage
+        }
+
+        public class PingMessage : VE2Serializable
+        {
+            public int PingId { get; private set; }
+            public ushort ClientId { get; private set; }
+
+            public PingMessage(byte[] bytes) : base(bytes) { }
+
+            public PingMessage(int pingId, ushort clientId)
+            {
+                this.PingId = pingId;
+                this.ClientId = clientId;
+            }
+
+            protected override byte[] ConvertToBytes()
+            {
+                using MemoryStream stream = new();
+                using BinaryWriter writer = new(stream);
+
+                writer.Write(PingId);
+                writer.Write(ClientId);
+
+                return stream.ToArray();
+            }
+
+            protected override void PopulateFromBytes(byte[] bytes)
+            {
+                using MemoryStream stream = new(bytes);
+                using BinaryReader reader = new(stream);
+
+                PingId = reader.ReadInt32();
+                ClientId = reader.ReadUInt16();
+            }
         }
 
         //So what actually is this registration request?

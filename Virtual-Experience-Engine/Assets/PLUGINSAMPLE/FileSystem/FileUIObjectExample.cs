@@ -151,7 +151,8 @@ public class FileUIObjectExample : MonoBehaviour
             _isAvailableRemotely = false;
             _availableRemoteText.text = "Not Available";
             _availableRemoteText.color = Color.red;
-            _downloadRemoteButton.interactable = true;
+
+            _downloadRemoteButton.interactable = false;
             _deleteRemoteButton.interactable = false;
 
             _uploadLocalButton.interactable = _isAvailableLocally;

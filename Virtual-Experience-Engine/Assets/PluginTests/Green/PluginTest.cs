@@ -13,8 +13,11 @@ public class PluginTest : MonoBehaviour
     [SerializeField] private GameObject _pushLightOff;
     [SerializeField] private GameObject _holdLightOn;
     [SerializeField] private GameObject _holdLightOff;
+    [SerializeField] private GameObject _pressurePlateLightOff;
+    [SerializeField] private GameObject _pressurePlateLightOn;
     [SerializeField] private GameObject _pushButtonGO;
     [SerializeField] private GameObject _holdButtonGO;
+    [SerializeField] private GameObject _pressurePlateGO;
     [SerializeField] private GameObject _freeGrabbableGO;
     [SerializeField] private GameObject _handheldActivatableGO;
     [SerializeField] private GameObject _handheldAdjustableGO;
@@ -25,6 +28,7 @@ public class PluginTest : MonoBehaviour
 
     private IV_ToggleActivatable _pushActivatable => _pushButtonGO.GetComponent<IV_ToggleActivatable>();
     private IV_HoldActivatable _holdActivatable => _holdButtonGO.GetComponent<IV_HoldActivatable>();
+    private IV_PressurePlate _pressurePlate => _pressurePlateGO.GetComponent<IV_PressurePlate>();
     private IV_FreeGrabbable _freeGrabbable => _freeGrabbableGO.GetComponent<IV_FreeGrabbable>();
     private IV_HandheldActivatable _handheldActivatable => _handheldActivatableGO.GetComponent<IV_HandheldActivatable>();
     private IV_HandheldAdjustable _handheldAdjustable => _handheldAdjustableGO.GetComponent<IV_HandheldAdjustable>();
@@ -104,6 +108,24 @@ public class PluginTest : MonoBehaviour
         _holdLightOff.SetActive(true);
     }
 
+    public void OnPressurePlateActivate()
+    {
+        Debug.Log("Pressure Plate activated!");
+        Debug.Log($"Pressure Plate state = {_pressurePlate.IsActivated}");
+
+        _pressurePlateLightOn.SetActive(true);
+        _pressurePlateLightOff.SetActive(false);
+    }
+
+    public void OnPressurePlateDeactivate()
+    {
+        Debug.Log("Pressure Plate deactivated!");
+        Debug.Log($"Pressure Plate state = {_pressurePlate.IsActivated}");
+
+        _pressurePlateLightOn.SetActive(false);
+        _pressurePlateLightOff.SetActive(true);
+    }
+    
     public void OnFreeGrabbableGrab()
     {
         Debug.Log("Free Grabbable grabbed!");

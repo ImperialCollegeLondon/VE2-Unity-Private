@@ -4,11 +4,11 @@ using VE2.Core.VComponents.Internal;
 
 namespace VE2.Core.VComponents.Tests
 {
-    internal class V_HoldActivatableProviderStub : IV_HoldActivatable, IRangedClickInteractionModuleProvider, ICollideInteractionModuleProvider
+    internal class V_HoldActivatableProviderStub : IV_HoldActivatable, IRangedHoldClickInteractionModuleProvider, ICollideInteractionModuleProvider
     {
         #region Plugin Interfaces
         IMultiInteractorActivatableStateModule IV_HoldActivatable._StateModule => _HoldActivatable.StateModule;
-        IRangedClickInteractionModule IV_HoldActivatable._RangedClickModule => _HoldActivatable.RangedClickInteractionModule;
+        IRangedHoldClickInteractionModule IV_HoldActivatable._RangedHoldClickModule => _HoldActivatable.RangedClickInteractionModule;
         #endregion
 
         #region Player Interfaces

@@ -284,7 +284,7 @@ namespace VE2.NonCore.Platform.Internal
 
                 foreach (IRemoteFileTaskInfo taskInfo in uploadTasks)
                 {
-                    Debug.Log($"Check {taskInfo.NameAndPath} - {taskInfo.Status}");
+                    //Debug.Log($"Check {taskInfo.NameAndPath} - {taskInfo.Status}");
                     if (taskInfo.Status == RemoteFileTaskStatus.Queued)
                         EditorGUILayout.LabelField($"{taskInfo.NameAndPath} - awaiting", red);
                     else if (taskInfo.Status == RemoteFileTaskStatus.Succeeded)

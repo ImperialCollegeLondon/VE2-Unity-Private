@@ -12,11 +12,26 @@ namespace VE2.Core.VComponents.Internal
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Grab State Settings", ApplyCondition = true)]
+        [SerializeField, IgnoreParent] internal GrabbableStateDebug InspectorDebug = new();
         [SerializeField] public Transform AttachPoint = null;
+
+        [SpaceArea(spaceAfter: 10)]
+        [SerializeField] public DropBehaviour dropBehaviour = new();
+
         [SerializeField] public UnityEvent OnGrab = new();
 
-        [EndGroup(Order = 1)]
-        [SpaceArea(spaceAfter: 10, Order = -1), SerializeField] public UnityEvent OnDrop = new();
+        [EndGroup]
+        [SerializeField] public UnityEvent OnDrop = new();
+
+    }
+
+    [Serializable]
+    internal class GrabbableStateDebug
+    {
+        [Title("Debug Output", ApplyCondition = true, Order = 50), SerializeField, ShowDisabledIf(nameof(IsInPlayMode), true)] public bool IsGrabbed = false;
+        [InspectorName("Client IDs"), SerializeField, ShowDisabledIf(nameof(IsInPlayMode), true), SpaceArea(spaceAfter:15, ApplyCondition = true)] public ushort ClientID = ushort.MaxValue;
+
+        protected bool IsInPlayMode => Application.isPlaying;
     }
 
     internal class GrabbableStateModule : BaseWorldStateModule, IGrabbableStateModule
@@ -33,15 +48,15 @@ namespace VE2.Core.VComponents.Internal
         private GrabbableState _state => (GrabbableState)State;
         private GrabbableStateConfig _config => (GrabbableStateConfig)Config;
 
-        private readonly InteractorContainer _interactorContainer;
+        private readonly HandInteractorContainer _interactorContainer;
         private readonly IRangedGrabInteractionModule _rangedGrabInteractionModule;
 
         internal IInteractor CurrentGrabbingInteractor { get; private set; }
-        internal event Action OnGrabConfirmed;
-        internal event Action OnDropConfirmed;
+        internal event Action<ushort> OnGrabConfirmed;
+        internal event Action<ushort> OnDropConfirmed;
 
         public GrabbableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, 
-            IWorldStateSyncService worldStateSyncService, InteractorContainer interactorContainer, IRangedGrabInteractionModule rangedGrabInteractionModule) : 
+            IWorldStateSyncService worldStateSyncService, HandInteractorContainer interactorContainer, IRangedGrabInteractionModule rangedGrabInteractionModule) : 
             base(state, config, id, worldStateSyncService)
         {
             _interactorContainer = interactorContainer;
@@ -61,8 +76,11 @@ namespace VE2.Core.VComponents.Internal
                 _state.MostRecentInteractingInteractorID = interactorID;
                 _state.StateChangeNumber++;
 
+                _config.InspectorDebug.IsGrabbed = true;
+                _config.InspectorDebug.ClientID = interactorID.ClientID;
+
                 interactor.ConfirmGrab(_rangedGrabInteractionModule);
-                OnGrabConfirmed?.Invoke();
+                OnGrabConfirmed?.Invoke(interactorID.ClientID);
 
                 try
                 {
@@ -90,10 +108,13 @@ namespace VE2.Core.VComponents.Internal
             _isLocalGrabbed = false;
             _state.StateChangeNumber++;
 
+            _config.InspectorDebug.IsGrabbed = true;
+            _config.InspectorDebug.ClientID = interactorID.ClientID;
+
             if (_interactorContainer.Interactors.TryGetValue(interactorID.ToString(), out IInteractor interactor))
                 interactor.ConfirmDrop();
 
-            OnDropConfirmed?.Invoke();
+            OnDropConfirmed?.Invoke(interactorID.ClientID);
 
             try
             {

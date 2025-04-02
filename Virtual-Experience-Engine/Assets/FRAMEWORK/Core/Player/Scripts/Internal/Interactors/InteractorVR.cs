@@ -17,7 +17,7 @@ namespace VE2.Core.Player.Internal
         private readonly ColorConfiguration _colorConfig;
         private const float LINE_EMISSION_INTENSITY = 15;
 
-        internal InteractorVR(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
+        internal InteractorVR(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
             InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, 
             ILocalClientIDProvider multiplayerSupport, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator) :
             base(interactorContainer, interactorInputContainer,
@@ -30,8 +30,8 @@ namespace VE2.Core.Player.Internal
             _handVisualGO = interactorVRReferences.HandVisualGO;
 
             _lineRenderer = interactorVRReferences.LineRenderer;
-            _lineMaterial = _lineRenderer.material;
-            _lineMaterial.EnableKeyword("_EMISSION");
+            _lineMaterial = Application.isPlaying ? _lineRenderer.material : null; //SetUp : Unhandled log message: '[Error] Instantiating material due to calling renderer.material during edit mode. This will leak materials into the scene. You most likely want to use renderer.sharedMaterial instead.'. Use UnityEngine.TestTools.LogAssert.Expect
+            _lineMaterial?.EnableKeyword("_EMISSION");
 
             _colorConfig = Resources.Load<ColorConfiguration>("ColorConfiguration"); //TODO: Inject
         }
@@ -52,7 +52,7 @@ namespace VE2.Core.Player.Internal
 
         private void HandleCollideStart(ICollideInteractionModule collideInteractionModule)
         {
-            if (!_WaitingForLocalClientID && !collideInteractionModule.AdminOnly)
+            if (!_WaitingForLocalClientID && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Hand)
             {
                 collideInteractionModule.InvokeOnCollideEnter(_InteractorID);
                 HeldActivatableIDs.Add(collideInteractionModule.ID);
@@ -61,7 +61,7 @@ namespace VE2.Core.Player.Internal
 
         private void HandleCollideEnd(ICollideInteractionModule collideInteractionModule)
         {
-            if (!_WaitingForLocalClientID && !collideInteractionModule.AdminOnly)
+            if (!_WaitingForLocalClientID && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Hand)
             {
                 collideInteractionModule.InvokeOnCollideExit(_InteractorID);
                 HeldActivatableIDs.Remove(collideInteractionModule.ID);
@@ -76,6 +76,9 @@ namespace VE2.Core.Player.Internal
         protected override void SetInteractorState(InteractorState newState)
         {
             _handVisualGO.SetActive(newState != InteractorState.Grabbing);
+
+            if (_lineMaterial == null)
+                return;
 
             switch (newState)
             {

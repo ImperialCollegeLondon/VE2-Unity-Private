@@ -35,7 +35,7 @@ namespace VE2.NonCore.Platform.API
 
                 if (Instance._platformProvider == null)
                 {
-                    Debug.LogError("PlatformProvider is not available");
+                    //Debug.LogError("PlatformProvider is not available");
                     return null;
                 }  
 

@@ -21,6 +21,19 @@ namespace VE2.Core.VComponents.Internal
         IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _service.RangedAdjustableInteractionModule;
         #endregion
 
+        #region Inspector Utils
+        internal Collider Collider 
+        {
+            get 
+            {
+                if (_config.GrabbableStateConfig.AttachPoint == null)
+                    _config.GrabbableStateConfig.AttachPoint = transform;
+                return _config.GrabbableStateConfig.AttachPoint.GetComponent<Collider>();
+            }
+        }
+        internal string AttachPointGOName => _config.GrabbableStateConfig.AttachPoint.name;
+        #endregion
+
         public float MinimumSpatialValue { get => _service.MinimumSpatialValue; set => _service.MinimumSpatialValue = value; }
         public float MaximumSpatialValue { get => _service.MaximumSpatialValue; set => _service.MaximumSpatialValue = value; }
         public float SpatialValue { get => _service.SpatialValue; set => _service.SpatialValue = value; }

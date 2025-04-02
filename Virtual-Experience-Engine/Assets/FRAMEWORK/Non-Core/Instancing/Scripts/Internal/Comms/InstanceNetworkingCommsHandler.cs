@@ -6,9 +6,11 @@ using DRMessageReader = DarkRift.DarkRiftReader;
 using DRMessageWrapper = DarkRift.Message;
 using System.Collections.Generic;
 using VE2.Core.Common;
+using System.Threading.Tasks;
 
 namespace VE2.NonCore.Instancing.Internal
 {
+
     internal class InstanceNetworkingCommsHandler : IPluginSyncCommsHandler
     {
         private DarkRiftClient _drClient;
@@ -16,17 +18,40 @@ namespace VE2.NonCore.Instancing.Internal
 
         #region PluginSyncService interface
         public bool IsReadyToTransmit { get; private set; }
+
+        private InstanceCommsHandlerConfig _instanceConfig;
+        InstanceCommsHandlerConfig IPluginSyncCommsHandler.InstanceConfig { get => _instanceConfig; set => _instanceConfig = value; }
+
         public event Action<byte[]> OnReceiveWorldStateSyncableBundle;
         public event Action<byte[]> OnReceiveNetcodeConfirmation;
         public event Action<byte[]> OnReceiveServerRegistrationConfirmation;
         public event Action<byte[]> OnReceiveInstanceInfoUpdate;
         public event Action OnDisconnectedFromServer;
         public event Action<byte[]> OnReceiveRemotePlayerState;
+        public event Action<byte[]> OnReceivePingMessage;
         public event Action<byte[]> OnReceiveInstantMessage;
 
-        public void ConnectToServer(IPAddress ipAddress, int port) => _drClient.Connect(ipAddress, port, false);
+        public async Task ConnectToServerAsync(IPAddress ipAddress, int port)
+        {
+            await Task.Run(() => _drClient.Connect(ipAddress, port, false));
+        }
 
-        public void SendMessage(byte[] messageAsBytes, InstanceSyncSerializables.InstanceNetworkingMessageCodes messageCode, TransmissionProtocol transmissionProtocol)
+        public async void SendMessage(byte[] messageAsBytes, InstanceSyncSerializables.InstanceNetworkingMessageCodes messageCode, TransmissionProtocol transmissionProtocol)
+        {
+#if UNITY_EDITOR
+            await WaitForPingAndSendMessage(messageAsBytes, messageCode, transmissionProtocol);
+#else
+            PerformSendMessage(messageAsBytes, messageCode, transmissionProtocol);
+#endif
+        }
+
+        public async Task WaitForPingAndSendMessage(byte[] messageAsBytes, InstanceSyncSerializables.InstanceNetworkingMessageCodes messageCode, TransmissionProtocol transmissionProtocol)
+        {
+            await Task.Delay((int)(_instanceConfig.ArtificialAddedPing));
+            PerformSendMessage(messageAsBytes, messageCode, transmissionProtocol);
+        }
+
+        private void PerformSendMessage(byte[] messageAsBytes, InstanceSyncSerializables.InstanceNetworkingMessageCodes messageCode, TransmissionProtocol transmissionProtocol)
         {
             RawBytesMessage message = new(messageAsBytes);
             SendMode sendMode = transmissionProtocol == TransmissionProtocol.TCP ?
@@ -52,7 +77,7 @@ namespace VE2.NonCore.Instancing.Internal
         }
 
         public void DisconnectFromServer() => _drClient.Disconnect();
-        #endregion
+#endregion
 
         public InstanceNetworkingCommsHandler(DarkRiftClient drClient)
         {
@@ -91,13 +116,24 @@ namespace VE2.NonCore.Instancing.Internal
                         case InstanceSyncSerializables.InstanceNetworkingMessageCodes.PlayerState:
                             OnReceiveRemotePlayerState?.Invoke(bytes);
                             break;
+                        case InstanceSyncSerializables.InstanceNetworkingMessageCodes.PingMessage:
+                            OnReceivePingMessage?.Invoke(bytes);
+                            break;
                     }
                 });
             }
         }
 
-        private void HandleDisconnected(object sender, DisconnectedEventArgs e) => OnDisconnectedFromServer?.Invoke();
-
+        private void HandleDisconnected(object sender, DisconnectedEventArgs e) 
+        {
+            lock (executionQueue)
+            {
+                executionQueue.Enqueue(() =>
+                {
+                    OnDisconnectedFromServer?.Invoke();
+                });
+            }
+        }
 
         private class RawBytesMessage : IDarkRiftSerializable
         {

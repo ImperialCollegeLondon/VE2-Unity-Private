@@ -17,7 +17,7 @@ namespace VE2.Core.VComponents.Tests
             InteractorID interactorID = new(localClientID, InteractorType.Mouse2D);
 
             IInteractor interactorStub = Substitute.For<IInteractor>();
-            InteractorContainer interactorContainerStub = new();
+            HandInteractorContainer interactorContainerStub = new();
             interactorContainerStub.RegisterInteractor(interactorID.ToString(), interactorStub);
 
             FreeGrabbableService freeGrabbable = new( 
@@ -28,7 +28,8 @@ namespace VE2.Core.VComponents.Tests
                 Substitute.For<IWorldStateSyncService>(),
                 interactorContainerStub,
                 Substitute.For<IRigidbodyWrapper>(), 
-                new PhysicsConstants());
+                new PhysicsConstants(),
+                new V_FreeGrabbable());
 
             //Stub out the VC (integration layer) with the grabbable
             V_FreeGrabbableProviderStub v_freeGrabbableStub = new(freeGrabbable);

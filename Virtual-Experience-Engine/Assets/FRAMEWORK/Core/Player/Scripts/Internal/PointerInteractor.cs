@@ -60,7 +60,7 @@ namespace VE2.Core.Player.Internal
 
         private GameObject lastHoveredUIObject = null; // Keep track of the last hovered UI object
 
-        private readonly InteractorContainer _interactorContainer;
+        private readonly HandInteractorContainer _interactorContainer;
         private readonly InteractorInputContainer _interactorInputContainer;
 
 
@@ -77,17 +77,17 @@ namespace VE2.Core.Player.Internal
         private readonly IRaycastProvider _RaycastProvider;
         private readonly ILocalClientIDProvider _localClientIDProvider;
 
+        //TODO - this can probably live just in InteractorVR... is there any reason the 2d interactor needs this? Think its just for teleporting?
         internal readonly FreeGrabbableWrapper GrabbableWrapper;
 
         private readonly HoveringOverScrollableIndicator _hoveringOverScrollableIndicator;
 
-        internal PointerInteractor(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
+        internal PointerInteractor(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
             InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, 
             ILocalClientIDProvider localClientIDProvider, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator)
         {
             _interactorContainer = interactorContainer;
             _interactorInputContainer = interactorInputContainer;
-
 
             _interactorParentTransform = interactorReferences.InteractorParentTransform;
             _GrabberTransform = interactorReferences.GrabberTransform;
@@ -140,7 +140,7 @@ namespace VE2.Core.Player.Internal
             _interactorContainer.DeregisterInteractor(_InteractorID.ToString());
         }
 
-        private void HandleLocalClientIDReady(ushort clientID)
+        protected virtual void HandleLocalClientIDReady(ushort clientID)
         {
             if (_localClientIDProvider != null)
                 _localClientIDProvider.OnClientIDReady -= HandleLocalClientIDReady;
@@ -154,8 +154,8 @@ namespace VE2.Core.Player.Internal
 
             IRangedInteractionModule previousHoveringInteractable = _CurrentHoveringInteractable;
 
-            //If we were hovering over a grabbable, and are now grabbing it, remain hovered 
-            if (!(previousHoveringInteractable is IRangedGrabInteractionModule previousRangedGrabInteractable && _CurrentGrabbingGrabbable == previousRangedGrabInteractable))
+            //Update the current hovering interactable, as long as we're not waiting for id, and it's not a grabbable that we were previously hovering over
+            if (!_WaitingForLocalClientID && !(previousHoveringInteractable is IRangedGrabInteractionModule previousRangedGrabInteractable && _CurrentGrabbingGrabbable == previousRangedGrabInteractable))
                 _CurrentHoveringInteractable = raycastResultWrapper.RangedInteractableInRange;
 
             //If we've stopped hovering over something, call exit hover. If we were holding its click down, release
@@ -163,7 +163,7 @@ namespace VE2.Core.Player.Internal
             {
                 previousHoveringInteractable.ExitHover();
 
-                if (previousHoveringInteractable is IRangedClickInteractionModule previousRangedClickInteractable && _heldActivatableIDs.Contains(previousRangedClickInteractable.ID))
+                if (previousHoveringInteractable is IRangedHoldClickInteractionModule previousRangedClickInteractable && _heldActivatableIDs.Contains(previousRangedClickInteractable.ID))
                 {
                     previousRangedClickInteractable.ClickUp(_InteractorID);
                     _heldActivatableIDs.Remove(previousRangedClickInteractable.ID);
@@ -171,7 +171,7 @@ namespace VE2.Core.Player.Internal
             }
 
             //If we've started hovering over something, call enter hover
-            if (_CurrentHoveringInteractable != null && _CurrentHoveringInteractable != previousHoveringInteractable)
+            if (!_WaitingForLocalClientID && _CurrentHoveringInteractable != null && _CurrentHoveringInteractable != previousHoveringInteractable)
                 _CurrentHoveringInteractable.EnterHover();
 
             //if grabbing an adjustable module, update the visualisation, and update input value
@@ -292,7 +292,10 @@ namespace VE2.Core.Player.Internal
                 raycastResultWrapper.RangedInteractable is IRangedClickInteractionModule rangedClickInteractable)
             {
                 rangedClickInteractable.ClickDown(_InteractorID);
-                _heldActivatableIDs.Add(rangedClickInteractable.ID);
+                _CurrentHoveringInteractable = rangedClickInteractable;
+
+                if(rangedClickInteractable is IRangedHoldClickInteractionModule)
+                    _heldActivatableIDs.Add(rangedClickInteractable.ID);
             }
             else if (raycastResultWrapper.HitUIButton && raycastResultWrapper.UIButton.IsInteractable())
             {
@@ -305,10 +308,10 @@ namespace VE2.Core.Player.Internal
             if (_WaitingForLocalClientID || IsCurrentlyGrabbing)
                 return;
 
-            if (_CurrentHoveringClickInteractable != null)
+            if (_CurrentHoveringClickInteractable != null && _CurrentHoveringClickInteractable is IRangedHoldClickInteractionModule _CurrentHoveringHoldClickInteractable)
             {
-                _CurrentHoveringClickInteractable.ClickUp(_InteractorID);
-                _heldActivatableIDs.Remove(_CurrentHoveringClickInteractable.ID);
+                _CurrentHoveringHoldClickInteractable.ClickUp(_InteractorID);
+                _heldActivatableIDs.Remove(_CurrentHoveringHoldClickInteractable.ID);
             }
         }
 
@@ -342,7 +345,6 @@ namespace VE2.Core.Player.Internal
 
         public void ConfirmGrab(IRangedGrabInteractionModule rangedGrabInteractable)
         {
-            Debug.Log("ConfirmGrab - null? " + (rangedGrabInteractable == null));
             _CurrentGrabbingGrabbable = rangedGrabInteractable;
 
             SetInteractorState(InteractorState.Grabbing);

@@ -1,4 +1,5 @@
 using UnityEngine;
+using VE2.Core.Common;
 using VE2.Core.Player.API;
 using VE2.Core.UI.API;
 
@@ -12,7 +13,7 @@ namespace VE2.Core.UI.Internal
         #region Internal Interfaces
         public void MoveSecondaryUIToHolderRect(RectTransform rect)
         {
-            UIUtils.MovePanelToFillRect(_secondaryUIGameObject.GetComponent<RectTransform>(), rect);
+            CommonUtils.MovePanelToFillRect(_secondaryUIGameObject.GetComponent<RectTransform>(), rect);
             _secondaryUIGameObject.SetActive(true);
 
             if (_secondaryUIHolderGameObject != null)

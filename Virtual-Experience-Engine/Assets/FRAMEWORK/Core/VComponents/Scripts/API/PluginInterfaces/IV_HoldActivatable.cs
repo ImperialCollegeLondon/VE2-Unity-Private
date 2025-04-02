@@ -18,15 +18,15 @@ namespace VE2.Core.VComponents.API
         #endregion
 
         #region Ranged Interaction Module Interface
-        internal IRangedClickInteractionModule _RangedClickModule { get; }
-        public float InteractRange { get => _RangedClickModule.InteractRange; set => _RangedClickModule.InteractRange = value; }
+        internal IRangedHoldClickInteractionModule _RangedHoldClickModule { get; }
+        public float InteractRange { get => _RangedHoldClickModule.InteractRange; set => _RangedHoldClickModule.InteractRange = value; }
         #endregion
 
         #region General Interaction Module Interface
         //We have two General Interaction Modules here, it doesn't matter which one we point to, both share the same General Interaction Config object!
-        public bool AdminOnly { get => _RangedClickModule.AdminOnly; set => _RangedClickModule.AdminOnly = value; }
-        public bool EnableControllerVibrations { get => _RangedClickModule.EnableControllerVibrations; set => _RangedClickModule.EnableControllerVibrations = value; }
-        public bool ShowTooltipsAndHighlight { get => _RangedClickModule.ShowTooltipsAndHighlight; set => _RangedClickModule.ShowTooltipsAndHighlight = value; }
+        public bool AdminOnly { get => _RangedHoldClickModule.AdminOnly; set => _RangedHoldClickModule.AdminOnly = value; }
+        public bool EnableControllerVibrations { get => _RangedHoldClickModule.EnableControllerVibrations; set => _RangedHoldClickModule.EnableControllerVibrations = value; }
+        public bool ShowTooltipsAndHighlight { get => _RangedHoldClickModule.ShowTooltipsAndHighlight; set => _RangedHoldClickModule.ShowTooltipsAndHighlight = value; }
         #endregion
     }
 }

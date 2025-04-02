@@ -36,7 +36,7 @@ namespace VE2.Core.UI.Internal
 
         public void MovePrimaryUIToHolderRect(RectTransform rect)
         {
-            UIUtils.MovePanelToFillRect(_primaryUIGameObject.GetComponent<RectTransform>(), rect);
+            CommonUtils.MovePanelToFillRect(_primaryUIGameObject.GetComponent<RectTransform>(), rect);
 
             if (_primaryUIHolderGameObject != null)
                 GameObject.Destroy(_primaryUIHolderGameObject);
@@ -65,6 +65,8 @@ namespace VE2.Core.UI.Internal
         }
 
         public void SetPlatformQuickpanel(GameObject platformQuickPanel) => _quickPanelView.SetPlatformQuickpanel(platformQuickPanel);
+
+        public void SetInstanceCodeText(string text) => _topBarView.SubtitleText = text;
         #endregion
 
         private readonly IPressableInput _onToggleUIPressed;
@@ -104,7 +106,7 @@ namespace VE2.Core.UI.Internal
 
         internal void HandleUpdate() 
         {
-
+            
         }
 
         private void HandleToggleUIPressed()

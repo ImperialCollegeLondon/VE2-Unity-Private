@@ -10,6 +10,8 @@ namespace VE2.NonCore.Platform.API
 
         public void ConnectToPlatform();
 
+        public string PlayerDisplayName { get; }
+
         public ushort LocalClientID { get; }
         public bool IsAuthFailed { get; }
         public event Action OnAuthFailed;
@@ -26,6 +28,10 @@ namespace VE2.NonCore.Platform.API
         public ServerConnectionSettings GetInstanceServerSettingsForWorld(string worldName);
 
         public ServerConnectionSettings GetInstanceServerSettingsForCurrentWorld();
+
+        public ServerConnectionSettings GetWorldSubStoreFTPSettingsForCurrentWorld();
+
+        public ServerConnectionSettings GetInternalWorldStoreFTPSettings();
 
         public void TearDown();
     }

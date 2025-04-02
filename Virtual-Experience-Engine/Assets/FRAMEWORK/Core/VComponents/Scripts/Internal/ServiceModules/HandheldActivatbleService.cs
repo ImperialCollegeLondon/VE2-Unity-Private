@@ -38,7 +38,7 @@ namespace VE2.Core.VComponents.Internal
 
         private void HandleInteract(ushort clientID)
         {
-            _StateModule.HandleActivatableState(clientID);
+            _StateModule.ToggleActivatableState(clientID);
         }
 
         public void TearDown()

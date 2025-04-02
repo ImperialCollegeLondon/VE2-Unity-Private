@@ -14,7 +14,7 @@ namespace VE2.Core.Common
         private double timeOfLastAutosave;
         private bool isSubscribed = false;
 
-        private void Awake()
+        private void OnEnable()
         {
             if (Application.isPlaying || isSubscribed)
                 return;
@@ -24,13 +24,13 @@ namespace VE2.Core.Common
             timeOfLastAutosave = EditorApplication.timeSinceStartup;
         }
 
-        private void OnDestroy()
+        private void OnDisable()
         {
-            if (isSubscribed)
-            {
-                EditorApplication.update -= CheckForAutoSave;
-                isSubscribed = false;
-            }
+            if (Application.isPlaying || !isSubscribed)
+                return;
+
+            EditorApplication.update -= CheckForAutoSave;
+            isSubscribed = false;
         }
 
         private void CheckForAutoSave()
@@ -42,7 +42,7 @@ namespace VE2.Core.Common
             {
                 if (SceneManager.GetActiveScene().isDirty)
                 {
-                    Debug.Log($"[AutoSave] Saving scene: {SceneManager.GetActiveScene().name}");
+                    Debug.Log($"[VE2 AutoSave] Saving scene: {SceneManager.GetActiveScene().name}");
                     timeOfLastAutosave = EditorApplication.timeSinceStartup;
                     EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
                 }

@@ -10,12 +10,25 @@ namespace VE2.Core.VComponents.Internal
 
         #region Plugin Interfaces
         IMultiInteractorActivatableStateModule IV_HoldActivatable._StateModule => _service.StateModule;
-        IRangedClickInteractionModule IV_HoldActivatable._RangedClickModule => _service.RangedClickInteractionModule;
+        IRangedHoldClickInteractionModule IV_HoldActivatable._RangedHoldClickModule => _service.RangedClickInteractionModule;
         #endregion
 
         #region Player Interfaces
         ICollideInteractionModule ICollideInteractionModuleProvider.CollideInteractionModule => _service.ColliderInteractionModule;
         IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _service.RangedClickInteractionModule;
+        #endregion
+
+        #region Inspector Utils
+        internal Collider Collider 
+        {
+            get 
+            {
+                if (_collider == null)
+                    _collider = GetComponent<Collider>();
+                return _collider;
+            }
+        }
+        [SerializeField, HideInInspector] private Collider _collider = null;
         #endregion
 
         private HoldActivatableService _service = null;

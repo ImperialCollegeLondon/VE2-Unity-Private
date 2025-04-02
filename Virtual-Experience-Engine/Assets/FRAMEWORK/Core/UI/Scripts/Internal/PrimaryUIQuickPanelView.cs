@@ -2,6 +2,7 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using VE2.Core.Common;
 
 namespace VE2.Core.UI.Internal
 {
@@ -12,7 +13,7 @@ namespace VE2.Core.UI.Internal
 
         internal void SetPlatformQuickpanel(GameObject platformQuickPanel) 
         {
-            UIUtils.MovePanelToFillRect(platformQuickPanel.GetComponent<RectTransform>(), _platformQuickPanelHolder.GetComponent<RectTransform>());
+            CommonUtils.MovePanelToFillRect(platformQuickPanel.GetComponent<RectTransform>(), _platformQuickPanelHolder.GetComponent<RectTransform>());
             platformQuickPanel.SetActive(true);
             _platformPromoPanel.SetActive(false);
         }

@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 using VE2.Core.Common;
@@ -10,9 +11,9 @@ namespace VE2.Core.Player.Internal
     {
         private readonly Image _reticuleImage;
         private readonly ColorConfiguration _colorConfig;
+        private readonly PlayerConnectionPromptHandler _connectionPromptHandler;
 
-        internal Interactor2D(InteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
-
+        internal Interactor2D(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
             InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, 
             ILocalClientIDProvider localClientIDProvider) : 
             base(interactorContainer, interactorInputContainer,
@@ -22,6 +23,11 @@ namespace VE2.Core.Player.Internal
             _reticuleImage = interactor2DReferences.ReticuleImage;
 
             _colorConfig = Resources.Load<ColorConfiguration>("ColorConfiguration"); //TODO: Inject, can probably actually go into the base class
+
+            _connectionPromptHandler = interactor2DReferences.ConnectionPromptHandler;
+
+            if (_WaitingForLocalClientID)
+                _connectionPromptHandler.NotifyWaitingForConnection();
         }
 
         protected override void SetInteractorState(InteractorState newState)
@@ -58,6 +64,13 @@ namespace VE2.Core.Player.Internal
         protected override void HandleStopGrabbingAdjustable()
         {
             GrabberTransform.localPosition = Vector3.zero;
+        }
+
+        protected override void HandleLocalClientIDReady(ushort clientID)
+        {
+            base.HandleLocalClientIDReady(clientID);
+
+            _connectionPromptHandler.NotifyConnected();
         }
     }
 

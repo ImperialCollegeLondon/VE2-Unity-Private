@@ -14,11 +14,14 @@ namespace VE2.Core.Player.Internal
         public RectTransform PrimaryUIHolderRect => _primaryUIHolderRect;
         [SerializeField, IgnoreParent] private RectTransform _primaryUIHolderRect;
 
-        public GameObject OverlayUI => _overlayUI;  
-        [SerializeField, IgnoreParent] private GameObject _overlayUI;
-
         public RectTransform SecondaryUIHolderRect => _secondaryUIHolderRect;
         [SerializeField, IgnoreParent] private RectTransform _secondaryUIHolderRect;
+
+        public AvatarVisHandler LocalAvatarHandler => _localAvatarHandler;
+        [SerializeField, IgnoreParent] private AvatarVisHandler _localAvatarHandler;
+
+        public RectTransform OverlayUIRect => _overlayUIRect;
+        [SerializeField, IgnoreParent] private RectTransform _overlayUIRect;
     }
 
     [Serializable]

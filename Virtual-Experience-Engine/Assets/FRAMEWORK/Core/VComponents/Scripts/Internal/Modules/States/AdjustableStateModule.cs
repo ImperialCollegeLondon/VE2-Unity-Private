@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 using UnityEngine;
 using UnityEngine.Events;
 using VE2.Core.Common;
@@ -14,6 +13,7 @@ namespace VE2.Core.VComponents.Internal
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Adjustable State Settings", ApplyCondition = true)]
+        [SerializeField, IgnoreParent] internal AdjustableStateDebug InspectorDebug = new();
         [SerializeField] public UnityEvent<float> OnValueAdjusted = new();
         [SerializeField] public float MinimumOutputValue = 0;
         [SerializeField] public float MaximumOutputValue = 1;
@@ -21,8 +21,26 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField] public bool EmitValueOnStart = true; 
         [Title("Scroll Settings")]
         [EndGroup, SerializeField] public float IncrementPerScrollTick = 0.1f;    
-
     }
+
+    [Serializable]
+    internal class AdjustableStateDebug
+    {
+        [Title("Debug Output", ApplyCondition = true, Order = 50), SerializeField, ShowDisabledIf(nameof(IsInPlayMode), true)] public float Value = 0;
+        [SerializeField, ShowDisabledIf(nameof(IsInPlayMode), true)] public ushort ClientID = ushort.MaxValue;
+        [EditorButton(nameof(handleDebugUpdateStatePressed), "Update State", activityType: ButtonActivityType.OnPlayMode, ApplyCondition = true, Order = 10), SpaceArea(spaceAfter:15, ApplyCondition = true)]
+        [Title("Debug Input", ApplyCondition = true), SerializeField, HideIf(nameof(IsInPlayMode), false)] private float _newOutputValue = 0;
+
+        public void handleDebugUpdateStatePressed() 
+        {
+            Debug.Log($"Debug button pressed");
+            OnDebugUpdateStatePressed?.Invoke(_newOutputValue);
+        }
+        internal event Action<float> OnDebugUpdateStatePressed;
+
+        protected bool IsInPlayMode => Application.isPlaying;
+    }
+
     internal class AdjustableStateModule : BaseWorldStateModule, IAdjustableStateModule
     {
         public float OutputValue { get => _state.Value; set => HandleExternalAdjust(value); }
@@ -46,6 +64,10 @@ namespace VE2.Core.VComponents.Internal
 
             if (_config.EmitValueOnStart)
                 InvokeOnValueAdjustedEvents(_state.Value);
+
+            _config.InspectorDebug.OnDebugUpdateStatePressed += HandleExternalAdjust;
+            _config.InspectorDebug.Value = _state.Value;
+            _config.InspectorDebug.ClientID = _state.MostRecentInteractingClientID;
         }
 
         private void HandleExternalAdjust(float newValue)
@@ -67,6 +89,9 @@ namespace VE2.Core.VComponents.Internal
                 _state.MostRecentInteractingClientID = clientID;
 
             _state.StateChangeNumber++;
+
+            _config.InspectorDebug.Value = _state.Value;
+            _config.InspectorDebug.ClientID = _state.MostRecentInteractingClientID;
 
             InvokeOnValueAdjustedEvents(_state.Value);
         }

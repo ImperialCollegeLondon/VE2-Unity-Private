@@ -228,7 +228,7 @@ namespace VE2.NonCore.FileSystem.Internal
                 Status = FTPStatus.Busy;
 
                 makeFolderTask.MarkInProgress();
-                FTPCompletionCode completionCode = await MakeFolderThreaded(makeFolderTask.RemotePath + "/" + makeFolderTask.Name);
+                FTPCompletionCode completionCode = await MakeFolderThreaded(makeFolderTask);
                 makeFolderTask.MarkCompleted(completionCode);
 
                 Status = FTPStatus.Ready;
@@ -241,10 +241,11 @@ namespace VE2.NonCore.FileSystem.Internal
             }
         }
 
-        private Task<FTPCompletionCode> MakeFolderThreaded(string remoteFolder)
+        private Task<FTPCompletionCode> MakeFolderThreaded(FTPMakeFolderTask makeFolderTask)
         {
             return Task.Run(() =>
             {
+                string remoteFolder = makeFolderTask.RemotePath.EndsWith("/")? $"{makeFolderTask.RemotePath}{makeFolderTask.Name}" : $"{makeFolderTask.RemotePath}/{makeFolderTask.Name}";
                 FTPCompletionCode result = FTPCompletionCode.Success;
 
                 try
@@ -306,7 +307,7 @@ namespace VE2.NonCore.FileSystem.Internal
                 Status = FTPStatus.Busy;
 
                 deleteTask.MarkInProgress();
-                FTPCompletionCode completionCode = await DeleteThreaded(deleteTask.RemotePath + "/" + deleteTask.Name);
+                FTPCompletionCode completionCode = await DeleteThreaded(deleteTask);
                 deleteTask.MarkCompleted(completionCode);
 
                 Status = FTPStatus.Ready;
@@ -318,10 +319,11 @@ namespace VE2.NonCore.FileSystem.Internal
             }
         }
 
-        private Task<FTPCompletionCode> DeleteThreaded(string remoteFile)
+        private Task<FTPCompletionCode> DeleteThreaded(FTPDeleteTask deleteTask)
         {
             return Task.Run(() =>
             {
+                string remoteFile = deleteTask.RemotePath.EndsWith("/")? $"{deleteTask.RemotePath}{deleteTask.Name}" : $"{deleteTask.RemotePath}/{deleteTask.Name}";
                 FTPCompletionCode result = FTPCompletionCode.Success;
 
                 try
@@ -425,8 +427,8 @@ namespace VE2.NonCore.FileSystem.Internal
             return Task.Run(() =>
             {
                 _currentFileTransferTask = downloadTask;
-                string remoteFile = downloadTask.RemotePath + "/" + downloadTask.Name;
-                string localFile = downloadTask.LocalPath + "/" + downloadTask.Name;
+                string remoteFile = downloadTask.RemotePath.EndsWith("/")? $"{downloadTask.RemotePath}{downloadTask.Name}" : $"{downloadTask.RemotePath}/{downloadTask.Name}";
+                string localFile = downloadTask.LocalPath.EndsWith("/")? $"{downloadTask.LocalPath}{downloadTask.Name}" : $"{downloadTask.LocalPath}/{downloadTask.Name}";
 
                 try
                 {
@@ -533,8 +535,6 @@ namespace VE2.NonCore.FileSystem.Internal
 
                 uploadFileTask.MarkInProgress();
 
-                
-
                 FTPCompletionCode completionCode = await UploadThreaded(uploadFileTask);
                 uploadFileTask.MarkCompleted(completionCode);
                 Status = FTPStatus.Ready;
@@ -552,8 +552,9 @@ namespace VE2.NonCore.FileSystem.Internal
             return Task.Run(() =>
             {
                 _currentFileTransferTask = uploadTask;
-                string remoteFile = uploadTask.RemotePath + "/" + uploadTask.Name;
-                string localFile = uploadTask.LocalPath + "/" + uploadTask.Name;
+
+                string remoteFile = uploadTask.RemotePath.EndsWith("/")? $"{uploadTask.RemotePath}{uploadTask.Name}" : $"{uploadTask.RemotePath}/{uploadTask.Name}";
+                string localFile = uploadTask.LocalPath.EndsWith("/")? $"{uploadTask.LocalPath}{uploadTask.Name}" : $"{uploadTask.LocalPath}/{uploadTask.Name}";
 
                 try
                 {

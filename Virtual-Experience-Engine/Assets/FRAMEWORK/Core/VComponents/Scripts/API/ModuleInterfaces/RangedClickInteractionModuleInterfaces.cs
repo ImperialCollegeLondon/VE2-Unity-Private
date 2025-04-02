@@ -1,0 +1,22 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace VE2.Core.VComponents.API
+{
+    internal interface IRangedClickInteractionModule : IRangedInteractionModule
+    {
+        public void ClickDown(InteractorID interactorID);
+        public string ID { get; }
+    }
+
+    internal interface IRangedToggleClickInteractionModule : IRangedClickInteractionModule 
+    {
+
+    }
+
+    internal interface IRangedHoldClickInteractionModule : IRangedClickInteractionModule
+    {
+        public void ClickUp(InteractorID interactorID);
+    }
+}
