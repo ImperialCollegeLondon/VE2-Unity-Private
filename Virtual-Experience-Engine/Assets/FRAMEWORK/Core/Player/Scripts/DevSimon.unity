@@ -1625,8 +1625,8 @@ MonoBehaviour:
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
-  _collider: {fileID: 0}
-  _rigidbody: {fileID: 0}
+  _collider: {fileID: 227671776}
+  _rigidbody: {fileID: 227671774}
 --- !u!135 &227671776
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -6924,7 +6924,7 @@ MonoBehaviour:
     Port: 4297
     InstanceCode: 00
   _config:
-    _artificialAddedPingMs: 0
+    _artificialAddedPingMs: 150
 --- !u!4 &835746393
 Transform:
   m_ObjectHideFlags: 0
@@ -16527,8 +16527,8 @@ MonoBehaviour:
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
-  _collider: {fileID: 0}
-  _rigidbody: {fileID: 0}
+  _collider: {fileID: 1871746869}
+  _rigidbody: {fileID: 1871746868}
 --- !u!1 &1876124174
 GameObject:
   m_ObjectHideFlags: 0

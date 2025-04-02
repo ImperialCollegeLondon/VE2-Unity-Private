@@ -6,9 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 using VE2.Core.VComponents.API;
 using VE2.NonCore.Instancing.API;
+using static PlasticGui.PlasticTableColumn;
 using static VE2.Core.Common.CommonSerializables;
 using Time = UnityEngine.Time;
 
@@ -115,7 +117,7 @@ namespace VE2.NonCore.Instancing.Internal
             if (_isHost && _instanceService.LocalClientID == grabberClientID)
             {
                 // Host who dropped immediately starts sending messages again
-                HandleLagCompensationForNonHostDrop(0);
+                HandleHostSideLagCompensation(_timeBehind/1000f);
                 //_hostNotSendingStates = false;
             }
             else if (_instanceService.LocalClientID == grabberClientID)
@@ -130,8 +132,9 @@ namespace VE2.NonCore.Instancing.Internal
             }
         }
 
-        private void HandleLagCompensationForNonHostDrop(float roundTripTimeNonHost)
-        { 
+        private void HandleHostSideLagCompensation(float lagCompensationTime)
+        {
+
             // Make all rigidbodys in the scene, apart from this one, kinematic
             Dictionary<IRigidbodyWrapper, bool> kinematicStates = new();
 
@@ -147,9 +150,11 @@ namespace VE2.NonCore.Instancing.Internal
                 rigidbodyInSceneWrapper.isKinematic = true;
             }
 
+            _rigidbody.renderer.enabled = false;
+
             // Simulate a "lag compensation time" into the future so that the non-host starts receiving states
             // for a smooth drop on their side
-            float lagCompensationTime = _timeBehind + (roundTripTimeNonHost + LAG_COMP_EXTRA_TIME) / 1000f;
+            // float lagCompensationTime = ;
             int cyclesToSkipForward = Mathf.CeilToInt(lagCompensationTime / Time.fixedDeltaTime) + 1;
 
             // Simulate physics into the future in steps
@@ -170,6 +175,9 @@ namespace VE2.NonCore.Instancing.Internal
 
             // Set a > 0 value for host smoothing frames, which are then handled in FixedUpdate
             _hostSmoothingFramesLeft = LAG_COMP_SMOOTHING_FRAMES;
+
+            // Rigidbody set to kinematic to prep for fixed upate smoothing
+            _rigidbody.isKinematic = true;
         }
 
 
@@ -190,6 +198,9 @@ namespace VE2.NonCore.Instancing.Internal
             // If _hostSmoothingFramesLeft > 0, extra processing has to be done for host-side
             if (_isHost && _hostNotSendingStates && _hostSmoothingFramesLeft > 0)
             {
+                if (!_rigidbody.renderer.enabled)
+                    _rigidbody.renderer.enabled = true;
+
                 // Send state from list instead of current _rigidbody state
                 RigidbodySyncableState syncState = _storedHostLagCompensationStates[^_hostSmoothingFramesLeft];
                 _stateModule.SetStateFromHost(syncState.FixedTime, syncState.Position, syncState.Rotation, syncState.GrabCounter);
@@ -206,7 +217,6 @@ namespace VE2.NonCore.Instancing.Internal
                 SetRigidbodyValues(Vector3.Lerp(previousState.Position, nextState.Position, interpValueBetweenStates), Quaternion.Slerp(previousState.Rotation, nextState.Rotation, interpValueBetweenStates));
 
                 Debug.Log($"Smoothing on host over {_storedHostLagCompensationStates.Count} frames, with {_hostSmoothingFramesLeft} frames left. TotalVal = {interpolationValueAlongStoredStates}, indexFrom = {indexOfStateToInterpolateFrom}, interpVal = {interpValueBetweenStates}");
-
 
                 _hostSmoothingFramesLeft--;
 
@@ -225,6 +235,7 @@ namespace VE2.NonCore.Instancing.Internal
 
         public void HandleUpdate()
         {
+
             // Non host interpolates on Update when not simulating for themselves
             if (!_isHost && !_nonHostSimulating)
             {
@@ -291,8 +302,8 @@ namespace VE2.NonCore.Instancing.Internal
                 SetRigidbodyValuesWithVelocity(receivedState);
 
                 // Do the special lag compensation required by the host when the non-host drops, and set kinematic
-                HandleLagCompensationForNonHostDrop(receivedState.LatestRoundTripTime);
-                _rigidbody.isKinematic = true;
+                HandleHostSideLagCompensation(_timeBehind + (receivedState.LatestRoundTripTime + LAG_COMP_EXTRA_TIME) / 1000f);
+                
             } 
             else if (!_isHost && receivedState.FromHost)
             {
@@ -316,6 +327,7 @@ namespace VE2.NonCore.Instancing.Internal
                     _nonHostSimulating = false;
                     _isKinematicOnStart = _rigidbody.isKinematic;
                     _rigidbody.isKinematic = true;
+                    Debug.Log($"Received first pair of states at time {Time.fixedTime}");
                 }
 
                 AddReceivedStateToHistory(new(receivedState.FixedTime, receivedState.Position, receivedState.Rotation, receivedState.GrabCounter));
