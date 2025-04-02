@@ -55,7 +55,7 @@ namespace VE2.Core.VComponents.Internal
 
         private void FixedUpdate()
         {
-            _service.HandleFixedUpdate();
+            _service?.HandleFixedUpdate();
         }
 
         private void OnDisable()
@@ -63,7 +63,7 @@ namespace VE2.Core.VComponents.Internal
             if (!Application.isPlaying)
                 return;
 
-            _service.TearDown();
+            _service?.TearDown();
             _service = null;
         }
     }

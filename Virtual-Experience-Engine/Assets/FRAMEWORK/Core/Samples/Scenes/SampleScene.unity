@@ -4550,7 +4550,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PlayerServiceProviderGOName: PlayerSpawner
-  _playerSyncProviderGOName: InstanceIntegration(Clone)
+  _playerSyncProviderGOName: InstanceIntegration
 --- !u!4 &401678551
 Transform:
   m_ObjectHideFlags: 1
@@ -14656,7 +14656,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a8bc8c50814dde499ca1e3e98e7399e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _instanceProviderGOName: InstanceIntegration(Clone)
+  _instanceProviderGOName: InstanceIntegration
 --- !u!4 &1181017335
 Transform:
   m_ObjectHideFlags: 1
@@ -21165,7 +21165,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9ff9fb7d8ecc7c4289aba4550b4d597, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  platformProviderGOName: PlatformIntegration(Clone)
+  platformProviderGOName: PlatformIntegration
 --- !u!4 &1866635695
 Transform:
   m_ObjectHideFlags: 1
@@ -25067,7 +25067,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f7cb8a15be104e42983e54af205dc1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _worldStateSyncProviderGOName: InstanceIntegration(Clone)
+  _worldStateSyncProviderGOName: InstanceIntegration
 --- !u!4 &2146908909
 Transform:
   m_ObjectHideFlags: 1
@@ -28829,7 +28829,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!65 &8528955396566475595
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -29456,7 +29456,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 2147483647
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!114 &9221591495165670929
 MonoBehaviour:
