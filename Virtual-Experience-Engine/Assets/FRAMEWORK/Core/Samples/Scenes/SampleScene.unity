@@ -13086,7 +13086,7 @@ MonoBehaviour:
       MaximumOutputValue: 1
       StartingOutputValue: 0
       EmitValueOnStart: 1
-      IncrementPerScrollTick: 1
+      IncrementPerScrollTick: 0.1
     GrabbableStateConfig:
       IsNetworked: 1
       RepeatedTransmissionConfig:
@@ -63943,7 +63943,7 @@ MonoBehaviour:
       MaximumOutputValue: 1
       StartingOutputValue: 0
       EmitValueOnStart: 1
-      IncrementPerScrollTick: 0.5
+      IncrementPerScrollTick: 0.25
     GrabbableStateConfig:
       IsNetworked: 1
       RepeatedTransmissionConfig:

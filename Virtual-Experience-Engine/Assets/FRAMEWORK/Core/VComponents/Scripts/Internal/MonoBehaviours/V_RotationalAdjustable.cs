@@ -41,7 +41,7 @@ namespace VE2.Core.VComponents.Integration
 
         private void OnEnable()
         {
-            string id = "LinearAdjustable-" + gameObject.name;
+            string id = "RotationalAdjustable-" + gameObject.name;
 
             if(_adjustableState == null)
                 _adjustableState = new AdjustableState(_config.AdjustableStateConfig.StartingOutputValue);  

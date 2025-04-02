@@ -99,10 +99,11 @@ namespace VE2.Core.VComponents.Internal
             _numberOfRevolutions = Mathf.FloorToInt(ConvertToSpatialValue(config.AdjustableStateConfig.StartingOutputValue) / 360);
             _oldRotationalValue = ConvertToSpatialValue(config.AdjustableStateConfig.StartingOutputValue) - (_numberOfRevolutions * 360);
         }
+
         private void OnScrollUp()
         {
             float targetValue = _AdjustableStateModule.OutputValue + _incrementPerScrollTick; //should this change spatial value?
-            Debug.Log($"Scrolling Up: {targetValue}");
+            targetValue = Mathf.Clamp(targetValue, _AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue);
             SetValueOnStateModule(targetValue);
             _oldRotationalValue = ConvertToSpatialValue(targetValue);
             _numberOfRevolutions = Mathf.FloorToInt(_signedAngle / 360);
@@ -111,7 +112,7 @@ namespace VE2.Core.VComponents.Internal
         private void OnScrollDown()
         {
             float targetValue = _AdjustableStateModule.OutputValue - _incrementPerScrollTick; //should this change spatial value?
-            Debug.Log($"Scrolling Down: {targetValue}");
+            targetValue = Mathf.Clamp(targetValue, _AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue);
             SetValueOnStateModule(targetValue);
             _oldRotationalValue = ConvertToSpatialValue(targetValue);
             _numberOfRevolutions = Mathf.FloorToInt(_signedAngle / 360);

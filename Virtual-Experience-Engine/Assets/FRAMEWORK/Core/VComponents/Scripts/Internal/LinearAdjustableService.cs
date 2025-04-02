@@ -119,14 +119,14 @@ namespace VE2.Core.VComponents.Internal
         private void OnScrollUp()
         {
             float targetValue = _AdjustableStateModule.OutputValue + _incrementPerScrollTick; //should this change spatial value?
-            UnityEngine.Debug.Log($"Scrolling Up: {targetValue}");
+            targetValue = Mathf.Clamp(targetValue, _AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue);
             SetValueOnStateModule(targetValue);
         }
 
         private void OnScrollDown()
         {
             float targetValue = _AdjustableStateModule.OutputValue - _incrementPerScrollTick; //should this change spatial value?
-            UnityEngine.Debug.Log($"Scrolling Down: {targetValue}");
+            targetValue = Mathf.Clamp(targetValue, _AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue);
             SetValueOnStateModule(targetValue);
         }
 
