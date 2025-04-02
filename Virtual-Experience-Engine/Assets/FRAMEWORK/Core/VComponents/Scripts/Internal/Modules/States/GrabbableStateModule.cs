@@ -8,15 +8,22 @@ using static VE2.Core.Common.CommonSerializables;
 namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
+    internal class FreeGrabbableStateConfig : GrabbableStateConfig
+    {
+        [BeginGroup(Style = GroupStyle.Round)]
+        [SpaceArea(spaceAfter: 10)]
+        [EndGroup]
+        [SerializeField] public DropBehaviour dropBehaviour = new();
+
+    }
+
+    [Serializable]
     internal class GrabbableStateConfig : BaseWorldStateConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Grab State Settings", ApplyCondition = true)]
         [SerializeField, IgnoreParent] internal GrabbableStateDebug InspectorDebug = new();
         [SerializeField] public Transform AttachPoint = null;
-
-        [SpaceArea(spaceAfter: 10)]
-        [SerializeField] public DropBehaviour dropBehaviour = new();
 
         [SerializeField] public UnityEvent OnGrab = new();
 
@@ -46,7 +53,7 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         private GrabbableState _state => (GrabbableState)State;
-        private GrabbableStateConfig _config => (GrabbableStateConfig)Config;
+        private FreeGrabbableStateConfig _config => (FreeGrabbableStateConfig)Config;
 
         private readonly HandInteractorContainer _interactorContainer;
         private readonly IRangedGrabInteractionModule _rangedGrabInteractionModule;
