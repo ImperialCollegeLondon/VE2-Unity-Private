@@ -53,7 +53,7 @@ namespace VE2.NonCore.Instancing.Internal
         private bool _nonHostSimulating = false;
 
         // Smoothing values for non-host non-dropper when non-host drops
-        private readonly float TOTAL_SMOOTHING_TIME_S = 0.2f;
+        private readonly float TOTAL_SMOOTHING_TIME_S = 0.4f;
         private float _nonHostSmoothingTimeLeft = 0;
 
         // Track who is grabbing - currently only using for whether being grabbed or not
@@ -199,7 +199,7 @@ namespace VE2.NonCore.Instancing.Internal
             if (_isHost && _hostNotSendingStates && _hostSmoothingFramesLeft > 0)
             {
                 if (!_rigidbody.renderer.enabled)
-                    _rigidbody.renderer.enabled = true;
+                _rigidbody.renderer.enabled = true;
 
                 // Send state from list instead of current _rigidbody state
                 RigidbodySyncableState syncState = _storedHostLagCompensationStates[^_hostSmoothingFramesLeft];
