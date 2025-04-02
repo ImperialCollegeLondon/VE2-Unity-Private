@@ -1189,6 +1189,7 @@ MonoBehaviour:
       NumberOfValues: 5
       MinimumSpatialValue: 0
       MaximumSpatialValue: 360
+      TransformToAdjust: {fileID: 0}
     AdjustableStateConfig:
       IsNetworked: 1
       RepeatedTransmissionConfig:
@@ -4932,8 +4933,9 @@ MonoBehaviour:
       AdjustmentType: 2
       AdjustmentProperty: 1
       NumberOfValues: 15
-      MinimumSpatialValue: -360
+      MinimumSpatialValue: 0
       MaximumSpatialValue: 360
+      TransformToAdjust: {fileID: 0}
     AdjustableStateConfig:
       IsNetworked: 1
       RepeatedTransmissionConfig:
@@ -19463,6 +19465,7 @@ MonoBehaviour:
       NumberOfValues: 2
       MinimumSpatialValue: -47.687
       MaximumSpatialValue: 47.687
+      TransformToAdjust: {fileID: 0}
     AdjustableStateConfig:
       IsNetworked: 1
       RepeatedTransmissionConfig:
@@ -29166,6 +29169,7 @@ MonoBehaviour:
       NumberOfValues: 10
       MinimumSpatialValue: -0.115
       MaximumSpatialValue: 0.115
+      TransformToAdjust: {fileID: 2966522815027014209}
     AdjustableStateConfig:
       IsNetworked: 1
       RepeatedTransmissionConfig:

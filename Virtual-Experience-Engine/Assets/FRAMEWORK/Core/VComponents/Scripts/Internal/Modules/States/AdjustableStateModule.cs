@@ -60,8 +60,6 @@ namespace VE2.Core.VComponents.Internal
 
         public AdjustableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncService worldStateSyncService) : base(state, config, id, worldStateSyncService)
         {
-            _state.Value = _config.StartingOutputValue;
-
             if (_config.EmitValueOnStart)
                 InvokeOnValueAdjustedEvents(_state.Value);
 
@@ -130,7 +128,7 @@ namespace VE2.Core.VComponents.Internal
         public AdjustableState()
         {
             StateChangeNumber = 0;
-            Value = 0;
+            Value = float.MaxValue;
             MostRecentInteractingClientID = ushort.MaxValue;
         }
 

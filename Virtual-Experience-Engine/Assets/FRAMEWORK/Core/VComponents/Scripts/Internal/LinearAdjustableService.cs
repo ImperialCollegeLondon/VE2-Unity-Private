@@ -42,6 +42,7 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField, ShowIf("AdjustmentProperty", SpatialAdjustmentProperty.Discrete)] public int NumberOfValues = 1;
         [SerializeField] public float MinimumSpatialValue = 0f;
         [SerializeField] public float MaximumSpatialValue = 1f;
+        [SerializeField] public Transform TransformToAdjust = null;
 
         // [SerializeField] public bool SinglePressScroll = false;
         // [ShowIf("SinglePressScroll", false)]
@@ -71,7 +72,7 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         private readonly SpatialAdjustmentProperty _adjustmentProperty;
-        private readonly ITransformWrapper _transformWrapper;
+        private readonly ITransformWrapper _transformToTranslate;
         private readonly ITransformWrapper _attachPointTransform;
         private readonly SpatialAdjustmentType _adjustmentType;
         private readonly float _incrementPerScrollTick;
@@ -79,14 +80,16 @@ namespace VE2.Core.VComponents.Internal
         public LinearAdjustableService(ITransformWrapper transformWrapper, List<IHandheldInteractionModule> handheldInteractions, LinearAdjustableConfig config, VE2Serializable adjustableState, VE2Serializable grabbableState, string id,
             IWorldStateSyncService worldStateSyncService, HandInteractorContainer interactorContainer)
         {
+            ITransformWrapper transformToTranslate = config.LinearAdjustableServiceConfig.TransformToAdjust == null ? transformWrapper : new TransformWrapper(config.LinearAdjustableServiceConfig.TransformToAdjust);
+
             //get attach point transform, if null, use the transform wrapper (the object itself)
-            _attachPointTransform = config.GrabbableStateConfig.AttachPoint == null ? transformWrapper : new TransformWrapper(config.GrabbableStateConfig.AttachPoint);
+            _attachPointTransform = config.GrabbableStateConfig.AttachPoint == null ? transformToTranslate : new TransformWrapper(config.GrabbableStateConfig.AttachPoint);
 
             //initialize module for ranged adjustable interaction (scrolling)
             _RangedAdjustableInteractionModule = new(_attachPointTransform, handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
 
             _incrementPerScrollTick = config.AdjustableStateConfig.IncrementPerScrollTick;
-            _transformWrapper = transformWrapper;
+            _transformToTranslate = transformToTranslate;
 
             _adjustmentType = config.LinearAdjustableServiceConfig.AdjustmentType;
             _adjustmentProperty = config.LinearAdjustableServiceConfig.AdjustmentProperty;
@@ -111,6 +114,8 @@ namespace VE2.Core.VComponents.Internal
             _GrabbableStateModule.OnDropConfirmed += OnDropConfirmed;
 
             _AdjustableStateModule.OnValueChangedInternal += (float value) => OnStateValueChanged(value);
+
+            UnityEngine.Debug.Log(config.AdjustableStateConfig.StartingOutputValue);
                       
             //set the initial value of the adjustable state module
             SetValueOnStateModule(config.AdjustableStateConfig.StartingOutputValue);
@@ -181,7 +186,7 @@ namespace VE2.Core.VComponents.Internal
         private void TrackPosition(Vector3 grabberPosition)
         {
             //get the vector position of the grabber in the local space of the object
-            Vector3 localGrabPosition = _transformWrapper.InverseTransfromPoint(grabberPosition);
+            Vector3 localGrabPosition = _transformToTranslate.InverseTransfromPoint(grabberPosition);
             float adjustment = 0f;
 
             //get the grabber value X/Y/Z based on the adjustment axis X/Y/Z
@@ -208,6 +213,8 @@ namespace VE2.Core.VComponents.Internal
         and sets it to tthe state module */
         private void SetValueOnStateModule(float value)
         {
+           UnityEngine.Debug.Log($"value = {value}, AdjustableStateModule.OutputValue = {_AdjustableStateModule.OutputValue}");
+
             if (value == _AdjustableStateModule.OutputValue)
                 return;
 

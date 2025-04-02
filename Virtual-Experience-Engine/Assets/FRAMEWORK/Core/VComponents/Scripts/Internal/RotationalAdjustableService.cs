@@ -40,7 +40,7 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         private readonly SpatialAdjustmentProperty _adjustmentProperty;
-        private readonly ITransformWrapper _transformWrapper;
+        private readonly ITransformWrapper _transformToRotateWrapper;
         private readonly ITransformWrapper _attachPointTransform;
         private readonly SpatialAdjustmentType _adjustmentType;
         private readonly Vector3 _vectorToHandle;
@@ -55,14 +55,16 @@ namespace VE2.Core.VComponents.Internal
         public RotationalAdjustableService(ITransformWrapper transformWrapper, List<IHandheldInteractionModule> handheldInteractions, RotationalAdjustableConfig config, VE2Serializable adjustableState, VE2Serializable grabbableState, string id,
             IWorldStateSyncService worldStateSyncService, HandInteractorContainer interactorContainer)
         {
+            ITransformWrapper transformToRotateWrapper = config.RotationalAdjustableServiceConfig.TransformToAdjust == null ? transformWrapper : new TransformWrapper(config.RotationalAdjustableServiceConfig.TransformToAdjust);
+
             //get attach point transform if it exists, if null take the transform wrapper of the object itself
-            _attachPointTransform = config.GrabbableStateConfig.AttachPoint == null ? transformWrapper : new TransformWrapper(config.GrabbableStateConfig.AttachPoint);
+            _attachPointTransform = config.GrabbableStateConfig.AttachPoint == null ? transformToRotateWrapper : new TransformWrapper(config.GrabbableStateConfig.AttachPoint);
 
             //initialize module for ranged adjustable interaction (scrolling)
             _RangedAdjustableInteractionModule = new(_attachPointTransform, handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
 
             _incrementPerScrollTick = config.AdjustableStateConfig.IncrementPerScrollTick;
-            _transformWrapper = transformWrapper;
+            _transformToRotateWrapper = transformToRotateWrapper;
 
             _adjustmentType = config.RotationalAdjustableServiceConfig.AdjustmentType;
             _adjustmentProperty = config.RotationalAdjustableServiceConfig.AdjustmentProperty;
@@ -90,7 +92,7 @@ namespace VE2.Core.VComponents.Internal
 
             //gets the vector from the object to the attach point, this will serve as the starting point for any angle created
             //needs to be the attafch point at the start (0 not starting position) to get the correct angle
-            _vectorToHandle = _attachPointTransform.position - _transformWrapper.position;
+            _vectorToHandle = _attachPointTransform.position - _transformToRotateWrapper.position;
 
             //set the initial value of the adjustable state module
             SetValueOnStateModule(config.AdjustableStateConfig.StartingOutputValue);
@@ -150,18 +152,16 @@ namespace VE2.Core.VComponents.Internal
             // _numberOfRevolutions = Mathf.FloorToInt(_spatialValue / 360);
             // _oldRotationalValue = (_spatialValue % 360 + 360) % 360; //this is to make sure the value is always positive
 
-            Debug.Log($"Receving Number of Revs: {_numberOfRevolutions} | Old Rotational Value: {_oldRotationalValue}");
-
             switch (_adjustmentType)
             {
                 case SpatialAdjustmentType.XAxis:
-                    _transformWrapper.localRotation = Quaternion.Euler(_spatialValue, _transformWrapper.localRotation.y, _transformWrapper.localRotation.z);
+                    _transformToRotateWrapper.localRotation = Quaternion.Euler(_spatialValue, _transformToRotateWrapper.localRotation.y, _transformToRotateWrapper.localRotation.z);
                     break;
                 case SpatialAdjustmentType.YAxis:
-                    _transformWrapper.localRotation = Quaternion.Euler(_transformWrapper.localRotation.x, _spatialValue, _transformWrapper.localRotation.z);
+                    _transformToRotateWrapper.localRotation = Quaternion.Euler(_transformToRotateWrapper.localRotation.x, _spatialValue, _transformToRotateWrapper.localRotation.z);
                     break;
                 case SpatialAdjustmentType.ZAxis:
-                    _transformWrapper.localRotation = Quaternion.Euler(_transformWrapper.localRotation.x, _transformWrapper.localRotation.y, _spatialValue);
+                    _transformToRotateWrapper.localRotation = Quaternion.Euler(_transformToRotateWrapper.localRotation.x, _transformToRotateWrapper.localRotation.y, _spatialValue);
                     break;
             }
         }
@@ -176,26 +176,26 @@ namespace VE2.Core.VComponents.Internal
 
             _AdjustableStateModule.HandleFixedUpdate();
 
-            Debug.DrawLine(_transformWrapper.position, _transformWrapper.position + _vectorToHandle, Color.red);
+            Debug.DrawLine(_transformToRotateWrapper.position, _transformToRotateWrapper.position + _vectorToHandle, Color.red);
         }
 
         private void TrackPosition(Vector3 grabberPosition)
         {
             //get the direction from the object to the grabber
-            Vector3 directionToGrabber = grabberPosition - _transformWrapper.position;
+            Vector3 directionToGrabber = grabberPosition - _transformToRotateWrapper.position;
             Vector3 localDirectionToGrabber, localDirectionToHandle;
-            Vector3 axisOfRotation = _transformWrapper.up;
+            Vector3 axisOfRotation = _transformToRotateWrapper.up;
 
             switch (_adjustmentType)
             {
                 case SpatialAdjustmentType.XAxis:
-                    axisOfRotation = _transformWrapper.right;
+                    axisOfRotation = _transformToRotateWrapper.right;
                     break;
                 case SpatialAdjustmentType.YAxis:
-                    axisOfRotation = _transformWrapper.up;
+                    axisOfRotation = _transformToRotateWrapper.up;
                     break;
                 case SpatialAdjustmentType.ZAxis:
-                    axisOfRotation = _transformWrapper.forward;
+                    axisOfRotation = _transformToRotateWrapper.forward;
                     break;
             }
 
