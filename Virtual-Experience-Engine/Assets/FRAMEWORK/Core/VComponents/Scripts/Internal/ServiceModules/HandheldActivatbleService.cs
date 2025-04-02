@@ -46,4 +46,10 @@ namespace VE2.Core.VComponents.Internal
             _StateModule.TearDown();
         }
     }
+
+    [Serializable]
+    public class HandHeldClickInteractionConfig
+    {
+        public bool IsHoldMode = false;
+    }
 }
