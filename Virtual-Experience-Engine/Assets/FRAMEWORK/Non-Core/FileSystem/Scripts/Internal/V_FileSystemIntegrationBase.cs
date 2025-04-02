@@ -13,7 +13,6 @@ namespace VE2.NonCore.FileSystem.Internal
     {
         // [SerializeField, IgnoreParent, BeginGroup("Remote File Tasks")] private List<RemoteFileTaskInfo> _queuedTasks = new(); 
         // [EditorButton(nameof(CancelAllTasks), "Cancel All Tasks", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
-        // [EditorButton(nameof(OpenLocalWorkingFolder), "Open Local Working Folder", activityType: ButtonActivityType.Everything, Order = -2)]
         // [SerializeField, IgnoreParent, EndGroup] private List<RemoteFileTaskInfo> _completedTasks = new();
 
         #region Interfaces 
@@ -61,6 +60,12 @@ namespace VE2.NonCore.FileSystem.Internal
 
         protected void CreateFileSystem(ServerConnectionSettings serverSettings)
         {
+            if (string.IsNullOrEmpty(serverSettings.Username) || string.IsNullOrEmpty(serverSettings.Password) || string.IsNullOrEmpty(serverSettings.ServerAddress))
+            {
+                Debug.LogError("Can't boot file system, invalid server settings.");
+                return;
+            }
+
             _FileStorageService = FileSystemServiceFactory.CreateFileStorageService(serverSettings, LocalWorkingPath);
 
             IsFileSystemReady = true;
@@ -77,7 +82,7 @@ namespace VE2.NonCore.FileSystem.Internal
         private void OnDisable()
         {
             IsFileSystemReady = false;
-            _FileStorageService.TearDown();
+            _FileStorageService?.TearDown();
             // _queuedTasks.Clear();
             // _completedTasks.Clear();
         }

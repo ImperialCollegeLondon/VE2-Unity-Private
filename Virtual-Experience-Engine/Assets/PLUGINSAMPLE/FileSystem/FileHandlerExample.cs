@@ -9,6 +9,7 @@ public class FileHandlerExample : MonoBehaviour
     [EditorButton(nameof(HandleRefreshFilesButtonClicked), "Refresh Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
     [SerializeField] private string folderToSearch = "/";
 
+    [SerializeField] private GameObject _loadingPanel;
     [SerializeField] private GameObject _fileObjectHorizontalGroupPrefab;
     [SerializeField] private VerticalLayoutGroup _fileObjectVerticalGroup;
     [SerializeField] private GameObject _fileUIObjectPrefab;
@@ -42,6 +43,8 @@ public class FileHandlerExample : MonoBehaviour
 
     private void OnGetRemoteFiles(IRemoteFileSearchInfo search)
     {
+        _loadingPanel.SetActive(false);
+
         Dictionary<string, RemoteFileDetails> remoteFiles = search.FilesFound;
         Dictionary<string, LocalFileDetails> localFiles = _pluginFileSystem.GetLocalFilesAtPath(folderToSearch);
 

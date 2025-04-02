@@ -61,5 +61,40 @@ namespace VE2.Core.Common
             // Ensure layout updates correctly
             panelRect.ForceUpdateRectTransforms();
         }
+
+        public static void InstantiateResource(string resourceName)
+        {
+            GameObject resource = Resources.Load<GameObject>(resourceName);
+
+            // Check if the prefab is null
+            if (resource == null)
+            {
+                Debug.LogError("Prefab not found!");
+                return;
+            }
+
+            GameObject instantiatedGO = GameObject.Instantiate<GameObject>(resource);
+            instantiatedGO.name = "tempName";
+
+            int extraNum = 0;
+            string newName = resourceName;
+
+            while (GameObject.Find(newName) != null) 
+            {
+                extraNum++;
+                newName = $"{resourceName}{extraNum}";
+            } 
+
+            instantiatedGO.name = newName;
+
+            #if UNITY_EDITOR
+
+           UnityEditor.Selection.activeGameObject = instantiatedGO;
+
+            // Add the instantiation to the Undo buffer
+            UnityEditor.Undo.RegisterCreatedObjectUndo(instantiatedGO, "Create " + instantiatedGO.name);
+
+            #endif
+        }
     }
 }

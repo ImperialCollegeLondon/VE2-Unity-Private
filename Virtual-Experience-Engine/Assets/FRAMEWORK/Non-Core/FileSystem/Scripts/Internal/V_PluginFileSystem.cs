@@ -10,7 +10,8 @@ namespace VE2.NonCore.FileSystem.Internal
     {
         [Title("Debug Server Settings")]
         [BeginGroup, IgnoreParent, EndGroup, SerializeField] private ServerConnectionSettings _debugServerSettings;
-        [SerializeField, DisableInPlayMode] private bool _useDebugSettingsInBuild = false;
+    [   EditorButton(nameof(OpenLocalWorkingFolder), "Open Local Working Folder", activityType: ButtonActivityType.Everything)]
+        [SerializeField, DisableInPlayMode, SpaceArea(spaceAfter: 5, Order = 50)] private bool _useDebugSettingsInBuild = false;
 
         public override string LocalWorkingPath => $"VE2/PluginFiles/{SceneManager.GetActiveScene().name}";
 
