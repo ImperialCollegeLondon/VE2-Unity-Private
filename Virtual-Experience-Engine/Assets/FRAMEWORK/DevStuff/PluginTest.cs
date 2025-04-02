@@ -108,7 +108,7 @@ public class PluginTest : MonoBehaviour
     void Update()
     {
         if (Keyboard.current.digit1Key.wasPressedThisFrame)
-            _pushActivatable.IsActivated = !_pushActivatable.IsActivated;
+            _pushActivatable.SetActivated(!_pushActivatable.IsActivated);
         else if (Keyboard.current.digit2Key.wasPressedThisFrame)
             _pushActivatable.InteractRange = 0;
         else if (Keyboard.current.digit3Key.wasPressedThisFrame)
@@ -117,7 +117,7 @@ public class PluginTest : MonoBehaviour
             _networkObject.NetworkObject = _counter;
         }
         else if (Keyboard.current.digit4Key.wasPressedThisFrame)
-            _handheldActivatable.IsActivated = !_handheldActivatable.IsActivated;
+            _handheldActivatable.SetActivated(!_pushActivatable.IsActivated);
         else if (Keyboard.current.digit5Key.wasPressedThisFrame)
             _handheldAdjustable.Value--;
         else if (Keyboard.current.digit6Key.wasPressedThisFrame)

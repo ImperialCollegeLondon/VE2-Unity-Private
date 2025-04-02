@@ -45,13 +45,25 @@ namespace VE2.Core.VComponents.Internal
     {
         public UnityEvent OnActivate => _config.OnActivate;
         public UnityEvent OnDeactivate => _config.OnDeactivate;
-        public bool IsActivated { get => _state.IsActivated; set => HandleExternalActivation(value); }
+        public bool IsActivated { get => _state.IsActivated; }
         public ushort MostRecentInteractingClientID => _state.MostRecentInteractingClientID;
+
+        public void Activate() => SetActivated(true);
+        public void Deactivate() => SetActivated(false);
+
+        public void SetActivated(bool newIsActivated)
+        {
+            if (newIsActivated != _state.IsActivated)
+                ToggleActivatableState(ushort.MaxValue);
+            else
+                Debug.LogWarning($"Tried to set activated state on {ID} to {newIsActivated} but state is already {_state.IsActivated}");
+        }
 
         private string _activationGroupID = "None";
         private bool _isInActivationGroup = false;     
         private SingleInteractorActivatableState _state => (SingleInteractorActivatableState)State;
         private ToggleActivatableStateConfig _config => (ToggleActivatableStateConfig)Config;
+        
 
         private readonly ActivatableGroupsContainer _activatableGroupsContainer;
 
@@ -69,7 +81,7 @@ namespace VE2.Core.VComponents.Internal
                 _isInActivationGroup = false;
             }
 
-            _config.InspectorDebug.OnDebugUpdateStatePressed += (bool newState) => HandleExternalActivation(newState);
+            _config.InspectorDebug.OnDebugUpdateStatePressed += (bool newState) => SetActivated(newState);
         }
 
         private void HandleExternalActivation(bool newIsActivated)
@@ -89,9 +101,7 @@ namespace VE2.Core.VComponents.Internal
                 foreach (ISingleInteractorActivatableStateModule activatable in singleInteractorActivatableStateModules)
                 {
                     if (activatable != this && activatable.IsActivated)
-                    {
-                        activatable.IsActivated = false;
-                    }
+                        activatable.Deactivate();
                 }
 
                 InvertState(clientID);

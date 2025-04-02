@@ -49,14 +49,14 @@ namespace VE2.Core.VComponents.Tests
         [Test]
         public void PushActivatable_WhenClicked_EmitsToPlugin()
         {
-            //Invoke click, Check customer received the activation, and that the interactorID is set
-            _activatablePluginInterface.IsActivated = true;
+            //Activate, Check customer received the activation, and that the interactorID is set
+            _activatablePluginInterface.Activate();
             _customerScript.Received(1).HandleActivateReceived();
             Assert.IsTrue(_activatablePluginInterface.IsActivated, "Activatable should be activated");
             Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
 
-            // Invoke the click to deactivate
-            _activatablePluginInterface.IsActivated = false;
+            //Deactivate and check
+            _activatablePluginInterface.Deactivate();
             _customerScript.Received(1).HandleDeactivateReceived();
             Assert.IsFalse(_activatablePluginInterface.IsActivated, "Activatable should be deactivated");
             Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
@@ -103,12 +103,12 @@ namespace VE2.Core.VComponents.Tests
             _activatablePluginInterface2.OnDeactivate.AddListener(customerScript2.HandleDeactivateReceived);
 
             // Activate the first activatable
-            _activatablePluginInterface.IsActivated = true;
+            _activatablePluginInterface.Activate();
             _customerScript.Received(1).HandleActivateReceived();
             Assert.IsTrue(_activatablePluginInterface.IsActivated, "First activatable should be activated");
 
             // Activate the second activatable
-            _activatablePluginInterface2.IsActivated = true;
+            _activatablePluginInterface2.Activate();
             customerScript2.Received(1).HandleActivateReceived();
             Assert.IsTrue(_activatablePluginInterface2.IsActivated, "Second activatable should be activated");
 

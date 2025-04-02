@@ -44,14 +44,14 @@ namespace VE2.Core.VComponents.Tests
             _activatablePluginInterface.OnActivate.AddListener(customerScript.HandleActivateReceived);
             _activatablePluginInterface.OnDeactivate.AddListener(customerScript.HandleDeactivateReceived);
 
-            //Invoke click, Check customer received the activation, and that the interactorID is set
-            _activatablePluginInterface.IsActivated = true;
+            //Activate, Check customer received the activation, and that the interactorID is set
+            _activatablePluginInterface.Activate();
             customerScript.Received(1).HandleActivateReceived();
             Assert.IsTrue(_activatablePluginInterface.IsActivated);
             Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
 
-            // Invoke the click to deactivate
-            _activatablePluginInterface.IsActivated = false;
+            //Deactivate and do checks
+            _activatablePluginInterface.Deactivate();
             customerScript.Received(1).HandleDeactivateReceived();
             Assert.IsFalse(_activatablePluginInterface.IsActivated);
             Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
