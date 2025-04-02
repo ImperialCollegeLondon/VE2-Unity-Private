@@ -105,8 +105,10 @@ namespace VE2.Core.VComponents.Internal
             float targetValue = _AdjustableStateModule.OutputValue + _incrementPerScrollTick; //should this change spatial value?
             targetValue = Mathf.Clamp(targetValue, _AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue);
             SetValueOnStateModule(targetValue);
-            _oldRotationalValue = ConvertToSpatialValue(targetValue);
-            _numberOfRevolutions = Mathf.FloorToInt(_signedAngle / 360);
+
+            float spatialVal = ConvertToSpatialValue(targetValue);
+            _oldRotationalValue = (spatialVal % 360 + 360) % 360; //this is to make sure the value is always positive
+            _numberOfRevolutions = Mathf.FloorToInt(spatialVal / 360);
         }
 
         private void OnScrollDown()
@@ -114,13 +116,16 @@ namespace VE2.Core.VComponents.Internal
             float targetValue = _AdjustableStateModule.OutputValue - _incrementPerScrollTick; //should this change spatial value?
             targetValue = Mathf.Clamp(targetValue, _AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue);
             SetValueOnStateModule(targetValue);
-            _oldRotationalValue = ConvertToSpatialValue(targetValue);
-            _numberOfRevolutions = Mathf.FloorToInt(_signedAngle / 360);
+
+            float spatialVal = ConvertToSpatialValue(targetValue);
+            _oldRotationalValue = (spatialVal % 360 + 360) % 360; //this is to make sure the value is always positive
+            _numberOfRevolutions = Mathf.FloorToInt(spatialVal / 360);
         }
 
         private void OnGrabConfirmed(ushort id)
         {
-
+            _oldRotationalValue = (_spatialValue % 360 + 360) % 360; //this is to make sure the value is always positive
+            _numberOfRevolutions = Mathf.FloorToInt(_spatialValue / 360); //get the nth revolution of the starting value
         }
 
         private void OnDropConfirmed(ushort id)
@@ -141,9 +146,11 @@ namespace VE2.Core.VComponents.Internal
             //convert the output value to spatial value
             _spatialValue = ConvertToSpatialValue(value);
 
-            //set revs and the old rotational value received from the state if host so the values remained synced
-            _numberOfRevolutions = Mathf.FloorToInt(_spatialValue / 360);
-            _oldRotationalValue = _spatialValue - (_numberOfRevolutions * 360);
+            // //set revs and the old rotational value received from the state if host so the values remained synced
+            // _numberOfRevolutions = Mathf.FloorToInt(_spatialValue / 360);
+            // _oldRotationalValue = (_spatialValue % 360 + 360) % 360; //this is to make sure the value is always positive
+
+            Debug.Log($"Receving Number of Revs: {_numberOfRevolutions} | Old Rotational Value: {_oldRotationalValue}");
 
             switch (_adjustmentType)
             {
@@ -203,25 +210,25 @@ namespace VE2.Core.VComponents.Internal
                 _signedAngle += 360;
 
 
-            if (_adjustmentProperty == SpatialAdjustmentProperty.Continuous)
-            {
-                //dont allow the angle to go over 360 or under 0 if the state is at the maximum or minimum value
-                if (_signedAngle > 0 && _signedAngle < 345 && _AdjustableStateModule.IsAtMaximumValue)
-                    _signedAngle = 0;
-                else if (_signedAngle < 360 && _signedAngle > 15 && _AdjustableStateModule.IsAtMinimumValue)
-                    _signedAngle = 0;
-            }
-            else
-            {
-                //get the size between each step based on the number of values provided and the index of the step
-                float stepSize = (_maximumSpatialValue - _minimumSpatialValue) / _numberOfValues;
-             
-                //dont allow the angle to go over 360 or under 0 if the state is at the maximum or minimum value
-                if (_signedAngle > 0 && _signedAngle < 360 - stepSize && _AdjustableStateModule.IsAtMaximumValue)
-                    _signedAngle = 0;
-                else if (_signedAngle < 360 && _signedAngle > stepSize && _AdjustableStateModule.IsAtMinimumValue)
-                    _signedAngle = 0;
-            }
+            // if (_adjustmentProperty == SpatialAdjustmentProperty.Continuous)
+            // {
+            //     //dont allow the angle to go over 360 or under 0 if the state is at the maximum or minimum value
+            //     if (_signedAngle > 0 && _signedAngle < 345 && _AdjustableStateModule.IsAtMaximumValue)
+            //         _signedAngle = 0;
+            //     else if (_signedAngle < 360 && _signedAngle > 15 && _AdjustableStateModule.IsAtMinimumValue)
+            //         _signedAngle = 0;
+            // }
+            // else
+            // {
+            //     //get the size between each step based on the number of values provided and the index of the step
+            //     float stepSize = (_maximumSpatialValue - _minimumSpatialValue) / _numberOfValues;
+
+            //     //dont allow the angle to go over 360 or under 0 if the state is at the maximum or minimum value
+            //     if (_signedAngle > 0 && _signedAngle < 360 - stepSize && _AdjustableStateModule.IsAtMaximumValue)
+            //         _signedAngle = 0;
+            //     else if (_signedAngle < 360 && _signedAngle > stepSize && _AdjustableStateModule.IsAtMinimumValue)
+            //         _signedAngle = 0;
+            // }
 
             if (_signedAngle - _oldRotationalValue < -180) //if the angle has gone over 360 increment the number of revolutions
                 _numberOfRevolutions++;
@@ -229,8 +236,9 @@ namespace VE2.Core.VComponents.Internal
                 _numberOfRevolutions--;
 
             _numberOfRevolutions = Mathf.Clamp(_numberOfRevolutions, _minRevs - 1, _maxRevs + 1);
+            _oldRotationalValue = _signedAngle; //set the old rotational value to the current signed angle
 
-            _oldRotationalValue = _signedAngle;
+            Debug.Log($"Sending Signed Angle: {_signedAngle} | Old Rotational Value: {_oldRotationalValue} | Difference: {_signedAngle - _oldRotationalValue} | Number of Revs: {_numberOfRevolutions}");
 
             float angularAdjustment = _signedAngle + (_numberOfRevolutions * 360);
             angularAdjustment = Mathf.Clamp(angularAdjustment, _minimumSpatialValue, _maximumSpatialValue);

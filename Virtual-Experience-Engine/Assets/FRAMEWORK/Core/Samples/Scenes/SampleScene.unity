@@ -4932,7 +4932,7 @@ MonoBehaviour:
       AdjustmentType: 2
       AdjustmentProperty: 1
       NumberOfValues: 15
-      MinimumSpatialValue: 0
+      MinimumSpatialValue: -360
       MaximumSpatialValue: 360
     AdjustableStateConfig:
       IsNetworked: 1
