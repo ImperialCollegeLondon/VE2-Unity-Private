@@ -10,7 +10,7 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class FreeGrabbableConfig
     {
-        [SerializeField, IgnoreParent] public GrabbableStateConfig StateConfig = new();
+        [SerializeField, IgnoreParent] public FreeGrabbableStateConfig StateConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
         [SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfig = new();
     }
@@ -37,7 +37,7 @@ namespace VE2.Core.VComponents.Internal
         public event Action<ushort> OnDropConfirmed;
 
         //TODO, state config shouldn't live in the service. DropBehaviour should be in ServiceConfig
-        private GrabbableStateConfig _stateConfig;
+        private FreeGrabbableStateConfig _stateConfig;
 
         private Vector3 positionOnGrab = new();
 
