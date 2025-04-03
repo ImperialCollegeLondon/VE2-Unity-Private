@@ -68,8 +68,8 @@ namespace VE2.Core.VComponents.Internal
 
         private void Awake()
         {
-            if (_config.StateConfig.AttachPoint == null)
-                _config.StateConfig.AttachPoint = transform;
+            if (_config.InteractionConfig.AttachPoint == null)
+                _config.InteractionConfig.AttachPoint = transform;
 
             if (Application.isPlaying)
                 return;

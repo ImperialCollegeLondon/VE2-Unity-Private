@@ -27,7 +27,8 @@ namespace VE2.Core.VComponents.Internal
     {
         [SerializeField, IgnoreParent] public SpatialAdjustableServiceConfig LinearAdjustableServiceConfig = new();
         [SerializeField, IgnoreParent] public AdjustableStateConfig AdjustableStateConfig = new();
-        [SerializeField, IgnoreParent] public FreeGrabbableStateConfig GrabbableStateConfig = new();
+        [SerializeField, IgnoreParent] public GrabbableStateConfig GrabbableStateConfig = new();
+        [SerializeField, IgnoreParent] public AdjustableInteractionConfig InteractionConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfig = new();
         [SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
     }
@@ -42,11 +43,19 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField, ShowIf("AdjustmentProperty", SpatialAdjustmentProperty.Discrete)] public int NumberOfValues = 1;
         [SerializeField] public float MinimumSpatialValue = 0f;
         [SerializeField] public float MaximumSpatialValue = 1f;
-        [SerializeField] public Transform TransformToAdjust = null;
 
         // [SerializeField] public bool SinglePressScroll = false;
         // [ShowIf("SinglePressScroll", false)]
         // [EndGroup, SerializeField] public float IncrementPerSecondVRStickHeld = 4;
+    }
+
+    [Serializable]
+    internal class AdjustableInteractionConfig : GrabInteractionConfig
+    {
+        [BeginGroup(Style = GroupStyle.Round)]
+        [Title("Adjustable Interaction Settings", ApplyCondition = true)]
+        [EndGroup]
+        [SerializeField] public Transform TransformToAdjust = null;
     }
 
     internal class LinearAdjustableService
@@ -80,10 +89,10 @@ namespace VE2.Core.VComponents.Internal
         public LinearAdjustableService(ITransformWrapper transformWrapper, List<IHandheldInteractionModule> handheldInteractions, LinearAdjustableConfig config, VE2Serializable adjustableState, VE2Serializable grabbableState, string id,
             IWorldStateSyncService worldStateSyncService, HandInteractorContainer interactorContainer)
         {
-            ITransformWrapper transformToTranslate = config.LinearAdjustableServiceConfig.TransformToAdjust == null ? transformWrapper : new TransformWrapper(config.LinearAdjustableServiceConfig.TransformToAdjust);
+            ITransformWrapper transformToTranslate = config.InteractionConfig.TransformToAdjust == null ? transformWrapper : new TransformWrapper(config.InteractionConfig.TransformToAdjust);
 
             //get attach point transform, if null, use the transform wrapper (the object itself)
-            _attachPointTransform = config.GrabbableStateConfig.AttachPoint == null ? transformToTranslate : new TransformWrapper(config.GrabbableStateConfig.AttachPoint);
+            _attachPointTransform = config.InteractionConfig.AttachPoint == null ? transformToTranslate : new TransformWrapper(config.InteractionConfig.AttachPoint);
 
             //initialize module for ranged adjustable interaction (scrolling)
             _RangedAdjustableInteractionModule = new(_attachPointTransform, handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
@@ -115,8 +124,8 @@ namespace VE2.Core.VComponents.Internal
 
             _AdjustableStateModule.OnValueChangedInternal += (float value) => OnStateValueChanged(value);
 
-            UnityEngine.Debug.Log(config.AdjustableStateConfig.StartingOutputValue);
-                      
+            //UnityEngine.Debug.Log(config.AdjustableStateConfig.StartingOutputValue);
+
             //set the initial value of the adjustable state module
             SetValueOnStateModule(config.AdjustableStateConfig.StartingOutputValue);
         }
@@ -213,7 +222,7 @@ namespace VE2.Core.VComponents.Internal
         and sets it to tthe state module */
         private void SetValueOnStateModule(float value)
         {
-           UnityEngine.Debug.Log($"value = {value}, AdjustableStateModule.OutputValue = {_AdjustableStateModule.OutputValue}");
+            //UnityEngine.Debug.Log($"value = {value}, AdjustableStateModule.OutputValue = {_AdjustableStateModule.OutputValue}");
 
             if (value == _AdjustableStateModule.OutputValue)
                 return;

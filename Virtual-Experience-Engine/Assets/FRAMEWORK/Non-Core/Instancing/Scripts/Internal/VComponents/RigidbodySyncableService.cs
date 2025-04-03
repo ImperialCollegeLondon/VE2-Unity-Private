@@ -327,7 +327,9 @@ namespace VE2.NonCore.Instancing.Internal
                     _nonHostSimulating = false;
                     _isKinematicOnStart = _rigidbody.isKinematic;
                     _rigidbody.isKinematic = true;
-                    Debug.Log($"Received first pair of states at time {Time.fixedTime}");
+
+                    if (_config.LogSendReceiveDebugMessages)
+                        Debug.Log($"Received first pair of states at time {Time.fixedTime}");
                 }
 
                 AddReceivedStateToHistory(new(receivedState.FixedTime, receivedState.Position, receivedState.Rotation, receivedState.GrabCounter));

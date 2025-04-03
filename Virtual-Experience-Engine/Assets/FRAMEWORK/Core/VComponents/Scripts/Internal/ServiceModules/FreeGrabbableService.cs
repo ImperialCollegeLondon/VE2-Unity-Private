@@ -10,7 +10,8 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class FreeGrabbableConfig
     {
-        [SerializeField, IgnoreParent] public FreeGrabbableStateConfig StateConfig = new();
+        [SerializeField, IgnoreParent] public GrabbableStateConfig StateConfig = new();
+        [SerializeField, IgnoreParent] public FreeGrabbableInteractionConfig InteractionConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
         [SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfig = new();
     }
@@ -37,7 +38,8 @@ namespace VE2.Core.VComponents.Internal
         public event Action<ushort> OnDropConfirmed;
 
         //TODO, state config shouldn't live in the service. DropBehaviour should be in ServiceConfig
-        private FreeGrabbableStateConfig _stateConfig;
+        private GrabbableStateConfig _stateConfig;
+        private FreeGrabbableInteractionConfig _interactionConfig;
 
         private Vector3 positionOnGrab = new();
 
@@ -48,9 +50,10 @@ namespace VE2.Core.VComponents.Internal
             _RangedGrabInteractionModule = new(handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
             _StateModule = new(state, config.StateConfig, id, worldStateSyncService, interactorContainer, RangedGrabInteractionModule);
             _stateConfig = config.StateConfig;
+            _interactionConfig = config.InteractionConfig;
 
             _rigidbody  = rigidbody;
-            _transform = config.StateConfig.AttachPoint == null ? new TransformWrapper(_rigidbody.transform) : new TransformWrapper(config.StateConfig.AttachPoint);
+            _transform = config.InteractionConfig.AttachPoint == null ? new TransformWrapper(_rigidbody.transform) : new TransformWrapper(config.InteractionConfig.AttachPoint);
             _physicsConstants = physicsConstants;
             _isKinematicOnGrab = _rigidbody.isKinematic;
             _grabbableRigidbodyInterface = grabbableRigidbodyInterface;
@@ -94,12 +97,12 @@ namespace VE2.Core.VComponents.Internal
         private void HandleDropConfirmed(ushort dropperClientID)
         {
             // Handle drop behaviours
-            if (_stateConfig.dropBehaviour == DropBehaviour.IgnoreMomentum)
+            if (_interactionConfig.dropBehaviour == DropBehaviour.IgnoreMomentum)
             {
                 _rigidbody.linearVelocity = Vector3.zero;
                 _rigidbody.angularVelocity = Vector3.zero;
             }
-            else if (_stateConfig.dropBehaviour == DropBehaviour.ReturnToPositionBeforeGrab)
+            else if (_interactionConfig.dropBehaviour == DropBehaviour.ReturnToPositionBeforeGrab)
             {
                 _rigidbody.position = positionOnGrab;
                 _rigidbody.linearVelocity = Vector3.zero;

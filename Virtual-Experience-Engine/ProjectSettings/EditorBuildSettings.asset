@@ -12,7 +12,7 @@ EditorBuildSettings:
     path: Assets/FRAMEWORK/Private/Hub/Hub.unity
     guid: 7535069ead0163b45bc8b984118fbf92
   - enabled: 0
-    path: Assets/PluginTests/Green/DevGreen.unity
+    path: Assets/FRAMEWORK/Private/DevStuff/PluginTests/Green/DevGreen.unity
     guid: b7800568d36ba0d4886037b9127fbbe9
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 8c492c7685fbaad408a7f0353bf4a90c,

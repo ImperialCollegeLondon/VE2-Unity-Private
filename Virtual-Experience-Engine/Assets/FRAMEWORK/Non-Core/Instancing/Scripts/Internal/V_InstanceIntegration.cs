@@ -56,7 +56,7 @@ namespace VE2.NonCore.Instancing.Internal
 
         //We do this wiring here rather than the interface as the interface file needs to live in the VE2.common package
         #region provider Interfaces
-        public bool IsEnabled => enabled && gameObject.activeInHierarchy;
+        public bool IsEnabled => gameObject != null && enabled && gameObject.activeInHierarchy;
         public string GameObjectName => gameObject.name;
         private InstanceService _instanceService;
         public IInstanceService InstanceService {

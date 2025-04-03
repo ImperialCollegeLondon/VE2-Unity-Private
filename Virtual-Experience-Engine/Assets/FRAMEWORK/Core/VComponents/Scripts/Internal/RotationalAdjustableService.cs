@@ -12,7 +12,8 @@ namespace VE2.Core.VComponents.Internal
     {
         [SerializeField, IgnoreParent] public SpatialAdjustableServiceConfig RotationalAdjustableServiceConfig = new();
         [SerializeField, IgnoreParent] public AdjustableStateConfig AdjustableStateConfig = new();
-        [SerializeField, IgnoreParent] public FreeGrabbableStateConfig GrabbableStateConfig = new();
+        [SerializeField, IgnoreParent] public GrabbableStateConfig GrabbableStateConfig = new();
+        [SerializeField, IgnoreParent] public AdjustableInteractionConfig InteractionConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfig = new();
         [SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
     }
@@ -55,10 +56,10 @@ namespace VE2.Core.VComponents.Internal
         public RotationalAdjustableService(ITransformWrapper transformWrapper, List<IHandheldInteractionModule> handheldInteractions, RotationalAdjustableConfig config, VE2Serializable adjustableState, VE2Serializable grabbableState, string id,
             IWorldStateSyncService worldStateSyncService, HandInteractorContainer interactorContainer)
         {
-            ITransformWrapper transformToRotateWrapper = config.RotationalAdjustableServiceConfig.TransformToAdjust == null ? transformWrapper : new TransformWrapper(config.RotationalAdjustableServiceConfig.TransformToAdjust);
+            ITransformWrapper transformToRotateWrapper = config.InteractionConfig.TransformToAdjust == null ? transformWrapper : new TransformWrapper(config.InteractionConfig.TransformToAdjust);
 
             //get attach point transform if it exists, if null take the transform wrapper of the object itself
-            _attachPointTransform = config.GrabbableStateConfig.AttachPoint == null ? transformToRotateWrapper : new TransformWrapper(config.GrabbableStateConfig.AttachPoint);
+            _attachPointTransform = config.InteractionConfig.AttachPoint == null ? transformToRotateWrapper : new TransformWrapper(config.InteractionConfig.AttachPoint);
 
             //initialize module for ranged adjustable interaction (scrolling)
             _RangedAdjustableInteractionModule = new(_attachPointTransform, handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);

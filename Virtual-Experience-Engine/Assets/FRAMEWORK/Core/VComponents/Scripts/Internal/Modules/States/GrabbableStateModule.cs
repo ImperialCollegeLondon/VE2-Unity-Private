@@ -8,23 +8,11 @@ using static VE2.Core.Common.CommonSerializables;
 namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
-    internal class FreeGrabbableStateConfig : GrabbableStateConfig
-    {
-        [BeginGroup(Style = GroupStyle.Round)]
-        [SpaceArea(spaceAfter: 10)]
-        [EndGroup]
-        [SerializeField] public DropBehaviour dropBehaviour = new();
-
-    }
-
-    [Serializable]
     internal class GrabbableStateConfig : BaseWorldStateConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Grab State Settings", ApplyCondition = true)]
         [SerializeField, IgnoreParent] internal GrabbableStateDebug InspectorDebug = new();
-        [SerializeField] public Transform AttachPoint = null;
-
         [SerializeField] public UnityEvent OnGrab = new();
 
         [EndGroup]
@@ -33,10 +21,28 @@ namespace VE2.Core.VComponents.Internal
     }
 
     [Serializable]
+    internal class FreeGrabbableInteractionConfig : GrabInteractionConfig
+    {
+        [BeginGroup(Style = GroupStyle.Round)]
+        [Title("Free Grabbable Settings", ApplyCondition = true)]
+        [EndGroup]
+        [SerializeField] public DropBehaviour dropBehaviour = new();
+    }
+
+    [Serializable]
+    internal class GrabInteractionConfig : BaseWorldStateConfig
+    {
+        [BeginGroup(Style = GroupStyle.Round)]
+        [Title("Grab Interaction Settings", ApplyCondition = true)]
+        [EndGroup]
+        [SerializeField] public Transform AttachPoint = null;
+    }
+
+    [Serializable]
     internal class GrabbableStateDebug
     {
         [Title("Debug Output", ApplyCondition = true, Order = 50), SerializeField, ShowDisabledIf(nameof(IsInPlayMode), true)] public bool IsGrabbed = false;
-        [InspectorName("Client IDs"), SerializeField, ShowDisabledIf(nameof(IsInPlayMode), true), SpaceArea(spaceAfter:15, ApplyCondition = true)] public ushort ClientID = ushort.MaxValue;
+        [InspectorName("Client IDs"), SerializeField, ShowDisabledIf(nameof(IsInPlayMode), true), SpaceArea(spaceAfter: 15, ApplyCondition = true)] public ushort ClientID = ushort.MaxValue;
 
         protected bool IsInPlayMode => Application.isPlaying;
     }
@@ -53,7 +59,7 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         private GrabbableState _state => (GrabbableState)State;
-        private FreeGrabbableStateConfig _config => (FreeGrabbableStateConfig)Config;
+        private GrabbableStateConfig _config => (GrabbableStateConfig)Config;
 
         private readonly HandInteractorContainer _interactorContainer;
         private readonly IRangedGrabInteractionModule _rangedGrabInteractionModule;
@@ -62,8 +68,8 @@ namespace VE2.Core.VComponents.Internal
         internal event Action<ushort> OnGrabConfirmed;
         internal event Action<ushort> OnDropConfirmed;
 
-        public GrabbableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, 
-            IWorldStateSyncService worldStateSyncService, HandInteractorContainer interactorContainer, IRangedGrabInteractionModule rangedGrabInteractionModule) : 
+        public GrabbableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id,
+            IWorldStateSyncService worldStateSyncService, HandInteractorContainer interactorContainer, IRangedGrabInteractionModule rangedGrabInteractionModule) :
             base(state, config, id, worldStateSyncService)
         {
             _interactorContainer = interactorContainer;
@@ -79,7 +85,7 @@ namespace VE2.Core.VComponents.Internal
             {
                 CurrentGrabbingInteractor = interactor;
                 _state.IsGrabbed = true;
-                _isLocalGrabbed = CurrentGrabbingInteractor is ILocalInteractor; 
+                _isLocalGrabbed = CurrentGrabbingInteractor is ILocalInteractor;
                 _state.MostRecentInteractingInteractorID = interactorID;
                 _state.StateChangeNumber++;
 
@@ -168,9 +174,9 @@ namespace VE2.Core.VComponents.Internal
         {
             StateChangeNumber = 0;
             IsGrabbed = false;
-            MostRecentInteractingInteractorID = new InteractorID(ushort.MaxValue,InteractorType.None);
+            MostRecentInteractingInteractorID = new InteractorID(ushort.MaxValue, InteractorType.None);
         }
-        public GrabbableState(byte[] bytes): base(bytes) { }
+        public GrabbableState(byte[] bytes) : base(bytes) { }
 
         protected override byte[] ConvertToBytes()
         {
