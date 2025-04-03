@@ -12,6 +12,7 @@ namespace VE2.Core.VComponents.Internal
 
         public event Action<InteractorID> OnClickUp;
 
-        public RangedHoldClickInteractionModule(RangedInteractionConfig rangedConfig, GeneralInteractionConfig generalConfig, string id) : base(rangedConfig, generalConfig, id) { }
+        public RangedHoldClickInteractionModule(RangedInteractionConfig rangedConfig, GeneralInteractionConfig generalConfig, string id, bool activateAtRangeInVR)
+            : base(rangedConfig, generalConfig, id, activateAtRangeInVR) { }
     }
 }

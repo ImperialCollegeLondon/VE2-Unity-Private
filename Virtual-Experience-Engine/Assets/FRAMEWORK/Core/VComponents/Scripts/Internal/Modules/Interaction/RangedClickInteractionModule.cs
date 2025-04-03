@@ -13,11 +13,14 @@ namespace VE2.Core.VComponents.Internal
         }
         public string ID { get; }
 
+        public bool ActivateAtRangeInVR { get; }
+
         public event Action<InteractorID> OnClickDown;
 
-        public RangedToggleClickInteractionModule(RangedInteractionConfig rangedConfig, GeneralInteractionConfig generalConfig, string id) : base(rangedConfig, generalConfig) 
+        public RangedToggleClickInteractionModule(RangedInteractionConfig rangedConfig, GeneralInteractionConfig generalConfig, string id, bool activateAtRangeInVR) : base(rangedConfig, generalConfig) 
         {
             ID = id;
+            ActivateAtRangeInVR = activateAtRangeInVR;
         }  
     }
 }

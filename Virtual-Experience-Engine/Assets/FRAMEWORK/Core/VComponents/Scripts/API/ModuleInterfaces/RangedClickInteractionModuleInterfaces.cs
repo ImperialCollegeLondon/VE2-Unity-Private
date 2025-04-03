@@ -8,6 +8,7 @@ namespace VE2.Core.VComponents.API
     {
         public void ClickDown(InteractorID interactorID);
         public string ID { get; }
+        public bool ActivateAtRangeInVR { get; }
     }
 
     internal interface IRangedToggleClickInteractionModule : IRangedClickInteractionModule 
