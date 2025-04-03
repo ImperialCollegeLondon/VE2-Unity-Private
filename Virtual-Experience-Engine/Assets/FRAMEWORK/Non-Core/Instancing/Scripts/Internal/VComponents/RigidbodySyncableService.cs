@@ -216,7 +216,8 @@ namespace VE2.NonCore.Instancing.Internal
 
                 SetRigidbodyValues(Vector3.Lerp(previousState.Position, nextState.Position, interpValueBetweenStates), Quaternion.Slerp(previousState.Rotation, nextState.Rotation, interpValueBetweenStates));
 
-                Debug.Log($"Smoothing on host over {_storedHostLagCompensationStates.Count} frames, with {_hostSmoothingFramesLeft} frames left. TotalVal = {interpolationValueAlongStoredStates}, indexFrom = {indexOfStateToInterpolateFrom}, interpVal = {interpValueBetweenStates}");
+                if (_config.LogInterpolationDebug) { 
+                    Debug.Log($"Smoothing on host over {_storedHostLagCompensationStates.Count} frames, with {_hostSmoothingFramesLeft} frames left. TotalVal = {interpolationValueAlongStoredStates}, indexFrom = {indexOfStateToInterpolateFrom}, interpVal = {interpValueBetweenStates}");
 
                 _hostSmoothingFramesLeft--;
 
@@ -409,7 +410,8 @@ namespace VE2.NonCore.Instancing.Internal
                     Color lineColour = lerpParameter >= 0 ? Color.white : Color.red;
                     Debug.DrawLine(_rigidbody.position, _rigidbody.position + Vector3.Cross(_rigidbody.linearVelocity, Vector3.up).normalized / 5, Color.white, 20f);
                 }
-                if (_config.LogInterpolationDebug) { 
+                if (_config.LogInterpolationDebug) 
+                { 
                     Debug.Log($"LocalTime = {delayedLocalTime}, StateFixedTimes = {previousState.FixedTime} & {nextState.FixedTime}, lerpParam = {lerpParameter}");
                 }
             }
