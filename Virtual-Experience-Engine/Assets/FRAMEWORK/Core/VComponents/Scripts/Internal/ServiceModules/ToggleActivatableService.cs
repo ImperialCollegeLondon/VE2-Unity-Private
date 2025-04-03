@@ -17,7 +17,7 @@ namespace VE2.Core.VComponents.Internal
     internal class ActivatableRangedInteractionConfig : RangedInteractionConfig
     {
         [BeginGroup(Style = GroupStyle.Round, ApplyCondition = true)]
-        [Title("Ranged Interaction Settings")]
+        [Title("Activatable Ranged Interaction Settings")]
         [SerializeField, IgnoreParent] public bool ActivateAtRangeInVR = true;
     }
 

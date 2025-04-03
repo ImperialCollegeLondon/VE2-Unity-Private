@@ -291,6 +291,10 @@ namespace VE2.Core.Player.Internal
             if (raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange &&
                 raycastResultWrapper.RangedInteractable is IRangedClickInteractionModule rangedClickInteractable)
             {
+                //TODO - Code smell? This is a bit of a hack to get around the fact that we don't have a way to check if we're in VR or not
+                if(this is InteractorVR && !rangedClickInteractable.ActivateAtRangeInVR)
+                    return;
+                
                 rangedClickInteractable.ClickDown(_InteractorID);
                 _CurrentHoveringInteractable = rangedClickInteractable;
 
