@@ -239,7 +239,7 @@ namespace VE2.Core.VComponents.Internal
             _numberOfRevolutions = Mathf.Clamp(_numberOfRevolutions, _minRevs - 1, _maxRevs + 1);
             _oldRotationalValue = _signedAngle; //set the old rotational value to the current signed angle
 
-            Debug.Log($"Sending Signed Angle: {_signedAngle} | Old Rotational Value: {_oldRotationalValue} | Difference: {_signedAngle - _oldRotationalValue} | Number of Revs: {_numberOfRevolutions}");
+            //Debug.Log($"Sending Signed Angle: {_signedAngle} | Old Rotational Value: {_oldRotationalValue} | Difference: {_signedAngle - _oldRotationalValue} | Number of Revs: {_numberOfRevolutions}");
 
             float angularAdjustment = _signedAngle + (_numberOfRevolutions * 360);
             angularAdjustment = Mathf.Clamp(angularAdjustment, _minimumSpatialValue, _maximumSpatialValue);

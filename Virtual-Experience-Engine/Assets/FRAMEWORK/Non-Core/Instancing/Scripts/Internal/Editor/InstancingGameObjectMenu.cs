@@ -9,6 +9,13 @@ namespace VE2.NonCore.FileSystem.Internal
 {
     public class VComponentsEditorMenu
     {
+        [MenuItem("/GameObject/VE2/Networking/NetworkedGrabbable", priority = 97)]
+        private static void CreateNetworkedGrabbable()
+        {
+
+            CommonUtils.InstantiateResource("NetworkedGrabbable");
+        }
+
         [MenuItem("/GameObject/VE2/Networking/InstanceIntegration", priority = 98)]
         private static void CreateInstanceIntegration()
         {
