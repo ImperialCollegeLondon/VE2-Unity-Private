@@ -40,6 +40,8 @@ namespace VE2.Core.VComponents.Internal
 
             _RangedClickInteractionModule.OnClickDown += HandleInteract;
             _ColliderInteractionModule.OnCollideEnter += HandleInteract;
+
+            _StateModule.SetActivated(config.StateConfig.ActivateOnStart);
         }
 
         public void HandleFixedUpdate()
