@@ -1189,7 +1189,6 @@ MonoBehaviour:
       NumberOfValues: 5
       MinimumSpatialValue: 0
       MaximumSpatialValue: 360
-      TransformToAdjust: {fileID: 0}
     AdjustableStateConfig:
       IsNetworked: 1
       RepeatedTransmissionConfig:
@@ -1215,14 +1214,19 @@ MonoBehaviour:
       InspectorDebug:
         IsGrabbed: 0
         ClientID: 0
-      AttachPoint: {fileID: 619064477}
-      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls: []
       OnDrop:
         m_PersistentCalls:
           m_Calls: []
+    InteractionConfig:
+      IsNetworked: 1
+      RepeatedTransmissionConfig:
+        TransmissionType: 0
+        TransmissionFrequency: 1
+      AttachPoint: {fileID: 0}
+      TransformToAdjust: {fileID: 0}
     RangedInteractionConfig:
       InteractionRange: 5
       OnLocalHoverEnter:
@@ -2484,7 +2488,6 @@ MonoBehaviour:
       NumberOfValues: 10
       MinimumSpatialValue: -0.115
       MaximumSpatialValue: 0.115
-      TransformToAdjust: {fileID: 2966522815027014209}
     AdjustableStateConfig:
       IsNetworked: 1
       RepeatedTransmissionConfig:
@@ -2535,8 +2538,6 @@ MonoBehaviour:
       InspectorDebug:
         IsGrabbed: 0
         ClientID: 0
-      AttachPoint: {fileID: 2966522815027014209}
-      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls:
@@ -2567,6 +2568,13 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+    InteractionConfig:
+      IsNetworked: 1
+      RepeatedTransmissionConfig:
+        TransmissionType: 0
+        TransmissionFrequency: 1
+      AttachPoint: {fileID: 2966522815027014209}
+      TransformToAdjust: {fileID: 2966522815027014209}
     RangedInteractionConfig:
       InteractionRange: 5
       OnLocalHoverEnter:
@@ -13932,14 +13940,19 @@ MonoBehaviour:
       InspectorDebug:
         IsGrabbed: 0
         ClientID: 0
-      AttachPoint: {fileID: 0}
-      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls: []
       OnDrop:
         m_PersistentCalls:
           m_Calls: []
+    InteractionConfig:
+      IsNetworked: 1
+      RepeatedTransmissionConfig:
+        TransmissionType: 0
+        TransmissionFrequency: 1
+      AttachPoint: {fileID: 0}
+      dropBehaviour: 0
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
@@ -15151,8 +15164,6 @@ MonoBehaviour:
       InspectorDebug:
         IsGrabbed: 0
         ClientID: 0
-      AttachPoint: {fileID: 1215851363}
-      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls:
@@ -15183,6 +15194,13 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+    InteractionConfig:
+      IsNetworked: 1
+      RepeatedTransmissionConfig:
+        TransmissionType: 0
+        TransmissionFrequency: 1
+      AttachPoint: {fileID: 1215851363}
+      dropBehaviour: 0
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
@@ -23626,8 +23644,6 @@ MonoBehaviour:
       InspectorDebug:
         IsGrabbed: 0
         ClientID: 0
-      AttachPoint: {fileID: 302427551}
-      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls:
@@ -23658,6 +23674,13 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+    InteractionConfig:
+      IsNetworked: 1
+      RepeatedTransmissionConfig:
+        TransmissionType: 0
+        TransmissionFrequency: 1
+      AttachPoint: {fileID: 2103749180}
+      dropBehaviour: 0
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
@@ -24099,7 +24122,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2118330372}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a8995ff54d324b04ea0f50966b2be213, type: 3}
   m_Name: 
@@ -25905,7 +25928,6 @@ MonoBehaviour:
       NumberOfValues: 15
       MinimumSpatialValue: 0
       MaximumSpatialValue: 360
-      TransformToAdjust: {fileID: 415242904}
     AdjustableStateConfig:
       IsNetworked: 1
       RepeatedTransmissionConfig:
@@ -25956,8 +25978,6 @@ MonoBehaviour:
       InspectorDebug:
         IsGrabbed: 0
         ClientID: 0
-      AttachPoint: {fileID: 5476167600612595522}
-      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls:
@@ -25988,6 +26008,13 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+    InteractionConfig:
+      IsNetworked: 1
+      RepeatedTransmissionConfig:
+        TransmissionType: 0
+        TransmissionFrequency: 1
+      AttachPoint: {fileID: 5476167600612595522}
+      TransformToAdjust: {fileID: 415242904}
     RangedInteractionConfig:
       InteractionRange: 5
       OnLocalHoverEnter:
@@ -26902,8 +26929,6 @@ MonoBehaviour:
       InspectorDebug:
         IsGrabbed: 0
         ClientID: 0
-      AttachPoint: {fileID: 543450651613274442}
-      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls:
@@ -26934,6 +26959,13 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+    InteractionConfig:
+      IsNetworked: 1
+      RepeatedTransmissionConfig:
+        TransmissionType: 0
+        TransmissionFrequency: 1
+      AttachPoint: {fileID: 543450651613274442}
+      dropBehaviour: 0
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
@@ -28095,8 +28127,6 @@ MonoBehaviour:
       InspectorDebug:
         IsGrabbed: 0
         ClientID: 0
-      AttachPoint: {fileID: 1907100095}
-      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls:
@@ -28127,6 +28157,13 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+    InteractionConfig:
+      IsNetworked: 1
+      RepeatedTransmissionConfig:
+        TransmissionType: 0
+        TransmissionFrequency: 1
+      AttachPoint: {fileID: 7336850990320701898}
+      dropBehaviour: 0
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
@@ -29078,7 +29115,6 @@ MonoBehaviour:
       NumberOfValues: 2
       MinimumSpatialValue: -47.687
       MaximumSpatialValue: 47.687
-      TransformToAdjust: {fileID: 5829944966913161112}
     AdjustableStateConfig:
       IsNetworked: 1
       RepeatedTransmissionConfig:
@@ -29129,8 +29165,6 @@ MonoBehaviour:
       InspectorDebug:
         IsGrabbed: 0
         ClientID: 0
-      AttachPoint: {fileID: 931179260}
-      dropBehaviour: 0
       OnGrab:
         m_PersistentCalls:
           m_Calls:
@@ -29161,6 +29195,13 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+    InteractionConfig:
+      IsNetworked: 1
+      RepeatedTransmissionConfig:
+        TransmissionType: 0
+        TransmissionFrequency: 1
+      AttachPoint: {fileID: 931179260}
+      TransformToAdjust: {fileID: 5829944966913161112}
     RangedInteractionConfig:
       InteractionRange: 5
       OnLocalHoverEnter:
