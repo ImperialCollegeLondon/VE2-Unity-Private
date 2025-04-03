@@ -29776,8 +29776,8 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
-      AttachPoint: {fileID: 2331527082296670790}
-      TransformToAdjust: {fileID: 0}
+      AttachPoint: {fileID: 7630708130437203443}
+      TransformToAdjust: {fileID: 601521730583208394}
     RangedInteractionConfig:
       InteractionRange: 5
       OnLocalHoverEnter:
@@ -30441,8 +30441,8 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
-      AttachPoint: {fileID: 0}
-      TransformToAdjust: {fileID: 0}
+      AttachPoint: {fileID: 2942569303062809500}
+      TransformToAdjust: {fileID: 6276480324959252713}
     RangedInteractionConfig:
       InteractionRange: 5
       OnLocalHoverEnter:
@@ -30583,8 +30583,8 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
-      AttachPoint: {fileID: 0}
-      TransformToAdjust: {fileID: 0}
+      AttachPoint: {fileID: 312694930724920086}
+      TransformToAdjust: {fileID: 428635686494013578}
     RangedInteractionConfig:
       InteractionRange: 5
       OnLocalHoverEnter:

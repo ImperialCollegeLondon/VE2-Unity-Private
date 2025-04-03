@@ -40,7 +40,7 @@ namespace VE2.NonCore.Platform.Internal
 
     public class VE2PluginBuilder
     {
-        [MenuItem("VE2/Build VE2 plugin...")]
+        [MenuItem("VE2/Build VE2 plugin...", priority = 2)]
         internal static void ShowWindow()
         {
             var window = ScriptableObject.CreateInstance<VE2PluginBuilderWindow>();
