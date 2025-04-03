@@ -665,6 +665,7 @@ MonoBehaviour:
         IsActivated: 0
         ClientID: 65535
         _newState: 0
+      ActivateOnStart: 0
       OnActivate:
         m_PersistentCalls:
           m_Calls:
@@ -773,7 +774,7 @@ MonoBehaviour:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
-    RangedInteractionConfig:
+    ActivatableRangedInteractionConfig:
       InteractionRange: 5
       OnLocalHoverEnter:
         m_PersistentCalls:
@@ -829,7 +830,8 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-  _collider: {fileID: 0}
+      ActivateAtRangeInVR: 1
+  _collider: {fileID: 23840100}
 --- !u!23 &23840102
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -6466,6 +6468,7 @@ MonoBehaviour:
         IsActivated: 0
         ClientID: 65535
         _newState: 0
+      ActivateOnStart: 0
       OnActivate:
         m_PersistentCalls:
           m_Calls:
@@ -6574,7 +6577,7 @@ MonoBehaviour:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
-    RangedInteractionConfig:
+    ActivatableRangedInteractionConfig:
       InteractionRange: 5
       OnLocalHoverEnter:
         m_PersistentCalls:
@@ -6630,7 +6633,8 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-  _collider: {fileID: 0}
+      ActivateAtRangeInVR: 1
+  _collider: {fileID: 539028773}
 --- !u!23 &539028775
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -9042,6 +9046,7 @@ MonoBehaviour:
         IsActivated: 0
         ClientID: 65535
         _newState: 0
+      ActivateOnStart: 0
       OnActivate:
         m_PersistentCalls:
           m_Calls:
@@ -9150,7 +9155,7 @@ MonoBehaviour:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
-    RangedInteractionConfig:
+    ActivatableRangedInteractionConfig:
       InteractionRange: 5
       OnLocalHoverEnter:
         m_PersistentCalls:
@@ -9206,6 +9211,7 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+      ActivateAtRangeInVR: 1
   _collider: {fileID: 756509172}
 --- !u!114 &756509174
 MonoBehaviour:
@@ -13690,6 +13696,7 @@ MonoBehaviour:
         IsActivated: 0
         ClientID: 65535
         _newState: 0
+      ActivateOnStart: 0
       OnActivate:
         m_PersistentCalls:
           m_Calls:
@@ -13798,7 +13805,7 @@ MonoBehaviour:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
-    RangedInteractionConfig:
+    ActivatableRangedInteractionConfig:
       InteractionRange: 5
       OnLocalHoverEnter:
         m_PersistentCalls:
@@ -13854,7 +13861,8 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-  _collider: {fileID: 0}
+      ActivateAtRangeInVR: 1
+  _collider: {fileID: 1064730504}
 --- !u!23 &1064730506
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -19233,7 +19241,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   folderToSearch: /
-  _loadingPanel: {fileID: 144605037}
+  _loadingPanel: {fileID: 0}
   _fileObjectHorizontalGroupPrefab: {fileID: 757623056032635042, guid: 0f5038f54991a564198ee8c1601802ea,
     type: 3}
   _fileObjectVerticalGroup: {fileID: 1916863257}
@@ -24351,6 +24359,7 @@ MonoBehaviour:
         IsActivated: 0
         ClientID: 65535
         _newState: 0
+      ActivateOnStart: 0
       OnActivate:
         m_PersistentCalls:
           m_Calls:
@@ -25362,7 +25371,7 @@ MonoBehaviour:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
-    RangedInteractionConfig:
+    ActivatableRangedInteractionConfig:
       InteractionRange: 5
       OnLocalHoverEnter:
         m_PersistentCalls:
@@ -25418,6 +25427,7 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+      ActivateAtRangeInVR: 1
   _collider: {fileID: 2137345507}
 --- !u!1 &2144054240
 GameObject:
@@ -26211,14 +26221,6 @@ MonoBehaviour:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
-    RangedInteractionConfig:
-      InteractionRange: 5
-      OnLocalHoverEnter:
-        m_PersistentCalls:
-          m_Calls: []
-      OnLocalHoverExit:
-        m_PersistentCalls:
-          m_Calls: []
 --- !u!82 &919132147501691428
 AudioSource:
   m_ObjectHideFlags: 0
@@ -29774,8 +29776,8 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
-      AttachPoint: {fileID: 7630708130437203443}
-      TransformToAdjust: {fileID: 7630708130437203443}
+      AttachPoint: {fileID: 2331527082296670790}
+      TransformToAdjust: {fileID: 0}
     RangedInteractionConfig:
       InteractionRange: 5
       OnLocalHoverEnter:
@@ -30439,8 +30441,8 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
-      AttachPoint: {fileID: 2942569303062809500}
-      TransformToAdjust: {fileID: 6276480324959252713}
+      AttachPoint: {fileID: 0}
+      TransformToAdjust: {fileID: 0}
     RangedInteractionConfig:
       InteractionRange: 5
       OnLocalHoverEnter:
@@ -30581,8 +30583,8 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
-      AttachPoint: {fileID: 312694930724920086}
-      TransformToAdjust: {fileID: 7302318795587373846}
+      AttachPoint: {fileID: 0}
+      TransformToAdjust: {fileID: 0}
     RangedInteractionConfig:
       InteractionRange: 5
       OnLocalHoverEnter:

@@ -823,14 +823,6 @@ MonoBehaviour:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
-    RangedInteractionConfig:
-      InteractionRange: 5
-      OnLocalHoverEnter:
-        m_PersistentCalls:
-          m_Calls: []
-      OnLocalHoverExit:
-        m_PersistentCalls:
-          m_Calls: []
 --- !u!82 &156166586812148999
 AudioSource:
   m_ObjectHideFlags: 0
@@ -6698,7 +6690,7 @@ MonoBehaviour:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
-    RangedInteractionConfig:
+    ActivatableRangedInteractionConfig:
       InteractionRange: 5
       OnLocalHoverEnter:
         m_PersistentCalls:
@@ -6754,6 +6746,7 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+      ActivateAtRangeInVR: 1
   _collider: {fileID: 1963660859355256685}
 --- !u!65 &1963660859355256685
 BoxCollider:
@@ -8745,6 +8738,7 @@ MonoBehaviour:
         IsActivated: 0
         ClientID: 65535
         _newState: 0
+      ActivateOnStart: 0
       OnActivate:
         m_PersistentCalls:
           m_Calls:
@@ -8805,7 +8799,7 @@ MonoBehaviour:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
-    RangedInteractionConfig:
+    ActivatableRangedInteractionConfig:
       InteractionRange: 5
       OnLocalHoverEnter:
         m_PersistentCalls:
@@ -8861,6 +8855,7 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+      ActivateAtRangeInVR: 1
   _collider: {fileID: 5871888969178367326}
 --- !u!65 &5871888969178367326
 BoxCollider:
