@@ -39,7 +39,7 @@ namespace VE2.Core.Tests
                     ActivationGroupID = "TestGroup"
                 },
                 GeneralInteractionConfig = new GeneralInteractionConfig(),
-                RangedInteractionConfig = new RangedInteractionConfig()
+                ActivatableRangedInteractionConfig = new ActivatableRangedInteractionConfig()
             };
 
             var service = new ToggleActivatableService(

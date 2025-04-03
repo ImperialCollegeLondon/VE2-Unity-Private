@@ -10,7 +10,15 @@ namespace VE2.Core.VComponents.Internal
     {
         [SerializeField, IgnoreParent] public ToggleActivatableStateConfig StateConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
-        [SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfig = new();
+        [SerializeField, IgnoreParent] public ActivatableRangedInteractionConfig ActivatableRangedInteractionConfig = new();
+    }
+
+    [Serializable]
+    internal class ActivatableRangedInteractionConfig : RangedInteractionConfig
+    {
+        [BeginGroup(Style = GroupStyle.Round, ApplyCondition = true)]
+        [Title("Ranged Interaction Settings")]
+        [SerializeField, IgnoreParent] public bool ActivateAtRangeInVR = true;
     }
 
     internal class ToggleActivatableService
@@ -35,11 +43,13 @@ namespace VE2.Core.VComponents.Internal
         {
             _StateModule = new(state, config.StateConfig, id, worldStateSyncService,activatableGroupsContainer);
 
-            _RangedClickInteractionModule = new(config.RangedInteractionConfig, config.GeneralInteractionConfig, id);
+            _RangedClickInteractionModule = new(config.ActivatableRangedInteractionConfig, config.GeneralInteractionConfig, id, config.ActivatableRangedInteractionConfig.ActivateAtRangeInVR);
             _ColliderInteractionModule = new(config.GeneralInteractionConfig, id, CollideInteractionType.Hand);
 
             _RangedClickInteractionModule.OnClickDown += HandleInteract;
             _ColliderInteractionModule.OnCollideEnter += HandleInteract;
+
+            _StateModule.SetActivated(config.StateConfig.ActivateOnStart);
         }
 
         public void HandleFixedUpdate()
