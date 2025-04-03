@@ -1,0 +1,21 @@
+{
+    "name": "VE2.NonCore.FileSystem.Internal",
+    "rootNamespace": "",
+    "references": [
+        "GUID:696a0953692949b40bec8730e64e1fdd",
+        "GUID:1b845e2499b39be4aab3e6ac2c8aa02a",
+        "GUID:436731590c8e9ba40b57a1f200ff5c2f",
+        "GUID:8d2e05375753d0f4b95f2552fddd124d",
+        "GUID:111c54dcd318c434faa4cad0b1ad6d57",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

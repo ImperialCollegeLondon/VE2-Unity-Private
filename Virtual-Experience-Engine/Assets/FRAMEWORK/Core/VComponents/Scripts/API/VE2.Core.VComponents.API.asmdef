@@ -1,0 +1,18 @@
+{
+    "name": "VE2.Core.VComponents.API",
+    "rootNamespace": "",
+    "references": [
+        "GUID:111c54dcd318c434faa4cad0b1ad6d57",
+        "GUID:696a0953692949b40bec8730e64e1fdd",
+        "GUID:1b845e2499b39be4aab3e6ac2c8aa02a"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

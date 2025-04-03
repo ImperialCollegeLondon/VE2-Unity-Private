@@ -2,7 +2,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
-using VE2.Core.VComponents.InteractableInterfaces;
+using VE2.Core.VComponents.API;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -32,14 +32,28 @@ namespace VE2.Core.VComponents.Internal
             _rangedConfig = config;
         }
 
-        public void OnLocalInteractorHoverEnter()
+        public void EnterHover()
         {
-
+            try
+            {
+                _rangedConfig.OnLocalHoverEnter.Invoke();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Error invoking OnHoverEnter event - {e.Message} - {e.StackTrace}");
+            }
         }
 
-        public void OnLocalInteractorHoverExit()
+        public void ExitHover()
         {
-
+            try
+            {
+                _rangedConfig.OnLocalHoverExit.Invoke();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Error invoking OnHoverExit event - {e.Message} - {e.StackTrace}");
+            }
         }
     }
 }

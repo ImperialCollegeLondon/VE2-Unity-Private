@@ -1,19 +1,26 @@
 
 using System;
-using VE2.Core.VComponents.InteractableInterfaces;
+using VE2.Core.VComponents.API;
 
 namespace VE2.Core.VComponents.Internal
 {
-    internal class RangedClickInteractionModule : RangedInteractionModule, IRangedClickInteractionModule
+    internal class RangedToggleClickInteractionModule : RangedInteractionModule, IRangedToggleClickInteractionModule
     {
-        public void Click(ushort clientID)
+        public void ClickDown(InteractorID interactorID)
         {
             //only happens if is valid click
-            OnClickDown?.Invoke(clientID);
+            OnClickDown?.Invoke(interactorID);
         }
+        public string ID { get; }
 
-        public event Action<ushort> OnClickDown;
+        public bool ActivateAtRangeInVR { get; }
 
-        public RangedClickInteractionModule(RangedInteractionConfig rangedConfig, GeneralInteractionConfig generalConfig) : base(rangedConfig, generalConfig) { }  
+        public event Action<InteractorID> OnClickDown;
+
+        public RangedToggleClickInteractionModule(RangedInteractionConfig rangedConfig, GeneralInteractionConfig generalConfig, string id, bool activateAtRangeInVR) : base(rangedConfig, generalConfig) 
+        {
+            ID = id;
+            ActivateAtRangeInVR = activateAtRangeInVR;
+        }  
     }
 }

@@ -15,9 +15,9 @@ TagManager:
   - V_Walls
   - V_Custom1
   - V_Custom2
-  - 
-  - 
-  - 
+  - Traversible
+  - V_Custom3
+  - EditorOnly
   - 
   - 
   - 
