@@ -59,7 +59,7 @@ namespace VE2.Core.Player.Internal
         private readonly RectTransform _overlayUIRect;
 
         internal PlayerController2D(HandInteractorContainer interactorContainer, Player2DInputContainer player2DInputContainer, IPlayerPersistentDataHandler playerPersistentDataHandler,
-            Player2DControlConfig controlConfig, IRaycastProvider raycastProvider, ICollisionDetector collisionDetector, ILocalClientIDProvider multiplayerSupport, 
+            Player2DControlConfig controlConfig, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ILocalClientIDProvider multiplayerSupport, 
             IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IPlayerServiceInternal playerService) 
         {
             GameObject player2DPrefab = Resources.Load("2dPlayer") as GameObject;
@@ -80,18 +80,16 @@ namespace VE2.Core.Player.Internal
             _secondaryUIHolder = player2DReferences.SecondaryUIHolderRect;
             _overlayUIRect = player2DReferences.OverlayUIRect;
 
-            ICollisionDetector feetColliderDetector = CollisionDetectorFactory.CreateCollisionDetector(player2DReferences.Interactor2DReferences.FeetCollider);
-
             _interactor2D = new(
                 interactorContainer, player2DInputContainer.InteractorInputContainer2D,
                 player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, multiplayerSupport);
 
-            _feetInteractor2D = new(feetColliderDetector, InteractorType.Feet, multiplayerSupport);
+            _feetInteractor2D = new(collisionDetectorFactory, player2DReferences.Interactor2DReferences.FeetCollider, InteractorType.Feet, multiplayerSupport);
 
             _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences);
 
             base._PlayerHeadTransform = _playerLocomotor2D.HeadTransform;
-            base._FeetCollisionDetector = feetColliderDetector as V_CollisionDetector;
+            base._FeetCollisionDetector = _feetInteractor2D._collisionDetector as V_CollisionDetector;
 
             if (_primaryUIService != null)
             {

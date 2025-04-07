@@ -2,6 +2,7 @@ using System;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
+using VE2.Core.Player.Internal;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
 using VE2.Core.VComponents.Tests;
@@ -47,6 +48,9 @@ namespace VE2.Core.Tests
             _customerScript.Received(1).HandleDeactivateReceived();
             Assert.IsFalse(_holdActivatablePluginInterface.IsActivated, "Activatable should be deactivated");
             Assert.AreEqual(_holdActivatablePluginInterface.MostRecentInteractingClientID, localClientID);
+
+            // ICollisionDetector footDetector2D = CollisionDetectorFactoryStubSetup.CollisionDetectorFactory.CollisionDetectors[(int)ColliderType.Feet2D];
+            // footDetector2D.OnCollideStart += Raise.Event<Action<ICollideInteractionModule>>(_v_holdActivatableProviderStub.CollideInteractionModule);
         }
 
         [TearDown]

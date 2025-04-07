@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using VE2.Core.VComponents.API;
 
@@ -14,7 +15,7 @@ namespace VE2.Core.Player.Internal
     {
         public event Action<ICollideInteractionModule> OnCollideStart;
         public event Action<ICollideInteractionModule> OnCollideEnd;
-
+        
         private void OnTriggerEnter(Collider other)
         {
             if (other.gameObject.TryGetComponent(out ICollideInteractionModuleProvider collidable))
@@ -32,14 +33,26 @@ namespace VE2.Core.Player.Internal
         }
     }
 
-    public class CollisionDetectorFactory
+    public interface ICollisionDetectorFactory
     {
-        private static V_CollisionDetector _collisionDetector;
+        internal ICollisionDetector CreateCollisionDetector(Collider collider, ColliderType colliderType);
+    }
 
-        internal static ICollisionDetector CreateCollisionDetector(Collider collider)
+    public class CollisionDetectorFactory : ICollisionDetectorFactory
+    {
+        ICollisionDetector ICollisionDetectorFactory.CreateCollisionDetector(Collider collider, ColliderType colliderType)
         {
-            _collisionDetector = collider.gameObject.AddComponent<V_CollisionDetector>();
-            return _collisionDetector;
+            var collisionDetector = collider.gameObject.AddComponent<V_CollisionDetector>();
+            return collisionDetector;
         }
+    }
+
+    public enum ColliderType
+    {
+        Feet2D,
+        FeetVR,
+        HandVRLeft,
+        HandVRRight,
+        None
     }
 }

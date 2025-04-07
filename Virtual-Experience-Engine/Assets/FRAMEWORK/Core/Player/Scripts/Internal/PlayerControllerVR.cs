@@ -51,7 +51,7 @@ namespace VE2.Core.Player.Internal
         private readonly ISecondaryUIServiceInternal _secondaryUIService;
 
         internal PlayerControllerVR(HandInteractorContainer interactorContainer, PlayerVRInputContainer playerVRInputContainer, IPlayerPersistentDataHandler playerSettingsHandler, PlayerVRControlConfig controlConfig, MovementModeConfig movementModeConfig,
-            IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper, ILocalClientIDProvider localClientIDProvider, IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService) 
+            IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, IXRManagerWrapper xrManagerSettingsWrapper, ILocalClientIDProvider localClientIDProvider, IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService) 
         {
             GameObject playerVRPrefab = Resources.Load("vrPlayer") as GameObject;
             _playerGO = GameObject.Instantiate(playerVRPrefab, null, false);
@@ -70,10 +70,11 @@ namespace VE2.Core.Player.Internal
             _headTransform = playerVRReferences.HeadTransform;
             _primaryUIHolderRect = playerVRReferences.PrimaryUIHolderRect;
 
+                
+            _feetInteractorVR = new FeetInteractor(collisionDetectorFactory, playerVRReferences.FeetCollider, InteractorType.Feet, localClientIDProvider);
+
             base._PlayerHeadTransform = _headTransform;
-            base._FeetCollisionDetector = playerVRReferences.FeetCollisionDetector;
-    
-            _feetInteractorVR = new FeetInteractor(_FeetCollisionDetector, InteractorType.Feet, localClientIDProvider);
+            base._FeetCollisionDetector = _feetInteractorVR._collisionDetector as V_CollisionDetector;
 
             GameObject handVRLeftPrefab = Resources.Load<GameObject>("HandVRLeft");
             GameObject handVRLeftGO = GameObject.Instantiate(handVRLeftPrefab, _verticalOffsetTransform, false);

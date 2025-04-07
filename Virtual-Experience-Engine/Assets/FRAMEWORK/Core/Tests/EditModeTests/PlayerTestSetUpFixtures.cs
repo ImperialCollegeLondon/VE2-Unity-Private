@@ -84,6 +84,18 @@ namespace VE2.Core.Tests
     }
 
     [SetUpFixture]
+    internal class CollisionDetectorStubSetup
+    {
+        public static ICollisionDetector CollisionDetectorStub { get; private set; }
+
+        [OneTimeSetUp]
+        public static void CollisionDetectorStubSetupOnce()
+        {
+            CollisionDetectorStub = Substitute.For<ICollisionDetector>();
+        }
+    }
+
+    [SetUpFixture]
     internal class PlayerPersistentDataHandlerSetup
     {
         public static IPlayerPersistentDataHandler PlayerPersistentDataHandlerStub { get; private set; }
@@ -204,7 +216,7 @@ namespace VE2.Core.Tests
                 LocalClientIDProviderSetup.LocalClientIDProviderStub,
                 PlayerInputContainerSetup.PlayerInputContainerStub,
                 RayCastProviderSetup.RaycastProviderStub, 
-                Substitute.For<ICollisionDetector>(),
+                Substitute.For<ICollisionDetectorFactory>(),
                 Substitute.For<IXRManagerWrapper>(),
                 Substitute.For<IPrimaryUIServiceInternal>(),
                 Substitute.For<ISecondaryUIServiceInternal>()
