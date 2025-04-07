@@ -20,6 +20,7 @@ namespace VE2.Core.Player.Internal
             PlayerAPI.LocalClientIDProvider,
             PlayerAPI.InputHandler.PlayerInputContainer,
             new RaycastProvider(),
+            new V_CollisionDetector(),
             xrManagerWrapper,
             primaryUIService,
             secondaryUIService);
@@ -88,7 +89,7 @@ namespace VE2.Core.Player.Internal
 
         internal PlayerService(PlayerTransformData transformData, PlayerConfig config, HandInteractorContainer interactorContainer, 
             IPlayerPersistentDataHandler playerSettingsHandler, ILocalClientIDProvider playerSyncer, 
-            PlayerInputContainer playerInputContainer, IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerWrapper, 
+            PlayerInputContainer playerInputContainer, IRaycastProvider raycastProvider, ICollisionDetector collisionDetector, IXRManagerWrapper xrManagerWrapper, 
             IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService)
         {
             PlayerTransformData = transformData;
@@ -112,7 +113,7 @@ namespace VE2.Core.Player.Internal
                 _player2D = new PlayerController2D(
                     interactorContainer, _playerInputContainer.Player2DInputContainer,
                     playerSettingsHandler, new Player2DControlConfig(), //TODO:
-                    raycastProvider, playerSyncer, primaryUIService, secondaryUIService, this);
+                    raycastProvider, collisionDetector, playerSyncer, primaryUIService, secondaryUIService, this);
             }
 
             _playerSettingsHandler.OnDebugSaveAppearance += HandlePlayerPresentationChanged;

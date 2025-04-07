@@ -31,4 +31,15 @@ namespace VE2.Core.Player.Internal
             }
         }
     }
+
+    public class CollisionDetectorFactory
+    {
+        private static V_CollisionDetector _collisionDetector;
+
+        internal static ICollisionDetector CreateCollisionDetector(Collider collider)
+        {
+            _collisionDetector = collider.gameObject.AddComponent<V_CollisionDetector>();
+            return _collisionDetector;
+        }
+    }
 }

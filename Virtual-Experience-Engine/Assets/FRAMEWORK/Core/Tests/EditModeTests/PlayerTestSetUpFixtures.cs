@@ -204,6 +204,7 @@ namespace VE2.Core.Tests
                 LocalClientIDProviderSetup.LocalClientIDProviderStub,
                 PlayerInputContainerSetup.PlayerInputContainerStub,
                 RayCastProviderSetup.RaycastProviderStub, 
+                Substitute.For<ICollisionDetector>(),
                 Substitute.For<IXRManagerWrapper>(),
                 Substitute.For<IPrimaryUIServiceInternal>(),
                 Substitute.For<ISecondaryUIServiceInternal>()

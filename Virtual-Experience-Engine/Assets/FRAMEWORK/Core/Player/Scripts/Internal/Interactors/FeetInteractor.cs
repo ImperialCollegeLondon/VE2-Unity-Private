@@ -13,11 +13,11 @@ namespace VE2.Core.Player.Internal
         protected InteractorID _InteractorID => new(_localClientID, _InteractorType);
         protected bool _WaitingForLocalClientID => _localClientIDProvider != null && !_localClientIDProvider.IsClientIDReady;
 
-        private readonly V_CollisionDetector _collisionDetector;
+        private readonly ICollisionDetector _collisionDetector;
         private readonly InteractorType _InteractorType;
         private readonly ILocalClientIDProvider _localClientIDProvider;
 
-        internal FeetInteractor(V_CollisionDetector collisionDetector, InteractorType interactorType, ILocalClientIDProvider localClientIDProvider)
+        internal FeetInteractor(ICollisionDetector collisionDetector, InteractorType interactorType, ILocalClientIDProvider localClientIDProvider)
         {
             _collisionDetector = collisionDetector;
             _InteractorType = interactorType;
