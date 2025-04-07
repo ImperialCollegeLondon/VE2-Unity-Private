@@ -12,6 +12,7 @@ namespace VE2.Core.VComponents.API
     enum CollideInteractionType
     {
         Hand,
-        Feet
+        Feet,
+        None
     }
 }
