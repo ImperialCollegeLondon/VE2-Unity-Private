@@ -9,12 +9,14 @@ namespace VE2.Core.Player.Internal
     {
         public event Action<ICollideInteractionModule> OnCollideStart;
         public event Action<ICollideInteractionModule> OnCollideEnd;
+        public ColliderType ColliderType { get; set; }
     }
 
     internal class V_CollisionDetector : MonoBehaviour, ICollisionDetector
     {
         public event Action<ICollideInteractionModule> OnCollideStart;
         public event Action<ICollideInteractionModule> OnCollideEnd;
+        public ColliderType ColliderType { get; set; }
         
         private void OnTriggerEnter(Collider other)
         {

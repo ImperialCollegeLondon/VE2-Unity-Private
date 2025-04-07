@@ -6,6 +6,7 @@ using VE2.Core.Player.Internal;
 using VE2.Core.Player.API;
 using static VE2.Core.Player.API.PlayerSerializables;
 using VE2.Core.UI.API;
+using System.Collections.Generic;
 
 namespace VE2.Core.Tests
 {
@@ -84,14 +85,30 @@ namespace VE2.Core.Tests
     }
 
     [SetUpFixture]
-    internal class CollisionDetectorStubSetup
+    internal class CollisionDetectorFactoryStubSetup
     {
-        public static ICollisionDetector CollisionDetectorStub { get; private set; }
+        public static CollisionDetectorFactoryStub CollisionDetectorFactoryStub { get; private set; }
 
         [OneTimeSetUp]
         public static void CollisionDetectorStubSetupOnce()
         {
-            CollisionDetectorStub = Substitute.For<ICollisionDetector>();
+            CollisionDetectorFactoryStub = new CollisionDetectorFactoryStub();
+        }
+    }
+
+    
+    public class CollisionDetectorFactoryStub : ICollisionDetectorFactory
+    {
+        internal Dictionary<ColliderType, ICollisionDetector> CollisionDetectorStubs { get; } = new();
+
+        ICollisionDetector ICollisionDetectorFactory.CreateCollisionDetector(Collider collider, ColliderType colliderType)
+        {
+            ICollisionDetector collisionDetector = Substitute.For<ICollisionDetector>();
+            collisionDetector.ColliderType.Returns(colliderType);
+            CollisionDetectorStubs.Add(colliderType, collisionDetector);
+
+            Debug.Log(CollisionDetectorStubs.Count);
+            return collisionDetector;
         }
     }
 
@@ -216,7 +233,7 @@ namespace VE2.Core.Tests
                 LocalClientIDProviderSetup.LocalClientIDProviderStub,
                 PlayerInputContainerSetup.PlayerInputContainerStub,
                 RayCastProviderSetup.RaycastProviderStub, 
-                Substitute.For<ICollisionDetectorFactory>(),
+                CollisionDetectorFactoryStubSetup.CollisionDetectorFactoryStub,
                 Substitute.For<IXRManagerWrapper>(),
                 Substitute.For<IPrimaryUIServiceInternal>(),
                 Substitute.For<ISecondaryUIServiceInternal>()
@@ -226,6 +243,8 @@ namespace VE2.Core.Tests
         [TearDown]
         public void TearDownPlayerServiceAfterEachTest()
         {
+            CollisionDetectorFactoryStubSetup.CollisionDetectorFactoryStub.CollisionDetectorStubs.Clear();
+
             _playerService.TearDown();
             _playerService = null;
         }

@@ -20,7 +20,7 @@ namespace VE2.Core.VComponents.Internal
         {
             string id = "HHAdjustable-" + gameObject.name;
             if (_state == null)
-                _state = new AdjustableState(_config.StateConfig.StartingOutputValue);
+                _state = new AdjustableState(float.MaxValue);
 
             _service = new(_config, _state, id, VComponentsAPI.WorldStateSyncService);
         }

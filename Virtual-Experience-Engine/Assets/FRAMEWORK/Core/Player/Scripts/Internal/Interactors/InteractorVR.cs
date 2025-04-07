@@ -54,6 +54,7 @@ namespace VE2.Core.Player.Internal
         {
             if (!_WaitingForLocalClientID && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Hand)
             {
+                Debug.Log($"InteractorVR: HandleCollideStart");
                 collideInteractionModule.InvokeOnCollideEnter(_InteractorID);
                 HeldActivatableIDs.Add(collideInteractionModule.ID);
             }
