@@ -96,5 +96,21 @@ namespace VE2.Core.Common
 
             #endif
         }
+
+        public static GameObject FindInChildrenByName(GameObject parent, string targetName)
+        {
+            foreach (Transform child in parent.transform)
+            {
+                if (child.name == targetName)
+                    return child.gameObject;
+
+                GameObject result = FindInChildrenByName(child.gameObject, targetName);
+                if (result != null)
+                    return result;
+            }
+
+            return null; // Not found
+        }
+
     }
 }

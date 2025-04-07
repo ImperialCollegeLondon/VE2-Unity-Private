@@ -36,10 +36,11 @@ namespace VE2.Core.VComponents.Internal
         {
             try
             {
-                _rangedConfig.OnLocalHoverEnter.Invoke();
+                _rangedConfig.OnLocalHoverEnter?.Invoke();
             }
             catch (Exception e)
             {
+                Debug.LogError($"ERROR HOVER INVOKE config null?- {_rangedConfig == null}");
                 Debug.LogError($"Error invoking OnHoverEnter event - {e.Message} - {e.StackTrace}");
             }
         }
@@ -48,7 +49,7 @@ namespace VE2.Core.VComponents.Internal
         {
             try
             {
-                _rangedConfig.OnLocalHoverExit.Invoke();
+                _rangedConfig.OnLocalHoverExit?.Invoke();
             }
             catch (Exception e)
             {

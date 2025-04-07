@@ -5,72 +5,100 @@ using System.Collections.Generic;
 using VE2.Core.VComponents.API;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using VE2.Core.Common;
 
 namespace VE2.Core.VComponents.Integration
 {
-    internal class V_CustomInfoPoint : MonoBehaviour
+    [ExecuteAlways]
+    internal class V_CustomInfoPoint : MonoBehaviour, IV_ToggleActivatable
     {
+        [SerializeField, IgnoreParent] private ToggleActivatableConfig _toggleActivatableConfig = new();
 
-        public UnityEvent OnInfoPointOpen = new();
-        public UnityEvent OnInfoPointClose = new();
+        [SerializeField, HideInInspector] private GameObject _infoPointCanvasGO;
+        [SerializeField, HideInInspector] private GameObject _infoPointTriggerGO;
+        [SerializeField, HideInInspector] private GameObject _infoPointTriggerColliderAndVisualsGO;
 
-        private IV_ToggleActivatable _toggleActivatable = null;
-        private GameObject _infoPointCanvasGO;
-        private Button _infoPointCloseButton;
-        private GameObject _infoPointTriggerGO;
-        private GameObject _infoPointTriggerVisualElementsGO;
-        private Renderer _infoPointTriggerGORenderer;
-        private Collider _infoPointTriggerGOCollider;
+        #region Plugin Interfaces
+        ISingleInteractorActivatableStateModule IV_ToggleActivatable._StateModule => _triggerProgrammaticInterface._StateModule;
+        IRangedToggleClickInteractionModule IV_ToggleActivatable._RangedToggleClickModule => _triggerProgrammaticInterface._RangedToggleClickModule;
+        #endregion
+
+        private V_ToggleActivatable _triggerActivatable = null;
+        private IV_ToggleActivatable _triggerProgrammaticInterface => _triggerActivatable as IV_ToggleActivatable;
+
+        private void Reset()
+        {
+            if (_infoPointTriggerGO != null)
+                DestroyImmediate(_infoPointTriggerGO);
+
+            _infoPointTriggerGO = GameObject.Instantiate(Resources.Load<GameObject>("InfoPoints/InfoPointTrigger"));
+            _infoPointTriggerGO.transform.SetParent(transform, worldPositionStays: false);
+            _infoPointTriggerGO.transform.localPosition = Vector3.zero;
+            _infoPointTriggerGO.transform.localRotation = Quaternion.identity;
+            _infoPointTriggerColliderAndVisualsGO = _infoPointTriggerGO.transform.GetChild(0).gameObject;
+            
+            if (_infoPointCanvasGO != null)
+                DestroyImmediate(_infoPointCanvasGO);
+
+            _infoPointCanvasGO = GameObject.Instantiate(Resources.Load<GameObject>("InfoPoints/InfoPointCustomCanvas"));
+            _infoPointCanvasGO.transform.SetParent(transform, worldPositionStays: false);
+            _infoPointCanvasGO.transform.localPosition = Vector3.zero;
+            _infoPointCanvasGO.transform.localRotation = Quaternion.identity;
+        }
 
         private void OnEnable()
         {
-            _toggleActivatable ??= GetComponentInChildren<IV_ToggleActivatable>();
+            if (!Application.isPlaying)
+                return;
 
-            _infoPointCanvasGO = GetComponentInChildren<Canvas>(true).gameObject;
-            _infoPointCloseButton = _infoPointCanvasGO.GetComponentInChildren<Button>();
-            _infoPointTriggerGO = GetComponentInChildren<V_ToggleActivatable>(true).gameObject;
-            _infoPointTriggerGORenderer = _infoPointTriggerGO.GetComponent<MeshRenderer>();
-            _infoPointTriggerGOCollider = _infoPointTriggerGO.GetComponent<Collider>();
-            _infoPointTriggerVisualElementsGO = _infoPointTriggerGO.transform.GetChild(0).gameObject;
+            //Must pass the config _before_ enabling, otherwise that config wont make it into the ActivatableService
+            _infoPointTriggerGO.SetActive(false); //To ensure the trigger activatable's OnEnable doesn't fire
+            _triggerActivatable = _infoPointTriggerGO.AddComponent<V_ToggleActivatable>(); //Fires V_ToggleActivatable.OnEnable, I need it not to! Can I attach it disabled?
+            Debug.Log("About to give config");
+            _triggerActivatable.Config = _toggleActivatableConfig;
+            Debug.Log("Config given");
+            _infoPointTriggerGO.SetActive(true); //Trigger activatable's OnEnable can now execute with the config 
 
+            _triggerProgrammaticInterface.OnActivate.AddListener(OpenInfoPoint);
+            _triggerProgrammaticInterface.OnDeactivate.AddListener(CloseInfoPoint);
 
-            //_toggleActivatable.OnActivate.AddListener(OpenInfoPoint);
-            //_toggleActivatable.OnDeactivate.AddListener(OpenInfoPoint);
-            //_infoPointCloseButton.onClick.AddListener(CloseInfoPoint);
+            GameObject canvasCloseButtonGO = CommonUtils.FindInChildrenByName(_infoPointCanvasGO, "InfoPointFrameworkCloseButton");
+            if (canvasCloseButtonGO != null)
+                canvasCloseButtonGO.GetComponent<Button>()?.onClick.AddListener(_triggerProgrammaticInterface.Deactivate);
+
+            _infoPointCanvasGO.SetActive(false);
         }
-
-        private void OnDisable()
-        {
-            //_toggleActivatable.OnActivate.RemoveListener(OpenInfoPoint);
-            //_toggleActivatable.OnDeactivate.RemoveListener(OpenInfoPoint);
-            //_infoPointCloseButton.onClick.RemoveListener(CloseInfoPoint);
-        }
-
-        void Update()
-        {
-
-        }   
 
         public void OpenInfoPoint()
         {
             _infoPointCanvasGO.SetActive(true);
-            _infoPointTriggerGORenderer.enabled = false;
-            _infoPointTriggerGOCollider.enabled = false;
-            _infoPointTriggerVisualElementsGO.SetActive(false);
-
-            OnInfoPointOpen.Invoke();
+            _infoPointTriggerColliderAndVisualsGO.SetActive(false);
         }
 
         public void CloseInfoPoint()
         {
             _infoPointCanvasGO.SetActive(false);
-            _infoPointTriggerGORenderer.enabled = true;
-            _infoPointTriggerGOCollider.enabled = true;
-            _infoPointTriggerVisualElementsGO.SetActive(true);
-
-            OnInfoPointClose.Invoke();
+            _infoPointTriggerColliderAndVisualsGO.SetActive(true);
         }
 
-        
+        private void OnDisable()
+        {
+            if (!Application.isPlaying)
+                return;
+
+            _triggerActivatable.enabled = false;
+        }
+
+        private void OnDestroy()
+        {
+            if (Application.isPlaying)
+                return;
+
+            if (_infoPointTriggerGO != null)
+                DestroyImmediate(_infoPointTriggerGO);
+            
+            if (_infoPointCanvasGO != null)
+                DestroyImmediate(_infoPointCanvasGO);
+        }
     }
 }

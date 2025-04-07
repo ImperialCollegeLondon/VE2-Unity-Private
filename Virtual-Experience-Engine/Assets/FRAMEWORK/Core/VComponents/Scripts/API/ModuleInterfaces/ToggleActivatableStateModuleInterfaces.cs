@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 namespace VE2.Core.VComponents.API
 {
-    internal interface ISingleInteractorActivatableStateModule
+    internal interface ISingleInteractorActivatableStateModule : IBaseStateModule
     {
         public UnityEvent OnActivate { get; }
         public UnityEvent OnDeactivate { get; }

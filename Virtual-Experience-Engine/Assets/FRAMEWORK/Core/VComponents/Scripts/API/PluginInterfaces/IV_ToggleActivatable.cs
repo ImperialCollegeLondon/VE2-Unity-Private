@@ -15,6 +15,8 @@ namespace VE2.Core.VComponents.API
         public void Deactivate() => _StateModule.Deactivate();
         public void SetActivated(bool isActivated) => _StateModule.SetActivated(isActivated);
         public ushort MostRecentInteractingClientID => _StateModule.MostRecentInteractingClientID;
+
+        public void SetNetworked(bool isNetworked) => _StateModule.SetNetworked(isNetworked);
         #endregion
 
         #region Ranged Interaction Module Interface
