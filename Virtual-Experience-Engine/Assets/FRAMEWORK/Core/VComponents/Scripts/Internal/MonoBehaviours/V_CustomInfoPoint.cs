@@ -28,22 +28,24 @@ namespace VE2.Core.VComponents.Integration
 
         private void Reset()
         {
-            if (_infoPointTriggerGO != null)
-                DestroyImmediate(_infoPointTriggerGO);
-
-            _infoPointTriggerGO = GameObject.Instantiate(Resources.Load<GameObject>("InfoPoints/InfoPointTrigger"));
-            _infoPointTriggerGO.transform.SetParent(transform, worldPositionStays: false);
-            _infoPointTriggerGO.transform.localPosition = Vector3.zero;
-            _infoPointTriggerGO.transform.localRotation = Quaternion.identity;
-            _infoPointTriggerColliderAndVisualsGO = _infoPointTriggerGO.transform.GetChild(0).gameObject;
-            
             if (_infoPointCanvasGO != null)
                 DestroyImmediate(_infoPointCanvasGO);
 
             _infoPointCanvasGO = GameObject.Instantiate(Resources.Load<GameObject>("InfoPoints/InfoPointCustomCanvas"));
+            _infoPointCanvasGO.name = $"{gameObject.name}_Canvas";
             _infoPointCanvasGO.transform.SetParent(transform, worldPositionStays: false);
             _infoPointCanvasGO.transform.localPosition = Vector3.zero;
             _infoPointCanvasGO.transform.localRotation = Quaternion.identity;
+
+            if (_infoPointTriggerGO != null)
+                DestroyImmediate(_infoPointTriggerGO);
+
+            _infoPointTriggerGO = GameObject.Instantiate(Resources.Load<GameObject>("InfoPoints/InfoPointTrigger"));
+            _infoPointTriggerGO.name = $"{gameObject.name}_Trigger";
+            _infoPointTriggerGO.transform.SetParent(transform, worldPositionStays: false);
+            _infoPointTriggerGO.transform.localPosition = Vector3.zero;
+            _infoPointTriggerGO.transform.localRotation = Quaternion.identity;
+            _infoPointTriggerColliderAndVisualsGO = _infoPointTriggerGO.transform.GetChild(0).gameObject;
         }
 
         private void OnEnable()
@@ -54,9 +56,7 @@ namespace VE2.Core.VComponents.Integration
             //Must pass the config _before_ enabling, otherwise that config wont make it into the ActivatableService
             _infoPointTriggerGO.SetActive(false); //To ensure the trigger activatable's OnEnable doesn't fire
             _triggerActivatable = _infoPointTriggerGO.AddComponent<V_ToggleActivatable>(); //Fires V_ToggleActivatable.OnEnable, I need it not to! Can I attach it disabled?
-            Debug.Log("About to give config");
             _triggerActivatable.Config = _toggleActivatableConfig;
-            Debug.Log("Config given");
             _infoPointTriggerGO.SetActive(true); //Trigger activatable's OnEnable can now execute with the config 
 
             _triggerProgrammaticInterface.OnActivate.AddListener(OpenInfoPoint);
@@ -94,11 +94,13 @@ namespace VE2.Core.VComponents.Integration
             if (Application.isPlaying)
                 return;
 
-            if (_infoPointTriggerGO != null)
-                DestroyImmediate(_infoPointTriggerGO);
-            
+            #if UNITY_EDITOR
             if (_infoPointCanvasGO != null)
-                DestroyImmediate(_infoPointCanvasGO);
+                UnityEditor.Undo.DestroyObjectImmediate(_infoPointCanvasGO);
+                
+            if (_infoPointTriggerGO != null)
+                UnityEditor.Undo.DestroyObjectImmediate(_infoPointTriggerGO);
+            #endif
         }
     }
 }

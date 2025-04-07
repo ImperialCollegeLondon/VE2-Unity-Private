@@ -77,12 +77,13 @@ namespace VE2.Core.Common
             instantiatedGO.name = "tempName";
 
             int extraNum = 0;
-            string newName = resourceName;
+            string resourceNameShort = resourceName.Contains("/")? resourceName.Substring(resourceName.LastIndexOf("/") + 1) : resourceName;
+            string newName = resourceNameShort;
 
             while (GameObject.Find(newName) != null) 
             {
                 extraNum++;
-                newName = $"{resourceName}{extraNum}";
+                newName = $"{resourceNameShort}{extraNum}";
             } 
 
             instantiatedGO.name = newName;

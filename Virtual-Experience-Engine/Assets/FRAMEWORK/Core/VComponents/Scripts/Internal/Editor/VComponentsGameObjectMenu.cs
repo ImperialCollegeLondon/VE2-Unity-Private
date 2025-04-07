@@ -43,6 +43,12 @@ namespace VE2.Core.VComponents.Internal
         {
             CommonUtils.InstantiateResource("AdjustableSlider");
         }
+
+        [MenuItem("/GameObject/VE2/UIs/CustomInfoPoint", priority = 6)]
+        private static void CreateCustomInfoPoint()
+        {
+            CommonUtils.InstantiateResource("InfoPoints/CustomInfoPoint");
+        }
     }
 }
 #endif
