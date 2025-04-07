@@ -9009,7 +9009,7 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
-      ActivateAtRangeInVR: 0
+      ActivateAtRangeInVR: 1
       ActivateWithCollisionInVR: 1
   _collider: {fileID: 756509172}
 --- !u!114 &756509174
@@ -24868,7 +24868,7 @@ MonoBehaviour:
         TransmissionType: 0
         TransmissionFrequency: 1
       ActivateAtRangeInVR: 1
-      ActivateWithCollisionInVR: 0
+      ActivateWithCollisionInVR: 1
   _collider: {fileID: 2137345507}
 --- !u!1 &2144054240
 GameObject:
