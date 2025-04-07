@@ -107,7 +107,6 @@ namespace VE2.Core.Tests
             collisionDetector.ColliderType.Returns(colliderType);
             CollisionDetectorStubs.Add(colliderType, collisionDetector);
 
-            Debug.Log(CollisionDetectorStubs.Count);
             return collisionDetector;
         }
     }

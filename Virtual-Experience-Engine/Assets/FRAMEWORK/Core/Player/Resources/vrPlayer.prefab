@@ -522,7 +522,7 @@ MonoBehaviour:
   _rootTransform: {fileID: 7775038711954809053}
   _verticalOffsetTransform: {fileID: 2120674381144681540}
   _headTransform: {fileID: 292132094415373342}
-  _feetCollisionDetector: {fileID: 246589483165251602}
+  _feetCollider: {fileID: 3046815335016098313}
   _primaryUIHolderRect: {fileID: 852471172109446637}
 --- !u!54 &2285103226659310569
 Rigidbody:

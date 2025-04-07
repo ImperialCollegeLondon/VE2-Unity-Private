@@ -31,8 +31,8 @@ namespace VE2.Core.Player.Internal
         public LineRenderer LineRenderer => _lineRenderer;
         [SerializeField, IgnoreParent] private LineRenderer _lineRenderer;
 
-        public V_CollisionDetector CollisionDetector => _collisionDetector;
-        [SerializeField, IgnoreParent] private V_CollisionDetector _collisionDetector;
+        public Collider HandCollider => _handCollider;
+        [SerializeField, IgnoreParent] private Collider _handCollider;
 
         public GameObject HandVisualGO => _handVisualGO;
         [SerializeField, IgnoreParent] private GameObject _handVisualGO;

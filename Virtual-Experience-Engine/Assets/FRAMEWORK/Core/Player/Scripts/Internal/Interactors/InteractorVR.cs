@@ -10,7 +10,7 @@ namespace VE2.Core.Player.Internal
 
         private Vector3 _grabberTransformOffset;
 
-        private readonly V_CollisionDetector _collisionDetector;
+        private readonly ICollisionDetector _collisionDetector;
         private readonly GameObject _handVisualGO;
         private readonly LineRenderer _lineRenderer;
         private readonly Material _lineMaterial;
@@ -18,7 +18,7 @@ namespace VE2.Core.Player.Internal
         private const float LINE_EMISSION_INTENSITY = 15;
 
         internal InteractorVR(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
-            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, 
+            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ColliderType colliderType,
             ILocalClientIDProvider multiplayerSupport, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator) :
             base(interactorContainer, interactorInputContainer,
                 interactorReferences, interactorType, raycastProvider, multiplayerSupport, grabbableWrapper, hoveringOverScrollableIndicator)
@@ -26,8 +26,8 @@ namespace VE2.Core.Player.Internal
         {
             InteractorVRReferences interactorVRReferences = interactorReferences as InteractorVRReferences;
 
-            _collisionDetector = interactorVRReferences.CollisionDetector;
             _handVisualGO = interactorVRReferences.HandVisualGO;
+            _collisionDetector = collisionDetectorFactory.CreateCollisionDetector(interactorVRReferences.HandCollider, colliderType);
 
             _lineRenderer = interactorVRReferences.LineRenderer;
             _lineMaterial = Application.isPlaying ? _lineRenderer.material : null; //SetUp : Unhandled log message: '[Error] Instantiating material due to calling renderer.material during edit mode. This will leak materials into the scene. You most likely want to use renderer.sharedMaterial instead.'. Use UnityEngine.TestTools.LogAssert.Expect
@@ -54,7 +54,6 @@ namespace VE2.Core.Player.Internal
         {
             if (!_WaitingForLocalClientID && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Hand)
             {
-                Debug.Log($"InteractorVR: HandleCollideStart");
                 collideInteractionModule.InvokeOnCollideEnter(_InteractorID);
                 HeldActivatableIDs.Add(collideInteractionModule.ID);
             }

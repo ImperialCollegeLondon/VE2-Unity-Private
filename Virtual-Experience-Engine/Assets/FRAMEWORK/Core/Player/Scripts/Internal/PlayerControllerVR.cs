@@ -87,17 +87,17 @@ namespace VE2.Core.Player.Internal
 
             _handControllerLeft = CreateHandController(handVRLeftGO, handVRRightGO, interactorContainer,
                 playerVRInputContainer.HandVRLeftInputContainer, playerVRInputContainer.HandVRRightInputContainer.DragLocomotorInputContainer,
-                InteractorType.LeftHandVR, raycastProvider, localClientIDProvider, leftHandGrabbableWrapper, rightHandGrabbableWrapper, secondaryUIService, movementModeConfig, false);
+                InteractorType.LeftHandVR, raycastProvider, collisionDetectorFactory, ColliderType.HandVRLeft, localClientIDProvider, leftHandGrabbableWrapper, rightHandGrabbableWrapper, secondaryUIService, movementModeConfig, false);
 
             _handControllerRight = CreateHandController(handVRRightGO, handVRLeftGO, interactorContainer,
                 playerVRInputContainer.HandVRRightInputContainer, playerVRInputContainer.HandVRLeftInputContainer.DragLocomotorInputContainer,
-                InteractorType.RightHandVR, raycastProvider, localClientIDProvider, rightHandGrabbableWrapper, leftHandGrabbableWrapper, secondaryUIService, movementModeConfig, true);
+                InteractorType.RightHandVR, raycastProvider, collisionDetectorFactory, ColliderType.HandVRRight, localClientIDProvider, rightHandGrabbableWrapper, leftHandGrabbableWrapper, secondaryUIService, movementModeConfig, true);
         }
 
 
         private V_HandController CreateHandController(GameObject handGO, GameObject otherHandGO, HandInteractorContainer interactorContainer,
             HandVRInputContainer handVRInputContainer, DragLocomotorInputContainer otherHandDragInputContainer, InteractorType interactorType,
-            IRaycastProvider raycastProvider, ILocalClientIDProvider multiplayerSupport, FreeGrabbableWrapper thisHandGrabbableWrapper,
+            IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ColliderType colliderType, ILocalClientIDProvider multiplayerSupport, FreeGrabbableWrapper thisHandGrabbableWrapper,
             FreeGrabbableWrapper otherHandGrabbableWrapper, ISecondaryUIServiceInternal secondaryUIService, MovementModeConfig movementModeConfig, bool needsToFlip)
         {
             V_HandVRReferences thisHandVRReferences = handGO.GetComponent<V_HandVRReferences>();
@@ -108,7 +108,7 @@ namespace VE2.Core.Player.Internal
             InteractorVR interactor = new(
                 interactorContainer, handVRInputContainer.InteractorVRInputContainer,
                 thisHandVRReferences.InteractorVRReferences,
-                interactorType, raycastProvider, multiplayerSupport, thisHandGrabbableWrapper, hoveringOverScrollableIndicator);
+                interactorType, raycastProvider, collisionDetectorFactory, colliderType, multiplayerSupport, thisHandGrabbableWrapper, hoveringOverScrollableIndicator);
 
             DragLocomotorController dragLocomotor = new(
                 thisHandVRReferences.LocomotorVRReferences,

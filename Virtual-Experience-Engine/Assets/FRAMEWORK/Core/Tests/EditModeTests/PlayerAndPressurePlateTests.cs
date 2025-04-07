@@ -59,6 +59,5 @@ namespace VE2.Core.Tests
 
             _v_pressurePlateProviderStub.TearDown();
         }
-
     }
 }

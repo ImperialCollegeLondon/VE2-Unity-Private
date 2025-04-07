@@ -58,7 +58,6 @@ namespace VE2.Core.Player.Internal
         {
             if (!_WaitingForLocalClientID && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Feet)
             {
-                Debug.Log($"FeetInteractor: HandleCollideStart");
                 collideInteractionModule.InvokeOnCollideEnter(_InteractorID);
                 _heldActivatableIDs.Add(collideInteractionModule.ID);
             }
