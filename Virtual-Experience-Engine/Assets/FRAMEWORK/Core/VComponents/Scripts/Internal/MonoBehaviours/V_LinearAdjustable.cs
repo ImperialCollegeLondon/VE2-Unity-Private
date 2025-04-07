@@ -26,12 +26,12 @@ namespace VE2.Core.VComponents.Internal
         {
             get 
             {
-                if (_config.GrabbableStateConfig.AttachPoint == null)
-                    _config.GrabbableStateConfig.AttachPoint = transform;
-                return _config.GrabbableStateConfig.AttachPoint.GetComponent<Collider>();
+                if (_config.InteractionConfig.AttachPoint == null)
+                    _config.InteractionConfig.AttachPoint = transform;
+                return _config.InteractionConfig.AttachPoint.GetComponent<Collider>();
             }
         }
-        internal string AttachPointGOName => _config.GrabbableStateConfig.AttachPoint.name;
+        internal string AttachPointGOName => _config.InteractionConfig.AttachPoint.name;
         #endregion
 
         public float MinimumSpatialValue { get => _service.MinimumSpatialValue; set => _service.MinimumSpatialValue = value; }
@@ -56,7 +56,7 @@ namespace VE2.Core.VComponents.Internal
             string id = "LinearAdjustable-" + gameObject.name;
 
             if(_adjustableState == null)
-                _adjustableState = new AdjustableState(_config.AdjustableStateConfig.StartingOutputValue);  
+                _adjustableState = new AdjustableState(float.MaxValue);  
             
             List<IHandheldInteractionModule> handheldInteractions = new(); 
 

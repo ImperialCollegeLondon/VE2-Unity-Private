@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.Events;
-using VE2.Core.VComponents.API;
 
 namespace VE2.Core.VComponents.API
 {   
@@ -26,6 +25,18 @@ namespace VE2.Core.VComponents.API
         public float SpatialValue { get; set; }
         public int NumberOfValues { get; set; }
 
+        public void SetMinimumAndMaximumSpatialValuesRange(float min, float max)
+        {
+            MinimumSpatialValue = min;
+            MaximumSpatialValue = max;
+        }
+
+        public void SetMinimumAndMaximumOutputValuesRange(float min, float max)
+        {
+            MinimumOutputValue = min;
+            MaximumOutputValue = max;
+        }
+        
         public ushort MostRecentInteractingClientID => _GrabbableStateModule.MostRecentInteractingClientID;
         #endregion
 

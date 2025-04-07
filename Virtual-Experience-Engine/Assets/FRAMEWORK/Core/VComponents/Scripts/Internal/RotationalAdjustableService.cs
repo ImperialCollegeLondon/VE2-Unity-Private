@@ -13,6 +13,7 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField, IgnoreParent] public SpatialAdjustableServiceConfig RotationalAdjustableServiceConfig = new();
         [SerializeField, IgnoreParent] public AdjustableStateConfig AdjustableStateConfig = new();
         [SerializeField, IgnoreParent] public GrabbableStateConfig GrabbableStateConfig = new();
+        [SerializeField, IgnoreParent] public AdjustableInteractionConfig InteractionConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfig = new();
         [SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
     }
@@ -40,7 +41,7 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         private readonly SpatialAdjustmentProperty _adjustmentProperty;
-        private readonly ITransformWrapper _transformWrapper;
+        private readonly ITransformWrapper _transformToRotateWrapper;
         private readonly ITransformWrapper _attachPointTransform;
         private readonly SpatialAdjustmentType _adjustmentType;
         private readonly Vector3 _vectorToHandle;
@@ -55,14 +56,16 @@ namespace VE2.Core.VComponents.Internal
         public RotationalAdjustableService(ITransformWrapper transformWrapper, List<IHandheldInteractionModule> handheldInteractions, RotationalAdjustableConfig config, VE2Serializable adjustableState, VE2Serializable grabbableState, string id,
             IWorldStateSyncService worldStateSyncService, HandInteractorContainer interactorContainer)
         {
+            ITransformWrapper transformToRotateWrapper = config.InteractionConfig.TransformToAdjust == null ? transformWrapper : new TransformWrapper(config.InteractionConfig.TransformToAdjust);
+
             //get attach point transform if it exists, if null take the transform wrapper of the object itself
-            _attachPointTransform = config.GrabbableStateConfig.AttachPoint == null ? transformWrapper : new TransformWrapper(config.GrabbableStateConfig.AttachPoint);
+            _attachPointTransform = config.InteractionConfig.AttachPoint == null ? transformToRotateWrapper : new TransformWrapper(config.InteractionConfig.AttachPoint);
 
             //initialize module for ranged adjustable interaction (scrolling)
             _RangedAdjustableInteractionModule = new(_attachPointTransform, handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
 
             _incrementPerScrollTick = config.AdjustableStateConfig.IncrementPerScrollTick;
-            _transformWrapper = transformWrapper;
+            _transformToRotateWrapper = transformToRotateWrapper;
 
             _adjustmentType = config.RotationalAdjustableServiceConfig.AdjustmentType;
             _adjustmentProperty = config.RotationalAdjustableServiceConfig.AdjustmentProperty;
@@ -90,7 +93,7 @@ namespace VE2.Core.VComponents.Internal
 
             //gets the vector from the object to the attach point, this will serve as the starting point for any angle created
             //needs to be the attafch point at the start (0 not starting position) to get the correct angle
-            _vectorToHandle = _attachPointTransform.position - _transformWrapper.position;
+            _vectorToHandle = _attachPointTransform.position - _transformToRotateWrapper.position;
 
             //set the initial value of the adjustable state module
             SetValueOnStateModule(config.AdjustableStateConfig.StartingOutputValue);
@@ -99,27 +102,33 @@ namespace VE2.Core.VComponents.Internal
             _numberOfRevolutions = Mathf.FloorToInt(ConvertToSpatialValue(config.AdjustableStateConfig.StartingOutputValue) / 360);
             _oldRotationalValue = ConvertToSpatialValue(config.AdjustableStateConfig.StartingOutputValue) - (_numberOfRevolutions * 360);
         }
+
         private void OnScrollUp()
         {
             float targetValue = _AdjustableStateModule.OutputValue + _incrementPerScrollTick; //should this change spatial value?
-            Debug.Log($"Scrolling Up: {targetValue}");
+            targetValue = Mathf.Clamp(targetValue, _AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue);
             SetValueOnStateModule(targetValue);
-            _oldRotationalValue = ConvertToSpatialValue(targetValue);
-            _numberOfRevolutions = Mathf.FloorToInt(_signedAngle / 360);
+
+            float spatialVal = ConvertToSpatialValue(targetValue);
+            _oldRotationalValue = (spatialVal % 360 + 360) % 360; //this is to make sure the value is always positive
+            _numberOfRevolutions = Mathf.FloorToInt(spatialVal / 360);
         }
 
         private void OnScrollDown()
         {
             float targetValue = _AdjustableStateModule.OutputValue - _incrementPerScrollTick; //should this change spatial value?
-            Debug.Log($"Scrolling Down: {targetValue}");
+            targetValue = Mathf.Clamp(targetValue, _AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue);
             SetValueOnStateModule(targetValue);
-            _oldRotationalValue = ConvertToSpatialValue(targetValue);
-            _numberOfRevolutions = Mathf.FloorToInt(_signedAngle / 360);
+
+            float spatialVal = ConvertToSpatialValue(targetValue);
+            _oldRotationalValue = (spatialVal % 360 + 360) % 360; //this is to make sure the value is always positive
+            _numberOfRevolutions = Mathf.FloorToInt(spatialVal / 360);
         }
 
         private void OnGrabConfirmed(ushort id)
         {
-
+            _oldRotationalValue = (_spatialValue % 360 + 360) % 360; //this is to make sure the value is always positive
+            _numberOfRevolutions = Mathf.FloorToInt(_spatialValue / 360); //get the nth revolution of the starting value
         }
 
         private void OnDropConfirmed(ushort id)
@@ -140,20 +149,20 @@ namespace VE2.Core.VComponents.Internal
             //convert the output value to spatial value
             _spatialValue = ConvertToSpatialValue(value);
 
-            //set revs and the old rotational value received from the state if host so the values remained synced
-            _numberOfRevolutions = Mathf.FloorToInt(_spatialValue / 360);
-            _oldRotationalValue = _spatialValue - (_numberOfRevolutions * 360);
+            // //set revs and the old rotational value received from the state if host so the values remained synced
+            // _numberOfRevolutions = Mathf.FloorToInt(_spatialValue / 360);
+            // _oldRotationalValue = (_spatialValue % 360 + 360) % 360; //this is to make sure the value is always positive
 
             switch (_adjustmentType)
             {
                 case SpatialAdjustmentType.XAxis:
-                    _transformWrapper.localRotation = Quaternion.Euler(_spatialValue, _transformWrapper.localRotation.y, _transformWrapper.localRotation.z);
+                    _transformToRotateWrapper.localRotation = Quaternion.Euler(_spatialValue, _transformToRotateWrapper.localRotation.y, _transformToRotateWrapper.localRotation.z);
                     break;
                 case SpatialAdjustmentType.YAxis:
-                    _transformWrapper.localRotation = Quaternion.Euler(_transformWrapper.localRotation.x, _spatialValue, _transformWrapper.localRotation.z);
+                    _transformToRotateWrapper.localRotation = Quaternion.Euler(_transformToRotateWrapper.localRotation.x, _spatialValue, _transformToRotateWrapper.localRotation.z);
                     break;
                 case SpatialAdjustmentType.ZAxis:
-                    _transformWrapper.localRotation = Quaternion.Euler(_transformWrapper.localRotation.x, _transformWrapper.localRotation.y, _spatialValue);
+                    _transformToRotateWrapper.localRotation = Quaternion.Euler(_transformToRotateWrapper.localRotation.x, _transformToRotateWrapper.localRotation.y, _spatialValue);
                     break;
             }
         }
@@ -168,26 +177,26 @@ namespace VE2.Core.VComponents.Internal
 
             _AdjustableStateModule.HandleFixedUpdate();
 
-            Debug.DrawLine(_transformWrapper.position, _transformWrapper.position + _vectorToHandle, Color.red);
+            Debug.DrawLine(_transformToRotateWrapper.position, _transformToRotateWrapper.position + _vectorToHandle, Color.red);
         }
 
         private void TrackPosition(Vector3 grabberPosition)
         {
             //get the direction from the object to the grabber
-            Vector3 directionToGrabber = grabberPosition - _transformWrapper.position;
+            Vector3 directionToGrabber = grabberPosition - _transformToRotateWrapper.position;
             Vector3 localDirectionToGrabber, localDirectionToHandle;
-            Vector3 axisOfRotation = _transformWrapper.up;
+            Vector3 axisOfRotation = _transformToRotateWrapper.up;
 
             switch (_adjustmentType)
             {
                 case SpatialAdjustmentType.XAxis:
-                    axisOfRotation = _transformWrapper.right;
+                    axisOfRotation = _transformToRotateWrapper.right;
                     break;
                 case SpatialAdjustmentType.YAxis:
-                    axisOfRotation = _transformWrapper.up;
+                    axisOfRotation = _transformToRotateWrapper.up;
                     break;
                 case SpatialAdjustmentType.ZAxis:
-                    axisOfRotation = _transformWrapper.forward;
+                    axisOfRotation = _transformToRotateWrapper.forward;
                     break;
             }
 
@@ -202,25 +211,25 @@ namespace VE2.Core.VComponents.Internal
                 _signedAngle += 360;
 
 
-            if (_adjustmentProperty == SpatialAdjustmentProperty.Continuous)
-            {
-                //dont allow the angle to go over 360 or under 0 if the state is at the maximum or minimum value
-                if (_signedAngle > 0 && _signedAngle < 345 && _AdjustableStateModule.IsAtMaximumValue)
-                    _signedAngle = 0;
-                else if (_signedAngle < 360 && _signedAngle > 15 && _AdjustableStateModule.IsAtMinimumValue)
-                    _signedAngle = 0;
-            }
-            else
-            {
-                //get the size between each step based on the number of values provided and the index of the step
-                float stepSize = (_maximumSpatialValue - _minimumSpatialValue) / _numberOfValues;
-             
-                //dont allow the angle to go over 360 or under 0 if the state is at the maximum or minimum value
-                if (_signedAngle > 0 && _signedAngle < 360 - stepSize && _AdjustableStateModule.IsAtMaximumValue)
-                    _signedAngle = 0;
-                else if (_signedAngle < 360 && _signedAngle > stepSize && _AdjustableStateModule.IsAtMinimumValue)
-                    _signedAngle = 0;
-            }
+            // if (_adjustmentProperty == SpatialAdjustmentProperty.Continuous)
+            // {
+            //     //dont allow the angle to go over 360 or under 0 if the state is at the maximum or minimum value
+            //     if (_signedAngle > 0 && _signedAngle < 345 && _AdjustableStateModule.IsAtMaximumValue)
+            //         _signedAngle = 0;
+            //     else if (_signedAngle < 360 && _signedAngle > 15 && _AdjustableStateModule.IsAtMinimumValue)
+            //         _signedAngle = 0;
+            // }
+            // else
+            // {
+            //     //get the size between each step based on the number of values provided and the index of the step
+            //     float stepSize = (_maximumSpatialValue - _minimumSpatialValue) / _numberOfValues;
+
+            //     //dont allow the angle to go over 360 or under 0 if the state is at the maximum or minimum value
+            //     if (_signedAngle > 0 && _signedAngle < 360 - stepSize && _AdjustableStateModule.IsAtMaximumValue)
+            //         _signedAngle = 0;
+            //     else if (_signedAngle < 360 && _signedAngle > stepSize && _AdjustableStateModule.IsAtMinimumValue)
+            //         _signedAngle = 0;
+            // }
 
             if (_signedAngle - _oldRotationalValue < -180) //if the angle has gone over 360 increment the number of revolutions
                 _numberOfRevolutions++;
@@ -228,8 +237,9 @@ namespace VE2.Core.VComponents.Internal
                 _numberOfRevolutions--;
 
             _numberOfRevolutions = Mathf.Clamp(_numberOfRevolutions, _minRevs - 1, _maxRevs + 1);
+            _oldRotationalValue = _signedAngle; //set the old rotational value to the current signed angle
 
-            _oldRotationalValue = _signedAngle;
+            //Debug.Log($"Sending Signed Angle: {_signedAngle} | Old Rotational Value: {_oldRotationalValue} | Difference: {_signedAngle - _oldRotationalValue} | Number of Revs: {_numberOfRevolutions}");
 
             float angularAdjustment = _signedAngle + (_numberOfRevolutions * 360);
             angularAdjustment = Mathf.Clamp(angularAdjustment, _minimumSpatialValue, _maximumSpatialValue);
