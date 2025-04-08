@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using VE2.Core.VComponents.API;
 
@@ -18,13 +19,20 @@ namespace VE2.Core.VComponents.Internal
 
         private void OnEnable()
         {
-            string id = "HHActivatable-" + gameObject.name; 
-            _service = new(_config, _state, id, VComponentsAPI.HasMultiPlayerSupport? VComponentsAPI.WorldStateSyncService : null, VComponentsAPI.ActivatableGroupsContainer);
+            string id = "HHActivatable-" + gameObject.name;
+
+            IV_FreeGrabbable grabbable = null;
+
+            if (TryGetComponent(out V_FreeGrabbable freeGrabbable))
+                grabbable = freeGrabbable;
+
+            Debug.Log(grabbable == null ? "No grabbable found" : "Grabbable found");    
+            _service = new(grabbable, _config, _state, id, VComponentsAPI.HasMultiPlayerSupport? VComponentsAPI.WorldStateSyncService : null, VComponentsAPI.ActivatableGroupsContainer);
         }
 
         private void FixedUpdate()
         {
-            _service.HandleFixedUpdate();
+            _service?.HandleFixedUpdate();
         }
 
         private void OnDisable()

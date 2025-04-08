@@ -111,18 +111,56 @@ namespace VE2.Core.VComponents.Internal
                 InvertState(clientID);
             }
         }
+
+        public void SetHoldActivatableState(ushort clientID, bool isHolding)
+        {
+            if (isHolding)
+            {
+                // If this module belongs to an activation group, deactivate others.
+                if (_isInActivationGroup)
+                {
+                    List<ISingleInteractorActivatableStateModule> groupModules = _activatableGroupsContainer.GetSingleInteractorActivatableStateModule(_activationGroupID);
+                    foreach (ISingleInteractorActivatableStateModule module in groupModules)
+                    {
+                        if (module != this && module.IsActivated)
+                            module.Deactivate();
+                    }
+                }
+                // Activate this module if not already active.
+                if (!_state.IsActivated)
+                {
+                    UpdateActivationState(clientID, true);
+                }
+            }
+            else
+            {
+                // When the hold is released, deactivate if currently active.
+                if (_state.IsActivated)
+                {
+                    UpdateActivationState(clientID, false);
+                }
+            }
+        }
         public void InvertState(ushort clientID)
         {
-            _state.IsActivated = !_state.IsActivated;
-            _config.InspectorDebug.IsActivated = _state.IsActivated;
+            UpdateActivationState(clientID, !_state.IsActivated);
+        }
+        private void UpdateActivationState(ushort clientID, bool newState)
+        {
+            // Only update if the state is actually changing.
+            if (_state.IsActivated == newState)
+                return;
+
+            _state.IsActivated = newState;
+            _config.InspectorDebug.IsActivated = newState;
             _config.InspectorDebug.ClientID = clientID;
 
             if (clientID != ushort.MaxValue)
                 _state.MostRecentInteractingClientID = clientID;
-                
+
             _state.StateChangeNumber++;
 
-            if (_state.IsActivated)
+            if (newState)
                 InvokeCustomerOnActivateEvent();
             else
                 InvokeCustomerOnDeactivateEvent();

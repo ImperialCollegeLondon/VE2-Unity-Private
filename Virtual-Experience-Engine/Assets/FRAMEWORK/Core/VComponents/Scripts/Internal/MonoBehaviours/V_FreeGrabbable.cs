@@ -107,7 +107,7 @@ namespace VE2.Core.VComponents.Internal
                 _rigidbodyWrapper,
                 Resources.Load<PhysicsConstants>("PhysicsConstants"),
                 (IGrabbableRigidbody)this);
-
+            Debug.Log(_service == null ? "No grrabbablee service found" : "Grababble Service found");
             _service.OnGrabConfirmed += HandleGrabConfirmed;
             _service.OnDropConfirmed += HandleDropConfirmed;
         }
@@ -121,12 +121,14 @@ namespace VE2.Core.VComponents.Internal
         {
             if (!Application.isPlaying)
                 return;
-                
+
+
             _service.OnGrabConfirmed -= HandleGrabConfirmed;
             _service.OnDropConfirmed -= HandleDropConfirmed;
 
             _service.TearDown();
             _service = null;
+
         }
 
         private void HandleGrabConfirmed(ushort grabberID)

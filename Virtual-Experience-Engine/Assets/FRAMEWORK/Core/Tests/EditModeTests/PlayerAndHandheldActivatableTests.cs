@@ -31,6 +31,7 @@ namespace VE2.Core.Tests
         {
             //Create the activatable with default values
             HandheldActivatableService handheldActivatable = new(
+                Substitute.For<IV_FreeGrabbable>(),     
                 new HandheldActivatableConfig(), 
                 new SingleInteractorActivatableState(), 
                 "debug", 

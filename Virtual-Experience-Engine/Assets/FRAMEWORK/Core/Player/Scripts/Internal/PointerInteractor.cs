@@ -111,6 +111,7 @@ namespace VE2.Core.Player.Internal
             _interactorInputContainer.RangedClick.OnPressed += HandleRangedClickPressed;
             _interactorInputContainer.RangedClick.OnReleased += HandleRangedClickReleased;
             _interactorInputContainer.HandheldClick.OnPressed += HandleHandheldClickPressed;
+            _interactorInputContainer.HandheldClick.OnReleased += HandleHandheldClickReleased;
             _interactorInputContainer.Grab.OnPressed += HandleGrabPressed;
             _interactorInputContainer.ScrollTickUp.OnTickOver += HandleScrollUp;
             _interactorInputContainer.ScrollTickDown.OnTickOver += HandleScrollDown;
@@ -128,6 +129,7 @@ namespace VE2.Core.Player.Internal
             _interactorInputContainer.RangedClick.OnPressed -= HandleRangedClickPressed;
             _interactorInputContainer.RangedClick.OnReleased -= HandleRangedClickReleased;
             _interactorInputContainer.HandheldClick.OnPressed -= HandleHandheldClickPressed;
+            _interactorInputContainer.HandheldClick.OnReleased -= HandleHandheldClickReleased;
             _interactorInputContainer.Grab.OnPressed -= HandleGrabPressed;
             _interactorInputContainer.ScrollTickUp.OnTickOver -= HandleScrollUp;
             _interactorInputContainer.ScrollTickDown.OnTickOver -= HandleScrollDown;
@@ -390,6 +392,20 @@ namespace VE2.Core.Player.Internal
                     if (handheldInteraction is IHandheldClickInteractionModule handheldClickInteraction)
                     {
                         handheldClickInteraction.Click(_InteractorID.ClientID);
+                    }
+                }
+            }
+        }
+
+        private void HandleHandheldClickReleased()
+        {
+            if (!_WaitingForLocalClientID && IsCurrentlyGrabbing)
+            {
+                foreach (IHandheldInteractionModule handheldInteraction in _CurrentGrabbingGrabbable.HandheldInteractions)
+                {
+                    if (handheldInteraction is IHandheldClickInteractionModule handheldClickInteraction)
+                    {
+                        handheldClickInteraction.ClickUp(_InteractorID.ClientID);
                     }
                 }
             }

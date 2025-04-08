@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Collections.Generic;
 using VE2.Core.VComponents.API;
 using static VE2.Core.Common.CommonSerializables;
 
@@ -9,6 +10,7 @@ namespace VE2.Core.VComponents.Internal
     internal class HandheldActivatableConfig
     {
         [SerializeField, IgnoreParent] public ToggleActivatableStateConfig StateConfig = new();
+        [SerializeField, IgnoreParent] public HandHeldClickInteractionConfig HandheldClickInteractionConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
     }
     internal class HandheldActivatableService
@@ -16,6 +18,7 @@ namespace VE2.Core.VComponents.Internal
         #region Interfaces
         public ISingleInteractorActivatableStateModule StateModule => _StateModule;
         public IHandheldClickInteractionModule HandheldClickInteractionModule => _HandheldClickInteractionModule;
+        public IV_FreeGrabbable Grabbable;
         #endregion
 
         #region Modules
@@ -23,12 +26,23 @@ namespace VE2.Core.VComponents.Internal
         private readonly HandheldClickInteractionModule _HandheldClickInteractionModule;
         #endregion
 
-        public HandheldActivatableService(HandheldActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncService worldStateSyncService, ActivatableGroupsContainer activatableGroupsContainer)
+        public HandheldActivatableService(IV_FreeGrabbable grabbable,HandheldActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncService worldStateSyncService, ActivatableGroupsContainer activatableGroupsContainer)
         {
             _StateModule = new(state, config.StateConfig, id, worldStateSyncService, activatableGroupsContainer);
-            _HandheldClickInteractionModule = new(config.GeneralInteractionConfig);
+            _HandheldClickInteractionModule = new(grabbable, config.HandheldClickInteractionConfig, config.GeneralInteractionConfig);
+            Grabbable = grabbable;
 
-            _HandheldClickInteractionModule.OnClickDown += HandleInteract;
+            // Wire differently based on whether we’re in hold or toggle mode.
+            if (_HandheldClickInteractionModule.IsHoldMode)
+            {
+                _HandheldClickInteractionModule.OnClick += HandleClick;
+                _HandheldClickInteractionModule.OnClickUp += HandleClickUp;
+            }
+            else
+            {
+                // In toggle mode, a click simply toggles the state.
+                _HandheldClickInteractionModule.OnClick += HandleToggle;
+            }
         }
 
         public void HandleFixedUpdate()
@@ -36,9 +50,47 @@ namespace VE2.Core.VComponents.Internal
             _StateModule.HandleFixedUpdate();
         }
 
-        private void HandleInteract(ushort clientID)
+        private void HandleClick(ushort clientID)
+        { 
+            if (!_StateModule.IsActivated)
+            {
+                _StateModule.SetHoldActivatableState(clientID, true);
+
+                if (_HandheldClickInteractionModule.DeactivateOnDrop)
+                {
+                    Grabbable.OnDrop.AddListener(HandleExternalClickUp);
+                }
+            }
+
+        }
+
+        private void HandleClickUp(ushort clientID)
+        {  
+            if (_StateModule.IsActivated)
+            {
+                _StateModule.SetHoldActivatableState(clientID, false);
+            }
+        }
+
+        private void HandleExternalClickUp()
+        {
+            if (_HandheldClickInteractionModule.IsHoldMode)
+            {
+                HandleClickUp(Grabbable.MostRecentInteractingClientID);
+            }
+            else
+            {
+                HandleToggle(Grabbable.MostRecentInteractingClientID);
+            }
+        }
+
+        private void HandleToggle(ushort clientID)
         {
             _StateModule.ToggleActivatableState(clientID);
+            if (_HandheldClickInteractionModule.DeactivateOnDrop)
+            {
+                Grabbable.OnDrop.AddListener(HandleExternalClickUp);
+            }
         }
 
         public void TearDown()
@@ -48,8 +100,13 @@ namespace VE2.Core.VComponents.Internal
     }
 
     [Serializable]
-    public class HandHeldClickInteractionConfig
+    internal class HandHeldClickInteractionConfig
     {
-        public bool IsHoldMode = false;
+        [Title("Interaction Settings")]
+        [BeginGroup(Style = GroupStyle.Round, ApplyCondition = false)]
+        [SerializeField] internal bool IsHoldMode = false;
+
+        [EndGroup(ApplyCondition = false)]
+        [SerializeField] internal bool DeactivateOnDrop = true;   
     }
 }

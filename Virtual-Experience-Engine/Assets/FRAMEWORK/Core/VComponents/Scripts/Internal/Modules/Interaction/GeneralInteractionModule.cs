@@ -8,7 +8,7 @@ namespace VE2.Core.VComponents.Internal
     public class GeneralInteractionConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
-        [Title("General Interation Settings")]
+        [Title("General Integration Settings")]
         [SerializeField] public bool AdminOnly = false;
 
         [SerializeField] public bool EnableControllerVibrations = true;
