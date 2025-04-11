@@ -1,9 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using static VE2.Core.Common.CommonSerializables;
 using static VE2.Core.Player.API.PlayerSerializables;
 using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
+using System;
 
 #if UNITY_EDITOR
 using UnityEngine;
@@ -24,7 +26,8 @@ namespace VE2.NonCore.Instancing.Internal
             WorldstateSyncableBundle,
             PlayerState,
             UpdateAvatarPresentation,
-            PingMessage
+            PingMessage,
+            InstantMessage
         }
 
         public class PingMessage : VE2Serializable
@@ -58,6 +61,68 @@ namespace VE2.NonCore.Instancing.Internal
 
                 PingId = reader.ReadInt32();
                 ClientId = reader.ReadUInt16();
+            }
+        }
+
+        public class InstantMessage : VE2Serializable
+        {
+            public string Id { get; private set; }
+            private MemoryStream _serializedMessageObject;
+            public MemoryStream SerializedMessageObject
+            {
+                get
+                {
+                    _serializedMessageObject.Position = 0;
+                    return _serializedMessageObject;
+                }
+                set => _serializedMessageObject = value;
+            }
+
+            public InstantMessage(string id, object message)
+            {
+                Id =  id;
+
+                try
+                {
+                    BinaryFormatter binaryFormatter = new();
+                    SerializedMessageObject.SetLength(0);
+                    binaryFormatter.Serialize(SerializedMessageObject, message);
+                }
+                catch (Exception e)
+                {
+                    Debug.Log($"Error encountered when trying to serialize MessageObject with ID {id} \n{e.Message}\n{e.StackTrace}");
+                    return;
+                }
+            }
+
+            protected override byte[] ConvertToBytes()
+            {
+                using MemoryStream stream = new();
+                using BinaryWriter writer = new(stream);
+
+                writer.Write(Id);
+
+                writer.Write((int)SerializedMessageObject.Length);
+
+                if (SerializedMessageObject.Length > 0)
+                    SerializedMessageObject.CopyTo(stream);
+
+                return stream.ToArray();
+            }
+
+            protected override void PopulateFromBytes(byte[] data)
+            {
+                using MemoryStream stream = new(data);
+                using BinaryReader reader = new(stream);
+
+                Id = reader.ReadString();
+
+                int bytesLength = reader.ReadInt32();
+
+                SerializedMessageObject.SetLength(0);
+                byte[] messageObjectBytes = reader.ReadBytes(bytesLength);
+                if (bytesLength > 0)
+                    SerializedMessageObject.Write(messageObjectBytes, 0, messageObjectBytes.Length);
             }
         }
 
