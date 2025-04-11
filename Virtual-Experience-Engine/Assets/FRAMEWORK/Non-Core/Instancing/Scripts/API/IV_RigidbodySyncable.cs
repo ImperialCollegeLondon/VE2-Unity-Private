@@ -6,8 +6,6 @@ namespace VE2.NonCore.Instancing.API
     {
         #region State Module Interface
         protected IRigidbodySyncableStateModule _StateModule { get; }
-
-        // Not sure what state module interface elements should go here yet...
         #endregion
     }
 }

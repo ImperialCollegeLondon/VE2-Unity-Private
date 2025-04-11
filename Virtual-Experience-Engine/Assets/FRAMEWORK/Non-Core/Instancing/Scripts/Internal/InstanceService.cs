@@ -97,6 +97,7 @@ namespace VE2.NonCore.Instancing.Internal
         internal readonly LocalPlayerSyncer _localPlayerSyncer;
         internal readonly RemotePlayerSyncer _remotePlayerSyncer;
         internal PingSyncer _pingSyncer;
+        internal InstantMessageRouter _instantMessageRouter;
 
         public InstanceService(IPluginSyncCommsHandler commsHandler, LocalClientIdWrapper localClientIDWrapper, 
             ConnectionStateWrapper connectionStateDebugWrapper,
@@ -124,6 +125,7 @@ namespace VE2.NonCore.Instancing.Internal
             _localPlayerSyncer = new(_commsHandler, playerServiceInternal, _instanceInfoContainer); //only transmits
             _remotePlayerSyncer = new(_commsHandler, _instanceInfoContainer, _interactorContainer, _playerService); //only receives
             _pingSyncer = new(_commsHandler, _instanceInfoContainer); //receives and transmits
+            _instantMessageRouter = new(_commsHandler);
 
             _primaryUIService?.SetInstanceCodeText(_instanceCode);
 
@@ -270,6 +272,25 @@ namespace VE2.NonCore.Instancing.Internal
 
             _connectionStateWrapper.ConnectionState = ConnectionState.NotYetConnected;
         }
+
+        #region Instant Message Handler Methods
+
+        public void SendInstantMessage(string id, object message)
+        {
+            _instantMessageRouter.SendInstantMessage(id, message);
+        }
+
+        public void RegisterInstantMessageHandler(string id, InstantMessageHandlerService instantMessageHandlerService)
+        {
+            _instantMessageRouter.RegisterInstantMessageHandler(id, instantMessageHandlerService);
+        }
+
+        public void DeregisterInstantMessageHandler(string id)
+        {
+            _instantMessageRouter.DeregisterInstantMessageHandler(id);
+        }
+
+        #endregion
     }
 
     internal struct BytesAndProtocol

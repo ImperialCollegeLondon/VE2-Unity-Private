@@ -12,7 +12,7 @@ namespace VE2.NonCore.Instancing.Internal
         private void OnEnable()
         {
             string id = "IMH-" + gameObject.name;
-            _service = new InstantMessageHandlerService(id);
+            _service = new InstantMessageHandlerService(id, (IInstanceServiceInternal)InstancingAPI.InstanceService);
         }
 
         public void SendInstantMessage(object messageObject)
