@@ -9,7 +9,7 @@ namespace VE2.Core.VComponents.Integration
 {
     [ExecuteAlways]
     [AddComponentMenu("")] //Better to create this from the gameobject menu, where it'll spawn the entire prefab. Hide this from the AC menu
-    internal class V_CustomInfoPoint : MonoBehaviour, IV_ToggleActivatable
+    internal class V_CustomInfoPoint : MonoBehaviour, IV_InfoPoint
     {
         [Title("InfoPoint Settings", Order = -50)]
         [SerializeField, BeginGroup] private GameObject _triggerGameObject;
