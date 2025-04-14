@@ -4,6 +4,9 @@ namespace VE2.Core.Player.Internal
 {
     public class PlayerVRReferences : MonoBehaviour
     {
+        public Camera Camera => _camera;
+        [SerializeField] private Camera _camera;
+
         public Transform RootTransform => _rootTransform;
         [SerializeField] private Transform _rootTransform;
 

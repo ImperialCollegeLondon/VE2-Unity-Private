@@ -42,6 +42,7 @@ namespace VE2.Core.Player.Internal
                 );
             }
         }
+        public readonly Camera Camera;
 
         private readonly GameObject _playerGO;
         private readonly Player2DControlConfig _controlConfig;
@@ -73,6 +74,7 @@ namespace VE2.Core.Player.Internal
             _secondaryUIService = secondaryUIService;
 
             Player2DReferences player2DReferences = _playerGO.GetComponent<Player2DReferences>();
+            Camera = player2DReferences.Camera;
             _localAvatarHandler = player2DReferences.LocalAvatarHandler;
             _localAvatarHandler.Initialize(playerService);
 

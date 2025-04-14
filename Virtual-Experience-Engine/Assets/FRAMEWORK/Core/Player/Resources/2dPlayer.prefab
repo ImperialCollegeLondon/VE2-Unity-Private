@@ -1808,6 +1808,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a480a75f4a908664080dd3f892c9edf3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _camera: {fileID: 961496102155430216}
   _interactor2DReferences:
     _interactorParentTransform: {fileID: 138445513174669063}
     _grabberTransform: {fileID: 2444558493296612876}

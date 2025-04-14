@@ -60,6 +60,17 @@ namespace VE2.Core.Player.Internal
         public List<GameObject> HeadOverrideGOs => _config.HeadOverrideGOs;
         public List<GameObject> TorsoOverrideGOs => _config.TorsoOverrideGOs;
 
+        public Camera ActiveCamera 
+        {
+            get 
+            {
+                if (PlayerTransformData.IsVRMode)
+                    return _playerVR.Camera;
+                else 
+                    return _player2D.Camera;
+            }
+        }
+
         public void SetAvatarHeadOverride(AvatarAppearanceOverrideType type) 
         {
             _config.HeadOverrideType = type;
