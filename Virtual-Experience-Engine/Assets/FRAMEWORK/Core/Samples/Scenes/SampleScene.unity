@@ -25695,7 +25695,7 @@ MonoBehaviour:
         TransmissionType: 0
         TransmissionFrequency: 1
       AttachPoint: {fileID: 543450651613274442}
-      dropBehaviour: 0
+      dropBehaviour: 1
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
@@ -27621,6 +27621,16 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3062858353902499848, guid: eda77063036d8ac49b7bee439fefdb3f,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4470036312814534812, guid: eda77063036d8ac49b7bee439fefdb3f,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6007019728585957727, guid: eda77063036d8ac49b7bee439fefdb3f,
         type: 3}
       propertyPath: m_Name
@@ -27679,6 +27689,11 @@ PrefabInstance:
     - target: {fileID: 6079553763705289683, guid: eda77063036d8ac49b7bee439fefdb3f,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8608830853141587345, guid: eda77063036d8ac49b7bee439fefdb3f,
+        type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

@@ -334,12 +334,12 @@ GameObject:
   - component: {fileID: 5368747586147864192}
   - component: {fileID: 55800519239160716}
   m_Layer: 5
-  m_Name: TopBarCover
+  m_Name: TopBarCoverEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &8614780103502859438
 RectTransform:
   m_ObjectHideFlags: 0
@@ -545,12 +545,12 @@ GameObject:
   - component: {fileID: 3122830038250782357}
   - component: {fileID: 7321145218183234892}
   m_Layer: 5
-  m_Name: CenterPanelCover
+  m_Name: CenterPanelEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2864912621243646351
 RectTransform:
   m_ObjectHideFlags: 0
@@ -620,12 +620,12 @@ GameObject:
   - component: {fileID: 4086465648553440545}
   - component: {fileID: 499769672622402896}
   m_Layer: 5
-  m_Name: CloseCover
+  m_Name: CloseCoverEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3166786810240819435
 RectTransform:
   m_ObjectHideFlags: 0
