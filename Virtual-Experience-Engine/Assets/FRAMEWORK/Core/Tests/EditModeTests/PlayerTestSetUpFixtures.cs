@@ -223,19 +223,19 @@ namespace VE2.Core.Tests
         [SetUp]
         public void SetUpPlayerServiceBeforeEachTest()
         {
-            _playerService = new PlayerService(
-                new PlayerTransformData(),
-                new PlayerConfig(),
-                InteractorContainerSetup.InteractorContainer,
-                PlayerPersistentDataHandlerSetup.PlayerPersistentDataHandlerStub,
-                LocalClientIDProviderSetup.LocalClientIDProviderStub,
-                PlayerInputContainerSetup.PlayerInputContainerStub,
-                RayCastProviderSetup.RaycastProviderStub, 
-                CollisionDetectorFactoryStubSetup.CollisionDetectorFactoryStub,
-                Substitute.For<IXRManagerWrapper>(),
-                Substitute.For<IPrimaryUIServiceInternal>(),
-                Substitute.For<ISecondaryUIServiceInternal>()
-            );
+            // _playerService = new PlayerService(
+            //     new PlayerTransformData(),
+            //     new PlayerConfig(),
+            //     InteractorContainerSetup.InteractorContainer,
+            //     PlayerPersistentDataHandlerSetup.PlayerPersistentDataHandlerStub,
+            //     LocalClientIDProviderSetup.LocalClientIDProviderStub,
+            //     PlayerInputContainerSetup.PlayerInputContainerStub,
+            //     RayCastProviderSetup.RaycastProviderStub, 
+            //     CollisionDetectorFactoryStubSetup.CollisionDetectorFactoryStub,
+            //     Substitute.For<IXRManagerWrapper>(),
+            //     Substitute.For<IPrimaryUIServiceInternal>(),
+            //     Substitute.For<ISecondaryUIServiceInternal>()
+            // );
         }
 
         [TearDown]
