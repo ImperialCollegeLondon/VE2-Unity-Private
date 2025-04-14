@@ -1,8 +1,5 @@
 @echo off
-setlocal
-
-REM Set the working directory to the project path
-cd /d "C:\Unity Projects\VE2-Unity-Private\Virtual-Experience-Engine"
+setlocal enabledelayedexpansion
 
 REM Set paths
 set "PROJECT_PATH=C:\Unity Projects\VE2-Unity-Private\Virtual-Experience-Engine"
@@ -29,10 +26,50 @@ if %ERRORLEVEL%==0 (
     echo Unity is not running. Proceeding with test run. >> "%DEBUG_LOG%"
 )
 
-REM Run Unity EditMode tests
-echo Starting Unity in batchmode... >> "%DEBUG_LOG%"
-"%UNITY_EXE%" -runTests -batchmode -projectPath "%PROJECT_PATH%" -testResults "%RESULTS_PATH%" -testPlatform EditMode -logFile "%LOG_PATH%"
-echo Unity exited with code %errorlevel% >> "%DEBUG_LOG%"
+if not defined FROM_START (
+    set FROM_START=1
+    start "" cmd /c "%~f0"
+    exit /b
+)
 
-echo === RunTests.cmd ENDED === >> "%DEBUG_LOG%"
+:: Ask user to confirm
+echo Run Unity tests? [Y/N]
+choice /c YN /n
+
+:: Check what the user chose
+if errorlevel 2 (
+    exit /b 0
+)
+
+echo You chose Yes. Proceeding with test run...
+
+REM Run Unity EditMode tests
+"%UNITY_EXE%" -runTests -batchmode -projectPath "%PROJECT_PATH%" -testResults "%RESULTS_PATH%" -testPlatform EditMode -logFile "%LOG_PATH%"
+
+
+:: Parse the TestResults.xml file for passed and failed tests
+for /f "tokens=2 delims=<>" %%a IN ('findstr "passed=" "%RESULTS_PATH%"') DO (
+    Set LINE=%%a 
+    goto parse2
+)
+
+:parse2
+for /f "tokens=27 delims== " %%a in ('echo !LINE! ^| findstr /i "passed="') do (
+    set PASSED=%%a
+)
+
+rem Extract the value of 'failed'
+for /f "tokens=29 delims== " %%a in ('echo !LINE! ^| findstr /i "failed="') do (
+    set FAILED=%%a
+)
+
+set PASSED=%PASSED:"=%
+set FAILED=%FAILED:"=%
+
+echo Running Tests completed.
+echo Tests Passed: !PASSED!
+echo Tests Failed: !FAILED!
+
+timeout /t 5 >nul
+exit
 
