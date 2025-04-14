@@ -62,7 +62,7 @@ namespace VE2.Core.Common
             panelRect.ForceUpdateRectTransforms();
         }
 
-        public static void InstantiateResource(string resourceName)
+        public static GameObject InstantiateResource(string resourceName)
         {
             GameObject resource = Resources.Load<GameObject>(resourceName);
 
@@ -70,7 +70,7 @@ namespace VE2.Core.Common
             if (resource == null)
             {
                 Debug.LogError("Prefab not found!");
-                return;
+                return null;
             }
 
             GameObject instantiatedGO = GameObject.Instantiate<GameObject>(resource);
@@ -94,6 +94,8 @@ namespace VE2.Core.Common
 
             // Add the instantiation to the Undo buffer
             UnityEditor.Undo.RegisterCreatedObjectUndo(instantiatedGO, "Create " + instantiatedGO.name);
+
+            return instantiatedGO;
 
             #endif
         }
