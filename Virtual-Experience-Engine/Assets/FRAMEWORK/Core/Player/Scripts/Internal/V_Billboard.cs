@@ -5,6 +5,9 @@ namespace VE2.Core.Player.Internal
 {
     public class V_Billboard : MonoBehaviour
     {
+        [SerializeField, Tooltip("How fast the billboard rotates to face the camera (higher = snappier)")]
+        private float followSpeed = 5f;
+
         private Transform _cameraTransform;
         private Transform CameraTransform 
         {
@@ -21,15 +24,21 @@ namespace VE2.Core.Player.Internal
                 return _cameraTransform;
             }
         }
-        
-        void Update()
+
+        void LateUpdate()
         {
             if (CameraTransform == null)
                 return;
 
-            Vector3 vectorFromCamera = transform.position - CameraTransform.position;
-            Vector3 forwardDirection = Vector3.ProjectOnPlane(vectorFromCamera, Vector3.up);
-            transform.forward = forwardDirection;
+            // Determine the desired forward vector
+            Vector3 directionToCamera = transform.position - CameraTransform.position;
+            Vector3 flatDirection = Vector3.ProjectOnPlane(directionToCamera, Vector3.up);
+
+            if (flatDirection.sqrMagnitude < 0.001f)
+                return; // Avoid jitter when very close
+
+            Quaternion targetRotation = Quaternion.LookRotation(flatDirection);
+            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, followSpeed * Time.deltaTime);
         }
     }
 }
