@@ -41,35 +41,14 @@ public static class TestRunnerAutomate
 
 class TestRunnerApiCallbacks : ICallbacks
 {
-    public static Dictionary<ITestAdaptor, ITestResultAdaptor> testResults = new Dictionary<ITestAdaptor, ITestResultAdaptor>();
     public void RunStarted(ITestAdaptor testsToRun) 
-    { 
-        TestResultsWindow.ShowWindow();
-        TestResultsWindow.UpdateWindow("Running tests...");
+    {
         TestRunnerWindow.ShowWindow();
     }
 
     public void RunFinished(ITestResultAdaptor result) 
     { 
-        string results = $"Test run finished.\n" +
-                         $"Passed: {result.PassCount}, Failed: {result.FailCount}, Inconclusive: {result.InconclusiveCount}\n";
-        TestResultsWindow.UpdateWindow(results);
 
-        if (result.FailCount > 0)
-        {
-            foreach (ITestResultAdaptor testResult in testResults.Values.Where(r => r.TestStatus == TestStatus.Failed))
-            {
-                results += $"Test failed: {testResult.Test.FullName}: {testResult.Message}\n";
-            }
-
-            TestResultsWindow.UpdateWindow(results);
-        }
-        else
-        {
-            results += "All tests passed!";
-            TestResultsWindow.UpdateWindow(results);
-            //TestResultsWindow.CloseWindow();
-        }
     }
 
     public void TestStarted(ITestAdaptor test) 
@@ -79,7 +58,7 @@ class TestRunnerApiCallbacks : ICallbacks
 
     public void TestFinished(ITestResultAdaptor result)
     {
-        testResults.Add(result.Test, result);
+
     }
 }
 #endif
