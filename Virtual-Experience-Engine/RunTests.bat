@@ -7,8 +7,8 @@ cd /d "C:\Unity Projects\VE2-Unity-Private\Virtual-Experience-Engine"
 REM Set paths
 set "PROJECT_PATH=C:\Unity Projects\VE2-Unity-Private\Virtual-Experience-Engine"
 set "UNITY_EXE=C:\Program Files\Unity\Hub\Editor\6000.0.44f1\Editor\Unity.exe"
-set "RESULTS_PATH=%PROJECT_PATH%\TestResults.xml"
-set "LOG_PATH=%PROJECT_PATH%\test_log.txt"
+set "RESULTS_PATH=%PROJECT_PATH%\TestLogs\TestResults.xml"
+set "LOG_PATH=%PROJECT_PATH%\TestLogs\test_log.txt"
 set "FLAG_PATH=%PROJECT_PATH%\RunEditModeTests.flag"
 set "DEBUG_LOG=C:\temp\unity_test_debug.txt"
 
@@ -18,13 +18,11 @@ if not exist "C:\temp" mkdir "C:\temp"
 echo === RunTests.cmd STARTED === >> "%DEBUG_LOG%"
 echo Running Unity EditMode tests... >> "%DEBUG_LOG%"
 
-REM Create flag
-echo. > "%FLAG_PATH%"
-
 REM Check if Unity is running
-tasklist /FI "IMAGENAME eq Unity.exe" 2>NUL | find /I "Unity.exe" >NUL
+tasklist /fi "IMAGENAME eq Unity.exe" | findstr /B /I "Unity.exe" >NUL
 if %ERRORLEVEL%==0 (
     echo Unity is already running. Skipping test run. >> "%DEBUG_LOG%"
+    echo. > "%FLAG_PATH%"
     echo === RunTests.cmd ENDED === >> "%DEBUG_LOG%"
     exit /b 0
 ) else (
