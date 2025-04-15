@@ -16,7 +16,7 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField] private VisualEffect _vfxComponent;
 
         [SerializeField] private float _particleDefaultAttraction = 0f;
-        [SerializeField] private float _particleHighlightAttraction = 0.1f;
+        [SerializeField] private float _particleHighlightAttraction = 0.2f;
 
         [SerializeField] private Color _particleDefaultColor = Color.gray;
         [SerializeField] private Color _particleHighlightColor = new Color(1f, 0.5f, 0f); // Orange

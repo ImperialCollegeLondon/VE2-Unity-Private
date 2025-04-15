@@ -184,9 +184,9 @@
             "bindings": [
                 {
                     "name": "",
-                    "id": "54dc9dbd-9136-4331-996a-cb2fa73ec431",
-                    "path": "<XRController>{LeftHand}/start",
-                    "interactions": "Hold(duration=1,pressPoint=0.5)",
+                    "id": "e17d07b1-2b1b-47fd-ad95-a7e60f72df0f",
+                    "path": "<XRController>{LeftHand}/menu",
+                    "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "ResetView",

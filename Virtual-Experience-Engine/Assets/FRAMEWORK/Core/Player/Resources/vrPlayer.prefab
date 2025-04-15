@@ -525,6 +525,7 @@ MonoBehaviour:
   _headTransform: {fileID: 292132094415373342}
   _feetCollider: {fileID: 3046815335016098313}
   _primaryUIHolderRect: {fileID: 852471172109446637}
+  _resetViewUIHandler: {fileID: 7743711904936339478}
 --- !u!54 &2285103226659310569
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -684,13 +685,14 @@ GameObject:
   - component: {fileID: 6673935162382337560}
   - component: {fileID: 7739979584130590143}
   - component: {fileID: 1980993597209579410}
+  - component: {fileID: 7743711904936339478}
   m_Layer: 11
   m_Name: ResetViewCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &8201657145671518430
 RectTransform:
   m_ObjectHideFlags: 0
@@ -700,7 +702,7 @@ RectTransform:
   m_GameObject: {fileID: 4949986482040806579}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0.70312}
-  m_LocalScale: {x: 0.78787, y: 0.78787, z: 0.78787}
+  m_LocalScale: {x: 0.6277039, y: 0.6277039, z: 0.6277039}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4696153105402551316}
@@ -787,6 +789,21 @@ CanvasGroup:
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
+--- !u!114 &7743711904936339478
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4949986482040806579}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6570679c43154e34e962db47d9179f36, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _canvasGroup: {fileID: 1980993597209579410}
+  _radialProgressBar: {fileID: 4300912658935366773}
+  _centerImage: {fileID: 3931211478672094914}
 --- !u!1 &5300453771419435621
 GameObject:
   m_ObjectHideFlags: 0

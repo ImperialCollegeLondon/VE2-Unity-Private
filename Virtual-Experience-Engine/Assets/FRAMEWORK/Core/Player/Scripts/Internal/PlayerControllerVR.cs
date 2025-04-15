@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using VE2.Core.Player.API;
 using VE2.Core.UI.API;
@@ -42,6 +43,7 @@ namespace VE2.Core.Player.Internal
         private readonly Transform _verticalOffsetTransform;
         private readonly Transform _headTransform;
         private readonly FeetInteractor _feetInteractorVR;
+        private readonly ResetViewUIHandler _resetViewUIHandler;
 
         private readonly V_HandController _handControllerLeft;
         private readonly V_HandController _handControllerRight;
@@ -72,9 +74,8 @@ namespace VE2.Core.Player.Internal
             _verticalOffsetTransform = playerVRReferences.VerticalOffsetTransform;
             _headTransform = playerVRReferences.HeadTransform;
             _primaryUIHolderRect = playerVRReferences.PrimaryUIHolderRect;
-
-
             _feetInteractorVR = new FeetInteractor(collisionDetectorFactory, ColliderType.FeetVR, playerVRReferences.FeetCollider, InteractorType.Feet, localClientIDProvider);
+            _resetViewUIHandler = playerVRReferences.ResetViewUIHandler;
 
             base._PlayerHeadTransform = _headTransform;
             base._FeetCollisionDetector = _feetInteractorVR._collisionDetector as V_CollisionDetector;
@@ -150,8 +151,8 @@ namespace VE2.Core.Player.Internal
                 _xrManagerSettingsWrapper.OnLoaderInitialized += HandleXRInitComplete;
 
 
-            _playerVRInputContainer.ResetView.OnStartCharging += HandleResetViewStarted;
-            _playerVRInputContainer.ResetView.OnChargeComplete += HandleResetViewCompleted;
+            _playerVRInputContainer.ResetView.OnStartCharging += HandleResetViewChargeStarted;
+            _playerVRInputContainer.ResetView.OnChargeComplete += HandleResetViewCharged;
             _playerVRInputContainer.ResetView.OnCancelCharging += HandleResetViewCancelled;
 
             _handControllerLeft.HandleOnEnable();
@@ -169,8 +170,8 @@ namespace VE2.Core.Player.Internal
 
             _xrManagerSettingsWrapper.StopSubsystems();
 
-            _playerVRInputContainer.ResetView.OnStartCharging -= HandleResetViewStarted;
-            _playerVRInputContainer.ResetView.OnChargeComplete -= HandleResetViewCompleted;
+            _playerVRInputContainer.ResetView.OnStartCharging -= HandleResetViewChargeStarted;
+            _playerVRInputContainer.ResetView.OnChargeComplete -= HandleResetViewCharged;
             _playerVRInputContainer.ResetView.OnCancelCharging -= HandleResetViewCancelled;
 
             _handControllerLeft.HandleOnDisable();
@@ -195,21 +196,30 @@ namespace VE2.Core.Player.Internal
             base.HandleUpdate();
             _handControllerLeft.HandleUpdate();
             _handControllerRight.HandleUpdate();
+
+            if (_playerVRInputContainer.ResetView.IsCharging)
+                _resetViewUIHandler.SetProgress(_playerVRInputContainer.ResetView.ChargeProgress);
         }
 
-        private void HandleResetViewStarted()
+        private void HandleResetViewChargeStarted()
         {
-
+            _resetViewUIHandler.StartShowing();
         }
 
-        private void HandleResetViewCompleted()
+        private void HandleResetViewCharged()
         {
+            _resetViewUIHandler.SetResetViewPrimed();
+            DOVirtual.DelayedCall(0.5f, ExecuteResetView, false);
+        }
 
+        private void ExecuteResetView()
+        {
+            _resetViewUIHandler.StopShowing();
         }
 
         private void HandleResetViewCancelled()
         {
-
+            _resetViewUIHandler.StopShowing();
         }
 
         public void TearDown()

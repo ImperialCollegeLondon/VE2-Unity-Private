@@ -44,6 +44,7 @@ namespace VE2.Core.Player.API
         public event Action OnCancelCharging;
         public event Action OnChargeComplete;
         public bool IsCharging { get; }
+        public float ChargeProgress { get; } 
     }
 
     public class PressableInput : IPressableInput
@@ -309,6 +310,7 @@ namespace VE2.Core.Player.API
         private static readonly float CHARGE_START_TIME = 0.3f;
         private static readonly float CHARGE_COMPLETE_TIME = 1f;
         private float _timeButtonHeldDown = -1;
+        private bool _buttonNeedsReleasingBeforeChargingAgain = false;
 
         private readonly InputAction _inputAction;
 
@@ -322,13 +324,16 @@ namespace VE2.Core.Player.API
 
         public void HandleUpdate()
         {
-            if (!IsCharging && _inputAction.IsPressed() && Time.time - _timeButtonHeldDown > CHARGE_START_TIME)
+            if (!IsCharging && !_buttonNeedsReleasingBeforeChargingAgain && _inputAction.IsPressed() && Time.time - _timeButtonHeldDown > CHARGE_START_TIME)
             {
+                Debug.Log("Start charging");
+                _buttonNeedsReleasingBeforeChargingAgain = true;
                 IsCharging = true;
                 OnStartCharging?.Invoke();
             }
             else if (ChargeProgress >= 1)
             {
+                Debug.Log("Charged");
                 IsCharging = false;
                 _timeButtonHeldDown = -1; //Reset the timer
                 OnChargeComplete?.Invoke();
@@ -337,6 +342,7 @@ namespace VE2.Core.Player.API
 
         private void HandleButtonPressed()
         {
+            Debug.Log("Button pressed");
             _timeButtonHeldDown = Time.time;
         }
 
@@ -348,6 +354,7 @@ namespace VE2.Core.Player.API
             if (wasCharging)
                 OnCancelCharging?.Invoke();
 
+            _buttonNeedsReleasingBeforeChargingAgain = false;
             //Seeing how it feels to complete charge without releasing, so commented out for now
             // if (Time.time - _timeButtonHeldDown >= CHARGE_COMPLETE_TIME)
             //     OnChargeComplete?.Invoke();

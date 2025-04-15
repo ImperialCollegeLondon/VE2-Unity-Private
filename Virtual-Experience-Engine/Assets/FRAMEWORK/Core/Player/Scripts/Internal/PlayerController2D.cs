@@ -92,12 +92,6 @@ namespace VE2.Core.Player.Internal
 
             base._PlayerHeadTransform = _playerLocomotor2D.HeadTransform;
             base._FeetCollisionDetector = _feetInteractor2D._collisionDetector as V_CollisionDetector;
-
-            if (_primaryUIService != null)
-            {
-                _primaryUIService.OnUIShow += HandlePrimaryUIActivated;
-                _primaryUIService.OnUIHide += HandlePrimaryUIDeactivated;
-            }
             
             //TODO: think about inspect mode, does that live in the interactor, or the player controller?
             //If interactor, will need to make the interactor2d constructor take a this as a param, and forward the other params to the base constructor
@@ -122,6 +116,12 @@ namespace VE2.Core.Player.Internal
             _primaryUIService?.MovePrimaryUIToHolderRect(_primaryUIHolderRect);
             _secondaryUIService?.MoveSecondaryUIToHolderRect(_secondaryUIHolder);
             _secondaryUIService?.EnableShowHideKeyboardControl();
+
+            if (_primaryUIService != null)
+            {
+                _primaryUIService.OnUIShow += HandlePrimaryUIActivated;
+                _primaryUIService.OnUIHide += HandlePrimaryUIDeactivated;
+            }
         }
 
         internal void DeactivatePlayer() 
@@ -132,6 +132,12 @@ namespace VE2.Core.Player.Internal
             _playerLocomotor2D.HandleOnDisable();
             _interactor2D.HandleOnDisable();
             _feetInteractor2D.HandleOnDisable();
+
+            if (_primaryUIService != null)
+            {
+                _primaryUIService.OnUIShow -= HandlePrimaryUIActivated;
+                _primaryUIService.OnUIHide -= HandlePrimaryUIDeactivated;
+            }
         }
 
         internal override void HandleUpdate() 
