@@ -5,6 +5,9 @@ namespace VE2.Core.Player.Internal
 {
     internal class Player2DReferences : MonoBehaviour
     {
+        public Camera Camera => _camera;
+        [SerializeField] private Camera _camera;
+
         public Interactor2DReferences Interactor2DReferences => _interactor2DReferences;
         [SerializeField, IgnoreParent] private Interactor2DReferences _interactor2DReferences;
 

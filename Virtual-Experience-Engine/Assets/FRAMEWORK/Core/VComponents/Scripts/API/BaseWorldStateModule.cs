@@ -22,7 +22,7 @@ namespace VE2.Core.VComponents.API
     }
 
     //Note - this lives here so other packages can use it
-    internal abstract class BaseWorldStateModule : IWorldStateModule
+    internal abstract class BaseWorldStateModule : IWorldStateModule, IBaseStateModule //TOOD: Refactor into IWorldStateModule and IWorldStateModuleInternal
     {
         public VE2Serializable State { get; }
         protected BaseWorldStateConfig Config { get; private set; }
@@ -37,6 +37,8 @@ namespace VE2.Core.VComponents.API
         public string ID { get; private set; }
         public byte[] StateAsBytes { get => State.Bytes; set => UpdateBytes(value); }
         protected abstract void UpdateBytes(byte[] newBytes);
+
+        public void SetNetworked(bool isNetworked) => Config.IsNetworked = isNetworked;
 
         public BaseWorldStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncService worldStateSyncService)
         {

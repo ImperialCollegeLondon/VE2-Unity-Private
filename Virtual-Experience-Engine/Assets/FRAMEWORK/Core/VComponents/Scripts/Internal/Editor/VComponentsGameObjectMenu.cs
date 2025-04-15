@@ -43,6 +43,18 @@ namespace VE2.Core.VComponents.Internal
         {
             CommonUtils.InstantiateResource("AdjustableSlider");
         }
+
+        [MenuItem("/GameObject/VE2/UIs/CustomInfoPoint", priority = 6)]
+        private static void CreateCustomInfoPoint()
+        {
+            GameObject infoPoint = CommonUtils.InstantiateResource("CustomInfoPoint");
+
+            GameObject trigger = infoPoint.GetComponentInChildren<InfoPointTriggerAnimationHandler>().gameObject;
+            trigger.name = $"{infoPoint.name}_Trigger"; //The actual trigger holds the activatable!
+
+            GameObject canvas = infoPoint.GetComponentInChildren<InfoPointCanvasAnimationHandler>().gameObject; 
+            canvas.name = $"{infoPoint.name}_Canvas"; //May as well do the same to the canvas, for consistency
+        }
     }
 }
 #endif

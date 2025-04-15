@@ -32,6 +32,8 @@ namespace VE2.Core.Player.Internal
             }
         }
 
+        public readonly Camera Camera;
+
         private readonly GameObject _playerGO;
         private readonly PlayerVRInputContainer _playerVRInputContainer;
         private readonly PlayerVRControlConfig _controlConfig;
@@ -65,6 +67,7 @@ namespace VE2.Core.Player.Internal
             _secondaryUIService = secondaryUIService;
 
             PlayerVRReferences playerVRReferences = _playerGO.GetComponent<PlayerVRReferences>();
+            Camera = playerVRReferences.Camera;
             _rootTransform = playerVRReferences.RootTransform;
             _verticalOffsetTransform = playerVRReferences.VerticalOffsetTransform;
             _headTransform = playerVRReferences.HeadTransform;

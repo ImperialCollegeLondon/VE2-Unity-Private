@@ -62,7 +62,7 @@ namespace VE2.Core.Common
             panelRect.ForceUpdateRectTransforms();
         }
 
-        public static void InstantiateResource(string resourceName)
+        public static GameObject InstantiateResource(string resourceName)
         {
             GameObject resource = Resources.Load<GameObject>(resourceName);
 
@@ -70,19 +70,20 @@ namespace VE2.Core.Common
             if (resource == null)
             {
                 Debug.LogError("Prefab not found!");
-                return;
+                return null;
             }
 
             GameObject instantiatedGO = GameObject.Instantiate<GameObject>(resource);
             instantiatedGO.name = "tempName";
 
             int extraNum = 0;
-            string newName = resourceName;
+            string resourceNameShort = resourceName.Contains("/")? resourceName.Substring(resourceName.LastIndexOf("/") + 1) : resourceName;
+            string newName = resourceNameShort;
 
             while (GameObject.Find(newName) != null) 
             {
                 extraNum++;
-                newName = $"{resourceName}{extraNum}";
+                newName = $"{resourceNameShort}{extraNum}";
             } 
 
             instantiatedGO.name = newName;
@@ -94,7 +95,25 @@ namespace VE2.Core.Common
             // Add the instantiation to the Undo buffer
             UnityEditor.Undo.RegisterCreatedObjectUndo(instantiatedGO, "Create " + instantiatedGO.name);
 
+            return instantiatedGO;
+
             #endif
         }
+
+        public static GameObject FindInChildrenByName(GameObject parent, string targetName)
+        {
+            foreach (Transform child in parent.transform)
+            {
+                if (child.name == targetName)
+                    return child.gameObject;
+
+                GameObject result = FindInChildrenByName(child.gameObject, targetName);
+                if (result != null)
+                    return result;
+            }
+
+            return null; // Not found
+        }
+
     }
 }

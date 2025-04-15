@@ -519,6 +519,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b94c3d09cb5fe184293e970c459fb9da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _camera: {fileID: 6879644447418486601}
   _rootTransform: {fileID: 7775038711954809053}
   _verticalOffsetTransform: {fileID: 2120674381144681540}
   _headTransform: {fileID: 292132094415373342}
