@@ -10,7 +10,6 @@ namespace VE2.Core.VComponents.Internal
     {
         [SerializeField, IgnoreParent] public HoldActivatableStateConfig StateConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
-        [SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfigConfig = new();
         [SerializeField, IgnoreParent] public ActivatableInteractionConfig ActivatableInteractionConfig = new();
     }
 
@@ -31,7 +30,7 @@ namespace VE2.Core.VComponents.Internal
         public HoldActivatableService(HoldActivatableConfig config, MultiInteractorActivatableState state, string id)
         {
             _StateModule = new(state, config.StateConfig, id);
-            _RangedHoldClickInteractionModule = new(config.RangedInteractionConfigConfig, config.GeneralInteractionConfig, id, config.ActivatableInteractionConfig.ActivateAtRangeInVR);
+            _RangedHoldClickInteractionModule = new(config.ActivatableInteractionConfig, config.GeneralInteractionConfig, id, config.ActivatableInteractionConfig.ActivateAtRangeInVR);
 
             if(config.ActivatableInteractionConfig.ActivateWithCollisionInVR)
                 _ColliderInteractionModule = new(config.GeneralInteractionConfig, id, CollideInteractionType.Hand);
