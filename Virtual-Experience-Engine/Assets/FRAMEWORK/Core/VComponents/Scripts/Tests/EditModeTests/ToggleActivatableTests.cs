@@ -32,7 +32,7 @@ namespace VE2.Core.VComponents.Tests
             {
                 StateConfig = stateConfig,
                 GeneralInteractionConfig = new(),
-                ActivatableInteractionConfig = new()
+                ActivatableRangedInteractionConfig = new()
             };
             ToggleActivatableService toggleActivatable = new(config, new SingleInteractorActivatableState(), "debug", Substitute.For<IWorldStateSyncService>(), _activatableGroupsContainer);
 
@@ -90,7 +90,7 @@ namespace VE2.Core.VComponents.Tests
             {
                 StateConfig = stateConfig,
                 GeneralInteractionConfig = new(),
-                ActivatableInteractionConfig = new()
+                ActivatableRangedInteractionConfig = new()
             };
             ToggleActivatableService toggleActivatable2 = new(config, new SingleInteractorActivatableState(), "debug2", Substitute.For<IWorldStateSyncService>(), _activatableGroupsContainer);
 
