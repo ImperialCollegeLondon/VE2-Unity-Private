@@ -13,13 +13,13 @@ namespace VE2.Core.Player.Internal
         protected InteractorID _InteractorID => new(_localClientID, _InteractorType);
         protected bool _WaitingForLocalClientID => _localClientIDProvider != null && !_localClientIDProvider.IsClientIDReady;
 
-        private readonly V_CollisionDetector _collisionDetector;
+        public ICollisionDetector _collisionDetector;
         private readonly InteractorType _InteractorType;
         private readonly ILocalClientIDProvider _localClientIDProvider;
 
-        internal FeetInteractor(V_CollisionDetector collisionDetector, InteractorType interactorType, ILocalClientIDProvider localClientIDProvider)
+        internal FeetInteractor(ICollisionDetectorFactory collisionDetectorFactory, ColliderType colliderType, Collider collider, InteractorType interactorType, ILocalClientIDProvider localClientIDProvider)
         {
-            _collisionDetector = collisionDetector;
+            _collisionDetector = collisionDetectorFactory.CreateCollisionDetector(collider, colliderType);
             _InteractorType = interactorType;
             _localClientIDProvider = localClientIDProvider;
         }
@@ -61,7 +61,6 @@ namespace VE2.Core.Player.Internal
                 collideInteractionModule.InvokeOnCollideEnter(_InteractorID);
                 _heldActivatableIDs.Add(collideInteractionModule.ID);
             }
-
         }
 
         private void HandleCollideEnd(ICollideInteractionModule collideInteractionModule)

@@ -2,6 +2,8 @@ using System;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
+using VE2.Core.Player.API;
+using VE2.Core.Player.Internal;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
 using VE2.Core.VComponents.Tests;
@@ -14,6 +16,7 @@ namespace VE2.Core.Tests
     {
         private IV_HoldActivatable _holdActivatablePluginInterface => _v_holdActivatableProviderStub;
         private IRangedHoldClickInteractionModuleProvider _holdActivatableRaycastInterface => _v_holdActivatableProviderStub;
+        private ICollideInteractionModuleProvider _holdActivatableCollideInterface => _v_holdActivatableProviderStub;
         private V_HoldActivatableProviderStub _v_holdActivatableProviderStub;
         private PluginActivatableScript _customerScript;
 
@@ -44,6 +47,37 @@ namespace VE2.Core.Tests
             Assert.AreEqual(_holdActivatablePluginInterface.MostRecentInteractingClientID, localClientID);
 
             PlayerInputContainerSetup.RangedClick2D.OnReleased += Raise.Event<Action>();
+            _customerScript.Received(1).HandleDeactivateReceived();
+            Assert.IsFalse(_holdActivatablePluginInterface.IsActivated, "Activatable should be deactivated");
+            Assert.AreEqual(_holdActivatablePluginInterface.MostRecentInteractingClientID, localClientID);
+        }
+
+        [Test]
+        public void OnUserCollideEnterAndExitInVR_OnCollidingActivatable_CustomerScriptTriggersOnActivateAndOnDeactivate([Random((ushort)0, ushort.MaxValue, 1)] ushort localClientID)
+        {
+            LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID.Returns(localClientID);
+            ICollisionDetector handColliderLeft = CollisionDetectorFactoryStubSetup.CollisionDetectorFactoryStub.CollisionDetectorStubs[ColliderType.HandVRLeft];
+            ICollisionDetector handColliderRight = CollisionDetectorFactoryStubSetup.CollisionDetectorFactoryStub.CollisionDetectorStubs[ColliderType.HandVRRight];
+
+            PlayerInputContainerSetup.PlayerInputContainerStub.ChangeMode.OnPressed += Raise.Event<Action>();
+            Assert.IsTrue(PlayerService.IsVRMode, "Player should be in VR mode");
+
+            handColliderLeft.OnCollideStart += Raise.Event<Action<ICollideInteractionModule>>(_holdActivatableCollideInterface.CollideInteractionModule);
+            _customerScript.Received(1).HandleActivateReceived();
+            Assert.IsTrue(_holdActivatablePluginInterface.IsActivated, "Activatable should be activated");
+            Assert.AreEqual(_holdActivatablePluginInterface.MostRecentInteractingClientID, localClientID);
+            
+            handColliderRight.OnCollideStart += Raise.Event<Action<ICollideInteractionModule>>(_holdActivatableCollideInterface.CollideInteractionModule);
+            _customerScript.Received(1).HandleActivateReceived();
+            Assert.IsTrue(_holdActivatablePluginInterface.IsActivated, "Activatable should be activated");
+            Assert.AreEqual(_holdActivatablePluginInterface.MostRecentInteractingClientID, localClientID);
+
+            handColliderLeft.OnCollideEnd += Raise.Event<Action<ICollideInteractionModule>>(_holdActivatableCollideInterface.CollideInteractionModule);
+            _customerScript.Received(1).HandleActivateReceived();
+            Assert.IsTrue(_holdActivatablePluginInterface.IsActivated, "Activatable should be activated");
+            Assert.AreEqual(_holdActivatablePluginInterface.MostRecentInteractingClientID, localClientID);
+
+            handColliderRight.OnCollideEnd += Raise.Event<Action<ICollideInteractionModule>>(_holdActivatableCollideInterface.CollideInteractionModule);
             _customerScript.Received(1).HandleDeactivateReceived();
             Assert.IsFalse(_holdActivatablePluginInterface.IsActivated, "Activatable should be deactivated");
             Assert.AreEqual(_holdActivatablePluginInterface.MostRecentInteractingClientID, localClientID);

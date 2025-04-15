@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="19" result="Passed" total="19" passed="19" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2025-04-14 10:58:36Z" end-time="2025-04-14 10:58:37Z" duration="1.1409961">
+  <test-suite type="TestSuite" id="1000" name="Virtual-Experience-Engine" fullname="Virtual-Experience-Engine" runstate="Runnable" testcasecount="19" result="Passed" start-time="2025-04-14 10:58:36Z" end-time="2025-04-14 10:58:37Z" duration="1.140996" total="19" passed="19" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1032" name="VE2.Core.Tests.dll" fullname="C:/Unity Projects/VE2-Unity-Private/Virtual-Experience-Engine/Library/ScriptAssemblies/VE2.Core.Tests.dll" runstate="Runnable" testcasecount="11" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.501298" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="26648" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1033" name="VE2" fullname="VE2" runstate="Runnable" testcasecount="11" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.499268" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1034" name="Core" fullname="VE2.Core" runstate="Runnable" testcasecount="11" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.498268" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="1035" name="Tests" fullname="VE2.Core.Tests" runstate="Runnable" testcasecount="11" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.497181" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestFixture" id="1006" name="PlayerAndFreeGrabbableTests" fullname="VE2.Core.Tests.PlayerAndFreeGrabbableTests" classname="VE2.Core.Tests.PlayerAndFreeGrabbableTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.218668" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties>
+                <property name="Category" value="Player and Free Grabbable Tests" />
+              </properties>
+              <test-case id="1007" name="OnUserGrab_WithHoveringGrabbable_CustomerScriptReceivesOnGrab" fullname="VE2.Core.Tests.PlayerAndFreeGrabbableTests.OnUserGrab_WithHoveringGrabbable_CustomerScriptReceivesOnGrab" methodname="OnUserGrab_WithHoveringGrabbable_CustomerScriptReceivesOnGrab" classname="VE2.Core.Tests.PlayerAndFreeGrabbableTests" runstate="Runnable" seed="1460728205" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.125399" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+                <output><![CDATA[PhysicsConstants must be instantiated using the ScriptableObject.CreateInstance method instead of new PhysicsConstants.
+PhysicsConstants must be instantiated using the ScriptableObject.CreateInstance method instead of new PhysicsConstants.
+You are trying to create a MonoBehaviour using the 'new' keyword.  This is not allowed.  MonoBehaviours can only be added using AddComponent(). Alternatively, your script can inherit from ScriptableObject or no base class at all
+You are trying to create a MonoBehaviour using the 'new' keyword.  This is not allowed.  MonoBehaviours can only be added using AddComponent(). Alternatively, your script can inherit from ScriptableObject or no base class at all
+]]></output>
+              </test-case>
+            </test-suite>
+            <test-suite type="TestFixture" id="1008" name="PlayerAndHandheldActivatableTests" fullname="VE2.Core.Tests.PlayerAndHandheldActivatableTests" classname="VE2.Core.Tests.PlayerAndHandheldActivatableTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.023364" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties>
+                <property name="Category" value="Player and Handheld Activatable Tests" />
+              </properties>
+              <test-case id="1009" name="OnUserClick_WithHandheldActivatable_CustomerScriptReceivesOnActivate" fullname="VE2.Core.Tests.PlayerAndHandheldActivatableTests.OnUserClick_WithHandheldActivatable_CustomerScriptReceivesOnActivate" methodname="OnUserClick_WithHandheldActivatable_CustomerScriptReceivesOnActivate" classname="VE2.Core.Tests.PlayerAndHandheldActivatableTests" runstate="Runnable" seed="851285167" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.010722" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+                <output><![CDATA[PhysicsConstants must be instantiated using the ScriptableObject.CreateInstance method instead of new PhysicsConstants.
+PhysicsConstants must be instantiated using the ScriptableObject.CreateInstance method instead of new PhysicsConstants.
+You are trying to create a MonoBehaviour using the 'new' keyword.  This is not allowed.  MonoBehaviours can only be added using AddComponent(). Alternatively, your script can inherit from ScriptableObject or no base class at all
+You are trying to create a MonoBehaviour using the 'new' keyword.  This is not allowed.  MonoBehaviours can only be added using AddComponent(). Alternatively, your script can inherit from ScriptableObject or no base class at all
+]]></output>
+              </test-case>
+            </test-suite>
+            <test-suite type="TestFixture" id="1010" name="PlayerAndHandheldAdjustableTests" fullname="VE2.Core.Tests.PlayerAndHandheldAdjustableTests" classname="VE2.Core.Tests.PlayerAndHandheldAdjustableTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.048069" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties>
+                <property name="Category" value="Player and Handheld Adjustable Tests" />
+              </properties>
+              <test-suite type="ParameterizedMethod" id="1012" name="WithHandheldAdjustable_OnUserScroll_CustomerScriptReceiveOnValueAdjusted" fullname="VE2.Core.Tests.PlayerAndHandheldAdjustableTests.WithHandheldAdjustable_OnUserScroll_CustomerScriptReceiveOnValueAdjusted" classname="VE2.Core.Tests.PlayerAndHandheldAdjustableTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.020586" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1011" name="WithHandheldAdjustable_OnUserScroll_CustomerScriptReceiveOnValueAdjusted(-25.25201f,81.97231f)" fullname="VE2.Core.Tests.PlayerAndHandheldAdjustableTests.WithHandheldAdjustable_OnUserScroll_CustomerScriptReceiveOnValueAdjusted(-25.25201f,81.97231f)" methodname="WithHandheldAdjustable_OnUserScroll_CustomerScriptReceiveOnValueAdjusted" classname="VE2.Core.Tests.PlayerAndHandheldAdjustableTests" runstate="Runnable" seed="1027079483" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.012256" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                  <output><![CDATA[PhysicsConstants must be instantiated using the ScriptableObject.CreateInstance method instead of new PhysicsConstants.
+PhysicsConstants must be instantiated using the ScriptableObject.CreateInstance method instead of new PhysicsConstants.
+You are trying to create a MonoBehaviour using the 'new' keyword.  This is not allowed.  MonoBehaviours can only be added using AddComponent(). Alternatively, your script can inherit from ScriptableObject or no base class at all
+You are trying to create a MonoBehaviour using the 'new' keyword.  This is not allowed.  MonoBehaviours can only be added using AddComponent(). Alternatively, your script can inherit from ScriptableObject or no base class at all
+]]></output>
+                </test-case>
+              </test-suite>
+            </test-suite>
+            <test-suite type="TestFixture" id="1013" name="PlayerAndHoldActivatableTests" fullname="VE2.Core.Tests.PlayerAndHoldActivatableTests" classname="VE2.Core.Tests.PlayerAndHoldActivatableTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.047275" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties>
+                <property name="Category" value="Player and Hold Activatable Tests" />
+              </properties>
+              <test-suite type="ParameterizedMethod" id="1017" name="OnUserCollideEnterAndExitInVR_OnCollidingActivatable_CustomerScriptTriggersOnActivateAndOnDeactivate" fullname="VE2.Core.Tests.PlayerAndHoldActivatableTests.OnUserCollideEnterAndExitInVR_OnCollidingActivatable_CustomerScriptTriggersOnActivateAndOnDeactivate" classname="VE2.Core.Tests.PlayerAndHoldActivatableTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.013578" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1016" name="OnUserCollideEnterAndExitInVR_OnCollidingActivatable_CustomerScriptTriggersOnActivateAndOnDeactivate(26218)" fullname="VE2.Core.Tests.PlayerAndHoldActivatableTests.OnUserCollideEnterAndExitInVR_OnCollidingActivatable_CustomerScriptTriggersOnActivateAndOnDeactivate(26218)" methodname="OnUserCollideEnterAndExitInVR_OnCollidingActivatable_CustomerScriptTriggersOnActivateAndOnDeactivate" classname="VE2.Core.Tests.PlayerAndHoldActivatableTests" runstate="Runnable" seed="1194676174" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.012006" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+              </test-suite>
+              <test-suite type="ParameterizedMethod" id="1015" name="OnUserPressedDownAndReleased_WithHoveringActivatable_CustomerScriptTriggersOnActivateAndOnDeactivate" fullname="VE2.Core.Tests.PlayerAndHoldActivatableTests.OnUserPressedDownAndReleased_WithHoveringActivatable_CustomerScriptTriggersOnActivateAndOnDeactivate" classname="VE2.Core.Tests.PlayerAndHoldActivatableTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.022860" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1014" name="OnUserPressedDownAndReleased_WithHoveringActivatable_CustomerScriptTriggersOnActivateAndOnDeactivate(64916)" fullname="VE2.Core.Tests.PlayerAndHoldActivatableTests.OnUserPressedDownAndReleased_WithHoveringActivatable_CustomerScriptTriggersOnActivateAndOnDeactivate(64916)" methodname="OnUserPressedDownAndReleased_WithHoveringActivatable_CustomerScriptTriggersOnActivateAndOnDeactivate" classname="VE2.Core.Tests.PlayerAndHoldActivatableTests" runstate="Runnable" seed="1469046113" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.008133" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+              </test-suite>
+            </test-suite>
+            <test-suite type="TestFixture" id="1018" name="PlayerAndLinearAdjustableTests" fullname="VE2.Core.Tests.PlayerAndLinearAdjustableTests" classname="VE2.Core.Tests.PlayerAndLinearAdjustableTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.028698" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties>
+                <property name="Category" value="Player and Linear Adjustable Tests" />
+              </properties>
+              <test-case id="1019" name="WithHoveringLinearAdjustable_OnUserGrab_CustomerScriptReceivesGrab" fullname="VE2.Core.Tests.PlayerAndLinearAdjustableTests.WithHoveringLinearAdjustable_OnUserGrab_CustomerScriptReceivesGrab" methodname="WithHoveringLinearAdjustable_OnUserGrab_CustomerScriptReceivesGrab" classname="VE2.Core.Tests.PlayerAndLinearAdjustableTests" runstate="Runnable" seed="1686493131" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.010992" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+            <test-suite type="TestFixture" id="1020" name="PlayerAndPressurePlateTests" fullname="VE2.Core.Tests.PlayerAndPressurePlateTests" classname="VE2.Core.Tests.PlayerAndPressurePlateTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.018792" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties>
+                <property name="Category" value="PlayerAndPressurePlateTests" />
+              </properties>
+              <test-suite type="ParameterizedMethod" id="1022" name="OnUserPressedDownAndReleased_OnCollidingWithPressurePlate_CustomerScriptTriggersOnActivateAndOnDeactivate" fullname="VE2.Core.Tests.PlayerAndPressurePlateTests.OnUserPressedDownAndReleased_OnCollidingWithPressurePlate_CustomerScriptTriggersOnActivateAndOnDeactivate" classname="VE2.Core.Tests.PlayerAndPressurePlateTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.010613" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1021" name="OnUserPressedDownAndReleased_OnCollidingWithPressurePlate_CustomerScriptTriggersOnActivateAndOnDeactivate(27078)" fullname="VE2.Core.Tests.PlayerAndPressurePlateTests.OnUserPressedDownAndReleased_OnCollidingWithPressurePlate_CustomerScriptTriggersOnActivateAndOnDeactivate(27078)" methodname="OnUserPressedDownAndReleased_OnCollidingWithPressurePlate_CustomerScriptTriggersOnActivateAndOnDeactivate" classname="VE2.Core.Tests.PlayerAndPressurePlateTests" runstate="Runnable" seed="1117352055" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.007106" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+              </test-suite>
+            </test-suite>
+            <test-suite type="TestFixture" id="1023" name="PlayerAndRotationalAdjustableTests" fullname="VE2.Core.Tests.PlayerAndRotationalAdjustableTests" classname="VE2.Core.Tests.PlayerAndRotationalAdjustableTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.043883" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties>
+                <property name="Category" value="Player and Rotational Adjustable Tests" />
+              </properties>
+              <test-case id="1024" name="WithHoveringLinearAdjustable_OnUserGrab_CustomerScriptReceivesGrab" fullname="VE2.Core.Tests.PlayerAndRotationalAdjustableTests.WithHoveringLinearAdjustable_OnUserGrab_CustomerScriptReceivesGrab" methodname="WithHoveringLinearAdjustable_OnUserGrab_CustomerScriptReceivesGrab" classname="VE2.Core.Tests.PlayerAndRotationalAdjustableTests" runstate="Runnable" seed="870594952" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.008112" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+            <test-suite type="TestFixture" id="1025" name="PlayerAndToggleActivatableTests" fullname="VE2.Core.Tests.PlayerAndToggleActivatableTests" classname="VE2.Core.Tests.PlayerAndToggleActivatableTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.065653" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties>
+                <property name="Category" value="Player and Toggle Activatable Tests" />
+              </properties>
+              <test-suite type="ParameterizedMethod" id="1027" name="OnUserClick_WithHoveringActivatable_CustomerScriptReceivesOnActivate" fullname="VE2.Core.Tests.PlayerAndToggleActivatableTests.OnUserClick_WithHoveringActivatable_CustomerScriptReceivesOnActivate" classname="VE2.Core.Tests.PlayerAndToggleActivatableTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.011287" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1026" name="OnUserClick_WithHoveringActivatable_CustomerScriptReceivesOnActivate(42485)" fullname="VE2.Core.Tests.PlayerAndToggleActivatableTests.OnUserClick_WithHoveringActivatable_CustomerScriptReceivesOnActivate(42485)" methodname="OnUserClick_WithHoveringActivatable_CustomerScriptReceivesOnActivate" classname="VE2.Core.Tests.PlayerAndToggleActivatableTests" runstate="Runnable" seed="1517827755" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.009550" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                  <output><![CDATA[Tried to set activated state on debug to False but state is already False
+Tried to set activated state on debug to False but state is already False
+Tried to set activated state on debug2 to False but state is already False
+Tried to set activated state on debug2 to False but state is already False
+]]></output>
+                </test-case>
+              </test-suite>
+              <test-suite type="ParameterizedMethod" id="1029" name="OnUserClick_WithHoveringActivatable_CustomerScriptReceivesOnActivate_DeactivatesOthersInGroup" fullname="VE2.Core.Tests.PlayerAndToggleActivatableTests.OnUserClick_WithHoveringActivatable_CustomerScriptReceivesOnActivate_DeactivatesOthersInGroup" classname="VE2.Core.Tests.PlayerAndToggleActivatableTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.019378" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1028" name="OnUserClick_WithHoveringActivatable_CustomerScriptReceivesOnActivate_DeactivatesOthersInGroup(31044)" fullname="VE2.Core.Tests.PlayerAndToggleActivatableTests.OnUserClick_WithHoveringActivatable_CustomerScriptReceivesOnActivate_DeactivatesOthersInGroup(31044)" methodname="OnUserClick_WithHoveringActivatable_CustomerScriptReceivesOnActivate_DeactivatesOthersInGroup" classname="VE2.Core.Tests.PlayerAndToggleActivatableTests" runstate="Runnable" seed="265497680" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.007173" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                  <output><![CDATA[Tried to set activated state on debug to False but state is already False
+Tried to set activated state on debug to False but state is already False
+Tried to set activated state on debug2 to False but state is already False
+Tried to set activated state on debug2 to False but state is already False
+]]></output>
+                </test-case>
+              </test-suite>
+              <test-suite type="ParameterizedMethod" id="1031" name="OnUserCollideEnterInVR_CollidingWithActivatable_CustomerReceivesOnActivate" fullname="VE2.Core.Tests.PlayerAndToggleActivatableTests.OnUserCollideEnterInVR_CollidingWithActivatable_CustomerReceivesOnActivate" classname="VE2.Core.Tests.PlayerAndToggleActivatableTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.022322" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1030" name="OnUserCollideEnterInVR_CollidingWithActivatable_CustomerReceivesOnActivate(58217)" fullname="VE2.Core.Tests.PlayerAndToggleActivatableTests.OnUserCollideEnterInVR_CollidingWithActivatable_CustomerReceivesOnActivate(58217)" methodname="OnUserCollideEnterInVR_CollidingWithActivatable_CustomerReceivesOnActivate" classname="VE2.Core.Tests.PlayerAndToggleActivatableTests" runstate="Runnable" seed="632892989" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.008953" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                  <output><![CDATA[Tried to set activated state on debug to False but state is already False
+Tried to set activated state on debug to False but state is already False
+Tried to set activated state on debug2 to False but state is already False
+Tried to set activated state on debug2 to False but state is already False
+]]></output>
+                </test-case>
+              </test-suite>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+    <test-suite type="Assembly" id="1052" name="VE2.Core.VComponents.Tests.dll" fullname="C:/Unity Projects/VE2-Unity-Private/Virtual-Experience-Engine/Library/ScriptAssemblies/VE2.Core.VComponents.Tests.dll" runstate="Runnable" testcasecount="7" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.055778" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="26648" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1053" name="VE2" fullname="VE2" runstate="Runnable" testcasecount="7" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.042727" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1054" name="Core" fullname="VE2.Core" runstate="Runnable" testcasecount="7" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.041906" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="1055" name="VComponents" fullname="VE2.Core.VComponents" runstate="Runnable" testcasecount="7" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.041148" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestSuite" id="1056" name="Tests" fullname="VE2.Core.VComponents.Tests" runstate="Runnable" testcasecount="7" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.040433" total="7" passed="7" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-suite type="TestFixture" id="1036" name="FreeGrabbableTest" fullname="VE2.Core.VComponents.Tests.FreeGrabbableTest" classname="VE2.Core.VComponents.Tests.FreeGrabbableTest" runstate="Runnable" testcasecount="1" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.003176" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1037" name="FreeGrabbable_WhenGrabbed_EmitsToPlugin" fullname="VE2.Core.VComponents.Tests.FreeGrabbableTest.FreeGrabbable_WhenGrabbed_EmitsToPlugin" methodname="FreeGrabbable_WhenGrabbed_EmitsToPlugin" classname="VE2.Core.VComponents.Tests.FreeGrabbableTest" runstate="Runnable" seed="2143097220" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.002111" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                  <output><![CDATA[PhysicsConstants must be instantiated using the ScriptableObject.CreateInstance method instead of new PhysicsConstants.
+PhysicsConstants must be instantiated using the ScriptableObject.CreateInstance method instead of new PhysicsConstants.
+You are trying to create a MonoBehaviour using the 'new' keyword.  This is not allowed.  MonoBehaviours can only be added using AddComponent(). Alternatively, your script can inherit from ScriptableObject or no base class at all
+You are trying to create a MonoBehaviour using the 'new' keyword.  This is not allowed.  MonoBehaviours can only be added using AddComponent(). Alternatively, your script can inherit from ScriptableObject or no base class at all
+]]></output>
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1038" name="HandheldActivatableTests" fullname="VE2.Core.VComponents.Tests.HandheldActivatableTests" classname="VE2.Core.VComponents.Tests.HandheldActivatableTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.006884" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties>
+                  <property name="Category" value="Handheld Activatable Tests" />
+                </properties>
+                <test-case id="1039" name="HandheldActivatable_WhenActivatedByPlugin_EmitsToPlugin" fullname="VE2.Core.VComponents.Tests.HandheldActivatableTests.HandheldActivatable_WhenActivatedByPlugin_EmitsToPlugin" methodname="HandheldActivatable_WhenActivatedByPlugin_EmitsToPlugin" classname="VE2.Core.VComponents.Tests.HandheldActivatableTests" runstate="Runnable" seed="189549923" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.000698" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+              </test-suite>
+              <test-suite type="TestFixture" id="1040" name="HandheldAdjustableTests" fullname="VE2.Core.VComponents.Tests.HandheldAdjustableTests" classname="VE2.Core.VComponents.Tests.HandheldAdjustableTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.006500" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties>
+                  <property name="Category" value="Handheld Adjustable Tests" />
+                </properties>
+                <test-suite type="ParameterizedMethod" id="1042" name="HandheldAdjustable_WhenAdjustedByPlugin_EmitsToPlugin" fullname="VE2.Core.VComponents.Tests.HandheldAdjustableTests.HandheldAdjustable_WhenAdjustedByPlugin_EmitsToPlugin" classname="VE2.Core.VComponents.Tests.HandheldAdjustableTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.001813" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+                  <properties />
+                  <test-case id="1041" name="HandheldAdjustable_WhenAdjustedByPlugin_EmitsToPlugin(0.5838267f)" fullname="VE2.Core.VComponents.Tests.HandheldAdjustableTests.HandheldAdjustable_WhenAdjustedByPlugin_EmitsToPlugin(0.5838267f)" methodname="HandheldAdjustable_WhenAdjustedByPlugin_EmitsToPlugin" classname="VE2.Core.VComponents.Tests.HandheldAdjustableTests" runstate="Runnable" seed="690197397" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.000694" asserts="0">
+                    <properties>
+                      <property name="retryIteration" value="0" />
+                      <property name="repeatIteration" value="0" />
+                    </properties>
+                  </test-case>
+                </test-suite>
+              </test-suite>
+              <test-suite type="TestFixture" id="1043" name="LinearAdjustableTests" fullname="VE2.Core.VComponents.Tests.LinearAdjustableTests" classname="VE2.Core.VComponents.Tests.LinearAdjustableTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.007922" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties>
+                  <property name="Category" value="Linear Adjustable Tests" />
+                </properties>
+                <test-suite type="ParameterizedMethod" id="1045" name="LinearAdjustable_WhenAdjustedByPlugin_EmitsToPlugin" fullname="VE2.Core.VComponents.Tests.LinearAdjustableTests.LinearAdjustable_WhenAdjustedByPlugin_EmitsToPlugin" classname="VE2.Core.VComponents.Tests.LinearAdjustableTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.002114" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+                  <properties />
+                  <test-case id="1044" name="LinearAdjustable_WhenAdjustedByPlugin_EmitsToPlugin(0.2290272f)" fullname="VE2.Core.VComponents.Tests.LinearAdjustableTests.LinearAdjustable_WhenAdjustedByPlugin_EmitsToPlugin(0.2290272f)" methodname="LinearAdjustable_WhenAdjustedByPlugin_EmitsToPlugin" classname="VE2.Core.VComponents.Tests.LinearAdjustableTests" runstate="Runnable" seed="249259145" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.001124" asserts="0">
+                    <properties>
+                      <property name="retryIteration" value="0" />
+                      <property name="repeatIteration" value="0" />
+                    </properties>
+                  </test-case>
+                </test-suite>
+              </test-suite>
+              <test-suite type="TestFixture" id="1046" name="RotationalAdjustableTests" fullname="VE2.Core.VComponents.Tests.RotationalAdjustableTests" classname="VE2.Core.VComponents.Tests.RotationalAdjustableTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.006536" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties>
+                  <property name="Category" value="Rotational Adjustable Tests" />
+                </properties>
+                <test-suite type="ParameterizedMethod" id="1048" name="LinearAdjustable_WhenAdjustedByPlugin_EmitsToPlugin" fullname="VE2.Core.VComponents.Tests.RotationalAdjustableTests.LinearAdjustable_WhenAdjustedByPlugin_EmitsToPlugin" classname="VE2.Core.VComponents.Tests.RotationalAdjustableTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.001929" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+                  <properties />
+                  <test-case id="1047" name="LinearAdjustable_WhenAdjustedByPlugin_EmitsToPlugin(0.3457117f)" fullname="VE2.Core.VComponents.Tests.RotationalAdjustableTests.LinearAdjustable_WhenAdjustedByPlugin_EmitsToPlugin(0.3457117f)" methodname="LinearAdjustable_WhenAdjustedByPlugin_EmitsToPlugin" classname="VE2.Core.VComponents.Tests.RotationalAdjustableTests" runstate="Runnable" seed="1284209524" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.001102" asserts="0">
+                    <properties>
+                      <property name="retryIteration" value="0" />
+                      <property name="repeatIteration" value="0" />
+                    </properties>
+                  </test-case>
+                </test-suite>
+              </test-suite>
+              <test-suite type="TestFixture" id="1049" name="ToggleActivatableTests" fullname="VE2.Core.VComponents.Tests.ToggleActivatableTests" classname="VE2.Core.VComponents.Tests.ToggleActivatableTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.007973" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties>
+                  <property name="Category" value="Activatable Service Tests" />
+                </properties>
+                <test-case id="1050" name="PushActivatable_WhenClicked_EmitsToPlugin" fullname="VE2.Core.VComponents.Tests.ToggleActivatableTests.PushActivatable_WhenClicked_EmitsToPlugin" methodname="PushActivatable_WhenClicked_EmitsToPlugin" classname="VE2.Core.VComponents.Tests.ToggleActivatableTests" runstate="Runnable" seed="356541842" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.001369" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                  <output><![CDATA[Tried to set activated state on debug to False but state is already False
+Tried to set activated state on debug to False but state is already False
+]]></output>
+                </test-case>
+                <test-case id="1051" name="PushActivatableInActivationGroup_WhenActivated_DeactivatesOthersInGroup" fullname="VE2.Core.VComponents.Tests.ToggleActivatableTests.PushActivatableInActivationGroup_WhenActivated_DeactivatesOthersInGroup" methodname="PushActivatableInActivationGroup_WhenActivated_DeactivatesOthersInGroup" classname="VE2.Core.VComponents.Tests.ToggleActivatableTests" runstate="Runnable" seed="616451800" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.001564" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                  <output><![CDATA[Tried to set activated state on debug to False but state is already False
+Tried to set activated state on debug to False but state is already False
+Tried to set activated state on debug2 to False but state is already False
+Tried to set activated state on debug2 to False but state is already False
+]]></output>
+                </test-case>
+              </test-suite>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+    <test-suite type="Assembly" id="1059" name="VE2.NonCore.Instancing.VComponents.Tests.dll" fullname="C:/Unity Projects/VE2-Unity-Private/Virtual-Experience-Engine/Library/ScriptAssemblies/VE2.NonCore.Instancing.VComponents.Tests.dll" runstate="Runnable" testcasecount="1" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.010483" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="26648" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1060" name="VE2" fullname="VE2" runstate="Runnable" testcasecount="1" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.003577" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1061" name="NonCore" fullname="VE2.NonCore" runstate="Runnable" testcasecount="1" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.002829" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="1062" name="Instancing" fullname="VE2.NonCore.Instancing" runstate="Runnable" testcasecount="1" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.002352" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestSuite" id="1063" name="VComponents" fullname="VE2.NonCore.Instancing.VComponents" runstate="Runnable" testcasecount="1" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.001955" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-suite type="TestSuite" id="1064" name="Tests" fullname="VE2.NonCore.Instancing.VComponents.Tests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.001518" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-suite type="TestFixture" id="1057" name="NetworkObjectTests" fullname="VE2.NonCore.Instancing.VComponents.Tests.NetworkObjectTests" classname="VE2.NonCore.Instancing.VComponents.Tests.NetworkObjectTests" runstate="Runnable" testcasecount="1" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.001027" total="1" passed="1" failed="0" inconclusive="0" skipped="0" asserts="0">
+                  <properties />
+                  <test-case id="1058" name="NetworkObject_WhenObjectIsSet_EmitsToPlugin" fullname="VE2.NonCore.Instancing.VComponents.Tests.NetworkObjectTests.NetworkObject_WhenObjectIsSet_EmitsToPlugin" methodname="NetworkObject_WhenObjectIsSet_EmitsToPlugin" classname="VE2.NonCore.Instancing.VComponents.Tests.NetworkObjectTests" runstate="Runnable" seed="1746168262" result="Passed" start-time="2025-04-14 10:58:37Z" end-time="2025-04-14 10:58:37Z" duration="0.000126" asserts="0">
+                    <properties>
+                      <property name="retryIteration" value="0" />
+                      <property name="repeatIteration" value="0" />
+                    </properties>
+                  </test-case>
+                </test-suite>
+              </test-suite>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

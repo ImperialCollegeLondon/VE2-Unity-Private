@@ -6,10 +6,10 @@ using VE2.Core.Player.Internal;
 using VE2.Core.Player.API;
 using static VE2.Core.Player.API.PlayerSerializables;
 using VE2.Core.UI.API;
+using System.Collections.Generic;
 
 namespace VE2.Core.Tests
 {
-    [SetUpFixture]
     internal class LocalClientIDProviderSetup
     {
         public static ILocalClientIDProvider LocalClientIDProviderStub { get; private set; }
@@ -17,7 +17,6 @@ namespace VE2.Core.Tests
         public static ushort LocalClientID => LocalClientIDProviderStub.LocalClientID;
         public static string InteractorGameobjectName { get; private set; }
 
-        [OneTimeSetUp]
         public static void MultiplayerSupportStubSetupOnce()
         {
             //Stub out the multiplayer support
@@ -37,13 +36,11 @@ namespace VE2.Core.Tests
         }
     }
 
-    [SetUpFixture]
     internal class InteractorSetup
     {
         public static IInteractor InteractorStub { get; private set; }
         public static GameObject InteractorGameObject { get; private set; }
 
-        [OneTimeSetUp]
         public static void InteractorStubSetupOnce()
         {
             InteractorStub = Substitute.For<IInteractor>();
@@ -51,12 +48,10 @@ namespace VE2.Core.Tests
         }
     }
 
-    [SetUpFixture]
     internal class InteractorContainerSetup
     {
         public static HandInteractorContainer InteractorContainer { get; private set; }
 
-        [OneTimeSetUp]
         public static void InteractorContainerSetupOnce()
         {
             InteractorContainer = new();
@@ -64,12 +59,10 @@ namespace VE2.Core.Tests
         }
     }
 
-    [SetUpFixture]
     internal class RayCastProviderSetup
     {
         public static IRaycastProvider RaycastProviderStub { get; private set; }
 
-        [OneTimeSetUp]
         public static void RayCastProviderStubSetupOnce()
         {
             RaycastProviderStub = Substitute.For<IRaycastProvider>();
@@ -83,20 +76,42 @@ namespace VE2.Core.Tests
         }
     }
 
-    [SetUpFixture]
+    internal class CollisionDetectorFactoryStubSetup
+    {
+        public static CollisionDetectorFactoryStub CollisionDetectorFactoryStub { get; private set; }
+
+        public static void CollisionDetectorStubSetupOnce()
+        {
+            CollisionDetectorFactoryStub = new CollisionDetectorFactoryStub();
+        }
+    }
+
+    
+    public class CollisionDetectorFactoryStub : ICollisionDetectorFactory
+    {
+        internal Dictionary<ColliderType, ICollisionDetector> CollisionDetectorStubs { get; } = new();
+
+        ICollisionDetector ICollisionDetectorFactory.CreateCollisionDetector(Collider collider, ColliderType colliderType)
+        {
+            ICollisionDetector collisionDetector = Substitute.For<ICollisionDetector>();
+            collisionDetector.ColliderType.Returns(colliderType);
+            CollisionDetectorStubs.Add(colliderType, collisionDetector);
+
+            return collisionDetector;
+        }
+    }
+
     internal class PlayerPersistentDataHandlerSetup
     {
         public static IPlayerPersistentDataHandler PlayerPersistentDataHandlerStub { get; private set; }
 
-        [OneTimeSetUp]
-        public void PlayerPersistentDataHandlerStubSetupOnce()
+        public static void PlayerPersistentDataHandlerStubSetupOnce()
         {
             PlayerPersistentDataHandlerStub = Substitute.For<IPlayerPersistentDataHandler>();
             PlayerPersistentDataHandlerStub.PlayerPresentationConfig.Returns(new PlayerPresentationConfig());
         }
     }
 
-    [SetUpFixture]
     public class PlayerInputContainerSetup
     {
         public static PlayerInputContainer PlayerInputContainerStub { get; private set; }
@@ -144,7 +159,6 @@ namespace VE2.Core.Tests
         public static IPressableInput StickPressVerticalVRRight { get; private set; } = Substitute.For<IPressableInput>();
         public static IValueInput<Vector2> TeleportDirectionVRRight { get; private set; } = Substitute.For<IValueInput<Vector2>>();
 
-        [OneTimeSetUp]
         public static void SetupPlayerInputContainerStubWrapper()
         {
             PlayerInputContainerStub = new PlayerInputContainer(
@@ -188,10 +202,23 @@ namespace VE2.Core.Tests
 
     //We want to repeat this setup for every test
     //Otherwise, we may find that the player's state carries over between tests!
+    [SetUpFixture]
     internal abstract class PlayerServiceSetupFixture
     {
         private PlayerService _playerService;
         public IPlayerService PlayerService => _playerService;
+
+        [OneTimeSetUp] //This is done to remove the crazy Hierarchy of tests in the Unity Test Runner
+        public void SetUpPlayerServiceOnce()
+        {
+            LocalClientIDProviderSetup.MultiplayerSupportStubSetupOnce();
+            InteractorSetup.InteractorStubSetupOnce();
+            InteractorContainerSetup.InteractorContainerSetupOnce();
+            RayCastProviderSetup.RayCastProviderStubSetupOnce();
+            CollisionDetectorFactoryStubSetup.CollisionDetectorStubSetupOnce();
+            PlayerPersistentDataHandlerSetup.PlayerPersistentDataHandlerStubSetupOnce();
+            PlayerInputContainerSetup.SetupPlayerInputContainerStubWrapper();
+        }
 
         [SetUp]
         public void SetUpPlayerServiceBeforeEachTest()
@@ -204,6 +231,7 @@ namespace VE2.Core.Tests
                 LocalClientIDProviderSetup.LocalClientIDProviderStub,
                 PlayerInputContainerSetup.PlayerInputContainerStub,
                 RayCastProviderSetup.RaycastProviderStub, 
+                CollisionDetectorFactoryStubSetup.CollisionDetectorFactoryStub,
                 Substitute.For<IXRManagerWrapper>(),
                 Substitute.For<IPrimaryUIServiceInternal>(),
                 Substitute.For<ISecondaryUIServiceInternal>()
@@ -213,6 +241,8 @@ namespace VE2.Core.Tests
         [TearDown]
         public void TearDownPlayerServiceAfterEachTest()
         {
+            CollisionDetectorFactoryStubSetup.CollisionDetectorFactoryStub.CollisionDetectorStubs.Clear();
+
             _playerService.TearDown();
             _playerService = null;
         }

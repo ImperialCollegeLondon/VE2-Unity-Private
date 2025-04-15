@@ -172,7 +172,12 @@ namespace VE2.Core.Player.Internal
 
             //If we've started hovering over something, call enter hover
             if (!_WaitingForLocalClientID && _CurrentHoveringInteractable != null && _CurrentHoveringInteractable != previousHoveringInteractable)
+            {
+                if(_CurrentHoveringClickInteractable != null && this is InteractorVR && !_CurrentHoveringClickInteractable.ActivateAtRangeInVR)
+                    return;
+                
                 _CurrentHoveringInteractable.EnterHover();
+            }
 
             //if grabbing an adjustable module, update the visualisation, and update input value
             if (IsCurrentlyGrabbing && _CurrentGrabbingGrabbable is IRangedAdjustableInteractionModule rangedAdjustableInteraction)
@@ -195,6 +200,9 @@ namespace VE2.Core.Player.Internal
                     if (raycastResultWrapper.HitInteractable)
                     {
                         isAllowedToInteract = !raycastResultWrapper.RangedInteractable.AdminOnly;
+                        if(raycastResultWrapper.RangedInteractable is IRangedClickInteractionModule rangedClickInteraction && this is InteractorVR)
+                            isAllowedToInteract &= rangedClickInteraction.ActivateAtRangeInVR;
+
                         _hoveringOverScrollableIndicator.IsHoveringOverScrollableObject = raycastResultWrapper.HitScrollableInteractableInRange;
                         _raycastHitDebug.Value = raycastResultWrapper.RangedInteractable.ToString();
                     }
@@ -291,6 +299,10 @@ namespace VE2.Core.Player.Internal
             if (raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange &&
                 raycastResultWrapper.RangedInteractable is IRangedClickInteractionModule rangedClickInteractable)
             {
+                //TODO - Code smell? This is a bit of a hack to get around the fact that we don't have a way to check if we're in VR or not
+                if(this is InteractorVR && !rangedClickInteractable.ActivateAtRangeInVR)
+                    return;
+                
                 rangedClickInteractable.ClickDown(_InteractorID);
                 _CurrentHoveringInteractable = rangedClickInteractable;
 

@@ -1821,7 +1821,7 @@ MonoBehaviour:
       Value: none
     _reticuleImage: {fileID: 1173414267713335603}
     _connectionPromptHandler: {fileID: 9100172232630873044}
-    _collisionDetector: {fileID: 8674909345712479682}
+    _feetCollider: {fileID: 5516578852043994835}
   _locomotor2DReferences:
     _controller: {fileID: 4438877719408431009}
     _cameraTransform: {fileID: 7479554364894702535}

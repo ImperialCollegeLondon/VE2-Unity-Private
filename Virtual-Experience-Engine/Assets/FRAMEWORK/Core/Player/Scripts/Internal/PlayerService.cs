@@ -20,6 +20,7 @@ namespace VE2.Core.Player.Internal
             PlayerAPI.LocalClientIDProvider,
             PlayerAPI.InputHandler.PlayerInputContainer,
             new RaycastProvider(),
+            new CollisionDetectorFactory(),
             xrManagerWrapper,
             primaryUIService,
             secondaryUIService);
@@ -99,7 +100,7 @@ namespace VE2.Core.Player.Internal
 
         internal PlayerService(PlayerTransformData transformData, PlayerConfig config, HandInteractorContainer interactorContainer, 
             IPlayerPersistentDataHandler playerSettingsHandler, ILocalClientIDProvider playerSyncer, 
-            PlayerInputContainer playerInputContainer, IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerWrapper, 
+            PlayerInputContainer playerInputContainer, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, IXRManagerWrapper xrManagerWrapper, 
             IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService)
         {
             PlayerTransformData = transformData;
@@ -115,7 +116,7 @@ namespace VE2.Core.Player.Internal
                 _playerVR = new PlayerControllerVR(
                     interactorContainer, _playerInputContainer.PlayerVRInputContainer,
                     playerSettingsHandler, new PlayerVRControlConfig(), _config.MovementModeConfig,
-                    raycastProvider, xrManagerWrapper, playerSyncer, primaryUIService, secondaryUIService);
+                    raycastProvider, collisionDetectorFactory, xrManagerWrapper, playerSyncer, primaryUIService, secondaryUIService);
             }
 
             if (_config.Enable2D)
@@ -123,7 +124,7 @@ namespace VE2.Core.Player.Internal
                 _player2D = new PlayerController2D(
                     interactorContainer, _playerInputContainer.Player2DInputContainer,
                     playerSettingsHandler, new Player2DControlConfig(), //TODO:
-                    raycastProvider, playerSyncer, primaryUIService, secondaryUIService, this);
+                    raycastProvider, collisionDetectorFactory, playerSyncer, primaryUIService, secondaryUIService, this);
             }
 
             _playerSettingsHandler.OnDebugSaveAppearance += HandlePlayerPresentationChanged;

@@ -20,8 +20,8 @@ namespace VE2.Core.Player.Internal
         public PlayerConnectionPromptHandler ConnectionPromptHandler => _connectionPromptHandler;
         [SerializeField, IgnoreParent] PlayerConnectionPromptHandler _connectionPromptHandler;
 
-        public V_CollisionDetector CollisionDetector => _collisionDetector;
-        [SerializeField, IgnoreParent] private V_CollisionDetector _collisionDetector;
+        public Collider FeetCollider => _feetCollider;
+        [SerializeField, IgnoreParent] private Collider _feetCollider;
     }
 
     internal class PlayerController2D : BasePlayerController
@@ -60,7 +60,7 @@ namespace VE2.Core.Player.Internal
         private readonly RectTransform _overlayUIRect;
 
         internal PlayerController2D(HandInteractorContainer interactorContainer, Player2DInputContainer player2DInputContainer, IPlayerPersistentDataHandler playerPersistentDataHandler,
-            Player2DControlConfig controlConfig, IRaycastProvider raycastProvider, ILocalClientIDProvider multiplayerSupport, 
+            Player2DControlConfig controlConfig, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ILocalClientIDProvider multiplayerSupport, 
             IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IPlayerServiceInternal playerService) 
         {
             GameObject player2DPrefab = Resources.Load("2dPlayer") as GameObject;
@@ -86,12 +86,12 @@ namespace VE2.Core.Player.Internal
                 interactorContainer, player2DInputContainer.InteractorInputContainer2D,
                 player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, multiplayerSupport);
 
-            _feetInteractor2D = new(player2DReferences.Interactor2DReferences.CollisionDetector, InteractorType.Feet, multiplayerSupport);
+            _feetInteractor2D = new(collisionDetectorFactory, ColliderType.Feet2D, player2DReferences.Interactor2DReferences.FeetCollider, InteractorType.Feet, multiplayerSupport);
 
             _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences);
 
             base._PlayerHeadTransform = _playerLocomotor2D.HeadTransform;
-            base._FeetCollisionDetector = player2DReferences.Interactor2DReferences.CollisionDetector;
+            base._FeetCollisionDetector = _feetInteractor2D._collisionDetector as V_CollisionDetector;
 
             if (_primaryUIService != null)
             {

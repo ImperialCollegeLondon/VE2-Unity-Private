@@ -16,8 +16,8 @@ namespace VE2.Core.Player.Internal
         public Transform HeadTransform => _headTransform;
         [SerializeField] private Transform _headTransform;   
 
-        internal V_CollisionDetector FeetCollisionDetector => _feetCollisionDetector;
-        [SerializeField] private V_CollisionDetector _feetCollisionDetector;
+        internal Collider FeetCollider => _feetCollider;
+        [SerializeField] private Collider _feetCollider;
 
         public RectTransform PrimaryUIHolderRect => _primaryUIHolderRect;     
         [SerializeField] private RectTransform _primaryUIHolderRect;
