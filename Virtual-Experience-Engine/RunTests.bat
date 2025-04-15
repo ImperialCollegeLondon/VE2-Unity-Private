@@ -2,7 +2,7 @@
 setlocal enabledelayedexpansion
 
 REM Set paths
-set "PROJECT_PATH=C:\Unity Projects\VE2-Unity-Private\Virtual-Experience-Engine"
+set "PROJECT_PATH=%~dp0"
 set "UNITY_EXE=C:\Program Files\Unity\Hub\Editor\6000.0.44f1\Editor\Unity.exe"
 set "RESULTS_PATH=%PROJECT_PATH%\TestLogs\TestResults.xml"
 set "LOG_PATH=%PROJECT_PATH%\TestLogs\test_log.txt"
