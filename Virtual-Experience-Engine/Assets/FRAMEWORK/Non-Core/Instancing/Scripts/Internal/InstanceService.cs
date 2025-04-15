@@ -260,9 +260,9 @@ namespace VE2.NonCore.Instancing.Internal
                 _localPlayerSyncer.TearDown();
                 _remotePlayerSyncer.TearDown();
                 _pingSyncer.TearDown();
+                _commsHandler.DisconnectFromServer();
             }
 
-            _commsHandler.DisconnectFromServer();
             _commsHandler.OnReceiveNetcodeConfirmation -= HandleReceiveNetcodeVersion;
             _commsHandler.OnReceiveServerRegistrationConfirmation -= HandleReceiveServerRegistrationConfirmation;
             _commsHandler.OnReceiveInstanceInfoUpdate -= HandleReceiveInstanceInfoUpdate;
