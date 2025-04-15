@@ -10,7 +10,7 @@ namespace VE2.Core.VComponents.Internal
     {
         [SerializeField, IgnoreParent] public HoldActivatableStateConfig StateConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
-        [SerializeField, IgnoreParent] public ActivatableRangedInteractionConfig ActivatableRangedInteractionConfig = new();
+        [SerializeField, IgnoreParent] public ActivatableInteractionConfig ActivatableInteractionConfig = new();
     }
 
     internal class HoldActivatableService
@@ -30,8 +30,12 @@ namespace VE2.Core.VComponents.Internal
         public HoldActivatableService(HoldActivatableConfig config, MultiInteractorActivatableState state, string id)
         {
             _StateModule = new(state, config.StateConfig, id);
-            _RangedHoldClickInteractionModule = new(config.ActivatableRangedInteractionConfig, config.GeneralInteractionConfig, id, config.ActivatableRangedInteractionConfig.ActivateAtRangeInVR);
-            _ColliderInteractionModule = new(config.GeneralInteractionConfig, id, CollideInteractionType.Hand);
+            _RangedHoldClickInteractionModule = new(config.ActivatableInteractionConfig, config.GeneralInteractionConfig, id, config.ActivatableInteractionConfig.ActivateAtRangeInVR);
+
+            if(config.ActivatableInteractionConfig.ActivateWithCollisionInVR)
+                _ColliderInteractionModule = new(config.GeneralInteractionConfig, id, CollideInteractionType.Hand);
+            else
+                _ColliderInteractionModule = new(config.GeneralInteractionConfig, id, CollideInteractionType.None);
 
             _RangedHoldClickInteractionModule.OnClickDown += AddToInteractingInteractors;
             _RangedHoldClickInteractionModule.OnClickUp += RemoveFromInteractingInteractors;

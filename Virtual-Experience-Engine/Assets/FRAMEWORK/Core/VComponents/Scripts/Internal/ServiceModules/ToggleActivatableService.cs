@@ -10,15 +10,16 @@ namespace VE2.Core.VComponents.Internal
     {
         [SerializeField, IgnoreParent] public ToggleActivatableStateConfig StateConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
-        [SerializeField, IgnoreParent] public ActivatableRangedInteractionConfig ActivatableRangedInteractionConfig = new();
+        [SerializeField, IgnoreParent] public ActivatableInteractionConfig ActivatableRangedInteractionConfig = new();
     }
 
     [Serializable]
-    internal class ActivatableRangedInteractionConfig : RangedInteractionConfig
+    internal class ActivatableInteractionConfig : RangedInteractionConfig
     {
         [BeginGroup(Style = GroupStyle.Round, ApplyCondition = true)]
-        [Title("Ranged Interaction Settings")]
+        [Title("Activatable Ranged Interaction Settings")]
         [SerializeField, IgnoreParent] public bool ActivateAtRangeInVR = true;
+        [SerializeField, IgnoreParent] public bool ActivateWithCollisionInVR= true;
     }
 
     internal class ToggleActivatableService
@@ -44,7 +45,11 @@ namespace VE2.Core.VComponents.Internal
             _StateModule = new(state, config.StateConfig, id, worldStateSyncService,activatableGroupsContainer);
 
             _RangedClickInteractionModule = new(config.ActivatableRangedInteractionConfig, config.GeneralInteractionConfig, id, config.ActivatableRangedInteractionConfig.ActivateAtRangeInVR);
-            _ColliderInteractionModule = new(config.GeneralInteractionConfig, id, CollideInteractionType.Hand);
+
+            if(config.ActivatableRangedInteractionConfig.ActivateWithCollisionInVR)
+                _ColliderInteractionModule = new(config.GeneralInteractionConfig, id, CollideInteractionType.Hand);
+            else
+                _ColliderInteractionModule = new(config.GeneralInteractionConfig, id, CollideInteractionType.None);
 
             _RangedClickInteractionModule.OnClickDown += HandleInteract;
             _ColliderInteractionModule.OnCollideEnter += HandleInteract;
