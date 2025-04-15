@@ -2,6 +2,7 @@ using UnityEngine;
 using static VE2.NonCore.Instancing.Internal.InstanceSyncSerializables;
 using VE2.Core.Common;
 using System.Collections.Generic;
+using VE2.NonCore.Instancing.API;
 
 namespace VE2.NonCore.Instancing.Internal
 {
@@ -9,7 +10,7 @@ namespace VE2.NonCore.Instancing.Internal
     {
 
         private readonly IPluginSyncCommsHandler _commsHandler;
-        private Dictionary<string, InstantMessageHandlerService> _instantMessageHandlers;
+        private Dictionary<string, IInstantMessageHandler> _instantMessageHandlers;
 
         // Register/ Deregister methods to add or remove IMHs from Dictionary
 
@@ -20,11 +21,11 @@ namespace VE2.NonCore.Instancing.Internal
             _instantMessageHandlers = new();
         }
 
-        public void RegisterInstantMessageHandler(string id, InstantMessageHandlerService instantMessageHandlerService)
+        public void RegisterInstantMessageHandler(string id, IInstantMessageHandler instantMessageHandler)
         {
             if (!_instantMessageHandlers.ContainsKey(id))
             {
-                _instantMessageHandlers.Add(id, instantMessageHandlerService);
+                _instantMessageHandlers.Add(id, instantMessageHandler);
             }
             else
             {

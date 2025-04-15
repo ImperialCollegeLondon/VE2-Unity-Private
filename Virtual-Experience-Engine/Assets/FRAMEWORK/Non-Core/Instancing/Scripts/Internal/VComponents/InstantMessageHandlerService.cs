@@ -1,16 +1,27 @@
+using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace VE2.NonCore.Instancing.Internal
 {
+    [Serializable]
+    internal class InstantMessageHandlerConfig
+    {
+        [SerializeField] public UnityEvent<object> OnMessageReceived = new();
+    }
+
     internal class InstantMessageHandlerService
     {
         private readonly string _id;
         private readonly IInstanceServiceInternal _instanceServiceInternal;
 
-        public InstantMessageHandlerService(string id, IInstanceServiceInternal instanceServiceInternal)
+        private InstantMessageHandlerConfig _config;
+
+        public InstantMessageHandlerService(InstantMessageHandlerConfig config, string id, IInstanceServiceInternal instanceServiceInternal)
         {
             _id = id;
             _instanceServiceInternal = instanceServiceInternal;
+            _config = config;
         }
 
 
@@ -22,6 +33,7 @@ namespace VE2.NonCore.Instancing.Internal
         public void ReceiveInstantMessage(object messageObject)
         {
 
+            _config.OnMessageReceived?.Invoke(messageObject);
         }
     }
 }

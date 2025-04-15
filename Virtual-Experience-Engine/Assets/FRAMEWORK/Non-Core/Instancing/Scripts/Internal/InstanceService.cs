@@ -280,9 +280,9 @@ namespace VE2.NonCore.Instancing.Internal
             _instantMessageRouter.SendInstantMessage(id, message);
         }
 
-        public void RegisterInstantMessageHandler(string id, InstantMessageHandlerService instantMessageHandlerService)
+        public void RegisterInstantMessageHandler(string id, IInstantMessageHandler instantMessageHandler)
         {
-            _instantMessageRouter.RegisterInstantMessageHandler(id, instantMessageHandlerService);
+            _instantMessageRouter.RegisterInstantMessageHandler(id, instantMessageHandler);
         }
 
         public void DeregisterInstantMessageHandler(string id)
