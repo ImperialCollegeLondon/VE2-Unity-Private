@@ -33,6 +33,19 @@ namespace VE2.Core.Player.API
         public bool IsPressed { get; }
     }
 
+    public interface IQuickPressInput
+    {
+        public event Action OnQuickPress;
+    }
+
+    public interface IDelayedChargableInput
+    {
+        public event Action OnStartCharging;
+        public event Action OnCancelCharging;
+        public event Action OnChargeComplete;
+        public bool IsCharging { get; }
+    }
+
     public class PressableInput : IPressableInput
     {
         public event Action OnPressed;
@@ -249,6 +262,101 @@ namespace VE2.Core.Player.API
             }
         }
     }
+
+    public class QuickPressInput : IQuickPressInput //Used for the menu button
+    {
+        public event Action OnQuickPress;
+        private static readonly float MAX_PRESS_TIME = 0.3f;
+        private float _timeButtonHeldDown = -1;
+        
+        public QuickPressInput(InputAction inputAction)
+        {
+            inputAction.Enable();
+            inputAction.performed += ctx => HandleButtonPressed();
+            inputAction.canceled += ctx => HandleButtonReleased();
+        }
+
+        private void HandleButtonPressed()
+        {
+            _timeButtonHeldDown = Time.time;
+        }
+
+        private void HandleButtonReleased()
+        {
+            //Only emit event if the button was pressed for a short time
+            if (Time.time - _timeButtonHeldDown < MAX_PRESS_TIME)
+                OnQuickPress?.Invoke();
+        }
+    }
+
+    //Used for VR reset view. Will emit OnStartCharging after button is held for a short time, OnChargeComplete after a longer time, and OnCancelCharging if the button is released before the charge is complete
+    public class DelayedChargablePressInput : IDelayedChargableInput
+    {
+        public event Action OnStartCharging;
+        public event Action OnCancelCharging;
+        public event Action OnChargeComplete;
+        public bool IsCharging { get; private set; }
+        public float ChargeProgress {
+            get 
+            {
+                if (!IsCharging)
+                    return 0;
+                else
+                    return Mathf.InverseLerp(CHARGE_START_TIME, CHARGE_COMPLETE_TIME, Time.time - _timeButtonHeldDown);
+            }
+        }
+
+        private static readonly float CHARGE_START_TIME = 0.3f;
+        private static readonly float CHARGE_COMPLETE_TIME = 1f;
+        private float _timeButtonHeldDown = -1;
+
+        private readonly InputAction _inputAction;
+
+        public DelayedChargablePressInput(InputAction inputAction)
+        {
+            _inputAction = inputAction;
+            _inputAction.Enable();
+            _inputAction.performed += ctx => HandleButtonPressed();
+            _inputAction.canceled += ctx => HandleButtonReleased();
+        }
+
+        public void HandleUpdate()
+        {
+            if (!IsCharging && _inputAction.IsPressed() && Time.time - _timeButtonHeldDown > CHARGE_START_TIME)
+            {
+                IsCharging = true;
+                OnStartCharging?.Invoke();
+            }
+            else if (ChargeProgress >= 1)
+            {
+                IsCharging = false;
+                _timeButtonHeldDown = -1; //Reset the timer
+                OnChargeComplete?.Invoke();
+            }
+        }
+
+        private void HandleButtonPressed()
+        {
+            _timeButtonHeldDown = Time.time;
+        }
+
+        private void HandleButtonReleased()
+        {
+            bool wasCharging = IsCharging;
+            IsCharging = false;
+
+            if (wasCharging)
+                OnCancelCharging?.Invoke();
+
+            //Seeing how it feels to complete charge without releasing, so commented out for now
+            // if (Time.time - _timeButtonHeldDown >= CHARGE_COMPLETE_TIME)
+            //     OnChargeComplete?.Invoke();
+            // else if (wasCharging)
+            //     OnCancelCharging?.Invoke();
+        }
+    }
+
+
     #endregion
 
     #region Input Containers
@@ -262,7 +370,7 @@ namespace VE2.Core.Player.API
             IPressableInput changeMode2D,
             IPressableInput inspectModeButton,
             IPressableInput rangedClick2D, IPressableInput grab2D, IPressableInput handheldClick2D, IScrollInput scrollTickUp2D, IScrollInput scrollTickDown2D,
-            IPressableInput resetViewVR,
+            IDelayedChargableInput resetViewVR,
             IValueInput<Vector3> handVRLeftPosition, IValueInput<Quaternion> handVRLeftRotation,
             IPressableInput rangedClickVRLeft, IPressableInput grabVRLeft, IPressableInput handheldClickVRLeft, IScrollInput scrollTickUpVRLeft, IScrollInput scrollTickDownVRLeft,
             IPressableInput horizontalDragVRLeft, IPressableInput verticalDragVRLeft,
@@ -315,11 +423,11 @@ namespace VE2.Core.Player.API
 
     public class PlayerVRInputContainer
     {
-        public IPressableInput ResetView { get; private set; }
+        public IDelayedChargableInput ResetView { get; private set; }
         public HandVRInputContainer HandVRLeftInputContainer { get; private set; }
         public HandVRInputContainer HandVRRightInputContainer { get; private set; }
 
-        public PlayerVRInputContainer(IPressableInput resetView, HandVRInputContainer handVRLeftInputContainer, HandVRInputContainer handVRRightInputContainer)
+        public PlayerVRInputContainer(IDelayedChargableInput resetView, HandVRInputContainer handVRLeftInputContainer, HandVRInputContainer handVRRightInputContainer)
         {
             ResetView = resetView;
             HandVRLeftInputContainer = handVRLeftInputContainer;
@@ -405,7 +513,7 @@ namespace VE2.Core.Player.API
     public interface IInputHandler
     {
         public PlayerInputContainer PlayerInputContainer { get; }
-        public IPressableInput TogglePrimaryUI { get; } 
+        public IQuickPressInput TogglePrimaryUI { get; } 
         public IPressableInput ToggleSecondaryUI { get; }
     }
 
@@ -423,8 +531,8 @@ namespace VE2.Core.Player.API
             private set => _playerInputContainer = value;
         }
         
-        public IPressableInput _toggleMenu { get; private set; }
-        public IPressableInput TogglePrimaryUI {
+        public IQuickPressInput _toggleMenu { get; private set; }
+        public IQuickPressInput TogglePrimaryUI {
             get
             {
                 if (_toggleMenu == null)
@@ -462,6 +570,8 @@ namespace VE2.Core.Player.API
         private const float MAX_TELEPORT_NEUTRAL_THRESHOLD = 0.45f;
         private List<StickPressInput> _stickPressInputs;
         private List<TeleportInput> _teleportInputs;
+        private DelayedChargablePressInput _resetViewVR;
+
         private void CreateInputs()
         {
             InputActionAsset inputActionAsset = Resources.Load<InputActionAsset>("V_InputActions");
@@ -484,7 +594,7 @@ namespace VE2.Core.Player.API
 
             // VR Action Map
             InputActionMap actionMapVR = inputActionAsset.FindActionMap("InputVR");
-            PressableInput resetViewVR = new(actionMapVR.FindAction("ResetView"));
+            DelayedChargablePressInput resetViewVR = new(actionMapVR.FindAction("ResetView"));
 
             // VR Left Hand Action Map
             InputActionMap actionMapHandVRLeft = inputActionAsset.FindActionMap("InputHandVRLeft");
@@ -524,7 +634,7 @@ namespace VE2.Core.Player.API
 
             // UI Action Map 
             InputActionMap actionMapUI = inputActionAsset.FindActionMap("InputUI");
-            TogglePrimaryUI = new PressableInput(actionMapUI.FindAction("TogglePrimaryUI"));
+            TogglePrimaryUI = new QuickPressInput(actionMapUI.FindAction("TogglePrimaryUI"));
             ToggleSecondaryUI = new PressableInput(actionMapUI.FindAction("ToggleSecondaryUI"));
 
             // VR Stick Press Left Action Map
@@ -579,7 +689,7 @@ namespace VE2.Core.Player.API
             _scrollInputs = new List<ScrollInput> { scrollTickUp2D, scrollTickDown2D, scrollTickUpVRLeft, scrollTickDownVRLeft, scrollTickUpVRRight, scrollTickDownVRRight };
             _stickPressInputs = new List<StickPressInput> { stickPressHorizontalLeftDirectionVRLeft, stickPressHorizontalRightDirectionVRLeft, stickPressHorizontalLeftDirectionVRRight, stickPressHorizontalRightDirectionVRRight };
             _teleportInputs = new List<TeleportInput> { stickPressVerticalVRLeft, stickPressVerticalVRRight };    
-
+            _resetViewVR = resetViewVR;
         }
 
         private void Update()
@@ -592,6 +702,8 @@ namespace VE2.Core.Player.API
 
             foreach (TeleportInput teleportInput in _teleportInputs)
                 teleportInput.HandleUpdate();
+
+            _resetViewVR.HandleUpdate();
         }
     }
 }

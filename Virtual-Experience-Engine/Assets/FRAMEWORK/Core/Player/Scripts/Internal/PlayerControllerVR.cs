@@ -148,9 +148,9 @@ namespace VE2.Core.Player.Internal
             else
                 _xrManagerSettingsWrapper.OnLoaderInitialized += HandleXRInitComplete;
             
-
-            _playerVRInputContainer.ResetView.OnPressed += HandleResetViewPressed;
-            _playerVRInputContainer.ResetView.OnReleased += HandleResetViewReleased;
+            _playerVRInputContainer.ResetView.OnStartCharging += HandleResetViewStarted;
+            _playerVRInputContainer.ResetView.OnChargeComplete += handleResetViewCompleted;
+            _playerVRInputContainer.ResetView.OnCancelCharging += HandleResetViewCancelled;
 
             _handControllerLeft.HandleOnEnable();
             _handControllerRight.HandleOnEnable();
@@ -167,8 +167,9 @@ namespace VE2.Core.Player.Internal
 
             _xrManagerSettingsWrapper.StopSubsystems();
 
-            _playerVRInputContainer.ResetView.OnPressed -= HandleResetViewPressed;
-            _playerVRInputContainer.ResetView.OnReleased -= HandleResetViewReleased;
+            _playerVRInputContainer.ResetView.OnStartCharging -= HandleResetViewStarted;
+            _playerVRInputContainer.ResetView.OnChargeComplete -= handleResetViewCompleted;
+            _playerVRInputContainer.ResetView.OnCancelCharging -= HandleResetViewCancelled;
 
             _handControllerLeft.HandleOnDisable();
             _handControllerRight.HandleOnDisable();
@@ -194,19 +195,19 @@ namespace VE2.Core.Player.Internal
             _handControllerRight.HandleUpdate();
         }
 
-        private void HandleResetViewPressed()
+        private void HandleResetViewStarted()
         {
             //TODO:
         }
 
-        private void HandleResetViewReleased()
+        private void handleResetViewCompleted()
         {
             //TODO:
         }
 
-        private void HandlePrimaryUITogglePressed()
+        private void HandleResetViewCancelled()
         {
-            
+            //TODO:
         }
 
         public void TearDown()

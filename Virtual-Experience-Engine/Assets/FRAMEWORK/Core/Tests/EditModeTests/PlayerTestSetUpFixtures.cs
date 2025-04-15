@@ -112,7 +112,7 @@ namespace VE2.Core.Tests
         public static IScrollInput ScrollTickDown2D { get; private set; } = Substitute.For<IScrollInput>();
 
         // VR reset
-        public static IPressableInput ResetViewVR { get; private set; } = Substitute.For<IPressableInput>();
+        public static IDelayedChargableInput ResetViewVR { get; private set; } = Substitute.For<IDelayedChargableInput>();
 
         // Left-hand VR
         public static IValueInput<Vector3> HandVRLeftPosition { get; private set; } = Substitute.For<IValueInput<Vector3>>();
