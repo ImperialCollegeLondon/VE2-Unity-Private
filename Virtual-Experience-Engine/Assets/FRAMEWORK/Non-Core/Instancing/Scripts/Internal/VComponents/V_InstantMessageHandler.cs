@@ -23,12 +23,11 @@ namespace VE2.NonCore.Instancing.Internal
             _internalInstanceService = (IInstanceServiceInternal)InstancingAPI.InstanceService;
 
             _service = new InstantMessageHandlerService(_config, _id, _internalInstanceService);
-            _internalInstanceService.RegisterInstantMessageHandler(_id, _service);
         }
 
         private void OnDisable()
         {
-            _internalInstanceService.DeregisterInstantMessageHandler(_id);
+            _service.TearDown();
             _service = null;
         }
 

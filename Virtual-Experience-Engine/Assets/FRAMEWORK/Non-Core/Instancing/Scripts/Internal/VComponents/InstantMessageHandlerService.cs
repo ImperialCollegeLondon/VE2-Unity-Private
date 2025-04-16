@@ -23,6 +23,7 @@ namespace VE2.NonCore.Instancing.Internal
             _id = id;
             _instanceServiceInternal = instanceServiceInternal;
             _config = config;
+            _instanceServiceInternal.RegisterInstantMessageHandler(_id, this);
         }
 
 
@@ -37,6 +38,11 @@ namespace VE2.NonCore.Instancing.Internal
         {
 
             _config.OnMessageReceived?.Invoke(messageObject);
+        }
+
+        public void TearDown()
+        {
+            _instanceServiceInternal.DeregisterInstantMessageHandler(_id);
         }
 
     }
