@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 using UnityEngine.Events;
 using VE2.NonCore.Instancing.API;
@@ -34,10 +36,13 @@ namespace VE2.NonCore.Instancing.Internal
             _config.OnMessageReceived?.Invoke(messageObject);
         }
 
-        public void ReceiveInstantMessage(object messageObject)
+        public void ReceiveInstantMessage(MemoryStream serializedMessageObject)
         {
+            // Deserializing here because there's no state module for the Instant Message Handler
+            BinaryFormatter binaryFormatter = new();
+            object deserializedMessageObject = binaryFormatter.Deserialize(serializedMessageObject);
 
-            _config.OnMessageReceived?.Invoke(messageObject);
+            _config.OnMessageReceived?.Invoke(deserializedMessageObject);
         }
 
         public void TearDown()

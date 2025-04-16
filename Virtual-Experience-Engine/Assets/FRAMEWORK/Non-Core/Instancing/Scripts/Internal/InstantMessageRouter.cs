@@ -60,13 +60,9 @@ namespace VE2.NonCore.Instancing.Internal
         {
             InstantMessage instantMessage = new(bytes);
 
-            // Deserializing here because there's no state module for the Instant Message Handler
-            BinaryFormatter binaryFormatter = new();
-            object deserializedMessageObject = binaryFormatter.Deserialize(instantMessage.SerializedMessageObject);
-
             if (_instantMessageHandlers.ContainsKey(instantMessage.Id))
             {
-                _instantMessageHandlers[instantMessage.Id].ReceiveInstantMessage(deserializedMessageObject);
+                _instantMessageHandlers[instantMessage.Id].ReceiveInstantMessage(instantMessage.SerializedMessageObject);
             }
             else
             {
