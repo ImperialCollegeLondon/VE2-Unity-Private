@@ -326,14 +326,12 @@ namespace VE2.Core.Player.API
         {
             if (!IsCharging && !_buttonNeedsReleasingBeforeChargingAgain && _inputAction.IsPressed() && Time.time - _timeButtonHeldDown > CHARGE_START_TIME)
             {
-                Debug.Log("Start charging");
                 _buttonNeedsReleasingBeforeChargingAgain = true;
                 IsCharging = true;
                 OnStartCharging?.Invoke();
             }
             else if (ChargeProgress >= 1)
             {
-                Debug.Log("Charged");
                 IsCharging = false;
                 _timeButtonHeldDown = -1; //Reset the timer
                 OnChargeComplete?.Invoke();
@@ -342,7 +340,6 @@ namespace VE2.Core.Player.API
 
         private void HandleButtonPressed()
         {
-            Debug.Log("Button pressed");
             _timeButtonHeldDown = Time.time;
         }
 
@@ -355,11 +352,6 @@ namespace VE2.Core.Player.API
                 OnCancelCharging?.Invoke();
 
             _buttonNeedsReleasingBeforeChargingAgain = false;
-            //Seeing how it feels to complete charge without releasing, so commented out for now
-            // if (Time.time - _timeButtonHeldDown >= CHARGE_COMPLETE_TIME)
-            //     OnChargeComplete?.Invoke();
-            // else if (wasCharging)
-            //     OnCancelCharging?.Invoke();
         }
     }
 
