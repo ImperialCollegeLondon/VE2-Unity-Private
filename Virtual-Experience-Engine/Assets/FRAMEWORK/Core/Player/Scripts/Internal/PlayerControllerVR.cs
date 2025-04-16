@@ -44,6 +44,7 @@ namespace VE2.Core.Player.Internal
         private readonly Transform _headTransform;
         private readonly FeetInteractor _feetInteractorVR;
         private readonly ResetViewUIHandler _resetViewUIHandler;
+        private readonly Transform _neutralPositionOffsetTransform;
 
         private readonly V_HandController _handControllerLeft;
         private readonly V_HandController _handControllerRight;
@@ -76,6 +77,7 @@ namespace VE2.Core.Player.Internal
             _primaryUIHolderRect = playerVRReferences.PrimaryUIHolderRect;
             _feetInteractorVR = new FeetInteractor(collisionDetectorFactory, ColliderType.FeetVR, playerVRReferences.FeetCollider, InteractorType.Feet, localClientIDProvider);
             _resetViewUIHandler = playerVRReferences.ResetViewUIHandler;
+            _neutralPositionOffsetTransform = playerVRReferences.NeutralPositionOffsetTransform;
 
             base._PlayerHeadTransform = _headTransform;
             base._FeetCollisionDetector = _feetInteractorVR._collisionDetector as V_CollisionDetector;
@@ -209,12 +211,33 @@ namespace VE2.Core.Player.Internal
         private void HandleResetViewCharged()
         {
             _resetViewUIHandler.SetResetViewPrimed();
-            DOVirtual.DelayedCall(0.5f, ExecuteResetView, false);
+            DOVirtual.DelayedCall(0.2f, ExecuteResetView, false);
         }
 
         private void ExecuteResetView()
         {
             _resetViewUIHandler.StopShowing();
+
+            Vector3 verticalOffsetLocalPosition = _verticalOffsetTransform.localPosition;
+
+            Vector3 positionOffsetToCorrect = _rootTransform.position - Camera.transform.position + verticalOffsetLocalPosition;
+            _neutralPositionOffsetTransform.position += positionOffsetToCorrect;
+
+            // Project root and camera forward vectors onto the horizontal (XZ) plane
+            Vector3 cameraForward = Camera.transform.forward;
+            cameraForward.y = 0f;
+            cameraForward.Normalize();
+
+            Vector3 rootForward = _rootTransform.forward;
+            rootForward.y = 0f;
+            rootForward.Normalize();
+
+            // Compute the signed angle between them around the Y axis
+            float signedYawDelta = Vector3.SignedAngle(cameraForward, rootForward, Vector3.up);
+
+            // Apply the inverse rotation (i.e., rotate the offset transform by the angle needed to cancel the camera's yaw offset)
+            Quaternion yRotation = Quaternion.AngleAxis(signedYawDelta, Vector3.up);
+            _neutralPositionOffsetTransform.rotation = yRotation * _neutralPositionOffsetTransform.rotation;
         }
 
         private void HandleResetViewCancelled()

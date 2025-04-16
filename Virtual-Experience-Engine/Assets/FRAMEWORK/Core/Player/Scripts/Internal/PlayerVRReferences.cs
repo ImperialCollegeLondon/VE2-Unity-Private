@@ -24,5 +24,8 @@ namespace VE2.Core.Player.Internal
 
         internal ResetViewUIHandler ResetViewUIHandler => _resetViewUIHandler;
         [SerializeField] private ResetViewUIHandler _resetViewUIHandler;
+
+        internal Transform NeutralPositionOffsetTransform => _neutralPositionOffsetTransform;
+        [SerializeField] private Transform _neutralPositionOffsetTransform;
     }
 }
