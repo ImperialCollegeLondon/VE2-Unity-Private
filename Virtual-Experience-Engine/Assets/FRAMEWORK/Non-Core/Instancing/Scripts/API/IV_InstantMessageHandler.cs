@@ -6,6 +6,6 @@ namespace VE2.NonCore.Instancing.API
     {
         public void SendInstantMessage(object message);
 
-        public UnityEvent<object> OnMessageReceived();
+        public UnityEvent<object> OnMessageReceived { get; }
     }
 }

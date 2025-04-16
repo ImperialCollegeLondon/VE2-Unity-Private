@@ -118,6 +118,9 @@ namespace VE2.NonCore.Instancing.Internal
                         case InstanceSyncSerializables.InstanceNetworkingMessageCodes.PingMessage:
                             OnReceivePingMessage?.Invoke(bytes);
                             break;
+                        case InstanceSyncSerializables.InstanceNetworkingMessageCodes.InstantMessage:
+                            OnReceiveInstantMessage?.Invoke(bytes);
+                            break;
                     }
                 });
             }

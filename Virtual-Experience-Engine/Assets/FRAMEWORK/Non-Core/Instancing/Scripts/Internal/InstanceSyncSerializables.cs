@@ -67,7 +67,7 @@ namespace VE2.NonCore.Instancing.Internal
         public class InstantMessage : VE2Serializable
         {
             public string Id { get; private set; }
-            private MemoryStream _serializedMessageObject;
+            private MemoryStream _serializedMessageObject = new();
             public MemoryStream SerializedMessageObject
             {
                 get
@@ -77,6 +77,8 @@ namespace VE2.NonCore.Instancing.Internal
                 }
                 set => _serializedMessageObject = value;
             }
+
+            public InstantMessage(byte[] bytes) : base(bytes) { }
 
             public InstantMessage(string id, object message)
             {

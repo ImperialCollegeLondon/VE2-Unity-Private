@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Events;
+using VE2.NonCore.Instancing.API;
 
 namespace VE2.NonCore.Instancing.Internal
 {
@@ -10,7 +11,7 @@ namespace VE2.NonCore.Instancing.Internal
         [SerializeField] public UnityEvent<object> OnMessageReceived = new();
     }
 
-    internal class InstantMessageHandlerService
+    internal class InstantMessageHandlerService : IInstantMessageHandlerInternal
     {
         private readonly string _id;
         private readonly IInstanceServiceInternal _instanceServiceInternal;
@@ -28,6 +29,8 @@ namespace VE2.NonCore.Instancing.Internal
         public void SendInstantMessage(object messageObject)
         {
             _instanceServiceInternal.SendInstantMessage(_id, messageObject);
+            // Instance server won't send IM back to sender, but it can still useful to trigger this event locally
+            _config.OnMessageReceived?.Invoke(messageObject);
         }
 
         public void ReceiveInstantMessage(object messageObject)
@@ -35,5 +38,6 @@ namespace VE2.NonCore.Instancing.Internal
 
             _config.OnMessageReceived?.Invoke(messageObject);
         }
+
     }
 }

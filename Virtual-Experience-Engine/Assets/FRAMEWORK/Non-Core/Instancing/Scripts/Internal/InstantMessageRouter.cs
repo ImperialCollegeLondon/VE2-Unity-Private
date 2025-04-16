@@ -3,6 +3,7 @@ using static VE2.NonCore.Instancing.Internal.InstanceSyncSerializables;
 using VE2.Core.Common;
 using System.Collections.Generic;
 using VE2.NonCore.Instancing.API;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace VE2.NonCore.Instancing.Internal
 {
@@ -10,7 +11,7 @@ namespace VE2.NonCore.Instancing.Internal
     {
 
         private readonly IPluginSyncCommsHandler _commsHandler;
-        private Dictionary<string, IInstantMessageHandler> _instantMessageHandlers;
+        private Dictionary<string, IInstantMessageHandlerInternal> _instantMessageHandlers;
 
         // Register/ Deregister methods to add or remove IMHs from Dictionary
 
@@ -19,9 +20,10 @@ namespace VE2.NonCore.Instancing.Internal
         {
             _commsHandler = commsHandler;
             _instantMessageHandlers = new();
+            _commsHandler.OnReceiveInstantMessage += ReceiveInstantMessage;
         }
 
-        public void RegisterInstantMessageHandler(string id, IInstantMessageHandler instantMessageHandler)
+        public void RegisterInstantMessageHandler(string id, IInstantMessageHandlerInternal instantMessageHandler)
         {
             if (!_instantMessageHandlers.ContainsKey(id))
             {
@@ -54,17 +56,25 @@ namespace VE2.NonCore.Instancing.Internal
             _commsHandler.SendMessage(instantMessage.Bytes, InstanceNetworkingMessageCodes.InstantMessage, TransmissionProtocol.TCP);
         }
 
-        public void ReceiveInstantMessage(string id, object message)
+        public void ReceiveInstantMessage(byte[] bytes)
         {
-            if (_instantMessageHandlers.ContainsKey(id))
+            InstantMessage instantMessage = new(bytes);
+
+            // Deserializing here because there's no state module for the Instant Message Handler
+            BinaryFormatter binaryFormatter = new();
+            object deserializedMessageObject = binaryFormatter.Deserialize(instantMessage.SerializedMessageObject);
+
+            if (_instantMessageHandlers.ContainsKey(instantMessage.Id))
             {
-                _instantMessageHandlers[id].ReceiveInstantMessage(message);
+                _instantMessageHandlers[instantMessage.Id].ReceiveInstantMessage(deserializedMessageObject);
             }
             else
             {
-                Debug.Log($"Received an instant message from handler {id}, but this id isn't registered locally!");
+                Debug.Log($"Received an instant message from handler {instantMessage.Id}, but this id isn't registered locally!");
             }
         }
+
+
 
     }
 }

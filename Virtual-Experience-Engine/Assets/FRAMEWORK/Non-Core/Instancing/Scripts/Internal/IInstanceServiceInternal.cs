@@ -8,7 +8,7 @@ namespace VE2.NonCore.Instancing.Internal
     {
         public void SendInstantMessage(string id, object message);
 
-        public void RegisterInstantMessageHandler(string id, IInstantMessageHandler instantMessageHandler);
+        public void RegisterInstantMessageHandler(string id, IInstantMessageHandlerInternal instantMessageHandler);
         public void DeregisterInstantMessageHandler(string id);
 
 

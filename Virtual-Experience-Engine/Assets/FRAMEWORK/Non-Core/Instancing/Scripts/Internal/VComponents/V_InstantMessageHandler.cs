@@ -5,25 +5,32 @@ using VE2.NonCore.Instancing.API;
 
 namespace VE2.NonCore.Instancing.Internal
 {
-    internal class V_InstantMessageHandler : MonoBehaviour, IV_InstantMessageHandler, IInstantMessageHandler
+    internal class V_InstantMessageHandler : MonoBehaviour, IV_InstantMessageHandler
     {
 
         [SerializeField, HideLabel, IgnoreParent] private InstantMessageHandlerConfig _config = new();
         private InstantMessageHandlerService _service;
+        private IInstanceServiceInternal _internalInstanceService;
+        private string _id;
 
         public void SendInstantMessage(object message) => _service.SendInstantMessage(message);
 
-        public UnityEvent<object> OnMessageReceived() => _config.OnMessageReceived;
+        public UnityEvent<object> OnMessageReceived => _config.OnMessageReceived;
 
         private void OnEnable()
         {
-            string id = "IMH-" + gameObject.name;
-            _service = new InstantMessageHandlerService(_config, id, (IInstanceServiceInternal)InstancingAPI.InstanceService);
+            _id = "IMH-" + gameObject.name;
+            _internalInstanceService = (IInstanceServiceInternal)InstancingAPI.InstanceService;
+
+            _service = new InstantMessageHandlerService(_config, _id, _internalInstanceService);
+            _internalInstanceService.RegisterInstantMessageHandler(_id, _service);
         }
 
-        public void ReceiveInstantMessage(object message)
+        private void OnDisable()
         {
-            _service.ReceiveInstantMessage(message);
+            _internalInstanceService.DeregisterInstantMessageHandler(_id);
+            _service = null;
         }
+
     }
 }
