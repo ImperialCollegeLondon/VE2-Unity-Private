@@ -122,6 +122,15 @@ namespace VE2.Core.VComponents.Tests
             _HandheldActivatable = HandheldActivatable;
         }
 
+        public V_HandheldActivatableProviderStub()
+        {
+            // Default constructor for NSubstitute
+        }
+
+        public void SetHandheldActivatableService(HandheldActivatableService HandheldActivatable)
+        {
+            _HandheldActivatable = HandheldActivatable;
+        }
         public void TearDown()
         {
             _HandheldActivatable.TearDown();

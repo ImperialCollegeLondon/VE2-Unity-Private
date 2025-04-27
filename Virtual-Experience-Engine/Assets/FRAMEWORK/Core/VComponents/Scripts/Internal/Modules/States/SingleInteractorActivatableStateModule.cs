@@ -94,6 +94,7 @@ namespace VE2.Core.VComponents.Internal
 
         public void ToggleActivatableState(ushort clientID)
         {
+            Debug.Log($"ToggleActivatableState called on {ID} with clientID {clientID}");
             if (_isInActivationGroup)
             {
                 List<ISingleInteractorActivatableStateModule> singleInteractorActivatableStateModules = _activatableGroupsContainer.GetSingleInteractorActivatableStateModule(_activationGroupID);
@@ -143,6 +144,7 @@ namespace VE2.Core.VComponents.Internal
         }
         public void InvertState(ushort clientID)
         {
+            Debug.Log($"InvertState called on {ID} with clientID {clientID}");
             UpdateActivationState(clientID, !_state.IsActivated);
         }
         private void UpdateActivationState(ushort clientID, bool newState)

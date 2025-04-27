@@ -85,10 +85,12 @@ namespace VE2.Core.VComponents.Internal
         }
 
         private void HandleToggle(ushort clientID)
-        {
+        {   
+            Debug.Log("Handle Toggle Click");
             _StateModule.ToggleActivatableState(clientID);
             if (_HandheldClickInteractionModule.DeactivateOnDrop)
             {
+                Debug.Log("Handle Toggle Click - DeactivateOnDrop");
                 Grabbable.OnDrop.AddListener(HandleExternalClickUp);
             }
         }

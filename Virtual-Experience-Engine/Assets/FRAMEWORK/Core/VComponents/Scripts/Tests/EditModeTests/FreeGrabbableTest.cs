@@ -76,13 +76,20 @@ namespace VE2.Core.VComponents.Tests
         IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _service.RangedGrabInteractionModule;
         #endregion
 
-        private readonly FreeGrabbableService _service = null;
+        protected FreeGrabbableService _service = null;
 
         public V_FreeGrabbableProviderStub(FreeGrabbableService service)
         {
             _service = service;
         }
 
+        public V_FreeGrabbableProviderStub()
+        {
+        }
+        public void SetFreeGrabbableService(FreeGrabbableService service)
+        {
+            _service = service;
+        }
         public void TearDown()
         {
             _service.TearDown();
