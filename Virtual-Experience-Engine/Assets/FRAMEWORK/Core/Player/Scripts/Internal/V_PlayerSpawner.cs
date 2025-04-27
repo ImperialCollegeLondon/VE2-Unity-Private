@@ -208,11 +208,13 @@ namespace VE2.Core.Player.Internal
             playerPreview.transform.localPosition = Vector3.zero;
             playerPreview.transform.localRotation = Quaternion.identity;
 
+#if UNITY_EDITOR
             foreach (Transform child in playerPreview.GetComponentsInChildren<Transform>(true))
             {
                 child.hideFlags = HideFlags.HideInHierarchy; // Keep it hidden
                 SceneVisibilityManager.instance.EnablePicking(child.gameObject, true); // Allow clicking in Scene view   
             }
+#endif
         }
 
 #if UNITY_EDITOR

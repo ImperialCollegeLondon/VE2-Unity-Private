@@ -1,4 +1,5 @@
 using UnityEngine;
+using VE2.Core.Common;
 using VE2.Core.Player.API;
 
 namespace VE2.Core.Player.Internal
@@ -196,6 +197,9 @@ namespace VE2.Core.Player.Internal
                         {                          
                             targetRaycastPosition.y = targetGroundHeight + (currentRaycastPosition.y - maxStepHeight - currentGroundHeight);
                             _rootTransform.position = targetRaycastPosition;
+
+                            //Let VE2API know horizontal drag is being used
+                            V_VE2API.Instance.OnHorizontalDrag?.Invoke();
                         }
                     }
                     else
@@ -226,8 +230,11 @@ namespace VE2.Core.Player.Internal
                 Debug.Log("Vertical movement aborted: Collision detected with " + hit.collider.name);
             }
             else
-            {
+            {   
                 _headOffsetTransform.position = targetPosition;
+
+                //Let VE2API know vertical drag is being used
+                V_VE2API.Instance.OnVerticalDrag?.Invoke();
             }
         }
     }

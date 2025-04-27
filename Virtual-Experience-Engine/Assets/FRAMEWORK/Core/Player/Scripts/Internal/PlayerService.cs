@@ -146,6 +146,17 @@ namespace VE2.Core.Player.Internal
             _primaryUIService = primaryUIService;
             if (_primaryUIService != null)
                 SetupUI();
+
+            //Let VE2API know about the player local client ID
+            V_VE2API.Instance.SetLocalUserID(playerSyncer.LocalClientID.ToString());
+            //Let VE2API know about the Traversible layers for movement
+            V_VE2API.Instance.SetTraversibleLayers(_config.MovementModeConfig.TraversableLayers);
+
+
+            //Let VE2API know about the player camera
+            V_VE2API.Instance.SetPlayerActiveCamera(ActiveCamera);
+            //Let VE2API know about the 2D and VR player cameras
+            V_VE2API.Instance.SetPlayerCameras(_player2D.Camera, null); //Not passing the VR camera here, as we don't have it yet: seems to break everything else
         }
 
         private void SetupUI()
@@ -190,6 +201,9 @@ namespace VE2.Core.Player.Internal
 
                     if (_primaryUIService != null)
                         _primaryUIService.ShowSwitchToVRButton();
+
+                    //Let VE2API know about the mode change
+                    V_VE2API.Instance.OnSwitchTo2DMode?.Invoke();
                 }
                 else //switch to vr
                 {
@@ -198,6 +212,10 @@ namespace VE2.Core.Player.Internal
 
                     if (_primaryUIService != null)
                         _primaryUIService.ShowSwitchTo2DButton();
+
+                    //Let VE2API know about the mode change
+                    V_VE2API.Instance.OnSwitchToVRMode?.Invoke();
+
                 }
 
                 PlayerTransformData.IsVRMode = !PlayerTransformData.IsVRMode;

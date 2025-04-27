@@ -4,6 +4,7 @@ using UnityEngine;
 using VE2.Core.Player.API;
 using VE2.Core.UI.API;
 using VE2.Core.VComponents.API;
+using VE2.Core.Common;
 using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.Core.Player.Internal
@@ -212,6 +213,9 @@ namespace VE2.Core.Player.Internal
         {
             _resetViewUIHandler.SetResetViewPrimed();
             DOVirtual.DelayedCall(0.2f, ExecuteResetView, false);
+
+            //Let VE2API know View Has Been Reset
+            V_VE2API.Instance.OnResetViewVR?.Invoke();
         }
 
         private void ExecuteResetView()

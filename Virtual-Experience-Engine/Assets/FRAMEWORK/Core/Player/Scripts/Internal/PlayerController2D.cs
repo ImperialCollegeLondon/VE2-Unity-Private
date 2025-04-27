@@ -156,13 +156,19 @@ namespace VE2.Core.Player.Internal
             _overlayUIRect.gameObject.SetActive(false);
             _playerLocomotor2D.HandleOnDisable(); 
             _interactor2D.HandleOnDisable(); //TODO - we don't want to drop grabbables 
+
+            //Let VE2API know UI has been Activated
+            V_VE2API.Instance.OnActivateMainMenu?.Invoke();
         }
 
         internal void HandlePrimaryUIDeactivated() 
         {
             _overlayUIRect.gameObject.SetActive(true);
             _playerLocomotor2D.HandleOnEnable();
-            _interactor2D.HandleOnEnable(); 
+            _interactor2D.HandleOnEnable();
+
+            //Let VE2API know UI has been Deactivated
+            V_VE2API.Instance.OnDeactivateMainMenu?.Invoke();
         }
 
         internal void HandleReceiveAvatarAppearance(OverridableAvatarAppearance newAvatarAppearance) 

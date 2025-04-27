@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 using VE2.Core.Player.API;
-
+using VE2.Core.Common;
 namespace VE2.Core.Player.Internal
 {
     internal class SnapTurnController
@@ -63,6 +63,9 @@ namespace VE2.Core.Player.Internal
 
             if (_otherHandGrabbableWrapper.RangedFreeGrabInteraction != null)
                 _otherHandGrabbableWrapper.RangedFreeGrabInteraction.ApplyDeltaWhenGrabbed(deltaPosition, deltaRotation);
+
+            //Let VE2API know we have done a snap turn
+            V_VE2API.Instance.OnSnapTurn?.Invoke("Left");
         }
 
         private void HandleSnapTurnRight()
@@ -86,6 +89,9 @@ namespace VE2.Core.Player.Internal
 
             if (_otherHandGrabbableWrapper.RangedFreeGrabInteraction != null)
                 _otherHandGrabbableWrapper.RangedFreeGrabInteraction.ApplyDeltaWhenGrabbed(deltaPosition, deltaRotation);
+
+            //Let VE2API know we have done a snap turn
+            V_VE2API.Instance.OnSnapTurn?.Invoke("Right");
         }
     }
 }
