@@ -95,7 +95,7 @@ namespace VE2.Core.VComponents.Internal
             _attachPointTransform = config.InteractionConfig.AttachPoint == null ? transformToTranslate : new TransformWrapper(config.InteractionConfig.AttachPoint);
 
             //initialize module for ranged adjustable interaction (scrolling)
-            _RangedAdjustableInteractionModule = new(_attachPointTransform, handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
+            _RangedAdjustableInteractionModule = new(_attachPointTransform, handheldInteractions, config.InteractionConfig, config.RangedInteractionConfig, config.GeneralInteractionConfig);
 
             _incrementPerScrollTick = config.AdjustableStateConfig.IncrementPerScrollTick;
             _transformToTranslate = transformToTranslate;

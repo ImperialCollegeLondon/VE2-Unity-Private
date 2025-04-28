@@ -47,7 +47,7 @@ namespace VE2.Core.VComponents.Internal
             IWorldStateSyncService worldStateSyncService, HandInteractorContainer interactorContainer, 
             IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants, IGrabbableRigidbody grabbableRigidbodyInterface)
         {
-            _RangedGrabInteractionModule = new(handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
+            _RangedGrabInteractionModule = new(handheldInteractions, config.InteractionConfig, config.RangedInteractionConfig, config.GeneralInteractionConfig);
             _StateModule = new(state, config.StateConfig, id, worldStateSyncService, interactorContainer, RangedGrabInteractionModule);
             _stateConfig = config.StateConfig;
             _interactionConfig = config.InteractionConfig;

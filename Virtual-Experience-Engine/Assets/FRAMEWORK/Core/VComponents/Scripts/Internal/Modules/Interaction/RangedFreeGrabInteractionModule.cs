@@ -9,7 +9,7 @@ namespace VE2.Core.VComponents.Internal
     internal class RangedFreeGrabInteractionModule : RangedGrabInteractionModule, IRangedFreeGrabInteractionModule
     {
         internal event Action<Vector3, Quaternion> OnGrabDeltaApplied;
-        public RangedFreeGrabInteractionModule(List<IHandheldInteractionModule> handheldInteractions, RangedInteractionConfig config, GeneralInteractionConfig generalInteractionConfig) : base(handheldInteractions, config, generalInteractionConfig) { }
+        public RangedFreeGrabInteractionModule(List<IHandheldInteractionModule> handheldInteractions, GrabInteractionConfig failsafeGrabMultiplier, RangedInteractionConfig config, GeneralInteractionConfig generalInteractionConfig) : base(handheldInteractions, failsafeGrabMultiplier, config, generalInteractionConfig) { }
 
         public void ApplyDeltaWhenGrabbed(Vector3 deltaPostion, Quaternion deltaRotation)
         {

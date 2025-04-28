@@ -52,7 +52,6 @@ namespace VE2.Core.VComponents.Internal
 
         private FreeGrabbableService _service = null;
         private RigidbodyWrapper _rigidbodyWrapper = null;
-        private TransformWrapper _transformWrapper = null;
 
         private Action<ushort> _internalOnGrab;
         event Action<ushort> IGrabbableRigidbody.InternalOnGrab

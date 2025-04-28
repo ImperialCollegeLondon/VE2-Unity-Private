@@ -13146,11 +13146,10 @@ MonoBehaviour:
         m_PersistentCalls:
           m_Calls: []
     InteractionConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       AttachPoint: {fileID: 0}
+      VrFailsafeGrab: 1
+      FailsafeGrabRange: 0.1
+      failsafeGrabMultiplier: 1
       dropBehaviour: 0
     GeneralInteractionConfig:
       AdminOnly: 0
@@ -19504,7 +19503,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1837739675}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a8995ff54d324b04ea0f50966b2be213, type: 3}
   m_Name: 
@@ -22175,11 +22174,10 @@ MonoBehaviour:
               m_BoolArgument: 0
             m_CallState: 2
     InteractionConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       AttachPoint: {fileID: 2103749180}
+      VrFailsafeGrab: 1
+      FailsafeGrabRange: 0.15
+      failsafeGrabMultiplier: 1.2
       dropBehaviour: 0
     GeneralInteractionConfig:
       AdminOnly: 0
@@ -22217,8 +22215,8 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-  _collider: {fileID: 0}
-  _rigidbody: {fileID: 0}
+  _collider: {fileID: 2103749181}
+  _rigidbody: {fileID: 2103749182}
 --- !u!114 &2103749186
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -25539,11 +25537,10 @@ MonoBehaviour:
               m_BoolArgument: 0
             m_CallState: 2
     InteractionConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       AttachPoint: {fileID: 543450651613274442}
+      VrFailsafeGrab: 1
+      FailsafeGrabRange: 0.15
+      failsafeGrabMultiplier: 1.2
       dropBehaviour: 1
     GeneralInteractionConfig:
       AdminOnly: 0
@@ -26832,11 +26829,10 @@ MonoBehaviour:
               m_BoolArgument: 0
             m_CallState: 2
     InteractionConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       AttachPoint: {fileID: 7336850990320701898}
+      VrFailsafeGrab: 1
+      FailsafeGrabRange: 0.15
+      failsafeGrabMultiplier: 1.2
       dropBehaviour: 0
     GeneralInteractionConfig:
       AdminOnly: 0
@@ -27213,11 +27209,10 @@ MonoBehaviour:
               m_BoolArgument: 0
             m_CallState: 2
     InteractionConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       AttachPoint: {fileID: 7630708130437203443}
+      VrFailsafeGrab: 1
+      FailsafeGrabRange: 0.15
+      failsafeGrabMultiplier: 1.2
       TransformToAdjust: {fileID: 601521730583208394}
     RangedInteractionConfig:
       InteractionRange: 5
@@ -27677,11 +27672,10 @@ MonoBehaviour:
               m_BoolArgument: 0
             m_CallState: 2
     InteractionConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       AttachPoint: {fileID: 3828157529544342433}
+      VrFailsafeGrab: 1
+      FailsafeGrabRange: 0.15
+      failsafeGrabMultiplier: 1.2
       dropBehaviour: 0
     GeneralInteractionConfig:
       AdminOnly: 0
@@ -27984,11 +27978,10 @@ MonoBehaviour:
               m_BoolArgument: 0
             m_CallState: 2
     InteractionConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       AttachPoint: {fileID: 2942569303062809500}
+      VrFailsafeGrab: 1
+      FailsafeGrabRange: 0.15
+      failsafeGrabMultiplier: 1.2
       TransformToAdjust: {fileID: 6276480324959252713}
     RangedInteractionConfig:
       InteractionRange: 5
@@ -28126,11 +28119,10 @@ MonoBehaviour:
               m_BoolArgument: 0
             m_CallState: 2
     InteractionConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       AttachPoint: {fileID: 312694930724920086}
+      VrFailsafeGrab: 1
+      FailsafeGrabRange: 0.15
+      failsafeGrabMultiplier: 1.2
       TransformToAdjust: {fileID: 428635686494013578}
     RangedInteractionConfig:
       InteractionRange: 5

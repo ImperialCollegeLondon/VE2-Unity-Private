@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -9,47 +10,111 @@ namespace VE2.Core.Player.Internal
     internal interface IRaycastProvider
     {
         public RaycastResultWrapper Raycast(Vector3 rayOrigin, Vector3 raycastDirection, float maxRaycastDistance, LayerMask layerMask);
+
+        public RaycastResultWrapper SpherecastAll(Vector3 rayOrigin, float sphereRadius, Vector3 raycastDirection, float maxRaycastDistance, LayerMask layerMask);
     }
 
     internal class RaycastProvider : IRaycastProvider
     {
-        public RaycastResultWrapper Raycast(Vector3 rayOrigin, Vector3 raycastDirection, float maxRaycastDistance, LayerMask layerMask) 
+        public RaycastResultWrapper Raycast(Vector3 rayOrigin, Vector3 raycastDirection, float maxRaycastDistance, LayerMask layerMask)
         {
             RaycastResultWrapper result;
 
-            if (Physics.Raycast(rayOrigin, raycastDirection, out RaycastHit raycastHit, maxRaycastDistance, layerMask)) 
+            if (Physics.Raycast(rayOrigin, raycastDirection, out RaycastHit raycastHit, maxRaycastDistance, layerMask))
             {
                 //ProcessUIHover(raycastHit.collider.gameObject);
                 Button button = GetUIButton(raycastHit);
 
-                if (button != null) 
+                if (button != null)
                 {
-                    result = new(null, button, raycastHit.distance);   
+                    result = new(null, button, raycastHit.distance);
                 }
                 else //Search up through the heirarchy looking for 
                 {
                     Transform currentTransform = raycastHit.collider.transform;
                     IRangedInteractionModuleProvider rangedInteractionModuleProvider = null;
 
-                    while (currentTransform != null) 
+                    while (currentTransform != null)
                     {
-                        if (currentTransform.TryGetComponent(out rangedInteractionModuleProvider)) 
+                        if (currentTransform.TryGetComponent(out rangedInteractionModuleProvider))
                             break;
 
                         currentTransform = currentTransform.parent;
                     }
 
-                    if (rangedInteractionModuleProvider != null) 
+                    if (rangedInteractionModuleProvider != null)
                     {
                         result = new(rangedInteractionModuleProvider.RangedInteractionModule, null, raycastHit.distance);
                     }
-                    else 
+                    else
                     {
                         result = new(null, null, raycastHit.distance);
                     }
                 }
             }
-            else 
+            else
+            {
+                result = new(null, null, maxRaycastDistance);
+            }
+
+            return result;
+        }
+
+        public RaycastResultWrapper SpherecastAll(Vector3 rayOrigin, float sphereRadius, Vector3 raycastDirection, float maxRaycastDistance, LayerMask layerMask)
+        {
+            RaycastResultWrapper result;
+
+            RaycastHit[] hits = Physics.SphereCastAll(rayOrigin, sphereRadius, raycastDirection, maxRaycastDistance, layerMask);
+
+            if (hits.Length > 0)
+            {
+                IRangedGrabInteractionModuleProvider closestRangedGrabInteractionProvider = null;
+                float closestDistance = float.MaxValue;
+
+                foreach (var hit in hits)
+                {
+                    Transform currentTransform = hit.collider.transform;
+                    IRangedGrabInteractionModuleProvider rangedGrabInteractionModuleProvider = null;
+
+                    while (currentTransform != null)
+                    {
+                        if (currentTransform.TryGetComponent(out rangedGrabInteractionModuleProvider))
+                            break;
+
+                        currentTransform = currentTransform.parent;
+                    }
+
+                    if (rangedGrabInteractionModuleProvider != null)
+                    {
+                        if(!rangedGrabInteractionModuleProvider.RangedGrabInteractionModule.VrFailsafeGrab)
+                            continue;
+                        
+                        float failsafeGrabRange = rangedGrabInteractionModuleProvider.RangedGrabInteractionModule.FailsafeGrabRange;
+                        float failsafeGrabMultiplier = rangedGrabInteractionModuleProvider.RangedGrabInteractionModule.FailsafeGrabMultiplier;
+
+                        float distanceFromHitPoint = Vector3.Distance(rayOrigin, hit.transform.position);
+                        
+                        Debug.Log($"grab range: {distanceFromHitPoint} <= {failsafeGrabRange * failsafeGrabMultiplier}");
+                        Debug.Log($"gameobject: {hit.transform.name}");
+
+                        if (distanceFromHitPoint <= failsafeGrabRange * failsafeGrabMultiplier && distanceFromHitPoint < closestDistance)
+                        {
+                            closestRangedGrabInteractionProvider = rangedGrabInteractionModuleProvider;
+                            closestDistance = distanceFromHitPoint;
+                        }
+                    }
+                }
+
+                if (closestRangedGrabInteractionProvider != null)
+                {
+                    result = new(closestRangedGrabInteractionProvider.RangedInteractionModule, null, closestDistance);
+                }
+                else
+                {
+                    result = new(null, null, maxRaycastDistance);
+                }
+            }
+            else
             {
                 result = new(null, null, maxRaycastDistance);
             }
@@ -71,7 +136,7 @@ namespace VE2.Core.Player.Internal
 
             foreach (var result in results)
             {
-                if (result.gameObject.TryGetComponent(out Button button)) 
+                if (result.gameObject.TryGetComponent(out Button button))
                     return button;
             }
 
@@ -79,7 +144,7 @@ namespace VE2.Core.Player.Internal
         }
     }
 
-    internal class RaycastResultWrapper 
+    internal class RaycastResultWrapper
     {
         public IRangedInteractionModule RangedInteractable { get; private set; }
         public IRangedInteractionModule RangedInteractableInRange => HitInteractableInRange ? RangedInteractable : null;
@@ -93,7 +158,7 @@ namespace VE2.Core.Player.Internal
         public bool HitScrollableInteractableInRange => HitInteractableInRange && RangedInteractable is IRangedAdjustableInteractionModule;
         public bool HitScrollableUI => HitUIButton && false /*TODO: replace w/ && UIButton is IScrollableUI*/;
 
-        public RaycastResultWrapper(IRangedInteractionModule rangedInteractable, Button uiButton, float distance) 
+        public RaycastResultWrapper(IRangedInteractionModule rangedInteractable, Button uiButton, float distance)
         {
             RangedInteractable = rangedInteractable;
             UIButton = uiButton;
