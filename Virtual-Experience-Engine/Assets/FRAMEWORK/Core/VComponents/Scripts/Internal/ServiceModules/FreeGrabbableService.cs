@@ -33,7 +33,7 @@ namespace VE2.Core.VComponents.Internal
         private bool _isKinematicOnGrab;
         private PhysicsConstants _physicsConstants;
         private IGrabbableRigidbody _grabbableRigidbodyInterface;
-
+        private bool _isInspectMode = false;
         public event Action<ushort> OnGrabConfirmed;
         public event Action<ushort> OnDropConfirmed;
 
@@ -61,6 +61,7 @@ namespace VE2.Core.VComponents.Internal
             _RangedGrabInteractionModule.OnLocalInteractorRequestGrab += (InteractorID interactorID) => _StateModule.SetGrabbed(interactorID);
             _RangedGrabInteractionModule.OnLocalInteractorRequestDrop += (InteractorID interactorID) => _StateModule.SetDropped(interactorID);
             _RangedGrabInteractionModule.OnGrabDeltaApplied += ApplyDeltaWhenGrabbed;
+            _RangedGrabInteractionModule.OnInspectModeSet += ToggleInspectMode;
 
             _StateModule.OnGrabConfirmed += HandleGrabConfirmed;
             _StateModule.OnDropConfirmed += HandleDropConfirmed;
@@ -79,6 +80,26 @@ namespace VE2.Core.VComponents.Internal
             _rigidbody.isKinematic = false;
         }
 
+        private void ToggleInspectMode(bool isInspectMode)
+        {
+            if(_StateModule.IsGrabbed)
+            {
+                Debug.LogWarning("ToggleInspectMode - Cannot toggle inspect mode while grabbed. Ignoring request.");
+                return;
+            }
+
+            Debug.Log("ToggleInspectMode - " + isInspectMode);
+            _isInspectMode = isInspectMode;
+             
+            if (_isInspectMode)
+            {
+                Debug.Log("We are now in Toggle Mode");
+            }
+            else
+            {
+                Debug.Log("We are now out of Toggle Mode");
+            }
+        }
         // private void HandleLocalInteractorRequestGrab(InteractorID interactorID) =>  _StateModule.SetGrabbed(interactorID);
 
         // private void HandleLocalInteractorRequestDrop(InteractorID interactorID) => _StateModule.SetDropped(interactorID);
