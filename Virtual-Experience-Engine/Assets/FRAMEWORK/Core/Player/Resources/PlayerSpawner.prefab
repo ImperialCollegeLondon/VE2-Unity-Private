@@ -5464,14 +5464,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerConfig:
-    EnableVR: 0
-    Enable2D: 1
+    SupportedPlayerModes: 2
     MovementModeConfig:
       TraversableLayers:
         serializedVersion: 2
         m_Bits: 8
       EnableFreeFlyMode: 0
       TeleportRangeMultiplier: 1
+    CameraConfig:
+      FieldOfView2D: 60
+      NearClippingPlane: 0.3
+      FarClippingPlane: 1000
+      CullingMask:
+        serializedVersion: 2
+        m_Bits: 4294967295
+      AntiAliasing: 1
+      AntiAliasingQuality: 1
+      EnablePostProcessing: 1
+      OcclusionCulling: 1
     HeadOverrideType: 0
     TorsoOverrideType: 0
     HeadOverrideOne: {fileID: 0}
@@ -5512,8 +5522,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e4caf408e1554349b678c8f692a6636, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _enablePrimaryUI: 1
-  _enableSecondaryUI: 1
+  _lastUseSecondaryUI: 1
   _useCustomSecondaryUI: 1
 --- !u!1 &5652376412452648834
 GameObject:

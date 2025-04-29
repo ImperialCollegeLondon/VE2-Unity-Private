@@ -42,8 +42,7 @@ namespace VE2.Core.Player.Internal
                 );
             }
         }
-        public readonly Camera Camera;
-
+        
         private readonly GameObject _playerGO;
         private readonly Player2DControlConfig _controlConfig;
         private readonly Player2DInputContainer _player2DInputContainer;
@@ -60,8 +59,8 @@ namespace VE2.Core.Player.Internal
         private readonly RectTransform _overlayUIRect;
 
         internal PlayerController2D(HandInteractorContainer interactorContainer, Player2DInputContainer player2DInputContainer, IPlayerPersistentDataHandler playerPersistentDataHandler,
-            Player2DControlConfig controlConfig, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ILocalClientIDProvider multiplayerSupport, 
-            IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IPlayerServiceInternal playerService) 
+            Player2DControlConfig controlConfig, CameraConfig cameraConfig, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, 
+            ILocalClientIDProvider multiplayerSupport, IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IPlayerServiceInternal playerService) 
         {
             GameObject player2DPrefab = Resources.Load("2dPlayer") as GameObject;
             _playerGO = GameObject.Instantiate(player2DPrefab, null, false);
@@ -92,6 +91,8 @@ namespace VE2.Core.Player.Internal
 
             base._PlayerHeadTransform = _playerLocomotor2D.HeadTransform;
             base._FeetCollisionDetector = _feetInteractor2D._collisionDetector as V_CollisionDetector;
+
+            ConfigureCamera(cameraConfig);  
             
             //TODO: think about inspect mode, does that live in the interactor, or the player controller?
             //If interactor, will need to make the interactor2d constructor take a this as a param, and forward the other params to the base constructor

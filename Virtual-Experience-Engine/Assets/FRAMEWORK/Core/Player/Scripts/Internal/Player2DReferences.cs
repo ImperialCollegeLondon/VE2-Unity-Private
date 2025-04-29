@@ -3,24 +3,18 @@ using UnityEngine;
 
 namespace VE2.Core.Player.Internal
 {
-    internal class Player2DReferences : MonoBehaviour
+    internal class Player2DReferences : BasePlayerReferences
     {
-        public Camera Camera => _camera;
-        [SerializeField] private Camera _camera;
-
         public Interactor2DReferences Interactor2DReferences => _interactor2DReferences;
         [SerializeField, IgnoreParent] private Interactor2DReferences _interactor2DReferences;
 
         public Locomotor2DReferences Locomotor2DReferences => _locomotor2DReferences;
         [SerializeField, IgnoreParent] private Locomotor2DReferences _locomotor2DReferences;
 
-        public RectTransform PrimaryUIHolderRect => _primaryUIHolderRect;
-        [SerializeField, IgnoreParent] private RectTransform _primaryUIHolderRect;
-
         public RectTransform SecondaryUIHolderRect => _secondaryUIHolderRect;
         [SerializeField, IgnoreParent] private RectTransform _secondaryUIHolderRect;
 
-        public AvatarVisHandler LocalAvatarHandler => _localAvatarHandler;
+        public AvatarVisHandler LocalAvatarHandler => _localAvatarHandler; //TODO: This isn't in the VR version, shouldn'#t it be? If so, move to base
         [SerializeField, IgnoreParent] private AvatarVisHandler _localAvatarHandler;
 
         public RectTransform OverlayUIRect => _overlayUIRect;

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 using VE2.Core.Common;
 using VE2.Core.Player.API;
 using VE2.Core.UI.API;
@@ -33,6 +34,8 @@ namespace VE2.Core.Player.Internal
         [Title("Movement Mode Config")]
         [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public MovementModeConfig MovementModeConfig = new();
 
+        [Title("Camera Config")]
+        [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public CameraConfig CameraConfig = new();
 
         [Title("Avatar Presentation Override Selection")]
         [BeginGroup(Style = GroupStyle.Round), SerializeField] public AvatarAppearanceOverrideType HeadOverrideType = AvatarAppearanceOverrideType.None;
@@ -70,6 +73,20 @@ namespace VE2.Core.Player.Internal
         [SerializeField] internal float TeleportRangeMultiplier = 1.0f;
     }
 
+    [Serializable]
+    internal class CameraConfig 
+    {
+        [SerializeField] internal float FieldOfView2D = 60f;
+        [SerializeField] internal float NearClippingPlane = 0.3f;
+        [SerializeField] internal float FarClippingPlane = 1000f;
+        [SerializeField] internal LayerMask CullingMask;
+        [SerializeField] internal AntialiasingMode AntiAliasing = AntialiasingMode.FastApproximateAntialiasing;
+        [SerializeField, ShowIf(nameof(_showAAQuality), true)] internal AntialiasingQuality AntiAliasingQuality = AntialiasingQuality.Medium;
+        private bool _showAAQuality => AntiAliasing == AntialiasingMode.SubpixelMorphologicalAntiAliasing || AntiAliasing == AntialiasingMode.TemporalAntiAliasing;
+        [SerializeField] internal bool EnablePostProcessing = true;
+        [SerializeField] internal bool OcclusionCulling = true;
+    }
+
     [ExecuteAlways]
     internal class V_PlayerSpawner : MonoBehaviour, IPlayerServiceProvider
     {
@@ -104,6 +121,7 @@ namespace VE2.Core.Player.Internal
         {
             _playerConfig = new();
             _playerConfig.MovementModeConfig.TraversableLayers = LayerMask.GetMask("Ground"); //Can't set LayerMask in serialization, so we do it here
+            _playerConfig.CameraConfig.CullingMask = -1;
 
             //Debug.Log("Resetting - " + (_playerPreview != null));
             if (_playerPreview != null)
