@@ -68,10 +68,17 @@ namespace VE2.Core.Tests
             RaycastProviderStub = Substitute.For<IRaycastProvider>();
         }
 
-        public static void StubRangedInteractionModuleForRaycastProviderStub(IRangedInteractionModule rangedInteractionModule)
+        public static void StubRangedInteractionModuleForRaycast(IRangedInteractionModule rangedInteractionModule)
         {
             RaycastProviderStub
                 .Raycast(default, default, default, default)
+                .ReturnsForAnyArgs(new RaycastResultWrapper(rangedInteractionModule, null, 0));
+        }
+
+        public static void StubRangedInteractionModuleForSpherecastAll(IRangedInteractionModule rangedInteractionModule)
+        {
+            RaycastProviderStub
+                .SpherecastAll(default, default, default, default, default)
                 .ReturnsForAnyArgs(new RaycastResultWrapper(rangedInteractionModule, null, 0));
         }
     }

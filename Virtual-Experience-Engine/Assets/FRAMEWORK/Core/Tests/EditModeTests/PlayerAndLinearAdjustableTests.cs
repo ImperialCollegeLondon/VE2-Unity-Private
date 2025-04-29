@@ -44,7 +44,7 @@ namespace VE2.Core.Tests
         [Test]
         public void WithHoveringLinearAdjustable_OnUserGrab_CustomerScriptReceivesGrab()
         {
-            RayCastProviderSetup.StubRangedInteractionModuleForRaycastProviderStub(_linearAdjustableRaycastInterface.RangedGrabInteractionModule);
+            RayCastProviderSetup.StubRangedInteractionModuleForRaycast(_linearAdjustableRaycastInterface.RangedGrabInteractionModule);
 
             //Invoke grab, check customer received the grab, and that the interactorID is set
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();

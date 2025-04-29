@@ -69,7 +69,7 @@ namespace VE2.Core.Tests
             _handheldAdjustableConfig.StateConfig.MaximumOutputValue = maxValue;
 
             //stub out the raycast result to return the grabbable's interaction module
-            RayCastProviderSetup.StubRangedInteractionModuleForRaycastProviderStub(_grabbableRaycastInterface.RangedGrabInteractionModule);
+            RayCastProviderSetup.StubRangedInteractionModuleForRaycast(_grabbableRaycastInterface.RangedGrabInteractionModule);
 
             //Invoke grab, check customer received the grab, and that the interactorID is set
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();

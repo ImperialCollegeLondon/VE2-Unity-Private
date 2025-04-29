@@ -365,7 +365,7 @@ namespace VE2.Core.Player.Internal
                     }
                     else
                     {
-                        if(this is Interactor2D)
+                        if (this is Interactor2D)
                             return;
 
                         RaycastResultWrapper sphereCastResultWrapper = GetSphereCastResult();
