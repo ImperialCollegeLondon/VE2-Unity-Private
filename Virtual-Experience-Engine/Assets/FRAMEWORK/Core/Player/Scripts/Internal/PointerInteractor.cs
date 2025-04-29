@@ -295,7 +295,7 @@ namespace VE2.Core.Player.Internal
             if (_RayOrigin == null)
                 return null;
 
-            return _RaycastProvider.SpherecastAll(_RayOrigin.position, MAX_SPHERECAST_RADIUS, _RayOrigin.up, 0f, _layerMask);
+            return _RaycastProvider.SpherecastAll(_GrabberTransform.position, MAX_SPHERECAST_RADIUS, _GrabberTransform.up, 0f, _layerMask);
         }
 
         private void HandleRangedClickPressed()

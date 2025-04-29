@@ -25540,7 +25540,7 @@ MonoBehaviour:
       AttachPoint: {fileID: 543450651613274442}
       VrFailsafeGrab: 1
       FailsafeGrabRange: 0.15
-      failsafeGrabMultiplier: 1.2
+      failsafeGrabMultiplier: 1.6
       dropBehaviour: 1
     GeneralInteractionConfig:
       AdminOnly: 0
@@ -27675,7 +27675,7 @@ MonoBehaviour:
       AttachPoint: {fileID: 3828157529544342433}
       VrFailsafeGrab: 1
       FailsafeGrabRange: 0.15
-      failsafeGrabMultiplier: 1.2
+      failsafeGrabMultiplier: 1.6
       dropBehaviour: 0
     GeneralInteractionConfig:
       AdminOnly: 0

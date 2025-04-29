@@ -92,15 +92,12 @@ namespace VE2.Core.Player.Internal
                         float failsafeGrabRange = rangedGrabInteractionModuleProvider.RangedGrabInteractionModule.FailsafeGrabRange;
                         float failsafeGrabMultiplier = rangedGrabInteractionModuleProvider.RangedGrabInteractionModule.FailsafeGrabMultiplier;
 
-                        float distanceFromHitPoint = Vector3.Distance(rayOrigin, hit.transform.position);
-                        
-                        Debug.Log($"grab range: {distanceFromHitPoint} <= {failsafeGrabRange * failsafeGrabMultiplier}");
-                        Debug.Log($"gameobject: {hit.transform.name}");
+                        float distanceFromHit = Vector3.Distance(rayOrigin, hit.transform.position);
 
-                        if (distanceFromHitPoint <= failsafeGrabRange * failsafeGrabMultiplier && distanceFromHitPoint < closestDistance)
+                        if (distanceFromHit <= failsafeGrabRange * failsafeGrabMultiplier && distanceFromHit < closestDistance)
                         {
                             closestRangedGrabInteractionProvider = rangedGrabInteractionModuleProvider;
-                            closestDistance = distanceFromHitPoint;
+                            closestDistance = distanceFromHit;
                         }
                     }
                 }
