@@ -170,7 +170,8 @@ namespace VE2.Core.Player.Internal
                     Then we just teleport the whole root to the target, and verticalDragMove up by root?
                     Would need to reconfigure the rig back when leaving freefly though
                     Maybe better approach: No rig reconfiguring, just look at the target teleport pos, and work out what delta we need to apply 
-                    to the root transform so that's where the camera ends up*/
+                    to the root transform so that's where the camera ends up... 
+                    ...this approach might not work as well for drag though, maybe collapsing the rig is simpler after all*/
                     Vector3 delta = teleportDestination - _headTransform.position;
                     Vector3 newRootPosition = _rootTransform.position + delta;
                     if (Physics.Raycast(teleportDestination, Vector3.down, out RaycastHit hit, _movementModeConfig.TraversableLayers))

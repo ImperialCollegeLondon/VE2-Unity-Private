@@ -5789,11 +5789,14 @@ MonoBehaviour:
       TraversableLayers:
         serializedVersion: 2
         m_Bits: 8
+      CollisionLayers:
+        serializedVersion: 2
+        m_Bits: 130945
       EnableFreeFlyMode: 0
       TeleportRangeMultiplier: 1
     CameraConfig:
       FieldOfView2D: 60
-      NearClippingPlane: 0.3
+      NearClippingPlane: 0.15
       FarClippingPlane: 1000
       CullingMask:
         serializedVersion: 2
