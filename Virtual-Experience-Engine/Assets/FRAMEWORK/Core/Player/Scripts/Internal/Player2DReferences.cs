@@ -32,8 +32,5 @@ namespace VE2.Core.Player.Internal
 
         public Transform VerticalOffsetTransform => _verticalOffsetTransform;
         [SerializeField, IgnoreParent] private Transform _verticalOffsetTransform;
-
-        public LayerMask GroundLayer => _groundLayer;
-        [SerializeField, IgnoreParent] private LayerMask _groundLayer;
     }
 }

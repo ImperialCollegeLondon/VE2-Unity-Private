@@ -58,9 +58,10 @@ namespace VE2.Core.Player.Internal
         private readonly RectTransform _secondaryUIHolder;
         private readonly RectTransform _overlayUIRect;
 
-        internal PlayerController2D(HandInteractorContainer interactorContainer, Player2DInputContainer player2DInputContainer, IPlayerPersistentDataHandler playerPersistentDataHandler,
-            Player2DControlConfig controlConfig, CameraConfig cameraConfig, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, 
-            ILocalClientIDProvider multiplayerSupport, IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IPlayerServiceInternal playerService) 
+        internal PlayerController2D(HandInteractorContainer interactorContainer, Player2DInputContainer player2DInputContainer, 
+            IPlayerPersistentDataHandler playerPersistentDataHandler, Player2DControlConfig controlConfig, MovementModeConfig movementModeConfig, 
+            CameraConfig cameraConfig, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ILocalClientIDProvider multiplayerSupport, 
+            IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IPlayerServiceInternal playerService) 
         {
             GameObject player2DPrefab = Resources.Load("2dPlayer") as GameObject;
             _playerGO = GameObject.Instantiate(player2DPrefab, null, false);
@@ -87,7 +88,7 @@ namespace VE2.Core.Player.Internal
 
             _feetInteractor2D = new(collisionDetectorFactory, ColliderType.Feet2D, player2DReferences.Interactor2DReferences.FeetCollider, InteractorType.Feet, multiplayerSupport);
 
-            _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences);
+            _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences, movementModeConfig);
 
             base._PlayerHeadTransform = _playerLocomotor2D.HeadTransform;
             base._FeetCollisionDetector = _feetInteractor2D._collisionDetector as V_CollisionDetector;

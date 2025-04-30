@@ -123,7 +123,7 @@ namespace VE2.Core.Player.Internal
             {
                 _player2D = new PlayerController2D(
                     interactorContainer, _playerInputContainer.Player2DInputContainer,
-                    playerSettingsHandler, new Player2DControlConfig(), _config.CameraConfig,
+                    playerSettingsHandler, new Player2DControlConfig(), _config.MovementModeConfig, _config.CameraConfig,
                     raycastProvider, collisionDetectorFactory, playerSyncer, primaryUIService, secondaryUIService, this);
             }
 

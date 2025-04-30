@@ -69,6 +69,7 @@ namespace VE2.Core.Player.Internal
     internal class MovementModeConfig
     {
         [SerializeField] internal LayerMask TraversableLayers; 
+        [SerializeField] internal LayerMask CollisionLayers;
         [SerializeField] internal bool EnableFreeFlyMode = false;
         [SerializeField] internal float TeleportRangeMultiplier = 1.0f;
     }
@@ -121,6 +122,7 @@ namespace VE2.Core.Player.Internal
         {
             _playerConfig = new();
             _playerConfig.MovementModeConfig.TraversableLayers = LayerMask.GetMask("Ground"); //Can't set LayerMask in serialization, so we do it here
+            _playerConfig.MovementModeConfig.CollisionLayers = LayerMask.GetMask("Ground", "Default"); //Can't set LayerMask in serialization, so we do it here
             _playerConfig.CameraConfig.CullingMask = -1;
 
             //Debug.Log("Resetting - " + (_playerPreview != null));
