@@ -23,7 +23,7 @@ namespace VE2.Core.Player.Internal
         private readonly Transform _headTransform; //For orienting the drag icons towards the camera
         private readonly Transform _handTransform; //For measuring drag delta 
         private MovementModeConfig _movementModeConfig;
-
+        private bool _previousFreeFlyMode = false;
         public DragLocomotorController(DragLocomotorReferences locomotorVRReferences, DragLocomotorInputContainer inputContainer, DragLocomotorInputContainer otherVRHandInputContainer,
             Transform rootTransform, Transform headOffsetTransform, Transform headTransform, Transform handTransform, MovementModeConfig movementModeConfig)
         {
@@ -41,10 +41,27 @@ namespace VE2.Core.Player.Internal
             _handTransform = handTransform;
 
             _movementModeConfig = movementModeConfig;
+            _previousFreeFlyMode = _movementModeConfig.EnableFreeFlyMode;
         }
 
         public void HandleUpdate()
         {
+            // Check if FreeFlyMode has changed
+            if (_movementModeConfig.EnableFreeFlyMode != _previousFreeFlyMode)
+            {
+                if (_movementModeConfig.EnableFreeFlyMode)
+                {
+                    // Entering FreeFlyMode
+                    EnterFreeFlyMode();
+                }
+                else
+                {
+                    // Exiting FreeFlyMode
+                    ExitFreeFlyMode();
+                }
+
+                _previousFreeFlyMode = _movementModeConfig.EnableFreeFlyMode;
+            }
             Vector3 cameraToIcon = _sphereIcon.transform.position - _headTransform.position;
             Vector3 forwardDirection = Vector3.ProjectOnPlane(cameraToIcon, Vector3.up);
             _horizontalMoveIndicator.transform.forward = forwardDirection;
@@ -65,6 +82,37 @@ namespace VE2.Core.Player.Internal
             _previousHandPosition = _handTransform.position; 
         }
 
+        private void EnterFreeFlyMode()
+        {
+            // Collapse the rig: Move the vertical offset to zero
+            _headOffsetTransform.localPosition = Vector3.zero;
+        }
+
+        private void ExitFreeFlyMode()
+        {
+            // Raycast down to find the ground
+            if (Physics.Raycast(
+                _rootTransform.position,
+                Vector3.down,
+                out RaycastHit hit,
+                Mathf.Infinity,
+                _movementModeConfig.TraversableLayers))
+            {
+                // Ground found, move to ground position
+                _rootTransform.position = hit.point;
+            }
+            else
+            {
+                // Ground not found, move to spawn position
+                _rootTransform.position = GetSpawnPosition();
+            }
+        }
+
+        private Vector3 GetSpawnPosition()
+        {
+            // Replace with actual spawn position retrieval logic
+            return Vector3.zero;
+        }
         public void HandleOEnable()
         {
             _horizontalMoveIndicator.SetActive(false);
@@ -166,68 +214,134 @@ namespace VE2.Core.Player.Internal
         private void PerformHorizontalDragMovement(Vector3 dragVector)
         {
             Vector3 moveVector = dragVector * _dragSpeed;
-            float maxStepHeight = 0.5f; // Maximum step height the player can have 
-            float stepHeight = 0.5f; // User-defined step height. TODO: Make it configurable
-            float collisionOffset = 0.05f; // Collision offset to stop player entering into walls
+            float collisionOffset = 0.05f;
 
-            Vector3 currentRaycastPosition = _rootTransform.position + new Vector3(0, maxStepHeight, 0);
-            Vector3 targetRaycastPosition = currentRaycastPosition + moveVector;
-
-            // Perform raycast from current raycast position to check for ground
-            if (Physics.Raycast(currentRaycastPosition, Vector3.down, out RaycastHit currentHit, Mathf.Infinity, _movementModeConfig.TraversableLayers))
+            if (_movementModeConfig.EnableFreeFlyMode)
             {
-                float currentGroundHeight = currentHit.point.y;
+                // In freefly mode, move the root transform directly, but perform collision checks
+                Vector3 targetPosition = _rootTransform.position + moveVector;
+                Vector3 direction = moveVector.normalized;
+                float distance = moveVector.magnitude + collisionOffset;
 
-                // Perform raycast from target position to check for ground
-                if (Physics.Raycast(targetRaycastPosition, Vector3.down, out RaycastHit targetHit, Mathf.Infinity, _movementModeConfig.TraversableLayers))
+                if (Physics.Raycast(
+                    _rootTransform.position,
+                    direction,
+                    out RaycastHit hitInfo,
+                    distance,
+                    _movementModeConfig.TraversableLayers))
                 {
-                    float targetGroundHeight = targetHit.point.y;
-                    float heightDifference = Mathf.Abs(targetGroundHeight - currentGroundHeight);
-
-                    // Check if the height difference is within the allowable step size
-                    if (heightDifference <= stepHeight)
-                    {
-                        // Perform raycast to check for collisions in the direction of movement
-                        if (Physics.Raycast(currentRaycastPosition, moveVector.normalized, out RaycastHit objectHit, moveVector.magnitude + collisionOffset))
-                        {
-                            Debug.Log($"Movement aborted: {objectHit.collider.name} is blocking player movement.");
-                        }
-                        else
-                        {                          
-                            targetRaycastPosition.y = targetGroundHeight + (currentRaycastPosition.y - maxStepHeight - currentGroundHeight);
-                            _rootTransform.position = targetRaycastPosition;
-                        }
-                    }
-                    else
-                    {
-                        Debug.Log("Movement aborted: Elevation change exceeds maximum step size.");
-                    }
+                    Debug.Log($"Movement aborted: Collision detected with {hitInfo.collider.name}.");
                 }
                 else
                 {
-                    Debug.Log("Movement aborted: Target position is not above ground.");
+                    _rootTransform.position = targetPosition;
                 }
             }
             else
             {
-                Debug.LogWarning("Current position is not above ground.");
+                // Existing movement logic with ground checks
+                float maxStepHeight = 0.5f;
+                float stepHeight = 0.5f; // TODO: Make configurable
+
+                Vector3 currentRaycastPosition = _rootTransform.position + new Vector3(0, maxStepHeight, 0);
+                Vector3 targetRaycastPosition = currentRaycastPosition + moveVector;
+
+                if (Physics.Raycast(
+                    currentRaycastPosition,
+                    Vector3.down,
+                    out RaycastHit currentHit,
+                    Mathf.Infinity,
+                    _movementModeConfig.TraversableLayers))
+                {
+                    float currentGroundHeight = currentHit.point.y;
+
+                    if (Physics.Raycast(
+                        targetRaycastPosition,
+                        Vector3.down,
+                        out RaycastHit targetHit,
+                        Mathf.Infinity,
+                        _movementModeConfig.TraversableLayers))
+                    {
+                        float targetGroundHeight = targetHit.point.y;
+                        float heightDifference = Mathf.Abs(targetGroundHeight - currentGroundHeight);
+
+                        if (heightDifference <= stepHeight)
+                        {
+                            if (Physics.Raycast(
+                                currentRaycastPosition,
+                                moveVector.normalized,
+                                out RaycastHit objectHit,
+                                moveVector.magnitude + collisionOffset))
+                            {
+                                Debug.Log($"Movement aborted: {objectHit.collider.name} is blocking player movement.");
+                            }
+                            else
+                            {
+                                targetRaycastPosition.y = targetGroundHeight +
+                                    (currentRaycastPosition.y - maxStepHeight - currentGroundHeight);
+                                _rootTransform.position = targetRaycastPosition;
+                            }
+                        }
+                        else
+                        {
+                            Debug.Log("Movement aborted: Elevation change exceeds maximum step size.");
+                        }
+                    }
+                    else
+                    {
+                        Debug.Log("Movement aborted: Target position is not above ground.");
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning("Current position is not above ground.");
+                }
             }
         }
 
         private void HandleVerticalDragMovement(Vector3 dragVector)
         {
             Vector3 moveVector = dragVector * _dragSpeed;
-            Vector3 targetPosition = _headOffsetTransform.position + moveVector;
-            float collisionOffset = 0.5f; // Collision offset to stop player entering into ceilings/floor
+            float collisionOffset = 0.05f;
 
-            // Perform raycast to check for collisions
-            if (Physics.Raycast(_headOffsetTransform.position, moveVector.normalized, out RaycastHit hit, moveVector.magnitude + collisionOffset))
+            if (_movementModeConfig.EnableFreeFlyMode)
             {
-                Debug.Log("Vertical movement aborted: Collision detected with " + hit.collider.name);
+                // In freefly mode, move the root transform directly, but perform collision checks
+                Vector3 targetPosition = _rootTransform.position + moveVector;
+                Vector3 direction = moveVector.normalized;
+                float distance = moveVector.magnitude + collisionOffset;
+
+                if (Physics.Raycast(
+                    _rootTransform.position,
+                    direction,
+                    out RaycastHit hitInfo,
+                    distance,
+                    _movementModeConfig.TraversableLayers))
+                {
+                    Debug.Log($"Vertical movement aborted: Collision detected with {hitInfo.collider.name}.");
+                }
+                else
+                {
+                    _rootTransform.position = targetPosition;
+                }
             }
             else
             {
-                _headOffsetTransform.position = targetPosition;
+                // Existing vertical movement logic with collision checks
+                Vector3 targetPosition = _headOffsetTransform.position + moveVector;
+
+                if (Physics.Raycast(
+                    _headOffsetTransform.position,
+                    moveVector.normalized,
+                    out RaycastHit hit,
+                    moveVector.magnitude + collisionOffset))
+                {
+                    Debug.Log("Vertical movement aborted: Collision detected with " + hit.collider.name);
+                }
+                else
+                {
+                    _headOffsetTransform.position = targetPosition;
+                }
             }
         }
     }
