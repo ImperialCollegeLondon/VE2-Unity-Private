@@ -620,61 +620,13 @@ MonoBehaviour:
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
     ActivatableRangedInteractionConfig:
-      InteractionRange: 5
+      InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 23840099}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMax
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-          - m_Target: {fileID: 226527653}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMax
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
+          m_Calls: []
       OnLocalHoverExit:
         m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 23840099}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMin
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-          - m_Target: {fileID: 226527653}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMin
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
+          m_Calls: []
       ActivateAtRangeInVR: 1
       ActivateWithCollisionInVR: 1
   _collider: {fileID: 23840100}
@@ -5857,61 +5809,13 @@ MonoBehaviour:
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
     ActivatableRangedInteractionConfig:
-      InteractionRange: 5
+      InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 539028772}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMax
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-          - m_Target: {fileID: 1168230251}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMax
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
+          m_Calls: []
       OnLocalHoverExit:
         m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 539028772}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMin
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-          - m_Target: {fileID: 1168230251}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMin
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
+          m_Calls: []
       ActivateAtRangeInVR: 1
       ActivateWithCollisionInVR: 1
   _collider: {fileID: 539028773}
@@ -8313,61 +8217,13 @@ MonoBehaviour:
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
     ActivatableRangedInteractionConfig:
-      InteractionRange: 5
+      InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 756509174}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMax
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-          - m_Target: {fileID: 1755558203}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMax
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
+          m_Calls: []
       OnLocalHoverExit:
         m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 756509174}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMin
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-          - m_Target: {fileID: 1755558203}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMin
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
+          m_Calls: []
       ActivateAtRangeInVR: 1
       ActivateWithCollisionInVR: 1
   _collider: {fileID: 756509172}
@@ -12741,61 +12597,13 @@ MonoBehaviour:
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
     ActivatableRangedInteractionConfig:
-      InteractionRange: 5
+      InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 1064730503}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMax
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-          - m_Target: {fileID: 1421719646}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMax
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
+          m_Calls: []
       OnLocalHoverExit:
         m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 1064730503}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMin
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-          - m_Target: {fileID: 1421719646}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMin
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
+          m_Calls: []
       ActivateAtRangeInVR: 1
       ActivateWithCollisionInVR: 1
   _collider: {fileID: 1064730504}
@@ -20360,6 +20168,9 @@ MonoBehaviour:
       TraversableLayers:
         serializedVersion: 2
         m_Bits: 8
+      CollisionLayers:
+        serializedVersion: 2
+        m_Bits: 130969
       EnableFreeFlyMode: 0
       TeleportRangeMultiplier: 1
     CameraConfig:
@@ -22380,8 +22191,8 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-  _collider: {fileID: 0}
-  _rigidbody: {fileID: 0}
+  _collider: {fileID: 2103749181}
+  _rigidbody: {fileID: 2103749182}
 --- !u!114 &2103749186
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23265,58 +23076,10 @@ MonoBehaviour:
       InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 2137345506}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMax
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-          - m_Target: {fileID: 211890559}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMax
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
+          m_Calls: []
       OnLocalHoverExit:
         m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 2137345506}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMin
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-          - m_Target: {fileID: 211890559}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMin
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
+          m_Calls: []
       ActivateAtRangeInVR: 1
       ActivateWithCollisionInVR: 1
   _collider: {fileID: 2137345507}
@@ -25555,7 +25318,7 @@ MonoBehaviour:
         TransmissionType: 0
         TransmissionFrequency: 1
       AttachPoint: {fileID: 543450651613274442}
-      dropBehaviour: 1
+      dropBehaviour: 0
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
@@ -27228,8 +26991,8 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
-      AttachPoint: {fileID: 7630708130437203443}
-      TransformToAdjust: {fileID: 601521730583208394}
+      AttachPoint: {fileID: 0}
+      TransformToAdjust: {fileID: 0}
     RangedInteractionConfig:
       InteractionRange: 5
       OnLocalHoverEnter:
@@ -27999,8 +27762,8 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
-      AttachPoint: {fileID: 2942569303062809500}
-      TransformToAdjust: {fileID: 6276480324959252713}
+      AttachPoint: {fileID: 0}
+      TransformToAdjust: {fileID: 0}
     RangedInteractionConfig:
       InteractionRange: 5
       OnLocalHoverEnter:
@@ -28141,8 +27904,8 @@ MonoBehaviour:
       RepeatedTransmissionConfig:
         TransmissionType: 0
         TransmissionFrequency: 1
-      AttachPoint: {fileID: 312694930724920086}
-      TransformToAdjust: {fileID: 428635686494013578}
+      AttachPoint: {fileID: 0}
+      TransformToAdjust: {fileID: 0}
     RangedInteractionConfig:
       InteractionRange: 5
       OnLocalHoverEnter:

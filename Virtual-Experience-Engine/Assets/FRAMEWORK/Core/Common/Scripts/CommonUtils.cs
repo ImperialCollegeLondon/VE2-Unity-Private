@@ -115,5 +115,6 @@ namespace VE2.Core.Common
             return null; // Not found
         }
 
+        public static bool IsGameObjectInLayerMask(GameObject go, LayerMask layerMask) => (layerMask.value & (1 << go.layer)) != 0;
     }
 }
