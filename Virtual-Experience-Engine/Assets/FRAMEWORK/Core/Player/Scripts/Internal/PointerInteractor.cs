@@ -22,9 +22,6 @@ namespace VE2.Core.Player.Internal
         public Transform RayOrigin => _rayOrigin;
         [SerializeField, IgnoreParent] private Transform _rayOrigin;
 
-        public LayerMask LayerMask => _layerMask;
-        [SerializeField, IgnoreParent] private LayerMask _layerMask;
-
         [SerializeField] private StringWrapper _raycastHitDebug;
         public StringWrapper RaycastHitDebug => _raycastHitDebug;
     }
@@ -62,7 +59,7 @@ namespace VE2.Core.Player.Internal
 
         private readonly HandInteractorContainer _interactorContainer;
         private readonly InteractorInputContainer _interactorInputContainer;
-
+        private readonly LayerMask _raycastLayerMask;
 
         protected readonly Transform _interactorParentTransform;
         protected readonly Transform _GrabberTransform;
@@ -70,7 +67,6 @@ namespace VE2.Core.Player.Internal
         private readonly LineRenderer _grabbableLineVisLineRenderer;
 
         protected readonly Transform _RayOrigin;
-        private readonly LayerMask _layerMask;
         private readonly StringWrapper _raycastHitDebug;
 
         private readonly InteractorType _InteractorType;
@@ -82,19 +78,19 @@ namespace VE2.Core.Player.Internal
 
         private readonly HoveringOverScrollableIndicator _hoveringOverScrollableIndicator;
 
-        internal PointerInteractor(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
+        internal PointerInteractor(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer, PlayerInteractionConfig interactionConfig,
             InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, 
             ILocalClientIDProvider localClientIDProvider, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator)
         {
             _interactorContainer = interactorContainer;
             _interactorInputContainer = interactorInputContainer;
+            _raycastLayerMask = interactionConfig.RaycastLayers;
 
             _interactorParentTransform = interactorReferences.InteractorParentTransform;
             _GrabberTransform = interactorReferences.GrabberTransform;
             _GrabberVisualisation = interactorReferences.GrabberVisualisation;
             _grabbableLineVisLineRenderer = _GrabberVisualisation.GetComponent<LineRenderer>();
             _RayOrigin = interactorReferences.RayOrigin;
-            _layerMask = interactorReferences.LayerMask;
             _raycastHitDebug = interactorReferences.RaycastHitDebug;
 
             _InteractorType = interactorType;
@@ -286,7 +282,7 @@ namespace VE2.Core.Player.Internal
             if (_RayOrigin == null)
                 return null;
 
-            return _RaycastProvider.Raycast(_RayOrigin.position, _RayOrigin.forward, MAX_RAYCAST_DISTANCE, _layerMask);
+            return _RaycastProvider.Raycast(_RayOrigin.position, _RayOrigin.forward, MAX_RAYCAST_DISTANCE, _raycastLayerMask);
         }
 
         private void HandleRangedClickPressed()

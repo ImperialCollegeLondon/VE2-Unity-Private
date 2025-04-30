@@ -13,10 +13,10 @@ namespace VE2.Core.Player.Internal
         private readonly ColorConfiguration _colorConfig;
         private readonly PlayerConnectionPromptHandler _connectionPromptHandler;
 
-        internal Interactor2D(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
+        internal Interactor2D(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer, PlayerInteractionConfig interactionConfig,
             InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, 
             ILocalClientIDProvider localClientIDProvider) : 
-            base(interactorContainer, interactorInputContainer,
+            base(interactorContainer, interactorInputContainer, interactionConfig,
                 interactorReferences, interactorType, raycastProvider, localClientIDProvider, null, new HoveringOverScrollableIndicator())   
         {
             Interactor2DReferences interactor2DReferences = interactorReferences as Interactor2DReferences;

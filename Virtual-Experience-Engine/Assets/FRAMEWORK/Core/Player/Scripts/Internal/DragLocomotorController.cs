@@ -42,20 +42,20 @@ namespace VE2.Core.Player.Internal
             _handTransform = handTransform;
 
             _movementModeConfig = movementModeConfig;
-            _previousFreeFlyMode = _movementModeConfig.EnableFreeFlyMode;
+            _previousFreeFlyMode = _movementModeConfig.FreeFlyMode;
         }
 
         public void HandleUpdate()
         {
             // Check if FreeFlyMode has changed
-            if (_movementModeConfig.EnableFreeFlyMode != _previousFreeFlyMode)
+            if (_movementModeConfig.FreeFlyMode != _previousFreeFlyMode)
             {
-                if (_movementModeConfig.EnableFreeFlyMode)
+                if (_movementModeConfig.FreeFlyMode)
                     EnterFreeFlyMode();
                 else
                     ExitFreeFlyMode();
 
-                _previousFreeFlyMode = _movementModeConfig.EnableFreeFlyMode;
+                _previousFreeFlyMode = _movementModeConfig.FreeFlyMode;
             }
 
             Vector3 cameraToIcon = _sphereIcon.transform.position - _headTransform.position;
@@ -208,7 +208,7 @@ namespace VE2.Core.Player.Internal
             Vector3 moveVector = dragVector * _dragSpeed;
             float collisionOffset = 0.05f;
 
-            if (_movementModeConfig.EnableFreeFlyMode)
+            if (_movementModeConfig.FreeFlyMode)
             {
                 // In freefly mode, move the root transform directly, but perform collision checks
                 Vector3 targetPosition = _rootTransform.position + moveVector;
@@ -278,7 +278,7 @@ namespace VE2.Core.Player.Internal
             Vector3 moveVector = dragVector * _dragSpeed;
             float collisionOffset = 0.05f;
 
-            if (_movementModeConfig.EnableFreeFlyMode)
+            if (_movementModeConfig.FreeFlyMode)
             {
                 // In freefly mode, move the root transform directly, but perform collision checks
                 Vector3 targetPosition = _rootTransform.position + moveVector;

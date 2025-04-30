@@ -20164,6 +20164,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _playerConfig:
     SupportedPlayerModes: 2
+    PlayerInteractionConfig:
+      RaycastLayers:
+        serializedVersion: 2
+        m_Bits: 130987
     MovementModeConfig:
       TraversableLayers:
         serializedVersion: 2
@@ -20171,7 +20175,7 @@ MonoBehaviour:
       CollisionLayers:
         serializedVersion: 2
         m_Bits: 130945
-      EnableFreeFlyMode: 0
+      FreeFlyMode: 0
       TeleportRangeMultiplier: 1
     CameraConfig:
       FieldOfView2D: 60

@@ -153,7 +153,7 @@ namespace VE2.Core.Player.Internal
             Vector3 startPosition = _teleportRayOrigin.position;
             Vector3 direction = _teleportRayOrigin.forward;
 
-            if (_movementModeConfig.EnableFreeFlyMode)
+            if (_movementModeConfig.FreeFlyMode)
             {
                 float stickX = _inputContainer.TeleportDirection.Value.x;
                 float distance = Mathf.Lerp(1f, 3f, stickX); // TODO: Make this configurable

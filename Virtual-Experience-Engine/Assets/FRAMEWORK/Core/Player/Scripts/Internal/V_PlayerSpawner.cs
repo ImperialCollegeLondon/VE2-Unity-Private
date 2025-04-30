@@ -31,6 +31,9 @@ namespace VE2.Core.Player.Internal
         internal bool EnableVR => SupportedPlayerModes == SupportedPlayerModes.Both || SupportedPlayerModes == SupportedPlayerModes.OnlyVR;
         internal bool Enable2D => SupportedPlayerModes == SupportedPlayerModes.Both || SupportedPlayerModes == SupportedPlayerModes.Only2D;
 
+        [Title("Interaction Config")]
+        [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public PlayerInteractionConfig PlayerInteractionConfig = new();
+
         [Title("Movement Mode Config")]
         [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public MovementModeConfig MovementModeConfig = new();
 
@@ -66,11 +69,17 @@ namespace VE2.Core.Player.Internal
     }
 
     [Serializable]
+    internal class PlayerInteractionConfig
+    {
+        [SerializeField] internal LayerMask RaycastLayers;
+    }
+
+    [Serializable]
     internal class MovementModeConfig
     {
         [SerializeField] internal LayerMask TraversableLayers; 
         [SerializeField] internal LayerMask CollisionLayers;
-        [SerializeField] internal bool EnableFreeFlyMode = false;
+        [SerializeField] internal bool FreeFlyMode = false;
         [SerializeField] internal float TeleportRangeMultiplier = 1.0f;
     }
 
@@ -78,7 +87,7 @@ namespace VE2.Core.Player.Internal
     internal class CameraConfig 
     {
         [SerializeField] internal float FieldOfView2D = 60f;
-        [SerializeField] internal float NearClippingPlane = 0.3f;
+        [SerializeField] internal float NearClippingPlane = 0.15f;
         [SerializeField] internal float FarClippingPlane = 1000f;
         [SerializeField] internal LayerMask CullingMask;
         [SerializeField] internal AntialiasingMode AntiAliasing = AntialiasingMode.FastApproximateAntialiasing;
@@ -121,8 +130,11 @@ namespace VE2.Core.Player.Internal
         private void Reset()
         {
             _playerConfig = new();
-            _playerConfig.MovementModeConfig.TraversableLayers = LayerMask.GetMask("Ground"); //Can't set LayerMask in serialization, so we do it here
-            _playerConfig.MovementModeConfig.CollisionLayers = LayerMask.GetMask("Ground", "Default"); //Can't set LayerMask in serialization, so we do it here
+
+            //Can't set LayerMask in serialization, so we do it here
+            _playerConfig.PlayerInteractionConfig.RaycastLayers = -1;
+            _playerConfig.MovementModeConfig.TraversableLayers = LayerMask.GetMask("Ground");
+            _playerConfig.MovementModeConfig.CollisionLayers = LayerMask.GetMask("Default"); 
             _playerConfig.CameraConfig.CullingMask = -1;
 
             //Debug.Log("Resetting - " + (_playerPreview != null));

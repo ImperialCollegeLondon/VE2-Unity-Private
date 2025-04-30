@@ -115,7 +115,7 @@ namespace VE2.Core.Player.Internal
 
                 _playerVR = new PlayerControllerVR(
                     interactorContainer, _playerInputContainer.PlayerVRInputContainer,
-                    playerSettingsHandler, new PlayerVRControlConfig(), _config.MovementModeConfig, _config.CameraConfig,
+                    playerSettingsHandler, new PlayerVRControlConfig(), _config.PlayerInteractionConfig, _config.MovementModeConfig, _config.CameraConfig,
                     raycastProvider, collisionDetectorFactory, xrManagerWrapper, playerSyncer, primaryUIService, secondaryUIService);
             }
 
@@ -123,7 +123,7 @@ namespace VE2.Core.Player.Internal
             {
                 _player2D = new PlayerController2D(
                     interactorContainer, _playerInputContainer.Player2DInputContainer,
-                    playerSettingsHandler, new Player2DControlConfig(), _config.MovementModeConfig, _config.CameraConfig,
+                    playerSettingsHandler, new Player2DControlConfig(), _config.PlayerInteractionConfig, _config.MovementModeConfig, _config.CameraConfig,
                     raycastProvider, collisionDetectorFactory, playerSyncer, primaryUIService, secondaryUIService, this);
             }
 

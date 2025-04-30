@@ -7,7 +7,6 @@ namespace VE2.Core.Player.Internal
 {
     internal class InteractorVR : PointerInteractor
     {
-
         private Vector3 _grabberTransformOffset;
 
         private readonly ICollisionDetector _collisionDetector;
@@ -17,10 +16,10 @@ namespace VE2.Core.Player.Internal
         private readonly ColorConfiguration _colorConfig;
         private const float LINE_EMISSION_INTENSITY = 15;
 
-        internal InteractorVR(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
+        internal InteractorVR(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer, PlayerInteractionConfig playerInteractionConfig,
             InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ColliderType colliderType,
             ILocalClientIDProvider multiplayerSupport, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator) :
-            base(interactorContainer, interactorInputContainer,
+            base(interactorContainer, interactorInputContainer, playerInteractionConfig,
                 interactorReferences, interactorType, raycastProvider, multiplayerSupport, grabbableWrapper, hoveringOverScrollableIndicator)
 
         {
