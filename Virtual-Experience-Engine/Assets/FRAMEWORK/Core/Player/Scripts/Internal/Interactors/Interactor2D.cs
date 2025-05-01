@@ -1,4 +1,5 @@
 using DG.Tweening;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using VE2.Core.Common;
@@ -13,11 +14,12 @@ namespace VE2.Core.Player.Internal
         private readonly ColorConfiguration _colorConfig;
         private readonly PlayerConnectionPromptHandler _connectionPromptHandler;
         private Player2DInputContainer _player2DInputContainer;
+        private bool _isInspectMode = false;
         internal Interactor2D(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
-            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, 
-            ILocalClientIDProvider localClientIDProvider, Player2DInputContainer player2DInputContainer) : 
+            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider,
+            ILocalClientIDProvider localClientIDProvider, Player2DInputContainer player2DInputContainer) :
             base(interactorContainer, interactorInputContainer,
-                interactorReferences, interactorType, raycastProvider, localClientIDProvider, null, new HoveringOverScrollableIndicator())   
+                interactorReferences, interactorType, raycastProvider, localClientIDProvider, null, new HoveringOverScrollableIndicator())
         {
             Interactor2DReferences interactor2DReferences = interactorReferences as Interactor2DReferences;
             _reticuleImage = interactor2DReferences.ReticuleImage;
@@ -87,13 +89,43 @@ namespace VE2.Core.Player.Internal
 
         private void HandleInspectModePressed()
         {
-            if (IsCurrentlyGrabbing)
+            if (!IsCurrentlyGrabbing)
             {
-                IRangedGrabInteractionModule rangedGrabInteractionModule = _CurrentGrabbingGrabbable;
-                rangedGrabInteractionModule.SetInspectModeWhenGrabbed();
+                Debug.LogWarning("ToggleInspectMode - Cannot toggle inspect mode while grabbed. Ignoring request.");
+                return;
             }
 
+            _isInspectMode = !_isInspectMode;
+
+            IRangedGrabInteractionModule rangedGrabInteractionModule = _CurrentGrabbingGrabbable;
+            if (_isInspectMode)
+            {
+                Debug.Log("We are now in Inspect Mode");
+                rangedGrabInteractionModule.SetInspectModeEnter(_GrabberTransform);
+
+                //try
+                //{
+                //    _config.SetInspectModeEnter?.Invoke();
+                //}
+                //catch (Exception e)
+                //{
+                //    Debug.Log($"Error when emitting SetInspectModeEnter \n{e.Message}\n{e.StackTrace}");
+                //}
+            }
+            else
+            {
+                Debug.Log("We are now out of Inspect Mode");
+                rangedGrabInteractionModule.SetInspectModeExit(_GrabberTransform);
+
+                //try
+                //{
+                //    _config.SetInspectModeExit?.Invoke();
+                //}
+                //catch (Exception e)
+                //{
+                //    Debug.Log($"Error when emitting SetInspectModeExit \n{e.Message}\n{e.StackTrace}");
+                //}
+            }
         }
     }
-
 }

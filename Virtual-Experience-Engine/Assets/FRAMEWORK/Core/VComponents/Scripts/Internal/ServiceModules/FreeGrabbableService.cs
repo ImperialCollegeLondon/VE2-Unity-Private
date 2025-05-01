@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using DG.Tweening;
 using System.Collections.Generic;
 using VE2.Core.VComponents.API;
 using static VE2.Core.Common.CommonSerializables;
@@ -67,7 +66,8 @@ namespace VE2.Core.VComponents.Internal
             _RangedGrabInteractionModule.OnLocalInteractorRequestGrab += (InteractorID interactorID) => _StateModule.SetGrabbed(interactorID);
             _RangedGrabInteractionModule.OnLocalInteractorRequestDrop += (InteractorID interactorID) => _StateModule.SetDropped(interactorID);
             _RangedGrabInteractionModule.OnGrabDeltaApplied += ApplyDeltaWhenGrabbed;
-            _RangedGrabInteractionModule.OnInspectModeSet += () => _StateModule.ToggleInspectMode();
+            _RangedGrabInteractionModule.OnInspectModeEnter += (Transform grabberTransform) => _StateModule.SetInspectModeEnter(grabberTransform);
+            _RangedGrabInteractionModule.OnInspectModeExit += (Transform grabberTransform) => _StateModule.SetInspectModeExit(grabberTransform);
 
             _StateModule.OnGrabConfirmed += HandleGrabConfirmed;
             _StateModule.OnDropConfirmed += HandleDropConfirmed;
@@ -89,7 +89,7 @@ namespace VE2.Core.VComponents.Internal
         }
         // private void HandleLocalInteractorRequestGrab(InteractorID interactorID) =>  _StateModule.SetGrabbed(interactorID);
 
-        // private void HandleLocalInteractorRequestDrop(InteractorID interactorID) => _StateModule.SetDropped(interactorID);
+        // private void HandleLocalInteractorRequestD  rop(InteractorID interactorID) => _StateModule.SetDropped(interactorID);
 
         private void HandleGrabConfirmed(ushort grabberClientID)
         {
@@ -125,11 +125,11 @@ namespace VE2.Core.VComponents.Internal
             }
         } 
 
-        private void HandleOnInspectModeEnter()
+        private void HandleOnInspectModeEnter(Transform grabberTransform)
         {
             Debug.Log("HandleOnInspectModeEnter Called in FGS");
-            _originalGrabPositionBeforeInspect = _transform.position;
-            _originalGrabRotationBeforeInspect = _transform.rotation;
+            _originalGrabPositionBeforeInspect = grabberTransform.position;
+            _originalGrabRotationBeforeInspect = grabberTransform.rotation;
 
             Vector3 targetPosition = Camera.main.transform.position + new Vector3(0, 0, 0.5f);
 
@@ -140,12 +140,12 @@ namespace VE2.Core.VComponents.Internal
             
         }
 
-        public void HandleOnInspectModeExit()
+        public void HandleOnInspectModeExit(Transform grabberTransform)
         {
             Debug.Log("HandleOnInspectModeExit Called in FGS");
             _rigidbody.isKinematic = false;
-            _transform.position = _originalGrabPositionBeforeInspect;
-            _transform.rotation = _originalGrabRotationBeforeInspect;
+            grabberTransform.position = _originalGrabPositionBeforeInspect;
+            grabberTransform.rotation = _originalGrabRotationBeforeInspect;
         }
         public void HandleFixedUpdate()
         {

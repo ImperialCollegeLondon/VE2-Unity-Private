@@ -9,7 +9,8 @@ namespace VE2.Core.VComponents.Internal
     {
         internal event Action<InteractorID> OnLocalInteractorRequestGrab;
         internal event Action<InteractorID> OnLocalInteractorRequestDrop;
-        internal event Action OnInspectModeSet;
+        internal event Action<Transform> OnInspectModeEnter;
+        internal event Action<Transform> OnInspectModeExit;
         public List<IHandheldInteractionModule> HandheldInteractions {get; private set; } = new();
 
         public Vector3 DeltaPosition { get; private set; }
@@ -30,9 +31,14 @@ namespace VE2.Core.VComponents.Internal
             OnLocalInteractorRequestDrop?.Invoke(interactorID);
         }
 
-        public void SetInspectModeWhenGrabbed()
+        public void SetInspectModeEnter(Transform grabberTransform)
         {
-            OnInspectModeSet?.Invoke();
+            OnInspectModeEnter?.Invoke(grabberTransform);
+        }
+
+        public void SetInspectModeExit(Transform grabberTransform)
+        {
+            OnInspectModeExit?.Invoke(grabberTransform);
         }
     }
 }
