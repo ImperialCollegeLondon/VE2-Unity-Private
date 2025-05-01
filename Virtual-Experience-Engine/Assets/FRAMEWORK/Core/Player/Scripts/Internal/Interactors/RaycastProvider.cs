@@ -44,7 +44,7 @@ namespace VE2.Core.Player.Internal
 
                     if (rangedInteractionModuleProvider != null)
                     {
-                        result = new(rangedInteractionModuleProvider.RangedInteractionModule, null, raycastHit.distance, raycastHit.point);
+                        result = new(rangedInteractionModuleProvider.RangedInteractionModule, null, raycastHit.distance, raycastHit.transform.position);
                     }
                     else
                     {
@@ -98,7 +98,7 @@ namespace VE2.Core.Player.Internal
 
                         if (distanceFromHit <= failsafeGrabRange * failsafeGrabMultiplier && distanceFromHit < closestDistance && isOnPalm)
                         {
-                            closestHitPoint = hit.point;
+                            closestHitPoint = hit.transform.position;
                             closestRangedGrabInteractionProvider = rangedGrabInteractionModuleProvider;
                             closestDistance = distanceFromHit;
                         }

@@ -254,8 +254,13 @@ namespace VE2.Core.Player.Internal
                         _raycastHitDebug.Value = "none";
                     }
                 }
+                if(this is Interactor2D)
+                    return;
 
-                HandleRaycastDistance(raycastResultWrapper.HitDistance);
+                float distance = raycastResultWrapper.HitInteractable ? raycastResultWrapper.HitDistance : sphereCastResultWrapper.HitInteractable ? sphereCastResultWrapper.HitDistance : raycastResultWrapper.HitDistance;
+                bool isOnPalm = !raycastResultWrapper.HitInteractable && sphereCastResultWrapper.HitInteractable && sphereCastResultWrapper.RangedInteractableIsInRange;
+                
+                HandleRaycastDistance(distance, isOnPalm, sphereCastResultWrapper.HitPosition);
             }
         }
 
@@ -306,7 +311,7 @@ namespace VE2.Core.Player.Internal
                 colorHandler.OnPointerExit();
         }
 
-        protected virtual void HandleRaycastDistance(float distance) { } //TODO: Code smell? InteractorVR needs this to set the LineRenderer length
+        protected virtual void HandleRaycastDistance(float distance, bool isOnPalm, Vector3 point) { } //TODO: Code smell? InteractorVR needs this to set the LineRenderer length
 
         private RaycastResultWrapper GetRayCastResult()
         {
