@@ -178,7 +178,7 @@ namespace VE2.Core.Player.Internal
 
                 #if UNITY_EDITOR
                 if (_playerConfig.PlayerModeConfig.SupportedPlayerModes == SupportedPlayerModes.Both)
-                    _playerTransformData.IsVRMode = VE2UnityEditorToolbar.PreferVRMode;
+                    _playerTransformData.IsVRMode = PlayerAPI.PreferVRMode;
                 #endif
             }
 

@@ -88,6 +88,9 @@ namespace VE2.Core.Player.API
             }
         }
 
+        [SerializeField, HideInInspector] private bool _preferVRMode = false;
+        public static bool PreferVRMode { get => Instance._preferVRMode; set => Instance._preferVRMode = value; }
+
         private void Awake()
         {
             if (FindObjectsByType<PlayerAPI>(FindObjectsSortMode.None).Length > 1)

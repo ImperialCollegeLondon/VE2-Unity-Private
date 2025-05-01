@@ -7,23 +7,17 @@ using UnityEngine.UIElements;
 using System;
 using System.Reflection;
 using VE2.Core.Player.Internal;
+using VE2.Core.Player.API;
 
 namespace VE2.Core.Player
 {
     [UnityEditor.InitializeOnLoad]
     public static class VE2UnityEditorToolbar
     {
-        public static event Action OnPreferVRClicked;
-        public static event Action OnPrefer2DClicked;
-
-        //TODO: This static will be cleared on domain reload!
-        public static bool PreferVRMode {get; private set;}
-
         private static V_PlayerSpawner _playerSpawner = null;
 
         static VE2UnityEditorToolbar()
         {
-            //Debug.Log("VE2UnityEditorToolbar initialized.");
             ToolboxEditorToolbar.OnToolbarGuiLeft  += OnToolbarGui;
         }
 
@@ -48,24 +42,24 @@ namespace VE2.Core.Player
             string buttonText = "VE2: ";
             if (interactable)
             {
-                buttonText += PreferVRMode ? "Preferring VR" : "Preferring 2D";
+                buttonText += PlayerAPI.PreferVRMode ? "Preferring VR" : "Preferring 2D";
             }
             else
             {
-                PreferVRMode = _playerSpawner._playerConfig.PlayerModeConfig.EnableVR;
+                PlayerAPI.PreferVRMode = _playerSpawner._playerConfig.PlayerModeConfig.EnableVR;
                 buttonText += _playerSpawner._playerConfig.PlayerModeConfig.EnableVR ? "VR Only" : "2D Only";
             }
 
             // Create the toggle button
-            if (GUILayout.Toggle(PreferVRMode, buttonText, "Button"))
+            if (GUILayout.Toggle(PlayerAPI.PreferVRMode, buttonText, "Button"))
             {
-                if (!PreferVRMode)
-                    PreferVRMode = true;
+                if (!PlayerAPI.PreferVRMode)
+                    PlayerAPI.PreferVRMode = true;
             }
             else
             {
-                if (PreferVRMode)
-                    PreferVRMode = false;
+                if (PlayerAPI.PreferVRMode)
+                    PlayerAPI.PreferVRMode = false;
             }
 
             // Restore the original GUI enabled state
