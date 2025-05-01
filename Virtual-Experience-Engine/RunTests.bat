@@ -11,6 +11,7 @@ set "DEBUG_LOG=C:\temp\unity_test_debug.txt"
 
 REM Ensure debug log dir exists
 if not exist "C:\temp" mkdir "C:\temp"
+if not exist "%PROJECT_PATH%\TestLogs" mkdir "%PROJECT_PATH%\TestLogs"
 
 echo === RunTests.cmd STARTED === >> "%DEBUG_LOG%"
 echo Running Unity EditMode tests... >> "%DEBUG_LOG%"
