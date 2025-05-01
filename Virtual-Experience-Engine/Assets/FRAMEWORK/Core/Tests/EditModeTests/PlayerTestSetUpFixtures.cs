@@ -78,7 +78,7 @@ namespace VE2.Core.Tests
         public static void StubRangedInteractionModuleForSpherecastAll(IRangedInteractionModule rangedInteractionModule)
         {
             RaycastProviderStub
-                .SpherecastAll(default, default, default, default, default)
+                .SphereCastAll(default, default, default, default, default)
                 .ReturnsForAnyArgs(new RaycastResultWrapper(rangedInteractionModule, null, 0));
         }
     }

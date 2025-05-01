@@ -152,6 +152,7 @@ namespace VE2.Core.Player.Internal
         public void HandleUpdate()
         {
             RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
+            RaycastResultWrapper sphereCastResultWrapper = GetSphereCastResult();
 
             IRangedInteractionModule previousHoveringInteractable = _CurrentHoveringInteractable;
 
@@ -193,11 +194,11 @@ namespace VE2.Core.Player.Internal
             }
             else if (!IsCurrentlyGrabbing)
             {
+                bool isAllowedToInteract = false;
+
                 //If hovering over an interactable, handle interactor and hover=========
                 if (!_WaitingForLocalClientID && (raycastResultWrapper.HitUIButton || raycastResultWrapper.HitInteractableInRange))
                 {
-                    bool isAllowedToInteract = false;
-
                     if (raycastResultWrapper.HitInteractable)
                     {
                         isAllowedToInteract = !raycastResultWrapper.RangedInteractable.AdminOnly;
@@ -223,10 +224,35 @@ namespace VE2.Core.Player.Internal
                 }
                 else
                 {
-                    _hoveringOverScrollableIndicator.IsHoveringOverScrollableObject = false;
-                    HandleNoHoverOverUIGameObject();
-                    SetInteractorState(InteractorState.Idle);
-                    _raycastHitDebug.Value = "none";
+                    if (this is InteractorVR && !raycastResultWrapper.HitInteractable)
+                    {
+                        if (sphereCastResultWrapper != null && sphereCastResultWrapper.HitInteractable && sphereCastResultWrapper.RangedInteractableIsInRange)
+                        {
+                            isAllowedToInteract = !sphereCastResultWrapper.RangedInteractable.AdminOnly;
+
+                            _hoveringOverScrollableIndicator.IsHoveringOverScrollableObject = sphereCastResultWrapper.HitScrollableInteractableInRange;
+                            _raycastHitDebug.Value = sphereCastResultWrapper.RangedInteractable.ToString();
+                            _CurrentHoveringInteractable = sphereCastResultWrapper.RangedInteractableInRange;
+
+                            SetInteractorState(isAllowedToInteract ? InteractorState.InteractionAvailable : InteractorState.InteractionLocked);
+
+                        }
+                        else
+                        {
+                            _hoveringOverScrollableIndicator.IsHoveringOverScrollableObject = false;
+                            HandleNoHoverOverUIGameObject();
+                            SetInteractorState(InteractorState.Idle);
+                            _raycastHitDebug.Value = "none";
+                        }
+
+                    }
+                    else
+                    {
+                        _hoveringOverScrollableIndicator.IsHoveringOverScrollableObject = false;
+                        HandleNoHoverOverUIGameObject();
+                        SetInteractorState(InteractorState.Idle);
+                        _raycastHitDebug.Value = "none";
+                    }
                 }
 
                 HandleRaycastDistance(raycastResultWrapper.HitDistance);
@@ -292,10 +318,15 @@ namespace VE2.Core.Player.Internal
 
         private RaycastResultWrapper GetSphereCastResult()
         {
-            if (_RayOrigin == null)
+            if (_GrabberTransform == null || this is Interactor2D)
                 return null;
 
-            return _RaycastProvider.SpherecastAll(_GrabberTransform.position, MAX_SPHERECAST_RADIUS, _GrabberTransform.up, 0f, _layerMask);
+            if (_InteractorType == InteractorType.LeftHandVR)
+                return _RaycastProvider.SphereCastAll(_GrabberTransform.position, MAX_SPHERECAST_RADIUS, _GrabberTransform.up, 0f, _layerMask, _GrabberTransform.right);
+            if (_InteractorType == InteractorType.RightHandVR)
+                return _RaycastProvider.SphereCastAll(_GrabberTransform.position, MAX_SPHERECAST_RADIUS, _GrabberTransform.up, 0f, _layerMask, -_GrabberTransform.right);
+            else
+                return _RaycastProvider.SphereCastAll(_GrabberTransform.position, MAX_SPHERECAST_RADIUS, _GrabberTransform.up, 0f, _layerMask);
         }
 
         private void HandleRangedClickPressed()
