@@ -47,7 +47,7 @@ namespace VE2.Core.VComponents.Internal
             IWorldStateSyncService worldStateSyncService, HandInteractorContainer interactorContainer,
             IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants, IGrabbableRigidbody grabbableRigidbodyInterface)
         {
-            _transform = config.InteractionConfig.AttachPoint == null ? new TransformWrapper(_rigidbody.transform) : new TransformWrapper(config.InteractionConfig.AttachPoint);
+            _transform = config.InteractionConfig.AttachPoint != null ? new TransformWrapper(config.InteractionConfig.AttachPoint) : _rigidbody != null ? _rigidbody.transform : null;
             _RangedGrabInteractionModule = new(_transform, handheldInteractions, config.InteractionConfig, config.RangedInteractionConfig, config.GeneralInteractionConfig);
             _StateModule = new(state, config.StateConfig, id, worldStateSyncService, interactorContainer, RangedGrabInteractionModule);
             _stateConfig = config.StateConfig;
