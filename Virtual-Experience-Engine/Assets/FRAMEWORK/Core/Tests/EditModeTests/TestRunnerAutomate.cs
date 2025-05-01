@@ -11,8 +11,11 @@ using UnityEngine;
 [InitializeOnLoad]
 public static class TestRunnerAutomate
 {
+    private static TestRunnerApi _testRunnerApi;
+
     static TestRunnerAutomate()
     {
+        _testRunnerApi = ScriptableObject.CreateInstance<TestRunnerApi>();
         EditorApplication.update += CheckForTestSignal;
         EditorApplication.quitting += () => EditorApplication.update -= CheckForTestSignal;
     }
@@ -29,13 +32,12 @@ public static class TestRunnerAutomate
 
     static void RunTests()
     {
-        TestRunnerApi testRunnerApi = ScriptableObject.CreateInstance<TestRunnerApi>();
-        testRunnerApi.RegisterCallbacks(new TestRunnerApiCallbacks());
+        _testRunnerApi.RegisterCallbacks(new TestRunnerApiCallbacks());
         Filter filter = new()
         {
             testMode = TestMode.EditMode
         };
-        testRunnerApi.Execute(new ExecutionSettings(filter));
+        _testRunnerApi.Execute(new ExecutionSettings(filter));
     }
 }
 
