@@ -11,6 +11,7 @@ namespace VE2.Core.VComponents.API
         public List<IHandheldInteractionModule> HandheldInteractions { get; }
         public bool VrFailsafeGrab { get; }
         public float FailsafeGrabRange { get; }
+        public float FailsafeGrabRangeBackOfHand { get; }
         public float FailsafeGrabMultiplier { get; }
     }
 }

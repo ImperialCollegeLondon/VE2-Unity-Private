@@ -12,8 +12,9 @@ namespace VE2.Core.VComponents.Internal
 
         public List<IHandheldInteractionModule> HandheldInteractions { get; private set; } = new();
         public bool VrFailsafeGrab { get; private set; } = false;
-        public float FailsafeGrabRange { get; private set; } = 0.5f;
-        public float FailsafeGrabMultiplier { get; private set; } = 1f;
+        public float FailsafeGrabRange { get; private set; }
+        public float FailsafeGrabRangeBackOfHand { get; private set; }
+        public float FailsafeGrabMultiplier { get; private set; }
         public Vector3 DeltaPosition { get; private set; }
         public Quaternion DeltaRotation { get; private set; }
 
@@ -23,6 +24,7 @@ namespace VE2.Core.VComponents.Internal
             FailsafeGrabMultiplier = grabInteractionConfig.failsafeGrabMultiplier;
             VrFailsafeGrab = grabInteractionConfig.VrFailsafeGrab;
             FailsafeGrabRange = grabInteractionConfig.FailsafeGrabRange;
+            FailsafeGrabRangeBackOfHand = grabInteractionConfig.FailsafeGrabRangeBackOfHand;
         }
 
         public void RequestLocalGrab(InteractorID interactorID)

@@ -37,6 +37,7 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField] public Transform AttachPoint = null;
         [SerializeField] public bool VrFailsafeGrab = true;
         [SerializeField, ShowIf(nameof(VrFailsafeGrab), true)] public float FailsafeGrabRange = 0.15f;
+        [SerializeField, ShowIf(nameof(VrFailsafeGrab), true)] public float FailsafeGrabRangeBackOfHand = 0.1f;
         [EndGroup]
         [SerializeField, ShowIf(nameof(VrFailsafeGrab), true), Range(1f,2f)] public float failsafeGrabMultiplier = 1.2f;
     }
