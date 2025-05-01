@@ -45,8 +45,8 @@ namespace VE2.Core.Player.Internal
             {
                 return new OverridableAvatarAppearance(
                     _playerSettingsHandler.PlayerPresentationConfig,
-                    _config.HeadOverrideType, 
-                    _config.TorsoOverrideType);
+                    _config.AvatarAppearanceOverrideConfig.HeadOverrideIndex, 
+                    _config.AvatarAppearanceOverrideConfig.TorsoOverrideIndex);
             } 
         }
 
@@ -58,8 +58,8 @@ namespace VE2.Core.Player.Internal
 
         public bool IsVRMode => PlayerTransformData.IsVRMode;
 
-        public List<GameObject> HeadOverrideGOs => _config.HeadOverrideGOs;
-        public List<GameObject> TorsoOverrideGOs => _config.TorsoOverrideGOs;
+        public List<GameObject> HeadOverrideGOs => _config.AvatarAppearanceOverrideConfig.HeadOverrideGOs;
+        public List<GameObject> TorsoOverrideGOs => _config.AvatarAppearanceOverrideConfig.TorsoOverrideGOs;
 
         public Camera ActiveCamera 
         {
@@ -72,15 +72,28 @@ namespace VE2.Core.Player.Internal
             }
         }
 
-        public void SetAvatarHeadOverride(AvatarAppearanceOverrideType type) 
+        public void SetAvatarHeadOverride(ushort index) 
         {
-            _config.HeadOverrideType = type;
+            _config.AvatarAppearanceOverrideConfig.OverrideHead = true;
+            _config.AvatarAppearanceOverrideConfig.HeadOverrideIndex = index;
             OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
         }
             
-        public void SetAvatarTorsoOverride(AvatarAppearanceOverrideType type) 
+        public void SetAvatarTorsoOverride(ushort index) 
         {
-            _config.TorsoOverrideType = type;
+            _config.AvatarAppearanceOverrideConfig.OverrideTorso = true;
+            _config.AvatarAppearanceOverrideConfig.TorsoOverrideIndex = index;
+            OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
+        }
+
+        public void ClearAvatarHeadOverride() 
+        {
+            _config.AvatarAppearanceOverrideConfig.OverrideHead = false;
+            OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
+        }
+        public void ClearAvatarTorsoOverride()
+        {
+            _config.AvatarAppearanceOverrideConfig.OverrideTorso = false;
             OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
         }
 
@@ -109,7 +122,7 @@ namespace VE2.Core.Player.Internal
             _playerInputContainer = playerInputContainer;
             _playerSettingsHandler = playerSettingsHandler;
 
-            if (_config.EnableVR)
+            if (_config.PlayerModeConfig.EnableVR)
             {
                 xrManagerWrapper.InitializeLoader(); 
 
@@ -119,7 +132,7 @@ namespace VE2.Core.Player.Internal
                     raycastProvider, collisionDetectorFactory, xrManagerWrapper, playerSyncer, primaryUIService, secondaryUIService);
             }
 
-            if (_config.Enable2D)
+            if (_config.PlayerModeConfig.Enable2D)
             {
                 _player2D = new PlayerController2D(
                     interactorContainer, _playerInputContainer.Player2DInputContainer,
@@ -130,9 +143,9 @@ namespace VE2.Core.Player.Internal
             _playerSettingsHandler.OnDebugSaveAppearance += HandlePlayerPresentationChanged;
             HandlePlayerPresentationChanged(_playerSettingsHandler.PlayerPresentationConfig); //Do this now to set the initial appearance
 
-            if (_config.EnableVR && !_config.Enable2D)
+            if (_config.PlayerModeConfig.EnableVR && !_config.PlayerModeConfig.Enable2D)
                 PlayerTransformData.IsVRMode = true;
-            else if (_config.Enable2D && !_config.EnableVR)
+            else if (_config.PlayerModeConfig.Enable2D && !_config.PlayerModeConfig.EnableVR)
                 PlayerTransformData.IsVRMode = false;
 
             //TODO, figure out what mode to start in? Maybe we need some persistent data to remember the mode in the last scene??
@@ -164,7 +177,7 @@ namespace VE2.Core.Player.Internal
             _primaryUIService.AddNewTab("Help", helpUI, Resources.Load<Sprite>("PlayerHelpUIIcon"), 3);
             GameObject.DestroyImmediate(helpUIHolder);
 
-            if (_config.Enable2D && _config.EnableVR)
+            if (_config.PlayerModeConfig.Enable2D && _config.PlayerModeConfig.EnableVR)
                 _primaryUIService.EnableModeSwitchButtons();
 
             _primaryUIService.OnSwitchTo2DButtonClicked += () => HandleChangeModePressed();
@@ -178,7 +191,7 @@ namespace VE2.Core.Player.Internal
 
         private void HandleChangeModePressed() 
         {
-            if (!_config.Enable2D || !_config.EnableVR)
+            if (!_config.PlayerModeConfig.Enable2D || !_config.PlayerModeConfig.EnableVR)
                 return; //Can't change modes if both aren't enabled!
 
             try 

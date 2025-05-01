@@ -27,9 +27,8 @@ namespace VE2.Core.Player.Internal
     [Serializable]
     internal class PlayerConfig
     {
-        [SerializeField] internal SupportedPlayerModes SupportedPlayerModes = SupportedPlayerModes.Both;
-        internal bool EnableVR => SupportedPlayerModes == SupportedPlayerModes.Both || SupportedPlayerModes == SupportedPlayerModes.OnlyVR;
-        internal bool Enable2D => SupportedPlayerModes == SupportedPlayerModes.Both || SupportedPlayerModes == SupportedPlayerModes.Only2D;
+        [Title("Player Mode Config")]
+        [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public PlayerModeConfig PlayerModeConfig = new();
 
         [Title("Interaction Config")]
         [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public PlayerInteractionConfig PlayerInteractionConfig = new();
@@ -40,32 +39,22 @@ namespace VE2.Core.Player.Internal
         [Title("Camera Config")]
         [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public CameraConfig CameraConfig = new();
 
-        [Title("Avatar Presentation Override Selection")]
-        [BeginGroup(Style = GroupStyle.Round), SerializeField] public AvatarAppearanceOverrideType HeadOverrideType = AvatarAppearanceOverrideType.None;
-        [EndGroup, SerializeField] public AvatarAppearanceOverrideType TorsoOverrideType = AvatarAppearanceOverrideType.None;
-
-        [Title("Head Overrides")]
-        [BeginGroup(Style = GroupStyle.Round), SerializeField, AssetPreview] private GameObject HeadOverrideOne;
-        [SerializeField, AssetPreview] private GameObject HeadOverrideTwo;
-        [SerializeField, AssetPreview] private GameObject HeadOverrideThree;
-        [SerializeField, AssetPreview] private GameObject HeadOverrideFour;
-        [EndGroup, SerializeField, AssetPreview] private GameObject HeadOverrideFive;
-
-        [Title("Torso Overrides")]
-        [BeginGroup(Style = GroupStyle.Round), SerializeField, AssetPreview] private GameObject TorsoOverrideOne;
-        [SerializeField, AssetPreview] private GameObject TorsoOverrideTwo;
-        [SerializeField, AssetPreview] private GameObject TorsoOverrideThree;
-        [SerializeField, AssetPreview] private GameObject TorsoOverrideFour;
-        [EndGroup, SerializeField, AssetPreview] private GameObject TorsoOverrideFive;
-        
-        public List<GameObject> HeadOverrideGOs => new() { HeadOverrideOne, HeadOverrideTwo, HeadOverrideThree, HeadOverrideFour, HeadOverrideFive };
-        public List<GameObject> TorsoOverrideGOs => new() { TorsoOverrideOne, TorsoOverrideTwo, TorsoOverrideThree, TorsoOverrideFour, TorsoOverrideFive }; 
+        [Title("Avatar Appearance Overrides")]
+        [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public AvatarAppearanceOverrideConfig AvatarAppearanceOverrideConfig = new();
 
         [Title("Transmission Settings", ApplyCondition = true)]
         [HideIf(nameof(_hasMultiplayerSupport), false)]
         [SpaceArea(spaceAfter: 10), BeginGroup(Style = GroupStyle.Round, ApplyCondition = true), EndGroup(ApplyCondition = true), SerializeField, IgnoreParent] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new(TransmissionProtocol.UDP, 35);
         
         private bool _hasMultiplayerSupport => PlayerAPI.HasMultiPlayerSupport;
+    }
+
+    [Serializable]
+    internal class PlayerModeConfig
+    {
+        [SerializeField] internal SupportedPlayerModes SupportedPlayerModes = SupportedPlayerModes.Both;
+        internal bool EnableVR => SupportedPlayerModes == SupportedPlayerModes.Both || SupportedPlayerModes == SupportedPlayerModes.OnlyVR;
+        internal bool Enable2D => SupportedPlayerModes == SupportedPlayerModes.Both || SupportedPlayerModes == SupportedPlayerModes.Only2D;
     }
 
     [Serializable]
@@ -95,6 +84,17 @@ namespace VE2.Core.Player.Internal
         private bool _showAAQuality => AntiAliasing == AntialiasingMode.SubpixelMorphologicalAntiAliasing || AntiAliasing == AntialiasingMode.TemporalAntiAliasing;
         [SerializeField] internal bool EnablePostProcessing = true;
         [SerializeField] internal bool OcclusionCulling = true;
+    }
+
+    internal class AvatarAppearanceOverrideConfig
+    {
+        [SerializeField, BeginHorizontalGroup] internal bool OverrideHead = false;
+        [SerializeField, EndHorizontalGroup, EnableIf(nameof(OverrideHead), true)] internal ushort HeadOverrideIndex = 0;
+        [SerializeField] internal List<GameObject> HeadOverrideGOs = new();
+
+        [SerializeField, BeginHorizontalGroup] internal bool OverrideTorso = false;
+        [SerializeField, EndHorizontalGroup, EnableIf(nameof(OverrideTorso), true)] internal ushort TorsoOverrideIndex = 0;
+        [SerializeField] internal List<GameObject> TorsoOverrideGOs = new();
     }
 
     [ExecuteAlways]
@@ -176,13 +176,13 @@ namespace VE2.Core.Player.Internal
                 _transformDataSetup = true;
 
                 #if UNITY_EDITOR
-                if (_playerConfig.SupportedPlayerModes == SupportedPlayerModes.Both)
+                if (_playerConfig.PlayerModeConfig.SupportedPlayerModes == SupportedPlayerModes.Both)
                     _playerTransformData.IsVRMode = VE2UnityEditorToolbar.PreferVRMode;
                 #endif
             }
 
             if (Application.platform == RuntimePlatform.Android && !Application.isEditor)
-                _playerConfig.SupportedPlayerModes = SupportedPlayerModes.OnlyVR;
+                _playerConfig.PlayerModeConfig.SupportedPlayerModes = SupportedPlayerModes.OnlyVR;
 
             XRManagerWrapper xrManagerWrapper = FindFirstObjectByType<XRManagerWrapper>();
             if (xrManagerWrapper == null)

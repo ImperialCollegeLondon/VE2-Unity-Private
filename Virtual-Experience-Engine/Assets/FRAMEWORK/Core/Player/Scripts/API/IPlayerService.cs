@@ -8,11 +8,11 @@ namespace VE2.Core.Player.API
     {
         public bool IsVRMode { get; }
 
-        public void SetAvatarHeadOverride(AvatarAppearanceOverrideType type);
-        public void SetAvatarTorsoOverride(AvatarAppearanceOverrideType type);
+        public void SetAvatarHeadOverride(ushort type);
+        public void SetAvatarTorsoOverride(ushort type);
 
-        public void ClearAvatarHeadOverride() => SetAvatarHeadOverride(AvatarAppearanceOverrideType.None);
-        public void ClearAvatarTorsoOverride() => SetAvatarTorsoOverride(AvatarAppearanceOverrideType.None);
+        public void ClearAvatarHeadOverride();
+        public void ClearAvatarTorsoOverride();
 
         public Camera ActiveCamera { get; }
     }
