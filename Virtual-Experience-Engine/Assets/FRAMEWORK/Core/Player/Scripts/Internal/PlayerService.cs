@@ -45,7 +45,9 @@ namespace VE2.Core.Player.Internal
             {
                 return new OverridableAvatarAppearance(
                     _playerSettingsHandler.PlayerPresentationConfig,
+                    _config.AvatarAppearanceOverrideConfig.OverrideHead,
                     _config.AvatarAppearanceOverrideConfig.HeadOverrideIndex, 
+                    _config.AvatarAppearanceOverrideConfig.OverrideTorso,
                     _config.AvatarAppearanceOverrideConfig.TorsoOverrideIndex);
             } 
         }
@@ -58,8 +60,8 @@ namespace VE2.Core.Player.Internal
 
         public bool IsVRMode => PlayerTransformData.IsVRMode;
 
-        public List<GameObject> HeadOverrideGOs => _config.AvatarAppearanceOverrideConfig.HeadOverrideGOs;
-        public List<GameObject> TorsoOverrideGOs => _config.AvatarAppearanceOverrideConfig.TorsoOverrideGOs;
+        public List<GameObject> HeadOverrideGOs => _config.AvatarAppearanceOverrideConfig.HeadOverrideGameObjects;
+        public List<GameObject> TorsoOverrideGOs => _config.AvatarAppearanceOverrideConfig.TorsoOverrideGameObjects;
 
         public Camera ActiveCamera 
         {

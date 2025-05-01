@@ -16,6 +16,7 @@ namespace VE2.Core.Player
         public static event Action OnPreferVRClicked;
         public static event Action OnPrefer2DClicked;
 
+        //TODO: This static will be cleared on domain reload!
         public static bool PreferVRMode {get; private set;}
 
         private static V_PlayerSpawner _playerSpawner = null;
@@ -38,7 +39,7 @@ namespace VE2.Core.Player
                 return;
 
             // Determine if the button should be interactable
-            bool interactable = _playerSpawner._playerConfig.Enable2D && _playerSpawner._playerConfig.EnableVR;
+            bool interactable = _playerSpawner._playerConfig.PlayerModeConfig.Enable2D && _playerSpawner._playerConfig.PlayerModeConfig.EnableVR;
 
             // Save the current GUI enabled state, and set it to false if the button is not interactable
             bool originalGUIState = GUI.enabled;
@@ -51,8 +52,8 @@ namespace VE2.Core.Player
             }
             else
             {
-                PreferVRMode = _playerSpawner._playerConfig.EnableVR;
-                buttonText += _playerSpawner._playerConfig.EnableVR ? "VR Only" : "2D Only";
+                PreferVRMode = _playerSpawner._playerConfig.PlayerModeConfig.EnableVR;
+                buttonText += _playerSpawner._playerConfig.PlayerModeConfig.EnableVR ? "VR Only" : "2D Only";
             }
 
             // Create the toggle button

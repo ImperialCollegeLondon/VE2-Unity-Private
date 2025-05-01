@@ -86,15 +86,16 @@ namespace VE2.Core.Player.Internal
         [SerializeField] internal bool OcclusionCulling = true;
     }
 
+    [Serializable]
     internal class AvatarAppearanceOverrideConfig
     {
-        [SerializeField, BeginHorizontalGroup] internal bool OverrideHead = false;
-        [SerializeField, EndHorizontalGroup, EnableIf(nameof(OverrideHead), true)] internal ushort HeadOverrideIndex = 0;
-        [SerializeField] internal List<GameObject> HeadOverrideGOs = new();
+        [SerializeField] internal bool OverrideHead = false;
+        [SerializeField, EnableIf(nameof(OverrideHead), true)] internal ushort HeadOverrideIndex = 0;
+        [SerializeField, ReorderableList] internal List<GameObject> HeadOverrideGameObjects = new();
 
-        [SerializeField, BeginHorizontalGroup] internal bool OverrideTorso = false;
-        [SerializeField, EndHorizontalGroup, EnableIf(nameof(OverrideTorso), true)] internal ushort TorsoOverrideIndex = 0;
-        [SerializeField] internal List<GameObject> TorsoOverrideGOs = new();
+        [SerializeField] internal bool OverrideTorso = false;
+        [SerializeField, EnableIf(nameof(OverrideTorso), true)] internal ushort TorsoOverrideIndex = 0;
+        [SerializeField, ReorderableList] internal List<GameObject> TorsoOverrideGameObjects = new();
     }
 
     [ExecuteAlways]

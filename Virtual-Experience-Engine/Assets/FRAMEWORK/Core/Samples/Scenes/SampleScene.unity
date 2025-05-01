@@ -20163,7 +20163,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerConfig:
-    SupportedPlayerModes: 2
+    PlayerModeConfig:
+      SupportedPlayerModes: 2
     PlayerInteractionConfig:
       RaycastLayers:
         serializedVersion: 2
@@ -20188,18 +20189,13 @@ MonoBehaviour:
       AntiAliasingQuality: 1
       EnablePostProcessing: 1
       OcclusionCulling: 1
-    HeadOverrideType: 0
-    TorsoOverrideType: 0
-    HeadOverrideOne: {fileID: 0}
-    HeadOverrideTwo: {fileID: 0}
-    HeadOverrideThree: {fileID: 0}
-    HeadOverrideFour: {fileID: 0}
-    HeadOverrideFive: {fileID: 0}
-    TorsoOverrideOne: {fileID: 0}
-    TorsoOverrideTwo: {fileID: 0}
-    TorsoOverrideThree: {fileID: 0}
-    TorsoOverrideFour: {fileID: 0}
-    TorsoOverrideFive: {fileID: 0}
+    AvatarAppearanceOverrideConfig:
+      OverrideHead: 0
+      HeadOverrideIndex: 0
+      HeadOverrideGameObjects: []
+      OverrideTorso: 0
+      TorsoOverrideIndex: 0
+      TorsoOverrideGameObjects: []
     RepeatedTransmissionConfig:
       TransmissionType: 0
       TransmissionFrequency: 35

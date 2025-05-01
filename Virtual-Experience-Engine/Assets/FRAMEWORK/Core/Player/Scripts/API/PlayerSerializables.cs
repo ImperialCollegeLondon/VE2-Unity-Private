@@ -222,18 +222,22 @@ namespace VE2.Core.Player.API
                 public class OverridableAvatarAppearance : VE2Serializable
                 {
                         public PlayerPresentationConfig PresentationConfig { get; set; }
-                        public ushort HeadOverrideType { get; set; }
-                        public ushort TorsoOverrideType { get; set; }
+                        public bool OverrideHead { get; set; }
+                        public ushort HeadOverrideIndex { get; set; }
+                        public bool OverrideTorso { get; set; }
+                        public ushort TorsoOverrideIndex { get; set; }
 
                         public OverridableAvatarAppearance() { }
 
                         public OverridableAvatarAppearance(byte[] bytes) : base(bytes) { }
 
-                        public OverridableAvatarAppearance(PlayerPresentationConfig presentationConfig, ushort headOverrideType, ushort torsoOverrideType)
+                        public OverridableAvatarAppearance(PlayerPresentationConfig presentationConfig, bool overrideHead, ushort headOverrideIndex, bool overrideTorso, ushort torsoOverrideIndex)
                         {
                                 PresentationConfig = presentationConfig;
-                                HeadOverrideType = headOverrideType;
-                                TorsoOverrideType = torsoOverrideType;
+                                OverrideHead = overrideHead;
+                                HeadOverrideIndex = headOverrideIndex;
+                                OverrideTorso = overrideTorso;
+                                TorsoOverrideIndex = torsoOverrideIndex;
                         }
 
                         protected override byte[] ConvertToBytes()
@@ -245,8 +249,11 @@ namespace VE2.Core.Player.API
                                 writer.Write((ushort)presentationConfigBytes.Length);
                                 writer.Write(presentationConfigBytes);
 
-                                writer.Write((ushort)HeadOverrideType);
-                                writer.Write((ushort)TorsoOverrideType);
+                                writer.Write(OverrideHead);
+                                writer.Write((ushort)HeadOverrideIndex);
+
+                                writer.Write(OverrideTorso);
+                                writer.Write((ushort)TorsoOverrideIndex);
 
                                 return stream.ToArray();
                         }
@@ -260,8 +267,11 @@ namespace VE2.Core.Player.API
                                 byte[] presentationConfigBytes = reader.ReadBytes(presentationConfigLength);
                                 PresentationConfig = new PlayerPresentationConfig(presentationConfigBytes);
 
-                                HeadOverrideType = reader.ReadUInt16();
-                                TorsoOverrideType = reader.ReadUInt16();
+                                OverrideHead = reader.ReadBoolean();
+                                HeadOverrideIndex = reader.ReadUInt16();
+
+                                OverrideTorso = reader.ReadBoolean();
+                                TorsoOverrideIndex = reader.ReadUInt16();
                         }
 
                         public override bool Equals(object obj)
@@ -269,8 +279,10 @@ namespace VE2.Core.Player.API
                                 if (obj is OverridableAvatarAppearance other)
                                 {
                                         return PresentationConfig.Equals(other.PresentationConfig) &&
-                                               HeadOverrideType == other.HeadOverrideType &&
-                                               TorsoOverrideType == other.TorsoOverrideType;
+                                               OverrideHead == other.OverrideHead &&
+                                               HeadOverrideIndex == other.HeadOverrideIndex &&
+                                               OverrideTorso == other.OverrideTorso &&
+                                               TorsoOverrideIndex == other.TorsoOverrideIndex;
                                 }
                                 return false;
                         }
