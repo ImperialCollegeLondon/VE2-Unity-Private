@@ -152,7 +152,7 @@ namespace VE2.Core.Player.Internal
         public void HandleUpdate()
         {
             RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
-            RaycastResultWrapper sphereCastResultWrapper = GetSphereCastResult();
+            RaycastResultWrapper sphereCastResultWrapper = GetSphereCastResult(); // for 2D interactor, this will be null
 
             IRangedInteractionModule previousHoveringInteractable = _CurrentHoveringInteractable;
 
@@ -224,6 +224,7 @@ namespace VE2.Core.Player.Internal
                 }
                 else
                 {
+                    //check if were in vr and spherecast actually hits something
                     if (this is InteractorVR && !raycastResultWrapper.HitInteractable)
                     {
                         if (sphereCastResultWrapper != null && sphereCastResultWrapper.HitInteractable && sphereCastResultWrapper.RangedInteractableIsInRange)
@@ -240,6 +241,7 @@ namespace VE2.Core.Player.Internal
                         }
                         else
                         {
+                            //set this here because otherwise it doesnt return back to idle state
                             _hoveringOverScrollableIndicator.IsHoveringOverScrollableObject = false;
                             HandleNoHoverOverUIGameObject();
                             SetInteractorState(InteractorState.Idle);
@@ -256,12 +258,17 @@ namespace VE2.Core.Player.Internal
                     }
                 }
                 
+                //break out of the whole thing if we're in 2D, this bit is just to manage the raycast distance for the VR interactor
                 if(this is Interactor2D)
                     return;
 
-                float distance = raycastResultWrapper.HitInteractable ? raycastResultWrapper.HitDistance : sphereCastResultWrapper.HitInteractable ? sphereCastResultWrapper.HitDistance : raycastResultWrapper.HitDistance;
+                //if raycast is not null then set it to the distance of the raycast
+                //else if the spherecast is not null then set it to the distance of the spherecast
+                //else set it to the distance of the raycast (which is 10)
+                float distance = raycastResultWrapper.HitInteractable ? raycastResultWrapper.HitDistance : sphereCastResultWrapper.HitInteractable ? sphereCastResultWrapper.HitDistance : MAX_RAYCAST_DISTANCE;
                 bool isOnPalm = !raycastResultWrapper.HitInteractable && sphereCastResultWrapper.HitInteractable && sphereCastResultWrapper.RangedInteractableIsInRange;
                 
+                //jank way to set the parameters for the raycast distance
                 HandleRaycastDistance(distance, isOnPalm, sphereCastResultWrapper.HitPosition);
             }
         }
