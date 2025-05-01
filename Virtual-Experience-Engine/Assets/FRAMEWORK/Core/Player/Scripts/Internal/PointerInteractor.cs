@@ -255,6 +255,7 @@ namespace VE2.Core.Player.Internal
                         _raycastHitDebug.Value = "none";
                     }
                 }
+                
                 if(this is Interactor2D)
                     return;
 

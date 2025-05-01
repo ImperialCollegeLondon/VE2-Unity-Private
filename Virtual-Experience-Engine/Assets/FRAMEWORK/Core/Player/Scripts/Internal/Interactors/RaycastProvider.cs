@@ -93,15 +93,16 @@ namespace VE2.Core.Player.Internal
                         float failsafeGrabRange = rangedGrabInteractionModuleProvider.RangedGrabInteractionModule.FailsafeGrabRange;
                         float failsafeGrabRangeBackOfHand = rangedGrabInteractionModuleProvider.RangedGrabInteractionModule.FailsafeGrabRangeBackOfHand;
                         float failsafeGrabMultiplier = rangedGrabInteractionModuleProvider.RangedGrabInteractionModule.FailsafeGrabMultiplier;
+                        Vector3 grabbablePosition = rangedGrabInteractionModuleProvider.RangedGrabInteractionModule.AttachPoint.position;
 
-                        float distanceFromGrabbable = Vector3.Distance(rayOrigin, hit.transform.position);
-                        bool isOnPalm = Vector3.Angle(hit.transform.position - rayOrigin, palmDir) < 90f;
+                        float distanceFromGrabbable = Vector3.Distance(rayOrigin, grabbablePosition);
+                        bool isOnPalm = Vector3.Angle(grabbablePosition - rayOrigin, palmDir) < 90f;
 
                         if ((distanceFromGrabbable <= failsafeGrabRange * failsafeGrabMultiplier && isOnPalm) ||
                          (distanceFromGrabbable <= failsafeGrabRangeBackOfHand * failsafeGrabMultiplier )
                          && distanceFromGrabbable < closestDistance)
                         {
-                            closestHitPoint = hit.transform.position;
+                            closestHitPoint = grabbablePosition;
                             closestRangedGrabInteractionProvider = rangedGrabInteractionModuleProvider;
                             closestDistance = distanceFromGrabbable;
                         }

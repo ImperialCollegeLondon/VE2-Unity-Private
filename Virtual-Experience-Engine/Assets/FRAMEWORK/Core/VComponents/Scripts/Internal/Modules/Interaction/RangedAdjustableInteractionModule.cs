@@ -12,7 +12,7 @@ namespace VE2.Core.VComponents.Internal
         public event Action OnScrollDown;
         public ITransformWrapper Transform { get; }
         
-        public RangedAdjustableInteractionModule(ITransformWrapper transform, List<IHandheldInteractionModule> handheldModules, GrabInteractionConfig failsafeGrabMultiplier, RangedInteractionConfig config, GeneralInteractionConfig generalInteractionConfig) : base(handheldModules, failsafeGrabMultiplier, config, generalInteractionConfig)
+        public RangedAdjustableInteractionModule(ITransformWrapper transform, List<IHandheldInteractionModule> handheldModules, GrabInteractionConfig failsafeGrabMultiplier, RangedInteractionConfig config, GeneralInteractionConfig generalInteractionConfig) : base(transform, handheldModules, failsafeGrabMultiplier, config, generalInteractionConfig)
         {
             Transform = transform;
         }
