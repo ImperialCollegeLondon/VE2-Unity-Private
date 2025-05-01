@@ -233,6 +233,7 @@ namespace VE2.Core.Player.Internal
                             _hoveringOverScrollableIndicator.IsHoveringOverScrollableObject = sphereCastResultWrapper.HitScrollableInteractableInRange;
                             _raycastHitDebug.Value = sphereCastResultWrapper.RangedInteractable.ToString();
                             _CurrentHoveringInteractable = sphereCastResultWrapper.RangedInteractableInRange;
+                            _CurrentHoveringInteractable.EnterHover();
 
                             SetInteractorState(isAllowedToInteract ? InteractorState.InteractionAvailable : InteractorState.InteractionLocked);
 
