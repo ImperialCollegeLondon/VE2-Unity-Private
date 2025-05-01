@@ -9,16 +9,14 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     public class RangedInteractionConfig
     {
-        [BeginGroup(Style = GroupStyle.Round)]
-        [Space(5)]
         [Title("Ranged Interation Settings")]
-        [SerializeField] public float InteractionRange = 50;
+        [Space(5)]
+        [BeginGroup(Style = GroupStyle.Round), SerializeField] public float InteractionRange = 50;
 
         [Space(5)]
         [SerializeField] public UnityEvent OnLocalHoverEnter = new();
 
-        [EndGroup]
-        [SerializeField] public UnityEvent OnLocalHoverExit = new();
+        [EndGroup, SerializeField] public UnityEvent OnLocalHoverExit = new();
     }
 
     internal class RangedInteractionModule : GeneralInteractionModule, IRangedInteractionModule

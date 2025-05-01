@@ -37,7 +37,7 @@ namespace VE2.Core.Player.Internal
         [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public MovementModeConfig MovementModeConfig = new();
 
         [Title("Camera Config")]
-        [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public CameraConfig CameraConfig = new();
+        [BeginGroup(Style = GroupStyle.Round), SerializeField, EndGroup] public CameraConfig CameraConfig = new();
 
         [Title("Avatar Appearance Overrides")]
         [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public AvatarAppearanceOverrideConfig AvatarAppearanceOverrideConfig = new();

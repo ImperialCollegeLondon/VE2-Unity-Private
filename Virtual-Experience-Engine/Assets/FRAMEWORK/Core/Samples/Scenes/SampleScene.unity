@@ -4224,6 +4224,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlayerServiceProviderGOName: PlayerSpawner
   _playerSyncProviderGOName: InstanceIntegration
+  _preferVRMode: 0
 --- !u!4 &401678551
 Transform:
   m_ObjectHideFlags: 1

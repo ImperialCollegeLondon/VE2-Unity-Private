@@ -19,7 +19,7 @@ namespace VE2.Core.VComponents.Internal
         [BeginGroup(Style = GroupStyle.Round, ApplyCondition = true)]
         [Title("Activatable Ranged Interaction Settings")]
         [SerializeField, IgnoreParent] public bool ActivateAtRangeInVR = true;
-        [SerializeField, IgnoreParent] public bool ActivateWithCollisionInVR= true;
+        [SerializeField, IgnoreParent, EndGroup] public bool ActivateWithCollisionInVR= true;
     }
 
     internal class ToggleActivatableService
