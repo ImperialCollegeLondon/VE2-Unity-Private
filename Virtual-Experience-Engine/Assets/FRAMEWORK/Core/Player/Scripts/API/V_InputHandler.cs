@@ -384,18 +384,18 @@ namespace VE2.Core.Player.API
 
             Player2DInputContainer = new(
                 inspectModeButton,
-                new InteractorInputContainer(rangedClick2D, grab2D, handheldClick2D, scrollTickUp2D, scrollTickDown2D)
+                new InteractorInputContainer(rangedClick2D, grab2D, handheldClick2D,scrollTickUp2D, scrollTickDown2D)
             );
 
             PlayerVRInputContainer = new(
                 resetViewVR,
                 new HandVRInputContainer(handVRLeftPosition, handVRLeftRotation, 
-                    new InteractorInputContainer(rangedClickVRLeft, grabVRLeft, handheldClickVRLeft, scrollTickUpVRLeft, scrollTickDownVRLeft),
+                    new InteractorInputContainer(rangedClickVRLeft, grabVRLeft, handheldClickVRLeft,scrollTickUpVRLeft, scrollTickDownVRLeft),
                     new DragLocomotorInputContainer(horizontalDragVRLeft, verticalDragVRLeft),
                     new SnapTurnInputContainer(stickPressHorizontalLeftDirectionVRLeft, stickPressHorizontalRightDirectionVRLeft),
                     new TeleportInputContainer(stickPressVerticalVRLeft, teleportDirectionVRLeft)),
                 new HandVRInputContainer(handVRRightPosition, handVRRightRotation, 
-                    new InteractorInputContainer(rangedClickVRRight, grabVRRight, handheldClickVRRight, scrollTickUpVRRight, scrollTickDownVRRight),
+                    new InteractorInputContainer(rangedClickVRRight, grabVRRight, handheldClickVRRight,scrollTickUpVRRight, scrollTickDownVRRight),
                     new DragLocomotorInputContainer(horizontalDragVRRight, verticalDragVRRight),
                     new SnapTurnInputContainer(stickPressHorizontalLeftDirectionVRRight, stickPressHorizontalRightDirectionVRRight),
                     new TeleportInputContainer(stickPressVerticalVRRight, teleportDirectionVRRight))

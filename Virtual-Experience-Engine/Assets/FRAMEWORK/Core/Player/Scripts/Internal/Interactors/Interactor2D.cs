@@ -12,10 +12,10 @@ namespace VE2.Core.Player.Internal
         private readonly Image _reticuleImage;
         private readonly ColorConfiguration _colorConfig;
         private readonly PlayerConnectionPromptHandler _connectionPromptHandler;
-
+        private Player2DInputContainer _player2DInputContainer;
         internal Interactor2D(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
             InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, 
-            ILocalClientIDProvider localClientIDProvider) : 
+            ILocalClientIDProvider localClientIDProvider, Player2DInputContainer player2DInputContainer) : 
             base(interactorContainer, interactorInputContainer,
                 interactorReferences, interactorType, raycastProvider, localClientIDProvider, null, new HoveringOverScrollableIndicator())   
         {
@@ -25,7 +25,7 @@ namespace VE2.Core.Player.Internal
             _colorConfig = Resources.Load<ColorConfiguration>("ColorConfiguration"); //TODO: Inject, can probably actually go into the base class
 
             _connectionPromptHandler = interactor2DReferences.ConnectionPromptHandler;
-
+            _player2DInputContainer = player2DInputContainer;
             if (_WaitingForLocalClientID)
                 _connectionPromptHandler.NotifyWaitingForConnection();
         }
@@ -51,6 +51,18 @@ namespace VE2.Core.Player.Internal
             }
         }
 
+        public override void HandleOnEnable()
+        {
+            base.HandleOnEnable();
+            _player2DInputContainer.InspectModeButton.OnReleased += HandleInspectModePressed;
+        }
+
+        public override void HandleOnDisable()
+        {
+            base.HandleOnDisable();
+            _player2DInputContainer.InspectModeButton.OnReleased -= HandleInspectModePressed;
+        }
+
         protected override void HandleStartGrabbingAdjustable(IRangedAdjustableInteractionModule rangedAdjustableInteraction)
         {
             //Unlike VR, we should just apply a one-time offset on grab, and have the grabber behave like its on the end of a stick
@@ -71,6 +83,16 @@ namespace VE2.Core.Player.Internal
             base.HandleLocalClientIDReady(clientID);
 
             _connectionPromptHandler.NotifyConnected();
+        }
+
+        private void HandleInspectModePressed()
+        {
+            if (IsCurrentlyGrabbing)
+            {
+                IRangedGrabInteractionModule rangedGrabInteractionModule = _CurrentGrabbingGrabbable;
+                rangedGrabInteractionModule.SetInspectModeWhenGrabbed();
+            }
+
         }
     }
 

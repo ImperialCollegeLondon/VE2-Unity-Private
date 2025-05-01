@@ -15,8 +15,12 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField, IgnoreParent] internal GrabbableStateDebug InspectorDebug = new();
         [SerializeField] public UnityEvent OnGrab = new();
 
-        [EndGroup]
         [SerializeField] public UnityEvent OnDrop = new();
+
+        [SerializeField] public UnityEvent OnInspectModeEnter = new();  
+
+        [EndGroup]
+        [SerializeField] public UnityEvent OnInspectModeExit = new();
 
     }
 
@@ -67,7 +71,9 @@ namespace VE2.Core.VComponents.Internal
         internal IInteractor CurrentGrabbingInteractor { get; private set; }
         internal event Action<ushort> OnGrabConfirmed;
         internal event Action<ushort> OnDropConfirmed;
-
+        internal event Action OnInspectModeEnter;
+        internal event Action OnInspectModeExit;
+        private bool _isInspectMode = false;
         public GrabbableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id,
             IWorldStateSyncService worldStateSyncService, HandInteractorContainer interactorContainer, IRangedGrabInteractionModule rangedGrabInteractionModule) :
             base(state, config, id, worldStateSyncService)
@@ -139,6 +145,48 @@ namespace VE2.Core.VComponents.Internal
             }
         }
 
+        public void ToggleInspectMode()
+        {
+            if (!IsGrabbed)
+            {
+                Debug.LogWarning("ToggleInspectMode - Cannot toggle inspect mode while grabbed. Ignoring request.");
+                return;
+            }
+
+            _isInspectMode = !_isInspectMode;
+
+            if (_isInspectMode)
+            {
+                Debug.Log("We are now in Inspect Mode");
+                OnInspectModeEnter?.Invoke();
+
+                try
+                {
+                    _config.OnInspectModeEnter?.Invoke();
+                }
+                catch (Exception e)
+                {
+                    Debug.Log($"Error when emitting OnInspectModeEnter \n{e.Message}\n{e.StackTrace}");
+                }
+            }
+            else
+            {
+                Debug.Log("We are now out of Inspect Mode");
+                OnInspectModeExit?.Invoke();
+
+                try
+                {
+                    _config.OnInspectModeExit?.Invoke();
+                }
+                catch (Exception e)
+                {
+                    Debug.Log($"Error when emitting OnInspectModeExit \n{e.Message}\n{e.StackTrace}");
+                }
+            }
+
+
+
+        }        
         protected override void UpdateBytes(byte[] newBytes)
         {
             GrabbableState receiveState = new(newBytes);

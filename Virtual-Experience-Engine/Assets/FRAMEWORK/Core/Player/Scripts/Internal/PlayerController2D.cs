@@ -84,7 +84,7 @@ namespace VE2.Core.Player.Internal
 
             _interactor2D = new(
                 interactorContainer, player2DInputContainer.InteractorInputContainer2D,
-                player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, multiplayerSupport);
+                player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, multiplayerSupport, player2DInputContainer);
 
             _feetInteractor2D = new(collisionDetectorFactory, ColliderType.Feet2D, player2DReferences.Interactor2DReferences.FeetCollider, InteractorType.Feet, multiplayerSupport);
 

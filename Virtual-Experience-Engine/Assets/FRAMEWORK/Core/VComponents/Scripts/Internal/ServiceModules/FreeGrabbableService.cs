@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using DG.Tweening;
 using System.Collections.Generic;
 using VE2.Core.VComponents.API;
 using static VE2.Core.Common.CommonSerializables;
@@ -33,9 +34,14 @@ namespace VE2.Core.VComponents.Internal
         private bool _isKinematicOnGrab;
         private PhysicsConstants _physicsConstants;
         private IGrabbableRigidbody _grabbableRigidbodyInterface;
-        private bool _isInspectMode = false;
+        private Vector3 _originalGrabPositionBeforeInspect;
+        private Quaternion _originalGrabRotationBeforeInspect;
+
+
+
         public event Action<ushort> OnGrabConfirmed;
         public event Action<ushort> OnDropConfirmed;
+
 
         //TODO, state config shouldn't live in the service. DropBehaviour should be in ServiceConfig
         private GrabbableStateConfig _stateConfig;
@@ -61,10 +67,12 @@ namespace VE2.Core.VComponents.Internal
             _RangedGrabInteractionModule.OnLocalInteractorRequestGrab += (InteractorID interactorID) => _StateModule.SetGrabbed(interactorID);
             _RangedGrabInteractionModule.OnLocalInteractorRequestDrop += (InteractorID interactorID) => _StateModule.SetDropped(interactorID);
             _RangedGrabInteractionModule.OnGrabDeltaApplied += ApplyDeltaWhenGrabbed;
-            _RangedGrabInteractionModule.OnInspectModeSet += ToggleInspectMode;
+            _RangedGrabInteractionModule.OnInspectModeSet += () => _StateModule.ToggleInspectMode();
 
             _StateModule.OnGrabConfirmed += HandleGrabConfirmed;
             _StateModule.OnDropConfirmed += HandleDropConfirmed;
+            _StateModule.OnInspectModeEnter += HandleOnInspectModeEnter;
+            _StateModule.OnInspectModeExit += HandleOnInspectModeExit;
         }
 
         //This is for teleporting the grabbed object along with the player - TODO: Tweak names for clarity 
@@ -78,27 +86,6 @@ namespace VE2.Core.VComponents.Internal
             _rigidbody.angularVelocity = Vector3.zero;
             _rigidbody.linearVelocity = Vector3.zero;
             _rigidbody.isKinematic = false;
-        }
-
-        private void ToggleInspectMode(bool isInspectMode)
-        {
-            if(_StateModule.IsGrabbed)
-            {
-                Debug.LogWarning("ToggleInspectMode - Cannot toggle inspect mode while grabbed. Ignoring request.");
-                return;
-            }
-
-            Debug.Log("ToggleInspectMode - " + isInspectMode);
-            _isInspectMode = isInspectMode;
-             
-            if (_isInspectMode)
-            {
-                Debug.Log("We are now in Toggle Mode");
-            }
-            else
-            {
-                Debug.Log("We are now out of Toggle Mode");
-            }
         }
         // private void HandleLocalInteractorRequestGrab(InteractorID interactorID) =>  _StateModule.SetGrabbed(interactorID);
 
@@ -138,6 +125,28 @@ namespace VE2.Core.VComponents.Internal
             }
         } 
 
+        private void HandleOnInspectModeEnter()
+        {
+            Debug.Log("HandleOnInspectModeEnter Called in FGS");
+            _originalGrabPositionBeforeInspect = _transform.position;
+            _originalGrabRotationBeforeInspect = _transform.rotation;
+
+            Vector3 targetPosition = Camera.main.transform.position + new Vector3(0, 0, 0.5f);
+
+            _rigidbody.isKinematic = true;
+            _rigidbody.linearVelocity = Vector3.zero;
+            _rigidbody.angularVelocity = Vector3.zero;
+
+            
+        }
+
+        public void HandleOnInspectModeExit()
+        {
+            Debug.Log("HandleOnInspectModeExit Called in FGS");
+            _rigidbody.isKinematic = false;
+            _transform.position = _originalGrabPositionBeforeInspect;
+            _transform.rotation = _originalGrabRotationBeforeInspect;
+        }
         public void HandleFixedUpdate()
         {
             _StateModule.HandleFixedUpdate();
@@ -179,6 +188,8 @@ namespace VE2.Core.VComponents.Internal
 
             _StateModule.OnGrabConfirmed -= HandleGrabConfirmed;
             _StateModule.OnDropConfirmed -= HandleDropConfirmed;
+            _StateModule.OnInspectModeEnter -= HandleOnInspectModeEnter;
+            _StateModule.OnInspectModeExit -= HandleOnInspectModeExit;
         }
     }
 }
