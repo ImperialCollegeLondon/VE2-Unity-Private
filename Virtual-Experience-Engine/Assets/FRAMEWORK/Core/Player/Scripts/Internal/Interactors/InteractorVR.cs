@@ -68,15 +68,12 @@ namespace VE2.Core.Player.Internal
             }
         }
 
-        protected override void HandleRaycastDistance(float distance, bool isOnPalm, Vector3 point)
+        protected override void HandleRaycastDistance(float distance, bool isOnPalm = false, Vector3 point = default)
         {
             if(!isOnPalm)
                 _lineRenderer.SetPosition(1, new Vector3(0, 0, distance / _lineRenderer.transform.lossyScale.z));
             else
-            {
-                //If the raycast is on the palm, we want to set the line to the palm position, not the distance
                 _lineRenderer.SetPosition(1, _RayOrigin.InverseTransformPoint(point));
-            }
         }
 
         protected override void SetInteractorState(InteractorState newState)

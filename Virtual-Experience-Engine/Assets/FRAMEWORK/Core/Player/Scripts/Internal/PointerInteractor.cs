@@ -311,7 +311,7 @@ namespace VE2.Core.Player.Internal
                 colorHandler.OnPointerExit();
         }
 
-        protected virtual void HandleRaycastDistance(float distance, bool isOnPalm, Vector3 point) { } //TODO: Code smell? InteractorVR needs this to set the LineRenderer length
+        protected virtual void HandleRaycastDistance(float distance, bool isOnPalm = false, Vector3 point = default) { } //TODO: Code smell? InteractorVR needs this to set the LineRenderer length
 
         private RaycastResultWrapper GetRayCastResult()
         {
