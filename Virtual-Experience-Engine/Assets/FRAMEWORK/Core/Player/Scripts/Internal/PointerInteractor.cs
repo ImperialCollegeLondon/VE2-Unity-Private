@@ -22,9 +22,6 @@ namespace VE2.Core.Player.Internal
         public Transform RayOrigin => _rayOrigin;
         [SerializeField, IgnoreParent] private Transform _rayOrigin;
 
-        public LayerMask LayerMask => _layerMask;
-        [SerializeField, IgnoreParent] private LayerMask _layerMask;
-
         [SerializeField] private StringWrapper _raycastHitDebug;
         public StringWrapper RaycastHitDebug => _raycastHitDebug;
     }
@@ -63,7 +60,7 @@ namespace VE2.Core.Player.Internal
 
         private readonly HandInteractorContainer _interactorContainer;
         private readonly InteractorInputContainer _interactorInputContainer;
-
+        private readonly LayerMask _raycastLayerMask;
 
         protected readonly Transform _interactorParentTransform;
         protected readonly Transform _GrabberTransform;
@@ -71,7 +68,6 @@ namespace VE2.Core.Player.Internal
         private readonly LineRenderer _grabbableLineVisLineRenderer;
 
         protected readonly Transform _RayOrigin;
-        private readonly LayerMask _layerMask;
         private readonly StringWrapper _raycastHitDebug;
 
         private readonly InteractorType _InteractorType;
@@ -83,19 +79,19 @@ namespace VE2.Core.Player.Internal
 
         private readonly HoveringOverScrollableIndicator _hoveringOverScrollableIndicator;
 
-        internal PointerInteractor(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
-            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider,
+        internal PointerInteractor(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer, PlayerInteractionConfig interactionConfig,
+            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, 
             ILocalClientIDProvider localClientIDProvider, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator)
         {
             _interactorContainer = interactorContainer;
             _interactorInputContainer = interactorInputContainer;
+            _raycastLayerMask = interactionConfig.RaycastLayers;
 
             _interactorParentTransform = interactorReferences.InteractorParentTransform;
             _GrabberTransform = interactorReferences.GrabberTransform;
             _GrabberVisualisation = interactorReferences.GrabberVisualisation;
             _grabbableLineVisLineRenderer = _GrabberVisualisation.GetComponent<LineRenderer>();
             _RayOrigin = interactorReferences.RayOrigin;
-            _layerMask = interactorReferences.LayerMask;
             _raycastHitDebug = interactorReferences.RaycastHitDebug;
 
             _InteractorType = interactorType;
@@ -327,7 +323,7 @@ namespace VE2.Core.Player.Internal
             if (_RayOrigin == null)
                 return null;
 
-            return _RaycastProvider.Raycast(_RayOrigin.position, _RayOrigin.forward, MAX_RAYCAST_DISTANCE, _layerMask);
+            return _RaycastProvider.Raycast(_RayOrigin.position, _RayOrigin.forward, MAX_RAYCAST_DISTANCE, _raycastLayerMask);
         }
 
         private RaycastResultWrapper GetSphereCastResult()
@@ -336,11 +332,11 @@ namespace VE2.Core.Player.Internal
                 return null;
 
             if (_InteractorType == InteractorType.LeftHandVR)
-                return _RaycastProvider.SphereCastAll(_GrabberTransform.position, MAX_SPHERECAST_RADIUS, _GrabberTransform.up, 0f, _layerMask, _GrabberTransform.right);
+                return _RaycastProvider.SphereCastAll(_GrabberTransform.position, MAX_SPHERECAST_RADIUS, _GrabberTransform.up, 0f, _raycastLayerMask, _GrabberTransform.right);
             if (_InteractorType == InteractorType.RightHandVR)
-                return _RaycastProvider.SphereCastAll(_GrabberTransform.position, MAX_SPHERECAST_RADIUS, _GrabberTransform.up, 0f, _layerMask, -_GrabberTransform.right);
+                return _RaycastProvider.SphereCastAll(_GrabberTransform.position, MAX_SPHERECAST_RADIUS, _GrabberTransform.up, 0f, _raycastLayerMask, -_GrabberTransform.right);
             else
-                return _RaycastProvider.SphereCastAll(_GrabberTransform.position, MAX_SPHERECAST_RADIUS, _GrabberTransform.up, 0f, _layerMask);
+                return _RaycastProvider.SphereCastAll(_GrabberTransform.position, MAX_SPHERECAST_RADIUS, _GrabberTransform.up, 0f, _raycastLayerMask);
         }
 
         private void HandleRangedClickPressed()

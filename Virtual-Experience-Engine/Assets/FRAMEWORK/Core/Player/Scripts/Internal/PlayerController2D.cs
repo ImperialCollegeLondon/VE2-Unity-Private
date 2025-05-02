@@ -42,8 +42,7 @@ namespace VE2.Core.Player.Internal
                 );
             }
         }
-        public readonly Camera Camera;
-
+        
         private readonly GameObject _playerGO;
         private readonly Player2DControlConfig _controlConfig;
         private readonly Player2DInputContainer _player2DInputContainer;
@@ -59,8 +58,9 @@ namespace VE2.Core.Player.Internal
         private readonly RectTransform _secondaryUIHolder;
         private readonly RectTransform _overlayUIRect;
 
-        internal PlayerController2D(HandInteractorContainer interactorContainer, Player2DInputContainer player2DInputContainer, IPlayerPersistentDataHandler playerPersistentDataHandler,
-            Player2DControlConfig controlConfig, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ILocalClientIDProvider multiplayerSupport, 
+        internal PlayerController2D(HandInteractorContainer interactorContainer, Player2DInputContainer player2DInputContainer, 
+            IPlayerPersistentDataHandler playerPersistentDataHandler, Player2DControlConfig controlConfig, PlayerInteractionConfig interactionConfig, MovementModeConfig movementModeConfig, 
+            CameraConfig cameraConfig, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ILocalClientIDProvider multiplayerSupport, 
             IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IPlayerServiceInternal playerService) 
         {
             GameObject player2DPrefab = Resources.Load("2dPlayer") as GameObject;
@@ -83,15 +83,17 @@ namespace VE2.Core.Player.Internal
             _overlayUIRect = player2DReferences.OverlayUIRect;
 
             _interactor2D = new(
-                interactorContainer, player2DInputContainer.InteractorInputContainer2D,
+                interactorContainer, player2DInputContainer.InteractorInputContainer2D, interactionConfig,
                 player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, multiplayerSupport);
 
             _feetInteractor2D = new(collisionDetectorFactory, ColliderType.Feet2D, player2DReferences.Interactor2DReferences.FeetCollider, InteractorType.Feet, multiplayerSupport);
 
-            _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences);
+            _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences, movementModeConfig);
 
             base._PlayerHeadTransform = _playerLocomotor2D.HeadTransform;
             base._FeetCollisionDetector = _feetInteractor2D._collisionDetector as V_CollisionDetector;
+
+            ConfigureCamera(cameraConfig);  
             
             //TODO: think about inspect mode, does that live in the interactor, or the player controller?
             //If interactor, will need to make the interactor2d constructor take a this as a param, and forward the other params to the base constructor

@@ -5785,12 +5785,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _playerConfig:
     SupportedPlayerModes: 2
+    PlayerInteractionConfig:
+      RaycastLayers:
+        serializedVersion: 2
+        m_Bits: 130985
     MovementModeConfig:
       TraversableLayers:
         serializedVersion: 2
         m_Bits: 8
-      EnableFreeFlyMode: 0
+      CollisionLayers:
+        serializedVersion: 2
+        m_Bits: 130945
+      FreeFlyMode: 0
       TeleportRangeMultiplier: 1
+    CameraConfig:
+      FieldOfView2D: 60
+      NearClippingPlane: 0.15
+      FarClippingPlane: 1000
+      CullingMask:
+        serializedVersion: 2
+        m_Bits: 4294967295
+      AntiAliasing: 1
+      AntiAliasingQuality: 1
+      EnablePostProcessing: 1
+      OcclusionCulling: 1
     HeadOverrideType: 0
     TorsoOverrideType: 0
     HeadOverrideOne: {fileID: 0}
@@ -6747,6 +6765,7 @@ MonoBehaviour:
               m_BoolArgument: 0
             m_CallState: 2
       ActivateAtRangeInVR: 1
+      ActivateWithCollisionInVR: 1
   _collider: {fileID: 1963660859355256685}
 --- !u!65 &1963660859355256685
 BoxCollider:
@@ -8856,6 +8875,7 @@ MonoBehaviour:
               m_BoolArgument: 0
             m_CallState: 2
       ActivateAtRangeInVR: 1
+      ActivateWithCollisionInVR: 1
   _collider: {fileID: 5871888969178367326}
 --- !u!65 &5871888969178367326
 BoxCollider:

@@ -13148,9 +13148,9 @@ MonoBehaviour:
     InteractionConfig:
       AttachPoint: {fileID: 0}
       VrFailsafeGrab: 1
-      FailsafeGrabRange: 0.1
+      FailsafeGrabRange: 0.15
       FailsafeGrabRangeBackOfHand: 0.1
-      failsafeGrabMultiplier: 1
+      failsafeGrabMultiplier: 1.2
       dropBehaviour: 0
     GeneralInteractionConfig:
       AdminOnly: 0
@@ -20204,12 +20204,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _playerConfig:
     SupportedPlayerModes: 2
+    PlayerInteractionConfig:
+      RaycastLayers:
+        serializedVersion: 2
+        m_Bits: 131049
     MovementModeConfig:
       TraversableLayers:
         serializedVersion: 2
         m_Bits: 8
-      EnableFreeFlyMode: 0
+      CollisionLayers:
+        serializedVersion: 2
+        m_Bits: 130945
+      FreeFlyMode: 0
       TeleportRangeMultiplier: 1
+    CameraConfig:
+      FieldOfView2D: 60
+      NearClippingPlane: 0.15
+      FarClippingPlane: 1000
+      CullingMask:
+        serializedVersion: 2
+        m_Bits: 4294967295
+      AntiAliasing: 1
+      AntiAliasingQuality: 1
+      EnablePostProcessing: 1
+      OcclusionCulling: 1
     HeadOverrideType: 0
     TorsoOverrideType: 0
     HeadOverrideOne: {fileID: 0}
@@ -25543,7 +25561,7 @@ MonoBehaviour:
       VrFailsafeGrab: 1
       FailsafeGrabRange: 0.15
       FailsafeGrabRangeBackOfHand: 0.1
-      failsafeGrabMultiplier: 1.6
+      failsafeGrabMultiplier: 1.2
       dropBehaviour: 1
     GeneralInteractionConfig:
       AdminOnly: 0
@@ -27681,7 +27699,7 @@ MonoBehaviour:
       VrFailsafeGrab: 1
       FailsafeGrabRange: 0.15
       FailsafeGrabRangeBackOfHand: 0.1
-      failsafeGrabMultiplier: 1.6
+      failsafeGrabMultiplier: 1.2
       dropBehaviour: 0
     GeneralInteractionConfig:
       AdminOnly: 0
