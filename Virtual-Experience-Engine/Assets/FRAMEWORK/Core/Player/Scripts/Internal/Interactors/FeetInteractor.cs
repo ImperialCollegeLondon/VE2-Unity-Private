@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using VE2.Core.Player.API;
 using VE2.Core.VComponents.API;
+
 namespace VE2.Core.Player.Internal
 {
     internal class FeetInteractor

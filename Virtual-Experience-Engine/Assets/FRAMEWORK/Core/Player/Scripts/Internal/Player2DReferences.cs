@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace VE2.Core.Player.Internal
 {
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     internal class Player2DReferences : BasePlayerReferences
     {
         public Interactor2DReferences Interactor2DReferences => _interactor2DReferences;

@@ -6,6 +6,7 @@ using VE2.Core.Common;
 
 namespace VE2.Core.UI.Internal
 {
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     internal class PrimaryUIQuickPanelView : MonoBehaviour
     {
         [SerializeField] private GameObject _platformQuickPanelHolder;

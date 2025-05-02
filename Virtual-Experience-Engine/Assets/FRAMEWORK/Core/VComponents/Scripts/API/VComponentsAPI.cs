@@ -7,6 +7,7 @@ namespace VE2.Core.VComponents.API
 {
     //Internal as plugin doesn't talk to this - it talks to the interfaces on the VCs directly
     [ExecuteAlways]
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     internal class VComponentsAPI : MonoBehaviour
     {
         private static VComponentsAPI _instance;

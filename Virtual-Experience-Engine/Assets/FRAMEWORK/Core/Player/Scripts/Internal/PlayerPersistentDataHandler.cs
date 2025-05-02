@@ -26,6 +26,7 @@ namespace VE2.Core.Player.Internal
     /// Write to DefaultPlayerPresentationConfig after creating
     /// </summary>
     [ExecuteAlways]
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     internal class PlayerPersistentDataHandler : MonoBehaviour, IPlayerPersistentDataHandler //TODO: Add control settings! 
     {
         private const string HasArgsArgName = "hasArgs";

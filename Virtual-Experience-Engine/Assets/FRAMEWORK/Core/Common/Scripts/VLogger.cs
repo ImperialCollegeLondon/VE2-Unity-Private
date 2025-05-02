@@ -9,7 +9,7 @@ using UnityEditor;
 
 namespace VE2.Core.Common
 {
-    public static class V_Logger
+    public static class VLogger
     {
         public static DebugLogLevel logLevel;
 

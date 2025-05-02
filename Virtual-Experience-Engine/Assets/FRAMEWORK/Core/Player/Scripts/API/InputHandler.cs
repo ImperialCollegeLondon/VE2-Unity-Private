@@ -518,6 +518,7 @@ namespace VE2.Core.Player.API
 
     //TODO: The actual handler could go into its own assembly... where to draw the line though? Each interface could also go into its own assembly too...
     //Could also expose different interfaces in the ServiceLocator, rather than the single IInputHandler
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     public class InputHandler : MonoBehaviour, IInputHandler
     {
         private PlayerInputContainer _playerInputContainer;

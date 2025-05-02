@@ -6,7 +6,7 @@ namespace VE2.Core.Player.Internal
     internal class BasePlayerController
     {
         internal Camera Camera;
-        protected V_CollisionDetector _FeetCollisionDetector;
+        protected CollisionDetector _FeetCollisionDetector;
         protected Transform _PlayerHeadTransform; 
 
         internal virtual void HandleUpdate()

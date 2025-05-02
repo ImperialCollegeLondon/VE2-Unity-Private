@@ -7,7 +7,8 @@ namespace VE2.Core.Player.Internal
     //This is fine - the PlayerService creates the player from a prefab (which contains these references)
     //We don't want to test the internal operation of the player, just that the service as a whole behaves correctly 
     //Therefore, we wouldn't be stubbing thee internal dependencies out anyway
-    internal class V_HandVRReferences : MonoBehaviour
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
+    internal class HandVRReferences : MonoBehaviour
     {
         public InteractorVRReferences InteractorVRReferences => _interactorVRReferences;
         [SerializeField] private InteractorVRReferences _interactorVRReferences;

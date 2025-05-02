@@ -11,6 +11,7 @@ using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.NonCore.Instancing.Internal
 {
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     internal class RemoteAvatarController : MonoBehaviour
     {
         [SerializeField] private Transform _headHolder;

@@ -8,6 +8,7 @@ namespace VE2.Core.UI.API
     /// TODO: Document
     /// </summary>
     [ExecuteAlways]
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     public class UIAPI : MonoBehaviour
     {
         private static UIAPI _instance;

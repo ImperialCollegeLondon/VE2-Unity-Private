@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 namespace VE2.NonCore.Instancing.API
 {
     [ExecuteAlways]
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     public class InstancingAPI : MonoBehaviour
     {
         private static InstancingAPI _instance;

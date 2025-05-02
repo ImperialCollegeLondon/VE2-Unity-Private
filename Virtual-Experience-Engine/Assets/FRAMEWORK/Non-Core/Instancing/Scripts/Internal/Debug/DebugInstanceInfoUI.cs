@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 namespace VE2.NonCore.Instancing.Internal
 {
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     internal class DebugInstanceInfoUI : MonoBehaviour
     {
         [SerializeField] private TMP_Text hostIndicatorText;

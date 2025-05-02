@@ -7,6 +7,7 @@ using VE2.Core.Common;
 
 namespace VE2.NonCore.Platform.Internal
 {
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     public class V_PlatformQuickUIView : MonoBehaviour
     {
         [SerializeField] private TMP_Text _playerNameText;

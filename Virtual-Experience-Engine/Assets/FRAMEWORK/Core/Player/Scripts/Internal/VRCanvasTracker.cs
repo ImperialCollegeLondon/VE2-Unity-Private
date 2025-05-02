@@ -3,6 +3,7 @@ using VE2.Core.UI.API;
 
 namespace VE2.Core.Player.Internal
 {
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     public class VRCanvasTracker : MonoBehaviour
     {
         [SerializeField] private Transform _cameraTransform; 

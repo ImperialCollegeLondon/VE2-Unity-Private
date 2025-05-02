@@ -6,7 +6,7 @@ using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 
 namespace VE2.NonCore.FileSystem.Internal
 {
-    internal class V_PluginFileSystem : V_FileSystemIntegrationBase, IFileSystem
+    internal class V_PluginFileSystem : FileSystemIntegrationBase, IFileSystem
     {
         [Title("Debug Server Settings")]
         [BeginGroup, IgnoreParent, EndGroup, SerializeField] private ServerConnectionSettings _debugServerSettings;

@@ -7,6 +7,7 @@ using VE2.Core.VComponents.API;
 namespace VE2.Core.Player.API
 {
     [ExecuteAlways]
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     public class PlayerAPI : MonoBehaviour 
     {
         private static PlayerAPI _instance;

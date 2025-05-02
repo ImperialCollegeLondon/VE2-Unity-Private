@@ -4,6 +4,7 @@ using VE2.Core.Common;
 
 namespace VE2.Core.UI.Internal
 {
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     internal class SecondaryUIView : MonoBehaviour
     {
         [SerializeField] private TMP_Text _clockText; 
