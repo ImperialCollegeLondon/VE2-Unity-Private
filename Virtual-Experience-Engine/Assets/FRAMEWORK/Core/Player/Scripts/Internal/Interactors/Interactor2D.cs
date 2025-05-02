@@ -9,8 +9,8 @@ namespace VE2.Core.Player.Internal
 {
     internal class Interactor2D : PointerInteractor
     {
+        private ColorConfiguration _colorConfig => ColorConfiguration.Instance;
         private readonly Image _reticuleImage;
-        private readonly ColorConfiguration _colorConfig;
         private readonly PlayerConnectionPromptHandler _connectionPromptHandler;
 
         internal Interactor2D(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer, PlayerInteractionConfig interactionConfig,
@@ -21,8 +21,6 @@ namespace VE2.Core.Player.Internal
         {
             Interactor2DReferences interactor2DReferences = interactorReferences as Interactor2DReferences;
             _reticuleImage = interactor2DReferences.ReticuleImage;
-
-            _colorConfig = Resources.Load<ColorConfiguration>("ColorConfiguration"); //TODO: Inject, can probably actually go into the base class
 
             _connectionPromptHandler = interactor2DReferences.ConnectionPromptHandler;
 

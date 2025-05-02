@@ -14,7 +14,7 @@ namespace VE2.Core.Player.Internal
         private LineRenderer _teleportLineRenderer;
         private readonly LineRenderer _interactorLineRenderer; // Position of the teleport raycast origin
         private readonly Material _teleportLineMaterial;
-        private readonly ColorConfiguration _colorConfig;
+        private ColorConfiguration _colorConfig => ColorConfiguration.Instance;
         private readonly GameObject _teleportCursor;
         private const float LINE_EMISSION_INTENSITY = 15;
 
@@ -59,7 +59,6 @@ namespace VE2.Core.Player.Internal
             _interactorLineRenderer = interactorLineRenderer.GetComponent<LineRenderer>();
             _otherHandTransformReference = otherHandTransformReference;
 
-            _colorConfig = Resources.Load<ColorConfiguration>("ColorConfiguration"); //TODO: Inject
             _teleportLineRenderer = teleportLineRenderer;
             _teleportLineRenderer.positionCount = _lineSegmentCount + 1;
             _teleportLineRenderer.enabled = false;

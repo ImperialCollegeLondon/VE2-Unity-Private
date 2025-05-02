@@ -13,7 +13,7 @@ namespace VE2.Core.Player.Internal
         private readonly GameObject _handVisualGO;
         private readonly LineRenderer _lineRenderer;
         private readonly Material _lineMaterial;
-        private readonly ColorConfiguration _colorConfig;
+        private ColorConfiguration _colorConfig => ColorConfiguration.Instance;
         private const float LINE_EMISSION_INTENSITY = 15;
 
         internal InteractorVR(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer, PlayerInteractionConfig playerInteractionConfig,
@@ -31,8 +31,6 @@ namespace VE2.Core.Player.Internal
             _lineRenderer = interactorVRReferences.LineRenderer;
             _lineMaterial = Application.isPlaying ? _lineRenderer.material : null; //SetUp : Unhandled log message: '[Error] Instantiating material due to calling renderer.material during edit mode. This will leak materials into the scene. You most likely want to use renderer.sharedMaterial instead.'. Use UnityEngine.TestTools.LogAssert.Expect
             _lineMaterial?.EnableKeyword("_EMISSION");
-
-            _colorConfig = Resources.Load<ColorConfiguration>("ColorConfiguration"); //TODO: Inject
         }
 
         public override void HandleOnEnable()
