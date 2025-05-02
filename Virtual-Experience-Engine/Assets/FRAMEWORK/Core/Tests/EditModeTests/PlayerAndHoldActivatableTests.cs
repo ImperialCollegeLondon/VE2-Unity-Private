@@ -38,7 +38,7 @@ namespace VE2.Core.Tests
         [Test]
         public void OnUserPressedDownAndReleased_WithHoveringActivatable_CustomerScriptTriggersOnActivateAndOnDeactivate([Random((ushort)0, ushort.MaxValue, 1)] ushort localClientID)
         {
-            RayCastProviderSetup.StubRangedInteractionModuleForRaycastProviderStub(_holdActivatableRaycastInterface.RangedInteractionModule);
+            RayCastProviderSetup.StubRangedInteractionModuleForRaycast(_holdActivatableRaycastInterface.RangedInteractionModule);
             LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID.Returns(localClientID);
 
             PlayerInputContainerSetup.RangedClick2D.OnPressed += Raise.Event<Action>();

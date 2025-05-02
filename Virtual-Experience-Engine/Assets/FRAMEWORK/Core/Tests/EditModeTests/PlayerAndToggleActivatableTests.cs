@@ -88,7 +88,7 @@ namespace VE2.Core.Tests
         [Test]
         public void OnUserClick_WithHoveringActivatable_CustomerScriptReceivesOnActivate([Random((ushort)0, ushort.MaxValue, 1)] ushort localClientID)
         {
-            RayCastProviderSetup.StubRangedInteractionModuleForRaycastProviderStub(_firstActivatableRaycastInterface.RangedToggleClickInteractionModule);
+            RayCastProviderSetup.StubRangedInteractionModuleForRaycast(_firstActivatableRaycastInterface.RangedToggleClickInteractionModule);
             LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID.Returns(localClientID);
 
             // Simulate click to activate
@@ -110,7 +110,7 @@ namespace VE2.Core.Tests
         public void OnUserClick_WithHoveringActivatable_CustomerScriptReceivesOnActivate_DeactivatesOthersInGroup([Random((ushort)0, ushort.MaxValue, 1)] ushort localClientID)
         {
             // Stub first activatable's module and set client ID
-            RayCastProviderSetup.StubRangedInteractionModuleForRaycastProviderStub(_firstActivatableRaycastInterface.RangedToggleClickInteractionModule);
+            RayCastProviderSetup.StubRangedInteractionModuleForRaycast(_firstActivatableRaycastInterface.RangedToggleClickInteractionModule);
             LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID.Returns(localClientID);
 
             // Activate first activatable
@@ -120,7 +120,7 @@ namespace VE2.Core.Tests
             Assert.AreEqual(_firstActivatablePluginInterface.MostRecentInteractingClientID, localClientID);
 
             // Stub second activatable's module
-            RayCastProviderSetup.StubRangedInteractionModuleForRaycastProviderStub(_secondActivatableRaycastInterface.RangedToggleClickInteractionModule);
+            RayCastProviderSetup.StubRangedInteractionModuleForRaycast(_secondActivatableRaycastInterface.RangedToggleClickInteractionModule);
 
             // Activate second activatable
             SimulateClick();

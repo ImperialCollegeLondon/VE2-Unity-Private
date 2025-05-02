@@ -43,17 +43,18 @@ namespace VE2.Core.VComponents.Internal
 
         private Vector3 positionOnGrab = new();
 
-        public FreeGrabbableService(List<IHandheldInteractionModule> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id, 
-            IWorldStateSyncService worldStateSyncService, HandInteractorContainer interactorContainer, 
+        public FreeGrabbableService(List<IHandheldInteractionModule> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id,
+            IWorldStateSyncService worldStateSyncService, HandInteractorContainer interactorContainer,
             IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants, IGrabbableRigidbody grabbableRigidbodyInterface)
         {
-            _RangedGrabInteractionModule = new(handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
+            //even though this is never null in theory, done so to satisfy the tests
+            _transform = config.InteractionConfig.AttachPoint != null ? new TransformWrapper(config.InteractionConfig.AttachPoint) : _rigidbody != null ? _rigidbody.transform : null;
+            _RangedGrabInteractionModule = new(_transform, handheldInteractions, config.InteractionConfig, config.RangedInteractionConfig, config.GeneralInteractionConfig);
             _StateModule = new(state, config.StateConfig, id, worldStateSyncService, interactorContainer, RangedGrabInteractionModule);
             _stateConfig = config.StateConfig;
             _interactionConfig = config.InteractionConfig;
 
-            _rigidbody  = rigidbody;
-            _transform = config.InteractionConfig.AttachPoint == null ? new TransformWrapper(_rigidbody.transform) : new TransformWrapper(config.InteractionConfig.AttachPoint);
+            _rigidbody = rigidbody;
             _physicsConstants = physicsConstants;
             _isKinematicOnGrab = _rigidbody.isKinematic;
             _grabbableRigidbodyInterface = grabbableRigidbodyInterface;
@@ -69,7 +70,7 @@ namespace VE2.Core.VComponents.Internal
         //This is for teleporting the grabbed object along with the player - TODO: Tweak names for clarity 
         private void ApplyDeltaWhenGrabbed(Vector3 deltaPosition, Quaternion deltaRotation)
         {
-            Debug.Log("Applying delta when grabbed");   
+            Debug.Log("Applying delta when grabbed");
             _rigidbody.isKinematic = true;
 
             _rigidbody.position += deltaPosition;
@@ -93,7 +94,7 @@ namespace VE2.Core.VComponents.Internal
             positionOnGrab = _rigidbody.position;
             OnGrabConfirmed?.Invoke(grabberClientID);
         }
-    
+
         private void HandleDropConfirmed(ushort dropperClientID)
         {
             // Handle drop behaviours
@@ -115,12 +116,12 @@ namespace VE2.Core.VComponents.Internal
             {
                 _rigidbody.isKinematic = _isKinematicOnGrab;
             }
-        } 
+        }
 
         public void HandleFixedUpdate()
         {
             _StateModule.HandleFixedUpdate();
-            if(_StateModule.IsGrabbed)
+            if (_StateModule.IsGrabbed)
             {
                 TrackPosition(_StateModule.CurrentGrabbingInteractor.GrabberTransform.position);
                 TrackRotation(_StateModule.CurrentGrabbingInteractor.GrabberTransform.rotation);

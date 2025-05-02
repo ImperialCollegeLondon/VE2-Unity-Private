@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using VE2.Common.TransformWrapper;
 
 namespace VE2.Core.VComponents.API
 {
@@ -12,7 +13,7 @@ namespace VE2.Core.VComponents.API
         public Vector3 angularVelocity { get => _Rigidbody.angularVelocity; set => _Rigidbody.angularVelocity = value; }
         public Vector3 position { get => _Rigidbody.position; set => _Rigidbody.position = value; }
         public Quaternion rotation { get => _Rigidbody.rotation; set => _Rigidbody.rotation = value; }
-        public Transform transform { get => _Rigidbody.transform; }
+        public ITransformWrapper transform { get => new TransformWrapper(_Rigidbody.transform); }
 
         public Renderer renderer { get => _Rigidbody.GetComponent<Renderer>(); }
 

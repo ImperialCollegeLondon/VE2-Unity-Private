@@ -67,9 +67,12 @@ namespace VE2.Core.Player.Internal
             }
         }
 
-        protected override void HandleRaycastDistance(float distance)
+        protected override void HandleRaycastDistance(float distance, bool isOnPalm = false, Vector3 point = default)
         {
-            _lineRenderer.SetPosition(1, new Vector3(0, 0, distance / _lineRenderer.transform.lossyScale.z));
+            if(!isOnPalm)
+                _lineRenderer.SetPosition(1, new Vector3(0, 0, distance / _lineRenderer.transform.lossyScale.z));
+            else
+                _lineRenderer.SetPosition(1, _RayOrigin.InverseTransformPoint(point));
         }
 
         protected override void SetInteractorState(InteractorState newState)
@@ -103,7 +106,7 @@ namespace VE2.Core.Player.Internal
         protected override void HandleStartGrabbingAdjustable(IRangedAdjustableInteractionModule rangedAdjustableInteraction)
         {
             //We'll control its position in Update - it needs an offset towards the adjustable, without being affected by the parent transform's rotation
-            _GrabberTransform.SetParent(_interactorParentTransform.parent); 
+            _GrabberTransform.SetParent(_interactorParentTransform.parent);
             _grabberTransformOffset = rangedAdjustableInteraction.Transform.position - GrabberTransform.position;
         }
 
@@ -116,7 +119,7 @@ namespace VE2.Core.Player.Internal
         protected override void HandleStopGrabbingAdjustable()
         {
             //No longer apply offset to grabber, it can return to the parent 
-            _GrabberTransform.SetParent(_interactorParentTransform); 
+            _GrabberTransform.SetParent(_interactorParentTransform);
             _GrabberTransform.localPosition = Vector3.zero;
             _GrabberTransform.localRotation = Quaternion.identity;
         }

@@ -46,7 +46,7 @@ namespace VE2.Core.Tests
         public void OnUserGrab_WithHoveringGrabbable_CustomerScriptReceivesOnGrab()
         {          
             //Stub out the raycast provider to hit the activatable GO with 0 range
-            RayCastProviderSetup.StubRangedInteractionModuleForRaycastProviderStub(_grabbableRaycastInterface.RangedGrabInteractionModule);
+            RayCastProviderSetup.StubRangedInteractionModuleForRaycast(_grabbableRaycastInterface.RangedGrabInteractionModule);
 
             //Invoke grab, check customer received the grab, and that the interactorID is set
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
@@ -56,6 +56,26 @@ namespace VE2.Core.Tests
 
             //Invoke drop, Check customer received the drop, and that the interactorID is set
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
+            _customerScript.Received(1).HandleDropReceived();
+            Assert.IsFalse(_grabbablePluginInterface.IsGrabbed);
+            Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID, LocalClientIDProviderSetup.LocalClientID);
+        }
+
+        [Test]
+        public void OnUser_WhenNotHoveringOverGrabbable_GrabsFailsafeGrabbable()
+        {
+            RayCastProviderSetup.StubRangedInteractionModuleForSpherecastAll(_grabbableRaycastInterface.RangedGrabInteractionModule);
+
+            PlayerInputContainerSetup.PlayerInputContainerStub.ChangeMode.OnPressed += Raise.Event<Action>();
+            Assert.IsTrue(PlayerService.IsVRMode, "Player should be in VR mode");
+
+            PlayerInputContainerSetup.GrabVRRight.OnPressed += Raise.Event<Action>();
+            _customerScript.Received(1).HandleGrabReceived();
+            Assert.IsTrue(_grabbablePluginInterface.IsGrabbed);
+            Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID, LocalClientIDProviderSetup.LocalClientID);
+
+            //Invoke drop, Check customer received the drop, and that the interactorID is set
+            PlayerInputContainerSetup.GrabVRRight.OnPressed += Raise.Event<Action>();
             _customerScript.Received(1).HandleDropReceived();
             Assert.IsFalse(_grabbablePluginInterface.IsGrabbed);
             Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID, LocalClientIDProviderSetup.LocalClientID);
