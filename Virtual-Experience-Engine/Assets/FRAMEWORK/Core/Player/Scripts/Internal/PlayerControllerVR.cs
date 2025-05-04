@@ -45,8 +45,8 @@ namespace VE2.Core.Player.Internal
         private readonly ResetViewUIHandler _resetViewUIHandler;
         private readonly Transform _neutralPositionOffsetTransform;
 
-        private readonly V_HandController _handControllerLeft;
-        private readonly V_HandController _handControllerRight;
+        private readonly HandController _handControllerLeft;
+        private readonly HandController _handControllerRight;
 
         //TODO - it's both players that need these. 
         //That suggests we probably want this in a base class? Think about refactoring
@@ -81,7 +81,7 @@ namespace VE2.Core.Player.Internal
             _neutralPositionOffsetTransform = playerVRReferences.NeutralPositionOffsetTransform;
 
             base._PlayerHeadTransform = _headTransform;
-            base._FeetCollisionDetector = _feetInteractorVR._collisionDetector as V_CollisionDetector;
+            base._FeetCollisionDetector = _feetInteractorVR._collisionDetector as CollisionDetector;
 
             GameObject handVRLeftPrefab = Resources.Load<GameObject>("HandVRLeft");
             GameObject handVRLeftGO = GameObject.Instantiate(handVRLeftPrefab, _verticalOffsetTransform, false);
@@ -106,13 +106,13 @@ namespace VE2.Core.Player.Internal
         }
 
 
-        private V_HandController CreateHandController(GameObject handGO, GameObject otherHandGO, HandInteractorContainer interactorContainer,
+        private HandController CreateHandController(GameObject handGO, GameObject otherHandGO, HandInteractorContainer interactorContainer,
             HandVRInputContainer handVRInputContainer, DragLocomotorInputContainer otherHandDragInputContainer, PlayerInteractionConfig playerInteractionConfig, InteractorType interactorType,
             IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ColliderType colliderType, ILocalClientIDProvider multiplayerSupport, FreeGrabbableWrapper thisHandGrabbableWrapper,
             FreeGrabbableWrapper otherHandGrabbableWrapper, ISecondaryUIServiceInternal secondaryUIService, MovementModeConfig movementModeConfig, bool needsToFlip)
         {
-            V_HandVRReferences thisHandVRReferences = handGO.GetComponent<V_HandVRReferences>();
-            V_HandVRReferences otherHandVRReferences = otherHandGO.GetComponent<V_HandVRReferences>();
+            HandVRReferences thisHandVRReferences = handGO.GetComponent<HandVRReferences>();
+            HandVRReferences otherHandVRReferences = otherHandGO.GetComponent<HandVRReferences>();
 
             HoveringOverScrollableIndicator hoveringOverScrollableIndicator = new();
 
@@ -141,7 +141,7 @@ namespace VE2.Core.Player.Internal
             WristUIHandler wristUIHandler = new(
                 secondaryUIService, thisHandVRReferences.WristUIReferences.WristUIHolder, _headTransform, thisHandVRReferences.WristUIReferences.Indicator, needsToFlip);
 
-            return new V_HandController(handGO, handVRInputContainer, interactor, dragLocomotor, snapTurn, teleport, wristUIHandler);
+            return new HandController(handGO, handVRInputContainer, interactor, dragLocomotor, snapTurn, teleport, wristUIHandler);
         }
 
         public void ActivatePlayer(PlayerTransformData initTransformData)

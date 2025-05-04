@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 
+[AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
 public class V_RadialProgressBar : MonoBehaviour
 {
     [SerializeField] private float _maxValue = 100;

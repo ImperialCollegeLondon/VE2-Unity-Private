@@ -8,6 +8,7 @@ using VE2.Core.Common;
 
 namespace VE2.Core.UI.Internal
 {
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     internal class PrimaryUICenterPanelView : MonoBehaviour
     {
         [SerializeField] private HorizontalLayoutGroup _tabLayoutGroup;

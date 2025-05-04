@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 namespace VE2.Core.UI.Internal
 {
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     internal class PrimaryUIUtilsPanelView : MonoBehaviour
     {
         [SerializeField] private Button _quitButton; 

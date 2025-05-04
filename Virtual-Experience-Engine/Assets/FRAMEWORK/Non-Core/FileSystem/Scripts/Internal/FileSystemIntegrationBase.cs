@@ -9,7 +9,7 @@ using Debug = UnityEngine.Debug;
 
 namespace VE2.NonCore.FileSystem.Internal
 {
-    internal abstract class V_FileSystemIntegrationBase : MonoBehaviour
+    internal abstract class FileSystemIntegrationBase : MonoBehaviour
     {
         // [SerializeField, IgnoreParent, BeginGroup("Remote File Tasks")] private List<RemoteFileTaskInfo> _queuedTasks = new(); 
         // [EditorButton(nameof(CancelAllTasks), "Cancel All Tasks", activityType: ButtonActivityType.OnPlayMode, Order = -1)]

@@ -6,7 +6,7 @@ using VE2.Core.Player.API;
 
 namespace VE2.Core.Player.Internal
 {
-    internal class V_HandController 
+    internal class HandController 
     {
         public Transform GrabberTransform => _interactor.GrabberTransform;
 
@@ -24,7 +24,7 @@ namespace VE2.Core.Player.Internal
 
         private List<Material> _colorMaterials = new();
 
-        public V_HandController(GameObject handGO, HandVRInputContainer handVRInputContainer, InteractorVR interactor, 
+        public HandController(GameObject handGO, HandVRInputContainer handVRInputContainer, InteractorVR interactor, 
             DragLocomotorController dragLocomotor, SnapTurnController snapTurn, TeleportController teleport, WristUIHandler wristUIHandler)
         {
             _handGO = handGO;

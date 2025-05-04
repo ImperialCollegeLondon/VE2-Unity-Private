@@ -5,6 +5,7 @@ using VE2.Core.VComponents.API;
 
 namespace VE2.NonCore.Instancing.Internal
 {
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     internal class RemoteInteractor : MonoBehaviour, IInteractor //TODO: Maybe doesn't need to be a mononbehaviour?
     {
         public Transform GrabberTransform => transform;

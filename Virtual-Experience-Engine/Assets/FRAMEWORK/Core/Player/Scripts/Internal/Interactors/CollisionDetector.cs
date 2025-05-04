@@ -12,7 +12,8 @@ namespace VE2.Core.Player.Internal
         public ColliderType ColliderType { get; set; }
     }
 
-    internal class V_CollisionDetector : MonoBehaviour, ICollisionDetector
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
+    internal class CollisionDetector : MonoBehaviour, ICollisionDetector
     {
         public event Action<ICollideInteractionModule> OnCollideStart;
         public event Action<ICollideInteractionModule> OnCollideEnd;
@@ -44,7 +45,7 @@ namespace VE2.Core.Player.Internal
     {
         ICollisionDetector ICollisionDetectorFactory.CreateCollisionDetector(Collider collider, ColliderType colliderType)
         {
-            var collisionDetector = collider.gameObject.AddComponent<V_CollisionDetector>();
+            var collisionDetector = collider.gameObject.AddComponent<CollisionDetector>();
             return collisionDetector;
         }
     }

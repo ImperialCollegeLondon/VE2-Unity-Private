@@ -6,17 +6,17 @@ using UnityEngine.UI;
 
 namespace VE2.NonCore.Instancing.Internal
 {
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     internal class DebugInstanceInfoUI : MonoBehaviour
     {
         [SerializeField] private TMP_Text hostIndicatorText;
 
         private IInstanceService _instanceService;
-        private ColorConfiguration _colorConfig;
+        private ColorConfiguration _colorConfig => ColorConfiguration.Instance;
 
         void OnEnable()
         {
             _instanceService = InstancingAPI.InstanceService;
-            _colorConfig = Resources.Load<ColorConfiguration>("ColorConfiguration"); //TODO: think of a centralised place to fetch this from
 
             _instanceService.OnConnectedToInstance += HandleConnectToServer;
             _instanceService.OnDisconnectedFromInstance += HandleDisconnectFromServer;

@@ -126,6 +126,9 @@ namespace VE2.NonCore.Instancing.Internal
                 }   
             }
 
+            if (instancingSettings.ServerAddress == "127.0.0.1" && Application.isEditor)
+                InstancingUtils.BootLocalServerIfNotAlreadyRunning();
+
             _instanceService = InstanceServiceFactory.Create(_localClientIDWrapper, _connectOnStart, _connectionStateDebug, instancingSettings, instanceCode, _config, _syncInfosContainer);
 
             if (Application.isEditor)

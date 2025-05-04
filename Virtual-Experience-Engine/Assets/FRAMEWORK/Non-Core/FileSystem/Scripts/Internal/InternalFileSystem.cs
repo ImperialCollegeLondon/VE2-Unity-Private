@@ -10,7 +10,7 @@ using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 
 namespace VE2.NonCore.FileSystem.Internal
 {
-    internal class V_InternalFileSystem : V_FileSystemIntegrationBase, IFileSystemInternal
+    internal class InternalFileSystem : FileSystemIntegrationBase, IFileSystemInternal
     {
         public override string LocalWorkingPath{ get {
                string platformName = Application.platform == RuntimePlatform.Android ? "Android" : "Windows";

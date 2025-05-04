@@ -6,6 +6,7 @@ using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.Core.Player.Internal
 {
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     internal class AvatarVisHandler : MonoBehaviour
     {
         [SerializeField] private Transform _headHolder;
