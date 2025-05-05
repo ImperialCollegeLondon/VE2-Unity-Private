@@ -1,0 +1,3 @@
+Make stuff in here internal 
+rename to Common.Utils (unless there's a better name)
+remove Core and NonCore

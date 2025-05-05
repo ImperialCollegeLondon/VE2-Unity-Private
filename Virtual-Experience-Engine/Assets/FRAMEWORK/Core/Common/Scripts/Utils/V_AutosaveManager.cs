@@ -1,8 +1,10 @@
-#if UNITY_EDITOR
 using UnityEngine;
+
+#if UNITY_EDITOR
 using UnityEngine.SceneManagement;
 using UnityEditor;
 using UnityEditor.SceneManagement;
+#endif
 
 namespace VE2.Core.Common
 {
@@ -14,6 +16,7 @@ namespace VE2.Core.Common
         private double timeOfLastAutosave;
         private bool isSubscribed = false;
 
+        #if UNITY_EDITOR
         private void OnEnable()
         {
             if (Application.isPlaying || isSubscribed)
@@ -48,6 +51,7 @@ namespace VE2.Core.Common
                 }
             }
         }
+
+        #endif
     }
 }
-#endif

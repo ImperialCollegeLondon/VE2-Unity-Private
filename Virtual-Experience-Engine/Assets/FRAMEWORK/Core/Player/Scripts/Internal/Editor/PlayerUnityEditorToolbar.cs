@@ -8,6 +8,7 @@ using System;
 using System.Reflection;
 using VE2.Core.Player.Internal;
 using VE2.Core.Player.API;
+using VE2.Common.API;
 
 namespace VE2.Core.Player
 {
@@ -42,24 +43,24 @@ namespace VE2.Core.Player
             string buttonText = "VE2: ";
             if (interactable)
             {
-                buttonText += PlayerAPI.PreferVRMode ? "Preferring VR" : "Preferring 2D";
+                buttonText += VE2API.PreferVRMode ? "Preferring VR" : "Preferring 2D";
             }
             else
             {
-                PlayerAPI.PreferVRMode = _playerSpawner._playerConfig.PlayerModeConfig.EnableVR;
+                VE2API.PreferVRMode = _playerSpawner._playerConfig.PlayerModeConfig.EnableVR;
                 buttonText += _playerSpawner._playerConfig.PlayerModeConfig.EnableVR ? "VR Only" : "2D Only";
             }
 
             // Create the toggle button
-            if (GUILayout.Toggle(PlayerAPI.PreferVRMode, buttonText, "Button"))
+            if (GUILayout.Toggle(VE2API.PreferVRMode, buttonText, "Button"))
             {
-                if (!PlayerAPI.PreferVRMode)
-                    PlayerAPI.PreferVRMode = true;
+                if (!VE2API.PreferVRMode)
+                    VE2API.PreferVRMode = true;
             }
             else
             {
-                if (PlayerAPI.PreferVRMode)
-                    PlayerAPI.PreferVRMode = false;
+                if (VE2API.PreferVRMode)
+                    VE2API.PreferVRMode = false;
             }
 
             // Restore the original GUI enabled state

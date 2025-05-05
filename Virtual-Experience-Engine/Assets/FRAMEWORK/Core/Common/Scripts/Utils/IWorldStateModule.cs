@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using VE2.Core.Common;
 using static VE2.Core.Common.CommonSerializables;
 
-namespace VE2.Core.VComponents.API
+namespace VE2.Core.Common
 {
-    internal interface IWorldStateModule
+    public interface IWorldStateModule //TODO: Rename to IWorldStateSyncable?
     {
         public VE2Serializable State { get; }
         public TransmissionProtocol TransmissionProtocol { get; }

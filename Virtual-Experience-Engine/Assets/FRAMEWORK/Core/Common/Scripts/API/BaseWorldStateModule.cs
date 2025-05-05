@@ -3,7 +3,7 @@ using UnityEngine;
 using VE2.Core.Common;
 using static VE2.Core.Common.CommonSerializables;
 
-namespace VE2.Core.VComponents.API
+namespace VE2.Common.API
 {
     [Serializable]
     internal class BaseWorldStateConfig 
@@ -18,7 +18,7 @@ namespace VE2.Core.VComponents.API
         [EndGroup(ApplyCondition = true, Order = 5)]
         [SpaceArea(spaceAfter: 10, Order = -1), SerializeField, IgnoreParent] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new(TransmissionProtocol.UDP, 1);
 
-        public bool MultiplayerSupportPresent => VComponentsAPI.HasMultiPlayerSupport;
+        public bool MultiplayerSupportPresent => VE2API.HasMultiPlayerSupport;
     }
 
     //Note - this lives here so other packages can use it
@@ -26,7 +26,7 @@ namespace VE2.Core.VComponents.API
     {
         public VE2Serializable State { get; }
         protected BaseWorldStateConfig Config { get; private set; }
-        private readonly IWorldStateSyncService _worldStateSyncService;
+        private readonly IWorldStateSyncableContainer _worldStateModulesContainer;
 
         private bool _wasNetworkedLastFrame;
         public bool IsNetworked => Config.IsNetworked;
@@ -40,13 +40,13 @@ namespace VE2.Core.VComponents.API
 
         public void SetNetworked(bool isNetworked) => Config.IsNetworked = isNetworked;
 
-        public BaseWorldStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncService worldStateSyncService)
+        public BaseWorldStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncableContainer worldStateModulesContainer)
         {
             ID = id;
             State = state;
             Config = config;
 
-            _worldStateSyncService =  worldStateSyncService;
+            _worldStateModulesContainer =  worldStateModulesContainer;
 
             //If we're networked, wait until FixedUpdate to register 
             //This allows for any initialization to complete before the module's state is queried 
@@ -55,17 +55,14 @@ namespace VE2.Core.VComponents.API
 
         public virtual void HandleFixedUpdate()
         {
-            if (_worldStateSyncService == null)
-                return;
-
             if (IsNetworked && !_wasNetworkedLastFrame)
-                _worldStateSyncService.RegisterWorldStateModule(this);
+                _worldStateModulesContainer.RegisterWorldStateSyncable(this);
             else if (!IsNetworked && _wasNetworkedLastFrame)
-                _worldStateSyncService.DeregisterWorldStateModule(this);
+                _worldStateModulesContainer.RegisterWorldStateSyncable(this);
 
             _wasNetworkedLastFrame = IsNetworked;
         }
 
-        public virtual void TearDown() => _worldStateSyncService?.DeregisterWorldStateModule(this);
+        public virtual void TearDown() => _worldStateModulesContainer.DeregisterWorldStateSyncable(this);
     }
 }

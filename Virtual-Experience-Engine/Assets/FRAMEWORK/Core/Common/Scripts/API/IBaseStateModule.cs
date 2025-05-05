@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace VE2.Core.VComponents.API
+namespace VE2.Common.API
 {
     public interface IBaseStateModule
     {

@@ -1,4 +1,5 @@
 using UnityEngine;
+using VE2.Common.API;
 using VE2.Core.Common;
 using VE2.Core.Player.API;
 using VE2.Core.VComponents.API;
@@ -18,9 +19,9 @@ namespace VE2.Core.Player.Internal
 
         internal InteractorVR(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer, PlayerInteractionConfig playerInteractionConfig,
             InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ColliderType colliderType,
-            ILocalClientIDProvider multiplayerSupport, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator) :
+            IClientIDWrapper localClientID, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator) :
             base(interactorContainer, interactorInputContainer, playerInteractionConfig,
-                interactorReferences, interactorType, raycastProvider, multiplayerSupport, grabbableWrapper, hoveringOverScrollableIndicator)
+                interactorReferences, interactorType, raycastProvider, localClientID, grabbableWrapper, hoveringOverScrollableIndicator)
 
         {
             InteractorVRReferences interactorVRReferences = interactorReferences as InteractorVRReferences;
@@ -49,7 +50,7 @@ namespace VE2.Core.Player.Internal
 
         private void HandleCollideStart(ICollideInteractionModule collideInteractionModule)
         {
-            if (!_WaitingForLocalClientID && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Hand)
+            if (!_LocalClientIDWrapper.IsClientIDReady && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Hand)
             {
                 collideInteractionModule.InvokeOnCollideEnter(_InteractorID);
                 HeldActivatableIDs.Add(collideInteractionModule.ID);
@@ -58,7 +59,7 @@ namespace VE2.Core.Player.Internal
 
         private void HandleCollideEnd(ICollideInteractionModule collideInteractionModule)
         {
-            if (!_WaitingForLocalClientID && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Hand)
+            if (!_LocalClientIDWrapper.IsClientIDReady && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Hand)
             {
                 collideInteractionModule.InvokeOnCollideExit(_InteractorID);
                 HeldActivatableIDs.Remove(collideInteractionModule.ID);

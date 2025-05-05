@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
+using VE2.Common.API;
 using VE2.Core.Player.API;
 using VE2.Core.UI.API;
 
@@ -78,7 +79,7 @@ namespace VE2.Core.UI.Internal
                 if (inputSystemUIInputModule == null)
                     inputSystemUIInputModule = new GameObject("InputSystemUIInputModule").AddComponent<InputSystemUIInputModule>();
 
-                _primaryUIService = new PrimaryUIService(PlayerAPI.InputHandler.TogglePrimaryUI, inputSystemUIInputModule);
+                _primaryUIService = new PrimaryUIService(VE2API.InputHandler.TogglePrimaryUI, inputSystemUIInputModule);
 
                 //Move plugin primary UI to primary UI==========
                 GameObject pluginPrimaryUI = _pluginPrimaryUIHolder.transform.GetChild(0).gameObject;
@@ -96,7 +97,7 @@ namespace VE2.Core.UI.Internal
             if (_secondaryUIService == null && _enableSecondaryUI)
             {                
                 //Create Secondary UI Service==========
-                _secondaryUIService = new SecondaryUIService(PlayerAPI.InputHandler.ToggleSecondaryUI);
+                _secondaryUIService = new SecondaryUIService(VE2API.InputHandler.ToggleSecondaryUI);
 
                 //Move plugin secondary UI to secondary UI==========
                 if (_useCustomSecondaryUI)

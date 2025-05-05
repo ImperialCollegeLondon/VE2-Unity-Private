@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
+using VE2.Core.Common;
 using VE2.Core.VComponents.API;
+using VE2.NonCore.Instancing.API;
 using static VE2.Core.Common.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
@@ -40,9 +42,10 @@ namespace VE2.Core.VComponents.Internal
         //private readonly bool _isInActivationGroup = false;     
         internal bool test = false;
 
-        public ToggleActivatableService(ToggleActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncService worldStateSyncService, ActivatableGroupsContainer activatableGroupsContainer)
+        public ToggleActivatableService(ToggleActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncableContainer worldStateSyncableContainer, 
+            ActivatableGroupsContainer activatableGroupsContainer)
         {
-            _StateModule = new(state, config.StateConfig, id, worldStateSyncService,activatableGroupsContainer);
+            _StateModule = new(state, config.StateConfig, id, worldStateSyncableContainer, activatableGroupsContainer);
 
             _RangedClickInteractionModule = new(config.ActivatableRangedInteractionConfig, config.GeneralInteractionConfig, id, config.ActivatableRangedInteractionConfig.ActivateAtRangeInVR);
 

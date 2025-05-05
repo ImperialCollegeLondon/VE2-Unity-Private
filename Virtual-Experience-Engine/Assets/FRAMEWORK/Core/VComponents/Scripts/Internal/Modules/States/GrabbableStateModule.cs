@@ -2,7 +2,10 @@ using System;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
+using VE2.Common.API;
+using VE2.Core.Common;
 using VE2.Core.VComponents.API;
+using VE2.NonCore.Instancing.API;
 using static VE2.Core.Common.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
@@ -73,8 +76,8 @@ namespace VE2.Core.VComponents.Internal
         internal event Action<ushort> OnDropConfirmed;
 
         public GrabbableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id,
-            IWorldStateSyncService worldStateSyncService, HandInteractorContainer interactorContainer, IRangedGrabInteractionModule rangedGrabInteractionModule) :
-            base(state, config, id, worldStateSyncService)
+            IWorldStateSyncableContainer worldStateSyncableContainer, HandInteractorContainer interactorContainer, IRangedGrabInteractionModule rangedGrabInteractionModule) :
+            base(state, config, id, worldStateSyncableContainer)
         {
             _interactorContainer = interactorContainer;
             _rangedGrabInteractionModule = rangedGrabInteractionModule;

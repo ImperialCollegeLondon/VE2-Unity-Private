@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using VE2.Common.TransformWrapper;
 using VE2.Core.VComponents.API;
+using VE2.Common.API;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -73,7 +74,7 @@ namespace VE2.Core.VComponents.Internal
                 _adjustableState,
                 _freeGrabbableState,
                 id,
-                VComponentsAPI.WorldStateSyncService,
+                VE2API.WorldStateSyncableContainer,
                 VComponentsAPI.InteractorContainer);
         }
 

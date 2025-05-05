@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
+using VE2.Core.Common;
 using VE2.Core.VComponents.API;
+using VE2.NonCore.Instancing.API;
 using static VE2.Core.Common.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
@@ -70,7 +72,8 @@ namespace VE2.Core.VComponents.Internal
 
         private readonly ActivatableGroupsContainer _activatableGroupsContainer;
 
-        public SingleInteractorActivatableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncService worldStateSyncService, ActivatableGroupsContainer activatableGroupsContainer) : base(state, config, id, worldStateSyncService)
+        public SingleInteractorActivatableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncableContainer worldStateSyncableContainer, 
+            ActivatableGroupsContainer activatableGroupsContainer) : base(state, config, id, worldStateSyncableContainer)
         {
             _activationGroupID = _config.ActivationGroupID;
             _activatableGroupsContainer = activatableGroupsContainer;

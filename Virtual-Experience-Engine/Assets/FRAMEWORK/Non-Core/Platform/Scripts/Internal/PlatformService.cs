@@ -12,7 +12,7 @@ using VE2.NonCore.Platform.API;
 using VE2.Core.Common;
 using static VE2.Core.Player.API.PlayerSerializables;
 using VE2.Core.UI.API;
-using VE2.NonCore.Instancing.API;
+using VE2.Common.API;
 
 namespace VE2.NonCore.Platform.Internal
 {
@@ -21,7 +21,7 @@ namespace VE2.NonCore.Platform.Internal
         internal static PlatformService Create(IPlatformSettingsHandler platformSettingsHandler)
         {
             PlatformCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
-            IPlayerServiceInternal playerService = PlayerAPI.Player as IPlayerServiceInternal;
+            IPlayerServiceInternal playerService = VE2API.Player as IPlayerServiceInternal;
             PluginLoader pluginLoader = new PluginLoader(platformSettingsHandler, playerService);
             return new PlatformService(
                 commsHandler, 

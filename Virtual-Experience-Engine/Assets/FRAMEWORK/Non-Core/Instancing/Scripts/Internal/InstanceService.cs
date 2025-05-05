@@ -10,13 +10,15 @@ using VE2.Core.Common;
 using VE2.NonCore.Platform.API;
 using VE2.Core.UI.API;
 using System.Collections.Generic;
+using VE2.Common.API;
 
 namespace VE2.NonCore.Instancing.Internal
 {
     internal static class InstanceServiceFactory
     {
-        internal static InstanceService Create(LocalClientIdWrapper localClientIDWrapper, bool connectAutomatically, 
-            ConnectionStateWrapper connectionStateDebugWrapper, ServerConnectionSettings debugServerSettings, string debugInstanceCode, InstanceCommsHandlerConfig config, SyncInfosContainer syncInfosContainer) 
+        internal static InstanceService Create(Common.API.ClientIDWrapper localClientIDWrapper, bool connectAutomatically, 
+            ConnectionStateWrapper connectionStateDebugWrapper, ServerConnectionSettings debugServerSettings, string debugInstanceCode, 
+            InstanceCommsHandlerConfig config) 
         {
             InstanceNetworkingCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
 
@@ -25,13 +27,14 @@ namespace VE2.NonCore.Instancing.Internal
                 localClientIDWrapper, 
                 connectionStateDebugWrapper,
                 VComponentsAPI.InteractorContainer,
-                PlayerAPI.Player as IPlayerServiceInternal,
+                VE2API.Player as IPlayerServiceInternal,
                 UIAPI.PrimaryUIService as IPrimaryUIServiceInternal,
                 connectAutomatically,
                 debugServerSettings,
                 debugInstanceCode,
                 config,
-                syncInfosContainer);
+                VE2API.WorldStateSyncableContainer,
+                VE2API.LocalPlayerSyncableContainer);
         }
     }
 
@@ -57,12 +60,13 @@ namespace VE2.NonCore.Instancing.Internal
 
         #region Internal interfaces
         public event Action<ushort> OnClientIDReady;
-        internal IWorldStateSyncService WorldStateSyncService => _worldStateSyncer;
+        //internal IWorldStateSyncService WorldStateSyncService => _worldStateSyncer;
         #endregion
 
 
         #region Shared interfaces
         public ushort LocalClientID => _instanceInfoContainer.LocalClientID;
+        public bool IsClientIDReady => LocalClientID != ushort.MaxValue;
         #endregion
 
 
@@ -98,10 +102,10 @@ namespace VE2.NonCore.Instancing.Internal
         internal readonly RemotePlayerSyncer _remotePlayerSyncer;
         internal PingSyncer _pingSyncer;
 
-        public InstanceService(IPluginSyncCommsHandler commsHandler, LocalClientIdWrapper localClientIDWrapper, 
-            ConnectionStateWrapper connectionStateDebugWrapper,
+        public InstanceService(IPluginSyncCommsHandler commsHandler, Common.API.ClientIDWrapper localClientIDWrapper, ConnectionStateWrapper connectionStateDebugWrapper,
             HandInteractorContainer interactorContainer, IPlayerServiceInternal playerServiceInternal, IPrimaryUIServiceInternal primaryUIService,
-            bool connectAutomatically, ServerConnectionSettings serverSettings, string instanceCode, InstanceCommsHandlerConfig config, SyncInfosContainer syncInfosContainer)
+            bool connectAutomatically, ServerConnectionSettings serverSettings, string instanceCode, InstanceCommsHandlerConfig config, 
+            IWorldStateSyncableContainer worldStateSyncableContainer, ILocalPlayerSyncableContainer localPlayerSyncableContainer)
 
         {
             _commsHandler = commsHandler;
@@ -120,8 +124,8 @@ namespace VE2.NonCore.Instancing.Internal
             _commsHandler.OnReceiveInstanceInfoUpdate += HandleReceiveInstanceInfoUpdate;
             _commsHandler.OnDisconnectedFromServer += HandleDisconnectFromServer;
 
-            _worldStateSyncer = new(_commsHandler, _instanceInfoContainer, syncInfosContainer); //receives and transmits
-            _localPlayerSyncer = new(_commsHandler, playerServiceInternal, _instanceInfoContainer); //only transmits
+            _worldStateSyncer = new(_commsHandler, _instanceInfoContainer, worldStateSyncableContainer); //receives and transmits
+            _localPlayerSyncer = new(_commsHandler, _instanceInfoContainer, localPlayerSyncableContainer); //only transmits
             _remotePlayerSyncer = new(_commsHandler, _instanceInfoContainer, _interactorContainer, _playerService); //only receives
             _pingSyncer = new(_commsHandler, _instanceInfoContainer); //receives and transmits
 
@@ -286,8 +290,8 @@ namespace VE2.NonCore.Instancing.Internal
 
     internal class InstanceInfoContainer
     {
-        public readonly LocalClientIdWrapper LocalClientIdWrapper;
-        public ushort LocalClientID { get => LocalClientIdWrapper.LocalClientID; set => LocalClientIdWrapper.LocalClientID = value; }
+        public readonly Common.API.ClientIDWrapper LocalClientIdWrapper;
+        public ushort LocalClientID { get => LocalClientIdWrapper.ClientID; set => LocalClientIdWrapper.ClientID = value; }
 
         public event Action OnBecomeHost;
         public event Action OnLoseHost;
@@ -340,7 +344,7 @@ namespace VE2.NonCore.Instancing.Internal
              } 
         }
 
-        public InstanceInfoContainer(LocalClientIdWrapper localClientIdWrapper)
+        public InstanceInfoContainer(Common.API.ClientIDWrapper localClientIdWrapper)
         {
             LocalClientIdWrapper = localClientIdWrapper;
         }

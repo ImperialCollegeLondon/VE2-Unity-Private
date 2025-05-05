@@ -5,7 +5,8 @@ using UnityEngine.SceneManagement;
 
 namespace VE2.Core.VComponents.API
 {
-    //Internal as plugin doesn't talk to this - it talks to the interfaces on the VCs directly
+    //Internal as plugin doesn't talk to this - it talks to the interfaces on the VCs directly. 
+    //This API is just for the 
     [ExecuteAlways]
     [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     internal class VComponentsAPI : MonoBehaviour
@@ -25,30 +26,10 @@ namespace VE2.Core.VComponents.API
             }
         }
 
-        internal static bool HasMultiPlayerSupport => WorldStateSyncProvider != null && WorldStateSyncProvider.IsEnabled;
-        internal static IWorldStateSyncService WorldStateSyncService => HasMultiPlayerSupport ? WorldStateSyncProvider?.WorldStateSyncService : null;
-
-        [SerializeField, HideInInspector] private string _worldStateSyncProviderGOName;
-        private IWorldStateSyncProvider _worldStateSyncProvider;
-        internal static IWorldStateSyncProvider WorldStateSyncProvider {
-            get 
-            {
-                if (Instance._worldStateSyncProvider == null && !string.IsNullOrEmpty(Instance._worldStateSyncProviderGOName))
-                    Instance._worldStateSyncProvider = GameObject.Find(Instance._worldStateSyncProviderGOName)?.GetComponent<IWorldStateSyncProvider>();
-
-                return Instance._worldStateSyncProvider;
-            }
-            set
-            {
-                Instance._worldStateSyncProvider = value;
-
-                if (value != null)
-                    Instance._worldStateSyncProviderGOName = value.GameObjectName;
-            }
-        }
-
         private HandInteractorContainer _interactorContainer = new();
 
+        //Doesn't really belong here, only VC internals need this, but does no harm living here for now.
+        //If we move this in future, we'll need another monobehaviour to preserve the groups during a reload, e.g VCInternalDataContainer or something
         private ActivatableGroupsContainer _activatableGroupsContainer = new(); 
 
         /// <summary>
@@ -60,6 +41,7 @@ namespace VE2.Core.VComponents.API
         /// Contains all activatable groups in the scene, allows activatables to perform validation on activation  within their group 
         /// </summary>
         internal static ActivatableGroupsContainer ActivatableGroupsContainer { get => Instance._activatableGroupsContainer; private set => Instance._activatableGroupsContainer = value; }
+        
         private void Awake()
         {
             _instance = this;
@@ -123,24 +105,5 @@ namespace VE2.Core.VComponents.API
         public void Reset() => _activatableGroups.Clear();
     }
 
-    [Serializable]
-    public class InterfaceReference<T> where T : class
-    {
-        [SerializeField] private GameObject _gameObject;
-
-        private T cached;
-
-        public T Interface
-        {
-            get
-            {
-                if (cached == null && _gameObject != null)
-                    cached = _gameObject.GetComponent(typeof(T)) as T;
-                return cached;
-            }
-        }
-
-        public static implicit operator T(InterfaceReference<T> reference) => reference?.Interface;
-    }
 
 }

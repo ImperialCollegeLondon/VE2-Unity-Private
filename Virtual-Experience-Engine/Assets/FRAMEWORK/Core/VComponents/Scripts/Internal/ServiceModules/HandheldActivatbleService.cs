@@ -2,6 +2,8 @@ using UnityEngine;
 using System;
 using VE2.Core.VComponents.API;
 using static VE2.Core.Common.CommonSerializables;
+using VE2.NonCore.Instancing.API;
+using VE2.Core.Common;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -23,9 +25,10 @@ namespace VE2.Core.VComponents.Internal
         private readonly HandheldClickInteractionModule _HandheldClickInteractionModule;
         #endregion
 
-        public HandheldActivatableService(HandheldActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncService worldStateSyncService, ActivatableGroupsContainer activatableGroupsContainer)
+        public HandheldActivatableService(HandheldActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncableContainer worldStateSyncableContainer, 
+            ActivatableGroupsContainer activatableGroupsContainer)
         {
-            _StateModule = new(state, config.StateConfig, id, worldStateSyncService, activatableGroupsContainer);
+            _StateModule = new(state, config.StateConfig, id, worldStateSyncableContainer, activatableGroupsContainer);
             _HandheldClickInteractionModule = new(config.GeneralInteractionConfig);
 
             _HandheldClickInteractionModule.OnClickDown += HandleInteract;

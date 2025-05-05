@@ -1,4 +1,5 @@
 using UnityEngine;
+using VE2.Common.API;
 using VE2.Core.Player.API;
 
 namespace VE2.Core.Player.Internal
@@ -16,8 +17,8 @@ namespace VE2.Core.Player.Internal
                 if (_cameraTransform != null && _cameraTransform.gameObject.activeInHierarchy)
                     return _cameraTransform;
 
-                if (PlayerAPI.Player != null)
-                    _cameraTransform = PlayerAPI.Player.ActiveCamera.transform;
+                if (VE2API.Player != null)
+                    _cameraTransform = VE2API.Player.ActiveCamera.transform;
                 else
                     _cameraTransform = Camera.main?.transform;
 

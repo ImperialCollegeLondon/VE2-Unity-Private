@@ -1,4 +1,5 @@
 using UnityEngine;
+using VE2.Common.API;
 using VE2.Core.VComponents.API;
 
 namespace VE2.Core.VComponents.Internal
@@ -22,7 +23,7 @@ namespace VE2.Core.VComponents.Internal
             if (_state == null)
                 _state = new AdjustableState(float.MaxValue);
 
-            _service = new(_config, _state, id, VComponentsAPI.WorldStateSyncService);
+            _service = new(_config, _state, id, VE2API.WorldStateSyncableContainer);
         }
 
         private void FixedUpdate()

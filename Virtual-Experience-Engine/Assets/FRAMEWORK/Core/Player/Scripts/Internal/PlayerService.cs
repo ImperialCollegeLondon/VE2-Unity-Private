@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using VE2.Common.API;
 using VE2.Core.Common;
 using VE2.Core.Player.API;
 using VE2.Core.UI.API;
@@ -17,13 +18,14 @@ namespace VE2.Core.Player.Internal
             return new PlayerService(state, config, 
                 VComponentsAPI.InteractorContainer,
                 playerPersistentDataHandler,
-                PlayerAPI.LocalClientIDProvider,
-                PlayerAPI.InputHandler.PlayerInputContainer,
+                VE2API.LocalClientIdWrapper,
+                VE2API.LocalPlayerSyncableContainer,
+                VE2API.InputHandler.PlayerInputContainer,
                 new RaycastProvider(),
                 new CollisionDetectorFactory(),
                 xrManagerWrapper,
                 primaryUIService,
-                secondaryUIService);
+                secondaryUIService); //TODO: reorder these?
         }
     }
 
@@ -110,11 +112,13 @@ namespace VE2.Core.Player.Internal
 
         private readonly PlayerInputContainer _playerInputContainer;
         private readonly IPlayerPersistentDataHandler _playerSettingsHandler;
+        private readonly IClientIDWrapper _localClientIDWrapper;
+        private readonly ILocalPlayerSyncableContainer _playerSyncContainer;
 
         private readonly IPrimaryUIServiceInternal _primaryUIService;
 
         internal PlayerService(PlayerTransformData transformData, PlayerConfig config, HandInteractorContainer interactorContainer, 
-            IPlayerPersistentDataHandler playerSettingsHandler, ILocalClientIDProvider playerSyncer, 
+            IPlayerPersistentDataHandler playerSettingsHandler, IClientIDWrapper localClientIDWrapper, ILocalPlayerSyncableContainer playerSyncContainer, 
             PlayerInputContainer playerInputContainer, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, IXRManagerWrapper xrManagerWrapper, 
             IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService)
         {
@@ -123,6 +127,9 @@ namespace VE2.Core.Player.Internal
 
             _playerInputContainer = playerInputContainer;
             _playerSettingsHandler = playerSettingsHandler;
+            _localClientIDWrapper = localClientIDWrapper;
+            _playerSyncContainer = playerSyncContainer;
+            _playerSyncContainer.RegisterLocalPlayer(this);
 
             if (_config.PlayerModeConfig.EnableVR)
             {
@@ -131,7 +138,7 @@ namespace VE2.Core.Player.Internal
                 _playerVR = new PlayerControllerVR(
                     interactorContainer, _playerInputContainer.PlayerVRInputContainer,
                     playerSettingsHandler, new PlayerVRControlConfig(), _config.PlayerInteractionConfig, _config.MovementModeConfig, _config.CameraConfig,
-                    raycastProvider, collisionDetectorFactory, xrManagerWrapper, playerSyncer, primaryUIService, secondaryUIService);
+                    raycastProvider, collisionDetectorFactory, xrManagerWrapper, localClientIDWrapper, primaryUIService, secondaryUIService);
             }
 
             if (_config.PlayerModeConfig.Enable2D)
@@ -139,7 +146,7 @@ namespace VE2.Core.Player.Internal
                 _player2D = new PlayerController2D(
                     interactorContainer, _playerInputContainer.Player2DInputContainer,
                     playerSettingsHandler, new Player2DControlConfig(), _config.PlayerInteractionConfig, _config.MovementModeConfig, _config.CameraConfig,
-                    raycastProvider, collisionDetectorFactory, playerSyncer, primaryUIService, secondaryUIService, this);
+                    raycastProvider, collisionDetectorFactory, localClientIDWrapper, primaryUIService, secondaryUIService, this);
             }
 
             _playerSettingsHandler.OnDebugSaveAppearance += HandlePlayerPresentationChanged;
@@ -256,6 +263,8 @@ namespace VE2.Core.Player.Internal
         
         public void TearDown() 
         {
+            _playerSyncContainer.DeregisterLocalPlayer();
+
             //TODO - maybe make these TearDown methods instead?
             if (_player2D != null)
             {

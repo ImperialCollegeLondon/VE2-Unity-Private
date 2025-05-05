@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using VE2.Common.TransformWrapper;
 using VE2.Core.VComponents.API;
 using Unity.Collections;
+using VE2.Common.API;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -101,7 +102,8 @@ namespace VE2.Core.VComponents.Internal
                 _config, 
                 _state, 
                 id,
-                VComponentsAPI.WorldStateSyncService,
+                VE2API.WorldStateSyncableContainer,
+                VE2API.GrabInteractablesContainer,
                 VComponentsAPI.InteractorContainer,
                 _rigidbodyWrapper,
                 Resources.Load<PhysicsConstants>("PhysicsConstants"),

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+using VE2.Common.API;
 using VE2.Core.Common;
 using VE2.Core.Player.API;
 using VE2.Core.UI.API;
@@ -46,7 +47,7 @@ namespace VE2.Core.Player.Internal
         [HideIf(nameof(_hasMultiplayerSupport), false)]
         [SpaceArea(spaceAfter: 10), BeginGroup(Style = GroupStyle.Round, ApplyCondition = true), EndGroup(ApplyCondition = true), SerializeField, IgnoreParent] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new(TransmissionProtocol.UDP, 35);
         
-        private bool _hasMultiplayerSupport => PlayerAPI.HasMultiPlayerSupport;
+        private bool _hasMultiplayerSupport => VE2API.HasMultiPlayerSupport;
     }
 
     [Serializable]
@@ -155,7 +156,7 @@ namespace VE2.Core.Player.Internal
             }
             #endif
 
-            PlayerAPI.PlayerServiceProvider = this;
+            VE2API.PlayerServiceProvider = this;
 
             if (!Application.isPlaying || _playerService != null)
                 return;
@@ -178,7 +179,7 @@ namespace VE2.Core.Player.Internal
 
                 #if UNITY_EDITOR
                 if (_playerConfig.PlayerModeConfig.SupportedPlayerModes == SupportedPlayerModes.Both)
-                    _playerTransformData.IsVRMode = PlayerAPI.PreferVRMode;
+                    _playerTransformData.IsVRMode = VE2API.PreferVRMode;
                 #endif
             }
 

@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using VE2.Core.Common;
 
 namespace VE2.Core.Common
 {
@@ -27,11 +28,5 @@ namespace VE2.Core.Common
     public class TransmissionConfig
     {
         [SerializeField] public TransmissionProtocol TransmissionType;
-    }
-
-    public enum TransmissionProtocol 
-    {
-        UDP,
-        TCP
     }
 }

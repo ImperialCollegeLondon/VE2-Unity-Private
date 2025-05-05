@@ -217,7 +217,6 @@ namespace VE2.Core.Player.API
                         }
                 }
 
-                //TODO: Should live in Player API?
                 [Serializable]
                 public class OverridableAvatarAppearance : VE2Serializable
                 {
