@@ -48,7 +48,7 @@ namespace VE2.Core.Player.Internal
 
         public TeleportController(TeleportInputContainer inputContainer,
             LineRenderer teleportLineRenderer, LineRenderer interactorLineRenderer, GameObject teleportCursorPrefab,
-            Transform rootTransform, Transform headTransform, Transform otherHandTransformReference,  
+            Transform rootTransform, Transform headTransform, Transform otherHandTransformReference,
             FreeGrabbableWrapper thisHandGrabbableWrapper, FreeGrabbableWrapper otherHandGrabbableWrapper,
             HoveringOverScrollableIndicator hoveringOverScrollableIndicator, MovementModeConfig movementModeConfig)
         {
@@ -79,7 +79,7 @@ namespace VE2.Core.Player.Internal
 
         public void HandleUpdate()
         {
-            if (_teleporterActive) 
+            if (_teleporterActive)
                 UpdateTeleportRay();
         }
 
@@ -95,12 +95,12 @@ namespace VE2.Core.Player.Internal
             _inputContainer.Teleport.OnReleased -= HandleTeleportDeactivated;
         }
 
-        private void HandleTeleportActivated() 
-        { 
+        private void HandleTeleportActivated()
+        {
             //only handle TP if that we were clear of interactables at the time of activation
             //Fixes case of "point at a scrollable, hold up, point away, release stick", which causees an unexpected TP
             if (_hoveringOverScrollableIndicator.IsHoveringOverScrollableObject || _thisHandGrabbableWrapper.RangedFreeGrabInteraction != null)
-                return; 
+                return;
 
             _teleporterActive = true;
             ToggleTeleportVisual(true);
@@ -134,7 +134,7 @@ namespace VE2.Core.Player.Internal
 
                 //if the other hand is grabbing something, teleport it along with us 
                 //We don't have to worry about that for this hand, can't be teleporting if we're grabbing!
-                _otherHandGrabbableWrapper.RangedFreeGrabInteraction?.ApplyDeltaWhenGrabbed(deltaPosition, deltaRotation); 
+                _otherHandGrabbableWrapper.RangedFreeGrabInteraction?.ApplyDeltaWhenGrabbed(deltaPosition, deltaRotation);
             }
         }
 
@@ -157,7 +157,7 @@ namespace VE2.Core.Player.Internal
                 float stickX = _inputContainer.TeleportDirection.Value.x;
                 float distance = Mathf.Lerp(1f, 3f, stickX); // TODO: Make this configurable
                 Vector3 teleportDestination = startPosition + direction * distance;
-                
+
                 DrawStraightLine(startPosition, teleportDestination);
 
                 if (CanTeleportToFreeFlyDestination(startPosition, teleportDestination))
@@ -185,7 +185,7 @@ namespace VE2.Core.Player.Internal
                     {
                         arrowDirection.Normalize();
                     }
-                    _teleportRotation =  Quaternion.LookRotation(arrowDirection, Vector3.up);
+                    _teleportRotation = Quaternion.LookRotation(arrowDirection, Vector3.up);
 
                     ToggleTeleportLineVisualShowsValid(true);
 
@@ -249,14 +249,29 @@ namespace VE2.Core.Player.Internal
                     _hitPoint = hit.point;
                     _teleportCursor.transform.position = _hitPoint;
 
-                    UpdateTargetRotation(hit.normal);
+                    V_TeleportAnchor teleportAnchor = SphereCastFromPoint(hit.point, hit.normal);
 
-                    // Update the line renderer with the simulated trajectory points.
-                    _teleportLineRenderer.positionCount = trajectoryPoints.Count;
-                    for (int i = 0; i < trajectoryPoints.Count; i++)
+                    if (teleportAnchor != null)
                     {
-                        _teleportLineRenderer.SetPosition(i, _teleportLineRenderer.transform.InverseTransformPoint(trajectoryPoints[i]));
+                        _hitPoint = teleportAnchor.transform.position;
+                        _teleportCursor.transform.position = _hitPoint;
+                        _teleportCursor.transform.rotation = teleportAnchor.transform.rotation;
+                        _teleportRotation = teleportAnchor.transform.rotation;
+
+                        DrawBezierCurve(_teleportLineRenderer.transform.InverseTransformPoint(startPosition), _teleportLineRenderer.transform.InverseTransformPoint(_hitPoint), _lineSegmentCount);
                     }
+                    else
+                    {
+                        UpdateTargetRotation(hit.normal);
+
+                        // Update the line renderer with the simulated trajectory points.
+                        _teleportLineRenderer.positionCount = trajectoryPoints.Count;
+                        for (int i = 0; i < trajectoryPoints.Count; i++)
+                        {
+                            _teleportLineRenderer.SetPosition(i, _teleportLineRenderer.transform.InverseTransformPoint(trajectoryPoints[i]));
+                        }
+                    }
+
                     ToggleTeleportLineVisualShowsValid(true);
                     _teleportCursor.SetActive(true);
                     _isTeleportTargetValid = true;
@@ -274,6 +289,21 @@ namespace VE2.Core.Player.Internal
                     _isTeleportTargetValid = false;
                 }
             }
+        }
+
+        private V_TeleportAnchor SphereCastFromPoint(Vector3 point, Vector3 normal)
+        {
+            RaycastHit[] hits = Physics.SphereCastAll(point, 3f, normal, 0f, _movementModeConfig.CollisionLayers | _movementModeConfig.TraversableLayers, QueryTriggerInteraction.Collide);
+
+            foreach (RaycastHit hit in hits)
+            {
+                if (hit.collider.gameObject.TryGetComponent(out V_TeleportAnchor teleportAnchor) && Vector3.Distance(point, teleportAnchor.transform.position) <= teleportAnchor.Range)
+                {
+                    return teleportAnchor;
+                }
+            }
+
+            return null;
         }
 
         private void ToggleTeleportLineVisualShowsValid(bool toggle)
@@ -340,8 +370,56 @@ namespace VE2.Core.Player.Internal
 
             return true; // No obstacles, can teleport
         }
+
+        private void DrawBezierCurve(Vector3 startPoint, Vector3 hitpos, int segments = 30)
+        {
+            Vector3 endPoint = hitpos;
+
+            Vector3 controlPointPos = CalculateControlPoint(startPoint, endPoint);
+
+            Vector3[] points = new Vector3[segments];
+
+            for (int i = 0; i < points.Length; i++)
+            {
+                float t = i / (float)(points.Length - 1);
+                points[i] = CalculateBezierPoint(startPoint, endPoint, controlPointPos, t);
+            }
+
+            _teleportLineRenderer.positionCount = points.Length;
+            _teleportLineRenderer.SetPositions(points);
+        }
+
+        private Vector3 CalculateControlPoint(Vector3 start, Vector3 end)
+        {
+            Vector3 controlPoint = (start + end) * 0.005f;
+            controlPoint.y = Mathf.Max(start.y, end.y) + 0.008f;
+
+            // Adjust control point position based on the relative positions of start and end
+            Vector3 directionToControlPoint = controlPoint - start;
+            Vector3 directionToEnd = end - start;
+
+            if (Vector3.Dot(directionToControlPoint, directionToEnd) < 0f)
+            {
+                controlPoint = start + Vector3.up * Mathf.Abs(directionToControlPoint.magnitude);
+            }
+
+            return controlPoint;
+        }
+
+        private Vector3 CalculateBezierPoint(Vector3 start, Vector3 end, Vector3 controlPoint, float t)
+        {
+            float u = 1 - t;
+            float tt = t * t;
+            float uu = u * u;
+
+            Vector3 point = uu * start;
+            point += 2 * u * t * controlPoint;
+            point += tt * end;
+
+            return point;
+        }
     }
-    
+
     internal class HoveringOverScrollableIndicator
     {
         public bool IsHoveringOverScrollableObject = false;
