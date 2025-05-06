@@ -10171,7 +10171,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _preferVRMode: 0
   _localClientIdWrapper:
-    _clientID: 65535
+    _ClientID: 65535
 --- !u!4 &878036154
 Transform:
   m_ObjectHideFlags: 1

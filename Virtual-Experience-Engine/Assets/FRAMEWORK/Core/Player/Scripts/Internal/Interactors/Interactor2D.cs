@@ -25,7 +25,7 @@ namespace VE2.Core.Player.Internal
             _connectionPromptHandler = interactor2DReferences.ConnectionPromptHandler;
 
             //TODO: Don't want to do this in constructor, should happen in HandleOnEnable
-            if (localClientIDWrapper.IsClientIDReady)
+            if (!localClientIDWrapper.IsClientIDReady)
                 _connectionPromptHandler.NotifyWaitingForConnection();
         }
 

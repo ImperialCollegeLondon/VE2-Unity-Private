@@ -32,7 +32,7 @@ namespace VE2.Common.API
             }
         }
 
-        private void Awake()
+        private void OnEnable()
         {
             if (!Application.isPlaying)
             {
@@ -48,7 +48,7 @@ namespace VE2.Common.API
             }
             else 
             {
-                if (Instance._instancingServiceProvider == null)
+                if (Instance._instancingServiceProvider == null || !Instance._instancingServiceProvider.IsEnabled)
                     _instance._localClientIdWrapper.SetValue(0);
                 //Otherwise, instancing will be in charge of setting the client ID
             }

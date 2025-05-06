@@ -3,7 +3,7 @@ using UnityEngine;
 namespace VE2.Common.Shared
 {
     [CreateAssetMenu(fileName = "ColorConfiguration", menuName = "Scriptable Objects/ColorConfiguration")]
-    public class ColorConfiguration : ScriptableObject
+    internal class ColorConfiguration : ScriptableObject
     {
         private static ColorConfiguration _instance;
         public static ColorConfiguration Instance { 
