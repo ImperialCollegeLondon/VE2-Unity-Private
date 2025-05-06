@@ -59,7 +59,7 @@ namespace VE2.Core.Player.Internal
         private readonly RectTransform _secondaryUIHolder;
         private readonly RectTransform _overlayUIRect;
 
-        internal PlayerController2D(HandInteractorContainer interactorContainer, Player2DInputContainer player2DInputContainer, 
+        internal PlayerController2D(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, Player2DInputContainer player2DInputContainer, 
             IPlayerPersistentDataHandler playerPersistentDataHandler, Player2DControlConfig controlConfig, PlayerInteractionConfig interactionConfig, MovementModeConfig movementModeConfig, 
             CameraConfig cameraConfig, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, IClientIDWrapper localClientIDWrapper, 
             IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IPlayerServiceInternal playerService) 
@@ -84,7 +84,7 @@ namespace VE2.Core.Player.Internal
             _overlayUIRect = player2DReferences.OverlayUIRect;
 
             _interactor2D = new(
-                interactorContainer, player2DInputContainer.InteractorInputContainer2D, interactionConfig,
+                interactorContainer, grabInteractablesContainer, player2DInputContainer.InteractorInputContainer2D, interactionConfig,
                 player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, localClientIDWrapper);
 
             _feetInteractor2D = new(collisionDetectorFactory, ColliderType.Feet2D, player2DReferences.Interactor2DReferences.FeetCollider, InteractorType.Feet, localClientIDWrapper);

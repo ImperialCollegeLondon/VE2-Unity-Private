@@ -2,7 +2,8 @@ using System;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
-using VE2.Core.VComponents.API;
+using VE2.Core.Common;
+using VE2.Core.VComponents.Shared;
 using VE2.NonCore.Instancing.API;
 using static VE2.Core.Common.CommonSerializables;
 
@@ -25,8 +26,8 @@ namespace VE2.NonCore.Instancing.Internal
         private RigidbodySyncableState _state => (RigidbodySyncableState)State;
         private RigidbodySyncableStateConfig _config => (RigidbodySyncableStateConfig)Config;
 
-        public RigidbodySyncableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncService worldStateSyncService) :
-            base(state, config, id, worldStateSyncService)  { }
+        public RigidbodySyncableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncableContainer worldStateSyncableContainer) :
+            base(state, config, id, worldStateSyncableContainer)  { }
 
         protected override void UpdateBytes(byte[] newBytes)
         {

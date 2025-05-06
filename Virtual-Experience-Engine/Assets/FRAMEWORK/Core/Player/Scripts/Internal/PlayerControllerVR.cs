@@ -55,7 +55,7 @@ namespace VE2.Core.Player.Internal
         private readonly RectTransform _primaryUIHolderRect;
         private readonly ISecondaryUIServiceInternal _secondaryUIService;
 
-        internal PlayerControllerVR(HandInteractorContainer interactorContainer, PlayerVRInputContainer playerVRInputContainer, IPlayerPersistentDataHandler playerSettingsHandler, 
+        internal PlayerControllerVR(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, PlayerVRInputContainer playerVRInputContainer, IPlayerPersistentDataHandler playerSettingsHandler, 
             PlayerVRControlConfig controlConfig, PlayerInteractionConfig interactionConfig, MovementModeConfig movementModeConfig, CameraConfig cameraConfig, IRaycastProvider raycastProvider, 
             ICollisionDetectorFactory collisionDetectorFactory, IXRManagerWrapper xrManagerSettingsWrapper, IClientIDWrapper localClientIDWrapper,
             IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService)
@@ -93,12 +93,12 @@ namespace VE2.Core.Player.Internal
             FreeGrabbableWrapper leftHandGrabbableWrapper = new FreeGrabbableWrapper();
             FreeGrabbableWrapper rightHandGrabbableWrapper = new FreeGrabbableWrapper();
 
-            _handControllerLeft = CreateHandController(handVRLeftGO, handVRRightGO, interactorContainer,
+            _handControllerLeft = CreateHandController(handVRLeftGO, handVRRightGO, interactorContainer, grabInteractablesContainer, 
                 playerVRInputContainer.HandVRLeftInputContainer, playerVRInputContainer.HandVRRightInputContainer.DragLocomotorInputContainer,
                 interactionConfig, InteractorType.LeftHandVR, raycastProvider, collisionDetectorFactory, ColliderType.HandVRLeft, localClientIDWrapper, 
                 leftHandGrabbableWrapper, rightHandGrabbableWrapper, secondaryUIService, movementModeConfig, false);
 
-            _handControllerRight = CreateHandController(handVRRightGO, handVRLeftGO, interactorContainer,
+            _handControllerRight = CreateHandController(handVRRightGO, handVRLeftGO, interactorContainer, grabInteractablesContainer, 
                 playerVRInputContainer.HandVRRightInputContainer, playerVRInputContainer.HandVRLeftInputContainer.DragLocomotorInputContainer,
                 interactionConfig, InteractorType.RightHandVR, raycastProvider, collisionDetectorFactory, ColliderType.HandVRRight, localClientIDWrapper, 
                 rightHandGrabbableWrapper, leftHandGrabbableWrapper, secondaryUIService, movementModeConfig, true);
@@ -107,7 +107,7 @@ namespace VE2.Core.Player.Internal
         }
 
 
-        private HandController CreateHandController(GameObject handGO, GameObject otherHandGO, HandInteractorContainer interactorContainer,
+        private HandController CreateHandController(GameObject handGO, GameObject otherHandGO, HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer,
             HandVRInputContainer handVRInputContainer, DragLocomotorInputContainer otherHandDragInputContainer, PlayerInteractionConfig playerInteractionConfig, InteractorType interactorType,
             IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ColliderType colliderType, IClientIDWrapper localClientID, FreeGrabbableWrapper thisHandGrabbableWrapper,
             FreeGrabbableWrapper otherHandGrabbableWrapper, ISecondaryUIServiceInternal secondaryUIService, MovementModeConfig movementModeConfig, bool needsToFlip)
@@ -118,7 +118,7 @@ namespace VE2.Core.Player.Internal
             HoveringOverScrollableIndicator hoveringOverScrollableIndicator = new();
 
             InteractorVR interactor = new(
-                interactorContainer, handVRInputContainer.InteractorVRInputContainer,
+                interactorContainer, grabInteractablesContainer, handVRInputContainer.InteractorVRInputContainer,
                 playerInteractionConfig, thisHandVRReferences.InteractorVRReferences, 
                 interactorType, raycastProvider, collisionDetectorFactory, colliderType, localClientID, thisHandGrabbableWrapper, hoveringOverScrollableIndicator);
 

@@ -5,7 +5,7 @@ using UnityEngine.Events;
 using VE2.Common.API;
 using VE2.Core.Common;
 using VE2.Core.VComponents.API;
-using VE2.NonCore.Instancing.API;
+using VE2.Core.VComponents.Shared;
 using static VE2.Core.Common.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
@@ -99,7 +99,7 @@ namespace VE2.Core.VComponents.Internal
                 _config.InspectorDebug.IsGrabbed = true;
                 _config.InspectorDebug.ClientID = interactorID.ClientID;
 
-                interactor.ConfirmGrab(_rangedGrabInteractionModule);
+                interactor.ConfirmGrab(ID);
                 OnGrabConfirmed?.Invoke(interactorID.ClientID);
 
                 try

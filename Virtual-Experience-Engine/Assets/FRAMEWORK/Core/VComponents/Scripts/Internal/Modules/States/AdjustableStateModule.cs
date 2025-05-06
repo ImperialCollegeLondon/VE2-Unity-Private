@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using VE2.Core.Common;
 using VE2.Core.VComponents.API;
-using VE2.NonCore.Instancing.API;
+using VE2.Core.VComponents.Shared;
 using static VE2.Core.Common.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal

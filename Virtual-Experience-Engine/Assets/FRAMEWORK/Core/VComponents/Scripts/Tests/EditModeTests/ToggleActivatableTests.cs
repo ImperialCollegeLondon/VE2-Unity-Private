@@ -1,5 +1,6 @@
 using NSubstitute;
 using NUnit.Framework;
+using VE2.Core.Common;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
 
@@ -34,7 +35,7 @@ namespace VE2.Core.VComponents.Tests
                 GeneralInteractionConfig = new(),
                 ActivatableRangedInteractionConfig = new()
             };
-            ToggleActivatableService toggleActivatable = new(config, new SingleInteractorActivatableState(), "debug", Substitute.For<IWorldStateSyncService>(), _activatableGroupsContainer);
+            ToggleActivatableService toggleActivatable = new(config, new SingleInteractorActivatableState(), "debug", Substitute.For<IWorldStateSyncableContainer>(), _activatableGroupsContainer);
 
             // Stub out the VC (provider layer) with the activatable
             _v_toggleActivatableProviderStub = new(toggleActivatable);
@@ -92,7 +93,7 @@ namespace VE2.Core.VComponents.Tests
                 GeneralInteractionConfig = new(),
                 ActivatableRangedInteractionConfig = new()
             };
-            ToggleActivatableService toggleActivatable2 = new(config, new SingleInteractorActivatableState(), "debug2", Substitute.For<IWorldStateSyncService>(), _activatableGroupsContainer);
+            ToggleActivatableService toggleActivatable2 = new(config, new SingleInteractorActivatableState(), "debug2", Substitute.For<IWorldStateSyncableContainer>(), _activatableGroupsContainer);
 
             // Stub out the VC (provider layer) with the activatable
             _v_toggleActivatableProviderStub2 = new(toggleActivatable2);

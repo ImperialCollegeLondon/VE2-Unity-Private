@@ -1,9 +1,11 @@
 using System;
 using UnityEngine;
+using VE2.Common.API;
 using VE2.Core.Common;
+using VE2.Core.VComponents.API;
 using static VE2.Core.Common.CommonSerializables;
 
-namespace VE2.Common.API
+namespace VE2.Core.VComponents.Shared
 {
     [Serializable]
     internal class BaseWorldStateConfig 

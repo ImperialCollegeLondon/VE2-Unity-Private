@@ -75,6 +75,7 @@ namespace VE2.Core.VComponents.Internal
                 _freeGrabbableState,
                 id,
                 VE2API.WorldStateSyncableContainer,
+                VE2API.GrabInteractablesContainer,
                 VComponentsAPI.InteractorContainer);
         }
 

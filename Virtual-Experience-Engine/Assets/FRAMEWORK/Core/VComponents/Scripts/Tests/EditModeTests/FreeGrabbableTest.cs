@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using NSubstitute;
 using NUnit.Framework;
+using VE2.Common.API;
+using VE2.Core.Common;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
 
@@ -25,7 +27,8 @@ namespace VE2.Core.VComponents.Tests
                 new FreeGrabbableConfig(),
                 new GrabbableState(), 
                 "debug",
-                Substitute.For<IWorldStateSyncService>(),
+                Substitute.For<IWorldStateSyncableContainer>(),
+                Substitute.For<IGrabInteractablesContainer>(),
                 interactorContainerStub,
                 Substitute.For<IRigidbodyWrapper>(), 
                 new PhysicsConstants(),

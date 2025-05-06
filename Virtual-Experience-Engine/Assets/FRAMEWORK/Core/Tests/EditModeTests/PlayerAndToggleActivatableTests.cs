@@ -6,6 +6,7 @@ using VE2.Core.VComponents.Internal;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Tests;
 using VE2.Core.Player.Internal;
+using VE2.Core.Common;
 
 
 namespace VE2.Core.Tests
@@ -48,7 +49,7 @@ namespace VE2.Core.Tests
                 config,
                 new SingleInteractorActivatableState(),
                 debugLabel,
-                Substitute.For<IWorldStateSyncService>(),
+                Substitute.For<IWorldStateSyncableContainer>(),
                 _activatableGroupsContainer);
 
             var providerStub = new V_ToggleActivatableProviderStub(service);
@@ -89,7 +90,7 @@ namespace VE2.Core.Tests
         public void OnUserClick_WithHoveringActivatable_CustomerScriptReceivesOnActivate([Random((ushort)0, ushort.MaxValue, 1)] ushort localClientID)
         {
             RayCastProviderSetup.StubRangedInteractionModuleForRaycast(_firstActivatableRaycastInterface.RangedToggleClickInteractionModule);
-            LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID.Returns(localClientID);
+            LocalClientIDWrapperSetup.LocalClientIDWrapperStub.ClientID.Returns(localClientID);
 
             // Simulate click to activate
             SimulateClick();
@@ -111,7 +112,7 @@ namespace VE2.Core.Tests
         {
             // Stub first activatable's module and set client ID
             RayCastProviderSetup.StubRangedInteractionModuleForRaycast(_firstActivatableRaycastInterface.RangedToggleClickInteractionModule);
-            LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID.Returns(localClientID);
+            LocalClientIDWrapperSetup.LocalClientIDWrapperStub.ClientID.Returns(localClientID);
 
             // Activate first activatable
             SimulateClick();
@@ -136,7 +137,7 @@ namespace VE2.Core.Tests
         [Test]
         public void OnUserCollideEnterInVR_CollidingWithActivatable_CustomerReceivesOnActivate([Random((ushort)0, ushort.MaxValue, 1)] ushort localClientID)
         {
-            LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID.Returns(localClientID);
+            LocalClientIDWrapperSetup.LocalClientIDWrapperStub.ClientID.Returns(localClientID);
             ICollisionDetector handCollider = CollisionDetectorFactoryStubSetup.CollisionDetectorFactoryStub.CollisionDetectorStubs[ColliderType.HandVRLeft];
 
             PlayerInputContainerSetup.PlayerInputContainerStub.ChangeMode.OnPressed += Raise.Event<Action>();

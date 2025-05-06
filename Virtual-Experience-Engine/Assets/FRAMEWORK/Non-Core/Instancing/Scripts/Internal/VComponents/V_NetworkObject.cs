@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using VE2.Common.API;
 using VE2.Core.VComponents.API;
 using VE2.NonCore.Instancing.API;
 
@@ -25,7 +26,7 @@ namespace VE2.NonCore.Instancing.Internal
         private void OnEnable()
         {
             string id = "NetObj-" + gameObject.name;
-            _service = new NetworkObjectService(_config, _state, id, VComponentsAPI.WorldStateSyncService);
+            _service = new NetworkObjectService(_config, _state, id, VE2API.WorldStateSyncableContainer);
         }
 
         private void FixedUpdate()

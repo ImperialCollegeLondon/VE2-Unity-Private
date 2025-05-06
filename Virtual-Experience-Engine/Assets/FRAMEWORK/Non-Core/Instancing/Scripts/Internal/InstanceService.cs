@@ -16,7 +16,7 @@ namespace VE2.NonCore.Instancing.Internal
 {
     internal static class InstanceServiceFactory
     {
-        internal static InstanceService Create(Common.API.ClientIDWrapper localClientIDWrapper, bool connectAutomatically, 
+        internal static InstanceService Create(bool connectAutomatically, 
             ConnectionStateWrapper connectionStateDebugWrapper, ServerConnectionSettings debugServerSettings, string debugInstanceCode, 
             InstanceCommsHandlerConfig config) 
         {
@@ -24,7 +24,7 @@ namespace VE2.NonCore.Instancing.Internal
 
             return new InstanceService(
                 commsHandler, 
-                localClientIDWrapper, 
+                VE2API.LocalClientIdWrapper as ClientIDWrapper, 
                 connectionStateDebugWrapper,
                 VComponentsAPI.InteractorContainer,
                 VE2API.Player as IPlayerServiceInternal,
@@ -102,7 +102,7 @@ namespace VE2.NonCore.Instancing.Internal
         internal readonly RemotePlayerSyncer _remotePlayerSyncer;
         internal PingSyncer _pingSyncer;
 
-        public InstanceService(IPluginSyncCommsHandler commsHandler, Common.API.ClientIDWrapper localClientIDWrapper, ConnectionStateWrapper connectionStateDebugWrapper,
+        public InstanceService(IPluginSyncCommsHandler commsHandler, ClientIDWrapper localClientIDWrapper, ConnectionStateWrapper connectionStateDebugWrapper,
             HandInteractorContainer interactorContainer, IPlayerServiceInternal playerServiceInternal, IPrimaryUIServiceInternal primaryUIService,
             bool connectAutomatically, ServerConnectionSettings serverSettings, string instanceCode, InstanceCommsHandlerConfig config, 
             IWorldStateSyncableContainer worldStateSyncableContainer, ILocalPlayerSyncableContainer localPlayerSyncableContainer)
@@ -290,7 +290,7 @@ namespace VE2.NonCore.Instancing.Internal
 
     internal class InstanceInfoContainer
     {
-        public readonly Common.API.ClientIDWrapper LocalClientIdWrapper;
+        public readonly ClientIDWrapper LocalClientIdWrapper;
         public ushort LocalClientID { get => LocalClientIdWrapper.ClientID; set => LocalClientIdWrapper.ClientID = value; }
 
         public event Action OnBecomeHost;
@@ -344,7 +344,7 @@ namespace VE2.NonCore.Instancing.Internal
              } 
         }
 
-        public InstanceInfoContainer(Common.API.ClientIDWrapper localClientIdWrapper)
+        public InstanceInfoContainer(ClientIDWrapper localClientIdWrapper)
         {
             LocalClientIdWrapper = localClientIdWrapper;
         }

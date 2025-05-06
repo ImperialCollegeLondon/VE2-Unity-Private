@@ -35,7 +35,7 @@ namespace VE2.Core.Tests
         [Test]
         public void OnUserPressedDownAndReleased_OnCollidingWithPressurePlate_CustomerScriptTriggersOnActivateAndOnDeactivate([Random((ushort)0, ushort.MaxValue, 1)] ushort localClientID)
         {
-            LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID.Returns(localClientID);
+            LocalClientIDWrapperSetup.LocalClientIDWrapperStub.ClientID.Returns(localClientID);
             ICollisionDetector feetCollider = CollisionDetectorFactoryStubSetup.CollisionDetectorFactoryStub.CollisionDetectorStubs[ColliderType.Feet2D];
 
             feetCollider.OnCollideStart += Raise.Event<Action<ICollideInteractionModule>>(_pressurePlateCollideInterface.CollideInteractionModule);

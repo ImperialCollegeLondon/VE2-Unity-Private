@@ -7,7 +7,7 @@ namespace VE2.Core.VComponents.API
     internal interface IInteractor
     {
         public Transform GrabberTransform { get; }
-        public void ConfirmGrab(IRangedGrabInteractionModule rangedGrabInteractionModule);
+        public void ConfirmGrab(string id);
         public void ConfirmDrop();
     }
 }

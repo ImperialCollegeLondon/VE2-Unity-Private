@@ -39,7 +39,7 @@ namespace VE2.Core.Tests
         public void OnUserPressedDownAndReleased_WithHoveringActivatable_CustomerScriptTriggersOnActivateAndOnDeactivate([Random((ushort)0, ushort.MaxValue, 1)] ushort localClientID)
         {
             RayCastProviderSetup.StubRangedInteractionModuleForRaycast(_holdActivatableRaycastInterface.RangedInteractionModule);
-            LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID.Returns(localClientID);
+            LocalClientIDWrapperSetup.LocalClientIDWrapperStub.ClientID.Returns(localClientID);
 
             PlayerInputContainerSetup.RangedClick2D.OnPressed += Raise.Event<Action>();
             _customerScript.Received(1).HandleActivateReceived();
@@ -55,7 +55,7 @@ namespace VE2.Core.Tests
         [Test]
         public void OnUserCollideEnterAndExitInVR_OnCollidingActivatable_CustomerScriptTriggersOnActivateAndOnDeactivate([Random((ushort)0, ushort.MaxValue, 1)] ushort localClientID)
         {
-            LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID.Returns(localClientID);
+            LocalClientIDWrapperSetup.LocalClientIDWrapperStub.ClientID.Returns(localClientID);
             ICollisionDetector handColliderLeft = CollisionDetectorFactoryStubSetup.CollisionDetectorFactoryStub.CollisionDetectorStubs[ColliderType.HandVRLeft];
             ICollisionDetector handColliderRight = CollisionDetectorFactoryStubSetup.CollisionDetectorFactoryStub.CollisionDetectorStubs[ColliderType.HandVRRight];
 

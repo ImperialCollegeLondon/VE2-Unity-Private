@@ -58,6 +58,7 @@ namespace VE2.Core.Player.Internal
         private GameObject lastHoveredUIObject = null; // Keep track of the last hovered UI object
 
         private readonly HandInteractorContainer _interactorContainer;
+        private readonly IGrabInteractablesContainer _grabInteractablesContainer;
         private readonly InteractorInputContainer _interactorInputContainer;
         private readonly LayerMask _raycastLayerMask;
 
@@ -78,11 +79,12 @@ namespace VE2.Core.Player.Internal
 
         private readonly HoveringOverScrollableIndicator _hoveringOverScrollableIndicator;
 
-        internal PointerInteractor(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer, PlayerInteractionConfig interactionConfig,
+        internal PointerInteractor(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, InteractorInputContainer interactorInputContainer, PlayerInteractionConfig interactionConfig,
             InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, 
             IClientIDWrapper localClientIDWrapper, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator)
         {
             _interactorContainer = interactorContainer;
+            _grabInteractablesContainer = grabInteractablesContainer;
             _interactorInputContainer = interactorInputContainer;
             _raycastLayerMask = interactionConfig.RaycastLayers;
 
@@ -426,8 +428,14 @@ namespace VE2.Core.Player.Internal
             }
         }
 
-        public void ConfirmGrab(IRangedGrabInteractionModule rangedGrabInteractable)
+        public void ConfirmGrab(string id)
         {
+            if (!_grabInteractablesContainer.GrabInteractables.TryGetValue(id, out IRangedGrabInteractionModule rangedGrabInteractable))
+            {
+                Debug.LogError($"Failed to confirm grab, could not find grabbable with id {id}");
+                return;
+            }
+
             _CurrentGrabbingGrabbable = rangedGrabInteractable;
 
             SetInteractorState(InteractorState.Grabbing);

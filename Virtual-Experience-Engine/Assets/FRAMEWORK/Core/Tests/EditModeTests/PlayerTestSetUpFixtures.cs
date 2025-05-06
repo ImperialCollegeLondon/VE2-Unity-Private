@@ -7,32 +7,33 @@ using VE2.Core.Player.API;
 using static VE2.Core.Player.API.PlayerSerializables;
 using VE2.Core.UI.API;
 using System.Collections.Generic;
+using VE2.Common.API;
 
 namespace VE2.Core.Tests
 {
-    internal class LocalClientIDProviderSetup
+    internal class LocalClientIDWrapperSetup
     {
-        public static ILocalClientIDProvider LocalClientIDProviderStub { get; private set; }
+        public static IClientIDWrapper LocalClientIDWrapperStub { get; private set; }
         public static InteractorID InteractorID { get; private set; }
-        public static ushort LocalClientID => LocalClientIDProviderStub.LocalClientID;
+        public static ushort LocalClientID => LocalClientIDWrapperStub.ClientID;
         public static string InteractorGameobjectName { get; private set; }
 
-        public static void MultiplayerSupportStubSetupOnce()
+        public static void LocalClientIDWrapperStubSetupOnce()
         {
             //Stub out the multiplayer support
             System.Random random = new();
             ushort localClientID = (ushort)random.Next(0, ushort.MaxValue);
 
-            LocalClientIDProviderStub = Substitute.For<ILocalClientIDProvider>();
-            LocalClientIDProviderStub.IsClientIDReady.Returns(true);
-            LocalClientIDProviderStub.LocalClientID.Returns(localClientID);
+            LocalClientIDWrapperStub = Substitute.For<IClientIDWrapper>();
+            LocalClientIDWrapperStub.IsClientIDReady.Returns(true);
+            LocalClientIDWrapperStub.ClientID.Returns(localClientID);
             InteractorID = new(localClientID, InteractorType.Mouse2D);
             InteractorGameobjectName = $"Interactor{InteractorID.ClientID}-{InteractorID.InteractorType}";
         }
 
         public static void StubLocalClientIDForMultiplayerSupportStub(ushort localClientID)
         {
-            LocalClientIDProviderStub.LocalClientID.Returns(localClientID);
+            LocalClientIDWrapperStub.ClientID.Returns(localClientID);
         }
     }
 
@@ -55,7 +56,28 @@ namespace VE2.Core.Tests
         public static void InteractorContainerSetupOnce()
         {
             InteractorContainer = new();
-            InteractorContainer.RegisterInteractor(LocalClientIDProviderSetup.InteractorID.ToString(), InteractorSetup.InteractorStub);
+            //InteractorContainer.RegisterInteractor(LocalClientIDWrapperSetup.InteractorID.ToString(), InteractorSetup.InteractorStub);
+        }
+    }
+
+    internal class LocalPlayerSyncableContainerSetup
+    {
+        public static ILocalPlayerSyncableContainer LocalPlayerSyncableContainerStub { get; private set; }
+
+        public static void LocalPlayerSyncableContainerStubSetupOnce()
+        {
+            LocalPlayerSyncableContainerStub = new LocalPlayerSyncableContainer();
+            //LocalPlayerSyncableContainerStub.LocalPlayerID.Returns(LocalClientIDWrapperSetup.InteractorID.ClientID);
+        }
+    }
+
+    internal class GrabInteractableContainerSetup
+    {
+        public static IGrabInteractablesContainer GrabInteractableContainerStub { get; private set; }
+
+        public static void GrabInteractableContainerStubSetupOnce()
+        {
+            GrabInteractableContainerStub = new GrabInteractablesContainer();
         }
     }
 
@@ -218,7 +240,7 @@ namespace VE2.Core.Tests
         [OneTimeSetUp] //This is done to remove the crazy Hierarchy of tests in the Unity Test Runner
         public void SetUpPlayerServiceOnce()
         {
-            LocalClientIDProviderSetup.MultiplayerSupportStubSetupOnce();
+            LocalClientIDWrapperSetup.LocalClientIDWrapperStubSetupOnce();
             InteractorSetup.InteractorStubSetupOnce();
             InteractorContainerSetup.InteractorContainerSetupOnce();
             RayCastProviderSetup.RayCastProviderStubSetupOnce();
@@ -235,7 +257,9 @@ namespace VE2.Core.Tests
                 new PlayerConfig(),
                 InteractorContainerSetup.InteractorContainer,
                 PlayerPersistentDataHandlerSetup.PlayerPersistentDataHandlerStub,
-                LocalClientIDProviderSetup.LocalClientIDProviderStub,
+                LocalClientIDWrapperSetup.LocalClientIDWrapperStub,
+                LocalPlayerSyncableContainerSetup.LocalPlayerSyncableContainerStub,
+                GrabInteractableContainerSetup.GrabInteractableContainerStub,
                 PlayerInputContainerSetup.PlayerInputContainerStub,
                 RayCastProviderSetup.RaycastProviderStub, 
                 CollisionDetectorFactoryStubSetup.CollisionDetectorFactoryStub,

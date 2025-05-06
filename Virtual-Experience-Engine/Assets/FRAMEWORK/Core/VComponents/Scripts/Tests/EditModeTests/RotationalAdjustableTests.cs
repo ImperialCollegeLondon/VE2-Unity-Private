@@ -5,6 +5,8 @@ using VE2.Core.VComponents.Internal;
 using VE2.Common.TransformWrapper;
 using System.Collections.Generic;
 using VE2.Core.VComponents.API;
+using VE2.Core.Common;
+using VE2.Common.API;
 
 namespace VE2.Core.VComponents.Tests
 {
@@ -28,7 +30,8 @@ namespace VE2.Core.VComponents.Tests
                 new AdjustableState(),
                 new GrabbableState(),
                 "debug",
-                Substitute.For<IWorldStateSyncService>(),
+                Substitute.For<IWorldStateSyncableContainer>(),
+                Substitute.For<IGrabInteractablesContainer>(),
                 new HandInteractorContainer());
             _v_rotationalAdjustableProviderStub = new(rotationalAdjustable);
 

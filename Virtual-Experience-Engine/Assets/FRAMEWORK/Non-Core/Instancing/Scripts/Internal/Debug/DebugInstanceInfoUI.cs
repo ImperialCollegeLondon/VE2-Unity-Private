@@ -3,6 +3,7 @@ using UnityEngine;
 using VE2.NonCore.Instancing.API;
 using VE2.Core.Common;
 using UnityEngine.UI;
+using VE2.Common.API;
 
 namespace VE2.NonCore.Instancing.Internal
 {
@@ -16,7 +17,7 @@ namespace VE2.NonCore.Instancing.Internal
 
         void OnEnable()
         {
-            _instanceService = InstancingAPI.InstanceService;
+            _instanceService = VE2API.InstanceService;
 
             _instanceService.OnConnectedToInstance += HandleConnectToServer;
             _instanceService.OnDisconnectedFromInstance += HandleDisconnectFromServer;

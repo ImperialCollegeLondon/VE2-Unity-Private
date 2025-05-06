@@ -47,12 +47,7 @@ namespace VE2.NonCore.Instancing.Internal
         }
         [Space(10)]
         [SerializeField, HideLabel, IgnoreParent] private InstanceCommsHandlerConfig _config = new();
-        [Space(10)]
-        #endregion
 
-
-        #region Runtime data
-        [SerializeField, HideInInspector] private Common.API.ClientIDWrapper _localClientIDWrapper = new();
         #endregion
 
         //We do this wiring here rather than the interface as the interface file needs to live in the VE2.common package
@@ -70,8 +65,8 @@ namespace VE2.NonCore.Instancing.Internal
             }
         }
 
-        public ushort LocalClientID => _localClientIDWrapper.ClientID;
-        public event Action<ushort> OnClientIDReady {add => _localClientIDWrapper.OnClientIDReady += value; remove => _localClientIDWrapper.OnClientIDReady -= value; }
+        public ushort LocalClientID => VE2API.LocalClientIdWrapper.ClientID;
+        public event Action<ushort> OnClientIDReady {add => VE2API.LocalClientIdWrapper.OnClientIDReady += value; remove => VE2API.LocalClientIdWrapper.OnClientIDReady -= value; }
         #endregion
 
         private bool _bootErrorLogged = false;
@@ -119,7 +114,7 @@ namespace VE2.NonCore.Instancing.Internal
             if (instancingSettings.ServerAddress == "127.0.0.1" && Application.isEditor)
                 InstancingUtils.BootLocalServerIfNotAlreadyRunning();
 
-            _instanceService = InstanceServiceFactory.Create(_localClientIDWrapper, _connectOnStart, _connectionStateDebug, instancingSettings, instanceCode, _config);
+            _instanceService = InstanceServiceFactory.Create(_connectOnStart, _connectionStateDebug, instancingSettings, instanceCode, _config);
 
             if (Application.isEditor)
             {

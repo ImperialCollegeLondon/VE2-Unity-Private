@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using VE2.Common.API;
 using VE2.Common.TransformWrapper;
 using VE2.Core.Common;
 using VE2.Core.VComponents.API;
@@ -55,7 +56,7 @@ namespace VE2.Core.VComponents.Internal
         private int _maxRevs => (int)_maximumSpatialValue / 360;
 
         public RotationalAdjustableService(ITransformWrapper transformWrapper, List<IHandheldInteractionModule> handheldInteractions, RotationalAdjustableConfig config, VE2Serializable adjustableState, VE2Serializable grabbableState, string id,
-            IWorldStateSyncableContainer worldStateSyncableContainer, HandInteractorContainer interactorContainer)
+            IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer)
         {
             ITransformWrapper transformToRotateWrapper = config.InteractionConfig.TransformToAdjust == null ? transformWrapper : new TransformWrapper(config.InteractionConfig.TransformToAdjust);
 
@@ -63,7 +64,7 @@ namespace VE2.Core.VComponents.Internal
             _attachPointTransform = config.InteractionConfig.AttachPoint == null ? transformToRotateWrapper : new TransformWrapper(config.InteractionConfig.AttachPoint);
 
             //initialize module for ranged adjustable interaction (scrolling)
-            _RangedAdjustableInteractionModule = new(_attachPointTransform, handheldInteractions, config.InteractionConfig, config.RangedInteractionConfig, config.GeneralInteractionConfig);
+            _RangedAdjustableInteractionModule = new(id, grabInteractablesContainer, _attachPointTransform, handheldInteractions, config.InteractionConfig, config.RangedInteractionConfig, config.GeneralInteractionConfig);
 
             _incrementPerScrollTick = config.AdjustableStateConfig.IncrementPerScrollTick;
             _transformToRotateWrapper = transformToRotateWrapper;

@@ -17,10 +17,10 @@ namespace VE2.Core.Player.Internal
         private ColorConfiguration _colorConfig => ColorConfiguration.Instance;
         private const float LINE_EMISSION_INTENSITY = 15;
 
-        internal InteractorVR(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer, PlayerInteractionConfig playerInteractionConfig,
+        internal InteractorVR(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, InteractorInputContainer interactorInputContainer, PlayerInteractionConfig playerInteractionConfig,
             InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ColliderType colliderType,
             IClientIDWrapper localClientID, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator) :
-            base(interactorContainer, interactorInputContainer, playerInteractionConfig,
+            base(interactorContainer, grabInteractablesContainer, interactorInputContainer, playerInteractionConfig,
                 interactorReferences, interactorType, raycastProvider, localClientID, grabbableWrapper, hoveringOverScrollableIndicator)
 
         {

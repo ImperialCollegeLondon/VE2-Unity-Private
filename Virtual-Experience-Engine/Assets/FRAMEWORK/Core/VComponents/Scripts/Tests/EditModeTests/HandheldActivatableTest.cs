@@ -1,6 +1,7 @@
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
+using VE2.Core.Common;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
 
@@ -24,7 +25,7 @@ namespace VE2.Core.VComponents.Tests
                 new HandheldActivatableConfig(), 
                 new SingleInteractorActivatableState(), 
                 "debug", 
-                Substitute.For<IWorldStateSyncService>(),
+                Substitute.For<IWorldStateSyncableContainer>(),
                 new ActivatableGroupsContainer());
 
             //Stub out the VC (provider layer) with the activatable

@@ -1,6 +1,7 @@
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
+using VE2.Core.Common;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
 
@@ -25,7 +26,7 @@ namespace VE2.Core.VComponents.Tests
                 new HandheldAdjustableConfig(), 
                 new AdjustableState(), 
                 "debug", 
-                Substitute.For<IWorldStateSyncService>());
+                Substitute.For<IWorldStateSyncableContainer>());
 
             _v_handheldAdjustableProviderStub = new(handheldAdjustable);
 

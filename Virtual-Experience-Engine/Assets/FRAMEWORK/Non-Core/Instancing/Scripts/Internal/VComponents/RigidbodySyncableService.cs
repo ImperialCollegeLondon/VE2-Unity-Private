@@ -8,6 +8,7 @@ using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
+using VE2.Core.Common;
 using VE2.Core.VComponents.API;
 using VE2.NonCore.Instancing.API;
 using static PlasticGui.PlasticTableColumn;
@@ -63,10 +64,11 @@ namespace VE2.NonCore.Instancing.Internal
         private uint _grabCounter = 0;
         #endregion
 
-        public RigidbodySyncableService(RigidbodySyncableStateConfig config, VE2Serializable state, string id, IWorldStateSyncService worldStateSyncService, IInstanceService instanceService, IRigidbodyWrapper rigidbodyWrapper, IGrabbableRigidbody grabbableRigidbody)
+        public RigidbodySyncableService(RigidbodySyncableStateConfig config, VE2Serializable state, string id, IWorldStateSyncableContainer worldStateSyncableContainer, 
+            IInstanceService instanceService, IRigidbodyWrapper rigidbodyWrapper, IGrabbableRigidbody grabbableRigidbody)
         {
             _config = config;
-            _stateModule = new(state, config, id, worldStateSyncService);
+            _stateModule = new(state, config, id, worldStateSyncableContainer);
             _instanceService = instanceService;
             _rigidbody = rigidbodyWrapper;
             _isKinematicOnStart = _rigidbody.isKinematic;
