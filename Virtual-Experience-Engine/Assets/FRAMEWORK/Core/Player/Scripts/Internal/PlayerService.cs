@@ -16,7 +16,7 @@ namespace VE2.Core.Player.Internal
             IXRManagerWrapper xrManagerWrapper, IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService)
         {
             return new PlayerService(state, config, 
-                VComponentsAPI.InteractorContainer,
+                VE2API.InteractorContainer,
                 playerPersistentDataHandler,
                 VE2API.LocalClientIdWrapper,
                 VE2API.LocalPlayerSyncableContainer,

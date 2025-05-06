@@ -11,6 +11,9 @@ namespace VE2.Common.API
 {
     [ExecuteAlways]
     [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
+    /// <summary>
+    /// Central service locator for VE2 APIs
+    /// </summary>
     public class VE2API : MonoBehaviour 
     {
         private static VE2API _instance;
@@ -51,8 +54,8 @@ namespace VE2.Common.API
             }
         }
 
-        #region PlayerAPI
         //########################################################################################################
+        #region PlayerAPI
 
         public static IPlayerService Player => PlayerServiceProvider.PlayerService;
 
@@ -84,11 +87,10 @@ namespace VE2.Common.API
         [SerializeField, HideInInspector] private ClientIDWrapper _localClientIdWrapper = new(ushort.MaxValue, true);
         public static IClientIDWrapper LocalClientIdWrapper => Instance._localClientIdWrapper;
 
-        //########################################################################################################
         #endregion
-
-        #region InputAPI
         //########################################################################################################
+        //########################################################################################################
+        #region InputAPI
 
         //Lives here so we can inject a stub for testing
         private IInputHandler _inputHandler;
@@ -108,11 +110,10 @@ namespace VE2.Common.API
             }
         }
 
-        //########################################################################################################
         #endregion
-
-        #region InstancingAPI
         //########################################################################################################
+        //########################################################################################################
+        #region InstancingAPI
 
         public static IInstanceService InstanceService => InstancingServiceProvider?.InstanceService;
 
@@ -141,27 +142,57 @@ namespace VE2.Common.API
 
         public static bool HasMultiPlayerSupport => InstancingServiceProvider != null && InstancingServiceProvider.IsEnabled;
 
-        //########################################################################################################
         #endregion
-
-        #region Internal Containers and Wrappers
         //########################################################################################################
+        //########################################################################################################
+        #region Internal Containers and Wrappers
         //Note - these don't need to be serialized, registrations will repeat on reload
 
-        private WorldStateSyncableContainer _worldStateSyncableContainer = new();
+        /// <summary>
+        /// Contains all networked WorldStateModules, allows them to be picked up by the syncer without tight coupling 
+        /// </summary>
         internal static IWorldStateSyncableContainer WorldStateSyncableContainer => Instance._worldStateSyncableContainer;
+        private WorldStateSyncableContainer _worldStateSyncableContainer = new();
 
-        private LocalPlayerSyncableContainer _localPlayerSyncableContainer = new();
+        /// <summary>
+        /// Contains a reference to the PlayerService, allows it to be picked up by the syncer without tight coupling
+        /// </summary>
         internal static ILocalPlayerSyncableContainer LocalPlayerSyncableContainer => Instance._localPlayerSyncableContainer;
+        private LocalPlayerSyncableContainer _localPlayerSyncableContainer = new();
+        
+        /// <summary>
+        /// Contains all interactors (local or otherwise) in the scene, allows grabbables to perform validation on grab
+        /// </summary>
+        internal static HandInteractorContainer InteractorContainer => Instance._interactorContainer; 
+        private HandInteractorContainer _interactorContainer = new();
 
-        private GrabInteractablesContainer _grabInteractablesContainer = new();
+        /// <summary>
+        /// Contains all grab interactables in the scene, allows grabbables to notify interactors of grabs by just passing an ID
+        /// </summary>
         internal static IGrabInteractablesContainer GrabInteractablesContainer => Instance._grabInteractablesContainer;
+        private GrabInteractablesContainer _grabInteractablesContainer = new();
 
         //########################################################################################################
         #endregion
     }
 
     //TODO: Find a proper home for the objects below
+
+    internal class HandInteractorContainer
+    {
+        private Dictionary<string, IInteractor> _interactors = new();
+        public IReadOnlyDictionary<string, IInteractor> Interactors => _interactors;
+
+        public void RegisterInteractor(string interactorID, IInteractor interactor)
+        {
+            _interactors[interactorID] = interactor;
+        }
+
+        public void DeregisterInteractor(string interactorID)
+        {
+            _interactors.Remove(interactorID);
+        }
+    }
 
     internal interface IGrabInteractablesContainer
     {
@@ -214,7 +245,7 @@ namespace VE2.Common.API
     }
 
     [Serializable]
-    public class InterfaceReference<T> where T : class //TODO: Move into its own file
+    public class InterfaceReference<T> where T : class 
     {
         [SerializeField] private GameObject _gameObject;
 

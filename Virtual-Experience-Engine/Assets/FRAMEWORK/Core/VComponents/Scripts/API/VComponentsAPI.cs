@@ -26,16 +26,9 @@ namespace VE2.Core.VComponents.API
             }
         }
 
-        private HandInteractorContainer _interactorContainer = new();
-
         //Doesn't really belong here, only VC internals need this, but does no harm living here for now.
         //If we move this in future, we'll need another monobehaviour to preserve the groups during a reload, e.g VCInternalDataContainer or something
         private ActivatableGroupsContainer _activatableGroupsContainer = new(); 
-
-        /// <summary>
-        /// Contains all interactors (local or otherwise) in the scene, allows grabbables to perform validation on grab
-        /// </summary>
-        internal static HandInteractorContainer InteractorContainer { get => Instance._interactorContainer; private set => Instance._interactorContainer = value; }
 
         /// <summary>
         /// Contains all activatable groups in the scene, allows activatables to perform validation on activation  within their group 
@@ -48,31 +41,6 @@ namespace VE2.Core.VComponents.API
             gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
             //gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
         }
-
-        private void OnDestroy()
-        {
-            InteractorContainer?.Reset();
-        }
-    }
-
-    //Note, the interactor stuff needs to live in the VC API rather than the Player API 
-    //This is because the VC interfaces need to be passed interactor info
-    internal class HandInteractorContainer
-    {
-        private Dictionary<string, IInteractor> _interactors = new();
-        public IReadOnlyDictionary<string, IInteractor> Interactors => _interactors;
-
-        public void RegisterInteractor(string interactorID, IInteractor interactor)
-        {
-            _interactors[interactorID] = interactor;
-        }
-
-        public void DeregisterInteractor(string interactorID)
-        {
-            _interactors.Remove(interactorID);
-        }
-
-        public void Reset() => _interactors.Clear();
     }
 
     internal class ActivatableGroupsContainer
@@ -104,6 +72,4 @@ namespace VE2.Core.VComponents.API
 
         public void Reset() => _activatableGroups.Clear();
     }
-
-
 }

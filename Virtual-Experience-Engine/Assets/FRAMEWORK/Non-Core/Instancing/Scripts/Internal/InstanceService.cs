@@ -26,7 +26,7 @@ namespace VE2.NonCore.Instancing.Internal
                 commsHandler, 
                 VE2API.LocalClientIdWrapper as IClientIDWrapperInternal, 
                 connectionStateDebugWrapper,
-                VComponentsAPI.InteractorContainer,
+                VE2API.InteractorContainer,
                 VE2API.Player as IPlayerServiceInternal,
                 UIAPI.PrimaryUIService as IPrimaryUIServiceInternal,
                 connectAutomatically,

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using VE2.Common.API;
 using VE2.Core.Common;
 using VE2.Core.Player.API;
 using VE2.Core.Player.Internal;

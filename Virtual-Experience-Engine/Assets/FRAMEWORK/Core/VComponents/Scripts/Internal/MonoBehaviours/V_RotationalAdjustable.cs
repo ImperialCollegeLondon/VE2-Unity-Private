@@ -76,7 +76,7 @@ namespace VE2.Core.VComponents.Internal
                 id,
                 VE2API.WorldStateSyncableContainer,
                 VE2API.GrabInteractablesContainer,
-                VComponentsAPI.InteractorContainer, 
+                VE2API.InteractorContainer, 
                 VE2API.LocalClientIdWrapper);
         }
 
