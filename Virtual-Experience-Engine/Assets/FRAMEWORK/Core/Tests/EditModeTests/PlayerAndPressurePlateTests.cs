@@ -23,7 +23,8 @@ namespace VE2.Core.Tests
             PressurePlateService pressurePlateService = new(
                 new PressurePlateConfig(),
                 new MultiInteractorActivatableState(),
-                "debug");
+                "debug",
+                LocalClientIDWrapperSetup.LocalClientIDWrapper);
 
             _v_pressurePlateProviderStub = new(pressurePlateService);
 
@@ -35,18 +36,18 @@ namespace VE2.Core.Tests
         [Test]
         public void OnUserPressedDownAndReleased_OnCollidingWithPressurePlate_CustomerScriptTriggersOnActivateAndOnDeactivate([Random((ushort)0, ushort.MaxValue, 1)] ushort localClientID)
         {
-            LocalClientIDWrapperSetup.LocalClientIDWrapperStub.ClientID.Returns(localClientID);
+            LocalClientIDWrapperSetup.LocalClientIDWrapper.ClientID.Returns(localClientID);
             ICollisionDetector feetCollider = CollisionDetectorFactoryStubSetup.CollisionDetectorFactoryStub.CollisionDetectorStubs[ColliderType.Feet2D];
 
             feetCollider.OnCollideStart += Raise.Event<Action<ICollideInteractionModule>>(_pressurePlateCollideInterface.CollideInteractionModule);
             _customerScript.Received(1).HandleActivateReceived();
             Assert.IsTrue(_pressurePlatePluginInterface.IsActivated, "Activatable should be activated");
-            Assert.AreEqual(_pressurePlatePluginInterface.MostRecentInteractingClientID, localClientID);
+            Assert.AreEqual(_pressurePlatePluginInterface.MostRecentInteractingClientID.ClientID, localClientID);
 
             feetCollider.OnCollideEnd += Raise.Event<Action<ICollideInteractionModule>>(_pressurePlateCollideInterface.CollideInteractionModule);
             _customerScript.Received(1).HandleDeactivateReceived();
             Assert.IsFalse(_pressurePlatePluginInterface.IsActivated, "Activatable should be deactivated");
-            Assert.AreEqual(_pressurePlatePluginInterface.MostRecentInteractingClientID, localClientID);
+            Assert.AreEqual(_pressurePlatePluginInterface.MostRecentInteractingClientID.ClientID, localClientID);
         }
 
         [TearDown]

@@ -26,7 +26,8 @@ namespace VE2.Core.VComponents.Tests
                 new HandheldAdjustableConfig(), 
                 new AdjustableState(), 
                 "debug", 
-                Substitute.For<IWorldStateSyncableContainer>());
+                Substitute.For<IWorldStateSyncableContainer>(),
+                Substitute.For<IClientIDWrapper>());
 
             _v_handheldAdjustableProviderStub = new(handheldAdjustable);
 
@@ -40,10 +41,10 @@ namespace VE2.Core.VComponents.Tests
             //set the adjustable value
             _handheldAdjustablePluginInterface.SetValue(randomValue);
 
-            //Check customer received the value adjusted, and that the interactorID is set
+            //Check customer received the value adjusted, and that the interactorID reflects programmatic activation (ie, null!)
             _customerScript.Received(1).HandleValueAdjusted(randomValue);
             Assert.IsTrue(_handheldAdjustablePluginInterface.Value == randomValue);
-            Assert.AreEqual(_handheldAdjustablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
+            Assert.AreEqual(_handheldAdjustablePluginInterface.MostRecentInteractingClientID, null);
         }
     }
 

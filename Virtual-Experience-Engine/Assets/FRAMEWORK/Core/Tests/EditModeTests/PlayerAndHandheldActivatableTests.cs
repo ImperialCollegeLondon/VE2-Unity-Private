@@ -36,7 +36,8 @@ namespace VE2.Core.Tests
                 new SingleInteractorActivatableState(), 
                 "debug", 
                 Substitute.For<IWorldStateSyncableContainer>(),
-                new ActivatableGroupsContainer());
+                new ActivatableGroupsContainer(),
+                LocalClientIDWrapperSetup.LocalClientIDWrapper);
 
             //Stub out provider layer
             _v_handheldActivatableProviderStub = new(handheldActivatable);
@@ -56,7 +57,8 @@ namespace VE2.Core.Tests
                 InteractorContainerSetup.InteractorContainer,
                 Substitute.For<IRigidbodyWrapper>(),
                 new PhysicsConstants(),
-                new V_FreeGrabbable());
+                new V_FreeGrabbable(),
+                LocalClientIDWrapperSetup.LocalClientIDWrapper);
 
             //Stub out provider layer
             _v_freeGrabbableProviderStub = new(freeGrabbable);
@@ -78,19 +80,19 @@ namespace VE2.Core.Tests
             //Invoke grab, check customer received the grab, and that the interactorID is set
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
             Assert.IsTrue(_grabbablePluginInterface.IsGrabbed);
-            Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID, LocalClientIDWrapperSetup.LocalClientIDWrapperStub.ClientID);
+            Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID.ClientID, LocalClientIDWrapperSetup.LocalClientIDWrapper.ClientID);
 
             //Invoke Activate, Check customer received the activate, and that the interactorID is set
             PlayerInputContainerSetup.HandheldClick2D.OnPressed += Raise.Event<Action>();
             pluginScriptMock.Received(1).HandleActivateReceived();
             Assert.IsTrue(_handheldActivatablePluginInterface.IsActivated);
-            Assert.AreEqual(_handheldActivatablePluginInterface.MostRecentInteractingClientID, LocalClientIDWrapperSetup.LocalClientIDWrapperStub.ClientID);
+            Assert.AreEqual(_handheldActivatablePluginInterface.MostRecentInteractingClientID.ClientID, LocalClientIDWrapperSetup.LocalClientIDWrapper.ClientID);
 
             //Invoke Deactivate, Check customer received the deactivate, and that the interactorID is set
             PlayerInputContainerSetup.HandheldClick2D.OnPressed += Raise.Event<Action>();
             pluginScriptMock.Received(1).HandleDeactivateReceived();
             Assert.IsFalse(_handheldActivatablePluginInterface.IsActivated);
-            Assert.AreEqual(_handheldActivatablePluginInterface.MostRecentInteractingClientID, LocalClientIDWrapperSetup.LocalClientIDWrapperStub.ClientID);
+            Assert.AreEqual(_handheldActivatablePluginInterface.MostRecentInteractingClientID.ClientID, LocalClientIDWrapperSetup.LocalClientIDWrapper.ClientID);
         }
 
         [TearDown]

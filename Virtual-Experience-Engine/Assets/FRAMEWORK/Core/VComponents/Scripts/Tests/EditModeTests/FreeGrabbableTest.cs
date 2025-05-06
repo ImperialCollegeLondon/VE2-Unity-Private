@@ -10,6 +10,7 @@ namespace VE2.Core.VComponents.Tests
 {
     internal class FreeGrabbableTest
     {
+        //TODO: Doesn't belong here? Looks like an integration test moreso than a unit/service test
         [Test]
         public void FreeGrabbable_WhenGrabbed_EmitsToPlugin()
         {
@@ -32,7 +33,8 @@ namespace VE2.Core.VComponents.Tests
                 interactorContainerStub,
                 Substitute.For<IRigidbodyWrapper>(), 
                 new PhysicsConstants(),
-                new V_FreeGrabbable());
+                new V_FreeGrabbable(),
+                Substitute.For<IClientIDWrapper>());
 
             //Stub out the VC (integration layer) with the grabbable
             V_FreeGrabbableProviderStub v_freeGrabbableStub = new(freeGrabbable);
@@ -51,13 +53,13 @@ namespace VE2.Core.VComponents.Tests
             grabbablePlayerInterface.RequestLocalGrab(interactorID);
             pluginScript.Received(1).HandleGrabReceived();
             Assert.IsTrue(grabbablePluginInterface.IsGrabbed);
-            Assert.AreEqual(grabbablePluginInterface.MostRecentInteractingClientID, localClientID);
+            Assert.AreEqual(grabbablePluginInterface.MostRecentInteractingClientID.ClientID, localClientID);
 
             //Invoke drop, Check customer received the drop, and that the interactorID is set
             grabbablePlayerInterface.RequestLocalDrop(interactorID);
             pluginScript.Received(1).HandleDropReceived();
             Assert.IsFalse(grabbablePluginInterface.IsGrabbed);
-            Assert.AreEqual(grabbablePluginInterface.MostRecentInteractingClientID, localClientID);
+            Assert.AreEqual(grabbablePluginInterface.MostRecentInteractingClientID.ClientID, localClientID);
         }
     }
 

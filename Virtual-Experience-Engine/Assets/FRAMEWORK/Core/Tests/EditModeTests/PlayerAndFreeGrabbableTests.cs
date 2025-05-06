@@ -34,7 +34,8 @@ namespace VE2.Core.Tests
                 InteractorContainerSetup.InteractorContainer,
                 Substitute.For<IRigidbodyWrapper>(), 
                 new PhysicsConstants(),
-                new V_FreeGrabbable());
+                new V_FreeGrabbable(),
+                LocalClientIDWrapperSetup.LocalClientIDWrapper);
 
             //Stub out provider layer
             _v_freeGrabbableProviderStub = new(freeGrabbable);
@@ -55,13 +56,13 @@ namespace VE2.Core.Tests
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
             _customerScript.Received(1).HandleGrabReceived();
             Assert.IsTrue(_grabbablePluginInterface.IsGrabbed);
-            Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID, LocalClientIDWrapperSetup.LocalClientID);
+            Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID.ClientID, LocalClientIDWrapperSetup.LocalClientID);
 
             //Invoke drop, Check customer received the drop, and that the interactorID is set
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
             _customerScript.Received(1).HandleDropReceived();
             Assert.IsFalse(_grabbablePluginInterface.IsGrabbed);
-            Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID, LocalClientIDWrapperSetup.LocalClientID);
+            Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID.ClientID, LocalClientIDWrapperSetup.LocalClientID);
         }
 
         [Test]
@@ -75,13 +76,13 @@ namespace VE2.Core.Tests
             PlayerInputContainerSetup.GrabVRRight.OnPressed += Raise.Event<Action>();
             _customerScript.Received(1).HandleGrabReceived();
             Assert.IsTrue(_grabbablePluginInterface.IsGrabbed);
-            Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID, LocalClientIDWrapperSetup.LocalClientID);
+            Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID.ClientID, LocalClientIDWrapperSetup.LocalClientID);
 
             //Invoke drop, Check customer received the drop, and that the interactorID is set
             PlayerInputContainerSetup.GrabVRRight.OnPressed += Raise.Event<Action>();
             _customerScript.Received(1).HandleDropReceived();
             Assert.IsFalse(_grabbablePluginInterface.IsGrabbed);
-            Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID, LocalClientIDWrapperSetup.LocalClientID);
+            Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID.ClientID, LocalClientIDWrapperSetup.LocalClientID);
         }
 
         [TearDown]

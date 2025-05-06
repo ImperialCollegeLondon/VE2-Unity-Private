@@ -52,7 +52,7 @@ namespace VE2.Core.VComponents.Internal
                 return;
 
             string id = "Activatable-" + gameObject.name;
-            _service = new ToggleActivatableService(_config, _state, id, VE2API.WorldStateSyncableContainer, VComponentsAPI.ActivatableGroupsContainer);
+            _service = new ToggleActivatableService(_config, _state, id, VE2API.WorldStateSyncableContainer, VComponentsAPI.ActivatableGroupsContainer, VE2API.LocalClientIdWrapper);
         }
 
         private void FixedUpdate()

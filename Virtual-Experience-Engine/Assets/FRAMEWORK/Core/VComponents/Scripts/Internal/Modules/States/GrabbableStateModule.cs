@@ -60,9 +60,9 @@ namespace VE2.Core.VComponents.Internal
         public UnityEvent OnGrab => _config.OnGrab;
         public UnityEvent OnDrop => _config.OnDrop;
         public bool IsGrabbed { get => _state.IsGrabbed; private set => _state.IsGrabbed = value; }
-        public bool IsLocalGrabbed => _isLocalGrabbed;
-        private bool _isLocalGrabbed;
-        public ushort MostRecentInteractingClientID => _state.MostRecentInteractingInteractorID.ClientID;
+        public bool IsLocalGrabbed => MostRecentInteractingClientID!= null && MostRecentInteractingClientID.IsLocal;
+        public IClientIDWrapper MostRecentInteractingClientID => _state.MostRecentInteractingInteractorID.ClientID == ushort.MaxValue ? null : 
+            new ClientIDWrapper(_state.MostRecentInteractingInteractorID.ClientID, _state.MostRecentInteractingInteractorID.ClientID == _localClientIdWrapper.ClientID);
         #endregion
 
         private GrabbableState _state => (GrabbableState)State;
@@ -70,17 +70,19 @@ namespace VE2.Core.VComponents.Internal
 
         private readonly HandInteractorContainer _interactorContainer;
         private readonly IRangedGrabInteractionModule _rangedGrabInteractionModule;
+        private readonly IClientIDWrapper _localClientIdWrapper;
 
         internal IInteractor CurrentGrabbingInteractor { get; private set; }
         internal event Action<ushort> OnGrabConfirmed;
         internal event Action<ushort> OnDropConfirmed;
 
-        public GrabbableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id,
-            IWorldStateSyncableContainer worldStateSyncableContainer, HandInteractorContainer interactorContainer, IRangedGrabInteractionModule rangedGrabInteractionModule) :
+        public GrabbableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncableContainer worldStateSyncableContainer, 
+            HandInteractorContainer interactorContainer, IRangedGrabInteractionModule rangedGrabInteractionModule, IClientIDWrapper localClientIdWrapper) :
             base(state, config, id, worldStateSyncableContainer)
         {
             _interactorContainer = interactorContainer;
             _rangedGrabInteractionModule = rangedGrabInteractionModule;
+            _localClientIdWrapper = localClientIdWrapper;
         }
 
         public void SetGrabbed(InteractorID interactorID)
@@ -92,7 +94,6 @@ namespace VE2.Core.VComponents.Internal
             {
                 CurrentGrabbingInteractor = interactor;
                 _state.IsGrabbed = true;
-                _isLocalGrabbed = CurrentGrabbingInteractor is ILocalInteractor;
                 _state.MostRecentInteractingInteractorID = interactorID;
                 _state.StateChangeNumber++;
 
@@ -125,7 +126,6 @@ namespace VE2.Core.VComponents.Internal
             //Different validation to SetGrabbed. The interactor may have been destroyed (and is thus no longer present), but we still want to set the state to dropped
             CurrentGrabbingInteractor = null;
             _state.IsGrabbed = false;
-            _isLocalGrabbed = false;
             _state.StateChangeNumber++;
 
             _config.InspectorDebug.IsGrabbed = true;

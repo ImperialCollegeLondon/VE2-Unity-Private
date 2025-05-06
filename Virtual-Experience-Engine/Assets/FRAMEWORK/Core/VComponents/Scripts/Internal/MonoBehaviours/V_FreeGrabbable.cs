@@ -12,9 +12,6 @@ namespace VE2.Core.VComponents.Internal
     [ExecuteAlways]
     internal class V_FreeGrabbable : MonoBehaviour, IV_FreeGrabbable, IRangedGrabInteractionModuleProvider, IGrabbableRigidbody
     {
-        // [Help("TestHelp", UnityMessageType.Error, ApplyCondition = true)]
-        // [SerializeField, ShowDisabledIf(nameof(_showError), true)] private bool Test;
-
         [SerializeField, HideLabel, IgnoreParent] private FreeGrabbableConfig _config = new();
         [SerializeField, HideInInspector] private GrabbableState _state = new();
 
@@ -107,7 +104,8 @@ namespace VE2.Core.VComponents.Internal
                 VComponentsAPI.InteractorContainer,
                 _rigidbodyWrapper,
                 Resources.Load<PhysicsConstants>("PhysicsConstants"),
-                (IGrabbableRigidbody)this);
+                (IGrabbableRigidbody)this,
+                VE2API.LocalClientIdWrapper);
 
             _service.OnGrabConfirmed += HandleGrabConfirmed;
             _service.OnDropConfirmed += HandleDropConfirmed;

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using VE2.Core.Common;
 
 namespace VE2.Core.VComponents.API
 {
@@ -14,6 +15,6 @@ namespace VE2.Core.VComponents.API
         public void Activate();
         public void Deactivate();
         public void SetActivated(bool isActivated);
-        public ushort MostRecentInteractingClientID { get; }
+        public IClientIDWrapper MostRecentInteractingClientID { get; }
     }
 }

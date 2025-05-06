@@ -213,48 +213,6 @@ namespace VE2.Common.API
         }
     }
 
-        public interface IClientIDWrapperInternal : IClientIDWrapper
-    {
-        new ushort ClientID { get; set; } 
-    }
-
-    public interface IClientIDWrapper
-    {
-        ushort ClientID { get; }
-        public bool IsClientIDReady { get; }
-        event Action<ushort> OnClientIDReady;
-        public bool IsLocal { get; }
-        public bool IsRemote { get; }
-    }
-
-    [Serializable] 
-    public class ClientIDWrapper : IClientIDWrapperInternal
-    { 
-        [SerializeField] private ushort _clientID = ushort.MaxValue;
-
-        public ushort ClientID 
-        {
-            get => _clientID;
-            set 
-            {
-                _clientID = value;
-                OnClientIDReady?.Invoke(value);
-            }
-        } 
-        
-        public event Action<ushort> OnClientIDReady;
-        public bool IsClientIDReady => _clientID != ushort.MaxValue;
-
-        [SerializeField] public bool IsLocal {get; set;}
-        public bool IsRemote => !IsLocal;
-
-        public ClientIDWrapper(ushort clientID, bool isLocal)
-        {
-            _clientID = clientID;
-            IsLocal = isLocal;
-        }
-    }
-
     [Serializable]
     public class InterfaceReference<T> where T : class //TODO: Move into its own file
     {

@@ -8,14 +8,15 @@ using static VE2.Core.Player.API.PlayerSerializables;
 using VE2.Core.UI.API;
 using System.Collections.Generic;
 using VE2.Common.API;
+using VE2.Core.Common;
 
 namespace VE2.Core.Tests
 {
     internal class LocalClientIDWrapperSetup
     {
-        public static IClientIDWrapper LocalClientIDWrapperStub { get; private set; }
+        public static IClientIDWrapper LocalClientIDWrapper { get; private set; }
         public static InteractorID InteractorID { get; private set; }
-        public static ushort LocalClientID => LocalClientIDWrapperStub.ClientID;
+        public static ushort LocalClientID => LocalClientIDWrapper.ClientID;
         public static string InteractorGameobjectName { get; private set; }
 
         public static void LocalClientIDWrapperStubSetupOnce()
@@ -24,16 +25,16 @@ namespace VE2.Core.Tests
             System.Random random = new();
             ushort localClientID = (ushort)random.Next(0, ushort.MaxValue);
 
-            LocalClientIDWrapperStub = Substitute.For<IClientIDWrapper>();
-            LocalClientIDWrapperStub.IsClientIDReady.Returns(true);
-            LocalClientIDWrapperStub.ClientID.Returns(localClientID);
+            LocalClientIDWrapper = Substitute.For<IClientIDWrapper>();
+            LocalClientIDWrapper.IsClientIDReady.Returns(true);
+            LocalClientIDWrapper.ClientID.Returns(localClientID);
             InteractorID = new(localClientID, InteractorType.Mouse2D);
             InteractorGameobjectName = $"Interactor{InteractorID.ClientID}-{InteractorID.InteractorType}";
         }
 
         public static void StubLocalClientIDForMultiplayerSupportStub(ushort localClientID)
         {
-            LocalClientIDWrapperStub.ClientID.Returns(localClientID);
+            LocalClientIDWrapper.ClientID.Returns(localClientID);
         }
     }
 
@@ -259,7 +260,7 @@ namespace VE2.Core.Tests
                 new PlayerConfig(),
                 InteractorContainerSetup.InteractorContainer,
                 PlayerPersistentDataHandlerSetup.PlayerPersistentDataHandlerStub,
-                LocalClientIDWrapperSetup.LocalClientIDWrapperStub,
+                LocalClientIDWrapperSetup.LocalClientIDWrapper,
                 LocalPlayerSyncableContainerSetup.LocalPlayerSyncableContainerStub,
                 GrabInteractableContainerSetup.GrabInteractableContainer,
                 PlayerInputContainerSetup.PlayerInputContainerStub,

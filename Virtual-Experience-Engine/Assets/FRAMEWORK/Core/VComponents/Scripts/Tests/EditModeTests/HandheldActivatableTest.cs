@@ -26,7 +26,8 @@ namespace VE2.Core.VComponents.Tests
                 new SingleInteractorActivatableState(), 
                 "debug", 
                 Substitute.For<IWorldStateSyncableContainer>(),
-                new ActivatableGroupsContainer());
+                new ActivatableGroupsContainer(),
+                Substitute.For<IClientIDWrapper>());
 
             //Stub out the VC (provider layer) with the activatable
             _v_handheldActivatableProviderStub = new(toggleActivatable);
@@ -49,13 +50,13 @@ namespace VE2.Core.VComponents.Tests
             _activatablePluginInterface.Activate();
             customerScript.Received(1).HandleActivateReceived();
             Assert.IsTrue(_activatablePluginInterface.IsActivated);
-            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
+            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, null);
 
             //Deactivate and do checks
             _activatablePluginInterface.Deactivate();
             customerScript.Received(1).HandleDeactivateReceived();
             Assert.IsFalse(_activatablePluginInterface.IsActivated);
-            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
+            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, null);
         }
     }
 

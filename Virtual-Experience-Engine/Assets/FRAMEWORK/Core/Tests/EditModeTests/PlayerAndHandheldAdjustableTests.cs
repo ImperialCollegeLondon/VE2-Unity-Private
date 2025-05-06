@@ -32,7 +32,7 @@ namespace VE2.Core.Tests
             _handheldAdjustableConfig = new();
 
             //Create the activatable with above random values
-            HandheldAdjustableService handheldAdjustable = new(_handheldAdjustableConfig, new AdjustableState(), "debug", Substitute.For<IWorldStateSyncableContainer>());
+            HandheldAdjustableService handheldAdjustable = new(_handheldAdjustableConfig, new AdjustableState(), "debug", Substitute.For<IWorldStateSyncableContainer>(), LocalClientIDWrapperSetup.LocalClientIDWrapper);
 
             //Stub out the VC (provider layer) with the activatable
             _v_handheldAdjustableStub = new(handheldAdjustable);
@@ -52,7 +52,8 @@ namespace VE2.Core.Tests
                 InteractorContainerSetup.InteractorContainer,
                 Substitute.For<IRigidbodyWrapper>(),
                 new PhysicsConstants(),
-                new V_FreeGrabbable());
+                new V_FreeGrabbable(),
+                LocalClientIDWrapperSetup.LocalClientIDWrapper);
 
             //Stub out the VC (provider layer) with the grabbable
             _v_freeGrabbableStub = new(freeGrabbable);
@@ -76,25 +77,25 @@ namespace VE2.Core.Tests
             //Invoke grab, check customer received the grab, and that the interactorID is set
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
             Assert.IsTrue(_grabbablePluginInterface.IsGrabbed);
-            Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID, LocalClientIDWrapperSetup.LocalClientIDWrapperStub.ClientID);
+            Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID.ClientID, LocalClientIDWrapperSetup.LocalClientIDWrapper.ClientID);
 
             //Invoke scroll up, check customer received the scroll up, and that the value is correct
             PlayerInputContainerSetup.ScrollTickUp2D.OnTickOver += Raise.Event<Action>();
             _customerScript.Received(1).HandleValueAdjusted(startingValue + increment);
             Assert.IsTrue(_handheldAdjustablePluginInterface.Value == startingValue + increment);
-            Assert.AreEqual(_handheldAdjustablePluginInterface.MostRecentInteractingClientID, LocalClientIDWrapperSetup.LocalClientIDWrapperStub.ClientID);
+            Assert.AreEqual(_handheldAdjustablePluginInterface.MostRecentInteractingClientID.ClientID, LocalClientIDWrapperSetup.LocalClientIDWrapper.ClientID);
 
             //Invoke scroll down, check customer received the scroll down, and that the value is correct
             PlayerInputContainerSetup.ScrollTickDown2D.OnTickOver += Raise.Event<Action>();
             _customerScript.Received(1).HandleValueAdjusted(startingValue);
             Assert.IsTrue(_handheldAdjustablePluginInterface.Value == startingValue);
-            Assert.AreEqual(_handheldAdjustablePluginInterface.MostRecentInteractingClientID, LocalClientIDWrapperSetup.LocalClientIDWrapperStub.ClientID);
+            Assert.AreEqual(_handheldAdjustablePluginInterface.MostRecentInteractingClientID.ClientID, LocalClientIDWrapperSetup.LocalClientIDWrapper.ClientID);
 
             //Invoke scroll down, check customer received the scroll down, and that the value is correct
             PlayerInputContainerSetup.ScrollTickDown2D.OnTickOver += Raise.Event<Action>();
             _customerScript.Received(1).HandleValueAdjusted(startingValue - increment);
             Assert.IsTrue(_handheldAdjustablePluginInterface.Value == startingValue - increment);
-            Assert.AreEqual(_handheldAdjustablePluginInterface.MostRecentInteractingClientID, LocalClientIDWrapperSetup.LocalClientIDWrapperStub.ClientID);
+            Assert.AreEqual(_handheldAdjustablePluginInterface.MostRecentInteractingClientID.ClientID, LocalClientIDWrapperSetup.LocalClientIDWrapper.ClientID);
         }
 
         [TearDown]

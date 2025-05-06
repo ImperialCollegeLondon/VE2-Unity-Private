@@ -10,13 +10,13 @@ public class NewInterfaceReferenceExample : MonoBehaviour
 
     public void DoThing()
     {
-        if (_toggleButton.Interface.MostRecentInteractingClientID == VE2API.InstanceService.LocalClientID) 
+        if (_toggleButton.Interface.MostRecentInteractingClientID.IsLocal) 
             VE2API.Player.SetAvatarHeadOverride(0);
     }
 
     public void DoOtherThing()
     {
-        if (_toggleButton.Interface.MostRecentInteractingClientID == VE2API.InstanceService.LocalClientID)
+        if (_toggleButton.Interface.MostRecentInteractingClientID.IsLocal)
             VE2API.Player.ClearAvatarHeadOverride();
     }
 }

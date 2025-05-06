@@ -46,12 +46,12 @@ namespace VE2.Core.VComponents.Internal
 
         public FreeGrabbableService(List<IHandheldInteractionModule> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id,
             IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer,
-            IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants, IGrabbableRigidbody grabbableRigidbodyInterface)
+            IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants, IGrabbableRigidbody grabbableRigidbodyInterface, IClientIDWrapper localClientIdWrapper)
         {
             //even though this is never null in theory, done so to satisfy the tests
             _transform = config.InteractionConfig.AttachPoint != null ? new TransformWrapper(config.InteractionConfig.AttachPoint) : _rigidbody != null ? _rigidbody.transform : null;
             _RangedGrabInteractionModule = new(id, grabInteractablesContainer, _transform, handheldInteractions, config.InteractionConfig, config.RangedInteractionConfig, config.GeneralInteractionConfig);
-            _StateModule = new(state, config.StateConfig, id, worldStateSyncableContainer, interactorContainer, RangedGrabInteractionModule);
+            _StateModule = new(state, config.StateConfig, id, worldStateSyncableContainer, interactorContainer, RangedGrabInteractionModule, localClientIdWrapper);
             _interactionConfig = config.InteractionConfig;
 
             _rigidbody = rigidbody;

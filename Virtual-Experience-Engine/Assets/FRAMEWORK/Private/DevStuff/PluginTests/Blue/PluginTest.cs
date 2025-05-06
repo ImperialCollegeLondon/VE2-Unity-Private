@@ -4,6 +4,7 @@ using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using VE2.Core.Common;
 using VE2.Core.VComponents.API;
 using VE2.NonCore.Instancing.API;
 
@@ -50,12 +51,11 @@ public class PluginTest : MonoBehaviour
 
     public void OnButtonActivate()
     {
-        ushort clientID = _pushActivatable.MostRecentInteractingClientID;
+        IClientIDWrapper clientID = _pushActivatable.MostRecentInteractingClientID;
         Debug.Log("Button activated! ");
         Debug.Log($"Button state = {_pushActivatable.IsActivated}");
 
-        if (clientID != ushort.MaxValue) 
-            Debug.Log($"Activate by... {clientID.ToString()}");
+        Debug.Log($"Activate by... {clientID.ClientID.ToString()}");
 
         _lightOn.SetActive(true);
         _lightOff.SetActive(false);

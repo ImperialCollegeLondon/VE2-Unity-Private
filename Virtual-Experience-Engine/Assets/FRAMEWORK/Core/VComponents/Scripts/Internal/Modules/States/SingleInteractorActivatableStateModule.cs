@@ -51,8 +51,8 @@ namespace VE2.Core.VComponents.Internal
         public UnityEvent OnActivate => _config.OnActivate;
         public UnityEvent OnDeactivate => _config.OnDeactivate;
         public bool IsActivated { get => _state.IsActivated; }
-        public ushort MostRecentInteractingClientID => _state.MostRecentInteractingClientID;
-
+        public IClientIDWrapper MostRecentInteractingClientID => _state.MostRecentInteractingClientID == ushort.MaxValue ? null : 
+            new ClientIDWrapper(_state.MostRecentInteractingClientID, _state.MostRecentInteractingClientID == _localClientIdWrapper.ClientID);
         public void Activate() => SetActivated(true);
         public void Deactivate() => SetActivated(false);
 
@@ -71,9 +71,10 @@ namespace VE2.Core.VComponents.Internal
 
 
         private readonly ActivatableGroupsContainer _activatableGroupsContainer;
+        private readonly IClientIDWrapper _localClientIdWrapper;
 
         public SingleInteractorActivatableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncableContainer worldStateSyncableContainer, 
-            ActivatableGroupsContainer activatableGroupsContainer) : base(state, config, id, worldStateSyncableContainer)
+            ActivatableGroupsContainer activatableGroupsContainer, IClientIDWrapper localClientIdWrapper) : base(state, config, id, worldStateSyncableContainer)
         {
             _activationGroupID = _config.ActivationGroupID;
             _activatableGroupsContainer = activatableGroupsContainer;
@@ -87,6 +88,7 @@ namespace VE2.Core.VComponents.Internal
                 _isInActivationGroup = false;
             }
 
+            _localClientIdWrapper = localClientIdWrapper;
             _config.InspectorDebug.OnDebugUpdateStatePressed += (bool newState) => SetActivated(newState);
         }
 

@@ -1,4 +1,5 @@
 using UnityEngine;
+using VE2.Common.API;
 using VE2.Core.VComponents.API;
 
 namespace VE2.Core.VComponents.Internal
@@ -22,7 +23,7 @@ namespace VE2.Core.VComponents.Internal
         private void OnEnable()
         {
             string id = "PressurePlate-" + gameObject.name;
-            _service = new PressurePlateService(_config, _state, id);
+            _service = new PressurePlateService(_config, _state, id, VE2API.LocalClientIdWrapper);
         }
 
         private void FixedUpdate()

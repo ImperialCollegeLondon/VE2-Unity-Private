@@ -24,7 +24,7 @@ namespace VE2.NonCore.Instancing.Internal
 
             return new InstanceService(
                 commsHandler, 
-                VE2API.LocalClientIdWrapper as ClientIDWrapper, 
+                VE2API.LocalClientIdWrapper as IClientIDWrapperInternal, 
                 connectionStateDebugWrapper,
                 VComponentsAPI.InteractorContainer,
                 VE2API.Player as IPlayerServiceInternal,
@@ -102,7 +102,7 @@ namespace VE2.NonCore.Instancing.Internal
         internal readonly RemotePlayerSyncer _remotePlayerSyncer;
         internal PingSyncer _pingSyncer;
 
-        public InstanceService(IPluginSyncCommsHandler commsHandler, ClientIDWrapper localClientIDWrapper, ConnectionStateWrapper connectionStateDebugWrapper,
+        public InstanceService(IPluginSyncCommsHandler commsHandler, IClientIDWrapperInternal localClientIDWrapper, ConnectionStateWrapper connectionStateDebugWrapper,
             HandInteractorContainer interactorContainer, IPlayerServiceInternal playerServiceInternal, IPrimaryUIServiceInternal primaryUIService,
             bool connectAutomatically, ServerConnectionSettings serverSettings, string instanceCode, InstanceCommsHandlerConfig config, 
             IWorldStateSyncableContainer worldStateSyncableContainer, ILocalPlayerSyncableContainer localPlayerSyncableContainer)
@@ -290,7 +290,7 @@ namespace VE2.NonCore.Instancing.Internal
 
     internal class InstanceInfoContainer
     {
-        public readonly ClientIDWrapper LocalClientIdWrapper;
+        public readonly IClientIDWrapperInternal LocalClientIdWrapper;
         public ushort LocalClientID { get => LocalClientIdWrapper.ClientID; set => LocalClientIdWrapper.ClientID = value; }
 
         public event Action OnBecomeHost;
@@ -344,7 +344,7 @@ namespace VE2.NonCore.Instancing.Internal
              } 
         }
 
-        public InstanceInfoContainer(ClientIDWrapper localClientIdWrapper)
+        public InstanceInfoContainer(IClientIDWrapperInternal localClientIdWrapper)
         {
             LocalClientIdWrapper = localClientIdWrapper;
         }

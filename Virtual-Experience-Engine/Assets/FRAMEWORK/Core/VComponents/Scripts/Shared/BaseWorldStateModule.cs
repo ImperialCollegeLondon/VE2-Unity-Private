@@ -60,11 +60,15 @@ namespace VE2.Core.VComponents.Shared
             if (IsNetworked && !_wasNetworkedLastFrame)
                 _worldStateModulesContainer.RegisterWorldStateSyncable(this);
             else if (!IsNetworked && _wasNetworkedLastFrame)
-                _worldStateModulesContainer.RegisterWorldStateSyncable(this);
+                _worldStateModulesContainer.DeregisterWorldStateSyncable(this);
 
             _wasNetworkedLastFrame = IsNetworked;
         }
 
-        public virtual void TearDown() => _worldStateModulesContainer.DeregisterWorldStateSyncable(this);
+        public virtual void TearDown() 
+        {
+            if (IsNetworked)
+                _worldStateModulesContainer.DeregisterWorldStateSyncable(this);
+        }
     }
 }

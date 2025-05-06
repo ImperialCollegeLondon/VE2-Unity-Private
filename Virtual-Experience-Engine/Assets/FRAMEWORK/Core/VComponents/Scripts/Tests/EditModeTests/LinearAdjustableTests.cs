@@ -32,7 +32,8 @@ namespace VE2.Core.VComponents.Tests
                 "debug",
                 Substitute.For<IWorldStateSyncableContainer>(),
                 Substitute.For<IGrabInteractablesContainer>(),
-                new HandInteractorContainer());
+                new HandInteractorContainer(),
+                Substitute.For<IClientIDWrapper>());
 
             _v_linearAdjustableProviderStub = new(linearAdjustable);
 
@@ -44,11 +45,11 @@ namespace VE2.Core.VComponents.Tests
         [Test]
         public void LinearAdjustable_WhenAdjustedByPlugin_EmitsToPlugin([Random(0f, 1f, 1)] float randomValue)
         {
-            //set the adjustable value, Check customer received the value adjusted, and that the interactorID is set
+            //set the adjustable value, Check customer received the value adjusted, and that the interactorID reflects programmatic activation (ie, null!)
             _linearAdjustablePluginInterface.SpatialValue = randomValue;
             _customerScript.Received(1).HandleValueAdjusted(randomValue);
             Assert.IsTrue(_linearAdjustablePluginInterface.Value == randomValue);
-            Assert.AreEqual(_linearAdjustablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
+            Assert.AreEqual(_linearAdjustablePluginInterface.MostRecentInteractingClientID, null);
         }
 
         [TearDown]
