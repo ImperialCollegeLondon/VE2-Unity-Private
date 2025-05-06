@@ -112,9 +112,10 @@ namespace VE2.Core.VComponents.Internal
             _minimumSpatialValue = config.LinearAdjustableServiceConfig.MinimumSpatialValue;
             _maximumSpatialValue = config.LinearAdjustableServiceConfig.MaximumSpatialValue;
 
-            //seperate modules for adjustable state and free grabbable state, they have a unique ID for each for the world state syncer
+            //seperate modules for adjustable state and free grabbable state. Give the adjustable state module a different ID so it doesn't clash in the syncer with the grabbable state module
+            //The Grabbable state module needs the same ID that is passed to the ranged adjustable interaction module, so the interactor can pull the module from the grab interactable container
             _AdjustableStateModule = new(adjustableState, config.AdjustableStateConfig, $"ADJ-{id}", worldStateSyncableContainer);
-            _GrabbableStateModule = new(grabbableState, config.GrabbableStateConfig, $"FG-{id}", worldStateSyncableContainer, interactorContainer, RangedAdjustableInteractionModule);
+            _GrabbableStateModule = new(grabbableState, config.GrabbableStateConfig, $"{id}", worldStateSyncableContainer, interactorContainer, RangedAdjustableInteractionModule);
 
             _RangedAdjustableInteractionModule.OnLocalInteractorRequestGrab += (InteractorID interactorID) => _GrabbableStateModule.SetGrabbed(interactorID);
             _RangedAdjustableInteractionModule.OnLocalInteractorRequestDrop += (InteractorID interactorID) => _GrabbableStateModule.SetDropped(interactorID);
@@ -267,6 +268,7 @@ namespace VE2.Core.VComponents.Internal
 
         public void TearDown()
         {
+            _RangedAdjustableInteractionModule.TearDown();
             _AdjustableStateModule.TearDown();
             _GrabbableStateModule.TearDown();
 

@@ -30,7 +30,7 @@ namespace VE2.Core.Tests
                 new GrabbableState(), 
                 "debug",
                 Substitute.For<IWorldStateSyncableContainer>(),
-                Substitute.For<IGrabInteractablesContainer>(),
+                GrabInteractableContainerSetup.GrabInteractableContainer,
                 InteractorContainerSetup.InteractorContainer,
                 Substitute.For<IRigidbodyWrapper>(), 
                 new PhysicsConstants(),

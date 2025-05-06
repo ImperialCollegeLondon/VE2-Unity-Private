@@ -73,11 +73,11 @@ namespace VE2.Core.Tests
 
     internal class GrabInteractableContainerSetup
     {
-        public static IGrabInteractablesContainer GrabInteractableContainerStub { get; private set; }
+        public static IGrabInteractablesContainer GrabInteractableContainer { get; private set; }
 
         public static void GrabInteractableContainerStubSetupOnce()
         {
-            GrabInteractableContainerStub = new GrabInteractablesContainer();
+            GrabInteractableContainer = new GrabInteractablesContainer();
         }
     }
 
@@ -247,6 +247,8 @@ namespace VE2.Core.Tests
             CollisionDetectorFactoryStubSetup.CollisionDetectorStubSetupOnce();
             PlayerPersistentDataHandlerSetup.PlayerPersistentDataHandlerStubSetupOnce();
             PlayerInputContainerSetup.SetupPlayerInputContainerStubWrapper();
+            LocalPlayerSyncableContainerSetup.LocalPlayerSyncableContainerStubSetupOnce();
+            GrabInteractableContainerSetup.GrabInteractableContainerStubSetupOnce();
         }
 
         [SetUp]
@@ -259,7 +261,7 @@ namespace VE2.Core.Tests
                 PlayerPersistentDataHandlerSetup.PlayerPersistentDataHandlerStub,
                 LocalClientIDWrapperSetup.LocalClientIDWrapperStub,
                 LocalPlayerSyncableContainerSetup.LocalPlayerSyncableContainerStub,
-                GrabInteractableContainerSetup.GrabInteractableContainerStub,
+                GrabInteractableContainerSetup.GrabInteractableContainer,
                 PlayerInputContainerSetup.PlayerInputContainerStub,
                 RayCastProviderSetup.RaycastProviderStub, 
                 CollisionDetectorFactoryStubSetup.CollisionDetectorFactoryStub,

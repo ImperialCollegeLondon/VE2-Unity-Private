@@ -32,7 +32,7 @@ namespace VE2.Core.Tests
                 new GrabbableState(),
                 "debug",
                 Substitute.For<IWorldStateSyncableContainer>(),
-                GrabInteractableContainerSetup.GrabInteractableContainerStub,
+                GrabInteractableContainerSetup.GrabInteractableContainer,
                 InteractorContainerSetup.InteractorContainer);
 
             _v_linearAdjustableProviderStub = new(linearAdjustable);
