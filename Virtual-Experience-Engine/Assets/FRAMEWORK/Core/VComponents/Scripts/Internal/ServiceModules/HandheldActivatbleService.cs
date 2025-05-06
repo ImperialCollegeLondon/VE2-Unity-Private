@@ -1,9 +1,8 @@
 using UnityEngine;
 using System;
 using VE2.Core.VComponents.API;
-using static VE2.Core.Common.CommonSerializables;
-using VE2.NonCore.Instancing.API;
-using VE2.Core.Common;
+using static VE2.Common.Shared.CommonSerializables;
+using VE2.Common.Shared;
 
 namespace VE2.Core.VComponents.Internal
 {

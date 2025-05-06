@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Shared;
-using static VE2.Core.Common.CommonSerializables;
+using static VE2.Common.Shared.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -52,7 +52,7 @@ namespace VE2.Core.VComponents.Internal
         public UnityEvent OnDeactivate => _config.OnDeactivate;
         public bool IsActivated { get => _state.IsActivated; }
         public IClientIDWrapper MostRecentInteractingClientID => _state.MostRecentInteractingClientID == ushort.MaxValue ? null : 
-            new ClientIDWrapper(_state.MostRecentInteractingClientID, _state.MostRecentInteractingClientID == _localClientIdWrapper.ClientID);
+            new ClientIDWrapper(_state.MostRecentInteractingClientID, _state.MostRecentInteractingClientID == _localClientIdWrapper.Value);
         public void Activate() => SetActivated(true);
         public void Deactivate() => SetActivated(false);
 

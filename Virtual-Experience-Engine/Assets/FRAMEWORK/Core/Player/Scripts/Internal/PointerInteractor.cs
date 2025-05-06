@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using VE2.Common.API;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 using VE2.Core.Player.API;
 using VE2.Core.UI.API;
 using VE2.Core.VComponents.API;
@@ -40,13 +40,13 @@ namespace VE2.Core.Player.Internal
         public IRangedFreeGrabInteractionModule RangedFreeGrabInteraction { get; internal set; }
     }
 
-    internal abstract class PointerInteractor : ILocalInteractor
+    internal abstract class PointerInteractor : IInteractor
     {
         public Transform GrabberTransform => _GrabberTransform;
         public List<string> HeldActivatableIDs { get => _heldActivatableIDs; set => _heldActivatableIDs = value; }
 
         protected bool IsCurrentlyGrabbing => _CurrentGrabbingGrabbable != null;
-        protected InteractorID _InteractorID => _LocalClientIDWrapper.IsClientIDReady ? new InteractorID(_LocalClientIDWrapper.ClientID, _InteractorType) : null;
+        protected InteractorID _InteractorID => _LocalClientIDWrapper.IsClientIDReady ? new InteractorID(_LocalClientIDWrapper.Value, _InteractorType) : null;
         protected List<string> _heldActivatableIDs = new();
 
         protected const float MAX_RAYCAST_DISTANCE = 10;
@@ -120,7 +120,7 @@ namespace VE2.Core.Player.Internal
             if (!_LocalClientIDWrapper.IsClientIDReady)
                 _LocalClientIDWrapper.OnClientIDReady += HandleLocalClientIDReady;
             else
-                HandleLocalClientIDReady(_LocalClientIDWrapper.ClientID);
+                HandleLocalClientIDReady(_LocalClientIDWrapper.Value);
         }
 
         public virtual void HandleOnDisable()

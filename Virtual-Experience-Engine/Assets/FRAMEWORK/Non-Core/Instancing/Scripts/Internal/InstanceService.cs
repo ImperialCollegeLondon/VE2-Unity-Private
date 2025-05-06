@@ -5,11 +5,8 @@ using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 using VE2.Core.Player.API;
 using VE2.NonCore.Instancing.API;
 using static VE2.NonCore.Instancing.Internal.InstanceSyncSerializables;
-using VE2.Core.VComponents.API;
-using VE2.Core.Common;
-using VE2.NonCore.Platform.API;
+using VE2.Common.Shared;
 using VE2.Core.UI.API;
-using System.Collections.Generic;
 using VE2.Common.API;
 
 namespace VE2.NonCore.Instancing.Internal
@@ -291,7 +288,7 @@ namespace VE2.NonCore.Instancing.Internal
     internal class InstanceInfoContainer
     {
         public readonly IClientIDWrapperInternal LocalClientIdWrapper;
-        public ushort LocalClientID { get => LocalClientIdWrapper.ClientID; set => LocalClientIdWrapper.ClientID = value; }
+        public ushort LocalClientID { get => LocalClientIdWrapper.Value; set => LocalClientIdWrapper.Value = value; }
 
         public event Action OnBecomeHost;
         public event Action OnLoseHost;

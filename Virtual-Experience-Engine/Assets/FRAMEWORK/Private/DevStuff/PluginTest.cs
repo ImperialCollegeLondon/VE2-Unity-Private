@@ -58,7 +58,7 @@ public class PluginTest : MonoBehaviour
 
     public void OnButtonActivate()
     {
-        ushort clientID = _pushActivatable.MostRecentInteractingClientID.ClientID;
+        ushort clientID = _pushActivatable.MostRecentInteractingClientID.Value;
         Debug.Log("Button activated! ");
         Debug.Log($"Button state = {_pushActivatable.IsActivated}");
 

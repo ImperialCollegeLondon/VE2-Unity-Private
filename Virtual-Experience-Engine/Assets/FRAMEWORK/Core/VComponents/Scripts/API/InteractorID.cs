@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using static VE2.Core.Common.CommonSerializables;
+using static VE2.Common.Shared.CommonSerializables;
 
 //Note, this lives in the VC API rather than the player API as the VC interfaces need to take InteractorIDs as arguments
 namespace VE2.Core.VComponents.API

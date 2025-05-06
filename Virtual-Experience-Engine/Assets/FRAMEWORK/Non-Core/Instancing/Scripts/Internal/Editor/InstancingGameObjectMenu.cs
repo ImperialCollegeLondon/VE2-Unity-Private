@@ -2,7 +2,7 @@
 
 using UnityEditor;
 using UnityEngine;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 using VE2.NonCore.Instancing.Internal;
 
 namespace VE2.NonCore.FileSystem.Internal 

@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 
 namespace VE2.NonCore.Platform.Internal
 {

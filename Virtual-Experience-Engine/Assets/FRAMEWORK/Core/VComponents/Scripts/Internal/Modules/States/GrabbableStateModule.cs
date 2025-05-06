@@ -3,10 +3,10 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
 using VE2.Common.API;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Shared;
-using static VE2.Core.Common.CommonSerializables;
+using static VE2.Common.Shared.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -62,7 +62,7 @@ namespace VE2.Core.VComponents.Internal
         public bool IsGrabbed { get => _state.IsGrabbed; private set => _state.IsGrabbed = value; }
         public bool IsLocalGrabbed => MostRecentInteractingClientID!= null && MostRecentInteractingClientID.IsLocal;
         public IClientIDWrapper MostRecentInteractingClientID => _state.MostRecentInteractingInteractorID.ClientID == ushort.MaxValue ? null : 
-            new ClientIDWrapper(_state.MostRecentInteractingInteractorID.ClientID, _state.MostRecentInteractingInteractorID.ClientID == _localClientIdWrapper.ClientID);
+            new ClientIDWrapper(_state.MostRecentInteractingInteractorID.ClientID, _state.MostRecentInteractingInteractorID.ClientID == _localClientIdWrapper.Value);
         #endregion
 
         private GrabbableState _state => (GrabbableState)State;

@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 using static VE2.NonCore.Instancing.Internal.InstanceSyncSerializables;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 
 namespace VE2.NonCore.Instancing.Internal
 {

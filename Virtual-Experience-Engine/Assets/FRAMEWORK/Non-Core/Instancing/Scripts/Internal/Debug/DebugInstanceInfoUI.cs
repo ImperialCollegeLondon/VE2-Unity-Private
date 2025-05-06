@@ -1,8 +1,7 @@
 using TMPro;
 using UnityEngine;
 using VE2.NonCore.Instancing.API;
-using VE2.Core.Common;
-using UnityEngine.UI;
+using VE2.Common.Shared;
 using VE2.Common.API;
 
 namespace VE2.NonCore.Instancing.Internal

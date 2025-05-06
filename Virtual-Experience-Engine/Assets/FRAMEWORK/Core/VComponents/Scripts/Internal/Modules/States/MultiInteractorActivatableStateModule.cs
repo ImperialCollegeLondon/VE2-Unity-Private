@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 
 namespace VE2.Core.VComponents.Internal
@@ -41,14 +41,14 @@ namespace VE2.Core.VComponents.Internal
         public UnityEvent OnDeactivate => _config.OnDeactivate;
         public bool IsActivated => _state.IsActivated;
         public IClientIDWrapper MostRecentInteractingClientID => _mostRecentInteractingInteractorID.ClientID == ushort.MaxValue ? null : 
-            new ClientIDWrapper(_mostRecentInteractingInteractorID.ClientID, _mostRecentInteractingInteractorID.ClientID == _localClientIdWrapper.ClientID);
+            new ClientIDWrapper(_mostRecentInteractingInteractorID.ClientID, _mostRecentInteractingInteractorID.ClientID == _localClientIdWrapper.Value);
             
         public List<IClientIDWrapper> CurrentlyInteractingClientIDs {
             get 
             {
                 List<IClientIDWrapper> clientIDs = new List<IClientIDWrapper>();
                 foreach (InteractorID id in _state.InteractingInteractorIds)
-                    clientIDs.Add(new ClientIDWrapper(id.ClientID, id.ClientID == _localClientIdWrapper.ClientID));
+                    clientIDs.Add(new ClientIDWrapper(id.ClientID, id.ClientID == _localClientIdWrapper.Value));
                     
                 return clientIDs;
             }

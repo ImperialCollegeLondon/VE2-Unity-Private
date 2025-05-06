@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using VE2.Common.API;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 using VE2.Core.Player.API;
 using VE2.Core.UI.API;
 using static VE2.Core.Player.API.PlayerSerializables;

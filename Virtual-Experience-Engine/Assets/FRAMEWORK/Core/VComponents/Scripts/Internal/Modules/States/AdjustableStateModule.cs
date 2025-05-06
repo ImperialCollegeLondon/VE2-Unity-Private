@@ -2,10 +2,10 @@ using System;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Shared;
-using static VE2.Core.Common.CommonSerializables;
+using static VE2.Common.Shared.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -48,7 +48,7 @@ namespace VE2.Core.VComponents.Internal
         public void SetOutputValue(float newValue) => SetValue(newValue, ushort.MaxValue);
         public UnityEvent<float> OnValueAdjusted => _config.OnValueAdjusted;
         public IClientIDWrapper MostRecentInteractingClientID => _state.MostRecentInteractingClientID == ushort.MaxValue ? null : 
-            new ClientIDWrapper(_state.MostRecentInteractingClientID, _state.MostRecentInteractingClientID == _localClientIdWrapper.ClientID);
+            new ClientIDWrapper(_state.MostRecentInteractingClientID, _state.MostRecentInteractingClientID == _localClientIdWrapper.Value);
 
         public float MinimumOutputValue { get => _config.MinimumOutputValue; set => _config.MinimumOutputValue = value; }
         public float MaximumOutputValue { get => _config.MaximumOutputValue; set => _config.MaximumOutputValue = value; }

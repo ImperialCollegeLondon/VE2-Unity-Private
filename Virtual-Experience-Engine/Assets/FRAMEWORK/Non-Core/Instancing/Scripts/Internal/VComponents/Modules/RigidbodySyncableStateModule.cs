@@ -2,10 +2,10 @@ using System;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.Shared;
 using VE2.NonCore.Instancing.API;
-using static VE2.Core.Common.CommonSerializables;
+using static VE2.Common.Shared.CommonSerializables;
 
 namespace VE2.NonCore.Instancing.Internal
 {

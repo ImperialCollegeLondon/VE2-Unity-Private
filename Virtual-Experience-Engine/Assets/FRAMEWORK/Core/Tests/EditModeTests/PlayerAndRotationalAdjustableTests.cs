@@ -2,8 +2,7 @@ using System;
 using System.Collections.Generic;
 using NSubstitute;
 using NUnit.Framework;
-using VE2.Common.TransformWrapper;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
 using VE2.Core.VComponents.Tests;
@@ -53,14 +52,14 @@ namespace VE2.Core.Tests
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
             _customerScript.Received(1).HandleGrabReceived();
             Assert.IsTrue(_rotationalAdjustablePluginInterface.IsGrabbed);
-            Assert.AreEqual(_rotationalAdjustablePluginInterface.MostRecentInteractingClientID.ClientID, LocalClientIDWrapperSetup.LocalClientID);
+            Assert.AreEqual(_rotationalAdjustablePluginInterface.MostRecentInteractingClientID.Value, LocalClientIDWrapperSetup.LocalClientID);
             Assert.IsTrue(_rotationalAdjustablePluginInterface.MostRecentInteractingClientID.IsLocal);
 
             //Invoke drop, Check customer received the drop, and that the interactorID is set
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
             _customerScript.Received(1).HandleDropReceived();
             Assert.IsFalse(_rotationalAdjustablePluginInterface.IsGrabbed);
-            Assert.AreEqual(_rotationalAdjustablePluginInterface.MostRecentInteractingClientID.ClientID, LocalClientIDWrapperSetup.LocalClientID);
+            Assert.AreEqual(_rotationalAdjustablePluginInterface.MostRecentInteractingClientID.Value, LocalClientIDWrapperSetup.LocalClientID);
             Assert.IsTrue(_rotationalAdjustablePluginInterface.MostRecentInteractingClientID.IsLocal);
         }
 

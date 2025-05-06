@@ -2,12 +2,11 @@ using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
-using UnityEngine.Events;
-using VE2.Core.Common;
-using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Shared;
 using VE2.NonCore.Instancing.API;
-using static VE2.Core.Common.CommonSerializables;
+using VE2.Common.Shared;
+using UnityEngine.Events;
+using static VE2.Common.Shared.CommonSerializables;
 
 namespace VE2.NonCore.Instancing.Internal
 {

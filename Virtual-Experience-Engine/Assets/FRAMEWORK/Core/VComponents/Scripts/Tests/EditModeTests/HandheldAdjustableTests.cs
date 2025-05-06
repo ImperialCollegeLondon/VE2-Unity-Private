@@ -1,7 +1,7 @@
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
 

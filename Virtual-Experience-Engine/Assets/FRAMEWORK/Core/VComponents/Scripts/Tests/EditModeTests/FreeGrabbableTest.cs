@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using NSubstitute;
 using NUnit.Framework;
 using VE2.Common.API;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
 
@@ -53,13 +53,13 @@ namespace VE2.Core.VComponents.Tests
             grabbablePlayerInterface.RequestLocalGrab(interactorID);
             pluginScript.Received(1).HandleGrabReceived();
             Assert.IsTrue(grabbablePluginInterface.IsGrabbed);
-            Assert.AreEqual(grabbablePluginInterface.MostRecentInteractingClientID.ClientID, localClientID);
+            Assert.AreEqual(grabbablePluginInterface.MostRecentInteractingClientID.Value, localClientID);
 
             //Invoke drop, Check customer received the drop, and that the interactorID is set
             grabbablePlayerInterface.RequestLocalDrop(interactorID);
             pluginScript.Received(1).HandleDropReceived();
             Assert.IsFalse(grabbablePluginInterface.IsGrabbed);
-            Assert.AreEqual(grabbablePluginInterface.MostRecentInteractingClientID.ClientID, localClientID);
+            Assert.AreEqual(grabbablePluginInterface.MostRecentInteractingClientID.Value, localClientID);
         }
     }
 

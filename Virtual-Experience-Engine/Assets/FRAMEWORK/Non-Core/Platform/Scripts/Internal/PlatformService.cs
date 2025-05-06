@@ -9,10 +9,10 @@ using static VE2.NonCore.Platform.Internal.PlatformSerializables;
 using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 using VE2.Core.Player.API;
 using VE2.NonCore.Platform.API;
-using VE2.Core.Common;
 using static VE2.Core.Player.API.PlayerSerializables;
 using VE2.Core.UI.API;
 using VE2.Common.API;
+using VE2.Common.Shared;
 
 namespace VE2.NonCore.Platform.Internal
 {

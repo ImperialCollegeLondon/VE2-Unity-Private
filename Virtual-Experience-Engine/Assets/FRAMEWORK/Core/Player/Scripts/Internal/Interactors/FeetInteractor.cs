@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using VE2.Common.API;
-using VE2.Core.Common;
-using VE2.Core.Player.API;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 
 namespace VE2.Core.Player.Internal
@@ -12,7 +10,7 @@ namespace VE2.Core.Player.Internal
         public List<string> HeldActivatableIDs => _heldActivatableIDs;
 
         private List<string> _heldActivatableIDs = new();
-        private InteractorID _interactorID => _localClientIDWrapper.IsClientIDReady ? new InteractorID(_localClientIDWrapper.ClientID, _InteractorType) : null;
+        private InteractorID _interactorID => _localClientIDWrapper.IsClientIDReady ? new InteractorID(_localClientIDWrapper.Value, _InteractorType) : null;
 
         public ICollisionDetector _collisionDetector;
         private readonly InteractorType _InteractorType;
@@ -36,7 +34,7 @@ namespace VE2.Core.Player.Internal
             if (!_localClientIDWrapper.IsClientIDReady)
                 _localClientIDWrapper.OnClientIDReady += HandleLocalClientIDReady;
             else
-                HandleLocalClientIDReady(_localClientIDWrapper.ClientID);
+                HandleLocalClientIDReady(_localClientIDWrapper.Value);
         }
 
         public virtual void HandleOnDisable()

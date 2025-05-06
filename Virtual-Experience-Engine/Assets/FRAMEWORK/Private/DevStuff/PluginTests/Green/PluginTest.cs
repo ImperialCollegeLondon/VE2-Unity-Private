@@ -4,7 +4,7 @@ using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 using VE2.NonCore.Instancing.API;
 
@@ -66,7 +66,7 @@ public class PluginTest : MonoBehaviour
         Debug.Log("Button activated! ");
         Debug.Log($"Button state = {_pushActivatable.IsActivated}");
 
-        Debug.Log($"Activate by... {clientID.ClientID.ToString()}");
+        Debug.Log($"Activate by... {clientID.Value.ToString()}");
 
         _pushLightOn.SetActive(true);
         _pushLightOff.SetActive(false);

@@ -61,7 +61,7 @@ namespace VE2.NonCore.Instancing.Internal
             }
         }
 
-        public ushort LocalClientID => VE2API.LocalClientIdWrapper.ClientID;
+        public ushort LocalClientID => VE2API.LocalClientIdWrapper.Value;
         public event Action<ushort> OnClientIDReady {add => VE2API.LocalClientIdWrapper.OnClientIDReady += value; remove => VE2API.LocalClientIdWrapper.OnClientIDReady -= value; }
         #endregion
 

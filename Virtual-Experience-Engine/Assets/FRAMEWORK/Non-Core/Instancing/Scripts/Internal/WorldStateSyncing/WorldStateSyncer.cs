@@ -2,12 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using System;
-using UnityEngine.XR;
-using VE2.Core.VComponents.API;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 using static VE2.NonCore.Instancing.Internal.InstanceSyncSerializables;
-using VE2.NonCore.Instancing.API;
-using VE2.Common.API;
 
 namespace VE2.NonCore.Instancing.Internal
 {

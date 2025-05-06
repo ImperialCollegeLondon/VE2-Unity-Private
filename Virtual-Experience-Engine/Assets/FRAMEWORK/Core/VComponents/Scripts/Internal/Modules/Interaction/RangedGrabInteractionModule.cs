@@ -2,8 +2,8 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 using VE2.Core.VComponents.API;
-using VE2.Common.TransformWrapper;
 using VE2.Common.API;
+using VE2.Common.Shared;
 
 namespace VE2.Core.VComponents.Internal
 {

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using VE2.Common.API;
-using VE2.Core.Player.API;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 
 namespace VE2.NonCore.Instancing.Internal

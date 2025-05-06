@@ -1,6 +1,7 @@
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
+using VE2.Common.Shared;
 
 namespace VE2.Core.Player.Internal
 {

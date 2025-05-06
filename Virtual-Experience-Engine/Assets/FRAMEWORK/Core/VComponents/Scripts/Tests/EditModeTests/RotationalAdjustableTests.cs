@@ -2,10 +2,9 @@ using UnityEngine;
 using NSubstitute;
 using NUnit.Framework;
 using VE2.Core.VComponents.Internal;
-using VE2.Common.TransformWrapper;
+using VE2.Common.Shared;
 using System.Collections.Generic;
 using VE2.Core.VComponents.API;
-using VE2.Core.Common;
 using VE2.Common.API;
 
 namespace VE2.Core.VComponents.Tests

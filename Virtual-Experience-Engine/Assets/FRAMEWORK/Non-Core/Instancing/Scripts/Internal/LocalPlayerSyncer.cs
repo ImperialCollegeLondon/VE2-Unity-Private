@@ -1,10 +1,9 @@
 
 using UnityEngine;
 using VE2.Common.API;
+using VE2.Common.Shared;
 using VE2.Core.Common;
 using VE2.Core.Player.API;
-using VE2.NonCore.Instancing.API;
-using static VE2.Core.Common.CommonSerializables;
 using static VE2.Core.Player.API.PlayerSerializables;
 using static VE2.NonCore.Instancing.Internal.InstanceSyncSerializables;
 

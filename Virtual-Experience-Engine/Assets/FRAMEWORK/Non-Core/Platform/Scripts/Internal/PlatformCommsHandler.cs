@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using UnityEngine;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 using DRMessageReader = DarkRift.DarkRiftReader;
 using DRMessageWrapper = DarkRift.Message;
 

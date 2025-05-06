@@ -8,7 +8,7 @@ using static VE2.Core.Player.API.PlayerSerializables;
 using VE2.Core.UI.API;
 using System.Collections.Generic;
 using VE2.Common.API;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 
 namespace VE2.Core.Tests
 {
@@ -16,7 +16,7 @@ namespace VE2.Core.Tests
     {
         public static IClientIDWrapper LocalClientIDWrapper { get; private set; }
         public static InteractorID InteractorID { get; private set; }
-        public static ushort LocalClientID => LocalClientIDWrapper.ClientID;
+        public static ushort LocalClientID => LocalClientIDWrapper.Value;
         public static string InteractorGameobjectName { get; private set; }
 
         public static void LocalClientIDWrapperStubSetupOnce()
@@ -27,14 +27,14 @@ namespace VE2.Core.Tests
 
             LocalClientIDWrapper = Substitute.For<IClientIDWrapper>();
             LocalClientIDWrapper.IsClientIDReady.Returns(true);
-            LocalClientIDWrapper.ClientID.Returns(localClientID);
+            LocalClientIDWrapper.Value.Returns(localClientID);
             InteractorID = new(localClientID, InteractorType.Mouse2D);
             InteractorGameobjectName = $"Interactor{InteractorID.ClientID}-{InteractorID.InteractorType}";
         }
 
         public static void StubLocalClientIDForMultiplayerSupportStub(ushort localClientID)
         {
-            LocalClientIDWrapper.ClientID.Returns(localClientID);
+            LocalClientIDWrapper.Value.Returns(localClientID);
         }
     }
 
