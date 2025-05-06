@@ -13,6 +13,9 @@ namespace VE2.Core.Player.Internal
         public Transform InteractorParentTransform => _interactorParentTransform;
         [SerializeField, IgnoreParent] private Transform _interactorParentTransform;
 
+        public Transform GrabberVisualisationRayOrigin => _grabberVisualisationRayOrigin;
+        [SerializeField, IgnoreParent] private Transform _grabberVisualisationRayOrigin; 
+
         public Transform GrabberTransform => _grabberTransform;
         [SerializeField, IgnoreParent] private Transform _grabberTransform;
 
@@ -64,8 +67,9 @@ namespace VE2.Core.Player.Internal
 
         protected readonly Transform _interactorParentTransform;
         protected readonly Transform _GrabberTransform;
-        protected readonly GameObject _GrabberVisualisation;
         private readonly LineRenderer _grabbableLineVisLineRenderer;
+        protected readonly GameObject _GrabberVisualisation;
+        protected readonly Transform _GrabberVisualisationRayOrigin;
 
         protected readonly Transform _RayOrigin;
         private readonly StringWrapper _raycastHitDebug;
@@ -90,6 +94,7 @@ namespace VE2.Core.Player.Internal
             _interactorParentTransform = interactorReferences.InteractorParentTransform;
             _GrabberTransform = interactorReferences.GrabberTransform;
             _GrabberVisualisation = interactorReferences.GrabberVisualisation;
+            _GrabberVisualisationRayOrigin = interactorReferences.GrabberVisualisationRayOrigin;
             _grabbableLineVisLineRenderer = _GrabberVisualisation.GetComponent<LineRenderer>();
             _RayOrigin = interactorReferences.RayOrigin;
             _raycastHitDebug = interactorReferences.RaycastHitDebug;
@@ -183,7 +188,7 @@ namespace VE2.Core.Player.Internal
                 _hoveringOverScrollableIndicator.IsHoveringOverScrollableObject = false;
 
                 _grabbableLineVisLineRenderer.startWidth = _grabbableLineVisLineRenderer.endWidth = 0.005f;
-                _grabbableLineVisLineRenderer.SetPosition(0, GrabberTransform.position);
+                _grabbableLineVisLineRenderer.SetPosition(0, _GrabberVisualisationRayOrigin.position);
                 _grabbableLineVisLineRenderer.SetPosition(1, rangedAdjustableInteraction.Transform.position);
 
                 HandleUpdateGrabbingAdjustable();
@@ -326,15 +331,15 @@ namespace VE2.Core.Player.Internal
             return _RaycastProvider.Raycast(_RayOrigin.position, _RayOrigin.forward, MAX_RAYCAST_DISTANCE, _raycastLayerMask);
         }
 
-        private RaycastResultWrapper GetSphereCastResult()
+        private RaycastResultWrapper GetSphereCastResult(bool failsafeGrab = false)
         {
             if (_GrabberTransform == null || this is Interactor2D)
                 return null;
 
             if (_InteractorType == InteractorType.LeftHandVR)
-                return _RaycastProvider.SphereCastAll(_GrabberTransform.position, MAX_SPHERECAST_RADIUS, _GrabberTransform.up, 0f, _raycastLayerMask, _GrabberTransform.right);
+                return _RaycastProvider.SphereCastAll(_GrabberTransform.position, MAX_SPHERECAST_RADIUS, _GrabberTransform.up, 0f, _raycastLayerMask, failsafeGrab, _GrabberTransform.right);
             if (_InteractorType == InteractorType.RightHandVR)
-                return _RaycastProvider.SphereCastAll(_GrabberTransform.position, MAX_SPHERECAST_RADIUS, _GrabberTransform.up, 0f, _raycastLayerMask, -_GrabberTransform.right);
+                return _RaycastProvider.SphereCastAll(_GrabberTransform.position, MAX_SPHERECAST_RADIUS, _GrabberTransform.up, 0f, _raycastLayerMask, failsafeGrab, -_GrabberTransform.right);
             else
                 return _RaycastProvider.SphereCastAll(_GrabberTransform.position, MAX_SPHERECAST_RADIUS, _GrabberTransform.up, 0f, _raycastLayerMask);
         }
@@ -409,7 +414,7 @@ namespace VE2.Core.Player.Internal
                         if (this is Interactor2D)
                             return;
 
-                        RaycastResultWrapper sphereCastResultWrapper = GetSphereCastResult();
+                        RaycastResultWrapper sphereCastResultWrapper = GetSphereCastResult(failsafeGrab: true);
 
                         if (sphereCastResultWrapper != null && sphereCastResultWrapper.HitInteractable && sphereCastResultWrapper.RangedInteractableIsInRange)
                         {

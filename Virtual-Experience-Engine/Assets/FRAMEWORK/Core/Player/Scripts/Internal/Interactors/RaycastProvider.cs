@@ -11,7 +11,7 @@ namespace VE2.Core.Player.Internal
     {
         public RaycastResultWrapper Raycast(Vector3 rayOrigin, Vector3 raycastDirection, float maxRaycastDistance, LayerMask layerMask);
 
-        public RaycastResultWrapper SphereCastAll(Vector3 rayOrigin, float sphereRadius, Vector3 raycastDirection, float maxRaycastDistance, LayerMask layerMask, Vector3 palmDir = default);
+        public RaycastResultWrapper SphereCastAll(Vector3 rayOrigin, float sphereRadius, Vector3 raycastDirection, float maxRaycastDistance, LayerMask layerMask, bool failsafeGrab = false, Vector3 palmDir = default);
     }
 
     internal class RaycastProvider : IRaycastProvider
@@ -60,7 +60,7 @@ namespace VE2.Core.Player.Internal
             return result;
         }
 
-        public RaycastResultWrapper SphereCastAll(Vector3 rayOrigin, float sphereRadius, Vector3 raycastDirection, float maxRaycastDistance, LayerMask layerMask, Vector3 palmDir = default)
+        public RaycastResultWrapper SphereCastAll(Vector3 rayOrigin, float sphereRadius, Vector3 raycastDirection, float maxRaycastDistance, LayerMask layerMask, bool failsafeGrab = false, Vector3 palmDir = default)
         {
             RaycastResultWrapper result;
 
@@ -92,18 +92,18 @@ namespace VE2.Core.Player.Internal
                     
                         float VRRaySnapRange = rangedGrabInteractionModuleProvider.RangedGrabInteractionModule.VRRaySnapRange;
                         float VRRaySnapRangeBackOfHand = rangedGrabInteractionModuleProvider.RangedGrabInteractionModule.VRRaySnapRangeBackOfHand;
-                        float failsafeGrabMultiplier = rangedGrabInteractionModuleProvider.RangedGrabInteractionModule.FailsafeGrabMultiplier;
+                        float GrabMultiplier = failsafeGrab ? rangedGrabInteractionModuleProvider.RangedGrabInteractionModule.FailsafeGrabMultiplier : 1f;
                         Vector3 grabbablePosition = rangedGrabInteractionModuleProvider.RangedGrabInteractionModule.AttachPoint.position; //so ray snaps to the grabbable's attach point
 
                         float distanceFromGrabbable = Vector3.Distance(rayOrigin, grabbablePosition);
                         bool isOnPalm = Vector3.Angle(grabbablePosition - rayOrigin, palmDir) < 90f;
 
-                        if(distanceFromGrabbable > VRRaySnapRangeBackOfHand * failsafeGrabMultiplier && !isOnPalm)
+                        if(distanceFromGrabbable > VRRaySnapRangeBackOfHand * GrabMultiplier && !isOnPalm)
                             continue;
 
                         //check if facing the palm, the grabbable is within the failsafe range
                         //or if not facing palm, the grabbable is within the failsafe range and closer than the closest distance
-                        if (distanceFromGrabbable <= VRRaySnapRange * failsafeGrabMultiplier
+                        if (distanceFromGrabbable <= VRRaySnapRange * GrabMultiplier
                             && distanceFromGrabbable < closestDistance)
                         {
                             closestHitPoint = grabbablePosition;
