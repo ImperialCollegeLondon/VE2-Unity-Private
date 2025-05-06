@@ -83,7 +83,15 @@ namespace VE2.Core.VComponents.Internal
         public void SetGrabbed(InteractorID interactorID)
         {
             if (IsGrabbed)
-                return;
+            {
+                if(interactorID.ClientID == _state.MostRecentInteractingInteractorID.ClientID)
+                {
+                    SetDropped(_state.MostRecentInteractingInteractorID);
+                }
+                else
+                    return;
+            }
+
 
             if (_interactorContainer.Interactors.TryGetValue(interactorID.ToString(), out IInteractor interactor))
             {

@@ -159,7 +159,15 @@ namespace VE2.Core.Player.Internal
 
             //Update the current hovering interactable, as long as we're not waiting for id, and it's not a grabbable that we were previously hovering over
             if (!_WaitingForLocalClientID && !(previousHoveringInteractable is IRangedGrabInteractionModule previousRangedGrabInteractable && _CurrentGrabbingGrabbable == previousRangedGrabInteractable))
-                _CurrentHoveringInteractable = raycastResultWrapper.RangedInteractableInRange;
+            {
+                if(raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange)
+                    _CurrentHoveringInteractable = raycastResultWrapper.RangedInteractableInRange;
+                else if(this is InteractorVR && !raycastResultWrapper.HitInteractable && sphereCastResultWrapper != null && sphereCastResultWrapper.HitInteractable && sphereCastResultWrapper.RangedInteractableIsInRange)
+                    _CurrentHoveringInteractable = sphereCastResultWrapper.RangedInteractableInRange;
+                else
+                    _CurrentHoveringInteractable = null;
+            }
+
 
             //If we've stopped hovering over something, call exit hover. If we were holding its click down, release
             if (previousHoveringInteractable != null && previousHoveringInteractable != _CurrentHoveringInteractable)
@@ -234,8 +242,6 @@ namespace VE2.Core.Player.Internal
 
                             _hoveringOverScrollableIndicator.IsHoveringOverScrollableObject = sphereCastResultWrapper.HitScrollableInteractableInRange;
                             _raycastHitDebug.Value = sphereCastResultWrapper.RangedInteractable.ToString();
-                            _CurrentHoveringInteractable = sphereCastResultWrapper.RangedInteractableInRange;
-                            _CurrentHoveringInteractable.EnterHover();
 
                             SetInteractorState(isAllowedToInteract ? InteractorState.InteractionAvailable : InteractorState.InteractionLocked);
 
