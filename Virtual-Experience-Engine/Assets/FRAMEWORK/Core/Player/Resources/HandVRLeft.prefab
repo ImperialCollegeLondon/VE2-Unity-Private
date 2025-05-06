@@ -914,7 +914,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5854277485910502104}
-  - component: {fileID: 100483419351548477}
   - component: {fileID: 5370606987438688461}
   m_Layer: 6
   m_Name: CollisionDetector
@@ -938,18 +937,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 7167164542793246743}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &100483419351548477
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1642803840145183799}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67fb97127b85d2642833b9def52fe793, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!135 &5370606987438688461
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1757,9 +1744,6 @@ MonoBehaviour:
     _grabberTransform: {fileID: 627727185274979275}
     _grabberVisualisation: {fileID: 6192500634984874673}
     _rayOrigin: {fileID: 4664831131562171241}
-    _layerMask:
-      serializedVersion: 2
-      m_Bits: 959
     _raycastHitDebug:
       Value: 
     _lineRenderer: {fileID: 5038925955700674028}

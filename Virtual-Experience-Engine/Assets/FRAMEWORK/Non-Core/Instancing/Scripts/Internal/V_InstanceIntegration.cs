@@ -20,11 +20,7 @@ namespace VE2.NonCore.Instancing.Internal
         public float ArtificialAddedPing { get => _artificialAddedPingMs; private set => _artificialAddedPingMs = value >= 0 ? value : 0; }
     }
 
-    //TODO: Review the below - pretty sure the platform can just take the container, rather than initing the player directly 
-    //Note, ILocalClientIDProvider is implemented here, NOT on the service - it needs to exsit at edit-time
-    //Since the platform inits the player, and instancing inits the platform, we can't have the player init the instancing
-    //Otherwise we'd have a stack overflow, instead, provide ID from the mono here, without initing the instancing service
-    [ExecuteInEditMode]
+    [ExecuteAlways]
     internal class V_InstanceIntegration : MonoBehaviour, IInstanceProvider 
     {
         #region Inspector frontend
@@ -75,6 +71,9 @@ namespace VE2.NonCore.Instancing.Internal
         private void OnEnable()
         {
             VE2API.InstancingServiceProvider = this;
+
+            if (!Application.isPlaying)
+                return;
 
             if (PlatformAPI.PlatformService == null) //TODO - should point to VE2API
             {

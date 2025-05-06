@@ -21,7 +21,7 @@ namespace VE2.NonCore.Platform.Internal
         internal static PlatformService Create(IPlatformSettingsHandler platformSettingsHandler)
         {
             PlatformCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
-            IPlayerServiceInternal playerService = VE2API.Player as IPlayerServiceInternal;
+            IPlayerServiceInternal playerService = VE2API.Player as IPlayerServiceInternal; //TODO: Think about this - pretty sure the platform can just take the container, rather than initing the player directly 
             PluginLoader pluginLoader = new PluginLoader(platformSettingsHandler, playerService);
             return new PlatformService(
                 commsHandler, 

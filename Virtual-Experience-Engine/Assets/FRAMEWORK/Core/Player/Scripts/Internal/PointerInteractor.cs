@@ -86,7 +86,7 @@ namespace VE2.Core.Player.Internal
             _interactorContainer = interactorContainer;
             _grabInteractablesContainer = grabInteractablesContainer;
             _interactorInputContainer = interactorInputContainer;
-            _raycastLayerMask = interactionConfig.RaycastLayers;
+            _raycastLayerMask = interactionConfig.InteractableLayers;
 
             _interactorParentTransform = interactorReferences.InteractorParentTransform;
             _GrabberTransform = interactorReferences.GrabberTransform;
@@ -116,7 +116,7 @@ namespace VE2.Core.Player.Internal
 
             _heldActivatableIDs = new();
 
-            if (_LocalClientIDWrapper.IsClientIDReady)
+            if (!_LocalClientIDWrapper.IsClientIDReady)
                 _LocalClientIDWrapper.OnClientIDReady += HandleLocalClientIDReady;
             else
                 HandleLocalClientIDReady(_LocalClientIDWrapper.ClientID);
@@ -151,7 +151,7 @@ namespace VE2.Core.Player.Internal
             IRangedInteractionModule previousHoveringInteractable = _CurrentHoveringInteractable;
 
             //Update the current hovering interactable, as long as we're not waiting for id, and it's not a grabbable that we were previously hovering over
-            if (!_LocalClientIDWrapper.IsClientIDReady && !(previousHoveringInteractable is IRangedGrabInteractionModule previousRangedGrabInteractable && _CurrentGrabbingGrabbable == previousRangedGrabInteractable))
+            if (_LocalClientIDWrapper.IsClientIDReady && !(previousHoveringInteractable is IRangedGrabInteractionModule previousRangedGrabInteractable && _CurrentGrabbingGrabbable == previousRangedGrabInteractable))
                 _CurrentHoveringInteractable = raycastResultWrapper.RangedInteractableInRange;
 
             //If we've stopped hovering over something, call exit hover. If we were holding its click down, release
@@ -167,7 +167,7 @@ namespace VE2.Core.Player.Internal
             }
 
             //If we've started hovering over something, call enter hover
-            if (!_LocalClientIDWrapper.IsClientIDReady && _CurrentHoveringInteractable != null && _CurrentHoveringInteractable != previousHoveringInteractable)
+            if (_LocalClientIDWrapper.IsClientIDReady && _CurrentHoveringInteractable != null && _CurrentHoveringInteractable != previousHoveringInteractable)
             {
                 if (_CurrentHoveringClickInteractable != null && this is InteractorVR && !_CurrentHoveringClickInteractable.ActivateAtRangeInVR)
                     return;
@@ -191,7 +191,7 @@ namespace VE2.Core.Player.Internal
                 bool isAllowedToInteract = false;
 
                 //If hovering over an interactable, handle interactor and hover=========
-                if (!_LocalClientIDWrapper.IsClientIDReady && (raycastResultWrapper.HitUIButton || raycastResultWrapper.HitInteractableInRange))
+                if (_LocalClientIDWrapper.IsClientIDReady && (raycastResultWrapper.HitUIButton || raycastResultWrapper.HitInteractableInRange))
                 {
                     if (raycastResultWrapper.HitInteractable)
                     {
@@ -339,7 +339,7 @@ namespace VE2.Core.Player.Internal
 
         private void HandleRangedClickPressed()
         {
-            if (_LocalClientIDWrapper.IsClientIDReady || IsCurrentlyGrabbing)
+            if (!_LocalClientIDWrapper.IsClientIDReady || IsCurrentlyGrabbing)
                 return;
 
             RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
@@ -365,7 +365,7 @@ namespace VE2.Core.Player.Internal
 
         private void HandleRangedClickReleased()
         {
-            if (_LocalClientIDWrapper.IsClientIDReady || IsCurrentlyGrabbing)
+            if (!_LocalClientIDWrapper.IsClientIDReady || IsCurrentlyGrabbing)
                 return;
 
             if (_CurrentHoveringClickInteractable != null && _CurrentHoveringClickInteractable is IRangedHoldClickInteractionModule _CurrentHoveringHoldClickInteractable)
@@ -386,7 +386,7 @@ namespace VE2.Core.Player.Internal
             {
                 RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
 
-                if (!_LocalClientIDWrapper.IsClientIDReady)
+                if (_LocalClientIDWrapper.IsClientIDReady)
                 {
                     if (raycastResultWrapper != null && raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange)
                     {
@@ -474,7 +474,7 @@ namespace VE2.Core.Player.Internal
 
         private void HandleHandheldClickPressed()
         {
-            if (!_LocalClientIDWrapper.IsClientIDReady && IsCurrentlyGrabbing)
+            if (_LocalClientIDWrapper.IsClientIDReady && IsCurrentlyGrabbing)
             {
                 foreach (IHandheldInteractionModule handheldInteraction in _CurrentGrabbingGrabbable.HandheldInteractions)
                 {
@@ -502,7 +502,7 @@ namespace VE2.Core.Player.Internal
             {
                 RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
 
-                if (!_LocalClientIDWrapper.IsClientIDReady && raycastResultWrapper != null && raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange)
+                if (_LocalClientIDWrapper.IsClientIDReady && raycastResultWrapper != null && raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange)
                 {
                     if (!raycastResultWrapper.RangedInteractable.AdminOnly)
                     {
@@ -532,7 +532,7 @@ namespace VE2.Core.Player.Internal
             {
                 RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
 
-                if (!_LocalClientIDWrapper.IsClientIDReady && raycastResultWrapper != null && raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange)
+                if (_LocalClientIDWrapper.IsClientIDReady && raycastResultWrapper != null && raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange)
                 {
                     if (!raycastResultWrapper.RangedInteractable.AdminOnly)
                     {

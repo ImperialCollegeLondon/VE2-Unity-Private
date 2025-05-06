@@ -61,7 +61,8 @@ namespace VE2.Core.Player.Internal
     [Serializable]
     internal class PlayerInteractionConfig
     {
-        [SerializeField] internal LayerMask RaycastLayers;
+        [Tooltip("Player raycasts will hit objects on these layers, hands and feet will interact with interactables on these layers. Doesn't effect movement")]
+        [SerializeField] internal LayerMask InteractableLayers;
     }
 
     [Serializable]
@@ -134,7 +135,7 @@ namespace VE2.Core.Player.Internal
             _playerConfig = new();
 
             //Can't set LayerMask in serialization, so we do it here
-            _playerConfig.PlayerInteractionConfig.RaycastLayers = -1;
+            _playerConfig.PlayerInteractionConfig.InteractableLayers = -1;
             _playerConfig.MovementModeConfig.TraversableLayers = LayerMask.GetMask("Ground");
             _playerConfig.MovementModeConfig.CollisionLayers = LayerMask.GetMask("Default"); 
             _playerConfig.CameraConfig.CullingMask = -1;

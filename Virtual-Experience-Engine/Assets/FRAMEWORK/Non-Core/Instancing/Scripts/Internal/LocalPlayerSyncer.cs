@@ -40,6 +40,9 @@ namespace VE2.NonCore.Instancing.Internal
 
         private void HandleLocalPlayerDeregistered(IPlayerServiceInternal playerServiceInternal)
         {
+            if (playerServiceInternal == null) //Null if deregistrations happen when leaving play mode
+                return;
+
             playerServiceInternal.OnOverridableAvatarAppearanceChanged -= HandleLocalAppearanceChanged;
         }
 

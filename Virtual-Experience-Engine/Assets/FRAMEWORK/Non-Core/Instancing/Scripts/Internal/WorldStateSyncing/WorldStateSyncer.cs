@@ -56,6 +56,9 @@ namespace VE2.NonCore.Instancing.Internal
 
         private void HandleWorldStateSyncableDeregistered(IWorldStateModule stateModule)
         {
+            if (_syncInfosAgainstIDs == null || stateModule == null) //Null if deregistrations happen when leaving play mode
+                return;
+
             if (_syncInfosAgainstIDs.TryGetValue(stateModule.ID, out SyncInfo syncInfo))
             {
                 if (_numOfSyncablesPerSyncOffsets.ContainsKey(syncInfo.HostSyncOffset))

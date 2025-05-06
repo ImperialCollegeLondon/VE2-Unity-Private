@@ -4425,9 +4425,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f28b7673bc136f439394adf5c45112d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerServiceProviderGOName: PlayerSpawner
-  _playerSyncProviderGOName: InstanceIntegration
-  _preferVRMode: 0
 --- !u!4 &401678551
 Transform:
   m_ObjectHideFlags: 1
@@ -7010,7 +7007,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 601354898}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PressurePlateArea
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9671,7 +9668,7 @@ GameObject:
   - component: {fileID: 871318922}
   - component: {fileID: 871318921}
   - component: {fileID: 871318920}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: LightBulb
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10143,6 +10140,53 @@ MonoBehaviour:
   m_PointerBehavior: 0
   m_CursorLockBehavior: 0
   m_ScrollDeltaPerTick: 6
+--- !u!1 &878036152
+GameObject:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 878036154}
+  - component: {fileID: 878036153}
+  m_Layer: 0
+  m_Name: VE2APISampleScene
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &878036153
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 878036152}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42c71687d1b78b848b78a9a33d60f5dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _preferVRMode: 1
+  _localClientIdWrapper:
+    _clientID: 65535
+--- !u!4 &878036154
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 878036152}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &883494785
 GameObject:
   m_ObjectHideFlags: 0
@@ -13945,7 +13989,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a8bc8c50814dde499ca1e3e98e7399e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _instanceProviderGOName: InstanceIntegration
 --- !u!4 &1181017335
 Transform:
   m_ObjectHideFlags: 1
@@ -19823,7 +19866,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1858646007}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Offset
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20207,7 +20250,7 @@ MonoBehaviour:
     PlayerModeConfig:
       SupportedPlayerModes: 2
     PlayerInteractionConfig:
-      RaycastLayers:
+      InteractableLayers:
         serializedVersion: 2
         m_Bits: 131049
     MovementModeConfig:
@@ -23441,7 +23484,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f7cb8a15be104e42983e54af205dc1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _worldStateSyncProviderGOName: InstanceIntegration
 --- !u!4 &2146908909
 Transform:
   m_ObjectHideFlags: 1
@@ -23976,7 +24018,7 @@ GameObject:
   - component: {fileID: 919132147501691430}
   - component: {fileID: 919132147501691433}
   - component: {fileID: 919132147501691429}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PressurePlate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26558,7 +26600,7 @@ GameObject:
   - component: {fileID: 4153126362275916844}
   - component: {fileID: 462801884943159137}
   - component: {fileID: 7683755938313543864}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: FootprintDecal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28222,7 +28264,7 @@ GameObject:
   - component: {fileID: 2638220609000777303}
   - component: {fileID: 7395232165487312179}
   - component: {fileID: 9221591495165670929}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PressurePlatePad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28263,3 +28305,4 @@ SceneRoots:
   - {fileID: 1979020586}
   - {fileID: 1990765011}
   - {fileID: 8196421259359715009}
+  - {fileID: 878036154}

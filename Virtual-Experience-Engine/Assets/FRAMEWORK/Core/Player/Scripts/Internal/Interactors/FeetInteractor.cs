@@ -10,16 +10,17 @@ namespace VE2.Core.Player.Internal
     {
         public List<string> HeldActivatableIDs => _heldActivatableIDs;
 
-        protected List<string> _heldActivatableIDs = new();
-        protected InteractorID _InteractorID => _localClientIDWrapper.IsClientIDReady ? new InteractorID(_localClientIDWrapper.ClientID, _InteractorType) : null;
+        private List<string> _heldActivatableIDs = new();
+        private InteractorID _interactorID => _localClientIDWrapper.IsClientIDReady ? new InteractorID(_localClientIDWrapper.ClientID, _InteractorType) : null;
 
         public ICollisionDetector _collisionDetector;
         private readonly InteractorType _InteractorType;
         private readonly IClientIDWrapper _localClientIDWrapper;
 
-        internal FeetInteractor(ICollisionDetectorFactory collisionDetectorFactory, ColliderType colliderType, Collider collider, InteractorType interactorType, IClientIDWrapper localClientIDWrapper)
+        internal FeetInteractor(ICollisionDetectorFactory collisionDetectorFactory, ColliderType colliderType, Collider collider, InteractorType interactorType, 
+            IClientIDWrapper localClientIDWrapper, PlayerInteractionConfig interactionConfig)
         {
-            _collisionDetector = collisionDetectorFactory.CreateCollisionDetector(collider, colliderType);
+            _collisionDetector = collisionDetectorFactory.CreateCollisionDetector(collider, colliderType, interactionConfig.InteractableLayers);
             _InteractorType = interactorType;
             _localClientIDWrapper = localClientIDWrapper;
         }
@@ -54,18 +55,18 @@ namespace VE2.Core.Player.Internal
 
         private void HandleCollideStart(ICollideInteractionModule collideInteractionModule)
         {
-            if (!_localClientIDWrapper.IsClientIDReady && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Feet)
+            if (_localClientIDWrapper.IsClientIDReady && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Feet)
             {
-                collideInteractionModule.InvokeOnCollideEnter(_InteractorID);
+                collideInteractionModule.InvokeOnCollideEnter(_interactorID);
                 _heldActivatableIDs.Add(collideInteractionModule.ID);
             }
         }
 
         private void HandleCollideEnd(ICollideInteractionModule collideInteractionModule)
         {
-            if (!_localClientIDWrapper.IsClientIDReady && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Feet)
+            if (_localClientIDWrapper.IsClientIDReady && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Feet)
             {
-                collideInteractionModule.InvokeOnCollideExit(_InteractorID);
+                collideInteractionModule.InvokeOnCollideExit(_interactorID);
                 _heldActivatableIDs.Remove(collideInteractionModule.ID);
             }
         }
