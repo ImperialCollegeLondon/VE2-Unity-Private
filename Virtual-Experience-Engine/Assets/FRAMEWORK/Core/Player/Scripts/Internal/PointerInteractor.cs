@@ -50,7 +50,7 @@ namespace VE2.Core.Player.Internal
         protected List<string> _heldActivatableIDs = new();
 
         protected const float MAX_RAYCAST_DISTANCE = 10;
-        protected const float MAX_SPHERECAST_RADIUS = 0.3f;
+        protected const float MAX_SPHERECAST_RADIUS = 10;
         protected IRangedInteractionModule _CurrentHoveringInteractable;
         protected IRangedClickInteractionModule _CurrentHoveringClickInteractable => _CurrentHoveringInteractable as IRangedClickInteractionModule;
         protected IRangedGrabInteractionModule _CurrentGrabbingGrabbable;

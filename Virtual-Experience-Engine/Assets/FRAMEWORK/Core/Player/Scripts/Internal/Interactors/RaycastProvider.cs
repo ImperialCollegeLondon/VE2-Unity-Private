@@ -87,22 +87,24 @@ namespace VE2.Core.Player.Internal
 
                     if (rangedGrabInteractionModuleProvider != null)
                     {
-                        if(!rangedGrabInteractionModuleProvider.RangedGrabInteractionModule.VrFailsafeGrab)
+                        if(!rangedGrabInteractionModuleProvider.RangedGrabInteractionModule.VrRaySnap)
                             continue;
                     
-                        float failsafeGrabRange = rangedGrabInteractionModuleProvider.RangedGrabInteractionModule.FailsafeGrabRange;
-                        float failsafeGrabRangeBackOfHand = rangedGrabInteractionModuleProvider.RangedGrabInteractionModule.FailsafeGrabRangeBackOfHand;
+                        float VRRaySnapRange = rangedGrabInteractionModuleProvider.RangedGrabInteractionModule.VRRaySnapRange;
+                        float VRRaySnapRangeBackOfHand = rangedGrabInteractionModuleProvider.RangedGrabInteractionModule.VRRaySnapRangeBackOfHand;
                         float failsafeGrabMultiplier = rangedGrabInteractionModuleProvider.RangedGrabInteractionModule.FailsafeGrabMultiplier;
                         Vector3 grabbablePosition = rangedGrabInteractionModuleProvider.RangedGrabInteractionModule.AttachPoint.position; //so ray snaps to the grabbable's attach point
 
                         float distanceFromGrabbable = Vector3.Distance(rayOrigin, grabbablePosition);
                         bool isOnPalm = Vector3.Angle(grabbablePosition - rayOrigin, palmDir) < 90f;
 
+                        if(distanceFromGrabbable > VRRaySnapRangeBackOfHand * failsafeGrabMultiplier && !isOnPalm)
+                            continue;
+
                         //check if facing the palm, the grabbable is within the failsafe range
                         //or if not facing palm, the grabbable is within the failsafe range and closer than the closest distance
-                        if ((distanceFromGrabbable <= failsafeGrabRange * failsafeGrabMultiplier && isOnPalm) ||
-                         (distanceFromGrabbable <= failsafeGrabRangeBackOfHand * failsafeGrabMultiplier )
-                         && distanceFromGrabbable < closestDistance)
+                        if (distanceFromGrabbable <= VRRaySnapRange * failsafeGrabMultiplier
+                            && distanceFromGrabbable < closestDistance)
                         {
                             closestHitPoint = grabbablePosition;
                             closestRangedGrabInteractionProvider = rangedGrabInteractionModuleProvider;
