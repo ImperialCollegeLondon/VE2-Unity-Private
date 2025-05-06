@@ -49,7 +49,7 @@ namespace VE2.Common.API
             else 
             {
                 if (Instance._instancingServiceProvider == null)
-                    _instance._localClientIdWrapper.Value = 0;
+                    _instance._localClientIdWrapper.SetValue(0);
                 //Otherwise, instancing will be in charge of setting the client ID
             }
         }
@@ -84,8 +84,9 @@ namespace VE2.Common.API
         [SerializeField, HideInInspector] private bool _preferVRMode = false;
         public static bool PreferVRMode { get => Instance._preferVRMode; set => Instance._preferVRMode = value; }
 
-        [SerializeField, HideInInspector] private ClientIDWrapper _localClientIdWrapper = new(ushort.MaxValue, true);
-        public static IClientIDWrapper LocalClientIdWrapper => Instance._localClientIdWrapper;
+        //ID value will be assigned at runtime, ushort.MaxValue is used to indicate that the ID is not set yet
+        [SerializeField, HideInInspector] private LocalClientIDWrapper _localClientIdWrapper = new(ushort.MaxValue);
+        public static ILocalClientIDWrapper LocalClientIdWrapper => Instance._localClientIdWrapper;
 
         #endregion
         //########################################################################################################

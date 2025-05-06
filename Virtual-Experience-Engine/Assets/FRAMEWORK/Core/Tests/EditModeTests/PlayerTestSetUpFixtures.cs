@@ -14,7 +14,7 @@ namespace VE2.Core.Tests
 {
     internal class LocalClientIDWrapperSetup
     {
-        public static IClientIDWrapper LocalClientIDWrapper { get; private set; }
+        public static ILocalClientIDWrapper LocalClientIDWrapper { get; private set; }
         public static InteractorID InteractorID { get; private set; }
         public static ushort LocalClientID => LocalClientIDWrapper.Value;
         public static string InteractorGameobjectName { get; private set; }
@@ -25,7 +25,7 @@ namespace VE2.Core.Tests
             System.Random random = new();
             ushort localClientID = (ushort)random.Next(0, ushort.MaxValue);
 
-            LocalClientIDWrapper = Substitute.For<IClientIDWrapper>();
+            LocalClientIDWrapper = Substitute.For<ILocalClientIDWrapper>();
             LocalClientIDWrapper.IsClientIDReady.Returns(true);
             LocalClientIDWrapper.Value.Returns(localClientID);
             InteractorID = new(localClientID, InteractorType.Mouse2D);

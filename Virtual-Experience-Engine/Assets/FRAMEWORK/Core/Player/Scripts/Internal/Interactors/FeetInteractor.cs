@@ -14,10 +14,10 @@ namespace VE2.Core.Player.Internal
 
         public ICollisionDetector _collisionDetector;
         private readonly InteractorType _InteractorType;
-        private readonly IClientIDWrapper _localClientIDWrapper;
+        private readonly ILocalClientIDWrapper _localClientIDWrapper;
 
         internal FeetInteractor(ICollisionDetectorFactory collisionDetectorFactory, ColliderType colliderType, Collider collider, InteractorType interactorType, 
-            IClientIDWrapper localClientIDWrapper, PlayerInteractionConfig interactionConfig)
+            ILocalClientIDWrapper localClientIDWrapper, PlayerInteractionConfig interactionConfig)
         {
             _collisionDetector = collisionDetectorFactory.CreateCollisionDetector(collider, colliderType, interactionConfig.InteractableLayers);
             _InteractorType = interactorType;

@@ -21,7 +21,7 @@ namespace VE2.NonCore.Instancing.Internal
 
             return new InstanceService(
                 commsHandler, 
-                VE2API.LocalClientIdWrapper as IClientIDWrapperInternal, 
+                VE2API.LocalClientIdWrapper as ILocalClientIDWrapperWritable, 
                 connectionStateDebugWrapper,
                 VE2API.InteractorContainer,
                 VE2API.Player as IPlayerServiceInternal,
@@ -99,7 +99,7 @@ namespace VE2.NonCore.Instancing.Internal
         internal readonly RemotePlayerSyncer _remotePlayerSyncer;
         internal PingSyncer _pingSyncer;
 
-        public InstanceService(IPluginSyncCommsHandler commsHandler, IClientIDWrapperInternal localClientIDWrapper, ConnectionStateWrapper connectionStateDebugWrapper,
+        public InstanceService(IPluginSyncCommsHandler commsHandler, ILocalClientIDWrapperWritable localClientIDWrapper, ConnectionStateWrapper connectionStateDebugWrapper,
             HandInteractorContainer interactorContainer, IPlayerServiceInternal playerServiceInternal, IPrimaryUIServiceInternal primaryUIService,
             bool connectAutomatically, ServerConnectionSettings serverSettings, string instanceCode, InstanceCommsHandlerConfig config, 
             IWorldStateSyncableContainer worldStateSyncableContainer, ILocalPlayerSyncableContainer localPlayerSyncableContainer)
@@ -287,8 +287,8 @@ namespace VE2.NonCore.Instancing.Internal
 
     internal class InstanceInfoContainer
     {
-        public readonly IClientIDWrapperInternal LocalClientIdWrapper;
-        public ushort LocalClientID { get => LocalClientIdWrapper.Value; set => LocalClientIdWrapper.Value = value; }
+        public readonly ILocalClientIDWrapperWritable LocalClientIdWrapper;
+        public ushort LocalClientID { get => LocalClientIdWrapper.Value; set => LocalClientIdWrapper.SetValue(value); }
 
         public event Action OnBecomeHost;
         public event Action OnLoseHost;
@@ -341,7 +341,7 @@ namespace VE2.NonCore.Instancing.Internal
              } 
         }
 
-        public InstanceInfoContainer(IClientIDWrapperInternal localClientIdWrapper)
+        public InstanceInfoContainer(ILocalClientIDWrapperWritable localClientIdWrapper)
         {
             LocalClientIdWrapper = localClientIdWrapper;
         }

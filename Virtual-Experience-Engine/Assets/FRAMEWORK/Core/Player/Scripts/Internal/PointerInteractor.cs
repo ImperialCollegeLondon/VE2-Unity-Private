@@ -73,7 +73,7 @@ namespace VE2.Core.Player.Internal
 
         private readonly InteractorType _InteractorType;
         private readonly IRaycastProvider _RaycastProvider;
-        protected readonly IClientIDWrapper _LocalClientIDWrapper;
+        protected readonly ILocalClientIDWrapper _LocalClientIDWrapper;
 
         //TODO - this can probably live just in InteractorVR... is there any reason the 2d interactor needs this? Think its just for teleporting?
         internal readonly FreeGrabbableWrapper GrabbableWrapper;
@@ -82,7 +82,7 @@ namespace VE2.Core.Player.Internal
 
         internal PointerInteractor(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, InteractorInputContainer interactorInputContainer, PlayerInteractionConfig interactionConfig,
             InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, 
-            IClientIDWrapper localClientIDWrapper, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator)
+            ILocalClientIDWrapper localClientIDWrapper, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator)
         {
             _interactorContainer = interactorContainer;
             _grabInteractablesContainer = grabInteractablesContainer;
@@ -135,7 +135,7 @@ namespace VE2.Core.Player.Internal
             _heldActivatableIDs = new();
 
             _LocalClientIDWrapper.OnClientIDReady -= HandleLocalClientIDReady;
-            _interactorContainer.DeregisterInteractor(_InteractorID.ToString());
+            _interactorContainer?.DeregisterInteractor(_InteractorID.ToString());
         }
 
         protected virtual void HandleLocalClientIDReady(ushort clientID)

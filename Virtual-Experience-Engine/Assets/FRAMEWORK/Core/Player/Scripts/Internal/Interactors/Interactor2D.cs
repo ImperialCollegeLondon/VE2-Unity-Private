@@ -15,7 +15,7 @@ namespace VE2.Core.Player.Internal
         private readonly PlayerConnectionPromptHandler _connectionPromptHandler;
 
         internal Interactor2D(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, InteractorInputContainer interactorInputContainer, PlayerInteractionConfig interactionConfig,
-            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, IClientIDWrapper localClientIDWrapper) : 
+            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, ILocalClientIDWrapper localClientIDWrapper) : 
             base(interactorContainer, grabInteractablesContainer, interactorInputContainer, interactionConfig,
                 interactorReferences, interactorType, raycastProvider, localClientIDWrapper, null, new HoveringOverScrollableIndicator())   
         {
