@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace VE2.Common.Shared
 {
-    public class V_PositionTweener : MonoBehaviour
+    internal class V_PositionTweener : MonoBehaviour
     {
         [Title("Values")]
         [BeginGroup, SerializeField] private Vector3 _minLocalPosition;

@@ -1,9 +1,18 @@
 using System.Runtime.CompilerServices;
+
 [assembly: InternalsVisibleTo("VE2.Common.API")] 
-[assembly: InternalsVisibleTo("VE2.NonCore.Instancing.Internal")] 
+[assembly: InternalsVisibleTo("VE2.Core.Tests")] 
 [assembly: InternalsVisibleTo("VE2.Core.VComponents.Internal")] 
+[assembly: InternalsVisibleTo("VE2.Core.VComponents.API")] 
+[assembly: InternalsVisibleTo("VE2.Core.VComponents.Shared")] 
 [assembly: InternalsVisibleTo("VE2.Core.VComponents.Tests")] 
 [assembly: InternalsVisibleTo("VE2.Core.Player.Internal")] 
 [assembly: InternalsVisibleTo("VE2.Core.Player.API")] 
-[assembly: InternalsVisibleTo("VE2.Core.Tests")] 
+[assembly: InternalsVisibleTo("VE2.Core.UI.API")] 
+[assembly: InternalsVisibleTo("VE2.Core.UI.Internal")] 
+[assembly: InternalsVisibleTo("VE2.NonCore.Instancing.Internal")] 
+[assembly: InternalsVisibleTo("VE2.NonCore.Instancing.API")] 
+[assembly: InternalsVisibleTo("VE2.NonCore.Platform.Internal")] 
+[assembly: InternalsVisibleTo("VE2.NonCore.Platform.API")] 
+[assembly: InternalsVisibleTo("VE2.NonCore.FileSystem.Internal")] 
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")] //For NSubstitute substitutes

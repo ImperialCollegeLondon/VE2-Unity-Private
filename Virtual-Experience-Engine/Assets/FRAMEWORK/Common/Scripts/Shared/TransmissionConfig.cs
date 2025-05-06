@@ -5,7 +5,7 @@ using VE2.Core.Common;
 namespace VE2.Common.Shared
 {
     [Serializable]
-    public class RepeatedTransmissionConfig : TransmissionConfig
+    internal class RepeatedTransmissionConfig : TransmissionConfig
     {
         [Suffix("Hz")]
         [Range(0.2f, 50f)]
@@ -25,7 +25,7 @@ namespace VE2.Common.Shared
     }
 
     [Serializable]
-    public class TransmissionConfig
+    internal class TransmissionConfig
     {
         [SerializeField] public TransmissionProtocol TransmissionType;
     }

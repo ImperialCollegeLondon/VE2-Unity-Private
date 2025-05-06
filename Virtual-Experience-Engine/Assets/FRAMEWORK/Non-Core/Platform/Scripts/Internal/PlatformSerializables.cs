@@ -13,7 +13,7 @@ using UnityEngine;
 
 namespace VE2.NonCore.Platform.Internal
 {
-    public class PlatformSerializables
+    internal class PlatformSerializables
     {
         internal static readonly int PlatformNetcodeVersion = 1;
 

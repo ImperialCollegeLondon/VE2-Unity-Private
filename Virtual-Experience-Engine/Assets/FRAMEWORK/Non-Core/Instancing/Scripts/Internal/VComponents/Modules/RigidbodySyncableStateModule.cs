@@ -65,7 +65,7 @@ namespace VE2.NonCore.Instancing.Internal
     }
 
     [Serializable]
-    public class RigidbodySyncableState : VE2Serializable
+    internal class RigidbodySyncableState : VE2Serializable
     {
         public bool FromHost;
 

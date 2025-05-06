@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace VE2.Common.Shared
 {
-    public class CommonSerializables
+    internal class CommonSerializables
     {
         [Serializable]
         public abstract class VE2Serializable

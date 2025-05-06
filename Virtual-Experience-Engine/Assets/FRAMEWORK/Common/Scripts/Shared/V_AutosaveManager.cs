@@ -9,7 +9,7 @@ using UnityEditor.SceneManagement;
 namespace VE2.Common.Shared
 {
     [ExecuteInEditMode]
-    public class V_AutoSaveManager : MonoBehaviour
+    internal class V_AutoSaveManager : MonoBehaviour
     {
         [SerializeField] private float minutesBetweenAutosave = 5f;
 

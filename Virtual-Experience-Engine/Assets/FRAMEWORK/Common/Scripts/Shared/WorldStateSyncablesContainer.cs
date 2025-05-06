@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace VE2.Common.Shared
 {
-    public interface IWorldStateSyncableContainer
+    internal interface IWorldStateSyncableContainer
     {
         Dictionary<string, IWorldStateModule> WorldStateSyncables { get; }
         event Action<IWorldStateModule> OnWorldStateSyncableRegistered;
@@ -13,7 +13,7 @@ namespace VE2.Common.Shared
         void DeregisterWorldStateSyncable(IWorldStateModule worldStateSyncable);
     }
 
-    public class WorldStateSyncableContainer : IWorldStateSyncableContainer
+    internal class WorldStateSyncableContainer : IWorldStateSyncableContainer
     {
         public Dictionary<string, IWorldStateModule> WorldStateSyncables { get; } = new();
         public event Action<IWorldStateModule> OnWorldStateSyncableRegistered;

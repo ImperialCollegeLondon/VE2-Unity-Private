@@ -169,7 +169,7 @@ namespace VE2.Core.VComponents.Internal
     }
 
     [Serializable]
-    public class GrabbableState : VE2Serializable
+    internal class GrabbableState : VE2Serializable
     {
         public ushort StateChangeNumber { get; set; }
         public bool IsGrabbed { get; set; }

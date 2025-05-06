@@ -12,7 +12,7 @@ using UnityEngine;
 
 namespace VE2.NonCore.Instancing.Internal
 {
-    public class InstanceSyncSerializables
+    internal class InstanceSyncSerializables
     {
         public static readonly int InstanceNetcodeVersion = 5;
 

@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace VE2.Common.Shared
 {
-    public interface ITransformWrapper
+    internal interface ITransformWrapper
     {
         protected Transform _Transform { get; }
 
@@ -16,7 +16,7 @@ namespace VE2.Common.Shared
         public Vector3 InverseTransfromPoint(Vector3 point) => _Transform.parent.InverseTransformPoint(point);
     }
 
-    public class TransformWrapper : ITransformWrapper
+    internal class TransformWrapper : ITransformWrapper
     {
         Transform ITransformWrapper._Transform => _transform;
 

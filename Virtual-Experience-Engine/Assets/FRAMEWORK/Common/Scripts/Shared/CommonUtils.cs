@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace VE2.Common.Shared
 {
-    public static class CommonUtils
+    internal static class CommonUtils
     {
         public static List<Material> GetAvatarColorMaterialsForGameObject(GameObject go) //TODO, move to player?
         {

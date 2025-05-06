@@ -183,7 +183,7 @@ namespace VE2.Core.VComponents.Internal
     }
 
     [Serializable]
-    public class SingleInteractorActivatableState : VE2Serializable
+    internal class SingleInteractorActivatableState : VE2Serializable
     {
         public ushort StateChangeNumber { get; set; }
         public bool IsActivated { get; set; }

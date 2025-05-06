@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace VE2.Common.Shared
 {
-    public class V_LightTweener : MonoBehaviour
+    internal class V_LightTweener : MonoBehaviour
     {
         [Title("Light Intensity Tweening")]
         [SerializeField] private bool _tweenLight = false;

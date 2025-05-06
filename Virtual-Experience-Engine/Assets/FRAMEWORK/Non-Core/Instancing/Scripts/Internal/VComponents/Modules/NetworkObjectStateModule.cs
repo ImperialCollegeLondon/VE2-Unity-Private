@@ -73,7 +73,7 @@ namespace VE2.NonCore.Instancing.Internal
     }
 
     [Serializable]
-    public class NetworkObjectState : VE2Serializable
+    internal class NetworkObjectState : VE2Serializable
     {
         public ushort StateChangeNumber { get; set; }
         private MemoryStream _serializedNetworkObject;

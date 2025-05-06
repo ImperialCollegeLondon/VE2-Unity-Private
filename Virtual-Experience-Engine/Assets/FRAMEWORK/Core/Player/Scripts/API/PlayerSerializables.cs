@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace VE2.Core.Player.API
 {
-        public class PlayerSerializables
+        internal class PlayerSerializables
         {
                 [Serializable]
                 public class PlayerVRControlConfig : VE2Serializable

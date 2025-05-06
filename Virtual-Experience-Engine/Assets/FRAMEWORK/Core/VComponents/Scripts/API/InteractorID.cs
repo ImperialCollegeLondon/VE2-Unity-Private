@@ -8,7 +8,7 @@ using static VE2.Common.Shared.CommonSerializables;
 namespace VE2.Core.VComponents.API
 {
     [System.Serializable]   
-    public class InteractorID : VE2Serializable 
+    internal class InteractorID : VE2Serializable 
     {
         public ushort ClientID { get; private set; }
         public InteractorType InteractorType { get; private set; }

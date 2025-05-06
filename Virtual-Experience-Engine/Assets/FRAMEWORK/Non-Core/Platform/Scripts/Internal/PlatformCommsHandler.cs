@@ -10,7 +10,7 @@ using DRMessageWrapper = DarkRift.Message;
 
 namespace VE2.NonCore.Platform.Internal
 {
-    public class PlatformCommsHandler : IPlatformCommsHandler
+    internal class PlatformCommsHandler : IPlatformCommsHandler
     {
         private DarkRiftClient _drClient;
         private readonly Queue<Action> executionQueue = new();

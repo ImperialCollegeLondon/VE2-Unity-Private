@@ -4,7 +4,7 @@ using VE2.Common.Shared;
 
 namespace VE2.Core.VComponents.API
 {
-    public interface IRigidbodyWrapper
+    internal interface IRigidbodyWrapper
     { 
         protected Rigidbody _Rigidbody { get; }
 

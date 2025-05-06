@@ -2,7 +2,7 @@ using static VE2.Common.Shared.CommonSerializables;
 
 namespace VE2.Common.Shared
 {
-    public interface IWorldStateModule //TODO: Rename to IWorldStateSyncable?
+    internal interface IWorldStateModule //TODO: Rename to IWorldStateSyncable?
     {
         public VE2Serializable State { get; }
         public TransmissionProtocol TransmissionProtocol { get; }
