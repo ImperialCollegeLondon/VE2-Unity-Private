@@ -172,7 +172,7 @@ namespace VE2.Core.Player.Internal
             //If we've stopped hovering over something, call exit hover. If we were holding its click down, release
             if (previousHoveringInteractable != null && previousHoveringInteractable != _CurrentHoveringInteractable)
             {
-                previousHoveringInteractable.ExitHover();
+                previousHoveringInteractable.ExitHover(_InteractorID);
 
                 if (previousHoveringInteractable is IRangedHoldClickInteractionModule previousRangedClickInteractable && _heldActivatableIDs.Contains(previousRangedClickInteractable.ID))
                 {
@@ -187,7 +187,7 @@ namespace VE2.Core.Player.Internal
                 if (_CurrentHoveringClickInteractable != null && this is InteractorVR && !_CurrentHoveringClickInteractable.ActivateAtRangeInVR)
                     return;
 
-                _CurrentHoveringInteractable.EnterHover();
+                _CurrentHoveringInteractable.EnterHover(_InteractorID);
             }
 
             //if grabbing an adjustable module, update the visualisation, and update input value
