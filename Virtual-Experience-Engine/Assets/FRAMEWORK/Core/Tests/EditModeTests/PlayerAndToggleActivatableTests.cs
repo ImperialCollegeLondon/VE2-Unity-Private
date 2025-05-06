@@ -99,6 +99,7 @@ namespace VE2.Core.Tests
 
             Assert.IsTrue(_firstActivatablePluginInterface.IsActivated, "Activatable should be activated");
             Assert.AreEqual(_firstActivatablePluginInterface.MostRecentInteractingClientID.ClientID, localClientID);
+            Assert.IsTrue(_firstActivatablePluginInterface.MostRecentInteractingClientID.IsLocal);
 
             // Simulate click to deactivate
             SimulateClick();
@@ -106,6 +107,7 @@ namespace VE2.Core.Tests
 
             Assert.IsFalse(_firstActivatablePluginInterface.IsActivated, "Activatable should be deactivated");
             Assert.AreEqual(_firstActivatablePluginInterface.MostRecentInteractingClientID.ClientID, localClientID);
+            Assert.IsTrue(_firstActivatablePluginInterface.MostRecentInteractingClientID.IsLocal);
         }
 
         [Test]
@@ -120,6 +122,7 @@ namespace VE2.Core.Tests
             _customerScript.Received(1).HandleActivateReceived();
             Assert.IsTrue(_firstActivatablePluginInterface.IsActivated, "First activatable should be activated");
             Assert.AreEqual(_firstActivatablePluginInterface.MostRecentInteractingClientID.ClientID, localClientID);
+            Assert.IsTrue(_firstActivatablePluginInterface.MostRecentInteractingClientID.IsLocal);
 
             // Stub second activatable's module
             RayCastProviderSetup.StubRangedInteractionModuleForRaycast(_secondActivatableRaycastInterface.RangedToggleClickInteractionModule);
@@ -129,6 +132,7 @@ namespace VE2.Core.Tests
             _customerScript2.Received(1).HandleActivateReceived();
             Assert.IsTrue(_secondActivatablePluginInterface.IsActivated, "Second activatable should be activated");
             Assert.AreEqual(_secondActivatablePluginInterface.MostRecentInteractingClientID.ClientID, localClientID);
+            Assert.IsTrue(_firstActivatablePluginInterface.MostRecentInteractingClientID.IsLocal);
 
             // Verify first activatable deactivation
             Assert.IsFalse(_firstActivatablePluginInterface.IsActivated, "First activatable should be deactivated");
@@ -148,11 +152,13 @@ namespace VE2.Core.Tests
             _customerScript.Received(1).HandleActivateReceived();
             Assert.IsTrue(_firstActivatablePluginInterface.IsActivated, "Activatable should be activated");
             Assert.AreEqual(_firstActivatablePluginInterface.MostRecentInteractingClientID.ClientID, localClientID);
+            Assert.IsTrue(_firstActivatablePluginInterface.MostRecentInteractingClientID.IsLocal);
 
             handCollider.OnCollideStart += Raise.Event<Action<ICollideInteractionModule>>(_firstActivatableCollideInterface.CollideInteractionModule);
             _customerScript.Received(1).HandleDeactivateReceived();
             Assert.IsFalse(_firstActivatablePluginInterface.IsActivated, "Activatable should be deactivated");
             Assert.AreEqual(_firstActivatablePluginInterface.MostRecentInteractingClientID.ClientID, localClientID);
+            Assert.IsTrue(_firstActivatablePluginInterface.MostRecentInteractingClientID.IsLocal);
         }
 
         #endregion

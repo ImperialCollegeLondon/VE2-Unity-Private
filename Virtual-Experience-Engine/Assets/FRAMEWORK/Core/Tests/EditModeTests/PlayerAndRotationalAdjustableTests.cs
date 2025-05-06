@@ -54,12 +54,14 @@ namespace VE2.Core.Tests
             _customerScript.Received(1).HandleGrabReceived();
             Assert.IsTrue(_rotationalAdjustablePluginInterface.IsGrabbed);
             Assert.AreEqual(_rotationalAdjustablePluginInterface.MostRecentInteractingClientID.ClientID, LocalClientIDWrapperSetup.LocalClientID);
+            Assert.IsTrue(_rotationalAdjustablePluginInterface.MostRecentInteractingClientID.IsLocal);
 
             //Invoke drop, Check customer received the drop, and that the interactorID is set
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
             _customerScript.Received(1).HandleDropReceived();
             Assert.IsFalse(_rotationalAdjustablePluginInterface.IsGrabbed);
             Assert.AreEqual(_rotationalAdjustablePluginInterface.MostRecentInteractingClientID.ClientID, LocalClientIDWrapperSetup.LocalClientID);
+            Assert.IsTrue(_rotationalAdjustablePluginInterface.MostRecentInteractingClientID.IsLocal);
         }
 
         [TearDown]

@@ -46,7 +46,7 @@ namespace VE2.Core.VComponents.Tests
             _activatablePluginInterface.OnActivate.AddListener(customerScript.HandleActivateReceived);
             _activatablePluginInterface.OnDeactivate.AddListener(customerScript.HandleDeactivateReceived);
 
-            //Activate, Check customer received the activation, and that the interactorID is set
+            //Activate, Check customer received the activation, and that the interactorID reflects programmatic activation (ie, null!)
             _activatablePluginInterface.Activate();
             customerScript.Received(1).HandleActivateReceived();
             Assert.IsTrue(_activatablePluginInterface.IsActivated);

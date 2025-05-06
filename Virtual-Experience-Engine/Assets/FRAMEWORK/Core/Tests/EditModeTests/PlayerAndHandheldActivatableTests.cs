@@ -81,18 +81,21 @@ namespace VE2.Core.Tests
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
             Assert.IsTrue(_grabbablePluginInterface.IsGrabbed);
             Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID.ClientID, LocalClientIDWrapperSetup.LocalClientIDWrapper.ClientID);
+            Assert.IsTrue(_grabbablePluginInterface.MostRecentInteractingClientID.IsLocal);
 
             //Invoke Activate, Check customer received the activate, and that the interactorID is set
             PlayerInputContainerSetup.HandheldClick2D.OnPressed += Raise.Event<Action>();
             pluginScriptMock.Received(1).HandleActivateReceived();
             Assert.IsTrue(_handheldActivatablePluginInterface.IsActivated);
             Assert.AreEqual(_handheldActivatablePluginInterface.MostRecentInteractingClientID.ClientID, LocalClientIDWrapperSetup.LocalClientIDWrapper.ClientID);
+            Assert.IsTrue(_grabbablePluginInterface.MostRecentInteractingClientID.IsLocal);
 
             //Invoke Deactivate, Check customer received the deactivate, and that the interactorID is set
             PlayerInputContainerSetup.HandheldClick2D.OnPressed += Raise.Event<Action>();
             pluginScriptMock.Received(1).HandleDeactivateReceived();
             Assert.IsFalse(_handheldActivatablePluginInterface.IsActivated);
             Assert.AreEqual(_handheldActivatablePluginInterface.MostRecentInteractingClientID.ClientID, LocalClientIDWrapperSetup.LocalClientIDWrapper.ClientID);
+            Assert.IsTrue(_grabbablePluginInterface.MostRecentInteractingClientID.IsLocal);
         }
 
         [TearDown]

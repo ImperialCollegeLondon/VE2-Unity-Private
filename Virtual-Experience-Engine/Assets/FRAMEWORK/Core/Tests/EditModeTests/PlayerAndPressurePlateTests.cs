@@ -43,11 +43,13 @@ namespace VE2.Core.Tests
             _customerScript.Received(1).HandleActivateReceived();
             Assert.IsTrue(_pressurePlatePluginInterface.IsActivated, "Activatable should be activated");
             Assert.AreEqual(_pressurePlatePluginInterface.MostRecentInteractingClientID.ClientID, localClientID);
+            Assert.IsTrue(_pressurePlatePluginInterface.MostRecentInteractingClientID.IsLocal);
 
             feetCollider.OnCollideEnd += Raise.Event<Action<ICollideInteractionModule>>(_pressurePlateCollideInterface.CollideInteractionModule);
             _customerScript.Received(1).HandleDeactivateReceived();
             Assert.IsFalse(_pressurePlatePluginInterface.IsActivated, "Activatable should be deactivated");
             Assert.AreEqual(_pressurePlatePluginInterface.MostRecentInteractingClientID.ClientID, localClientID);
+            Assert.IsTrue(_pressurePlatePluginInterface.MostRecentInteractingClientID.IsLocal);
         }
 
         [TearDown]

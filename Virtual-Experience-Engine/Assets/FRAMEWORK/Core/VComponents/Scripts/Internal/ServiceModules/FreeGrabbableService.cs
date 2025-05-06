@@ -51,7 +51,7 @@ namespace VE2.Core.VComponents.Internal
             //even though this is never null in theory, done so to satisfy the tests
             _transform = config.InteractionConfig.AttachPoint != null ? new TransformWrapper(config.InteractionConfig.AttachPoint) : _rigidbody != null ? _rigidbody.transform : null;
             _RangedGrabInteractionModule = new(id, grabInteractablesContainer, _transform, handheldInteractions, config.InteractionConfig, config.RangedInteractionConfig, config.GeneralInteractionConfig);
-            _StateModule = new(state, config.StateConfig, id, worldStateSyncableContainer, interactorContainer, RangedGrabInteractionModule, localClientIdWrapper);
+            _StateModule = new(state, config.StateConfig, id, worldStateSyncableContainer, interactorContainer, localClientIdWrapper);
             _interactionConfig = config.InteractionConfig;
 
             _rigidbody = rigidbody;

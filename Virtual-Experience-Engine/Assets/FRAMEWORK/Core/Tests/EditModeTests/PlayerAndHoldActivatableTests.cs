@@ -46,11 +46,13 @@ namespace VE2.Core.Tests
             _customerScript.Received(1).HandleActivateReceived();
             Assert.IsTrue(_holdActivatablePluginInterface.IsActivated, "Activatable should be activated");
             Assert.AreEqual(_holdActivatablePluginInterface.MostRecentInteractingClientID.ClientID, localClientID);
+            Assert.IsTrue(_holdActivatablePluginInterface.MostRecentInteractingClientID.IsLocal);
 
             PlayerInputContainerSetup.RangedClick2D.OnReleased += Raise.Event<Action>();
             _customerScript.Received(1).HandleDeactivateReceived();
             Assert.IsFalse(_holdActivatablePluginInterface.IsActivated, "Activatable should be deactivated");
             Assert.AreEqual(_holdActivatablePluginInterface.MostRecentInteractingClientID.ClientID, localClientID);
+            Assert.IsTrue(_holdActivatablePluginInterface.MostRecentInteractingClientID.IsLocal);
         }
 
         [Test]
@@ -67,21 +69,25 @@ namespace VE2.Core.Tests
             _customerScript.Received(1).HandleActivateReceived();
             Assert.IsTrue(_holdActivatablePluginInterface.IsActivated, "Activatable should be activated");
             Assert.AreEqual(_holdActivatablePluginInterface.MostRecentInteractingClientID.ClientID, localClientID);
+            Assert.IsTrue(_holdActivatablePluginInterface.MostRecentInteractingClientID.IsLocal);
             
             handColliderRight.OnCollideStart += Raise.Event<Action<ICollideInteractionModule>>(_holdActivatableCollideInterface.CollideInteractionModule);
             _customerScript.Received(1).HandleActivateReceived();
             Assert.IsTrue(_holdActivatablePluginInterface.IsActivated, "Activatable should be activated");
             Assert.AreEqual(_holdActivatablePluginInterface.MostRecentInteractingClientID.ClientID, localClientID);
+            Assert.IsTrue(_holdActivatablePluginInterface.MostRecentInteractingClientID.IsLocal);
 
             handColliderLeft.OnCollideEnd += Raise.Event<Action<ICollideInteractionModule>>(_holdActivatableCollideInterface.CollideInteractionModule);
             _customerScript.Received(1).HandleActivateReceived();
             Assert.IsTrue(_holdActivatablePluginInterface.IsActivated, "Activatable should be activated");
             Assert.AreEqual(_holdActivatablePluginInterface.MostRecentInteractingClientID.ClientID, localClientID);
+            Assert.IsTrue(_holdActivatablePluginInterface.MostRecentInteractingClientID.IsLocal);
 
             handColliderRight.OnCollideEnd += Raise.Event<Action<ICollideInteractionModule>>(_holdActivatableCollideInterface.CollideInteractionModule);
             _customerScript.Received(1).HandleDeactivateReceived();
             Assert.IsFalse(_holdActivatablePluginInterface.IsActivated, "Activatable should be deactivated");
             Assert.AreEqual(_holdActivatablePluginInterface.MostRecentInteractingClientID.ClientID, localClientID);
+            Assert.IsTrue(_holdActivatablePluginInterface.MostRecentInteractingClientID.IsLocal);
         }
 
         [TearDown]
