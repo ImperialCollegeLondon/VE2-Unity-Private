@@ -14,9 +14,9 @@ namespace VE2.Core.VComponents.Internal
 
         public List<IHandheldInteractionModule> HandheldInteractions { get; private set; } = new();
         public ITransformWrapper AttachPoint { get; private set; } = null;
-        public bool VrFailsafeGrab { get; private set; } = false;
-        public float FailsafeGrabRange { get; private set; }
-        public float FailsafeGrabRangeBackOfHand { get; private set; }
+        public bool VrRaySnap { get; private set; } = false;
+        public float VRRaySnapRange { get; private set; }
+        public float VRRaySnapRangeBackOfHand { get; private set; }
         public float FailsafeGrabMultiplier { get; private set; }
         public Vector3 DeltaPosition { get; private set; }
         public Quaternion DeltaRotation { get; private set; }
@@ -34,9 +34,9 @@ namespace VE2.Core.VComponents.Internal
             AttachPoint = attachPoint;
             HandheldInteractions = handheldInteractions;
             FailsafeGrabMultiplier = grabInteractionConfig.failsafeGrabMultiplier;
-            VrFailsafeGrab = grabInteractionConfig.VrFailsafeGrab;
-            FailsafeGrabRange = grabInteractionConfig.FailsafeGrabRange;
-            FailsafeGrabRangeBackOfHand = grabInteractionConfig.FailsafeGrabRangeBackOfHand;
+            VrRaySnap = grabInteractionConfig.VrFailsafeGrab;
+            VRRaySnapRange = grabInteractionConfig.VRRaySnapRange;
+            VRRaySnapRangeBackOfHand = grabInteractionConfig.VRRaySnapRangeBackOfHand;
         }
 
         public void RequestLocalGrab(InteractorID interactorID)

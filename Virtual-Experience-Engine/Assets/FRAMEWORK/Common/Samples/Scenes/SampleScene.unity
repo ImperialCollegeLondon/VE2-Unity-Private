@@ -13193,8 +13193,8 @@ MonoBehaviour:
     InteractionConfig:
       AttachPoint: {fileID: 0}
       VrFailsafeGrab: 1
-      FailsafeGrabRange: 0.15
-      FailsafeGrabRangeBackOfHand: 0.1
+      VRRaySnapRange: 0.15
+      VRRaySnapRangeBackOfHand: 0.1
       failsafeGrabMultiplier: 1.2
       dropBehaviour: 0
     GeneralInteractionConfig:
@@ -22235,8 +22235,8 @@ MonoBehaviour:
     InteractionConfig:
       AttachPoint: {fileID: 2103749180}
       VrFailsafeGrab: 1
-      FailsafeGrabRange: 0.15
-      FailsafeGrabRangeBackOfHand: 0.1
+      VRRaySnapRange: 0.15
+      VRRaySnapRangeBackOfHand: 0.1
       failsafeGrabMultiplier: 1.2
       dropBehaviour: 0
     GeneralInteractionConfig:
@@ -25598,8 +25598,8 @@ MonoBehaviour:
     InteractionConfig:
       AttachPoint: {fileID: 543450651613274442}
       VrFailsafeGrab: 1
-      FailsafeGrabRange: 0.15
-      FailsafeGrabRangeBackOfHand: 0.1
+      VRRaySnapRange: 0.15
+      VRRaySnapRangeBackOfHand: 0.1
       failsafeGrabMultiplier: 1.2
       dropBehaviour: 1
     GeneralInteractionConfig:
@@ -26891,8 +26891,8 @@ MonoBehaviour:
     InteractionConfig:
       AttachPoint: {fileID: 7336850990320701898}
       VrFailsafeGrab: 1
-      FailsafeGrabRange: 0.15
-      FailsafeGrabRangeBackOfHand: 0.1
+      VRRaySnapRange: 0.15
+      VRRaySnapRangeBackOfHand: 0.1
       failsafeGrabMultiplier: 1.2
       dropBehaviour: 0
     GeneralInteractionConfig:
@@ -27272,8 +27272,8 @@ MonoBehaviour:
     InteractionConfig:
       AttachPoint: {fileID: 7630708130437203443}
       VrFailsafeGrab: 1
-      FailsafeGrabRange: 0.15
-      FailsafeGrabRangeBackOfHand: 0.1
+      VRRaySnapRange: 0.15
+      VRRaySnapRangeBackOfHand: 0.1
       failsafeGrabMultiplier: 1.2
       TransformToAdjust: {fileID: 601521730583208394}
     RangedInteractionConfig:
@@ -27736,8 +27736,8 @@ MonoBehaviour:
     InteractionConfig:
       AttachPoint: {fileID: 3828157529544342433}
       VrFailsafeGrab: 1
-      FailsafeGrabRange: 0.15
-      FailsafeGrabRangeBackOfHand: 0.1
+      VRRaySnapRange: 0.15
+      VRRaySnapRangeBackOfHand: 0.1
       failsafeGrabMultiplier: 1.2
       dropBehaviour: 0
     GeneralInteractionConfig:
@@ -28043,8 +28043,8 @@ MonoBehaviour:
     InteractionConfig:
       AttachPoint: {fileID: 2942569303062809500}
       VrFailsafeGrab: 1
-      FailsafeGrabRange: 0.15
-      FailsafeGrabRangeBackOfHand: 0.1
+      VRRaySnapRange: 0.15
+      VRRaySnapRangeBackOfHand: 0.1
       failsafeGrabMultiplier: 1.2
       TransformToAdjust: {fileID: 6276480324959252713}
     RangedInteractionConfig:
@@ -28185,8 +28185,8 @@ MonoBehaviour:
     InteractionConfig:
       AttachPoint: {fileID: 312694930724920086}
       VrFailsafeGrab: 1
-      FailsafeGrabRange: 0.15
-      FailsafeGrabRangeBackOfHand: 0.1
+      VRRaySnapRange: 0.15
+      VRRaySnapRangeBackOfHand: 0.1
       failsafeGrabMultiplier: 1.2
       TransformToAdjust: {fileID: 428635686494013578}
     RangedInteractionConfig:

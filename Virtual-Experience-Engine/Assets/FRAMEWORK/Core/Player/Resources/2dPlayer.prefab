@@ -1799,6 +1799,7 @@ MonoBehaviour:
   _primaryUIHolderRect: {fileID: 3897399032488084056}
   _interactor2DReferences:
     _interactorParentTransform: {fileID: 138445513174669063}
+    _grabberVisualisationRayOrigin: {fileID: 7916158013393953553}
     _grabberTransform: {fileID: 2444558493296612876}
     _grabberVisualisation: {fileID: 1766445242196024505}
     _rayOrigin: {fileID: 7479554364894702535}
@@ -2490,6 +2491,12 @@ PrefabInstance:
 --- !u!4 &6043776979337120659 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8077880844697218790, guid: f70368118cc88624bb1f4fb42c92fab8,
+    type: 3}
+  m_PrefabInstance: {fileID: 2577654311069590901}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &7916158013393953553 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5629074254524565092, guid: f70368118cc88624bb1f4fb42c92fab8,
     type: 3}
   m_PrefabInstance: {fileID: 2577654311069590901}
   m_PrefabAsset: {fileID: 0}

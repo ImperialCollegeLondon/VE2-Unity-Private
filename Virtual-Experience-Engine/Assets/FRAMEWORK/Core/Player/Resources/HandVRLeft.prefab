@@ -1741,6 +1741,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _interactorVRReferences:
     _interactorParentTransform: {fileID: 7167164542793246743}
+    _grabberVisualisationRayOrigin: {fileID: 1426866312663841786}
     _grabberTransform: {fileID: 627727185274979275}
     _grabberVisualisation: {fileID: 6192500634984874673}
     _rayOrigin: {fileID: 4664831131562171241}
@@ -4395,6 +4396,12 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f70368118cc88624bb1f4fb42c92fab8, type: 3}
+--- !u!4 &1426866312663841786 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5629074254524565092, guid: f70368118cc88624bb1f4fb42c92fab8,
+    type: 3}
+  m_PrefabInstance: {fileID: 6760820497899290014}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &3299211874484835192 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8077880844697218790, guid: f70368118cc88624bb1f4fb42c92fab8,
