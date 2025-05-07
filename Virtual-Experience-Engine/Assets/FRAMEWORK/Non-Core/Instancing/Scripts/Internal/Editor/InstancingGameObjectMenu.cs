@@ -7,7 +7,7 @@ using VE2.NonCore.Instancing.Internal;
 
 namespace VE2.NonCore.FileSystem.Internal 
 {
-    public class VComponentsEditorMenu
+    internal class VComponentsEditorMenu
     {
         [MenuItem("/GameObject/VE2/Networking/NetworkedGrabbable", priority = 97)]
         private static void CreateNetworkedGrabbable()

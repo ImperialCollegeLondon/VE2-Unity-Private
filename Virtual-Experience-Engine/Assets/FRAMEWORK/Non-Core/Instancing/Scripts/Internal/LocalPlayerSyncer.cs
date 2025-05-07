@@ -51,8 +51,11 @@ namespace VE2.NonCore.Instancing.Internal
             _commsHandler.SendMessage(avatarAppearanceWrapper.Bytes, InstanceNetworkingMessageCodes.UpdateAvatarPresentation, TransmissionProtocol.TCP);
         }
 
-        public void NetworkUpdate() //TODO: Don't send state if not using framework avatar
+        public void NetworkUpdate() 
         {
+            if (_playerSyncable == null)
+                return;
+
             _cycleNumber++;
 
             bool onTransmissionFrame = _cycleNumber % (int)(50 / _playerSyncable.TransmissionFrequency) == 0;

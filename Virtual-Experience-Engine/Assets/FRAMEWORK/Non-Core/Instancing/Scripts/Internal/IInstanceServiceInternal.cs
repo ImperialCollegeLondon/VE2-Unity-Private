@@ -4,7 +4,7 @@ using VE2.NonCore.Instancing.API;
 
 namespace VE2.NonCore.Instancing.Internal
 {
-    public interface IInstanceServiceInternal : IInstanceService
+    internal interface IInstanceServiceInternal : IInstanceService
     {
         
     }

@@ -8,12 +8,12 @@ namespace VE2.Core.Player.API
 {
     #region Input Types 
 
-    public interface IValueInput<T>
+    internal interface IValueInput<T>
     {
         public T Value { get; }
     }
 
-    public class ValueInput<T> : IValueInput<T> where T : struct
+    internal class ValueInput<T> : IValueInput<T> where T : struct
     {
         public T Value => _inputAction.ReadValue<T>(); 
 
@@ -26,19 +26,19 @@ namespace VE2.Core.Player.API
         }
     }
 
-    public interface IPressableInput
+    internal interface IPressableInput
     {
         public event Action OnPressed;
         public event Action OnReleased;
         public bool IsPressed { get; }
     }
 
-    public interface IQuickPressInput
+    internal interface IQuickPressInput
     {
         public event Action OnQuickPress;
     }
 
-    public interface IDelayedChargableInput
+    internal interface IDelayedChargableInput
     {
         public event Action OnStartCharging;
         public event Action OnCancelCharging;
@@ -47,7 +47,7 @@ namespace VE2.Core.Player.API
         public float ChargeProgress { get; } 
     }
 
-    public class PressableInput : IPressableInput
+    internal class PressableInput : IPressableInput
     {
         public event Action OnPressed;
         public event Action OnReleased;
@@ -64,12 +64,12 @@ namespace VE2.Core.Player.API
         }
     }
 
-    public interface IScrollInput
+    internal interface IScrollInput
     {
         public event Action OnTickOver;
     }
 
-    public class ScrollInput : IScrollInput
+    internal class ScrollInput : IScrollInput
     {
         public event Action OnTickOver;
 
@@ -116,13 +116,13 @@ namespace VE2.Core.Player.API
         }
     }
 
-    public interface IStickPressInput
+    internal interface IStickPressInput
     {
         public event Action OnStickPressed;
         public event Action OnStickReleased;
     }
 
-    public class StickPressInput : IStickPressInput
+    internal class StickPressInput : IStickPressInput
     {
         public event Action OnStickPressed;
         public event Action OnStickReleased;
@@ -208,7 +208,7 @@ namespace VE2.Core.Player.API
         }
     }
 
-    public class TeleportInput : IPressableInput, IValueInput<Vector2>
+    internal class TeleportInput : IPressableInput, IValueInput<Vector2>
     {
         public event Action OnPressed;
         public event Action OnReleased;
@@ -264,7 +264,7 @@ namespace VE2.Core.Player.API
         }
     }
 
-    public class QuickPressInput : IQuickPressInput //Used for the menu button
+    internal class QuickPressInput : IQuickPressInput //Used for the menu button
     {
         public event Action OnQuickPress;
         private static readonly float MAX_PRESS_TIME = 0.3f;
@@ -291,7 +291,7 @@ namespace VE2.Core.Player.API
     }
 
     //Used for VR reset view. Will emit OnStartCharging after button is held for a short time, OnChargeComplete after a longer time, and OnCancelCharging if the button is released before the charge is complete
-    public class DelayedChargablePressInput : IDelayedChargableInput
+    internal class DelayedChargablePressInput : IDelayedChargableInput
     {
         public event Action OnStartCharging;
         public event Action OnCancelCharging;
@@ -359,7 +359,7 @@ namespace VE2.Core.Player.API
     #endregion
 
     #region Input Containers
-    public class PlayerInputContainer
+    internal class PlayerInputContainer
     {
         public IPressableInput ChangeMode { get; private set; }
         public Player2DInputContainer Player2DInputContainer { get; private set; }
@@ -408,7 +408,7 @@ namespace VE2.Core.Player.API
         }
     }
 
-    public class Player2DInputContainer
+    internal class Player2DInputContainer
     {
         public IPressableInput InspectModeButton { get; private set; }
         public InteractorInputContainer InteractorInputContainer2D { get; private set; }
@@ -420,7 +420,7 @@ namespace VE2.Core.Player.API
         }
     }
 
-    public class PlayerVRInputContainer
+    internal class PlayerVRInputContainer
     {
         public IDelayedChargableInput ResetView { get; private set; }
         public HandVRInputContainer HandVRLeftInputContainer { get; private set; }
@@ -434,7 +434,7 @@ namespace VE2.Core.Player.API
         }
     }
 
-    public class HandVRInputContainer
+    internal class HandVRInputContainer
     {
         public IValueInput<Vector3> HandPosition { get; private set; }
         public IValueInput<Quaternion> HandRotation { get; private set; }
@@ -454,7 +454,7 @@ namespace VE2.Core.Player.API
         }
     }
 
-    public class InteractorInputContainer
+    internal class InteractorInputContainer
     {
         public IPressableInput RangedClick { get; private set; }
         public IPressableInput Grab { get; private set; }
@@ -472,7 +472,7 @@ namespace VE2.Core.Player.API
         }
     }
 
-    public class DragLocomotorInputContainer 
+    internal class DragLocomotorInputContainer 
     {
         public IPressableInput HorizontalDrag { get; private set; }
         public IPressableInput VerticalDrag { get; private set; }
@@ -484,7 +484,7 @@ namespace VE2.Core.Player.API
         }
     }
 
-    public class SnapTurnInputContainer
+    internal class SnapTurnInputContainer
     {
         public IStickPressInput SnapTurnLeft { get; private set; }
         public IStickPressInput SnapTurnRight { get; private set; }
@@ -495,7 +495,7 @@ namespace VE2.Core.Player.API
             SnapTurnRight = snapTurnRight;
         }
     }
-    public class TeleportInputContainer
+    internal class TeleportInputContainer
     {
         public IPressableInput Teleport { get; private set; }
 
@@ -509,7 +509,7 @@ namespace VE2.Core.Player.API
 
     #endregion
 
-    public interface IInputHandler
+    internal interface IInputHandler
     {
         public PlayerInputContainer PlayerInputContainer { get; }
         public IQuickPressInput TogglePrimaryUI { get; } 
@@ -519,7 +519,7 @@ namespace VE2.Core.Player.API
     //TODO: The actual handler could go into its own assembly... where to draw the line though? Each interface could also go into its own assembly too...
     //Could also expose different interfaces in the ServiceLocator, rather than the single IInputHandler
     [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
-    public class InputHandler : MonoBehaviour, IInputHandler
+    internal class InputHandler : MonoBehaviour, IInputHandler
     {
         private PlayerInputContainer _playerInputContainer;
         public PlayerInputContainer PlayerInputContainer { 

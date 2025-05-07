@@ -11,7 +11,7 @@ namespace VE2.Core.VComponents.Tests
 {
     [TestFixture]
     [Category("Linear Adjustable Tests")]
-    public class LinearAdjustableTests
+    internal class LinearAdjustableTests
     {
         private IV_LinearAdjustable _linearAdjustablePluginInterface => _v_linearAdjustableProviderStub;
         private V_LinearAdjustableProviderStub _v_linearAdjustableProviderStub;

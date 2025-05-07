@@ -4,7 +4,7 @@ using VE2.Core.Player.API;
 
 namespace VE2.Core.Player.Internal
 {
-    public class V_Billboard : MonoBehaviour
+    internal class V_Billboard : MonoBehaviour
     {
         [SerializeField, Tooltip("How fast the billboard rotates to face the camera (higher = snappier)")]
         private float followSpeed = 5f;

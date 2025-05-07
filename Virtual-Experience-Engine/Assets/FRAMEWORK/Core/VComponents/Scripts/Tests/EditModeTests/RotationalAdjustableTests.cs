@@ -11,7 +11,7 @@ namespace VE2.Core.VComponents.Tests
 {
     [TestFixture]
     [Category("Rotational Adjustable Tests")]
-    public class RotationalAdjustableTests
+    internal class RotationalAdjustableTests
     {
         private IV_RotationalAdjustable _rotationAdjustmentPluginInterface => _v_rotationalAdjustableProviderStub;
         private V_RotationalAdjustableProviderStub _v_rotationalAdjustableProviderStub;

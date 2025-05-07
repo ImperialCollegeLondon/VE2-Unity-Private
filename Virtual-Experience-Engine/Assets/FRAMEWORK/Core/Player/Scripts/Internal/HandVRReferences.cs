@@ -40,7 +40,7 @@ namespace VE2.Core.Player.Internal
     }
 
     [Serializable]
-    public class DragLocomotorReferences
+    internal class DragLocomotorReferences
     {
         public GameObject DragIconHolder => _dragIconHolder;
         [SerializeField, IgnoreParent] public GameObject _dragIconHolder; //Entire icon
@@ -56,7 +56,7 @@ namespace VE2.Core.Player.Internal
     }
 
     [Serializable]
-    public class TeleporterReferences
+    internal class TeleporterReferences
     {
         public LineRenderer TeleportLineRenderer => _teleportLineRenderer;
         [SerializeField] private  LineRenderer _teleportLineRenderer;
@@ -66,7 +66,7 @@ namespace VE2.Core.Player.Internal
     }
 
     [Serializable]
-    public class WristUIReferences
+    internal class WristUIReferences
     {
         public Canvas WristUIHolder => _wristUIHolder;
         [SerializeField] private Canvas _wristUIHolder;

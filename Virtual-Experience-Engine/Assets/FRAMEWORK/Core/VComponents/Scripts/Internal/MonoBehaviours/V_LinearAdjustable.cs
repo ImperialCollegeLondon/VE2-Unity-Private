@@ -6,7 +6,7 @@ using VE2.Common.Shared;
 
 namespace VE2.Core.VComponents.Internal
 {
-    public class V_LinearAdjustable : MonoBehaviour, IV_LinearAdjustable, IRangedGrabInteractionModuleProvider
+    internal class V_LinearAdjustable : MonoBehaviour, IV_LinearAdjustable, IRangedGrabInteractionModuleProvider
     {
         [SerializeField, HideLabel, IgnoreParent] private LinearAdjustableConfig _config = new();
         [SerializeField, HideInInspector] private AdjustableState _adjustableState = null;

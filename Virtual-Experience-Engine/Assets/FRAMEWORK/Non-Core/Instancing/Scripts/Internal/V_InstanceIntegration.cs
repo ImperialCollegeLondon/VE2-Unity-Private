@@ -49,7 +49,6 @@ namespace VE2.NonCore.Instancing.Internal
         //We do this wiring here rather than the interface as the interface file needs to live in the VE2.common package
         #region provider Interfaces
         public bool IsEnabled => gameObject != null && enabled && gameObject.activeInHierarchy;
-        public string GameObjectName => gameObject.name;
         private InstanceService _instanceService;
         public IInstanceService InstanceService {
             get 
@@ -119,7 +118,7 @@ namespace VE2.NonCore.Instancing.Internal
             {
                 GameObject debugUIHolder = GameObject.Instantiate(Resources.Load<GameObject>("HostDebugRectHolder"));
                 _debugUIRect = debugUIHolder.transform.GetChild(0).GetComponent<RectTransform>();
-                (VE2API.Player as IPlayerServiceInternal).AddPanelTo2DOverlayUI(_debugUIRect);
+                (VE2API.Player as IPlayerServiceInternal)?.AddPanelTo2DOverlayUI(_debugUIRect);
                 GameObject.Destroy(debugUIHolder);
             }
         }

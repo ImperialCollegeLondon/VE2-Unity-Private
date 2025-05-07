@@ -6635,7 +6635,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 889b57ac24328574a8a9fd18daba2af0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _uiProviderGOName: PlayerSpawner
 --- !u!4 &554134971
 Transform:
   m_ObjectHideFlags: 1
@@ -10172,6 +10171,7 @@ MonoBehaviour:
   _preferVRMode: 0
   _localClientIdWrapper:
     _ClientID: 65535
+  _uiProviderGOName: 
 --- !u!4 &878036154
 Transform:
   m_ObjectHideFlags: 1

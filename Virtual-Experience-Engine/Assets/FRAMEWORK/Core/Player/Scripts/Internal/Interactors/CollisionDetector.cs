@@ -36,12 +36,12 @@ namespace VE2.Core.Player.Internal
         }
     }
 
-    public interface ICollisionDetectorFactory
+    internal interface ICollisionDetectorFactory
     {
         internal ICollisionDetector CreateCollisionDetector(Collider collider, ColliderType colliderType, LayerMask collisionLayers);
     }
 
-    public class CollisionDetectorFactory : ICollisionDetectorFactory
+    internal class CollisionDetectorFactory : ICollisionDetectorFactory
     {
         ICollisionDetector ICollisionDetectorFactory.CreateCollisionDetector(Collider collider, ColliderType colliderType, LayerMask collisionLayers)
         {
@@ -56,7 +56,7 @@ namespace VE2.Core.Player.Internal
         }
     }
 
-    public enum ColliderType
+    internal enum ColliderType
     {
         Feet2D,
         FeetVR,

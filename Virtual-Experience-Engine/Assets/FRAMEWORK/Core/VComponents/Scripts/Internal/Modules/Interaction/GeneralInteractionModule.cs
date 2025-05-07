@@ -5,7 +5,7 @@ using VE2.Core.VComponents.API;
 namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
-    public class GeneralInteractionConfig
+    internal class GeneralInteractionConfig
     {
         [Title("General Interation Settings")]
         [BeginGroup(Style = GroupStyle.Round), SerializeField] public bool AdminOnly = false;

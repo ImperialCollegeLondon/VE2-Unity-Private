@@ -8,6 +8,7 @@ using static VE2.NonCore.Instancing.Internal.InstanceSyncSerializables;
 using VE2.Common.Shared;
 using VE2.Core.UI.API;
 using VE2.Common.API;
+using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.NonCore.Instancing.Internal
 {
@@ -25,7 +26,7 @@ namespace VE2.NonCore.Instancing.Internal
                 connectionStateDebugWrapper,
                 VE2API.InteractorContainer,
                 VE2API.Player as IPlayerServiceInternal,
-                UIAPI.PrimaryUIService as IPrimaryUIServiceInternal,
+                VE2API.PrimaryUIService as IPrimaryUIServiceInternal,
                 connectAutomatically,
                 debugServerSettings,
                 debugInstanceCode,
@@ -182,8 +183,9 @@ namespace VE2.NonCore.Instancing.Internal
         {
             //Debug.Log("<color=green> Try register to server pop'n with instance code - " + _instanceCode);
 
-            bool usingFrameworkAvatar = true; //TODO
-            AvatarAppearanceWrapper avatarAppearanceWrapper = new(usingFrameworkAvatar, _playerService.OverridableAvatarAppearance);
+            bool usingFrameworkAvatar = _playerService != null; 
+            OverridableAvatarAppearance overridableAvatarAppearance = usingFrameworkAvatar? _playerService.OverridableAvatarAppearance : new();
+            AvatarAppearanceWrapper avatarAppearanceWrapper = new(usingFrameworkAvatar, overridableAvatarAppearance);
 
             //We also send the LocalClientID here, this will either be maxvalue (if this is our first time connecting, the server will give us a new ID)..
             //..or it'll be the ID we we're restored after a disconnect (if we're reconnecting, the server will use the ID we provide)

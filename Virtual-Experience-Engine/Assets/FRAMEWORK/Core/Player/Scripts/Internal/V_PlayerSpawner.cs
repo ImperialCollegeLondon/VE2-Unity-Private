@@ -121,7 +121,7 @@ namespace VE2.Core.Player.Internal
             }
         }
 
-        public string GameObjectName { get => gameObject.name; }
+        public bool IsEnabled => gameObject != null && enabled && gameObject.activeInHierarchy;
         #endregion
 
         [SerializeField, HideInInspector] private bool _transformDataSetup = false;
@@ -192,8 +192,8 @@ namespace VE2.Core.Player.Internal
                 xrManagerWrapper = new GameObject("XRManagerWrapper").AddComponent<XRManagerWrapper>();
 
             //May be null if UIs aren't available
-            IPrimaryUIServiceInternal primaryUIService = UIAPI.PrimaryUIService as IPrimaryUIServiceInternal;
-            ISecondaryUIServiceInternal secondaryUIService = UIAPI.SecondaryUIService as ISecondaryUIServiceInternal;
+            IPrimaryUIServiceInternal primaryUIService = VE2API.PrimaryUIService as IPrimaryUIServiceInternal;
+            ISecondaryUIServiceInternal secondaryUIService = VE2API.SecondaryUIService as ISecondaryUIServiceInternal;
 
             _playerService = VE2PlayerServiceFactory.Create(
                 _playerTransformData, 

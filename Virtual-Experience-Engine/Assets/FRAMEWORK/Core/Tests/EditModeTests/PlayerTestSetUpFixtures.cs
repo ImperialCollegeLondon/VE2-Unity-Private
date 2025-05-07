@@ -116,8 +116,7 @@ namespace VE2.Core.Tests
         }
     }
 
-    
-    public class CollisionDetectorFactoryStub : ICollisionDetectorFactory
+    internal class CollisionDetectorFactoryStub : ICollisionDetectorFactory
     {
         internal Dictionary<ColliderType, ICollisionDetector> CollisionDetectorStubs { get; } = new();
 
@@ -142,7 +141,7 @@ namespace VE2.Core.Tests
         }
     }
 
-    public class PlayerInputContainerSetup
+    internal class PlayerInputContainerSetup
     {
         public static PlayerInputContainer PlayerInputContainerStub { get; private set; }
 

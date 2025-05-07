@@ -4,7 +4,7 @@ using UnityEngine;
 namespace VE2.Core.Player.Internal
 {
     [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
-    public class PlayerHandLightHandler : MonoBehaviour
+    internal class PlayerHandLightHandler : MonoBehaviour
     {
         [SerializeField] private Renderer _handRenderer;
         [SerializeField] private int _materialIndex;

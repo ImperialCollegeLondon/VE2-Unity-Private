@@ -6,13 +6,14 @@ using VE2.Core.VComponents.API;
 using VE2.Core.Player.API;
 using VE2.NonCore.Instancing.API;
 using VE2.Common.Shared;
+using VE2.Core.UI.API;
 
 namespace VE2.Common.API
 {
     [ExecuteAlways]
     [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     /// <summary>
-    /// Central service locator for VE2 APIs
+    /// Central service locator for VE2 APIs, such as the player, the UI, and the instancing system.
     /// </summary>
     public class VE2API : MonoBehaviour 
     {
@@ -57,7 +58,7 @@ namespace VE2.Common.API
         //########################################################################################################
         #region PlayerAPI
 
-        public static IPlayerService Player => PlayerServiceProvider.PlayerService;
+        public static IPlayerService Player => PlayerServiceProvider?.PlayerService;
 
         private IPlayerServiceProvider _playerServiceProvder;
         internal static IPlayerServiceProvider PlayerServiceProvider
@@ -76,7 +77,10 @@ namespace VE2.Common.API
                     }
                 }
 
-                return Instance._playerServiceProvder;
+                if (Instance._playerServiceProvder == null)
+                    return null;
+
+                return Instance._playerServiceProvder.IsEnabled? Instance._playerServiceProvder : null;
             }
             set => Instance._playerServiceProvder = value;
         }
@@ -90,6 +94,44 @@ namespace VE2.Common.API
 
         #endregion
         //########################################################################################################
+        //########################################################################################################
+        #region UI 
+
+        public static IPrimaryUIService PrimaryUIService => UIProvider?.PrimaryUIService;
+        public static ISecondaryUIService SecondaryUIService => UIProvider?.SecondaryUIService;
+
+        [SerializeField, HideInInspector] private string _uiProviderGOName;
+        private IUIProvider _uiProvider;
+        internal static IUIProvider UIProvider
+        {
+            get
+            {
+                if (Instance._uiProvider == null)
+                {
+                    foreach (GameObject go in FindObjectsByType<GameObject>(FindObjectsSortMode.None))
+                    {
+                        if (go.TryGetComponent(out IUIProvider uiProvider))
+                        {
+                            Instance._uiProvider = uiProvider;
+                            break;
+                        }
+                    }
+                }
+
+                if (Instance._uiProvider == null)
+                    return null;
+
+                return Instance._uiProvider.IsEnabled? Instance._uiProvider : null;
+
+            }
+            set //Will need to be called externally
+            {
+                Instance._uiProvider = value;
+            }
+        }
+        #endregion
+        //########################################################################################################
+
         //########################################################################################################
         #region InputAPI
 
@@ -113,6 +155,7 @@ namespace VE2.Common.API
 
         #endregion
         //########################################################################################################
+
         //########################################################################################################
         #region InstancingAPI
 
@@ -135,8 +178,10 @@ namespace VE2.Common.API
                     }
                 }
 
-                return Instance._instancingServiceProvider;
+                if (Instance._instancingServiceProvider == null)
+                    return null;
 
+                return Instance._instancingServiceProvider.IsEnabled? Instance._instancingServiceProvider : null;
             }
             set => Instance._instancingServiceProvider = value;
         }
@@ -145,6 +190,7 @@ namespace VE2.Common.API
 
         #endregion
         //########################################################################################################
+        
         //########################################################################################################
         #region Internal Containers and Wrappers
         //Note - these don't need to be serialized, registrations will repeat on reload

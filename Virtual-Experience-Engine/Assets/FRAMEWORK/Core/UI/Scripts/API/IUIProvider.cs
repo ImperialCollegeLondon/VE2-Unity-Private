@@ -6,7 +6,6 @@ namespace VE2.Core.UI.API
     {
         public IPrimaryUIService PrimaryUIService { get; }
         public ISecondaryUIService SecondaryUIService { get; }
-        public string GameObjectName { get; }
         public bool IsEnabled { get; }
     }
 }

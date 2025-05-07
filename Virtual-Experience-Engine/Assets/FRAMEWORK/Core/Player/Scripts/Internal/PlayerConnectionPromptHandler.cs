@@ -8,7 +8,7 @@ using VE2.Common.Shared;
 namespace VE2.Core.Player.Internal
 {
     [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
-    public class PlayerConnectionPromptHandler : MonoBehaviour
+    internal class PlayerConnectionPromptHandler : MonoBehaviour
     {
         [SerializeField] private TMP_Text _connectionPromptText;
         private ColorConfiguration _colorConfig  => ColorConfiguration.Instance;

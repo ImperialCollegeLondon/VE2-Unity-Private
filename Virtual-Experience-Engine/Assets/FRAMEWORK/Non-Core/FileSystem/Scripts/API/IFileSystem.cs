@@ -36,6 +36,8 @@ namespace VE2.NonCore.FileSystem.API
     //CAUTION - These objects are customer-facing, changing these will break plugins=================================
     //===============================================================================================================
 
+    //TODO - put behind interfaces
+
     [Serializable]
     public class LocalFileDetails : FileDetails
     {

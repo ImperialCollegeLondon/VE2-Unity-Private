@@ -13,7 +13,7 @@ using VE2.Common.API;
 namespace VE2.Core.Player
 {
     [UnityEditor.InitializeOnLoad]
-    public static class VE2UnityEditorToolbar
+    internal static class VE2UnityEditorToolbar
     {
         private static V_PlayerSpawner _playerSpawner = null;
 

@@ -2,9 +2,10 @@ using NSubstitute;
 using NUnit.Framework;
 using VE2.NonCore.Instancing.API;
 using VE2.NonCore.Instancing.Internal;
+
 namespace VE2.NonCore.Instancing.VComponents.Tests
 {
-    public class NetworkObjectTests
+    internal class NetworkObjectTests
     {
         [Test]
         public void NetworkObject_WhenObjectIsSet_EmitsToPlugin()
@@ -25,7 +26,7 @@ namespace VE2.NonCore.Instancing.VComponents.Tests
         }
     }
 
-    public class PluginScript
+    internal class PluginScript
     {
         public virtual void HandleObjectReceived(object obj) { } //Virtual so the method can be mocked (so we can assert it was called with the right object)
     }

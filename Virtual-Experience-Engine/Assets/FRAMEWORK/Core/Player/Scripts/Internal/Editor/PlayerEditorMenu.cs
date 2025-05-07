@@ -6,7 +6,7 @@ using VE2.Core.Player.Internal;
 
 namespace VE2.Player.Internal 
 {
-    public class PlayerEditorMenu
+    internal class PlayerEditorMenu
     {
         [MenuItem("/GameObject/VE2/PlayerSpawner", priority = 1)]
         private static void CreateViRSEManager()

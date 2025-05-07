@@ -28,7 +28,7 @@ namespace VE2.NonCore.Platform.Internal
                 pluginLoader, 
                 playerService, 
                 platformSettingsHandler, 
-                UIAPI.PrimaryUIService as IPrimaryUIServiceInternal);
+                VE2API.PrimaryUIService as IPrimaryUIServiceInternal);
         }
     }
 

@@ -1,8 +1,6 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 using VE2.Common.API;
-using VE2.Core.Player.API;
 using VE2.Core.UI.API;
 
 namespace VE2.Core.UI.Internal
@@ -30,8 +28,7 @@ namespace VE2.Core.UI.Internal
                 return _secondaryUIService;
             }
         }
-        public string GameObjectName => gameObject.name;
-        public bool IsEnabled => IsEnabled;
+        public bool IsEnabled => gameObject != null && enabled && gameObject.activeInHierarchy;
 
         [Help("If enabled, the secondary UI can be customised. If disabled, the secondary UI  This is always enabled for the primary UI.")]
         [SerializeField, HideInInspector] private bool _lastUseSecondaryUI;
@@ -67,7 +64,7 @@ namespace VE2.Core.UI.Internal
 
         private void OnEnable()
         {
-            UIAPI.UIProvider = this;
+            VE2API.UIProvider = this;
 
             if (!Application.isPlaying || (_enablePrimaryUI && _primaryUIService != null) || (_enableSecondaryUI && _secondaryUIService != null))
                 return;
@@ -85,13 +82,13 @@ namespace VE2.Core.UI.Internal
                 GameObject pluginPrimaryUI = _pluginPrimaryUIHolder.transform.GetChild(0).gameObject;
                 Sprite icon = Resources.Load<Sprite>("PluginPrimaryUIIcon");
 
-                UIAPI.PrimaryUIService.AddNewTab(
+                VE2API.PrimaryUIService.AddNewTab(
                     _primaryUIPluginTabName, 
                     pluginPrimaryUI, 
                     icon,
                     0);
 
-                UIAPI.PrimaryUIService.ShowTab(_primaryUIPluginTabName);   
+                VE2API.PrimaryUIService.ShowTab(_primaryUIPluginTabName);   
             };
 
             if (_secondaryUIService == null && _enableSecondaryUI)
@@ -103,7 +100,7 @@ namespace VE2.Core.UI.Internal
                 if (_useCustomSecondaryUI)
                 {
                     GameObject pluginSecondaryUI = _pluginSecondaryUIHolder.transform.GetChild(0).gameObject;
-                    ISecondaryUIServiceInternal secondaryUIService = UIAPI.SecondaryUIService as ISecondaryUIServiceInternal;
+                    ISecondaryUIServiceInternal secondaryUIService = VE2API.SecondaryUIService as ISecondaryUIServiceInternal;
                     secondaryUIService.SetContent(pluginSecondaryUI.GetComponent<RectTransform>());
                 }
             };

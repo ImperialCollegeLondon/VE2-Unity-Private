@@ -7,7 +7,7 @@ using VE2.Core.VComponents.API;
 namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
-    public class RangedInteractionConfig
+    internal class RangedInteractionConfig
     {
         [Title("Ranged Interation Settings")]
         [Space(5)]

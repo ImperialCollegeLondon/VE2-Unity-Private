@@ -6,7 +6,7 @@ using VE2.Common.Shared;
 
 namespace VE2.Core.VComponents.Internal
 {
-    public class V_RotationalAdjustable : MonoBehaviour, IV_RotationalAdjustable, IRangedGrabInteractionModuleProvider
+    internal class V_RotationalAdjustable : MonoBehaviour, IV_RotationalAdjustable, IRangedGrabInteractionModuleProvider
     {
         [SerializeField, HideLabel, IgnoreParent] private RotationalAdjustableConfig _config = new();
         [SerializeField, HideInInspector] private AdjustableState _adjustableState = null;

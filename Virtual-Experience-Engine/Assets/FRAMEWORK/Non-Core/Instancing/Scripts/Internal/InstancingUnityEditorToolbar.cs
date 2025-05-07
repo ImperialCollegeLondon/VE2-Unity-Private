@@ -8,7 +8,7 @@ using VE2.Core.Player;
 namespace VE2.NonCore.Instancing.Internal
 {
     [UnityEditor.InitializeOnLoad]
-    public static class VE2UnityEditorToolbar
+    internal static class VE2UnityEditorToolbar
     {
         public static event Action OnPreferVRClicked;
         public static event Action OnPrefer2DClicked;

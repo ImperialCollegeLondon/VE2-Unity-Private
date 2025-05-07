@@ -1,7 +1,7 @@
 using UnityEngine;
 using VE2.NonCore.Platform.API;
 
-public class DebugHubReturn : MonoBehaviour
+internal class DebugHubReturn : MonoBehaviour
 {
     [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     public void ReturnToHub()

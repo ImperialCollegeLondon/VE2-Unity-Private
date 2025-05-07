@@ -6,7 +6,7 @@ using VE2.Common.Shared;
 
 namespace VE2.Core.VComponents.Internal 
 {
-    public class VComponentsEditorMenu
+    internal class VComponentsEditorMenu
     {
         [MenuItem("/GameObject/VE2/Interactables/ToggleButton", priority = 0)]
         private static void CreateToggleButton()
