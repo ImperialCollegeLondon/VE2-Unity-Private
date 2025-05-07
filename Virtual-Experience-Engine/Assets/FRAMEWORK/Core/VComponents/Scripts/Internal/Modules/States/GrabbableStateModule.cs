@@ -36,10 +36,10 @@ namespace VE2.Core.VComponents.Internal
         [Title("Grab Interaction Settings", ApplyCondition = true)]
         [SerializeField] public Transform AttachPoint = null;
         [SerializeField] public bool VrFailsafeGrab = true;
-        [SerializeField, ShowIf(nameof(VrFailsafeGrab), true)] public float FailsafeGrabRange = 0.15f;
-        [SerializeField, ShowIf(nameof(VrFailsafeGrab), true)] public float FailsafeGrabRangeBackOfHand = 0.1f;
+        [SerializeField, ShowIf(nameof(VrFailsafeGrab), true)] public float VRRaySnapRange = 0.15f;
+        [SerializeField, ShowIf(nameof(VrFailsafeGrab), true)] public float VRRaySnapRangeBackOfHand = 0.1f;
         [EndGroup]
-        [SerializeField, ShowIf(nameof(VrFailsafeGrab), true), Range(1f,2f)] public float failsafeGrabMultiplier = 1.2f;
+        [SerializeField, ShowIf(nameof(VrFailsafeGrab), true), Range(1f, 2f)] public float failsafeGrabMultiplier = 1.2f;
     }
 
     [Serializable]
@@ -83,34 +83,55 @@ namespace VE2.Core.VComponents.Internal
         public void SetGrabbed(InteractorID interactorID)
         {
             if (IsGrabbed)
-                return;
-
-            if (_interactorContainer.Interactors.TryGetValue(interactorID.ToString(), out IInteractor interactor))
             {
-                CurrentGrabbingInteractor = interactor;
-                _state.IsGrabbed = true;
-                _isLocalGrabbed = CurrentGrabbingInteractor is ILocalInteractor;
-                _state.MostRecentInteractingInteractorID = interactorID;
-                _state.StateChangeNumber++;
-
-                _config.InspectorDebug.IsGrabbed = true;
-                _config.InspectorDebug.ClientID = interactorID.ClientID;
-
-                interactor.ConfirmGrab(_rangedGrabInteractionModule);
-                OnGrabConfirmed?.Invoke(interactorID.ClientID);
-
-                try
+                if (_state.MostRecentInteractingInteractorID.ClientID == interactorID.ClientID)
                 {
-                    _config.OnGrab?.Invoke();
+                    CurrentGrabbingInteractor.ConfirmDrop();
+
+                    if (_interactorContainer.Interactors.TryGetValue(interactorID.ToString(), out IInteractor interactor))
+                    {
+                        CurrentGrabbingInteractor = interactor;
+                        _state.MostRecentInteractingInteractorID = interactorID;
+                        _state.StateChangeNumber++;
+                        interactor.ConfirmGrab(_rangedGrabInteractionModule);
+                    }
+                    else
+                    {
+                        Debug.LogError($"Could not find Interactor with {interactorID.ClientID} and {interactorID.InteractorType}");
+                    }
                 }
-                catch (Exception e)
-                {
-                    Debug.Log($"Error when emitting OnLocalInteractorGrab from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
-                }
+                else
+                    return;
             }
             else
             {
-                Debug.LogError($"Could not find Interactor with {interactorID.ClientID} and {interactorID.InteractorType}");
+                if (_interactorContainer.Interactors.TryGetValue(interactorID.ToString(), out IInteractor interactor))
+                {
+                    CurrentGrabbingInteractor = interactor;
+                    _state.IsGrabbed = true;
+                    _isLocalGrabbed = CurrentGrabbingInteractor is ILocalInteractor;
+                    _state.MostRecentInteractingInteractorID = interactorID;
+                    _state.StateChangeNumber++;
+
+                    _config.InspectorDebug.IsGrabbed = true;
+                    _config.InspectorDebug.ClientID = interactorID.ClientID;
+
+                    interactor.ConfirmGrab(_rangedGrabInteractionModule);
+                    OnGrabConfirmed?.Invoke(interactorID.ClientID);
+
+                    try
+                    {
+                        _config.OnGrab?.Invoke();
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.Log($"Error when emitting OnLocalInteractorGrab from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
+                    }
+                }
+                else
+                {
+                    Debug.LogError($"Could not find Interactor with {interactorID.ClientID} and {interactorID.InteractorType}");
+                }
             }
         }
 

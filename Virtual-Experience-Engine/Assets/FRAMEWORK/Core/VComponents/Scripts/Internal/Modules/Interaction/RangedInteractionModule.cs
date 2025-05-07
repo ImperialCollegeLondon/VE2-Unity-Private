@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
@@ -24,34 +25,50 @@ namespace VE2.Core.VComponents.Internal
         public float InteractRange { get => _rangedConfig.InteractionRange; set => _rangedConfig.InteractionRange = value; }
 
         private readonly RangedInteractionConfig _rangedConfig;
+        private List<InteractorID> hoveringInteractors = new();
 
         public RangedInteractionModule(RangedInteractionConfig config, GeneralInteractionConfig generalInteractionConfig) : base(generalInteractionConfig)
         {
             _rangedConfig = config;
         }
 
-        public void EnterHover()
+        public void EnterHover(InteractorID interactorID)
         {
-            try
+            if (hoveringInteractors.Contains(interactorID))
+                return;
+
+            hoveringInteractors.Add(interactorID);
+
+            if (hoveringInteractors.Count > 0)
             {
-                _rangedConfig.OnLocalHoverEnter?.Invoke();
+                try
+                {
+                    _rangedConfig.OnLocalHoverEnter?.Invoke();
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"ERROR HOVER INVOKE config null?- {_rangedConfig == null}");
+                    Debug.LogError($"Error invoking OnHoverEnter event - {e.Message} - {e.StackTrace}");
+                }
             }
-            catch (Exception e)
-            {
-                Debug.LogError($"ERROR HOVER INVOKE config null?- {_rangedConfig == null}");
-                Debug.LogError($"Error invoking OnHoverEnter event - {e.Message} - {e.StackTrace}");
-            }
+
         }
 
-        public void ExitHover()
+        public void ExitHover(InteractorID interactorID)
         {
-            try
+            if(hoveringInteractors.Contains(interactorID))
+                hoveringInteractors.Remove(interactorID);
+
+            if (hoveringInteractors.Count == 0)
             {
-                _rangedConfig.OnLocalHoverExit?.Invoke();
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"Error invoking OnHoverExit event - {e.Message} - {e.StackTrace}");
+                try
+                {
+                    _rangedConfig.OnLocalHoverExit?.Invoke();
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"Error invoking OnHoverExit event - {e.Message} - {e.StackTrace}");
+                }
             }
         }
     }
