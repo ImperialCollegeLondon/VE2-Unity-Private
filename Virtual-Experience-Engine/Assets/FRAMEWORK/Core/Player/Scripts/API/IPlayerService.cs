@@ -7,6 +7,8 @@ namespace VE2.Core.Player.API
     public interface IPlayerService //TODO - need to wire into the config
     {
         public bool IsVRMode { get; }
+        public event Action OnChangeToVRMode;
+        public event Action OnChangeTo2DMode;
 
         public void SetAvatarHeadOverride(ushort type);
         public void SetAvatarTorsoOverride(ushort type);

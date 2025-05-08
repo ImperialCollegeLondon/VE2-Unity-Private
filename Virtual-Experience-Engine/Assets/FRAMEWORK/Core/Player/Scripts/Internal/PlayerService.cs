@@ -61,6 +61,8 @@ namespace VE2.Core.Player.Internal
         public float TransmissionFrequency => _config.RepeatedTransmissionConfig.TransmissionFrequency;
 
         public bool IsVRMode => PlayerTransformData.IsVRMode;
+        public event Action OnChangeToVRMode;
+        public event Action OnChangeTo2DMode;
 
         public List<GameObject> HeadOverrideGOs => _config.AvatarAppearanceOverrideConfig.HeadOverrideGameObjects;
         public List<GameObject> TorsoOverrideGOs => _config.AvatarAppearanceOverrideConfig.TorsoOverrideGameObjects;
@@ -227,6 +229,18 @@ namespace VE2.Core.Player.Internal
             catch (System.Exception e)
             {
                 Debug.LogError("Error changing player mode: " + e.Message + " - " + e.StackTrace);
+            }
+
+            try 
+            {
+                if (PlayerTransformData.IsVRMode)
+                    OnChangeToVRMode?.Invoke();
+                else 
+                    OnChangeTo2DMode?.Invoke();
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError("Error emitting OnChangeToVRMode or OnChangeTo2DMode: " + e.Message + " - " + e.StackTrace);
             }
         }
 

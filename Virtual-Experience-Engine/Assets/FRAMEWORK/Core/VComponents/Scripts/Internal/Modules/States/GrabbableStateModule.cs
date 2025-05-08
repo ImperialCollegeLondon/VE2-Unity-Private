@@ -60,7 +60,7 @@ namespace VE2.Core.VComponents.Internal
         public UnityEvent OnGrab => _config.OnGrab;
         public UnityEvent OnDrop => _config.OnDrop;
         public bool IsGrabbed { get => _state.IsGrabbed; private set => _state.IsGrabbed = value; }
-        public bool IsLocalGrabbed => MostRecentInteractingClientID!= null && MostRecentInteractingClientID.IsLocal;
+        public bool IsLocalGrabbed => MostRecentInteractingClientID != null && IsGrabbed && MostRecentInteractingClientID.IsLocal;
         public IClientIDWrapper MostRecentInteractingClientID => _state.MostRecentInteractingInteractorID.ClientID == ushort.MaxValue ? null : 
             new ClientIDWrapper(_state.MostRecentInteractingInteractorID.ClientID, _state.MostRecentInteractingInteractorID.ClientID == _localClientIdWrapper.Value);
         #endregion
