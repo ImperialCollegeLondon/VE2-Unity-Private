@@ -244,7 +244,7 @@ namespace VE2.Core.Player.Internal
                 }
 
                 // --- Update Visuals and Teleport Target ---
-                if (hitFound && IsValidSurface(hit.normal))
+                if (hitFound && IsValidSurface(hit))
                 {
                     _hitPoint = hit.point;
                     _teleportCursor.transform.position = _hitPoint;
@@ -293,7 +293,10 @@ namespace VE2.Core.Player.Internal
 
         private V_TeleportAnchor SphereCastFromPoint(Vector3 point, Vector3 normal)
         {
-            RaycastHit[] hits = Physics.SphereCastAll(point, 3f, normal, 0f, _movementModeConfig.CollisionLayers, QueryTriggerInteraction.Collide);
+            RaycastHit[] hits = Physics.SphereCastAll(point, 3f, normal, 0f, _movementModeConfig.CollisionLayers | _movementModeConfig.TraversableLayers);
+
+            if (hits.Length == 0)
+                return null;
 
             V_TeleportAnchor closestAnchor = null;
             float closestDistance = float.MaxValue;
@@ -324,10 +327,13 @@ namespace VE2.Core.Player.Internal
             _teleportLineMaterial.SetColor("_EmissionColor", newColor * LINE_EMISSION_INTENSITY);
         }
 
-        private bool IsValidSurface(Vector3 normal)
+        private bool IsValidSurface(RaycastHit hit)
         {
+            if(hit.collider.gameObject.TryGetComponent(out V_TeleportAnchor teleportAnchor))
+                return true;
+
             // Check if the surface normal is within the acceptable slope angle
-            float angle = Vector3.Angle(Vector3.up, normal);
+            float angle = Vector3.Angle(Vector3.up, hit.normal);
             return angle <= _maxSlopeAngle;
         }
 
@@ -385,18 +391,17 @@ namespace VE2.Core.Player.Internal
 
             Vector3 controlPointPos = CalculateControlPoint(startPoint, endPoint);
 
-            Vector3[] pointsWorldSpace = new Vector3[segments];
-            Vector3[] pointsLocalSpace = new Vector3[segments];
+            Vector3[] points = new Vector3[segments];
 
-            for (int i = 0; i < pointsWorldSpace.Length; i++)
+            for (int i = 0; i < points.Length; i++)
             {
-                float t = i / (float)(pointsWorldSpace.Length - 1);
-                pointsWorldSpace[i] = CalculateBezierPoint(startPoint, endPoint, controlPointPos, t);
-                pointsLocalSpace[i] = _teleportLineRenderer.transform.InverseTransformPoint(pointsWorldSpace[i]);
+                float t = i / (float)(points.Length - 1);
+                Vector3 currentPoint = CalculateBezierPoint(startPoint, endPoint, controlPointPos, t);
+                points[i] = _teleportLineRenderer.transform.InverseTransformPoint(currentPoint);
             }
 
-            _teleportLineRenderer.positionCount = pointsLocalSpace.Length;
-            _teleportLineRenderer.SetPositions(pointsLocalSpace);
+            _teleportLineRenderer.positionCount = points.Length;
+            _teleportLineRenderer.SetPositions(points);
         }
 
         private Vector3 CalculateControlPoint(Vector3 start, Vector3 end)

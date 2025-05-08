@@ -15,19 +15,18 @@ namespace VE2.Core.Player.Internal
         void OnEnable()
         {
             gameObject.SetActive(!(Application.isPlaying && !PlayerAPI.Player.IsVRMode));
-
             _lineRenderer.enabled = !Application.isPlaying;
         }
 
-        void OnValidate()
+        //FYI THIS DOESNT FIRE EVERY FRAME IN EDITOR MODE
+        void Update()
         {
-            DrawAnchorRange();
+            if(!Application.isPlaying)
+                DrawAnchorRange();
         }
 
         public void DrawAnchorRange()
         {
-            _lineRenderer.startColor = Color.red;
-            _lineRenderer.endColor = Color.red;
             _lineRenderer.positionCount = _segments + 1;
 
             for (int i = 0; i < _segments + 1; i++)
