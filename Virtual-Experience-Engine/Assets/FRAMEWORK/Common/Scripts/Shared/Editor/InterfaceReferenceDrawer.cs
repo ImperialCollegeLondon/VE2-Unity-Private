@@ -5,7 +5,7 @@ using System;
 namespace VE2.Common.Shared
 {
     [CustomPropertyDrawer(typeof(InterfaceReference<>), true)]
-    public class InterfaceComponentReferenceDrawer : PropertyDrawer
+    internal class InterfaceComponentReferenceDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
