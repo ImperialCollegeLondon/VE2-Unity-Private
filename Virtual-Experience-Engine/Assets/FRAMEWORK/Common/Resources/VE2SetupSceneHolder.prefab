@@ -4592,11 +4592,11 @@ MonoBehaviour:
               m_BoolArgument: 0
             m_CallState: 2
     InteractionConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       AttachPoint: {fileID: 608320133601198468}
+      VrFailsafeGrab: 1
+      VRRaySnapRange: 0.15
+      VRRaySnapRangeBackOfHand: 0.1
+      failsafeGrabMultiplier: 1.2
       TransformToAdjust: {fileID: 7223665374047383561}
     RangedInteractionConfig:
       InteractionRange: 5
@@ -5784,11 +5784,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerConfig:
-    SupportedPlayerModes: 2
+    PlayerModeConfig:
+      SupportedPlayerModes: 2
     PlayerInteractionConfig:
-      RaycastLayers:
+      InteractableLayers:
         serializedVersion: 2
-        m_Bits: 130985
+        m_Bits: 131017
     MovementModeConfig:
       TraversableLayers:
         serializedVersion: 2
@@ -5809,18 +5810,13 @@ MonoBehaviour:
       AntiAliasingQuality: 1
       EnablePostProcessing: 1
       OcclusionCulling: 1
-    HeadOverrideType: 0
-    TorsoOverrideType: 0
-    HeadOverrideOne: {fileID: 0}
-    HeadOverrideTwo: {fileID: 0}
-    HeadOverrideThree: {fileID: 0}
-    HeadOverrideFour: {fileID: 0}
-    HeadOverrideFive: {fileID: 0}
-    TorsoOverrideOne: {fileID: 0}
-    TorsoOverrideTwo: {fileID: 0}
-    TorsoOverrideThree: {fileID: 0}
-    TorsoOverrideFour: {fileID: 0}
-    TorsoOverrideFive: {fileID: 0}
+    AvatarAppearanceOverrideConfig:
+      OverrideHead: 0
+      HeadOverrideIndex: 0
+      HeadOverrideGameObjects: []
+      OverrideTorso: 0
+      TorsoOverrideIndex: 0
+      TorsoOverrideGameObjects: []
     RepeatedTransmissionConfig:
       TransmissionType: 0
       TransmissionFrequency: 35
@@ -7302,11 +7298,11 @@ MonoBehaviour:
               m_BoolArgument: 0
             m_CallState: 2
     InteractionConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       AttachPoint: {fileID: 7360320392410291189}
+      VrFailsafeGrab: 1
+      VRRaySnapRange: 0.15
+      VRRaySnapRangeBackOfHand: 0.1
+      failsafeGrabMultiplier: 1.2
       TransformToAdjust: {fileID: 7360320392410291189}
     RangedInteractionConfig:
       InteractionRange: 5
@@ -12811,11 +12807,11 @@ MonoBehaviour:
               m_BoolArgument: 0
             m_CallState: 2
     InteractionConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       AttachPoint: {fileID: 4250947744796497306}
+      VrFailsafeGrab: 1
+      VRRaySnapRange: 0.15
+      VRRaySnapRangeBackOfHand: 0.1
+      failsafeGrabMultiplier: 1.2
       TransformToAdjust: {fileID: 167701274486319245}
     RangedInteractionConfig:
       InteractionRange: 5
