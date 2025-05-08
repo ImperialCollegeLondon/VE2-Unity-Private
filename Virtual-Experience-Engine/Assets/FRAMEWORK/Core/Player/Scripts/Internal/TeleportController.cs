@@ -295,15 +295,23 @@ namespace VE2.Core.Player.Internal
         {
             RaycastHit[] hits = Physics.SphereCastAll(point, 3f, normal, 0f, _movementModeConfig.CollisionLayers, QueryTriggerInteraction.Collide);
 
+            V_TeleportAnchor closestAnchor = null;
+            float closestDistance = float.MaxValue;
+
             foreach (RaycastHit hit in hits)
             {
-                if (hit.collider.gameObject.TryGetComponent(out V_TeleportAnchor teleportAnchor) && Vector3.Distance(point, teleportAnchor.transform.position) <= teleportAnchor.Range)
+                if (hit.collider.gameObject.TryGetComponent(out V_TeleportAnchor teleportAnchor))
                 {
-                    return teleportAnchor;
+                    float distance = Vector3.Distance(point, teleportAnchor.transform.position);
+                    if (distance <= teleportAnchor.Range && distance < closestDistance)
+                    {
+                        closestAnchor = teleportAnchor;
+                        closestDistance = distance;
+                    }
                 }
             }
 
-            return null;
+            return closestAnchor;
         }
 
         private void ToggleTeleportLineVisualShowsValid(bool toggle)
