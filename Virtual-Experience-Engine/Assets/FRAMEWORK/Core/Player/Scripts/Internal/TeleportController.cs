@@ -293,7 +293,7 @@ namespace VE2.Core.Player.Internal
 
         private V_TeleportAnchor SphereCastFromPoint(Vector3 point, Vector3 normal)
         {
-            RaycastHit[] hits = Physics.SphereCastAll(point, 3f, normal, 0f, _movementModeConfig.CollisionLayers | _movementModeConfig.TraversableLayers);
+            RaycastHit[] hits = Physics.SphereCastAll(point, 3f, normal, 0f);
 
             if (hits.Length == 0)
                 return null;

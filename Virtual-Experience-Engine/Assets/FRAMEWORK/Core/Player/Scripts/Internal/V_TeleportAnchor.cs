@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using UnityEditor;
 using UnityEngine;
 using VE2.Core.Player.API;
 
@@ -12,16 +13,38 @@ namespace VE2.Core.Player.Internal
         private LineRenderer _lineRenderer => GetComponent<LineRenderer>();
         private int _segments = 30;
 
+        private bool _editorListenersSetup = false;
+
         void OnEnable()
         {
+
+#if UNITY_EDITOR
+            if (!Application.isPlaying && !_editorListenersSetup)
+            {
+                _editorListenersSetup = true;
+                Selection.selectionChanged += OnSelectionChanged;
+            }
+#endif
+
             gameObject.SetActive(!(Application.isPlaying && !PlayerAPI.Player.IsVRMode));
             _lineRenderer.enabled = !Application.isPlaying;
+        }
+
+        void OnDisable()
+        {
+#if UNITY_EDITOR
+            if (!Application.isPlaying && _editorListenersSetup)
+            {
+                Selection.selectionChanged -= OnSelectionChanged;
+                _editorListenersSetup = false;
+            }
+#endif
         }
 
         //FYI THIS DOESNT FIRE EVERY FRAME IN EDITOR MODE
         void Update()
         {
-            if(!Application.isPlaying)
+            if (!Application.isPlaying)
                 DrawAnchorRange();
         }
 
@@ -38,5 +61,23 @@ namespace VE2.Core.Player.Internal
                 _lineRenderer.SetPosition(i, transform.position + point);
             }
         }
+
+#if UNITY_EDITOR
+        private void OnSelectionChanged()
+        {
+            // Check if the selected object is the target or a child of it
+            foreach (var selected in Selection.gameObjects)
+            {
+                if (IsChildOrSelf(gameObject, selected))
+                {
+                    EditorApplication.delayCall += () => Selection.activeGameObject = gameObject;
+                    EditorApplication.delayCall += () => EditorApplication.RepaintHierarchyWindow();
+                    break;
+                }
+            }
+        }
+
+        private bool IsChildOrSelf(GameObject parent, GameObject obj) => obj == parent || obj.transform.IsChildOf(parent.transform);
+#endif
     }
 }
