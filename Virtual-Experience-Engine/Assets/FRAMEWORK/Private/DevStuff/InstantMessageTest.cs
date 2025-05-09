@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using VE2.NonCore.Instancing.API;
@@ -18,7 +19,7 @@ public class InstantMessageTest : MonoBehaviour
         if (Keyboard.current.digit9Key.wasPressedThisFrame)
         {
             _counter++;
-            string message = $"Hello world {_counter}";
+            Message message = new("Hello world", _counter);
             Debug.Log($"Try send instant message {message}");
             _instantMessageHandler.SendInstantMessage(message);
         }
@@ -26,6 +27,27 @@ public class InstantMessageTest : MonoBehaviour
 
     public void ReceiveInstantMessage(object message)
     {
-        Debug.Log($"Received instant message {message}");
+        Message receivedMessage = (Message)message;
+        _counter = receivedMessage.Counter;
+        Debug.Log($"Received instant message {receivedMessage}");
+    }
+
+    [Serializable]
+    class Message
+    {
+        public string MessageText { get; private set; }
+        public int Counter;
+
+        public Message(string messageText, int counter)
+        {
+            this.MessageText = messageText;
+            this.Counter = counter;
+        }
+
+        public override string ToString()
+        {
+            return $"{MessageText}, {Counter}";
+        }
+
     }
 }
