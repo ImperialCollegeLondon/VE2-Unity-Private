@@ -6,7 +6,9 @@
         "UnityEditor.TestRunner",
         "TNRD.NSubstitute",
         "VE2.NonCore.Instancing.Internal",
-        "VE2.NonCore.Instancing.API"
+        "VE2.NonCore.Instancing.API",
+        "VE2.Core.VComponents.API",
+        "VE2.Core.Common"
     ],
     "includePlatforms": [
         "Editor"

@@ -5,3 +5,4 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("VE2.Core.Player.Internal")] 
 [assembly: InternalsVisibleTo("VE2.Core.Tests")] 
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")] //For NSubstitute substitutes
+[assembly: InternalsVisibleTo("VE2.NonCore.Instancing.VComponents.Tests")]
