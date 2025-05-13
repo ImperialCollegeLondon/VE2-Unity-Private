@@ -14,7 +14,7 @@ namespace VE2.NonCore.Instancing.Internal
         private string _id;
 
         public void SendInstantMessage(object message) => _service.SendInstantMessage(message);
-
+        
         public UnityEvent<object> OnMessageReceived => _config.OnMessageReceived;
 
         private void OnEnable()

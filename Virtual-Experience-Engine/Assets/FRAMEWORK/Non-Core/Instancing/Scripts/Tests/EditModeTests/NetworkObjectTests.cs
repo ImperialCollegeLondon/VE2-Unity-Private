@@ -24,7 +24,7 @@ namespace VE2.NonCore.Instancing.VComponents.Tests
             //  Get the plugin-facing interface out of the VC 
             IV_NetworkObject networkObjectInterface = v_networkObjectStub;
             //  Create a substitute for the PluginScript, wire it up to the plugin interface 
-            PluginScript customerScript = new();
+            NetworkObjectTestPluginScript customerScript = new();
             networkObjectInterface.OnStateChange.AddListener(customerScript.HandleObjectReceived);
 
             //Act=========
@@ -45,7 +45,7 @@ namespace VE2.NonCore.Instancing.VComponents.Tests
         }
     }
 
-    internal class PluginScript
+    internal class NetworkObjectTestPluginScript
     {
         public object ReceivedObject;
         public int ReceivedCounter = 0;

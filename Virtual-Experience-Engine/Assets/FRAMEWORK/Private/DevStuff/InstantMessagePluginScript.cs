@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using VE2.NonCore.Instancing.API;
 
-public class InstantMessageTest : MonoBehaviour
+public class InstantMessagePluginScript : MonoBehaviour
 {
     private IV_InstantMessageHandler _instantMessageHandler => GetComponent<IV_InstantMessageHandler>();
     private int _counter = 0;
