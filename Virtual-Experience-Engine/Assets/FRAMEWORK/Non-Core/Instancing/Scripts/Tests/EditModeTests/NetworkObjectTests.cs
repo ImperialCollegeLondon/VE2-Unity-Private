@@ -13,8 +13,11 @@ namespace VE2.NonCore.Instancing.VComponents.Tests
     internal class NetworkObjectTests
     {
 
-        [Test]
-        public void NetworkObject_WhenObjectIsSet_EmitsToPlugin()
+        [TestCase("Hello")]
+        [TestCase(42)]
+        [TestCase(3.14)]
+        [TestCase(true)]
+        public void NetworkObject_WhenObjectIsSet_EmitsToPlugin(object serializableObject)
         {
             //Arrange=========
             //  Create the NetworkObjectService, injecting default configs 
@@ -28,15 +31,13 @@ namespace VE2.NonCore.Instancing.VComponents.Tests
             networkObjectInterface.OnStateChange.AddListener(customerScript.HandleObjectReceived);
 
             //Act=========
-            //  Programmatically set the network object 
-            System.Random random = new();
-            int serializableObject = random.Next(int.MinValue, int.MaxValue);
+            //  Programmatically set the network object
             networkObjectInterface.NetworkObject = serializableObject;
 
             // ===========Assert=========
             // Check the customer received the same object
-            Assert.IsInstanceOf<int>(customerScript.ReceivedObject);
-            Assert.AreEqual((int)customerScript.ReceivedObject, serializableObject);
+            Assert.IsInstanceOf(serializableObject.GetType(), customerScript.ReceivedObject);
+            Assert.AreEqual(customerScript.ReceivedObject, serializableObject);
 
             // Check also that HandleObjectReceived was only called once
             Assert.AreEqual(customerScript.ReceivedCounter, 1);

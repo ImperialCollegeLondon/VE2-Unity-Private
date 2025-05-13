@@ -14,8 +14,11 @@ namespace VE2.NonCore.Instancing.VComponents.Tests
     internal class InstantMessageHandlerTests
     {
 
-        [Test]
-        public void InstantMessageHandler_WhenMessageIsSent_OnMessageReceivedCalled()
+        [TestCase("Hello")]
+        [TestCase(42)]
+        [TestCase(3.14)]
+        [TestCase(true)]
+        public void InstantMessageHandler_WhenMessageIsSent_PluginReceivesSameMessage(object messageToTest)
         {
             //Arrange=========
             //  Create the InstantMessageHandlerService, injecting default configs
@@ -31,14 +34,12 @@ namespace VE2.NonCore.Instancing.VComponents.Tests
 
             //Act=========
             //  Programmatically send an instant message
-            System.Random random = new();
-            int serializableObject = random.Next(int.MinValue, int.MaxValue);
-            instantMessageHandlerInterface.SendInstantMessage(serializableObject);
+            instantMessageHandlerInterface.SendInstantMessage(messageToTest);
 
             // ===========Assert=========
             // Check the customer received the same message
-            Assert.IsInstanceOf<int>(customerScript.ReceivedMessage);
-            Assert.AreEqual((int)customerScript.ReceivedMessage, serializableObject);
+            Assert.IsInstanceOf(messageToTest.GetType(), customerScript.ReceivedMessage);
+            Assert.AreEqual(customerScript.ReceivedMessage, messageToTest);
 
             // Check also that HandleMessageReceived was only called once
             Assert.AreEqual(customerScript.ReceivedCounter, 1);
