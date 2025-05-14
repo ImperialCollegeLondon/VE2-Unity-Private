@@ -6,8 +6,9 @@ namespace VE2.NonCore.Instancing.API
     {
         #region State Module Interface
         protected INetworkObjectStateModule _StateModule { get; }
-        public UnityEvent<object> OnStateChange => _StateModule.OnStateChange;
-        public object NetworkObject { get => _StateModule.NetworkObject; set => _StateModule.NetworkObject = value; }
+        public UnityEvent<object> OnDataChange => _StateModule.OnStateChange;
+        public object CurrentData => _StateModule.NetworkObject;
+        public void UpdateData(object data) => _StateModule.NetworkObject = data;
         #endregion
     }
 }

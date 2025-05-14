@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Events;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 
 namespace VE2.Core.VComponents.Internal
@@ -10,7 +11,7 @@ namespace VE2.Core.VComponents.Internal
     {
         [SerializeField, IgnoreParent] public HoldActivatableStateConfig StateConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
-        [SerializeField, IgnoreParent] public ActivatableRangedInteractionConfig ActivatableRangedInteractionConfig = new();
+        [SerializeField, IgnoreParent] public ActivatableInteractionConfig ActivatableRangedInteractionConfig = new();
     }
 
     internal class HoldActivatableService
@@ -27,11 +28,15 @@ namespace VE2.Core.VComponents.Internal
         private readonly ColliderInteractionModule _ColliderInteractionModule;
         #endregion
 
-        public HoldActivatableService(HoldActivatableConfig config, MultiInteractorActivatableState state, string id)
+        public HoldActivatableService(HoldActivatableConfig config, MultiInteractorActivatableState state, string id, IClientIDWrapper localClientIdWrapper)
         {
-            _StateModule = new(state, config.StateConfig, id);
+            _StateModule = new(state, config.StateConfig, id, localClientIdWrapper);
             _RangedHoldClickInteractionModule = new(config.ActivatableRangedInteractionConfig, config.GeneralInteractionConfig, id, config.ActivatableRangedInteractionConfig.ActivateAtRangeInVR);
-            _ColliderInteractionModule = new(config.GeneralInteractionConfig, id, CollideInteractionType.Hand);
+
+            if(config.ActivatableRangedInteractionConfig.ActivateWithCollisionInVR)
+                _ColliderInteractionModule = new(config.GeneralInteractionConfig, id, CollideInteractionType.Hand);
+            else
+                _ColliderInteractionModule = new(config.GeneralInteractionConfig, id, CollideInteractionType.None);
 
             _RangedHoldClickInteractionModule.OnClickDown += AddToInteractingInteractors;
             _RangedHoldClickInteractionModule.OnClickUp += RemoveFromInteractingInteractors;

@@ -2,8 +2,9 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 using VE2.Core.VComponents.API;
-using static VE2.Core.Common.CommonSerializables;
-using VE2.Common.TransformWrapper;
+using VE2.Common.API;
+using VE2.Common.Shared;
+using static VE2.Common.Shared.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -37,23 +38,22 @@ namespace VE2.Core.VComponents.Internal
         public event Action<ushort> OnGrabConfirmed;
         public event Action<ushort> OnDropConfirmed;
 
-        //TODO, state config shouldn't live in the service. DropBehaviour should be in ServiceConfig
-        private GrabbableStateConfig _stateConfig;
+        //TODO, state config shouldn't live in the service. DropBehaviour should be in ServiceConfig? or maybe the interaction module can handle drop stuff?
         private FreeGrabbableInteractionConfig _interactionConfig;
 
         private Vector3 positionOnGrab = new();
 
-        public FreeGrabbableService(List<IHandheldInteractionModule> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id, 
-            IWorldStateSyncService worldStateSyncService, HandInteractorContainer interactorContainer, 
-            IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants, IGrabbableRigidbody grabbableRigidbodyInterface)
+        public FreeGrabbableService(List<IHandheldInteractionModule> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id,
+            IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer,
+            IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants, IGrabbableRigidbody grabbableRigidbodyInterface, IClientIDWrapper localClientIdWrapper)
         {
-            _RangedGrabInteractionModule = new(handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
-            _StateModule = new(state, config.StateConfig, id, worldStateSyncService, interactorContainer, RangedGrabInteractionModule);
-            _stateConfig = config.StateConfig;
+            //even though this is never null in theory, done so to satisfy the tests
+            _transform = config.InteractionConfig.AttachPoint != null ? new TransformWrapper(config.InteractionConfig.AttachPoint) : _rigidbody != null ? _rigidbody.transform : null;
+            _RangedGrabInteractionModule = new(id, grabInteractablesContainer, _transform, handheldInteractions, config.InteractionConfig, config.RangedInteractionConfig, config.GeneralInteractionConfig);
+            _StateModule = new(state, config.StateConfig, id, worldStateSyncableContainer, interactorContainer, localClientIdWrapper);
             _interactionConfig = config.InteractionConfig;
 
-            _rigidbody  = rigidbody;
-            _transform = config.InteractionConfig.AttachPoint == null ? new TransformWrapper(_rigidbody.transform) : new TransformWrapper(config.InteractionConfig.AttachPoint);
+            _rigidbody = rigidbody;
             _physicsConstants = physicsConstants;
             _isKinematicOnGrab = _rigidbody.isKinematic;
             _grabbableRigidbodyInterface = grabbableRigidbodyInterface;
@@ -69,7 +69,7 @@ namespace VE2.Core.VComponents.Internal
         //This is for teleporting the grabbed object along with the player - TODO: Tweak names for clarity 
         private void ApplyDeltaWhenGrabbed(Vector3 deltaPosition, Quaternion deltaRotation)
         {
-            Debug.Log("Applying delta when grabbed");   
+            Debug.Log("Applying delta when grabbed");
             _rigidbody.isKinematic = true;
 
             _rigidbody.position += deltaPosition;
@@ -93,7 +93,7 @@ namespace VE2.Core.VComponents.Internal
             positionOnGrab = _rigidbody.position;
             OnGrabConfirmed?.Invoke(grabberClientID);
         }
-    
+
         private void HandleDropConfirmed(ushort dropperClientID)
         {
             // Handle drop behaviours
@@ -115,12 +115,12 @@ namespace VE2.Core.VComponents.Internal
             {
                 _rigidbody.isKinematic = _isKinematicOnGrab;
             }
-        } 
+        }
 
         public void HandleFixedUpdate()
         {
             _StateModule.HandleFixedUpdate();
-            if(_StateModule.IsGrabbed)
+            if (_StateModule.IsGrabbed)
             {
                 TrackPosition(_StateModule.CurrentGrabbingInteractor.GrabberTransform.position);
                 TrackRotation(_StateModule.CurrentGrabbingInteractor.GrabberTransform.rotation);
@@ -155,6 +155,7 @@ namespace VE2.Core.VComponents.Internal
         public void TearDown()
         {
             _StateModule.TearDown();
+            _RangedGrabInteractionModule.TearDown();
 
             _StateModule.OnGrabConfirmed -= HandleGrabConfirmed;
             _StateModule.OnDropConfirmed -= HandleDropConfirmed;

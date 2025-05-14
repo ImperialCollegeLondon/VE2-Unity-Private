@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using VE2.Common.API;
 using VE2.Core.VComponents.API;
 
 namespace VE2.Core.VComponents.Internal
@@ -7,7 +8,8 @@ namespace VE2.Core.VComponents.Internal
     [ExecuteAlways]
     internal class V_ToggleActivatable : MonoBehaviour, IV_ToggleActivatable, IRangedInteractionModuleProvider, ICollideInteractionModuleProvider
     {
-        [SerializeField, HideLabel, IgnoreParent] private ToggleActivatableConfig _config = new(); 
+        internal ToggleActivatableConfig Config { get => _config; set { _config = value; }}
+        [SerializeField, HideLabel, IgnoreParent] private ToggleActivatableConfig _config = new();
         [SerializeField, HideInInspector] private SingleInteractorActivatableState _state = new();
 
         #region Plugin Interfaces
@@ -50,7 +52,7 @@ namespace VE2.Core.VComponents.Internal
                 return;
 
             string id = "Activatable-" + gameObject.name;
-            _service = new ToggleActivatableService(_config, _state, id, VComponentsAPI.WorldStateSyncService, VComponentsAPI.ActivatableGroupsContainer);
+            _service = new ToggleActivatableService(_config, _state, id, VE2API.WorldStateSyncableContainer, VComponentsAPI.ActivatableGroupsContainer, VE2API.LocalClientIdWrapper);
         }
 
         private void FixedUpdate()

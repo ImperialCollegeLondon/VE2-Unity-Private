@@ -1,11 +1,13 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using static VE2.Core.Common.CommonSerializables;
 using static VE2.Core.Player.API.PlayerSerializables;
-using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
-using System;
+using static VE2.Server.CommonSerializables;
+using static VE2.Server.PlatformPublicSerializables;
+
+
 
 #if UNITY_EDITOR
 using UnityEngine;
@@ -13,9 +15,9 @@ using UnityEngine;
 
 namespace VE2.NonCore.Instancing.Internal
 {
-    public class InstanceSyncSerializables
+    internal class InstanceSyncSerializables
     {
-        public static readonly int InstanceNetcodeVersion = 5;
+        public static readonly int InstanceNetcodeVersion = 6;
 
         public enum InstanceNetworkingMessageCodes
         {

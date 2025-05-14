@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using VE2.Common.Shared;
 
 namespace VE2.Core.VComponents.API
 {
@@ -13,8 +14,8 @@ namespace VE2.Core.VComponents.API
         public UnityEvent OnDeactivate => _StateModule.OnDeactivate;
 
         public bool IsActivated { get { return _StateModule.IsActivated; } }
-        public ushort MostRecentInteractingClientID => _StateModule.MostRecentInteractingClientID;
-        public List<ushort> CurrentlyInteractingClientIDs => _StateModule.CurrentlyInteractingClientIDs;
+        public IClientIDWrapper MostRecentInteractingClientID => _StateModule.MostRecentInteractingClientID;
+        public List<IClientIDWrapper> CurrentlyInteractingClientIDs => _StateModule.CurrentlyInteractingClientIDs;
         #endregion
 
         #region Ranged Interaction Module Interface

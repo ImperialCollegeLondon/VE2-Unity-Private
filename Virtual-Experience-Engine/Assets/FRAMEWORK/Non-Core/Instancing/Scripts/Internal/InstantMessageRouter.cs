@@ -1,9 +1,8 @@
 using UnityEngine;
 using static VE2.NonCore.Instancing.Internal.InstanceSyncSerializables;
-using VE2.Core.Common;
 using System.Collections.Generic;
 using VE2.NonCore.Instancing.API;
-using System.Runtime.Serialization.Formatters.Binary;
+using VE2.Common.Shared;
 
 namespace VE2.NonCore.Instancing.Internal
 {

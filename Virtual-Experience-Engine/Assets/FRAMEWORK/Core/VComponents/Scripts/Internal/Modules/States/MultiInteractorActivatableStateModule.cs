@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 
 namespace VE2.Core.VComponents.Internal
@@ -29,7 +30,7 @@ namespace VE2.Core.VComponents.Internal
     internal class MultiInteractorActivatableStateDebug
     {
         [Title("Debug Output", ApplyCondition = true, Order = 50), SerializeField, ShowDisabledIf(nameof(IsInPlayMode), true)] public bool IsActivated = false;
-        [InspectorName("Client IDs"), SerializeField, ShowDisabledIf(nameof(IsInPlayMode), true), SpaceArea(spaceAfter:15, ApplyCondition = true)] public List<ushort> ClientIDs = new();
+        [InspectorName("Client IDs"), SerializeField, ShowDisabledIf(nameof(IsInPlayMode), true), SpaceArea(spaceAfter: 15, ApplyCondition = true)] public List<ushort> ClientIDs = new();
 
         protected bool IsInPlayMode => Application.isPlaying;
     }
@@ -39,8 +40,19 @@ namespace VE2.Core.VComponents.Internal
         public UnityEvent OnActivate => _config.OnActivate;
         public UnityEvent OnDeactivate => _config.OnDeactivate;
         public bool IsActivated => _state.IsActivated;
-        public ushort MostRecentInteractingClientID => _mostRecentInteractingInteractorID.ClientID;
-        public List<ushort> CurrentlyInteractingClientIDs => _state.GetInteractingClientIDs();
+        public IClientIDWrapper MostRecentInteractingClientID => _mostRecentInteractingInteractorID.ClientID == ushort.MaxValue ? null : 
+            new ClientIDWrapper(_mostRecentInteractingInteractorID.ClientID, _mostRecentInteractingInteractorID.ClientID == _localClientIdWrapper.Value);
+            
+        public List<IClientIDWrapper> CurrentlyInteractingClientIDs {
+            get 
+            {
+                List<IClientIDWrapper> clientIDs = new List<IClientIDWrapper>();
+                foreach (InteractorID id in _state.InteractingInteractorIds)
+                    clientIDs.Add(new ClientIDWrapper(id.ClientID, id.ClientID == _localClientIdWrapper.Value));
+                    
+                return clientIDs;
+            }
+        }
 
         private MultiInteractorActivatableState _state = null;
         private HoldActivatableStateConfig _config = null;
@@ -48,45 +60,54 @@ namespace VE2.Core.VComponents.Internal
 
         private InteractorID _mostRecentInteractingInteractorID = new(ushort.MaxValue, InteractorType.None);
 
-        public MultiInteractorActivatableStateModule(MultiInteractorActivatableState state, HoldActivatableStateConfig config, string id)
+        private readonly IClientIDWrapper _localClientIdWrapper;
+
+        public MultiInteractorActivatableStateModule(MultiInteractorActivatableState state, HoldActivatableStateConfig config, string id, IClientIDWrapper localClientIdWrapper)
         {
             _state = state;
             _config = config;
             _id = id;
-        }
-
-        public void UpdateState(InteractorID interactorId)
-        {
-            if(_state.InteractingInteractorIds.Count > 0)
-            {
-                _state.IsActivated = true;
-                InvokeCustomerOnActivateEvent();
-            }
-            else
-            {
-                _state.IsActivated = false;
-                InvokeCustomerOnDeactivateEvent();
-            }
-
-            if (_state.InteractingInteractorIds.Count > 0)
-                _mostRecentInteractingInteractorID = _state.InteractingInteractorIds.Last();
-            else
-                _mostRecentInteractingInteractorID = interactorId;
-
-            _config.InspectorDebug.IsActivated = _state.IsActivated;
-            _config.InspectorDebug.ClientIDs = _state.GetInteractingClientIDs();
+            _localClientIdWrapper = localClientIdWrapper;
         }
 
         public void AddInteractorToState(InteractorID interactorId)
         {
             _state.InteractingInteractorIds.Add(interactorId);
-            UpdateState(interactorId);
+            _mostRecentInteractingInteractorID = interactorId;
+
+            if (_state.InteractingInteractorIds.Count > 0 && !_state.IsActivated)
+            {
+                _state.IsActivated = true;
+                InvokeCustomerOnActivateEvent();
+            }
+            else if (_state.IsActivated && _state.InteractingInteractorIds.Count == 0)
+            {
+                _state.IsActivated = false;
+                InvokeCustomerOnDeactivateEvent();
+            }
+
+            _config.InspectorDebug.IsActivated = _state.IsActivated;
+            _config.InspectorDebug.ClientIDs = _state.GetInteractingClientIDs();
         }
 
         public void RemoveInteractorFromState(InteractorID interactorId)
         {
             _state.InteractingInteractorIds.Remove(interactorId);
-            UpdateState(interactorId);
+            _mostRecentInteractingInteractorID = interactorId;
+
+            if (_state.InteractingInteractorIds.Count > 0 && !_state.IsActivated)
+            {
+                _state.IsActivated = true;
+                InvokeCustomerOnActivateEvent();
+            }
+            else if (_state.IsActivated && _state.InteractingInteractorIds.Count == 0)
+            {
+                _state.IsActivated = false;
+                InvokeCustomerOnDeactivateEvent();
+            }
+
+            _config.InspectorDebug.IsActivated = _state.IsActivated;
+            _config.InspectorDebug.ClientIDs = _state.GetInteractingClientIDs();
         }
 
         private void InvokeCustomerOnActivateEvent()

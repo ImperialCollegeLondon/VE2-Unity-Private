@@ -5,6 +5,8 @@ namespace VE2.NonCore.Instancing.API
     public interface IInstanceService
     {
         public ushort LocalClientID { get; }
+        public bool IsClientIDReady { get; }
+        public event Action<ushort> OnClientIDReady;
 
         public bool IsHost { get; }
 

@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using VE2.Core.Common;
+using UnityEngine.Rendering.Universal;
+using VE2.Common.API;
+using VE2.Common.Shared;
 using VE2.Core.Player.API;
 using VE2.Core.UI.API;
 using static VE2.Core.Player.API.PlayerSerializables;
@@ -26,48 +28,76 @@ namespace VE2.Core.Player.Internal
     [Serializable]
     internal class PlayerConfig
     {
-        [SerializeField] internal SupportedPlayerModes SupportedPlayerModes = SupportedPlayerModes.Both;
-        internal bool EnableVR => SupportedPlayerModes == SupportedPlayerModes.Both || SupportedPlayerModes == SupportedPlayerModes.OnlyVR;
-        internal bool Enable2D => SupportedPlayerModes == SupportedPlayerModes.Both || SupportedPlayerModes == SupportedPlayerModes.Only2D;
+        [Title("Player Mode Config")]
+        [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public PlayerModeConfig PlayerModeConfig = new();
+
+        [Title("Interaction Config")]
+        [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public PlayerInteractionConfig PlayerInteractionConfig = new();
 
         [Title("Movement Mode Config")]
         [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public MovementModeConfig MovementModeConfig = new();
 
+        [Title("Camera Config")]
+        [BeginGroup(Style = GroupStyle.Round), SerializeField, EndGroup] public CameraConfig CameraConfig = new();
 
-        [Title("Avatar Presentation Override Selection")]
-        [BeginGroup(Style = GroupStyle.Round), SerializeField] public AvatarAppearanceOverrideType HeadOverrideType = AvatarAppearanceOverrideType.None;
-        [EndGroup, SerializeField] public AvatarAppearanceOverrideType TorsoOverrideType = AvatarAppearanceOverrideType.None;
-
-        [Title("Head Overrides")]
-        [BeginGroup(Style = GroupStyle.Round), SerializeField, AssetPreview] private GameObject HeadOverrideOne;
-        [SerializeField, AssetPreview] private GameObject HeadOverrideTwo;
-        [SerializeField, AssetPreview] private GameObject HeadOverrideThree;
-        [SerializeField, AssetPreview] private GameObject HeadOverrideFour;
-        [EndGroup, SerializeField, AssetPreview] private GameObject HeadOverrideFive;
-
-        [Title("Torso Overrides")]
-        [BeginGroup(Style = GroupStyle.Round), SerializeField, AssetPreview] private GameObject TorsoOverrideOne;
-        [SerializeField, AssetPreview] private GameObject TorsoOverrideTwo;
-        [SerializeField, AssetPreview] private GameObject TorsoOverrideThree;
-        [SerializeField, AssetPreview] private GameObject TorsoOverrideFour;
-        [EndGroup, SerializeField, AssetPreview] private GameObject TorsoOverrideFive;
-        
-        public List<GameObject> HeadOverrideGOs => new() { HeadOverrideOne, HeadOverrideTwo, HeadOverrideThree, HeadOverrideFour, HeadOverrideFive };
-        public List<GameObject> TorsoOverrideGOs => new() { TorsoOverrideOne, TorsoOverrideTwo, TorsoOverrideThree, TorsoOverrideFour, TorsoOverrideFive }; 
+        [Title("Avatar Appearance Overrides")]
+        [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public AvatarAppearanceOverrideConfig AvatarAppearanceOverrideConfig = new();
 
         [Title("Transmission Settings", ApplyCondition = true)]
         [HideIf(nameof(_hasMultiplayerSupport), false)]
         [SpaceArea(spaceAfter: 10), BeginGroup(Style = GroupStyle.Round, ApplyCondition = true), EndGroup(ApplyCondition = true), SerializeField, IgnoreParent] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new(TransmissionProtocol.UDP, 35);
         
-        private bool _hasMultiplayerSupport => PlayerAPI.HasMultiPlayerSupport;
+        private bool _hasMultiplayerSupport => VE2API.HasMultiPlayerSupport;
+    }
+
+    [Serializable]
+    internal class PlayerModeConfig
+    {
+        [SerializeField] internal SupportedPlayerModes SupportedPlayerModes = SupportedPlayerModes.Both;
+        internal bool EnableVR => SupportedPlayerModes == SupportedPlayerModes.Both || SupportedPlayerModes == SupportedPlayerModes.OnlyVR;
+        internal bool Enable2D => SupportedPlayerModes == SupportedPlayerModes.Both || SupportedPlayerModes == SupportedPlayerModes.Only2D;
+    }
+
+    [Serializable]
+    internal class PlayerInteractionConfig
+    {
+        [Tooltip("Player raycasts will hit objects on these layers, hands and feet will interact with interactables on these layers. Doesn't effect movement")]
+        [SerializeField] internal LayerMask InteractableLayers;
     }
 
     [Serializable]
     internal class MovementModeConfig
     {
         [SerializeField] internal LayerMask TraversableLayers; 
-        [SerializeField] internal bool EnableFreeFlyMode = false;
+        [SerializeField] internal LayerMask CollisionLayers;
+        [SerializeField] internal bool FreeFlyMode = false;
         [SerializeField] internal float TeleportRangeMultiplier = 1.0f;
+    }
+
+    [Serializable]
+    internal class CameraConfig 
+    {
+        [SerializeField] internal float FieldOfView2D = 60f;
+        [SerializeField] internal float NearClippingPlane = 0.15f;
+        [SerializeField] internal float FarClippingPlane = 1000f;
+        [SerializeField] internal LayerMask CullingMask;
+        [SerializeField] internal AntialiasingMode AntiAliasing = AntialiasingMode.FastApproximateAntialiasing;
+        [SerializeField, ShowIf(nameof(_showAAQuality), true)] internal AntialiasingQuality AntiAliasingQuality = AntialiasingQuality.Medium;
+        private bool _showAAQuality => AntiAliasing == AntialiasingMode.SubpixelMorphologicalAntiAliasing || AntiAliasing == AntialiasingMode.TemporalAntiAliasing;
+        [SerializeField] internal bool EnablePostProcessing = true;
+        [SerializeField] internal bool OcclusionCulling = true;
+    }
+
+    [Serializable]
+    internal class AvatarAppearanceOverrideConfig
+    {
+        [SerializeField] internal bool OverrideHead = false;
+        [SerializeField, EnableIf(nameof(OverrideHead), true)] internal ushort HeadOverrideIndex = 0;
+        [SerializeField, ReorderableList] internal List<GameObject> HeadOverrideGameObjects = new();
+
+        [SerializeField] internal bool OverrideTorso = false;
+        [SerializeField, EnableIf(nameof(OverrideTorso), true)] internal ushort TorsoOverrideIndex = 0;
+        [SerializeField, ReorderableList] internal List<GameObject> TorsoOverrideGameObjects = new();
     }
 
     [ExecuteAlways]
@@ -91,7 +121,7 @@ namespace VE2.Core.Player.Internal
             }
         }
 
-        public string GameObjectName { get => gameObject.name; }
+        public bool IsEnabled => gameObject != null && enabled && gameObject.activeInHierarchy;
         #endregion
 
         [SerializeField, HideInInspector] private bool _transformDataSetup = false;
@@ -103,7 +133,12 @@ namespace VE2.Core.Player.Internal
         private void Reset()
         {
             _playerConfig = new();
-            _playerConfig.MovementModeConfig.TraversableLayers = LayerMask.GetMask("Ground"); //Can't set LayerMask in serialization, so we do it here
+
+            //Can't set LayerMask in serialization, so we do it here
+            _playerConfig.PlayerInteractionConfig.InteractableLayers = -1;
+            _playerConfig.MovementModeConfig.TraversableLayers = LayerMask.GetMask("Ground");
+            _playerConfig.MovementModeConfig.CollisionLayers = LayerMask.GetMask("Default"); 
+            _playerConfig.CameraConfig.CullingMask = -1;
 
             //Debug.Log("Resetting - " + (_playerPreview != null));
             if (_playerPreview != null)
@@ -122,7 +157,7 @@ namespace VE2.Core.Player.Internal
             }
             #endif
 
-            PlayerAPI.PlayerServiceProvider = this;
+            VE2API.PlayerServiceProvider = this;
 
             if (!Application.isPlaying || _playerService != null)
                 return;
@@ -144,21 +179,21 @@ namespace VE2.Core.Player.Internal
                 _transformDataSetup = true;
 
                 #if UNITY_EDITOR
-                if (_playerConfig.SupportedPlayerModes == SupportedPlayerModes.Both)
-                    _playerTransformData.IsVRMode = VE2UnityEditorToolbar.PreferVRMode;
+                if (_playerConfig.PlayerModeConfig.SupportedPlayerModes == SupportedPlayerModes.Both)
+                    _playerTransformData.IsVRMode = VE2API.PreferVRMode;
                 #endif
             }
 
             if (Application.platform == RuntimePlatform.Android && !Application.isEditor)
-                _playerConfig.SupportedPlayerModes = SupportedPlayerModes.OnlyVR;
+                _playerConfig.PlayerModeConfig.SupportedPlayerModes = SupportedPlayerModes.OnlyVR;
 
             XRManagerWrapper xrManagerWrapper = FindFirstObjectByType<XRManagerWrapper>();
             if (xrManagerWrapper == null)
                 xrManagerWrapper = new GameObject("XRManagerWrapper").AddComponent<XRManagerWrapper>();
 
             //May be null if UIs aren't available
-            IPrimaryUIServiceInternal primaryUIService = UIAPI.PrimaryUIService as IPrimaryUIServiceInternal;
-            ISecondaryUIServiceInternal secondaryUIService = UIAPI.SecondaryUIService as ISecondaryUIServiceInternal;
+            IPrimaryUIServiceInternal primaryUIService = VE2API.PrimaryUIService as IPrimaryUIServiceInternal;
+            ISecondaryUIServiceInternal secondaryUIService = VE2API.SecondaryUIService as ISecondaryUIServiceInternal;
 
             _playerService = VE2PlayerServiceFactory.Create(
                 _playerTransformData, 

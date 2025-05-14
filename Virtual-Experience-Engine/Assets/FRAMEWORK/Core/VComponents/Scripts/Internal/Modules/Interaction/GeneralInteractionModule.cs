@@ -5,16 +5,14 @@ using VE2.Core.VComponents.API;
 namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
-    public class GeneralInteractionConfig
+    internal class GeneralInteractionConfig
     {
-        [BeginGroup(Style = GroupStyle.Round)]
         [Title("General Interation Settings")]
-        [SerializeField] public bool AdminOnly = false;
+        [BeginGroup(Style = GroupStyle.Round), SerializeField] public bool AdminOnly = false;
 
         [SerializeField] public bool EnableControllerVibrations = true;
 
-        [EndGroup]
-        [SerializeField] public bool ShowTooltipsAndHighlight = true;
+        [EndGroup, SerializeField] public bool ShowTooltipsAndHighlight = true;
     }
 
     internal abstract class GeneralInteractionModule : IGeneralInteractionModule

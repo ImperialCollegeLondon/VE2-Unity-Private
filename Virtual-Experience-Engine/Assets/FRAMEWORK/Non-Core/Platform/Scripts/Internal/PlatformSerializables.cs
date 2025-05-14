@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
-using static VE2.Core.Common.CommonSerializables;
 using static VE2.Core.Player.API.PlayerSerializables;
+using static VE2.Common.Shared.CommonSerializables;
+
 
 
 #if UNITY_EDITOR
@@ -12,7 +13,7 @@ using UnityEngine;
 
 namespace VE2.NonCore.Platform.Internal
 {
-    public class PlatformSerializables
+    internal class PlatformSerializables
     {
         internal static readonly int PlatformNetcodeVersion = 1;
 

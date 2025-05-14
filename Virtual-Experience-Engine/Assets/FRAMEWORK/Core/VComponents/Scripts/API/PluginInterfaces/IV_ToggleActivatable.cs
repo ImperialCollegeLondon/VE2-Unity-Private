@@ -1,4 +1,5 @@
 using UnityEngine.Events;
+using VE2.Common.Shared;
 
 namespace VE2.Core.VComponents.API
 {
@@ -14,7 +15,9 @@ namespace VE2.Core.VComponents.API
         public void Activate() => _StateModule.Activate();
         public void Deactivate() => _StateModule.Deactivate();
         public void SetActivated(bool isActivated) => _StateModule.SetActivated(isActivated);
-        public ushort MostRecentInteractingClientID => _StateModule.MostRecentInteractingClientID;
+        public IClientIDWrapper MostRecentInteractingClientID => _StateModule.MostRecentInteractingClientID;
+
+        public void SetNetworked(bool isNetworked) => _StateModule.SetNetworked(isNetworked);
         #endregion
 
         #region Ranged Interaction Module Interface

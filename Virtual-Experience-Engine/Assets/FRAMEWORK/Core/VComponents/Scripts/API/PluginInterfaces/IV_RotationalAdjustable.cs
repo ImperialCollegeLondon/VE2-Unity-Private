@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using VE2.Common.Shared;
 
 namespace VE2.Core.VComponents.API
 {   
@@ -37,7 +38,7 @@ namespace VE2.Core.VComponents.API
             MaximumOutputValue = max;
         }
         
-        public ushort MostRecentInteractingClientID => _GrabbableStateModule.MostRecentInteractingClientID;
+        public IClientIDWrapper MostRecentInteractingClientID => _GrabbableStateModule.MostRecentInteractingClientID;
         #endregion
 
         #region Ranged Interaction Module Interface

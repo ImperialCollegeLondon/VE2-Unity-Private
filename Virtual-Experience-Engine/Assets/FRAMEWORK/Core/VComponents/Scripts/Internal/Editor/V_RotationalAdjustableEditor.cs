@@ -7,7 +7,7 @@ namespace VE2.Core.VComponents.Internal
 {
     //TODO: Implement! Needs to be smarter than just "does the attach point have a collider"
     // [CustomEditor(typeof(V_RotationalAdjustable))]
-    // public class V_RotationalAdjustableEditor : ToolboxEditor
+    // internal class V_RotationalAdjustableEditor : ToolboxEditor
     // {
     //     public override void DrawCustomInspector()
     //     {

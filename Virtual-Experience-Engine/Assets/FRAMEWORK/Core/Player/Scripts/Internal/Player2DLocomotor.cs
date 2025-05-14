@@ -18,7 +18,7 @@ namespace VE2.Core.Player.Internal
         private readonly CharacterController _characterController;
         private readonly Transform _verticalOffsetTransform;
         private readonly Transform _cameraTransform;
-        private readonly LayerMask _groundLayer;
+        private readonly LayerMask _traversableLayers;
 
         private float _originalControllerHeight;
         private float verticalVelocity = 0f;
@@ -69,13 +69,14 @@ namespace VE2.Core.Player.Internal
         }
 
         //TODO: Wire in input
-        internal Player2DLocomotor(Locomotor2DReferences locomotor2DReferences)
+        internal Player2DLocomotor(Locomotor2DReferences locomotor2DReferences, MovementModeConfig movementModeConfig)
         {
             _characterController = locomotor2DReferences.Controller;
             _verticalOffsetTransform = locomotor2DReferences.VerticalOffsetTransform;
             _originalControllerHeight = locomotor2DReferences.Controller.height;
             _cameraTransform = locomotor2DReferences.CameraTransform;
-            _groundLayer = locomotor2DReferences.GroundLayer;
+            _traversableLayers = movementModeConfig.TraversableLayers;
+            _characterController.includeLayers = movementModeConfig.TraversableLayers | movementModeConfig.CollisionLayers;
 
             Application.focusChanged += OnFocusChanged;
             if (Application.isFocused)
@@ -173,6 +174,6 @@ namespace VE2.Core.Player.Internal
         }
 
         bool IsGrounded() => 
-            Physics.Raycast(_transform.position, Vector3.down, out RaycastHit hit, (_characterController.height / 2) + 0.1f, _groundLayer);
+            Physics.Raycast(_transform.position, Vector3.down, out RaycastHit hit, (_characterController.height / 2) + 0.1f, _traversableLayers);
     }
 }

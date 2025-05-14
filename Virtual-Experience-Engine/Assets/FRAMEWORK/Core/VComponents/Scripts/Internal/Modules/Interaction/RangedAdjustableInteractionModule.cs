@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using VE2.Common.TransformWrapper;
+using VE2.Common.API;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 
 namespace VE2.Core.VComponents.Internal
@@ -12,7 +13,9 @@ namespace VE2.Core.VComponents.Internal
         public event Action OnScrollDown;
         public ITransformWrapper Transform { get; }
         
-        public RangedAdjustableInteractionModule(ITransformWrapper transform, List<IHandheldInteractionModule> handheldModules, RangedInteractionConfig config, GeneralInteractionConfig generalInteractionConfig) : base(handheldModules, config, generalInteractionConfig)
+        public RangedAdjustableInteractionModule(string id, IGrabInteractablesContainer grabInteractablesContainer, ITransformWrapper transform, 
+            List<IHandheldInteractionModule> handheldModules, GrabInteractionConfig failsafeGrabMultiplier, RangedInteractionConfig config, 
+            GeneralInteractionConfig generalInteractionConfig) : base(id, grabInteractablesContainer, transform, handheldModules, failsafeGrabMultiplier, config, generalInteractionConfig)
         {
             Transform = transform;
         }

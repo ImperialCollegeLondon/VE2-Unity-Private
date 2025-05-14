@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using VE2.Common.API;
 using VE2.Core.VComponents.API;
 using VE2.NonCore.Instancing.API;
 
@@ -20,14 +21,19 @@ namespace VE2.NonCore.Instancing.Internal
         private void OnEnable()
         {
             _id = "IMH-" + gameObject.name;
-            _internalInstanceService = (IInstanceServiceInternal)InstancingAPI.InstanceService;
 
-            _service = new InstantMessageHandlerService(_config, _id, _internalInstanceService);
+            if (VE2API.InstanceService == null)
+            {
+                Debug.LogError("Instance service is null, cannot initialise RigidbodySyncable, please add a V_InstanceIntegration component to the scene.");
+                return;
+}
+
+            _service = new InstantMessageHandlerService(_config, _id, VE2API.InstanceService as IInstanceServiceInternal);
         }
 
         private void OnDisable()
         {
-            _service.TearDown();
+            _service?.TearDown();
             _service = null;
         }
 

@@ -1,4 +1,5 @@
 using UnityEngine.Events;
+using VE2.Common.Shared;
 
 namespace VE2.Core.VComponents.API
 {
@@ -12,7 +13,7 @@ namespace VE2.Core.VComponents.API
         public UnityEvent OnDrop => _StateModule.OnDrop;
 
         public bool IsGrabbed { get { return _StateModule.IsGrabbed; } }
-        public ushort MostRecentInteractingClientID => _StateModule.MostRecentInteractingClientID;
+        public IClientIDWrapper MostRecentInteractingClientID => _StateModule.MostRecentInteractingClientID;
         #endregion
 
         #region Ranged Interaction Module Interface

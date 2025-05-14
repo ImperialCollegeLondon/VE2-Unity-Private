@@ -1,6 +1,7 @@
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
 
@@ -24,8 +25,9 @@ namespace VE2.Core.VComponents.Tests
                 new HandheldActivatableConfig(), 
                 new SingleInteractorActivatableState(), 
                 "debug", 
-                Substitute.For<IWorldStateSyncService>(),
-                new ActivatableGroupsContainer());
+                Substitute.For<IWorldStateSyncableContainer>(),
+                new ActivatableGroupsContainer(),
+                Substitute.For<IClientIDWrapper>());
 
             //Stub out the VC (provider layer) with the activatable
             _v_handheldActivatableProviderStub = new(toggleActivatable);
@@ -44,17 +46,17 @@ namespace VE2.Core.VComponents.Tests
             _activatablePluginInterface.OnActivate.AddListener(customerScript.HandleActivateReceived);
             _activatablePluginInterface.OnDeactivate.AddListener(customerScript.HandleDeactivateReceived);
 
-            //Activate, Check customer received the activation, and that the interactorID is set
+            //Activate, Check customer received the activation, and that the interactorID reflects programmatic activation (ie, null!)
             _activatablePluginInterface.Activate();
             customerScript.Received(1).HandleActivateReceived();
             Assert.IsTrue(_activatablePluginInterface.IsActivated);
-            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
+            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, null);
 
             //Deactivate and do checks
             _activatablePluginInterface.Deactivate();
             customerScript.Received(1).HandleDeactivateReceived();
             Assert.IsFalse(_activatablePluginInterface.IsActivated);
-            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
+            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, null);
         }
     }
 

@@ -6,14 +6,15 @@ using VE2.NonCore.Instancing.API;
 public class InstantMessagePluginScript : MonoBehaviour
 {
     private IV_InstantMessageHandler _instantMessageHandler => GetComponent<IV_InstantMessageHandler>();
+    private IV_NetworkObject _networkObject => GetComponent<IV_NetworkObject>();
     private int _counter = 0;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
     void Start()
     {
         _instantMessageHandler?.OnMessageReceived.AddListener(ReceiveInstantMessage);
+        _networkObject?.OnDataChange.AddListener(ReceiveNetworkObject);
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (Keyboard.current.digit9Key.wasPressedThisFrame)
@@ -23,6 +24,14 @@ public class InstantMessagePluginScript : MonoBehaviour
             Debug.Log($"Try send instant message {message}");
             _instantMessageHandler.SendInstantMessage(message);
         }
+
+        if (Keyboard.current.digit8Key.wasPressedThisFrame)
+        {
+            _counter++;
+            Message message = new("network object... ", _counter);
+            Debug.Log($"Try send network object {message}");
+            _networkObject.UpdateData(message);
+        }
     }
 
     public void ReceiveInstantMessage(object message)
@@ -31,6 +40,13 @@ public class InstantMessagePluginScript : MonoBehaviour
         _counter = receivedMessage.Counter;
         Debug.Log($"Received instant message {receivedMessage}");
     }
+
+    public void ReceiveNetworkObject(object message)
+    {
+        Message receivedMessage = (Message)message;
+        _counter = receivedMessage.Counter;
+        Debug.Log($"Received network object {receivedMessage}");
+    }   
 
     [Serializable]
     class Message
@@ -48,6 +64,5 @@ public class InstantMessagePluginScript : MonoBehaviour
         {
             return $"{MessageText}, {Counter}";
         }
-
     }
 }

@@ -1,6 +1,6 @@
 using System;
 using System.Net;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 
 namespace VE2.NonCore.Platform.Internal
 {

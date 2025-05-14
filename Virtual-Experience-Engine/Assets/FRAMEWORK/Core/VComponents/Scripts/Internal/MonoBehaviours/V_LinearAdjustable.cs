@@ -1,11 +1,12 @@
 using UnityEngine;
 using System.Collections.Generic;
-using VE2.Common.TransformWrapper;
 using VE2.Core.VComponents.API;
+using VE2.Common.API;
+using VE2.Common.Shared;
 
 namespace VE2.Core.VComponents.Internal
 {
-    public class V_LinearAdjustable : MonoBehaviour, IV_LinearAdjustable, IRangedGrabInteractionModuleProvider
+    internal class V_LinearAdjustable : MonoBehaviour, IV_LinearAdjustable, IRangedGrabInteractionModuleProvider
     {
         [SerializeField, HideLabel, IgnoreParent] private LinearAdjustableConfig _config = new();
         [SerializeField, HideInInspector] private AdjustableState _adjustableState = null;
@@ -73,8 +74,10 @@ namespace VE2.Core.VComponents.Internal
                 _adjustableState,
                 _freeGrabbableState,
                 id,
-                VComponentsAPI.WorldStateSyncService,
-                VComponentsAPI.InteractorContainer);
+                VE2API.WorldStateSyncableContainer,
+                VE2API.GrabInteractablesContainer,
+                VE2API.InteractorContainer, 
+                VE2API.LocalClientIdWrapper);
         }
 
         private void FixedUpdate()

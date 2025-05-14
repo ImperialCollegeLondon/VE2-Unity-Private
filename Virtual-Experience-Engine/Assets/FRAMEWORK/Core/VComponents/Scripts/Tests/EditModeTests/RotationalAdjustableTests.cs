@@ -2,15 +2,16 @@ using UnityEngine;
 using NSubstitute;
 using NUnit.Framework;
 using VE2.Core.VComponents.Internal;
-using VE2.Common.TransformWrapper;
+using VE2.Common.Shared;
 using System.Collections.Generic;
 using VE2.Core.VComponents.API;
+using VE2.Common.API;
 
 namespace VE2.Core.VComponents.Tests
 {
     [TestFixture]
     [Category("Rotational Adjustable Tests")]
-    public class RotationalAdjustableTests
+    internal class RotationalAdjustableTests
     {
         private IV_RotationalAdjustable _rotationAdjustmentPluginInterface => _v_rotationalAdjustableProviderStub;
         private V_RotationalAdjustableProviderStub _v_rotationalAdjustableProviderStub;
@@ -28,8 +29,10 @@ namespace VE2.Core.VComponents.Tests
                 new AdjustableState(),
                 new GrabbableState(),
                 "debug",
-                Substitute.For<IWorldStateSyncService>(),
-                new HandInteractorContainer());
+                Substitute.For<IWorldStateSyncableContainer>(),
+                Substitute.For<IGrabInteractablesContainer>(),
+                new HandInteractorContainer(),
+                Substitute.For<IClientIDWrapper>());
             _v_rotationalAdjustableProviderStub = new(rotationalAdjustable);
 
             //wire up the customer script to receive the events       
@@ -40,11 +43,11 @@ namespace VE2.Core.VComponents.Tests
         [Test]
         public void LinearAdjustable_WhenAdjustedByPlugin_EmitsToPlugin([Random(0f, 1f, 1)] float randomValue)
         {
-            //set the adjustable value, Check customer received the value adjusted, and that the interactorID is set
+            //set the adjustable value, Check customer received the value adjusted, and that the interactorID reflects programmatic activation (ie, null!)
             _rotationAdjustmentPluginInterface.SpatialValue = randomValue;
             _customerScript.Received(1).HandleValueAdjusted(randomValue);
             Assert.IsTrue(_rotationAdjustmentPluginInterface.Value == randomValue);
-            Assert.AreEqual(_rotationAdjustmentPluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
+            Assert.AreEqual(_rotationAdjustmentPluginInterface.MostRecentInteractingClientID, null);
         }
 
         [TearDown]

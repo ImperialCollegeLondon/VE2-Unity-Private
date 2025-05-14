@@ -1,76 +1,77 @@
-using System;
 using UnityEngine;
 using VE2.Core.VComponents.Internal;
-using System.Collections.Generic;
 using VE2.Core.VComponents.API;
-using UnityEngine.Events;
 using UnityEngine.UI;
+using System.Collections;
+using DG.Tweening;
 
 namespace VE2.Core.VComponents.Integration
 {
-    internal class V_CustomInfoPoint : MonoBehaviour
+    [ExecuteAlways]
+    [AddComponentMenu("")] //Better to create this from the gameobject menu, where it'll spawn the entire prefab. Hide this from the AC menu
+    internal class V_CustomInfoPoint : MonoBehaviour, IV_InfoPoint
     {
+        [Title("InfoPoint Settings", Order = -50)]
+        [SerializeField, BeginGroup] private GameObject _triggerGameObject;
+        [SerializeField] private GameObject _canvasGameObject;
+        [SerializeField, EndGroup] private Button _canvasCloseButton;
 
-        public UnityEvent OnInfoPointOpen = new();
-        public UnityEvent OnInfoPointClose = new();
+        [SerializeField, IgnoreParent] private ToggleActivatableConfig _toggleActivatableConfig = new();
 
-        private IV_ToggleActivatable _toggleActivatable = null;
-        private GameObject _infoPointCanvasGO;
-        private Button _infoPointCloseButton;
-        private GameObject _infoPointTriggerGO;
-        private GameObject _infoPointTriggerVisualElementsGO;
-        private Renderer _infoPointTriggerGORenderer;
-        private Collider _infoPointTriggerGOCollider;
+        #region Plugin Interfaces
+        ISingleInteractorActivatableStateModule IV_ToggleActivatable._StateModule => _triggerProgrammaticInterface._StateModule;
+        IRangedToggleClickInteractionModule IV_ToggleActivatable._RangedToggleClickModule => _triggerProgrammaticInterface._RangedToggleClickModule;
+        #endregion
+
+        private V_ToggleActivatable _triggerActivatable = null;
+        private IV_ToggleActivatable _triggerProgrammaticInterface => _triggerActivatable as IV_ToggleActivatable;
 
         private void OnEnable()
         {
-            _toggleActivatable ??= GetComponentInChildren<IV_ToggleActivatable>();
+            if (!Application.isPlaying)
+                return;
 
-            _infoPointCanvasGO = GetComponentInChildren<Canvas>(true).gameObject;
-            _infoPointCloseButton = _infoPointCanvasGO.GetComponentInChildren<Button>();
-            _infoPointTriggerGO = GetComponentInChildren<V_ToggleActivatable>(true).gameObject;
-            _infoPointTriggerGORenderer = _infoPointTriggerGO.GetComponent<MeshRenderer>();
-            _infoPointTriggerGOCollider = _infoPointTriggerGO.GetComponent<Collider>();
-            _infoPointTriggerVisualElementsGO = _infoPointTriggerGO.transform.GetChild(0).gameObject;
+            //Set up trigger=================================
+            //Must pass the activatable config _before_ enabling, otherwise that config wont make it into the ActivatableService
+            //Why do we create this at runtime? Because we want to show the config on the root InfoPoint object, but the actual activatable needs to live on the trigger at runtime 
+            _triggerGameObject.SetActive(false); //To ensure the trigger activatable's OnEnable doesn't fire
+            _triggerActivatable = _triggerGameObject.AddComponent<V_ToggleActivatable>(); 
+            _triggerActivatable.Config = _toggleActivatableConfig;
+            _triggerGameObject.SetActive(true); //Trigger activatable's OnEnable can now execute with the config 
 
+            InfoPointTriggerAnimationHandler _triggerAnimationHandler = _triggerGameObject.GetComponent<InfoPointTriggerAnimationHandler>();
+            if (_triggerAnimationHandler != null)
+            {
+                if (_toggleActivatableConfig.StateConfig.ActivateOnStart)
+                    _triggerAnimationHandler.ToggleShowTrigger(false, instant: true);
+                else
+                    _triggerAnimationHandler.ToggleShowTrigger(true, instant: true);
+            }
 
-            //_toggleActivatable.OnActivate.AddListener(OpenInfoPoint);
-            //_toggleActivatable.OnDeactivate.AddListener(OpenInfoPoint);
-            //_infoPointCloseButton.onClick.AddListener(CloseInfoPoint);
+            ///Set up canvas=================================
+            _canvasGameObject.SetActive(true);
+
+            InfoPointCanvasAnimationHandler _canvasAnimationHandler = _canvasGameObject.GetComponent<InfoPointCanvasAnimationHandler>();
+            if (_canvasAnimationHandler != null)
+            {
+                if (_toggleActivatableConfig.StateConfig.ActivateOnStart)
+                    _canvasAnimationHandler.ToggleShowCanvas(true, instant: true);
+                else
+                    _canvasAnimationHandler.ToggleShowCanvas(false, instant:  true);
+            }
+
+            //Wire up the close button to close the canvas
+            _canvasCloseButton?.onClick.AddListener(() => ToggleCanvas(false));
         }
+
+        public void ToggleCanvas(bool canvasActive) => _triggerProgrammaticInterface.SetActivated(canvasActive);
 
         private void OnDisable()
         {
-            //_toggleActivatable.OnActivate.RemoveListener(OpenInfoPoint);
-            //_toggleActivatable.OnDeactivate.RemoveListener(OpenInfoPoint);
-            //_infoPointCloseButton.onClick.RemoveListener(CloseInfoPoint);
+            if (!Application.isPlaying)
+                return;
+
+            _triggerActivatable.enabled = false;
         }
-
-        void Update()
-        {
-
-        }   
-
-        public void OpenInfoPoint()
-        {
-            _infoPointCanvasGO.SetActive(true);
-            _infoPointTriggerGORenderer.enabled = false;
-            _infoPointTriggerGOCollider.enabled = false;
-            _infoPointTriggerVisualElementsGO.SetActive(false);
-
-            OnInfoPointOpen.Invoke();
-        }
-
-        public void CloseInfoPoint()
-        {
-            _infoPointCanvasGO.SetActive(false);
-            _infoPointTriggerGORenderer.enabled = true;
-            _infoPointTriggerGOCollider.enabled = true;
-            _infoPointTriggerVisualElementsGO.SetActive(true);
-
-            OnInfoPointClose.Invoke();
-        }
-
-        
     }
 }

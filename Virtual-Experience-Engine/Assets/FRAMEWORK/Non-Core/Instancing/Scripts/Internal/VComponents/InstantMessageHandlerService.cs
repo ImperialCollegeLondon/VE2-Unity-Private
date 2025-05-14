@@ -28,7 +28,6 @@ namespace VE2.NonCore.Instancing.Internal
             _instanceServiceInternal.RegisterInstantMessageHandler(_id, this);
         }
 
-
         public void SendInstantMessage(object messageObject)
         {
             _instanceServiceInternal.SendInstantMessage(_id, messageObject);

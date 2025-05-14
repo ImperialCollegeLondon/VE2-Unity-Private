@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using VE2.Common.API;
 using VE2.Core.VComponents.API;
 using VE2.NonCore.Instancing.API;
 
@@ -22,8 +23,14 @@ namespace VE2.NonCore.Instancing.Internal
             string id = "RBS-" + gameObject.name;
             IRigidbodyWrapper rigidbodyWrapper = new RigidbodyWrapper(GetComponent<Rigidbody>());
             IGrabbableRigidbody grabbableRigidbody = GetComponent<IGrabbableRigidbody>();
+
+            if (VE2API.InstanceService == null)
+            {
+                Debug.LogError("Instance service is null, cannot initialise RigidbodySyncable, please add a V_InstanceIntegration component to the scene.");
+                return;
+            }
             
-            _service = new RigidbodySyncableService(_config, _state, id, VComponentsAPI.WorldStateSyncService, InstancingAPI.InstanceService, rigidbodyWrapper, grabbableRigidbody);
+            _service = new RigidbodySyncableService(_config, _state, id, VE2API.WorldStateSyncableContainer, VE2API.InstanceService, rigidbodyWrapper, grabbableRigidbody);
         }
 
 
@@ -39,7 +46,7 @@ namespace VE2.NonCore.Instancing.Internal
 
         private void OnDisable()
         {
-            _service.TearDown();
+            _service?.TearDown();
             _service = null;
         }
     }

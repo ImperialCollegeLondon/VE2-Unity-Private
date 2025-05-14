@@ -1,5 +1,6 @@
 using NSubstitute;
 using NUnit.Framework;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
 
@@ -34,7 +35,13 @@ namespace VE2.Core.VComponents.Tests
                 GeneralInteractionConfig = new(),
                 ActivatableRangedInteractionConfig = new()
             };
-            ToggleActivatableService toggleActivatable = new(config, new SingleInteractorActivatableState(), "debug", Substitute.For<IWorldStateSyncService>(), _activatableGroupsContainer);
+            ToggleActivatableService toggleActivatable = new(
+                config, 
+                new SingleInteractorActivatableState(), 
+                "debug", 
+                Substitute.For<IWorldStateSyncableContainer>(), 
+                _activatableGroupsContainer,
+                Substitute.For<IClientIDWrapper>());
 
             // Stub out the VC (provider layer) with the activatable
             _v_toggleActivatableProviderStub = new(toggleActivatable);
@@ -49,17 +56,17 @@ namespace VE2.Core.VComponents.Tests
         [Test]
         public void PushActivatable_WhenClicked_EmitsToPlugin()
         {
-            //Activate, Check customer received the activation, and that the interactorID is set
+            //Activate, Check customer received the activation, and that the interactorID reflects programmatic activation (ie, null!)
             _activatablePluginInterface.Activate();
             _customerScript.Received(1).HandleActivateReceived();
             Assert.IsTrue(_activatablePluginInterface.IsActivated, "Activatable should be activated");
-            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
+            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, null);
 
             //Deactivate and check
             _activatablePluginInterface.Deactivate();
             _customerScript.Received(1).HandleDeactivateReceived();
             Assert.IsFalse(_activatablePluginInterface.IsActivated, "Activatable should be deactivated");
-            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
+            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, null);
         }
 
         //tear down that runs after every test method in this class
@@ -92,7 +99,13 @@ namespace VE2.Core.VComponents.Tests
                 GeneralInteractionConfig = new(),
                 ActivatableRangedInteractionConfig = new()
             };
-            ToggleActivatableService toggleActivatable2 = new(config, new SingleInteractorActivatableState(), "debug2", Substitute.For<IWorldStateSyncService>(), _activatableGroupsContainer);
+            ToggleActivatableService toggleActivatable2 = new(
+                config, 
+                new SingleInteractorActivatableState(), 
+                "debug2", 
+                Substitute.For<IWorldStateSyncableContainer>(), 
+                _activatableGroupsContainer,
+                Substitute.For<IClientIDWrapper>());
 
             // Stub out the VC (provider layer) with the activatable
             _v_toggleActivatableProviderStub2 = new(toggleActivatable2);

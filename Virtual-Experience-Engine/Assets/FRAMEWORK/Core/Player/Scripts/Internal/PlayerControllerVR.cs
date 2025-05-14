@@ -1,5 +1,8 @@
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
+using VE2.Common.API;
+using VE2.Common.Shared;
 using VE2.Core.Player.API;
 using VE2.Core.UI.API;
 using VE2.Core.VComponents.API;
@@ -27,7 +30,7 @@ namespace VE2.Core.Player.Internal
                     activatableIDsVRLeft: _handControllerLeft.HeldActivatableIDs,
                     activatableIDsVRRight: _handControllerRight.HeldActivatableIDs,
                     activatableIDsFeet: _feetInteractorVR.HeldActivatableIDs
-                    
+
                 );
             }
         }
@@ -40,9 +43,11 @@ namespace VE2.Core.Player.Internal
         private readonly Transform _verticalOffsetTransform;
         private readonly Transform _headTransform;
         private readonly FeetInteractor _feetInteractorVR;
+        private readonly ResetViewUIHandler _resetViewUIHandler;
+        private readonly Transform _neutralPositionOffsetTransform;
 
-        private readonly V_HandController _handControllerLeft;
-        private readonly V_HandController _handControllerRight;
+        private readonly HandController _handControllerLeft;
+        private readonly HandController _handControllerRight;
 
         //TODO - it's both players that need these. 
         //That suggests we probably want this in a base class? Think about refactoring
@@ -50,8 +55,10 @@ namespace VE2.Core.Player.Internal
         private readonly RectTransform _primaryUIHolderRect;
         private readonly ISecondaryUIServiceInternal _secondaryUIService;
 
-        internal PlayerControllerVR(HandInteractorContainer interactorContainer, PlayerVRInputContainer playerVRInputContainer, IPlayerPersistentDataHandler playerSettingsHandler, PlayerVRControlConfig controlConfig, MovementModeConfig movementModeConfig,
-            IRaycastProvider raycastProvider, IXRManagerWrapper xrManagerSettingsWrapper, ILocalClientIDProvider localClientIDProvider, IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService) 
+        internal PlayerControllerVR(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, PlayerVRInputContainer playerVRInputContainer, IPlayerPersistentDataHandler playerSettingsHandler, 
+            PlayerVRControlConfig controlConfig, PlayerInteractionConfig interactionConfig, MovementModeConfig movementModeConfig, CameraConfig cameraConfig, IRaycastProvider raycastProvider, 
+            ICollisionDetectorFactory collisionDetectorFactory, IXRManagerWrapper xrManagerSettingsWrapper, ILocalClientIDWrapper localClientIDWrapper,
+            IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService)
         {
             GameObject playerVRPrefab = Resources.Load("vrPlayer") as GameObject;
             _playerGO = GameObject.Instantiate(playerVRPrefab, null, false);
@@ -65,15 +72,17 @@ namespace VE2.Core.Player.Internal
             _secondaryUIService = secondaryUIService;
 
             PlayerVRReferences playerVRReferences = _playerGO.GetComponent<PlayerVRReferences>();
+            Camera = playerVRReferences.Camera;
             _rootTransform = playerVRReferences.RootTransform;
             _verticalOffsetTransform = playerVRReferences.VerticalOffsetTransform;
             _headTransform = playerVRReferences.HeadTransform;
             _primaryUIHolderRect = playerVRReferences.PrimaryUIHolderRect;
+            _feetInteractorVR = new FeetInteractor(collisionDetectorFactory, ColliderType.FeetVR, playerVRReferences.FeetCollider, InteractorType.Feet, localClientIDWrapper, interactionConfig);
+            _resetViewUIHandler = playerVRReferences.ResetViewUIHandler;
+            _neutralPositionOffsetTransform = playerVRReferences.NeutralPositionOffsetTransform;
 
             base._PlayerHeadTransform = _headTransform;
-            base._FeetCollisionDetector = playerVRReferences.FeetCollisionDetector;
-    
-            _feetInteractorVR = new FeetInteractor(_FeetCollisionDetector, InteractorType.Feet, localClientIDProvider);
+            base._FeetCollisionDetector = _feetInteractorVR._collisionDetector as CollisionDetector;
 
             GameObject handVRLeftPrefab = Resources.Load<GameObject>("HandVRLeft");
             GameObject handVRLeftGO = GameObject.Instantiate(handVRLeftPrefab, _verticalOffsetTransform, false);
@@ -84,30 +93,34 @@ namespace VE2.Core.Player.Internal
             FreeGrabbableWrapper leftHandGrabbableWrapper = new FreeGrabbableWrapper();
             FreeGrabbableWrapper rightHandGrabbableWrapper = new FreeGrabbableWrapper();
 
-            _handControllerLeft = CreateHandController(handVRLeftGO, handVRRightGO, interactorContainer, 
-                playerVRInputContainer.HandVRLeftInputContainer, playerVRInputContainer.HandVRRightInputContainer.DragLocomotorInputContainer, 
-                InteractorType.LeftHandVR, raycastProvider, localClientIDProvider, leftHandGrabbableWrapper, rightHandGrabbableWrapper, secondaryUIService, movementModeConfig, false);
-            
-            _handControllerRight = CreateHandController(handVRRightGO, handVRLeftGO, interactorContainer, 
-                playerVRInputContainer.HandVRRightInputContainer,playerVRInputContainer.HandVRLeftInputContainer.DragLocomotorInputContainer, 
-                InteractorType.RightHandVR, raycastProvider, localClientIDProvider, rightHandGrabbableWrapper, leftHandGrabbableWrapper, secondaryUIService, movementModeConfig, true);
+            _handControllerLeft = CreateHandController(handVRLeftGO, handVRRightGO, interactorContainer, grabInteractablesContainer, 
+                playerVRInputContainer.HandVRLeftInputContainer, playerVRInputContainer.HandVRRightInputContainer.DragLocomotorInputContainer,
+                interactionConfig, InteractorType.LeftHandVR, raycastProvider, collisionDetectorFactory, ColliderType.HandVRLeft, localClientIDWrapper, 
+                leftHandGrabbableWrapper, rightHandGrabbableWrapper, secondaryUIService, movementModeConfig, false);
+
+            _handControllerRight = CreateHandController(handVRRightGO, handVRLeftGO, interactorContainer, grabInteractablesContainer, 
+                playerVRInputContainer.HandVRRightInputContainer, playerVRInputContainer.HandVRLeftInputContainer.DragLocomotorInputContainer,
+                interactionConfig, InteractorType.RightHandVR, raycastProvider, collisionDetectorFactory, ColliderType.HandVRRight, localClientIDWrapper, 
+                rightHandGrabbableWrapper, leftHandGrabbableWrapper, secondaryUIService, movementModeConfig, true);
+        
+            ConfigureCamera(cameraConfig);
         }
 
-        
-        private V_HandController CreateHandController(GameObject handGO, GameObject otherHandGO, HandInteractorContainer interactorContainer, 
-            HandVRInputContainer handVRInputContainer, DragLocomotorInputContainer otherHandDragInputContainer, InteractorType interactorType, 
-            IRaycastProvider raycastProvider, ILocalClientIDProvider multiplayerSupport, FreeGrabbableWrapper thisHandGrabbableWrapper, 
+
+        private HandController CreateHandController(GameObject handGO, GameObject otherHandGO, HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer,
+            HandVRInputContainer handVRInputContainer, DragLocomotorInputContainer otherHandDragInputContainer, PlayerInteractionConfig playerInteractionConfig, InteractorType interactorType,
+            IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ColliderType colliderType, ILocalClientIDWrapper localClientID, FreeGrabbableWrapper thisHandGrabbableWrapper,
             FreeGrabbableWrapper otherHandGrabbableWrapper, ISecondaryUIServiceInternal secondaryUIService, MovementModeConfig movementModeConfig, bool needsToFlip)
         {
-            V_HandVRReferences thisHandVRReferences = handGO.GetComponent<V_HandVRReferences>();
-            V_HandVRReferences otherHandVRReferences = otherHandGO.GetComponent<V_HandVRReferences>();
+            HandVRReferences thisHandVRReferences = handGO.GetComponent<HandVRReferences>();
+            HandVRReferences otherHandVRReferences = otherHandGO.GetComponent<HandVRReferences>();
 
             HoveringOverScrollableIndicator hoveringOverScrollableIndicator = new();
 
             InteractorVR interactor = new(
-                interactorContainer, handVRInputContainer.InteractorVRInputContainer,
-                thisHandVRReferences.InteractorVRReferences,
-                interactorType, raycastProvider, multiplayerSupport, thisHandGrabbableWrapper, hoveringOverScrollableIndicator);
+                interactorContainer, grabInteractablesContainer, handVRInputContainer.InteractorVRInputContainer,
+                playerInteractionConfig, thisHandVRReferences.InteractorVRReferences, 
+                interactorType, raycastProvider, collisionDetectorFactory, colliderType, localClientID, thisHandGrabbableWrapper, hoveringOverScrollableIndicator);
 
             DragLocomotorController dragLocomotor = new(
                 thisHandVRReferences.LocomotorVRReferences,
@@ -118,7 +131,7 @@ namespace VE2.Core.Player.Internal
             SnapTurnController snapTurn = new(
                 handVRInputContainer.SnapTurnInputContainer,
                 _rootTransform,
-                handVRInputContainer.TeleportInputContainer, thisHandGrabbableWrapper,otherHandGrabbableWrapper, thisHandVRReferences.InteractorVRReferences.RayOrigin, otherHandVRReferences.InteractorVRReferences.RayOrigin);
+                handVRInputContainer.TeleportInputContainer, thisHandGrabbableWrapper, otherHandGrabbableWrapper, thisHandVRReferences.InteractorVRReferences.RayOrigin, otherHandVRReferences.InteractorVRReferences.RayOrigin);
 
             TeleportController teleport = new(
                 handVRInputContainer.TeleportInputContainer,
@@ -128,8 +141,8 @@ namespace VE2.Core.Player.Internal
 
             WristUIHandler wristUIHandler = new(
                 secondaryUIService, thisHandVRReferences.WristUIReferences.WristUIHolder, _headTransform, thisHandVRReferences.WristUIReferences.Indicator, needsToFlip);
-            
-            return new V_HandController(handGO, handVRInputContainer, interactor, dragLocomotor, snapTurn, teleport, wristUIHandler);
+
+            return new HandController(handGO, handVRInputContainer, interactor, dragLocomotor, snapTurn, teleport, wristUIHandler);
         }
 
         public void ActivatePlayer(PlayerTransformData initTransformData)
@@ -144,10 +157,11 @@ namespace VE2.Core.Player.Internal
                 HandleXRInitComplete();
             else
                 _xrManagerSettingsWrapper.OnLoaderInitialized += HandleXRInitComplete;
-            
 
-            _playerVRInputContainer.ResetView.OnPressed += HandleResetViewPressed;
-            _playerVRInputContainer.ResetView.OnReleased += HandleResetViewReleased;
+
+            _playerVRInputContainer.ResetView.OnStartCharging += HandleResetViewChargeStarted;
+            _playerVRInputContainer.ResetView.OnChargeComplete += HandleResetViewCharged;
+            _playerVRInputContainer.ResetView.OnCancelCharging += HandleResetViewCancelled;
 
             _handControllerLeft.HandleOnEnable();
             _handControllerRight.HandleOnEnable();
@@ -164,8 +178,9 @@ namespace VE2.Core.Player.Internal
 
             _xrManagerSettingsWrapper.StopSubsystems();
 
-            _playerVRInputContainer.ResetView.OnPressed -= HandleResetViewPressed;
-            _playerVRInputContainer.ResetView.OnReleased -= HandleResetViewReleased;
+            _playerVRInputContainer.ResetView.OnStartCharging -= HandleResetViewChargeStarted;
+            _playerVRInputContainer.ResetView.OnChargeComplete -= HandleResetViewCharged;
+            _playerVRInputContainer.ResetView.OnCancelCharging -= HandleResetViewCancelled;
 
             _handControllerLeft.HandleOnDisable();
             _handControllerRight.HandleOnDisable();
@@ -175,7 +190,7 @@ namespace VE2.Core.Player.Internal
         private void HandleXRInitComplete()
         {
             _xrManagerSettingsWrapper.OnLoaderInitialized -= HandleXRInitComplete;
-            _xrManagerSettingsWrapper.StartSubsystems(); 
+            _xrManagerSettingsWrapper.StartSubsystems();
         }
 
         internal void HandleLocalAvatarColorChanged(Color newColor)
@@ -189,21 +204,51 @@ namespace VE2.Core.Player.Internal
             base.HandleUpdate();
             _handControllerLeft.HandleUpdate();
             _handControllerRight.HandleUpdate();
+
+            if (_playerVRInputContainer.ResetView.IsCharging)
+                _resetViewUIHandler.SetProgress(_playerVRInputContainer.ResetView.ChargeProgress);
         }
 
-        private void HandleResetViewPressed()
+        private void HandleResetViewChargeStarted()
         {
-            //TODO:
+            _resetViewUIHandler.StartShowing();
         }
 
-        private void HandleResetViewReleased()
+        private void HandleResetViewCharged()
         {
-            //TODO:
+            _resetViewUIHandler.SetResetViewPrimed();
+            DOVirtual.DelayedCall(0.2f, ExecuteResetView, false);
         }
 
-        private void HandlePrimaryUITogglePressed()
+        private void ExecuteResetView()
         {
-            
+            _resetViewUIHandler.StopShowing();
+
+            Vector3 verticalOffsetLocalPosition = _verticalOffsetTransform.localPosition;
+
+            Vector3 positionOffsetToCorrect = _rootTransform.position - Camera.transform.position + verticalOffsetLocalPosition;
+            _neutralPositionOffsetTransform.position += positionOffsetToCorrect;
+
+            // Project root and camera forward vectors onto the horizontal (XZ) plane
+            Vector3 cameraForward = Camera.transform.forward;
+            cameraForward.y = 0f;
+            cameraForward.Normalize();
+
+            Vector3 rootForward = _rootTransform.forward;
+            rootForward.y = 0f;
+            rootForward.Normalize();
+
+            // Compute the signed angle between them around the Y axis
+            float signedYawDelta = Vector3.SignedAngle(cameraForward, rootForward, Vector3.up);
+
+            // Apply the inverse rotation (i.e., rotate the offset transform by the angle needed to cancel the camera's yaw offset)
+            Quaternion yRotation = Quaternion.AngleAxis(signedYawDelta, Vector3.up);
+            _neutralPositionOffsetTransform.rotation = yRotation * _neutralPositionOffsetTransform.rotation;
+        }
+
+        private void HandleResetViewCancelled()
+        {
+            _resetViewUIHandler.StopShowing();
         }
 
         public void TearDown()

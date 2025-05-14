@@ -1,7 +1,9 @@
 using System;
 using UnityEngine;
+using VE2.Common.Shared;
+using VE2.Core.Common;
 using VE2.Core.VComponents.API;
-using static VE2.Core.Common.CommonSerializables;
+using static VE2.Common.Shared.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -10,15 +12,16 @@ namespace VE2.Core.VComponents.Internal
     {
         [SerializeField, IgnoreParent] public ToggleActivatableStateConfig StateConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
-        [SerializeField, IgnoreParent] public ActivatableRangedInteractionConfig ActivatableRangedInteractionConfig = new();
+        [SerializeField, IgnoreParent] public ActivatableInteractionConfig ActivatableRangedInteractionConfig = new();
     }
 
     [Serializable]
-    internal class ActivatableRangedInteractionConfig : RangedInteractionConfig
+    internal class ActivatableInteractionConfig : RangedInteractionConfig
     {
         [BeginGroup(Style = GroupStyle.Round, ApplyCondition = true)]
-        [Title("Ranged Interaction Settings")]
+        [Title("Activatable Ranged Interaction Settings")]
         [SerializeField, IgnoreParent] public bool ActivateAtRangeInVR = true;
+        [SerializeField, IgnoreParent, EndGroup] public bool ActivateWithCollisionInVR= true;
     }
 
     internal class ToggleActivatableService
@@ -35,16 +38,17 @@ namespace VE2.Core.VComponents.Internal
         private readonly ColliderInteractionModule _ColliderInteractionModule;
         #endregion
 
-        //private readonly string _activationGroupID = "None";
-        //private readonly bool _isInActivationGroup = false;     
-        internal bool test = false;
-
-        public ToggleActivatableService(ToggleActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncService worldStateSyncService, ActivatableGroupsContainer activatableGroupsContainer)
+        public ToggleActivatableService(ToggleActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncableContainer worldStateSyncableContainer, 
+            ActivatableGroupsContainer activatableGroupsContainer, IClientIDWrapper localClientIdWrapper)
         {
-            _StateModule = new(state, config.StateConfig, id, worldStateSyncService,activatableGroupsContainer);
+            _StateModule = new(state, config.StateConfig, id, worldStateSyncableContainer, activatableGroupsContainer, localClientIdWrapper);
 
             _RangedClickInteractionModule = new(config.ActivatableRangedInteractionConfig, config.GeneralInteractionConfig, id, config.ActivatableRangedInteractionConfig.ActivateAtRangeInVR);
-            _ColliderInteractionModule = new(config.GeneralInteractionConfig, id, CollideInteractionType.Hand);
+
+            if(config.ActivatableRangedInteractionConfig.ActivateWithCollisionInVR)
+                _ColliderInteractionModule = new(config.GeneralInteractionConfig, id, CollideInteractionType.Hand);
+            else
+                _ColliderInteractionModule = new(config.GeneralInteractionConfig, id, CollideInteractionType.None);
 
             _RangedClickInteractionModule.OnClickDown += HandleInteract;
             _ColliderInteractionModule.OnCollideEnter += HandleInteract;

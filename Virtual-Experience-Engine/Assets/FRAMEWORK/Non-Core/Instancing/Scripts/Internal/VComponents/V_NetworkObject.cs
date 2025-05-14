@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using VE2.Common.API;
 using VE2.Core.VComponents.API;
 using VE2.NonCore.Instancing.API;
 
@@ -16,26 +17,27 @@ namespace VE2.NonCore.Instancing.Internal
 
         private NetworkObjectService _service = null;
 
-        private void Reset()
-        {
-            //Kicks off the lazy init for the VCLocator instance
-            //var reference = VComponents_Locator.Instance; don't think we need this
-        }
-
         private void OnEnable()
         {
             string id = "NetObj-" + gameObject.name;
-            _service = new NetworkObjectService(_config, _state, id, VComponentsAPI.WorldStateSyncService);
+
+            if (VE2API.InstanceService == null)
+            {
+                Debug.LogError("Instance service is null, cannot initialise NetworkObject, please add a V_InstanceIntegration component to the scene.");
+                return;
+            }
+
+            _service = new NetworkObjectService(_config, _state, id, VE2API.WorldStateSyncableContainer);
         }
 
         private void FixedUpdate()
         {
-            _service.HandleFixedUpdate();
+            _service?.HandleFixedUpdate();
         }
 
         private void OnDisable()
         {
-            _service.TearDown();
+            _service?.TearDown();
             _service = null;
         }
     }

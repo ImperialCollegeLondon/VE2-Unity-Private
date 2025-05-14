@@ -161,7 +161,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2717862572050895048}
   - component: {fileID: 5516578852043994835}
-  - component: {fileID: 8674909345712479682}
   m_Layer: 6
   m_Name: Feet Collider
   m_TagString: Untagged
@@ -194,7 +193,7 @@ SphereCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4294967295
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -205,18 +204,6 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.35
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &8674909345712479682
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 799554646947876528}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67fb97127b85d2642833b9def52fe793, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &943737547763882537
 GameObject:
   m_ObjectHideFlags: 0
@@ -1808,27 +1795,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a480a75f4a908664080dd3f892c9edf3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _camera: {fileID: 961496102155430216}
+  _primaryUIHolderRect: {fileID: 3897399032488084056}
   _interactor2DReferences:
     _interactorParentTransform: {fileID: 138445513174669063}
+    _grabberVisualisationRayOrigin: {fileID: 7916158013393953553}
     _grabberTransform: {fileID: 2444558493296612876}
     _grabberVisualisation: {fileID: 1766445242196024505}
     _rayOrigin: {fileID: 7479554364894702535}
-    _layerMask:
-      serializedVersion: 2
-      m_Bits: 959
     _raycastHitDebug:
       Value: none
     _reticuleImage: {fileID: 1173414267713335603}
     _connectionPromptHandler: {fileID: 9100172232630873044}
-    _collisionDetector: {fileID: 8674909345712479682}
+    _feetCollider: {fileID: 5516578852043994835}
   _locomotor2DReferences:
     _controller: {fileID: 4438877719408431009}
     _cameraTransform: {fileID: 7479554364894702535}
     _verticalOffsetTransform: {fileID: 1315542387580672916}
-    _groundLayer:
-      serializedVersion: 2
-      m_Bits: 8
-  _primaryUIHolderRect: {fileID: 3897399032488084056}
   _secondaryUIHolderRect: {fileID: 3725422685131005934}
   _localAvatarHandler: {fileID: 2605264136086160137}
   _overlayUIRect: {fileID: 6683190537447941536}
@@ -2508,6 +2491,12 @@ PrefabInstance:
 --- !u!4 &6043776979337120659 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8077880844697218790, guid: f70368118cc88624bb1f4fb42c92fab8,
+    type: 3}
+  m_PrefabInstance: {fileID: 2577654311069590901}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &7916158013393953553 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5629074254524565092, guid: f70368118cc88624bb1f4fb42c92fab8,
     type: 3}
   m_PrefabInstance: {fileID: 2577654311069590901}
   m_PrefabAsset: {fileID: 0}

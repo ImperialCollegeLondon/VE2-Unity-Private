@@ -1,7 +1,12 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Virtual-Experience-Engine/Assets/FRAMEWORK/Core/VComponents/Resources/AdjustableLever.prefab.meta
+guid: 0110e4fcf01ebc4479e72b9ac30ea96a
+PrefabImporter:
+========
 guid: e0c81af10163a5d4abeabcf6114cb13e
 folderAsset: yes
 DefaultImporter:
+>>>>>>>> develop:Virtual-Experience-Engine/Assets/FRAMEWORK/Non-Core/FileSystem/Prefabs.meta
   externalObjects: {}
   userData: 
   assetBundleName: 

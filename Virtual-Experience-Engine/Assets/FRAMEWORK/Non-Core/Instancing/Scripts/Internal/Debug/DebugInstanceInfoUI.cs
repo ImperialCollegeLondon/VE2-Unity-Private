@@ -1,22 +1,22 @@
 using TMPro;
 using UnityEngine;
 using VE2.NonCore.Instancing.API;
-using VE2.Core.Common;
-using UnityEngine.UI;
+using VE2.Common.Shared;
+using VE2.Common.API;
 
 namespace VE2.NonCore.Instancing.Internal
 {
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     internal class DebugInstanceInfoUI : MonoBehaviour
     {
         [SerializeField] private TMP_Text hostIndicatorText;
 
         private IInstanceService _instanceService;
-        private ColorConfiguration _colorConfig;
+        private ColorConfiguration _colorConfig => ColorConfiguration.Instance;
 
         void OnEnable()
         {
-            _instanceService = InstancingAPI.InstanceService;
-            _colorConfig = Resources.Load<ColorConfiguration>("ColorConfiguration"); //TODO: think of a centralised place to fetch this from
+            _instanceService = VE2API.InstanceService;
 
             _instanceService.OnConnectedToInstance += HandleConnectToServer;
             _instanceService.OnDisconnectedFromInstance += HandleDisconnectFromServer;

@@ -1,17 +1,9 @@
-using Codice.Client.Common;
-using log4net.Util;
-using NUnit.Framework;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UIElements;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 using VE2.NonCore.Instancing.API;
-using static PlasticGui.PlasticTableColumn;
-using static VE2.Core.Common.CommonSerializables;
+using static VE2.Common.Shared.CommonSerializables;
 using Time = UnityEngine.Time;
 
 namespace VE2.NonCore.Instancing.Internal
@@ -63,10 +55,11 @@ namespace VE2.NonCore.Instancing.Internal
         private uint _grabCounter = 0;
         #endregion
 
-        public RigidbodySyncableService(RigidbodySyncableStateConfig config, VE2Serializable state, string id, IWorldStateSyncService worldStateSyncService, IInstanceService instanceService, IRigidbodyWrapper rigidbodyWrapper, IGrabbableRigidbody grabbableRigidbody)
+        public RigidbodySyncableService(RigidbodySyncableStateConfig config, VE2Serializable state, string id, IWorldStateSyncableContainer worldStateSyncableContainer, 
+            IInstanceService instanceService, IRigidbodyWrapper rigidbodyWrapper, IGrabbableRigidbody grabbableRigidbody)
         {
             _config = config;
-            _stateModule = new(state, config, id, worldStateSyncService);
+            _stateModule = new(state, config, id, worldStateSyncableContainer);
             _instanceService = instanceService;
             _rigidbody = rigidbodyWrapper;
             _isKinematicOnStart = _rigidbody.isKinematic;

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using NSubstitute;
 using NUnit.Framework;
-using VE2.Common.TransformWrapper;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
 using VE2.Core.VComponents.Tests;
@@ -30,8 +30,10 @@ namespace VE2.Core.Tests
                 new AdjustableState(),
                 new GrabbableState(),
                 "debug",
-                Substitute.For<IWorldStateSyncService>(),
-                InteractorContainerSetup.InteractorContainer);
+                Substitute.For<IWorldStateSyncableContainer>(),
+                GrabInteractableContainerSetup.GrabInteractableContainer,
+                InteractorContainerSetup.InteractorContainer,
+                LocalClientIDWrapperSetup.LocalClientIDWrapper);
 
             _v_rotationalAdjustableProviderStub = new(rotationalAdjustable);
 
@@ -44,19 +46,21 @@ namespace VE2.Core.Tests
         [Test]
         public void WithHoveringLinearAdjustable_OnUserGrab_CustomerScriptReceivesGrab()
         {
-            RayCastProviderSetup.StubRangedInteractionModuleForRaycastProviderStub(_rotationalAdjustableRaycastInterface.RangedGrabInteractionModule);
+            RayCastProviderSetup.StubRangedInteractionModuleForRaycast(_rotationalAdjustableRaycastInterface.RangedGrabInteractionModule);
 
             //Invoke grab, check customer received the grab, and that the interactorID is set
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
             _customerScript.Received(1).HandleGrabReceived();
             Assert.IsTrue(_rotationalAdjustablePluginInterface.IsGrabbed);
-            Assert.AreEqual(_rotationalAdjustablePluginInterface.MostRecentInteractingClientID, LocalClientIDProviderSetup.LocalClientID);
+            Assert.AreEqual(_rotationalAdjustablePluginInterface.MostRecentInteractingClientID.Value, LocalClientIDWrapperSetup.LocalClientID);
+            Assert.IsTrue(_rotationalAdjustablePluginInterface.MostRecentInteractingClientID.IsLocal);
 
             //Invoke drop, Check customer received the drop, and that the interactorID is set
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
             _customerScript.Received(1).HandleDropReceived();
             Assert.IsFalse(_rotationalAdjustablePluginInterface.IsGrabbed);
-            Assert.AreEqual(_rotationalAdjustablePluginInterface.MostRecentInteractingClientID, LocalClientIDProviderSetup.LocalClientID);
+            Assert.AreEqual(_rotationalAdjustablePluginInterface.MostRecentInteractingClientID.Value, LocalClientIDWrapperSetup.LocalClientID);
+            Assert.IsTrue(_rotationalAdjustablePluginInterface.MostRecentInteractingClientID.IsLocal);
         }
 
         [TearDown]

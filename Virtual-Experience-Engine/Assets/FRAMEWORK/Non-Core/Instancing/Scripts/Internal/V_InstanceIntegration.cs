@@ -8,6 +8,7 @@ using VE2.NonCore.Instancing.API;
 using VE2.NonCore.Platform.API;
 using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 using System.Collections.Generic;
+using VE2.Common.API;
 
 namespace VE2.NonCore.Instancing.Internal
 {
@@ -19,11 +20,8 @@ namespace VE2.NonCore.Instancing.Internal
         public float ArtificialAddedPing { get => _artificialAddedPingMs; private set => _artificialAddedPingMs = value >= 0 ? value : 0; }
     }
 
-    //Note, ILocalClientIDProvider is implemented here, NOT on the service - it needs to exsit at edit-time
-    //Since the platform inits the player, and instancing inits the platform, we can't have the player init the instancing
-    //Otherwise we'd have a stack overflow, instead, provide ID from the mono here, without initing the instancing service
-    [ExecuteInEditMode]
-    internal class V_InstanceIntegration : MonoBehaviour, IInstanceProvider, IWorldStateSyncProvider, ILocalClientIDProvider
+    [ExecuteAlways]
+    internal class V_InstanceIntegration : MonoBehaviour, IInstanceProvider 
     {
         #region Inspector frontend
         private void DebugConnect() => _instanceService.ConnectToInstance();
@@ -45,19 +43,12 @@ namespace VE2.NonCore.Instancing.Internal
         }
         [Space(10)]
         [SerializeField, HideLabel, IgnoreParent] private InstanceCommsHandlerConfig _config = new();
-        [Space(10)]
-        #endregion
 
-
-        #region Runtime data
-        [SerializeField, HideInInspector] private LocalClientIdWrapper _localClientIDWrapper = new();
-        private SyncInfosContainer _syncInfosContainer = new(); //We store this here and inject it in so it persists between lifecycles of the instance service
         #endregion
 
         //We do this wiring here rather than the interface as the interface file needs to live in the VE2.common package
         #region provider Interfaces
         public bool IsEnabled => gameObject != null && enabled && gameObject.activeInHierarchy;
-        public string GameObjectName => gameObject.name;
         private InstanceService _instanceService;
         public IInstanceService InstanceService {
             get 
@@ -69,11 +60,8 @@ namespace VE2.NonCore.Instancing.Internal
             }
         }
 
-        //Note - we want to go through the public getter for this, so we trigger lazy init
-        public IWorldStateSyncService WorldStateSyncService => ((InstanceService)InstanceService)?.WorldStateSyncService;
-
-        public ushort LocalClientID => _localClientIDWrapper.LocalClientID;
-        public event Action<ushort> OnClientIDReady {add => _localClientIDWrapper.OnLocalClientIDSet += value; remove => _localClientIDWrapper.OnLocalClientIDSet -= value; }
+        public ushort LocalClientID => VE2API.LocalClientIdWrapper.Value;
+        public event Action<ushort> OnClientIDReady {add => VE2API.LocalClientIdWrapper.OnClientIDReady += value; remove => VE2API.LocalClientIdWrapper.OnClientIDReady -= value; }
         #endregion
 
         private bool _bootErrorLogged = false;
@@ -81,17 +69,12 @@ namespace VE2.NonCore.Instancing.Internal
 
         private void OnEnable()
         {
-            InstancingAPI.InstanceProvider = this;
-            PlayerAPI.LocalClientIDProvider = this;
-            VComponentsAPI.WorldStateSyncProvider = this;
+            VE2API.InstancingServiceProvider = this;
 
-            if (!Application.isPlaying || _instanceService != null)
-            {
-                PlayerAPI.LocalClientIDProvider = this;  
+            if (!Application.isPlaying)
                 return;
-            }
 
-            if (PlatformAPI.PlatformService == null)
+            if (PlatformAPI.PlatformService == null) //TODO - should point to VE2API
             {
                 if (!_bootErrorLogged)
                 {
@@ -126,13 +109,16 @@ namespace VE2.NonCore.Instancing.Internal
                 }   
             }
 
-            _instanceService = InstanceServiceFactory.Create(_localClientIDWrapper, _connectOnStart, _connectionStateDebug, instancingSettings, instanceCode, _config, _syncInfosContainer);
+            if (instancingSettings.ServerAddress == "127.0.0.1" && Application.isEditor)
+                InstancingUtils.BootLocalServerIfNotAlreadyRunning();
+
+            _instanceService = InstanceServiceFactory.Create(_connectOnStart, _connectionStateDebug, instancingSettings, instanceCode, _config);
 
             if (Application.isEditor)
             {
                 GameObject debugUIHolder = GameObject.Instantiate(Resources.Load<GameObject>("HostDebugRectHolder"));
                 _debugUIRect = debugUIHolder.transform.GetChild(0).GetComponent<RectTransform>();
-                (PlayerAPI.Player as IPlayerServiceInternal).AddPanelTo2DOverlayUI(_debugUIRect);
+                (VE2API.Player as IPlayerServiceInternal)?.AddPanelTo2DOverlayUI(_debugUIRect);
                 GameObject.Destroy(debugUIHolder);
             }
         }
@@ -154,11 +140,6 @@ namespace VE2.NonCore.Instancing.Internal
             {
                 DestroyImmediate(_debugUIRect.gameObject);
             }
-        }
-
-        private void OnDestroy()
-        {
-            _syncInfosContainer._syncInfosAgainstIDs.Clear();            
         }
     }
 

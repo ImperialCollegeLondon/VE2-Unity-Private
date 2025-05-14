@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
-using static VE2.Core.Common.CommonSerializables;
+using VE2.Core.VComponents.Shared;
+using static VE2.Common.Shared.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -49,8 +51,8 @@ namespace VE2.Core.VComponents.Internal
         public UnityEvent OnActivate => _config.OnActivate;
         public UnityEvent OnDeactivate => _config.OnDeactivate;
         public bool IsActivated { get => _state.IsActivated; }
-        public ushort MostRecentInteractingClientID => _state.MostRecentInteractingClientID;
-
+        public IClientIDWrapper MostRecentInteractingClientID => _state.MostRecentInteractingClientID == ushort.MaxValue ? null : 
+            new ClientIDWrapper(_state.MostRecentInteractingClientID, _state.MostRecentInteractingClientID == _localClientIdWrapper.Value);
         public void Activate() => SetActivated(true);
         public void Deactivate() => SetActivated(false);
 
@@ -58,8 +60,8 @@ namespace VE2.Core.VComponents.Internal
         {
             if (newIsActivated != _state.IsActivated)
                 ToggleActivatableState(ushort.MaxValue);
-            else
-                Debug.LogWarning($"Tried to set activated state on {ID} to {newIsActivated} but state is already {_state.IsActivated}");
+            // else
+            //     Debug.LogWarning($"Tried to set activated state on {ID} to {newIsActivated} but state is already {_state.IsActivated}");
         }
 
         private string _activationGroupID = "None";
@@ -69,8 +71,10 @@ namespace VE2.Core.VComponents.Internal
 
 
         private readonly ActivatableGroupsContainer _activatableGroupsContainer;
+        private readonly IClientIDWrapper _localClientIdWrapper;
 
-        public SingleInteractorActivatableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncService worldStateSyncService, ActivatableGroupsContainer activatableGroupsContainer) : base(state, config, id, worldStateSyncService)
+        public SingleInteractorActivatableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncableContainer worldStateSyncableContainer, 
+            ActivatableGroupsContainer activatableGroupsContainer, IClientIDWrapper localClientIdWrapper) : base(state, config, id, worldStateSyncableContainer)
         {
             _activationGroupID = _config.ActivationGroupID;
             _activatableGroupsContainer = activatableGroupsContainer;
@@ -84,6 +88,7 @@ namespace VE2.Core.VComponents.Internal
                 _isInActivationGroup = false;
             }
 
+            _localClientIdWrapper = localClientIdWrapper;
             _config.InspectorDebug.OnDebugUpdateStatePressed += (bool newState) => SetActivated(newState);
         }
 
@@ -178,7 +183,7 @@ namespace VE2.Core.VComponents.Internal
     }
 
     [Serializable]
-    public class SingleInteractorActivatableState : VE2Serializable
+    internal class SingleInteractorActivatableState : VE2Serializable
     {
         public ushort StateChangeNumber { get; set; }
         public bool IsActivated { get; set; }

@@ -2,15 +2,16 @@ using UnityEngine;
 using NSubstitute;
 using NUnit.Framework;
 using VE2.Core.VComponents.Internal;
-using VE2.Common.TransformWrapper;
 using System.Collections.Generic;
 using VE2.Core.VComponents.API;
+using VE2.Common.Shared;
+using VE2.Common.API;
 
 namespace VE2.Core.VComponents.Tests
 {
     [TestFixture]
     [Category("Linear Adjustable Tests")]
-    public class LinearAdjustableTests
+    internal class LinearAdjustableTests
     {
         private IV_LinearAdjustable _linearAdjustablePluginInterface => _v_linearAdjustableProviderStub;
         private V_LinearAdjustableProviderStub _v_linearAdjustableProviderStub;
@@ -28,8 +29,10 @@ namespace VE2.Core.VComponents.Tests
                 new AdjustableState(),
                 new GrabbableState(),
                 "debug",
-                Substitute.For<IWorldStateSyncService>(),
-                new HandInteractorContainer());
+                Substitute.For<IWorldStateSyncableContainer>(),
+                Substitute.For<IGrabInteractablesContainer>(),
+                new HandInteractorContainer(),
+                Substitute.For<IClientIDWrapper>());
 
             _v_linearAdjustableProviderStub = new(linearAdjustable);
 
@@ -41,11 +44,11 @@ namespace VE2.Core.VComponents.Tests
         [Test]
         public void LinearAdjustable_WhenAdjustedByPlugin_EmitsToPlugin([Random(0f, 1f, 1)] float randomValue)
         {
-            //set the adjustable value, Check customer received the value adjusted, and that the interactorID is set
+            //set the adjustable value, Check customer received the value adjusted, and that the interactorID reflects programmatic activation (ie, null!)
             _linearAdjustablePluginInterface.SpatialValue = randomValue;
             _customerScript.Received(1).HandleValueAdjusted(randomValue);
             Assert.IsTrue(_linearAdjustablePluginInterface.Value == randomValue);
-            Assert.AreEqual(_linearAdjustablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
+            Assert.AreEqual(_linearAdjustablePluginInterface.MostRecentInteractingClientID, null);
         }
 
         [TearDown]

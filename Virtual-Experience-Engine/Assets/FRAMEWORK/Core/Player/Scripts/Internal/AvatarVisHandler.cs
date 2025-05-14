@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 using VE2.Core.Player.API;
 using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.Core.Player.Internal
 {
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     internal class AvatarVisHandler : MonoBehaviour
     {
         [SerializeField] private Transform _headHolder;
@@ -71,8 +72,8 @@ namespace VE2.Core.Player.Internal
             if (_currentRemoteAvatarAppearance != null && _currentRemoteAvatarAppearance.Equals(newAvatarAppearance))
                 return;
 
-            bool headChanged = SetHead(newAvatarAppearance.PresentationConfig.AvatarHeadType, newAvatarAppearance.HeadOverrideType);
-            bool torsoChanged = SetTorso(newAvatarAppearance.PresentationConfig.AvatarTorsoType, newAvatarAppearance.TorsoOverrideType);
+            bool headChanged = SetHead(newAvatarAppearance.PresentationConfig.AvatarHeadType, newAvatarAppearance.OverrideHead, newAvatarAppearance.HeadOverrideIndex);
+            bool torsoChanged = SetTorso(newAvatarAppearance.PresentationConfig.AvatarTorsoType, newAvatarAppearance.OverrideTorso, newAvatarAppearance.TorsoOverrideIndex);
 
             if (headChanged || torsoChanged)
                 RecaptureMaterials();
@@ -140,13 +141,14 @@ namespace VE2.Core.Player.Internal
             }
         }
 
-        private bool SetHead(VE2AvatarHeadAppearanceType avatarHeadType, AvatarAppearanceOverrideType headOverrideType)
+        private bool SetHead(VE2AvatarHeadAppearanceType avatarHeadType, bool overrideHead, ushort headOverrideIndex)
         {
-            if (_currentRemoteAvatarAppearance != null && _currentRemoteAvatarAppearance.PresentationConfig.AvatarHeadType == avatarHeadType && _currentRemoteAvatarAppearance.HeadOverrideType == headOverrideType)
+            if (_currentRemoteAvatarAppearance != null && _currentRemoteAvatarAppearance.PresentationConfig.AvatarHeadType == avatarHeadType && 
+                _currentRemoteAvatarAppearance.HeadOverrideIndex == headOverrideIndex && _currentRemoteAvatarAppearance.OverrideHead == overrideHead)
                 return false;
 
             GameObject newHead;
-            if (headOverrideType != AvatarAppearanceOverrideType.None && TryGetOverrideGO(headOverrideType, _avatarHeadOverrideGameObjects, out GameObject headOverrideGO))
+            if (overrideHead && TryGetOverrideGO(headOverrideIndex, _avatarHeadOverrideGameObjects, out GameObject headOverrideGO))
             {
                 newHead = headOverrideGO;
             }
@@ -163,13 +165,14 @@ namespace VE2.Core.Player.Internal
             return true;
         }
 
-        private bool SetTorso(VE2AvatarTorsoAppearanceType avatarTorsoType, AvatarAppearanceOverrideType torsoOverrideType)
+        private bool SetTorso(VE2AvatarTorsoAppearanceType avatarTorsoType, bool overrideTorso, ushort torsoOverrideIndex)
         {
-            if (_currentRemoteAvatarAppearance != null && _currentRemoteAvatarAppearance.PresentationConfig.AvatarTorsoType == avatarTorsoType && _currentRemoteAvatarAppearance.TorsoOverrideType == torsoOverrideType)
+            if (_currentRemoteAvatarAppearance != null && _currentRemoteAvatarAppearance.PresentationConfig.AvatarTorsoType == avatarTorsoType && 
+                _currentRemoteAvatarAppearance.TorsoOverrideIndex == torsoOverrideIndex && _currentRemoteAvatarAppearance.OverrideTorso == overrideTorso)
                 return false;
 
             GameObject newTorso;
-            if (torsoOverrideType != AvatarAppearanceOverrideType.None && TryGetOverrideGO(torsoOverrideType, _avatarTorsoOverrideGameObjects, out GameObject torsoOverrideGO))
+            if (overrideTorso && TryGetOverrideGO(torsoOverrideIndex, _avatarTorsoOverrideGameObjects, out GameObject torsoOverrideGO))
                 newTorso = torsoOverrideGO;
             else
                 newTorso = _virseAvatarTorsoGameObjects[(int)avatarTorsoType];
@@ -182,12 +185,11 @@ namespace VE2.Core.Player.Internal
             return true;
         }
 
-        private bool TryGetOverrideGO(AvatarAppearanceOverrideType overrideType, List<GameObject> overrideGameObjects, out GameObject overrideGO)
+        private bool TryGetOverrideGO(ushort overrideIndex, List<GameObject> overrideGameObjects, out GameObject overrideGO)
         {
-            int index = (int)overrideType - 1; //-1 as 0 is "no override"
-            if (overrideGameObjects.Count > index && overrideGameObjects[index] != null)
+            if (overrideGameObjects.Count > overrideIndex && overrideGameObjects[overrideIndex] != null)
             {
-                overrideGO = overrideGameObjects[index];
+                overrideGO = overrideGameObjects[overrideIndex];
                 return true;
             }
             else

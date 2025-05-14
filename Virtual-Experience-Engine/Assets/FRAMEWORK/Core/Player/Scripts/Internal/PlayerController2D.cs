@@ -3,7 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using VE2.Core.Common;
+using VE2.Common.API;
+using VE2.Common.Shared;
 using VE2.Core.Player.API;
 using VE2.Core.UI.API;
 using VE2.Core.VComponents.API;
@@ -20,8 +21,8 @@ namespace VE2.Core.Player.Internal
         public PlayerConnectionPromptHandler ConnectionPromptHandler => _connectionPromptHandler;
         [SerializeField, IgnoreParent] PlayerConnectionPromptHandler _connectionPromptHandler;
 
-        public V_CollisionDetector CollisionDetector => _collisionDetector;
-        [SerializeField, IgnoreParent] private V_CollisionDetector _collisionDetector;
+        public Collider FeetCollider => _feetCollider;
+        [SerializeField, IgnoreParent] private Collider _feetCollider;
     }
 
     internal class PlayerController2D : BasePlayerController
@@ -42,7 +43,7 @@ namespace VE2.Core.Player.Internal
                 );
             }
         }
-
+        
         private readonly GameObject _playerGO;
         private readonly Player2DControlConfig _controlConfig;
         private readonly Player2DInputContainer _player2DInputContainer;
@@ -58,8 +59,9 @@ namespace VE2.Core.Player.Internal
         private readonly RectTransform _secondaryUIHolder;
         private readonly RectTransform _overlayUIRect;
 
-        internal PlayerController2D(HandInteractorContainer interactorContainer, Player2DInputContainer player2DInputContainer, IPlayerPersistentDataHandler playerPersistentDataHandler,
-            Player2DControlConfig controlConfig, IRaycastProvider raycastProvider, ILocalClientIDProvider multiplayerSupport, 
+        internal PlayerController2D(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, Player2DInputContainer player2DInputContainer, 
+            IPlayerPersistentDataHandler playerPersistentDataHandler, Player2DControlConfig controlConfig, PlayerInteractionConfig interactionConfig, MovementModeConfig movementModeConfig, 
+            CameraConfig cameraConfig, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ILocalClientIDWrapper localClientIDWrapper, 
             IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IPlayerServiceInternal playerService) 
         {
             GameObject player2DPrefab = Resources.Load("2dPlayer") as GameObject;
@@ -73,6 +75,7 @@ namespace VE2.Core.Player.Internal
             _secondaryUIService = secondaryUIService;
 
             Player2DReferences player2DReferences = _playerGO.GetComponent<Player2DReferences>();
+            Camera = player2DReferences.Camera;
             _localAvatarHandler = player2DReferences.LocalAvatarHandler;
             _localAvatarHandler.Initialize(playerService);
 
@@ -81,21 +84,17 @@ namespace VE2.Core.Player.Internal
             _overlayUIRect = player2DReferences.OverlayUIRect;
 
             _interactor2D = new(
-                interactorContainer, player2DInputContainer.InteractorInputContainer2D,
-                player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, multiplayerSupport);
+                interactorContainer, grabInteractablesContainer, player2DInputContainer.InteractorInputContainer2D, interactionConfig,
+                player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, localClientIDWrapper);
 
-            _feetInteractor2D = new(player2DReferences.Interactor2DReferences.CollisionDetector, InteractorType.Feet, multiplayerSupport);
+            _feetInteractor2D = new(collisionDetectorFactory, ColliderType.Feet2D, player2DReferences.Interactor2DReferences.FeetCollider, InteractorType.Feet, localClientIDWrapper, interactionConfig);
 
-            _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences);
+            _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences, movementModeConfig);
 
             base._PlayerHeadTransform = _playerLocomotor2D.HeadTransform;
-            base._FeetCollisionDetector = player2DReferences.Interactor2DReferences.CollisionDetector;
+            base._FeetCollisionDetector = _feetInteractor2D._collisionDetector as CollisionDetector;
 
-            if (_primaryUIService != null)
-            {
-                _primaryUIService.OnUIShow += HandlePrimaryUIActivated;
-                _primaryUIService.OnUIHide += HandlePrimaryUIDeactivated;
-            }
+            ConfigureCamera(cameraConfig);  
             
             //TODO: think about inspect mode, does that live in the interactor, or the player controller?
             //If interactor, will need to make the interactor2d constructor take a this as a param, and forward the other params to the base constructor
@@ -120,6 +119,12 @@ namespace VE2.Core.Player.Internal
             _primaryUIService?.MovePrimaryUIToHolderRect(_primaryUIHolderRect);
             _secondaryUIService?.MoveSecondaryUIToHolderRect(_secondaryUIHolder);
             _secondaryUIService?.EnableShowHideKeyboardControl();
+
+            if (_primaryUIService != null)
+            {
+                _primaryUIService.OnUIShow += HandlePrimaryUIActivated;
+                _primaryUIService.OnUIHide += HandlePrimaryUIDeactivated;
+            }
         }
 
         internal void DeactivatePlayer() 
@@ -130,6 +135,12 @@ namespace VE2.Core.Player.Internal
             _playerLocomotor2D.HandleOnDisable();
             _interactor2D.HandleOnDisable();
             _feetInteractor2D.HandleOnDisable();
+
+            if (_primaryUIService != null)
+            {
+                _primaryUIService.OnUIShow -= HandlePrimaryUIActivated;
+                _primaryUIService.OnUIHide -= HandlePrimaryUIDeactivated;
+            }
         }
 
         internal override void HandleUpdate() 

@@ -7,7 +7,8 @@ using static VE2.NonCore.Platform.Internal.PlatformSerializables;
 
 namespace VE2.NonCore.Platform.Internal
 {
-    public class DebugGlobalInfoUI : MonoBehaviour
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
+    internal class DebugGlobalInfoUI : MonoBehaviour
     {
         [SerializeField] private TMP_Text globalInfoText;
 

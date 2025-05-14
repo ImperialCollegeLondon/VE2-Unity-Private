@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace VE2.Core.Player.Internal
 {
-    public class PlayModeFocusToggleWindow : EditorWindow
+    internal class PlayModeFocusToggleWindow : EditorWindow
     {
         private static bool isEnabled = true;
 
@@ -30,7 +30,7 @@ namespace VE2.Core.Player.Internal
     }
 
     [InitializeOnLoad]
-    public class PlayModeFocusHandler
+    internal class PlayModeFocusHandler
     {
         private static bool isEnabled = true;
 

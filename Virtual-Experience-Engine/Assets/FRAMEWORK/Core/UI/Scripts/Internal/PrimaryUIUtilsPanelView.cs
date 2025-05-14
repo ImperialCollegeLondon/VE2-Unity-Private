@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 namespace VE2.Core.UI.Internal
 {
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     internal class PrimaryUIUtilsPanelView : MonoBehaviour
     {
         [SerializeField] private Button _quitButton; 
@@ -22,14 +23,12 @@ namespace VE2.Core.UI.Internal
 
         internal void ShowSwitchToVRButton()
         {
-            Debug.Log("ShowSwitchToVRButton");
             _switchToVRButton.gameObject.SetActive(true);
             _switchTo2DButton.gameObject.SetActive(false);
         }
 
         internal void ShowSwitchTo2DButton()
         {
-            Debug.Log("ShowSwitchTo2DButton");
             _switchToVRButton.gameObject.SetActive(false);
             _switchTo2DButton.gameObject.SetActive(true);
         }

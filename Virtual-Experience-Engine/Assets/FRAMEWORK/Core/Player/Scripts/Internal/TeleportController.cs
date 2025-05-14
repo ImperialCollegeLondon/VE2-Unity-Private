@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 using VE2.Core.Player.API;
 
 namespace VE2.Core.Player.Internal
@@ -14,7 +14,7 @@ namespace VE2.Core.Player.Internal
         private LineRenderer _teleportLineRenderer;
         private readonly LineRenderer _interactorLineRenderer; // Position of the teleport raycast origin
         private readonly Material _teleportLineMaterial;
-        private readonly ColorConfiguration _colorConfig;
+        private ColorConfiguration _colorConfig => ColorConfiguration.Instance;
         private readonly GameObject _teleportCursor;
         private const float LINE_EMISSION_INTENSITY = 15;
 
@@ -59,7 +59,6 @@ namespace VE2.Core.Player.Internal
             _interactorLineRenderer = interactorLineRenderer.GetComponent<LineRenderer>();
             _otherHandTransformReference = otherHandTransformReference;
 
-            _colorConfig = Resources.Load<ColorConfiguration>("ColorConfiguration"); //TODO: Inject
             _teleportLineRenderer = teleportLineRenderer;
             _teleportLineRenderer.positionCount = _lineSegmentCount + 1;
             _teleportLineRenderer.enabled = false;
@@ -153,7 +152,7 @@ namespace VE2.Core.Player.Internal
             Vector3 startPosition = _teleportRayOrigin.position;
             Vector3 direction = _teleportRayOrigin.forward;
 
-            if (_movementModeConfig.EnableFreeFlyMode)
+            if (_movementModeConfig.FreeFlyMode)
             {
                 float stickX = _inputContainer.TeleportDirection.Value.x;
                 float distance = Mathf.Lerp(1f, 3f, stickX); // TODO: Make this configurable
@@ -161,16 +160,17 @@ namespace VE2.Core.Player.Internal
                 
                 DrawStraightLine(startPosition, teleportDestination);
 
-                if (CanTeleport(startPosition, teleportDestination))
+                if (CanTeleportToFreeFlyDestination(startPosition, teleportDestination))
                 {
                     _teleportCursor.transform.position = teleportDestination;
 
                     /*TODO: We may need to rethink this. Terrain below may not be level, or even present at all 
-                    When entering freefly, maybe we should intead reconfigure the rig so the head is always at the root 
+                    possible approach: When entering freefly, maybe we should intead reconfigure the rig so the head is always at the root 
                     Then we just teleport the whole root to the target, and verticalDragMove up by root?
                     Would need to reconfigure the rig back when leaving freefly though
-                    not ideal... means the drag loco needs to know about FreeFly - will have to think!
-                    Think drag loco DOES nees to know though. if we drag in the air, we don't want our elevation to change if the floor below changes*/
+                    Maybe better approach: No rig reconfiguring, just look at the target teleport pos, and work out what delta we need to apply 
+                    to the root transform so that's where the camera ends up... 
+                    ...this approach might not work as well for drag though, maybe collapsing the rig is simpler after all*/
                     Vector3 delta = teleportDestination - _headTransform.position;
                     Vector3 newRootPosition = _rootTransform.position + delta;
                     if (Physics.Raycast(teleportDestination, Vector3.down, out RaycastHit hit, _movementModeConfig.TraversableLayers))
@@ -223,19 +223,19 @@ namespace VE2.Core.Player.Internal
                     Vector3 segmentDir = (currentPoint - previousPoint).normalized;
                     float segmentDistance = Vector3.Distance(currentPoint, previousPoint);
 
-                    // First check: is there any object not on the Traversible layer blocking this segment?
-                    RaycastHit blockingHit;
-                    if (Physics.Raycast(previousPoint, segmentDir, out blockingHit, segmentDistance, ~_movementModeConfig.TraversableLayers))
+                    //First check, does the teleporter hit anything in the traversable, or collision layers?
+                    if (Physics.Raycast(previousPoint, segmentDir, out hit, segmentDistance, _movementModeConfig.CollisionLayers | _movementModeConfig.TraversableLayers))
                     {
-                        // A non-traversible object is in the way  cancel teleport.
-                        hitFound = false;
-                        break;
-                    }
+                        GameObject hitObject = hit.collider.gameObject;
 
-                    // Second check: does the segment hit a valid teleport surface (i.e. on the Traversible layer)?
-                    if (Physics.Raycast(previousPoint, segmentDir, out hit, segmentDistance, _movementModeConfig.TraversableLayers))
-                    {
-                        // If a valid hit is detected, update the trajectory point and mark teleport as possible.
+                        // Second check, is the thing that was hit traversable? If not, it's a blocking object, and we can't teleport
+                        if (!CommonUtils.IsGameObjectInLayerMask(hitObject, _movementModeConfig.TraversableLayers))
+                        {
+                            hitFound = false;
+                            break;
+                        }
+
+                        // Otherwise, it's traversable, so mark as valid and update the trajectory point.
                         trajectoryPoints[trajectoryPoints.Count - 1] = hit.point;
                         hitFound = true;
                         break;
@@ -327,14 +327,13 @@ namespace VE2.Core.Player.Internal
             _teleportLineRenderer.SetPosition(1, _teleportLineRenderer.transform.InverseTransformPoint(endPosition));
         }
 
-        private bool CanTeleport(Vector3 startPosition, Vector3 teleportDestination)
+        private bool CanTeleportToFreeFlyDestination(Vector3 startPosition, Vector3 teleportDestination)
         {
             Vector3 direction = teleportDestination - startPosition;
             float distance = direction.magnitude;
             direction.Normalize();
 
-            // Perform a raycast without any layer mask filtering, are there obstacles we would want to leave out? Hmmm...
-            if (Physics.Raycast(startPosition, direction, distance))
+            if (Physics.Raycast(startPosition, direction, distance, _movementModeConfig.CollisionLayers))
             {
                 return false; // There is an obstacle in the way
             }

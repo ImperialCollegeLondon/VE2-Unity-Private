@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using VE2.Common.Shared;
 
 namespace VE2.Core.VComponents.API
 {
@@ -13,7 +14,7 @@ namespace VE2.Core.VComponents.API
         public void SetValue(float value) => _StateModule.SetOutputValue(value);
         public float MinimumValue { get => _StateModule.MinimumOutputValue; set => _StateModule.MinimumOutputValue = value; }
         public float MaximumValue { get => _StateModule.MaximumOutputValue; set => _StateModule.MaximumOutputValue = value; }
-        public ushort MostRecentInteractingClientID => _StateModule.MostRecentInteractingClientID;
+        public IClientIDWrapper MostRecentInteractingClientID => _StateModule.MostRecentInteractingClientID;
         #endregion
 
         #region Handheld Interaction Module Interface

@@ -5,33 +5,34 @@ using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 using VE2.Core.Player.API;
 using VE2.NonCore.Instancing.API;
 using static VE2.NonCore.Instancing.Internal.InstanceSyncSerializables;
-using VE2.Core.VComponents.API;
-using VE2.Core.Common;
-using VE2.NonCore.Platform.API;
+using VE2.Common.Shared;
 using VE2.Core.UI.API;
-using System.Collections.Generic;
+using VE2.Common.API;
+using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.NonCore.Instancing.Internal
 {
     internal static class InstanceServiceFactory
     {
-        internal static InstanceService Create(LocalClientIdWrapper localClientIDWrapper, bool connectAutomatically, 
-            ConnectionStateWrapper connectionStateDebugWrapper, ServerConnectionSettings debugServerSettings, string debugInstanceCode, InstanceCommsHandlerConfig config, SyncInfosContainer syncInfosContainer) 
+        internal static InstanceService Create(bool connectAutomatically, 
+            ConnectionStateWrapper connectionStateDebugWrapper, ServerConnectionSettings debugServerSettings, string debugInstanceCode, 
+            InstanceCommsHandlerConfig config) 
         {
             InstanceNetworkingCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
 
             return new InstanceService(
                 commsHandler, 
-                localClientIDWrapper, 
+                VE2API.LocalClientIdWrapper as ILocalClientIDWrapperWritable, 
                 connectionStateDebugWrapper,
-                VComponentsAPI.InteractorContainer,
-                PlayerAPI.Player as IPlayerServiceInternal,
-                UIAPI.PrimaryUIService as IPrimaryUIServiceInternal,
+                VE2API.InteractorContainer,
+                VE2API.Player as IPlayerServiceInternal,
+                VE2API.PrimaryUIService as IPrimaryUIServiceInternal,
                 connectAutomatically,
                 debugServerSettings,
                 debugInstanceCode,
                 config,
-                syncInfosContainer);
+                VE2API.WorldStateSyncableContainer,
+                VE2API.LocalPlayerSyncableContainer);
         }
     }
 
@@ -46,32 +47,28 @@ namespace VE2.NonCore.Instancing.Internal
         public void ConnectToInstance() => ConnectToServer();
         public void DisconnectFromInstance() => DisconnectFromServer();
 
+        public ushort LocalClientID => _instanceInfoContainer.LocalClientID;
+        public bool IsClientIDReady => LocalClientID != ushort.MaxValue;
+        public event Action<ushort> OnClientIDReady;
+
         public bool IsHost => _instanceInfoContainer.IsHost;
         public event Action OnBecomeHost {add => _instanceInfoContainer.OnBecomeHost += value; remove => _instanceInfoContainer.OnBecomeHost -= value;}
         public event Action OnLoseHost {add => _instanceInfoContainer.OnLoseHost += value; remove => _instanceInfoContainer.OnLoseHost -= value;}
         public ushort HostID => _instanceInfoContainer.HostID;
 
+        public float Ping => _pingSyncer.Ping;
+        public int SmoothPing => _pingSyncer.SmoothPing;
         public event Action<int> OnPingUpdate { add => _pingSyncer.OnPingUpdate += value; remove => _pingSyncer.OnPingUpdate -= value; }
         #endregion
 
-
         #region Internal interfaces
-        public event Action<ushort> OnClientIDReady;
-        internal IWorldStateSyncService WorldStateSyncService => _worldStateSyncer;
+        public void SendInstantMessage(string id, object message) => _instantMessageRouter.SendInstantMessage(id, message);
+        public void RegisterInstantMessageHandler(string id, IInstantMessageHandlerInternal instantMessageHandler) => _instantMessageRouter.RegisterInstantMessageHandler(id, instantMessageHandler);
+        public void DeregisterInstantMessageHandler(string id) => _instantMessageRouter.DeregisterInstantMessageHandler(id);
         #endregion
-
-
-        #region Shared interfaces
-        public ushort LocalClientID => _instanceInfoContainer.LocalClientID;
-        #endregion
-
 
         #region Temp debug interfaces //TODO: remove once UI is in 
         public InstancedInstanceInfo InstanceInfo => _instanceInfoContainer.InstanceInfo;
-
-        public float Ping => _pingSyncer.Ping;
-
-        public int SmoothPing => _pingSyncer.SmoothPing;
 
         public event Action<InstancedInstanceInfo> OnInstanceInfoChanged { 
             add => _instanceInfoContainer.OnInstanceInfoChanged += value; 
@@ -99,10 +96,10 @@ namespace VE2.NonCore.Instancing.Internal
         internal PingSyncer _pingSyncer;
         internal InstantMessageRouter _instantMessageRouter;
 
-        public InstanceService(IPluginSyncCommsHandler commsHandler, LocalClientIdWrapper localClientIDWrapper, 
-            ConnectionStateWrapper connectionStateDebugWrapper,
+        public InstanceService(IPluginSyncCommsHandler commsHandler, ILocalClientIDWrapperWritable localClientIDWrapper, ConnectionStateWrapper connectionStateDebugWrapper,
             HandInteractorContainer interactorContainer, IPlayerServiceInternal playerServiceInternal, IPrimaryUIServiceInternal primaryUIService,
-            bool connectAutomatically, ServerConnectionSettings serverSettings, string instanceCode, InstanceCommsHandlerConfig config, SyncInfosContainer syncInfosContainer)
+            bool connectAutomatically, ServerConnectionSettings serverSettings, string instanceCode, InstanceCommsHandlerConfig config, 
+            IWorldStateSyncableContainer worldStateSyncableContainer, ILocalPlayerSyncableContainer localPlayerSyncableContainer)
 
         {
             _commsHandler = commsHandler;
@@ -121,8 +118,8 @@ namespace VE2.NonCore.Instancing.Internal
             _commsHandler.OnReceiveInstanceInfoUpdate += HandleReceiveInstanceInfoUpdate;
             _commsHandler.OnDisconnectedFromServer += HandleDisconnectFromServer;
 
-            _worldStateSyncer = new(_commsHandler, _instanceInfoContainer, syncInfosContainer); //receives and transmits
-            _localPlayerSyncer = new(_commsHandler, playerServiceInternal, _instanceInfoContainer); //only transmits
+            _worldStateSyncer = new(_commsHandler, _instanceInfoContainer, worldStateSyncableContainer); //receives and transmits
+            _localPlayerSyncer = new(_commsHandler, _instanceInfoContainer, localPlayerSyncableContainer); //only transmits
             _remotePlayerSyncer = new(_commsHandler, _instanceInfoContainer, _interactorContainer, _playerService); //only receives
             _pingSyncer = new(_commsHandler, _instanceInfoContainer); //receives and transmits
             _instantMessageRouter = new(_commsHandler);
@@ -183,8 +180,9 @@ namespace VE2.NonCore.Instancing.Internal
         {
             //Debug.Log("<color=green> Try register to server pop'n with instance code - " + _instanceCode);
 
-            bool usingFrameworkAvatar = true; //TODO
-            AvatarAppearanceWrapper avatarAppearanceWrapper = new(usingFrameworkAvatar, _playerService.OverridableAvatarAppearance);
+            bool usingFrameworkAvatar = _playerService != null; 
+            OverridableAvatarAppearance overridableAvatarAppearance = usingFrameworkAvatar? _playerService.OverridableAvatarAppearance : new();
+            AvatarAppearanceWrapper avatarAppearanceWrapper = new(usingFrameworkAvatar, overridableAvatarAppearance);
 
             //We also send the LocalClientID here, this will either be maxvalue (if this is our first time connecting, the server will give us a new ID)..
             //..or it'll be the ID we we're restored after a disconnect (if we're reconnecting, the server will use the ID we provide)
@@ -262,9 +260,9 @@ namespace VE2.NonCore.Instancing.Internal
                 _localPlayerSyncer.TearDown();
                 _remotePlayerSyncer.TearDown();
                 _pingSyncer.TearDown();
+                _commsHandler.DisconnectFromServer();
             }
 
-            _commsHandler.DisconnectFromServer();
             _commsHandler.OnReceiveNetcodeConfirmation -= HandleReceiveNetcodeVersion;
             _commsHandler.OnReceiveServerRegistrationConfirmation -= HandleReceiveServerRegistrationConfirmation;
             _commsHandler.OnReceiveInstanceInfoUpdate -= HandleReceiveInstanceInfoUpdate;
@@ -272,25 +270,6 @@ namespace VE2.NonCore.Instancing.Internal
 
             _connectionStateWrapper.ConnectionState = ConnectionState.NotYetConnected;
         }
-
-        #region Instant Message Handler Methods
-
-        public void SendInstantMessage(string id, object message)
-        {
-            _instantMessageRouter.SendInstantMessage(id, message);
-        }
-
-        public void RegisterInstantMessageHandler(string id, IInstantMessageHandlerInternal instantMessageHandler)
-        {
-            _instantMessageRouter.RegisterInstantMessageHandler(id, instantMessageHandler);
-        }
-
-        public void DeregisterInstantMessageHandler(string id)
-        {
-            _instantMessageRouter.DeregisterInstantMessageHandler(id);
-        }
-
-        #endregion
     }
 
     internal struct BytesAndProtocol
@@ -307,8 +286,8 @@ namespace VE2.NonCore.Instancing.Internal
 
     internal class InstanceInfoContainer
     {
-        public readonly LocalClientIdWrapper LocalClientIdWrapper;
-        public ushort LocalClientID { get => LocalClientIdWrapper.LocalClientID; set => LocalClientIdWrapper.LocalClientID = value; }
+        public readonly ILocalClientIDWrapperWritable LocalClientIdWrapper;
+        public ushort LocalClientID { get => LocalClientIdWrapper.Value; set => LocalClientIdWrapper.SetValue(value); }
 
         public event Action OnBecomeHost;
         public event Action OnLoseHost;
@@ -361,7 +340,7 @@ namespace VE2.NonCore.Instancing.Internal
              } 
         }
 
-        public InstanceInfoContainer(LocalClientIdWrapper localClientIdWrapper)
+        public InstanceInfoContainer(ILocalClientIDWrapperWritable localClientIdWrapper)
         {
             LocalClientIdWrapper = localClientIdWrapper;
         }

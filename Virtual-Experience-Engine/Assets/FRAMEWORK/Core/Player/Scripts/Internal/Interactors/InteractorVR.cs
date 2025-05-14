@@ -1,5 +1,6 @@
 using UnityEngine;
-using VE2.Core.Common;
+using VE2.Common.API;
+using VE2.Common.Shared;
 using VE2.Core.Player.API;
 using VE2.Core.VComponents.API;
 
@@ -7,33 +8,30 @@ namespace VE2.Core.Player.Internal
 {
     internal class InteractorVR : PointerInteractor
     {
-
         private Vector3 _grabberTransformOffset;
 
-        private readonly V_CollisionDetector _collisionDetector;
+        private readonly ICollisionDetector _collisionDetector;
         private readonly GameObject _handVisualGO;
         private readonly LineRenderer _lineRenderer;
         private readonly Material _lineMaterial;
-        private readonly ColorConfiguration _colorConfig;
+        private ColorConfiguration _colorConfig => ColorConfiguration.Instance;
         private const float LINE_EMISSION_INTENSITY = 15;
 
-        internal InteractorVR(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
-            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, 
-            ILocalClientIDProvider multiplayerSupport, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator) :
-            base(interactorContainer, interactorInputContainer,
-                interactorReferences, interactorType, raycastProvider, multiplayerSupport, grabbableWrapper, hoveringOverScrollableIndicator)
+        internal InteractorVR(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, InteractorInputContainer interactorInputContainer, PlayerInteractionConfig playerInteractionConfig,
+            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ColliderType colliderType,
+            ILocalClientIDWrapper localClientID, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator) :
+            base(interactorContainer, grabInteractablesContainer, interactorInputContainer, playerInteractionConfig,
+                interactorReferences, interactorType, raycastProvider, localClientID, grabbableWrapper, hoveringOverScrollableIndicator)
 
         {
             InteractorVRReferences interactorVRReferences = interactorReferences as InteractorVRReferences;
 
-            _collisionDetector = interactorVRReferences.CollisionDetector;
             _handVisualGO = interactorVRReferences.HandVisualGO;
+            _collisionDetector = collisionDetectorFactory.CreateCollisionDetector(interactorVRReferences.HandCollider, colliderType, playerInteractionConfig.InteractableLayers);
 
             _lineRenderer = interactorVRReferences.LineRenderer;
-            _lineMaterial = Application.isPlaying ? _lineRenderer.material : null; //SetUp : Unhandled log message: '[Error] Instantiating material due to calling renderer.material during edit mode. This will leak materials into the scene. You most likely want to use renderer.sharedMaterial instead.'. Use UnityEngine.TestTools.LogAssert.Expect
+            _lineMaterial = Application.isPlaying ? _lineRenderer.material : null; 
             _lineMaterial?.EnableKeyword("_EMISSION");
-
-            _colorConfig = Resources.Load<ColorConfiguration>("ColorConfiguration"); //TODO: Inject
         }
 
         public override void HandleOnEnable()
@@ -52,7 +50,7 @@ namespace VE2.Core.Player.Internal
 
         private void HandleCollideStart(ICollideInteractionModule collideInteractionModule)
         {
-            if (!_WaitingForLocalClientID && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Hand)
+            if (_LocalClientIDWrapper.IsClientIDReady && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Hand)
             {
                 collideInteractionModule.InvokeOnCollideEnter(_InteractorID);
                 HeldActivatableIDs.Add(collideInteractionModule.ID);
@@ -61,16 +59,19 @@ namespace VE2.Core.Player.Internal
 
         private void HandleCollideEnd(ICollideInteractionModule collideInteractionModule)
         {
-            if (!_WaitingForLocalClientID && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Hand)
+            if (_LocalClientIDWrapper.IsClientIDReady && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Hand)
             {
                 collideInteractionModule.InvokeOnCollideExit(_InteractorID);
                 HeldActivatableIDs.Remove(collideInteractionModule.ID);
             }
         }
 
-        protected override void HandleRaycastDistance(float distance)
+        protected override void HandleRaycastDistance(float distance, bool isOnPalm = false, Vector3 point = default)
         {
-            _lineRenderer.SetPosition(1, new Vector3(0, 0, distance / _lineRenderer.transform.lossyScale.z));
+            if(!isOnPalm)
+                _lineRenderer.SetPosition(1, new Vector3(0, 0, distance / _lineRenderer.transform.lossyScale.z));
+            else
+                _lineRenderer.SetPosition(1, _RayOrigin.InverseTransformPoint(point));
         }
 
         protected override void SetInteractorState(InteractorState newState)
@@ -104,7 +105,7 @@ namespace VE2.Core.Player.Internal
         protected override void HandleStartGrabbingAdjustable(IRangedAdjustableInteractionModule rangedAdjustableInteraction)
         {
             //We'll control its position in Update - it needs an offset towards the adjustable, without being affected by the parent transform's rotation
-            _GrabberTransform.SetParent(_interactorParentTransform.parent); 
+            _GrabberTransform.SetParent(_interactorParentTransform.parent);
             _grabberTransformOffset = rangedAdjustableInteraction.Transform.position - GrabberTransform.position;
         }
 
@@ -117,7 +118,7 @@ namespace VE2.Core.Player.Internal
         protected override void HandleStopGrabbingAdjustable()
         {
             //No longer apply offset to grabber, it can return to the parent 
-            _GrabberTransform.SetParent(_interactorParentTransform); 
+            _GrabberTransform.SetParent(_interactorParentTransform);
             _GrabberTransform.localPosition = Vector3.zero;
             _GrabberTransform.localRotation = Quaternion.identity;
         }

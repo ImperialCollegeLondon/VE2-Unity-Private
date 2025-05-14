@@ -3,8 +3,7 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using VE2.NonCore.Instancing.API;
 using VE2.NonCore.Instancing.Internal;
-using VE2.Core.VComponents.API;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 
 namespace VE2.NonCore.Instancing.VComponents.Tests
 {
@@ -17,27 +16,27 @@ namespace VE2.NonCore.Instancing.VComponents.Tests
         [TestCase(42)]
         [TestCase(3.14)]
         [TestCase(true)]
-        public void NetworkObject_WhenObjectIsSet_EmitsToPlugin(object serializableObject)
+        public void NetworkObject_WhenObjectIsSet_EmitsToPlugin(object outgoingObject)
         {
             //Arrange=========
             //  Create the NetworkObjectService, injecting default configs 
-            NetworkObjectService networkObjectService = new( new NetworkObjectStateConfig(), new NetworkObjectState(), "test", Substitute.For<IWorldStateSyncService>());
+            NetworkObjectService networkObjectService = new( new NetworkObjectStateConfig(), new NetworkObjectState(), "test", Substitute.For<IWorldStateSyncableContainer>());
             //  Create a stub for the VC
             V_NetworkObjectStub v_networkObjectStub = new(networkObjectService);
             //  Get the plugin-facing interface out of the VC 
             IV_NetworkObject networkObjectInterface = v_networkObjectStub;
             //  Create a substitute for the PluginScript, wire it up to the plugin interface 
             NetworkObjectTestPluginScript customerScript = new();
-            networkObjectInterface.OnStateChange.AddListener(customerScript.HandleObjectReceived);
+            networkObjectInterface.OnDataChange.AddListener(customerScript.HandleObjectReceived);
 
             //Act=========
             //  Programmatically set the network object
-            networkObjectInterface.NetworkObject = serializableObject;
+            networkObjectInterface.UpdateData(outgoingObject);
 
             // ===========Assert=========
             // Check the customer received the same object
-            Assert.IsInstanceOf(serializableObject.GetType(), customerScript.ReceivedObject);
-            Assert.AreEqual(customerScript.ReceivedObject, serializableObject);
+            Assert.IsInstanceOf(outgoingObject.GetType(), customerScript.ReceivedObject);
+            Assert.AreEqual(customerScript.ReceivedObject, outgoingObject);
 
             // Check also that HandleObjectReceived was only called once
             Assert.AreEqual(customerScript.ReceivedCounter, 1);
