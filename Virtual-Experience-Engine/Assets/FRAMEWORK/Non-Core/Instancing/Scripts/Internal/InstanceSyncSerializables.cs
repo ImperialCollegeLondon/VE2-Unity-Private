@@ -6,12 +6,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using static VE2.Core.Player.API.PlayerSerializables;
 using static VE2.Server.CommonSerializables;
 using static VE2.Server.PlatformPublicSerializables;
-
-
-
-#if UNITY_EDITOR
 using UnityEngine;
-#endif
 
 namespace VE2.NonCore.Instancing.Internal
 {

@@ -64,6 +64,7 @@ namespace VE2.Common.Shared
 
         public static GameObject InstantiateResource(string resourceName)
         {
+#if UNITY_EDITOR
             GameObject resource = Resources.Load<GameObject>(resourceName);
 
             // Check if the prefab is null
@@ -77,27 +78,26 @@ namespace VE2.Common.Shared
             instantiatedGO.name = "tempName";
 
             int extraNum = 0;
-            string resourceNameShort = resourceName.Contains("/")? resourceName.Substring(resourceName.LastIndexOf("/") + 1) : resourceName;
+            string resourceNameShort = resourceName.Contains("/") ? resourceName.Substring(resourceName.LastIndexOf("/") + 1) : resourceName;
             string newName = resourceNameShort;
 
-            while (GameObject.Find(newName) != null) 
+            while (GameObject.Find(newName) != null)
             {
                 extraNum++;
                 newName = $"{resourceNameShort}{extraNum}";
-            } 
+            }
 
             instantiatedGO.name = newName;
 
-            #if UNITY_EDITOR
-
-           UnityEditor.Selection.activeGameObject = instantiatedGO;
+            UnityEditor.Selection.activeGameObject = instantiatedGO;
 
             // Add the instantiation to the Undo buffer
             UnityEditor.Undo.RegisterCreatedObjectUndo(instantiatedGO, "Create " + instantiatedGO.name);
 
             return instantiatedGO;
-
             #endif
+
+            return null;
         }
 
         public static GameObject FindInChildrenByName(GameObject parent, string targetName)

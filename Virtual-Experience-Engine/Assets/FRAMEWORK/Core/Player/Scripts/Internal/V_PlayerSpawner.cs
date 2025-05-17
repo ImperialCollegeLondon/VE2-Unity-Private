@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using VE2.Common.API;
@@ -153,7 +152,7 @@ namespace VE2.Core.Player.Internal
             if (!Application.isPlaying && !_editorListenersSetup)
             {
                 _editorListenersSetup = true;
-                Selection.selectionChanged += OnSelectionChanged;
+                UnityEditor.Selection.selectionChanged += OnSelectionChanged;
             }
             #endif
 
@@ -226,7 +225,7 @@ namespace VE2.Core.Player.Internal
             if (!Application.isPlaying && _editorListenersSetup)
             {
                 _editorListenersSetup = false;
-                Selection.selectionChanged -= OnSelectionChanged;
+                UnityEditor.Selection.selectionChanged -= OnSelectionChanged;
             }
             #endif
 
@@ -238,6 +237,7 @@ namespace VE2.Core.Player.Internal
 
         private void CreatePlayerPreview()
         {
+#if UNITY_EDITOR
             GameObject playerPreview = GameObject.Instantiate<GameObject>(Resources.Load<GameObject>("VE2PlayerPreviewVisualisation"));
             playerPreview.transform.SetParent(transform);
             playerPreview.transform.localPosition = Vector3.zero;
@@ -246,9 +246,10 @@ namespace VE2.Core.Player.Internal
             foreach (Transform child in playerPreview.GetComponentsInChildren<Transform>(true))
             {
                 child.hideFlags = HideFlags.HideInHierarchy; // Keep it hidden
-                SceneVisibilityManager.instance.EnablePicking(child.gameObject, true); // Allow clicking in Scene view   
+                UnityEditor.SceneVisibilityManager.instance.EnablePicking(child.gameObject, true); // Allow clicking in Scene view   
             }
-        }
+            #endif
+        }   
 
 #if UNITY_EDITOR
         private void OnSelectionChanged()
@@ -261,8 +262,8 @@ namespace VE2.Core.Player.Internal
             {
                 if (IsChildOrSelf(_playerPreview, selected))
                 {
-                    EditorApplication.delayCall += () => UnityEditor.Selection.activeGameObject = gameObject;
-                    EditorApplication.delayCall += () => EditorApplication.RepaintHierarchyWindow();
+                    UnityEditor.EditorApplication.delayCall += () => UnityEditor.Selection.activeGameObject = gameObject;
+                    UnityEditor.EditorApplication.delayCall += () => UnityEditor.EditorApplication.RepaintHierarchyWindow();
                     break;
                 }
             }

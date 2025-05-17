@@ -2,7 +2,6 @@ using System;
 using UnityEngine;
 using VE2.Common.API;
 using VE2.Common.Shared;
-using VE2.Core.Common;
 using VE2.Core.VComponents.API;
 using static VE2.Common.Shared.CommonSerializables;
 
