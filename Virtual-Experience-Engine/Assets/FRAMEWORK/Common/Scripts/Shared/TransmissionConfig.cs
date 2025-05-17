@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using VE2.Core.Common;
 
 namespace VE2.Common.Shared
 {
