@@ -66,13 +66,9 @@ namespace VE2.Core.VComponents.Internal
             _RangedGrabInteractionModule.OnLocalInteractorRequestGrab += (InteractorID interactorID) => _StateModule.SetGrabbed(interactorID);
             _RangedGrabInteractionModule.OnLocalInteractorRequestDrop += (InteractorID interactorID) => _StateModule.SetDropped(interactorID);
             _RangedGrabInteractionModule.OnGrabDeltaApplied += ApplyDeltaWhenGrabbed;
-            _RangedGrabInteractionModule.OnInspectModeEnter += (Transform grabberTransform) => _StateModule.SetInspectModeEnter(grabberTransform);
-            _RangedGrabInteractionModule.OnInspectModeExit += (Transform grabberTransform) => _StateModule.SetInspectModeExit(grabberTransform);
 
             _StateModule.OnGrabConfirmed += HandleGrabConfirmed;
             _StateModule.OnDropConfirmed += HandleDropConfirmed;
-            _StateModule.OnInspectModeEnter += HandleOnInspectModeEnter;
-            _StateModule.OnInspectModeExit += HandleOnInspectModeExit;
         }
 
         //This is for teleporting the grabbed object along with the player - TODO: Tweak names for clarity 
@@ -133,9 +129,7 @@ namespace VE2.Core.VComponents.Internal
 
             Vector3 targetPosition = Camera.main.transform.position + new Vector3(0, 0, 0.5f);
 
-            _rigidbody.isKinematic = true;
-            _rigidbody.linearVelocity = Vector3.zero;
-            _rigidbody.angularVelocity = Vector3.zero;
+            grabberTransform.position = targetPosition;
 
             
         }
@@ -143,7 +137,7 @@ namespace VE2.Core.VComponents.Internal
         public void HandleOnInspectModeExit(Transform grabberTransform)
         {
             Debug.Log("HandleOnInspectModeExit Called in FGS");
-            _rigidbody.isKinematic = false;
+
             grabberTransform.position = _originalGrabPositionBeforeInspect;
             grabberTransform.rotation = _originalGrabRotationBeforeInspect;
         }
@@ -188,8 +182,6 @@ namespace VE2.Core.VComponents.Internal
 
             _StateModule.OnGrabConfirmed -= HandleGrabConfirmed;
             _StateModule.OnDropConfirmed -= HandleDropConfirmed;
-            _StateModule.OnInspectModeEnter -= HandleOnInspectModeEnter;
-            _StateModule.OnInspectModeExit -= HandleOnInspectModeExit;
         }
     }
 }

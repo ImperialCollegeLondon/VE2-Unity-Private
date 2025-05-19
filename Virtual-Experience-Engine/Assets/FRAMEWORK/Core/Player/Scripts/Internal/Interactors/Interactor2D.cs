@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using VE2.Core.Common;
 using VE2.Core.Player.API;
 using VE2.Core.VComponents.API;
+using UnityEngine.InputSystem;
 
 namespace VE2.Core.Player.Internal
 {
@@ -14,19 +15,28 @@ namespace VE2.Core.Player.Internal
         private readonly ColorConfiguration _colorConfig;
         private readonly PlayerConnectionPromptHandler _connectionPromptHandler;
         private Player2DInputContainer _player2DInputContainer;
-        private bool _isInspectMode = false;
+        private InspectModeIndicator _inspectModeIndicator;
+        private Transform _grabberInspectTransform;
+        private Tween _inspectModeTween = null;
+        private float verticalRotation = 0;
+
+        public Action OnEnterInspectMode;
+        public Action OnExitInspectMode;
+
         internal Interactor2D(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
             InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider,
-            ILocalClientIDProvider localClientIDProvider, Player2DInputContainer player2DInputContainer) :
+            ILocalClientIDProvider localClientIDProvider, Player2DInputContainer player2DInputContainer, InspectModeIndicator inspectModeIndicator) :
             base(interactorContainer, interactorInputContainer,
                 interactorReferences, interactorType, raycastProvider, localClientIDProvider, null, new HoveringOverScrollableIndicator())
         {
             Interactor2DReferences interactor2DReferences = interactorReferences as Interactor2DReferences;
             _reticuleImage = interactor2DReferences.ReticuleImage;
+            _inspectModeIndicator = inspectModeIndicator;
 
             _colorConfig = Resources.Load<ColorConfiguration>("ColorConfiguration"); //TODO: Inject, can probably actually go into the base class
 
             _connectionPromptHandler = interactor2DReferences.ConnectionPromptHandler;
+            _grabberInspectTransform = interactor2DReferences.GrabberInspectTransform;
             _player2DInputContainer = player2DInputContainer;
             if (_WaitingForLocalClientID)
                 _connectionPromptHandler.NotifyWaitingForConnection();
@@ -65,6 +75,19 @@ namespace VE2.Core.Player.Internal
             _player2DInputContainer.InspectModeButton.OnReleased -= HandleInspectModePressed;
         }
 
+        public override void HandleUpdate()
+        {
+            base.HandleUpdate();
+
+            if (_inspectModeIndicator.IsInspectModeEnabled)
+            {
+                float mouseX = Mouse.current.delta.x.ReadValue() * 0.1f;
+
+
+                float mouseY = Mouse.current.delta.y.ReadValue() * 0.1f;
+                GrabberTransform.Rotate(mouseY,-mouseX,0f);
+            }
+        }
         protected override void HandleStartGrabbingAdjustable(IRangedAdjustableInteractionModule rangedAdjustableInteraction)
         {
             //Unlike VR, we should just apply a one-time offset on grab, and have the grabber behave like its on the end of a stick
@@ -91,40 +114,56 @@ namespace VE2.Core.Player.Internal
         {
             if (!IsCurrentlyGrabbing)
             {
-                Debug.LogWarning("ToggleInspectMode - Cannot toggle inspect mode while grabbed. Ignoring request.");
+                Debug.LogWarning("ToggleInspectMode - Cannot toggle inspect mode while no object is grabbed. Ignoring request.");
                 return;
             }
 
-            _isInspectMode = !_isInspectMode;
+            if (_inspectModeTween != null && _inspectModeTween.IsPlaying())
+                _inspectModeTween.Kill();
 
-            IRangedGrabInteractionModule rangedGrabInteractionModule = _CurrentGrabbingGrabbable;
-            if (_isInspectMode)
-            {
-                Debug.Log("We are now in Inspect Mode");
-                rangedGrabInteractionModule.SetInspectModeEnter(_GrabberTransform);
-
-                //try
-                //{
-                //    _config.SetInspectModeEnter?.Invoke();
-                //}
-                //catch (Exception e)
-                //{
-                //    Debug.Log($"Error when emitting SetInspectModeEnter \n{e.Message}\n{e.StackTrace}");
-                //}
-            }
+            if (!_inspectModeIndicator.IsInspectModeEnabled)
+                EnterInspectMode();
             else
-            {
-                Debug.Log("We are now out of Inspect Mode");
-                rangedGrabInteractionModule.SetInspectModeExit(_GrabberTransform);
+                ExitInspectMode();
+        }
 
-                //try
-                //{
-                //    _config.SetInspectModeExit?.Invoke();
-                //}
-                //catch (Exception e)
-                //{
-                //    Debug.Log($"Error when emitting SetInspectModeExit \n{e.Message}\n{e.StackTrace}");
-                //}
+        private void EnterInspectMode()
+        {
+            Debug.Log("We are now in Inspect Mode");
+
+            try
+            {
+                _inspectModeTween = GrabberTransform.DOMove(_grabberInspectTransform.position, 0.3f).SetEase(Ease.InOutExpo);
+                OnEnterInspectMode?.Invoke();
+                _inspectModeIndicator.IsInspectModeEnabled = true;
+            }
+            catch (Exception e)
+            {
+                Debug.Log($"Error when emitting OnEnterInspectMode \n{e.Message}\n{e.StackTrace}");
+            }
+        }
+
+        private void ExitInspectMode()
+        {
+            Debug.Log("We are now out of Inspect Mode");
+
+            try
+            {
+                _inspectModeTween = GrabberTransform.DOLocalMove(Vector3.zero, 0.3f).SetEase(Ease.InOutExpo);
+                OnExitInspectMode?.Invoke();
+                _inspectModeIndicator.IsInspectModeEnabled = false;
+
+                if (_CurrentGrabbingGrabbable == null)
+                {
+                    V_Logger.Error("Tried to exit inspect mode, but no grabbable grabbed!");
+                    return;
+                }
+
+                GrabberTransform.localRotation = Quaternion.identity;
+            }
+            catch (Exception e)
+            {
+                Debug.Log($"Error when emitting OnExitInspectMode \n{e.Message}\n{e.StackTrace}");
             }
         }
     }

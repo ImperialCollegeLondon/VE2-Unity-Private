@@ -148,7 +148,7 @@ namespace VE2.Core.Player.Internal
             _interactorContainer.RegisterInteractor(_InteractorID.ToString(), this);
         }
 
-        public void HandleUpdate()
+        public virtual void HandleUpdate()
         {
             RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
 
@@ -327,7 +327,7 @@ namespace VE2.Core.Player.Internal
             }
         }
 
-        private void HandleGrabPressed()
+        public void HandleGrabPressed()
         {
             if (IsCurrentlyGrabbing)
             {
@@ -354,6 +354,8 @@ namespace VE2.Core.Player.Internal
                 }
             }
         }
+
+        //public abstract void HandleGrabPressed();
 
         public void ConfirmGrab(IRangedGrabInteractionModule rangedGrabInteractable)
         {

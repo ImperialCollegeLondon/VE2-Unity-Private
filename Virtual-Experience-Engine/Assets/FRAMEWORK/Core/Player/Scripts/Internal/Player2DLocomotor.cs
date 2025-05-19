@@ -19,6 +19,7 @@ namespace VE2.Core.Player.Internal
         private readonly Transform _verticalOffsetTransform;
         private readonly Transform _cameraTransform;
         private readonly LayerMask _groundLayer;
+        private readonly InspectModeIndicator _inspectModeIndicator;
 
         private float _originalControllerHeight;
         private float verticalVelocity = 0f;
@@ -69,13 +70,14 @@ namespace VE2.Core.Player.Internal
         }
 
         //TODO: Wire in input
-        internal Player2DLocomotor(Locomotor2DReferences locomotor2DReferences)
+        internal Player2DLocomotor(Locomotor2DReferences locomotor2DReferences, InspectModeIndicator inspectModeIndicator)
         {
             _characterController = locomotor2DReferences.Controller;
             _verticalOffsetTransform = locomotor2DReferences.VerticalOffsetTransform;
             _originalControllerHeight = locomotor2DReferences.Controller.height;
             _cameraTransform = locomotor2DReferences.CameraTransform;
             _groundLayer = locomotor2DReferences.GroundLayer;
+            _inspectModeIndicator = inspectModeIndicator;
 
             Application.focusChanged += OnFocusChanged;
             if (Application.isFocused)
@@ -118,13 +120,16 @@ namespace VE2.Core.Player.Internal
             if (Application.isFocused && isCursorLocked)
             {
                 // Mouse look
-                float mouseX = Mouse.current.delta.x.ReadValue() * mouseSensitivity;
-                _transform.Rotate(Vector3.up * mouseX);
+                if (!_inspectModeIndicator.IsInspectModeEnabled)
+                {
+                    float mouseX = Mouse.current.delta.x.ReadValue() * mouseSensitivity;
+                    _transform.Rotate(Vector3.up * mouseX);
 
-                float mouseY = Mouse.current.delta.y.ReadValue() * mouseSensitivity;
-                verticalRotation -= mouseY;
-                verticalRotation = Mathf.Clamp(verticalRotation, minVerticalAngle, maxVerticalAngle);
-                _cameraTransform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
+                    float mouseY = Mouse.current.delta.y.ReadValue() * mouseSensitivity;
+                    verticalRotation -= mouseY;
+                    verticalRotation = Mathf.Clamp(verticalRotation, minVerticalAngle, maxVerticalAngle);
+                    _cameraTransform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
+                }
 
                 // Movement
                 float moveX = Keyboard.current.dKey.ReadValue() - Keyboard.current.aKey.ReadValue();
@@ -172,7 +177,7 @@ namespace VE2.Core.Player.Internal
             isCursorLocked = false;
         }
 
-        bool IsGrounded() => 
+        bool IsGrounded() =>
             Physics.Raycast(_transform.position, Vector3.down, out RaycastHit hit, (_characterController.height / 2) + 0.1f, _groundLayer);
     }
 }

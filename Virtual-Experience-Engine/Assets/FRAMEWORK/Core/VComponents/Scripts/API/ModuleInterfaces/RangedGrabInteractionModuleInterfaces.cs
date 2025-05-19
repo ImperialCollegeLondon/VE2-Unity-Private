@@ -8,8 +8,6 @@ namespace VE2.Core.VComponents.API
     {
         public void RequestLocalGrab(InteractorID interactorID);
         public void RequestLocalDrop(InteractorID interactorID);
-        public void SetInspectModeEnter(Transform grabberTransform);
-        public void SetInspectModeExit(Transform grabberTransform);
         public List<IHandheldInteractionModule> HandheldInteractions { get; }
     }
 }

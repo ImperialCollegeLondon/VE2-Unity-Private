@@ -22,6 +22,9 @@ namespace VE2.Core.Player.Internal
 
         public Collider FeetCollider => _feetCollider;
         [SerializeField, IgnoreParent] private Collider _feetCollider;
+
+        public Transform GrabberInspectTransform => _grabberInspectTransform;
+        [SerializeField, IgnoreParent] private Transform _grabberInspectTransform;
     }
 
     internal class PlayerController2D : BasePlayerController
@@ -58,6 +61,7 @@ namespace VE2.Core.Player.Internal
         private readonly ISecondaryUIServiceInternal _secondaryUIService;
         private readonly RectTransform _secondaryUIHolder;
         private readonly RectTransform _overlayUIRect;
+        private readonly InspectModeIndicator _inspectModeIndicator;
 
         internal PlayerController2D(HandInteractorContainer interactorContainer, Player2DInputContainer player2DInputContainer, IPlayerPersistentDataHandler playerPersistentDataHandler,
             Player2DControlConfig controlConfig, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ILocalClientIDProvider multiplayerSupport, 
@@ -81,14 +85,15 @@ namespace VE2.Core.Player.Internal
             _primaryUIHolderRect = player2DReferences.PrimaryUIHolderRect;
             _secondaryUIHolder = player2DReferences.SecondaryUIHolderRect;
             _overlayUIRect = player2DReferences.OverlayUIRect;
+            _inspectModeIndicator = new InspectModeIndicator();
 
             _interactor2D = new(
                 interactorContainer, player2DInputContainer.InteractorInputContainer2D,
-                player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, multiplayerSupport, player2DInputContainer);
+                player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, multiplayerSupport, player2DInputContainer, _inspectModeIndicator);
 
             _feetInteractor2D = new(collisionDetectorFactory, ColliderType.Feet2D, player2DReferences.Interactor2DReferences.FeetCollider, InteractorType.Feet, multiplayerSupport);
 
-            _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences);
+            _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences, _inspectModeIndicator);
 
             base._PlayerHeadTransform = _playerLocomotor2D.HeadTransform;
             base._FeetCollisionDetector = _feetInteractor2D._collisionDetector as V_CollisionDetector;
@@ -190,5 +195,10 @@ namespace VE2.Core.Player.Internal
             if (_playerGO != null)
                 GameObject.Destroy(_playerGO);
         }
+    }
+
+    internal class InspectModeIndicator
+    {
+        public bool IsInspectModeEnabled = false;
     }
 }
