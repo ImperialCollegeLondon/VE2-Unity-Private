@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using VE2.Core.VComponents.API;
 using VE2.Common.Shared;
 using VE2.Common.API;
+using UnityEngine.Events;
 
 namespace VE2.Core.VComponents.Tests
 {
@@ -64,34 +65,73 @@ namespace VE2.Core.VComponents.Tests
         public void TearDownOnce() { }
     }
 
-    internal class V_LinearAdjustableProviderStub : IV_LinearAdjustable, IRangedGrabInteractionModuleProvider
+    internal partial class V_LinearAdjustableProviderStub : IV_LinearAdjustable
     {
-        #region Plugin Interfaces
-        IAdjustableStateModule IV_LinearAdjustable._AdjustableStateModule => _linearAdjustable.AdjustableStateModule;
-        IGrabbableStateModule IV_LinearAdjustable._GrabbableStateModule => _linearAdjustable.FreeGrabbableStateModule;
-        IRangedAdjustableInteractionModule IV_LinearAdjustable._RangedAdjustableModule => _linearAdjustable.RangedAdjustableInteractionModule;
+        #region State Module Interface
+        internal IAdjustableStateModule _AdjustableStateModule => _Service.AdjustableStateModule;
+        internal IGrabbableStateModule _GrabbableStateModule => _Service.FreeGrabbableStateModule;
+
+        public UnityEvent<float> OnValueAdjusted => _AdjustableStateModule.OnValueAdjusted;
+        public UnityEvent OnGrab => _GrabbableStateModule.OnGrab;
+        public UnityEvent OnDrop => _GrabbableStateModule.OnDrop;
+
+        public bool IsGrabbed => _GrabbableStateModule.IsGrabbed;
+        public bool IsLocallyGrabbed => _GrabbableStateModule.IsLocalGrabbed;
+        public float Value => _AdjustableStateModule.OutputValue;
+        public void SetValue(float value) => _AdjustableStateModule.SetOutputValue(value);
+        public float MinimumOutputValue { get => _AdjustableStateModule.MinimumOutputValue; set => _AdjustableStateModule.MinimumOutputValue = value; }
+        public float MaximumOutputValue { get => _AdjustableStateModule.MaximumOutputValue; set => _AdjustableStateModule.MaximumOutputValue = value; }
+
+        public float MinimumSpatialValue { get => _Service.MinimumSpatialValue; set => _Service.MinimumSpatialValue = value; }
+        public float MaximumSpatialValue { get => _Service.MaximumSpatialValue; set => _Service.MaximumSpatialValue = value; }
+        public float SpatialValue { get => _Service.SpatialValue; set => _Service.SpatialValue = value; }
+        public int NumberOfValues { get => _Service.NumberOfValues; set => _Service.NumberOfValues = value; }
+
+        public void SetMinimumAndMaximumSpatialValuesRange(float min, float max)
+        {
+            MinimumSpatialValue = min;
+            MaximumSpatialValue = max;
+        }
+
+        public void SetMinimumAndMaximumOutputValuesRange(float min, float max)
+        {
+            MinimumOutputValue = min;
+            MaximumOutputValue = max;
+        }
+
+        public IClientIDWrapper MostRecentInteractingClientID => _GrabbableStateModule.MostRecentInteractingClientID;
         #endregion
 
+        #region Ranged Interaction Module Interface
+        internal IRangedAdjustableInteractionModule _RangedAdjustableModule => _Service.RangedAdjustableInteractionModule;
+        public float InteractRange { get => _RangedAdjustableModule.InteractRange; set => _RangedAdjustableModule.InteractRange = value; }
+        #endregion
+
+        #region General Interaction Module Interface
+        //We have two General Interaction Modules here, it doesn't matter which one we point to, both share the same General Interaction Config object!
+        public bool AdminOnly {get => _RangedAdjustableModule.AdminOnly; set => _RangedAdjustableModule.AdminOnly = value; }
+        public bool EnableControllerVibrations { get => _RangedAdjustableModule.EnableControllerVibrations; set => _RangedAdjustableModule.EnableControllerVibrations = value; }
+        public bool ShowTooltipsAndHighlight { get => _RangedAdjustableModule.ShowTooltipsAndHighlight; set => _RangedAdjustableModule.ShowTooltipsAndHighlight = value; }
+        #endregion
+    }
+
+    internal partial class V_LinearAdjustableProviderStub : IRangedGrabInteractionModuleProvider
+    {
         #region Player Interfaces
-        IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _linearAdjustable.RangedAdjustableInteractionModule;
+        IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _Service.RangedAdjustableInteractionModule;
         #endregion
 
-        public float MinimumSpatialValue { get => _linearAdjustable.MinimumSpatialValue; set => _linearAdjustable.MinimumSpatialValue = value; }
-        public float MaximumSpatialValue { get => _linearAdjustable.MaximumSpatialValue; set => _linearAdjustable.MaximumSpatialValue = value; }
-        public float SpatialValue { get => _linearAdjustable.SpatialValue; set => _linearAdjustable.SpatialValue = value; }
-        public int NumberOfValues { get => _linearAdjustable.NumberOfValues; set => _linearAdjustable.NumberOfValues = value; }
-
-        protected LinearAdjustableService _linearAdjustable = null;
+        protected LinearAdjustableService _Service = null;
 
         public V_LinearAdjustableProviderStub(LinearAdjustableService linearAdjustable)
         {
-            _linearAdjustable = linearAdjustable;
+            _Service = linearAdjustable;
         }
 
         public void TearDown()
         {
-            _linearAdjustable.TearDown();
-            _linearAdjustable = null;
+            _Service.TearDown();
+            _Service = null;
         }
     }
 }

@@ -7,13 +7,18 @@ using VE2.NonCore.Instancing.API;
 
 namespace VE2.NonCore.Instancing.Internal
 {
-    internal class V_RigidbodySyncable : MonoBehaviour, IV_RigidbodySyncable
+    internal partial class V_RigidbodySyncable : IV_RigidbodySyncable
+    {
+        //No plugin-facing interfaces here (yet)
+    }
+
+    internal partial class V_RigidbodySyncable : MonoBehaviour
     {
         [SerializeField, HideLabel, IgnoreParent] private RigidbodySyncableStateConfig _config = new();
         [SerializeField, HideInInspector] private RigidbodySyncableState _state = new();
 
         #region Plugin Interfaces
-        IRigidbodySyncableStateModule IV_RigidbodySyncable._StateModule => _Service.StateModule;
+        IRigidbodySyncableStateModule _StateModule => _Service.StateModule;
         #endregion
 
         private RigidbodySyncableService _service = null;

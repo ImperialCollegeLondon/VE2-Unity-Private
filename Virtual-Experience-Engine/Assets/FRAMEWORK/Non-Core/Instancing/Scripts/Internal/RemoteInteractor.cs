@@ -56,7 +56,7 @@ namespace VE2.NonCore.Instancing.Internal
                 GameObject activatableObject = GameObject.Find(cleanID);
 
                 if (activatableObject != null)
-                    return activatableObject.GetComponent<IV_HoldActivatable>()._RangedHoldClickModule;
+                    return activatableObject.GetComponent<IRangedInteractionModuleProvider>().RangedInteractionModule as IRangedHoldClickInteractionModule;
                 else
                     return null;
             }
@@ -72,7 +72,7 @@ namespace VE2.NonCore.Instancing.Internal
                 GameObject activatableObject = GameObject.Find(cleanID);
 
                 if (activatableObject != null)
-                    return activatableObject.GetComponent<IV_PressurePlate>()._ColliderModule;
+                    return activatableObject.GetComponent<ICollideInteractionModuleProvider>().CollideInteractionModule;
                 else
                     return null;
             }

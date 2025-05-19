@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using NSubstitute;
 using NUnit.Framework;
+using UnityEngine.Events;
 using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
@@ -70,27 +71,47 @@ namespace VE2.Core.VComponents.Tests
         public virtual void HandleDropReceived() { }
     }
 
-    internal class V_FreeGrabbableProviderStub : IV_FreeGrabbable, IRangedGrabInteractionModuleProvider
+    internal partial class V_FreeGrabbableProviderStub : IV_FreeGrabbable
     {
-        #region Plugin Interfaces     
-        IGrabbableStateModule IV_FreeGrabbable._StateModule => _service.StateModule;
-        IRangedGrabInteractionModule IV_FreeGrabbable._RangedGrabModule => _service.RangedGrabInteractionModule;
+        #region State Module Interface
+        internal IGrabbableStateModule _StateModule => _Service.StateModule;
+
+        public UnityEvent OnGrab => _StateModule.OnGrab;
+        public UnityEvent OnDrop => _StateModule.OnDrop;
+
+        public bool IsGrabbed { get { return _StateModule.IsGrabbed; } }
+        public IClientIDWrapper MostRecentInteractingClientID => _StateModule.MostRecentInteractingClientID;
         #endregion
 
+        #region Ranged Interaction Module Interface
+        internal IRangedGrabInteractionModule _RangedGrabModule => _Service.RangedGrabInteractionModule;
+        public float InteractRange { get => _RangedGrabModule.InteractRange; set => _RangedGrabModule.InteractRange = value; }
+        #endregion
+
+        #region General Interaction Module Interface
+        //We have two General Interaction Modules here, it doesn't matter which one we point to, both share the same General Interaction Config object!
+        public bool AdminOnly {get => _RangedGrabModule.AdminOnly; set => _RangedGrabModule.AdminOnly = value; }
+        public bool EnableControllerVibrations { get => _RangedGrabModule.EnableControllerVibrations; set => _RangedGrabModule.EnableControllerVibrations = value; }
+        public bool ShowTooltipsAndHighlight { get => _RangedGrabModule.ShowTooltipsAndHighlight; set => _RangedGrabModule.ShowTooltipsAndHighlight = value; }
+        #endregion
+    }
+
+    internal partial class V_FreeGrabbableProviderStub : IRangedGrabInteractionModuleProvider
+    {
         #region Player Interfaces
-        IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _service.RangedGrabInteractionModule;
+        IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _Service.RangedGrabInteractionModule;
         #endregion
 
-        private readonly FreeGrabbableService _service = null;
+        private readonly FreeGrabbableService _Service = null;
 
         public V_FreeGrabbableProviderStub(FreeGrabbableService service)
         {
-            _service = service;
+            _Service = service;
         }
 
         public void TearDown()
         {
-            _service.TearDown();
+            _Service.TearDown();
         }
     }
 }

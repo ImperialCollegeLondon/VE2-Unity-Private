@@ -6,6 +6,7 @@ using VE2.Common.Shared;
 using System.Collections.Generic;
 using VE2.Core.VComponents.API;
 using VE2.Common.API;
+using UnityEngine.Events;
 
 namespace VE2.Core.VComponents.Tests
 {
@@ -63,34 +64,73 @@ namespace VE2.Core.VComponents.Tests
         public void TearDownOnce() { }
     }
 
-    internal class V_RotationalAdjustableProviderStub : IV_RotationalAdjustable, IRangedGrabInteractionModuleProvider
+    internal partial class V_RotationalAdjustableProviderStub : IV_RotationalAdjustable
     {
-        #region Plugin Interfaces
-        IAdjustableStateModule IV_RotationalAdjustable._AdjustableStateModule => _rotationalAdjustable.AdjustableStateModule;
-        IGrabbableStateModule IV_RotationalAdjustable._GrabbableStateModule => _rotationalAdjustable.GrabbableStateModule;
-        IRangedAdjustableInteractionModule IV_RotationalAdjustable._RangedAdjustableModule => _rotationalAdjustable.RangedAdjustableInteractionModule;
-        #endregion
+        #region State Module Interface
+        internal IAdjustableStateModule _AdjustableStateModule => _Service.AdjustableStateModule;
+        internal IGrabbableStateModule _GrabbableStateModule => _Service.GrabbableStateModule;
 
-        #region Player Interfaces
-        IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _rotationalAdjustable.RangedAdjustableInteractionModule;
-        #endregion
+        public UnityEvent<float> OnValueAdjusted => _AdjustableStateModule.OnValueAdjusted;
+        public UnityEvent OnGrab => _GrabbableStateModule.OnGrab;
+        public UnityEvent OnDrop => _GrabbableStateModule.OnDrop;
 
-        public float MinimumSpatialValue { get => _rotationalAdjustable.MinimumSpatialValue; set => _rotationalAdjustable.MinimumSpatialValue = value; }
-        public float MaximumSpatialValue { get => _rotationalAdjustable.MaximumSpatialValue; set => _rotationalAdjustable.MaximumSpatialValue = value; }
-        public float SpatialValue { get => _rotationalAdjustable.SpatialValue; set => _rotationalAdjustable.SpatialValue = value; }
-        public int NumberOfValues { get => _rotationalAdjustable.NumberOfValues; set => _rotationalAdjustable.NumberOfValues = value; }
+        public bool IsGrabbed => _GrabbableStateModule.IsGrabbed;
+        public bool IsLocallyGrabbed => _GrabbableStateModule.IsLocalGrabbed;
+        public float Value => _AdjustableStateModule.OutputValue;
+        public void SetValue(float value) => _AdjustableStateModule.SetOutputValue(value);
+        public float MinimumOutputValue { get => _AdjustableStateModule.MinimumOutputValue; set => _AdjustableStateModule.MinimumOutputValue = value; }
+        public float MaximumOutputValue { get => _AdjustableStateModule.MaximumOutputValue; set => _AdjustableStateModule.MaximumOutputValue = value; }
 
-        protected RotationalAdjustableService _rotationalAdjustable = null;
+        public float MinimumSpatialValue { get => _Service.MinimumSpatialValue; set => _Service.MinimumSpatialValue = value; }
+        public float MaximumSpatialValue { get => _Service.MaximumSpatialValue; set => _Service.MaximumSpatialValue = value; }
+        public float SpatialValue { get => _Service.SpatialValue; set => _Service.SpatialValue = value; }
+        public int NumberOfValues { get => _Service.NumberOfValues; set => _Service.NumberOfValues = value; }
 
-        public V_RotationalAdjustableProviderStub(RotationalAdjustableService rotationalAdjustable)
+        public void SetMinimumAndMaximumSpatialValuesRange(float min, float max)
         {
-            _rotationalAdjustable = rotationalAdjustable;
+            MinimumSpatialValue = min;
+            MaximumSpatialValue = max;
+        }
+
+        public void SetMinimumAndMaximumOutputValuesRange(float min, float max)
+        {
+            MinimumOutputValue = min;
+            MaximumOutputValue = max;
+        }
+        
+        public IClientIDWrapper MostRecentInteractingClientID => _GrabbableStateModule.MostRecentInteractingClientID;
+        #endregion
+
+        #region Ranged Interaction Module Interface
+        internal IRangedAdjustableInteractionModule _RangedAdjustableModule => _Service.RangedAdjustableInteractionModule;
+        public float InteractRange { get => _RangedAdjustableModule.InteractRange; set => _RangedAdjustableModule.InteractRange = value; }
+        #endregion
+
+        #region General Interaction Module Interface
+        //We have two General Interaction Modules here, it doesn't matter which one we point to, both share the same General Interaction Config object!
+        public bool AdminOnly {get => _RangedAdjustableModule.AdminOnly; set => _RangedAdjustableModule.AdminOnly = value; }
+        public bool EnableControllerVibrations { get => _RangedAdjustableModule.EnableControllerVibrations; set => _RangedAdjustableModule.EnableControllerVibrations = value; }
+        public bool ShowTooltipsAndHighlight { get => _RangedAdjustableModule.ShowTooltipsAndHighlight; set => _RangedAdjustableModule.ShowTooltipsAndHighlight = value; }
+        #endregion
+    }
+
+    internal partial class V_RotationalAdjustableProviderStub : IRangedGrabInteractionModuleProvider
+    {
+        #region Player Interfaces
+        IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _Service.RangedAdjustableInteractionModule;
+        #endregion
+
+        protected RotationalAdjustableService _Service = null;
+
+        public V_RotationalAdjustableProviderStub(RotationalAdjustableService service)
+        {
+            _Service = service;
         }
 
         public void TearDown()
         {
-            _rotationalAdjustable.TearDown();
-            _rotationalAdjustable = null;
+            _Service.TearDown();
+            _Service = null;
         }
     }
 }

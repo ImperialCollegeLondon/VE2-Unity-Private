@@ -6,26 +6,24 @@ namespace VE2.Core.VComponents.API
     public interface IV_HandheldActivatable 
     {
         #region State Module Interface
-        internal ISingleInteractorActivatableStateModule _StateModule { get; }
 
-        public UnityEvent OnActivate => _StateModule.OnActivate;
-        public UnityEvent OnDeactivate => _StateModule.OnDeactivate;
+        public UnityEvent OnActivate { get; }
+        public UnityEvent OnDeactivate { get; }
 
-        public bool IsActivated  => _StateModule.IsActivated;
-        public void Activate() => _StateModule.Activate();
-        public void Deactivate() => _StateModule.Deactivate();
-        public void SetActivated(bool isActivated) => _StateModule.SetActivated(isActivated);
-        public IClientIDWrapper MostRecentInteractingClientID => _StateModule.MostRecentInteractingClientID;
-        #endregion
+        public bool IsActivated { get; }
+        public void Activate();
+        public void Deactivate();
+        public void SetActivated(bool isActivated);
+        public IClientIDWrapper MostRecentInteractingClientID { get; }
 
-        #region Handheld Interaction Module Interface
-        internal IHandheldClickInteractionModule _HandheldClickModule{ get; }
         #endregion
 
         #region General Interaction Module Interface
-        public bool AdminOnly {get => _HandheldClickModule.AdminOnly; set => _HandheldClickModule.AdminOnly = value; }
-        public bool EnableControllerVibrations { get => _HandheldClickModule.EnableControllerVibrations; set => _HandheldClickModule.EnableControllerVibrations = value; }
-        public bool ShowTooltipsAndHighlight { get => _HandheldClickModule.ShowTooltipsAndHighlight; set => _HandheldClickModule.ShowTooltipsAndHighlight = value; }
+
+        public bool AdminOnly { get; set; }
+        public bool EnableControllerVibrations { get; set; }
+        public bool ShowTooltipsAndHighlight { get; set; }
+
         #endregion
     }
 }

@@ -1,5 +1,6 @@
 using NSubstitute;
 using NUnit.Framework;
+using UnityEngine.Events;
 using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
@@ -36,10 +37,10 @@ namespace VE2.Core.VComponents.Tests
                 ActivatableRangedInteractionConfig = new()
             };
             ToggleActivatableService toggleActivatable = new(
-                config, 
-                new SingleInteractorActivatableState(), 
-                "debug", 
-                Substitute.For<IWorldStateSyncableContainer>(), 
+                config,
+                new SingleInteractorActivatableState(),
+                "debug",
+                Substitute.For<IWorldStateSyncableContainer>(),
                 _activatableGroupsContainer,
                 Substitute.For<IClientIDWrapper>());
 
@@ -100,10 +101,10 @@ namespace VE2.Core.VComponents.Tests
                 ActivatableRangedInteractionConfig = new()
             };
             ToggleActivatableService toggleActivatable2 = new(
-                config, 
-                new SingleInteractorActivatableState(), 
-                "debug2", 
-                Substitute.For<IWorldStateSyncableContainer>(), 
+                config,
+                new SingleInteractorActivatableState(),
+                "debug2",
+                Substitute.For<IWorldStateSyncableContainer>(),
                 _activatableGroupsContainer,
                 Substitute.For<IClientIDWrapper>());
 
@@ -137,12 +138,39 @@ namespace VE2.Core.VComponents.Tests
         public virtual void HandleDeactivateReceived() { }
     }
 
-    internal class V_ToggleActivatableProviderStub : IV_ToggleActivatable, IRangedToggleClickInteractionModuleProvider, ICollideInteractionModuleProvider
+    partial class V_ToggleActivatableProviderStub : IV_ToggleActivatable
+    {
+        #region State Module Interface
+
+        public UnityEvent OnActivate => _StateModule.OnActivate;
+        public UnityEvent OnDeactivate => _StateModule.OnDeactivate;
+
+        public bool IsActivated  => _StateModule.IsActivated;
+        public void Activate() => _StateModule.Activate();
+        public void Deactivate() => _StateModule.Deactivate();
+        public void SetActivated(bool isActivated) => _StateModule.SetActivated(isActivated);
+        public IClientIDWrapper MostRecentInteractingClientID => _StateModule.MostRecentInteractingClientID;
+
+        public void SetNetworked(bool isNetworked) => _StateModule.SetNetworked(isNetworked);
+        #endregion
+
+        #region Ranged Interaction Module Interface
+        public float InteractRange { get => _RangedToggleClickModule.InteractRange; set => _RangedToggleClickModule.InteractRange = value; }
+        #endregion
+
+        #region General Interaction Module Interface
+        //We have two General Interaction Modules here, it doesn't matter which one we point to, both share the same General Interaction Config object!
+        public bool AdminOnly {get => _RangedToggleClickModule.AdminOnly; set => _RangedToggleClickModule.AdminOnly = value; }
+        public bool EnableControllerVibrations { get => _RangedToggleClickModule.EnableControllerVibrations; set => _RangedToggleClickModule.EnableControllerVibrations = value; }
+        public bool ShowTooltipsAndHighlight { get => _RangedToggleClickModule.ShowTooltipsAndHighlight; set => _RangedToggleClickModule.ShowTooltipsAndHighlight = value; }
+        #endregion
+    }
+
+    internal partial class V_ToggleActivatableProviderStub : IRangedToggleClickInteractionModuleProvider, ICollideInteractionModuleProvider
     {
         #region Plugin Interfaces
-
-        ISingleInteractorActivatableStateModule IV_ToggleActivatable._StateModule => _ToggleActivatable.StateModule;
-        IRangedToggleClickInteractionModule IV_ToggleActivatable._RangedToggleClickModule => _ToggleActivatable.RangedClickInteractionModule;
+        ISingleInteractorActivatableStateModule _StateModule => _ToggleActivatable.StateModule;
+        IRangedToggleClickInteractionModule _RangedToggleClickModule => _ToggleActivatable.RangedClickInteractionModule;
         #endregion
 
         #region Player Interfaces

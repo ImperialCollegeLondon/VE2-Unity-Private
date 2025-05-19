@@ -69,6 +69,7 @@ namespace VE2.NonCore.Instancing.Internal
                 _grabbableRigidbody = grabbableRigidbody;
                 _grabbableRigidbody.InternalOnGrab += HandleOnGrab;
                 _grabbableRigidbody.InternalOnDrop += HandleOnDrop;
+                _grabbableRigidbody.FreeGrabbableHandlesKinematics = false;
             }
 
             _receivedRigidbodyStates = new();
@@ -76,8 +77,6 @@ namespace VE2.NonCore.Instancing.Internal
             _stateModule.OnReceiveState?.AddListener(HandleReceiveRigidbodyState);
             _instanceService.OnBecomeHost += HandleBecomeHost;
             _instanceService.OnLoseHost += HandleBecomeNonHost;
-
-            grabbableRigidbody.FreeGrabbableHandlesKinematics = false;
         }
 
         private void HandleOnGrab(ushort grabberClientID)

@@ -1,19 +1,27 @@
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 using VE2.Common.API;
 using VE2.Core.VComponents.API;
 using VE2.NonCore.Instancing.API;
 
 namespace VE2.NonCore.Instancing.Internal
 {
-    internal class V_NetworkObject : MonoBehaviour, IV_NetworkObject
+    internal partial class V_NetworkObject : IV_NetworkObject
+    {
+        #region State Module Interface
+        internal INetworkObjectStateModule _StateModule => _Service.StateModule;
+
+        public UnityEvent<object> OnDataChange => _StateModule.OnStateChange;
+        public object CurrentData => _StateModule.NetworkObject;
+        public void UpdateData(object data) => _StateModule.NetworkObject = data;
+        #endregion
+    }
+
+    internal partial class V_NetworkObject : MonoBehaviour
     {
         [SerializeField, HideLabel, IgnoreParent] private NetworkObjectStateConfig _config = new();
         [SerializeField, HideInInspector] private NetworkObjectState _state = new();
-
-        #region Plugin Interfaces
-        INetworkObjectStateModule IV_NetworkObject._StateModule => _Service.StateModule;
-        #endregion
 
         private NetworkObjectService _service = null;
         private NetworkObjectService _Service

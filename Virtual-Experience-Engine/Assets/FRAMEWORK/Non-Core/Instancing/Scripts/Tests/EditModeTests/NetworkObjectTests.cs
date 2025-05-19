@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using VE2.NonCore.Instancing.API;
 using VE2.NonCore.Instancing.Internal;
 using VE2.Common.Shared;
+using UnityEngine.Events;
 
 namespace VE2.NonCore.Instancing.VComponents.Tests
 {
@@ -57,17 +58,24 @@ namespace VE2.NonCore.Instancing.VComponents.Tests
         }
     }
 
-    internal class V_NetworkObjectStub : IV_NetworkObject //We can't Substitute.For a MonoBehaviour, so we create an explicit test double class instead 
+    internal partial class V_NetworkObjectStub : IV_NetworkObject
     {
-        #region Plugin Interfaces
-        INetworkObjectStateModule IV_NetworkObject._StateModule => _NetworkService.StateModule;
+        #region State Module Interface
+        internal INetworkObjectStateModule _StateModule => _Service.StateModule;
+
+        public UnityEvent<object> OnDataChange => _StateModule.OnStateChange;
+        public object CurrentData => _StateModule.NetworkObject;
+        public void UpdateData(object data) => _StateModule.NetworkObject = data;
         #endregion
+    }
 
-        protected NetworkObjectService _NetworkService = null;
+    internal partial class V_NetworkObjectStub //We can't Substitute.For a MonoBehaviour, so we create an explicit test double class instead 
+    {
+        protected NetworkObjectService _Service = null;
 
-        public V_NetworkObjectStub(NetworkObjectService networkService)
+        public V_NetworkObjectStub(NetworkObjectService service)
         {
-            _NetworkService = networkService;
+            _Service = service;
         }
     }
 }

@@ -3,29 +3,74 @@ using System.Collections.Generic;
 using VE2.Core.VComponents.API;
 using VE2.Common.API;
 using VE2.Common.Shared;
+using UnityEngine.Events;
 
 namespace VE2.Core.VComponents.Internal
 {
-    internal class V_LinearAdjustable : MonoBehaviour, IV_LinearAdjustable, IRangedGrabInteractionModuleProvider
+    internal partial class V_LinearAdjustable : IV_LinearAdjustable
+    {
+        #region State Module Interface
+        internal IAdjustableStateModule _AdjustableStateModule => _Service.AdjustableStateModule;
+        internal IGrabbableStateModule _GrabbableStateModule => _Service.FreeGrabbableStateModule;
+
+        public UnityEvent<float> OnValueAdjusted => _AdjustableStateModule.OnValueAdjusted;
+        public UnityEvent OnGrab => _GrabbableStateModule.OnGrab;
+        public UnityEvent OnDrop => _GrabbableStateModule.OnDrop;
+
+        public bool IsGrabbed => _GrabbableStateModule.IsGrabbed;
+        public bool IsLocallyGrabbed => _GrabbableStateModule.IsLocalGrabbed;
+        public float Value => _AdjustableStateModule.OutputValue;
+        public void SetValue(float value) => _AdjustableStateModule.SetOutputValue(value);
+        public float MinimumOutputValue { get => _AdjustableStateModule.MinimumOutputValue; set => _AdjustableStateModule.MinimumOutputValue = value; }
+        public float MaximumOutputValue { get => _AdjustableStateModule.MaximumOutputValue; set => _AdjustableStateModule.MaximumOutputValue = value; }
+
+        public float MinimumSpatialValue { get => _Service.MinimumSpatialValue; set => _Service.MinimumSpatialValue = value; }
+        public float MaximumSpatialValue { get => _Service.MaximumSpatialValue; set => _Service.MaximumSpatialValue = value; }
+        public float SpatialValue { get => _Service.SpatialValue; set => _Service.SpatialValue = value; }
+        public int NumberOfValues { get => _Service.NumberOfValues; set => _Service.NumberOfValues = value; }
+
+        public void SetMinimumAndMaximumSpatialValuesRange(float min, float max)
+        {
+            MinimumSpatialValue = min;
+            MaximumSpatialValue = max;
+        }
+
+        public void SetMinimumAndMaximumOutputValuesRange(float min, float max)
+        {
+            MinimumOutputValue = min;
+            MaximumOutputValue = max;
+        }
+
+        public IClientIDWrapper MostRecentInteractingClientID => _GrabbableStateModule.MostRecentInteractingClientID;
+        #endregion
+
+        #region Ranged Interaction Module Interface
+        internal IRangedAdjustableInteractionModule _RangedAdjustableModule => _Service.RangedAdjustableInteractionModule;
+        public float InteractRange { get => _RangedAdjustableModule.InteractRange; set => _RangedAdjustableModule.InteractRange = value; }
+        #endregion
+
+        #region General Interaction Module Interface
+        //We have two General Interaction Modules here, it doesn't matter which one we point to, both share the same General Interaction Config object!
+        public bool AdminOnly {get => _RangedAdjustableModule.AdminOnly; set => _RangedAdjustableModule.AdminOnly = value; }
+        public bool EnableControllerVibrations { get => _RangedAdjustableModule.EnableControllerVibrations; set => _RangedAdjustableModule.EnableControllerVibrations = value; }
+        public bool ShowTooltipsAndHighlight { get => _RangedAdjustableModule.ShowTooltipsAndHighlight; set => _RangedAdjustableModule.ShowTooltipsAndHighlight = value; }
+        #endregion
+    }
+    
+    internal partial class V_LinearAdjustable : MonoBehaviour, IRangedGrabInteractionModuleProvider
     {
         [SerializeField, HideLabel, IgnoreParent] private LinearAdjustableConfig _config = new();
         [SerializeField, HideInInspector] private AdjustableState _adjustableState = null;
         [SerializeField, HideInInspector] private GrabbableState _freeGrabbableState = new();
-
-        #region Plugin Interfaces
-        IAdjustableStateModule IV_LinearAdjustable._AdjustableStateModule => _Service.AdjustableStateModule;
-        IGrabbableStateModule IV_LinearAdjustable._GrabbableStateModule => _Service.FreeGrabbableStateModule;
-        IRangedAdjustableInteractionModule IV_LinearAdjustable._RangedAdjustableModule => _Service.RangedAdjustableInteractionModule;
-        #endregion
 
         #region Player Interfaces
         IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _Service.RangedAdjustableInteractionModule;
         #endregion
 
         #region Inspector Utils
-        internal Collider Collider 
+        internal Collider Collider
         {
-            get 
+            get
             {
                 if (_config.InteractionConfig.AttachPoint == null)
                     _config.InteractionConfig.AttachPoint = transform;
@@ -34,11 +79,6 @@ namespace VE2.Core.VComponents.Internal
         }
         internal string AttachPointGOName => _config.InteractionConfig.AttachPoint.name;
         #endregion
-
-        public float MinimumSpatialValue { get => _Service.MinimumSpatialValue; set => _Service.MinimumSpatialValue = value; }
-        public float MaximumSpatialValue { get => _Service.MaximumSpatialValue; set => _Service.MaximumSpatialValue = value; }
-        public float SpatialValue { get => _Service.SpatialValue; set => _Service.SpatialValue = value; }
-        public int NumberOfValues { get => _Service.NumberOfValues; set => _Service.NumberOfValues = value; }
 
         private LinearAdjustableService _service = null;
         private LinearAdjustableService _Service
@@ -68,10 +108,10 @@ namespace VE2.Core.VComponents.Internal
 
             string id = "LinearAdjustable-" + gameObject.name;
 
-            if(_adjustableState == null)
-                _adjustableState = new AdjustableState(float.MaxValue);  
-            
-            List<IHandheldInteractionModule> handheldInteractions = new(); 
+            if (_adjustableState == null)
+                _adjustableState = new AdjustableState(float.MaxValue);
+
+            List<IHandheldInteractionModule> handheldInteractions = new();
 
             //TODO: THINK ABOUT THIS - do we want to allow adjustables to also have activatables on them?
             // if(TryGetComponent(out V_HandheldActivatable handheldActivatable))
@@ -88,13 +128,13 @@ namespace VE2.Core.VComponents.Internal
                 id,
                 VE2API.WorldStateSyncableContainer,
                 VE2API.GrabInteractablesContainer,
-                VE2API.InteractorContainer, 
+                VE2API.InteractorContainer,
                 VE2API.LocalClientIdWrapper);
         }
 
         private void FixedUpdate()
         {
-            _service.HandleFixedUpdate();         
+            _service.HandleFixedUpdate();
         }
 
         private void OnDisable()
