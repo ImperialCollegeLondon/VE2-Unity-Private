@@ -13,13 +13,13 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField, HideInInspector] private GrabbableState _freeGrabbableState = new();
 
         #region Plugin Interfaces
-        IAdjustableStateModule IV_RotationalAdjustable._AdjustableStateModule => _service.AdjustableStateModule;
-        IGrabbableStateModule IV_RotationalAdjustable._GrabbableStateModule => _service.GrabbableStateModule;
-        IRangedAdjustableInteractionModule IV_RotationalAdjustable._RangedAdjustableModule => _service.RangedAdjustableInteractionModule;
+        IAdjustableStateModule IV_RotationalAdjustable._AdjustableStateModule => _Service.AdjustableStateModule;
+        IGrabbableStateModule IV_RotationalAdjustable._GrabbableStateModule => _Service.GrabbableStateModule;
+        IRangedAdjustableInteractionModule IV_RotationalAdjustable._RangedAdjustableModule => _Service.RangedAdjustableInteractionModule;
         #endregion
 
         #region Player Interfaces
-        IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _service.RangedAdjustableInteractionModule;
+        IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _Service.RangedAdjustableInteractionModule;
         #endregion
 
         #region Inspector Utils
@@ -35,12 +35,21 @@ namespace VE2.Core.VComponents.Internal
         internal string AttachPointGOName => _config.InteractionConfig.AttachPoint.name;
         #endregion
 
-        public float MinimumSpatialValue { get => _service.MinimumSpatialValue; set => _service.MinimumSpatialValue = value; }
-        public float MaximumSpatialValue { get => _service.MaximumSpatialValue; set => _service.MaximumSpatialValue = value; }
-        public float SpatialValue { get => _service.SpatialValue; set => _service.SpatialValue = value; }
-        public int NumberOfValues { get => _service.NumberOfValues; set => _service.NumberOfValues = value; }
+        public float MinimumSpatialValue { get => _Service.MinimumSpatialValue; set => _Service.MinimumSpatialValue = value; }
+        public float MaximumSpatialValue { get => _Service.MaximumSpatialValue; set => _Service.MaximumSpatialValue = value; }
+        public float SpatialValue { get => _Service.SpatialValue; set => _Service.SpatialValue = value; }
+        public int NumberOfValues { get => _Service.NumberOfValues; set => _Service.NumberOfValues = value; }
 
         private RotationalAdjustableService _service = null;
+        private RotationalAdjustableService _Service
+        {
+            get
+            {
+                if (_service == null)
+                    OnEnable();
+                return _service;
+            }
+        }
 
         private void OnValidate()
         {
@@ -54,6 +63,9 @@ namespace VE2.Core.VComponents.Internal
 
         private void OnEnable()
         {
+            if (!Application.isPlaying || _service != null)
+                return;
+
             string id = "RotationalAdjustable-" + gameObject.name;
 
             if(_adjustableState == null)

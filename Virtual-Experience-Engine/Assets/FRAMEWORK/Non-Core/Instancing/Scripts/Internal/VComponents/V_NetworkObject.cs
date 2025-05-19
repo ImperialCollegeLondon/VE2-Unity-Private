@@ -12,13 +12,25 @@ namespace VE2.NonCore.Instancing.Internal
         [SerializeField, HideInInspector] private NetworkObjectState _state = new();
 
         #region Plugin Interfaces
-        INetworkObjectStateModule IV_NetworkObject._StateModule => _service.StateModule;
+        INetworkObjectStateModule IV_NetworkObject._StateModule => _Service.StateModule;
         #endregion
 
         private NetworkObjectService _service = null;
+        private NetworkObjectService _Service
+        {
+            get
+            {
+                if (_service == null)
+                    OnEnable();
+                return _service;
+            }
+        }
 
         private void OnEnable()
         {
+            if (!Application.isPlaying || _service != null)
+                return;
+
             string id = "NetObj-" + gameObject.name;
 
             if (VE2API.InstanceService == null)

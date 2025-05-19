@@ -13,13 +13,25 @@ namespace VE2.NonCore.Instancing.Internal
         [SerializeField, HideInInspector] private RigidbodySyncableState _state = new();
 
         #region Plugin Interfaces
-        IRigidbodySyncableStateModule IV_RigidbodySyncable._StateModule => _service.StateModule;
+        IRigidbodySyncableStateModule IV_RigidbodySyncable._StateModule => _Service.StateModule;
         #endregion
 
         private RigidbodySyncableService _service = null;
+        private RigidbodySyncableService _Service
+        {
+            get
+            {
+                if (_service == null)
+                    OnEnable();
+                return _service;
+            }
+        }
 
         private void OnEnable()
         {
+            if (!Application.isPlaying || _service != null)
+                return;
+
             string id = "RBS-" + gameObject.name;
             IRigidbodyWrapper rigidbodyWrapper = new RigidbodyWrapper(GetComponent<Rigidbody>());
             IGrabbableRigidbody grabbableRigidbody = GetComponent<IGrabbableRigidbody>();
@@ -29,7 +41,7 @@ namespace VE2.NonCore.Instancing.Internal
                 Debug.LogError("Instance service is null, cannot initialise RigidbodySyncable, please add a V_InstanceIntegration component to the scene.");
                 return;
             }
-            
+
             _service = new RigidbodySyncableService(_config, _state, id, VE2API.WorldStateSyncableContainer, VE2API.InstanceService, rigidbodyWrapper, grabbableRigidbody);
         }
 

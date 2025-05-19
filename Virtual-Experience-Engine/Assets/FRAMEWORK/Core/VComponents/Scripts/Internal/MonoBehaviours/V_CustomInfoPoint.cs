@@ -24,11 +24,20 @@ namespace VE2.Core.VComponents.Integration
         #endregion
 
         private V_ToggleActivatable _triggerActivatable = null;
-        private IV_ToggleActivatable _triggerProgrammaticInterface => _triggerActivatable as IV_ToggleActivatable;
+        private V_ToggleActivatable _TriggerActivatable
+        {
+            get
+            {
+                if (_triggerActivatable == null)
+                    OnEnable();
+                return _triggerActivatable;
+            }
+        }
+        private IV_ToggleActivatable _triggerProgrammaticInterface => _TriggerActivatable as IV_ToggleActivatable;
 
         private void OnEnable()
         {
-            if (!Application.isPlaying)
+            if (!Application.isPlaying || _triggerActivatable != null)
                 return;
 
             //Set up trigger=================================

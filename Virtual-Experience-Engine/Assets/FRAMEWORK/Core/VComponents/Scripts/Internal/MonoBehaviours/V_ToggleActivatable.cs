@@ -13,13 +13,13 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField, HideInInspector] private SingleInteractorActivatableState _state = new();
 
         #region Plugin Interfaces
-        ISingleInteractorActivatableStateModule IV_ToggleActivatable._StateModule => _service.StateModule;
-        IRangedToggleClickInteractionModule IV_ToggleActivatable._RangedToggleClickModule => _service.RangedClickInteractionModule;
+        ISingleInteractorActivatableStateModule IV_ToggleActivatable._StateModule => _Service.StateModule;
+        IRangedToggleClickInteractionModule IV_ToggleActivatable._RangedToggleClickModule => _Service.RangedClickInteractionModule;
         #endregion
 
         #region Player Interfaces
-        ICollideInteractionModule ICollideInteractionModuleProvider.CollideInteractionModule => _service.ColliderInteractionModule;
-        IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _service.RangedClickInteractionModule;
+        ICollideInteractionModule ICollideInteractionModuleProvider.CollideInteractionModule => _Service.ColliderInteractionModule;
+        IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _Service.RangedClickInteractionModule;
         #endregion
 
         #region Inspector Utils
@@ -36,6 +36,15 @@ namespace VE2.Core.VComponents.Internal
         #endregion
         
         private ToggleActivatableService _service = null;
+        private ToggleActivatableService _Service
+        {
+            get
+            {
+                if (_service == null)
+                    OnEnable();
+                return _service;
+            }
+        }
 
         private void Awake()
         {
@@ -48,7 +57,7 @@ namespace VE2.Core.VComponents.Internal
 
         private void OnEnable()
         {
-            if (!Application.isPlaying)
+            if (!Application.isPlaying || _service != null)
                 return;
 
             string id = "Activatable-" + gameObject.name;

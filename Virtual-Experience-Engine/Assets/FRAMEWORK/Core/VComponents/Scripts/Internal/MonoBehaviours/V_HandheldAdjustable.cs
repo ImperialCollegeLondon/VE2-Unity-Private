@@ -10,15 +10,30 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField, HideInInspector] private AdjustableState _state = null;
 
         #region Plugin Interfaces
-        IAdjustableStateModule IV_HandheldAdjustable._StateModule => _service.StateModule;
-        IHandheldScrollInteractionModule IV_HandheldAdjustable._HandheldScrollModule => _service.HandheldScrollInteractionModule;
+        IAdjustableStateModule IV_HandheldAdjustable._StateModule => _Service.StateModule;
+        IHandheldScrollInteractionModule IV_HandheldAdjustable._HandheldScrollModule => _Service.HandheldScrollInteractionModule;
         #endregion
 
-        internal IHandheldScrollInteractionModule HandheldScrollInteractionModule => _service.HandheldScrollInteractionModule;
+        #region Player Interfaces
+        internal IHandheldScrollInteractionModule HandheldScrollInteractionModule => _Service.HandheldScrollInteractionModule;
+        #endregion
+
         private HandheldAdjustableService _service = null;
+        private HandheldAdjustableService _Service
+        {
+            get
+            {
+                if (_service == null)
+                    OnEnable();
+                return _service;
+            }
+        }
 
         private void OnEnable()
         {
+            if (!Application.isPlaying || _service != null)
+                return;
+
             string id = "HHAdjustable-" + gameObject.name;
             if (_state == null)
                 _state = new AdjustableState(float.MaxValue);

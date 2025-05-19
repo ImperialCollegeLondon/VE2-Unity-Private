@@ -10,16 +10,31 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField, HideInInspector] private SingleInteractorActivatableState _state = new();        
 
         #region Plugin Interfaces
-        ISingleInteractorActivatableStateModule IV_HandheldActivatable._StateModule => _service.StateModule;
-        IHandheldClickInteractionModule IV_HandheldActivatable._HandheldClickModule => _service.HandheldClickInteractionModule;
+        ISingleInteractorActivatableStateModule IV_HandheldActivatable._StateModule => _Service.StateModule;
+        IHandheldClickInteractionModule IV_HandheldActivatable._HandheldClickModule => _Service.HandheldClickInteractionModule;
         #endregion
 
-        internal IHandheldClickInteractionModule HandheldClickInteractionModule => _service.HandheldClickInteractionModule;   
+        #region Player Interfaces
+        internal IHandheldClickInteractionModule HandheldClickInteractionModule => _Service.HandheldClickInteractionModule;   
+        #endregion
+
         private HandheldActivatableService _service = null;
+        private HandheldActivatableService _Service
+        {
+            get
+            {
+                if (_service == null)
+                    OnEnable();
+                return _service;
+            }
+        }
 
         private void OnEnable()
         {
-            string id = "HHActivatable-" + gameObject.name; 
+            if (!Application.isPlaying || _service != null)
+                return;
+
+            string id = "HHActivatable-" + gameObject.name;
             _service = new(_config, _state, id, VE2API.WorldStateSyncableContainer, VComponentsAPI.ActivatableGroupsContainer, VE2API.LocalClientIdWrapper);
         }
 

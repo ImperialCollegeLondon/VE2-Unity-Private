@@ -15,12 +15,12 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField, HideInInspector] private GrabbableState _state = new();
 
         #region Plugin Interfaces     
-        IGrabbableStateModule IV_FreeGrabbable._StateModule => _service.StateModule;
-        IRangedGrabInteractionModule IV_FreeGrabbable._RangedGrabModule => _service.RangedGrabInteractionModule;
+        IGrabbableStateModule IV_FreeGrabbable._StateModule => _Service.StateModule;
+        IRangedGrabInteractionModule IV_FreeGrabbable._RangedGrabModule => _Service.RangedGrabInteractionModule;
         #endregion
 
         #region Player Interfaces
-        IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _service.RangedGrabInteractionModule;
+        IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _Service.RangedGrabInteractionModule;
         #endregion
 
         #region Inspector Utils
@@ -48,6 +48,16 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         private FreeGrabbableService _service = null;
+        private FreeGrabbableService _Service
+        {
+            get
+            {
+                if (_service == null)
+                    OnEnable();
+                return _service;
+            }
+        }
+
         private RigidbodyWrapper _rigidbodyWrapper = null;
 
         private Action<ushort> _internalOnGrab;
@@ -79,7 +89,7 @@ namespace VE2.Core.VComponents.Internal
 
         private void OnEnable()
         {
-            if (!Application.isPlaying)
+            if (!Application.isPlaying || _service != null)
                 return;
 
             string id = "FreeGrabbable-" + gameObject.name;
