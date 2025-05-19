@@ -56,6 +56,8 @@ namespace VE2.NonCore.Instancing.Internal
         public event Action OnLoseHost {add => _instanceInfoContainer.OnLoseHost += value; remove => _instanceInfoContainer.OnLoseHost -= value;}
         public ushort HostID => _instanceInfoContainer.HostID;
 
+        public int NumberOfClientsInCurrentInstance => _instanceInfoContainer.InstanceInfo.ClientInfos.Count;
+
         public float Ping => _pingSyncer.Ping;
         public int SmoothPing => _pingSyncer.SmoothPing;
         public event Action<int> OnPingUpdate { add => _pingSyncer.OnPingUpdate += value; remove => _pingSyncer.OnPingUpdate -= value; }

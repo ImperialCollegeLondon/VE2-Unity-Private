@@ -23,6 +23,8 @@ namespace VE2.NonCore.Instancing.API
         public void ConnectToInstance();
         public void DisconnectFromInstance();
 
+        public int NumberOfClientsInCurrentInstance { get; }
+
         public float Ping { get; }
         public int SmoothPing { get; }
     }
