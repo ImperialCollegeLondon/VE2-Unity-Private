@@ -7,6 +7,7 @@ namespace VE2.Common.Shared
     public class InterfaceReference<T> where T : class 
     {
         [SerializeField] private GameObject _gameObject;
+        public GameObject GameObject => _gameObject;
 
         private T cached;
 
@@ -19,6 +20,7 @@ namespace VE2.Common.Shared
                 return cached;
             }
         }
+
 
         public static implicit operator T(InterfaceReference<T> reference) => reference?.Interface;
     }
