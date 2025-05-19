@@ -19,11 +19,11 @@ namespace VE2.Core.VComponents.Internal
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Scroll Settings")]
-        [SerializeField] public bool LoopValues = false;
+        [EndGroup, SerializeField] public bool LoopValues = false;
 
         // [SerializeField] public bool SinglePressScroll = false;
         // [ShowIf("SinglePressScroll", false)]
-        // [EndGroup, SerializeField] public float IncrementPerSecondVRStickHeld = 4;
+        // [EndGroup, SerializeField] public float IncrementPerSecondVRStickHeld = 4; //If uncommenting, remove the above [EndGroup] attribute
     }
     internal class HandheldAdjustableService
     {
