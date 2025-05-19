@@ -77,6 +77,12 @@ namespace VE2.Core.VComponents.Internal
                 VComponentUtils.CreateCollider(gameObject);
         }
 
+        private void Reset()
+        {
+            if (GetComponent<Rigidbody>() != null)
+                GetComponent<Rigidbody>().interpolation = RigidbodyInterpolation.Interpolate;
+        }
+
         private void OnEnable()
         {
             if (!Application.isPlaying)
