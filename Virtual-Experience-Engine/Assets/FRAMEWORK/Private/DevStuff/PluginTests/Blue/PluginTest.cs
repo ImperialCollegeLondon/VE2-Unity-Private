@@ -4,6 +4,7 @@ using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 using VE2.NonCore.Instancing.API;
 
@@ -44,18 +45,17 @@ public class PluginTest : MonoBehaviour
         _handheldActivatable.OnDeactivate.AddListener(OnHandheldActivatableDeactivate);
         _handheldAdjustable.OnValueAdjusted.AddListener(OnHandheldAdjustableValueAdjusted);
 
-        _networkObject.OnStateChange.AddListener(HandleNetworkObjectStateChange);
+        _networkObject.OnDataChange.AddListener(HandleNetworkObjectStateChange);
 
     }
 
     public void OnButtonActivate()
     {
-        ushort clientID = _pushActivatable.MostRecentInteractingClientID;
+        IClientIDWrapper clientID = _pushActivatable.MostRecentInteractingClientID;
         Debug.Log("Button activated! ");
         Debug.Log($"Button state = {_pushActivatable.IsActivated}");
 
-        if (clientID != ushort.MaxValue) 
-            Debug.Log($"Activate by... {clientID.ToString()}");
+        Debug.Log($"Activate by... {clientID.Value.ToString()}");
 
         _lightOn.SetActive(true);
         _lightOff.SetActive(false);
@@ -93,7 +93,7 @@ public class PluginTest : MonoBehaviour
         else if (Keyboard.current.digit3Key.wasPressedThisFrame)
         {
             _counter++;
-            _networkObject.NetworkObject = _counter;
+            _networkObject.UpdateData(_counter);
         }
         else if(Keyboard.current.digit4Key.wasPressedThisFrame)
             _handheldActivatable.SetActivated(!_pushActivatable.IsActivated);

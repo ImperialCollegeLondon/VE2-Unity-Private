@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using VE2.Common.TransformWrapper;
+using VE2.Common.API;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
-using static VE2.Core.Common.CommonSerializables;
+using static VE2.Common.Shared.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -54,7 +55,7 @@ namespace VE2.Core.VComponents.Internal
         private int _maxRevs => (int)_maximumSpatialValue / 360;
 
         public RotationalAdjustableService(ITransformWrapper transformWrapper, List<IHandheldInteractionModule> handheldInteractions, RotationalAdjustableConfig config, VE2Serializable adjustableState, VE2Serializable grabbableState, string id,
-            IWorldStateSyncService worldStateSyncService, HandInteractorContainer interactorContainer)
+            IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer, IClientIDWrapper localClientIdWrapper)
         {
             ITransformWrapper transformToRotateWrapper = config.InteractionConfig.TransformToAdjust == null ? transformWrapper : new TransformWrapper(config.InteractionConfig.TransformToAdjust);
 
@@ -62,7 +63,7 @@ namespace VE2.Core.VComponents.Internal
             _attachPointTransform = config.InteractionConfig.AttachPoint == null ? transformToRotateWrapper : new TransformWrapper(config.InteractionConfig.AttachPoint);
 
             //initialize module for ranged adjustable interaction (scrolling)
-            _RangedAdjustableInteractionModule = new(_attachPointTransform, handheldInteractions, config.InteractionConfig, config.RangedInteractionConfig, config.GeneralInteractionConfig);
+            _RangedAdjustableInteractionModule = new(id, grabInteractablesContainer, _attachPointTransform, handheldInteractions, config.InteractionConfig, config.RangedInteractionConfig, config.GeneralInteractionConfig);
 
             _incrementPerScrollTick = config.AdjustableStateConfig.IncrementPerScrollTick;
             _transformToRotateWrapper = transformToRotateWrapper;
@@ -76,9 +77,10 @@ namespace VE2.Core.VComponents.Internal
             _minimumSpatialValue = config.RotationalAdjustableServiceConfig.MinimumSpatialValue;
             _maximumSpatialValue = config.RotationalAdjustableServiceConfig.MaximumSpatialValue;
 
-            //seperate modules for adjustable state and free grabbable state, they have a unique ID for each for the world state syncer
-            _AdjustableStateModule = new(adjustableState, config.AdjustableStateConfig, $"ADJ-{id}", worldStateSyncService);
-            _FreeGrabbableStateModule = new(grabbableState, config.GrabbableStateConfig, $"FG-{id}", worldStateSyncService, interactorContainer, RangedAdjustableInteractionModule);
+            //seperate modules for adjustable state and free grabbable state. Give the adjustable state module a different ID so it doesn't clash in the syncer with the grabbable state module
+            //The Grabbable state module needs the same ID that is passed to the ranged adjustable interaction module, so the interactor can pull the module from the grab interactable container
+            _AdjustableStateModule = new(adjustableState, config.AdjustableStateConfig, $"ADJ-{id}", worldStateSyncableContainer, localClientIdWrapper);
+            _FreeGrabbableStateModule = new(grabbableState, config.GrabbableStateConfig, $"{id}", worldStateSyncableContainer, interactorContainer, localClientIdWrapper);
 
             _RangedAdjustableInteractionModule.OnLocalInteractorRequestGrab += (InteractorID interactorID) => _FreeGrabbableStateModule.SetGrabbed(interactorID);
             _RangedAdjustableInteractionModule.OnLocalInteractorRequestDrop += (InteractorID interactorID) => _FreeGrabbableStateModule.SetDropped(interactorID);
@@ -290,6 +292,7 @@ namespace VE2.Core.VComponents.Internal
 
         public void TearDown()
         {
+            _RangedAdjustableInteractionModule.TearDown();
             _AdjustableStateModule.TearDown();
             _FreeGrabbableStateModule.TearDown();
 

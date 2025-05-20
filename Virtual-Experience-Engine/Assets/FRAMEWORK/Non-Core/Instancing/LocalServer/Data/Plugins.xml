@@ -13,5 +13,5 @@
   <plugin id="10" name="HttpHealthCheck" version="1.0.0" enabled="false" />
   <plugin id="11" name="TestDarkRiftServer" version="3.2.3" />
   <plugin id="12" name="RelayServerMain" version="1.6.4" />
-  <plugin id="13" name="ViRSEServer" version="0.0.8" />
+  <plugin id="13" name="ViRSEServer" version="0.0.10" />
 </plugins>

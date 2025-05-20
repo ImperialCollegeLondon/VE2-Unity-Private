@@ -1,6 +1,6 @@
 using System;
 using System.IO;
-using static VE2.Core.Common.CommonSerializables;
+using static VE2.Common.Shared.CommonSerializables;
 
 #if UNITY_EDITOR
 using UnityEngine;
@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace VE2.Core.Player.API
 {
-        public class PlayerSerializables
+        internal class PlayerSerializables
         {
                 [Serializable]
                 public class PlayerVRControlConfig : VE2Serializable
@@ -217,7 +217,6 @@ namespace VE2.Core.Player.API
                         }
                 }
 
-                //TODO: Should live in Player API?
                 [Serializable]
                 public class OverridableAvatarAppearance : VE2Serializable
                 {

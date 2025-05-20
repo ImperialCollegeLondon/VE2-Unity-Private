@@ -1,7 +1,8 @@
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
-using VE2.Core.Common;
+using VE2.Common.API;
+using VE2.Common.Shared;
 using VE2.Core.Player.API;
 using VE2.Core.VComponents.API;
 
@@ -13,18 +14,18 @@ namespace VE2.Core.Player.Internal
         private readonly Image _reticuleImage;
         private readonly PlayerConnectionPromptHandler _connectionPromptHandler;
 
-        internal Interactor2D(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer, PlayerInteractionConfig interactionConfig,
-            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, 
-            ILocalClientIDProvider localClientIDProvider) : 
-            base(interactorContainer, interactorInputContainer, interactionConfig,
-                interactorReferences, interactorType, raycastProvider, localClientIDProvider, null, new HoveringOverScrollableIndicator())   
+        internal Interactor2D(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, InteractorInputContainer interactorInputContainer, PlayerInteractionConfig interactionConfig,
+            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, ILocalClientIDWrapper localClientIDWrapper) : 
+            base(interactorContainer, grabInteractablesContainer, interactorInputContainer, interactionConfig,
+                interactorReferences, interactorType, raycastProvider, localClientIDWrapper, null, new HoveringOverScrollableIndicator())   
         {
             Interactor2DReferences interactor2DReferences = interactorReferences as Interactor2DReferences;
             _reticuleImage = interactor2DReferences.ReticuleImage;
 
             _connectionPromptHandler = interactor2DReferences.ConnectionPromptHandler;
 
-            if (_WaitingForLocalClientID)
+            //TODO: Don't want to do this in constructor, should happen in HandleOnEnable
+            if (!localClientIDWrapper.IsClientIDReady)
                 _connectionPromptHandler.NotifyWaitingForConnection();
         }
 

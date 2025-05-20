@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
-using UnityEngine.Rendering.Universal;
+using VE2.Common.API;
+using VE2.Common.Shared;
 using VE2.Core.Player.API;
 using VE2.Core.UI.API;
 using VE2.Core.VComponents.API;
@@ -54,9 +55,9 @@ namespace VE2.Core.Player.Internal
         private readonly RectTransform _primaryUIHolderRect;
         private readonly ISecondaryUIServiceInternal _secondaryUIService;
 
-        internal PlayerControllerVR(HandInteractorContainer interactorContainer, PlayerVRInputContainer playerVRInputContainer, IPlayerPersistentDataHandler playerSettingsHandler, 
+        internal PlayerControllerVR(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, PlayerVRInputContainer playerVRInputContainer, IPlayerPersistentDataHandler playerSettingsHandler, 
             PlayerVRControlConfig controlConfig, PlayerInteractionConfig interactionConfig, MovementModeConfig movementModeConfig, CameraConfig cameraConfig, IRaycastProvider raycastProvider, 
-            ICollisionDetectorFactory collisionDetectorFactory, IXRManagerWrapper xrManagerSettingsWrapper, ILocalClientIDProvider localClientIDProvider, 
+            ICollisionDetectorFactory collisionDetectorFactory, IXRManagerWrapper xrManagerSettingsWrapper, ILocalClientIDWrapper localClientIDWrapper,
             IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService)
         {
             GameObject playerVRPrefab = Resources.Load("vrPlayer") as GameObject;
@@ -76,7 +77,7 @@ namespace VE2.Core.Player.Internal
             _verticalOffsetTransform = playerVRReferences.VerticalOffsetTransform;
             _headTransform = playerVRReferences.HeadTransform;
             _primaryUIHolderRect = playerVRReferences.PrimaryUIHolderRect;
-            _feetInteractorVR = new FeetInteractor(collisionDetectorFactory, ColliderType.FeetVR, playerVRReferences.FeetCollider, InteractorType.Feet, localClientIDProvider);
+            _feetInteractorVR = new FeetInteractor(collisionDetectorFactory, ColliderType.FeetVR, playerVRReferences.FeetCollider, InteractorType.Feet, localClientIDWrapper, interactionConfig);
             _resetViewUIHandler = playerVRReferences.ResetViewUIHandler;
             _neutralPositionOffsetTransform = playerVRReferences.NeutralPositionOffsetTransform;
 
@@ -92,23 +93,23 @@ namespace VE2.Core.Player.Internal
             FreeGrabbableWrapper leftHandGrabbableWrapper = new FreeGrabbableWrapper();
             FreeGrabbableWrapper rightHandGrabbableWrapper = new FreeGrabbableWrapper();
 
-            _handControllerLeft = CreateHandController(handVRLeftGO, handVRRightGO, interactorContainer,
+            _handControllerLeft = CreateHandController(handVRLeftGO, handVRRightGO, interactorContainer, grabInteractablesContainer, 
                 playerVRInputContainer.HandVRLeftInputContainer, playerVRInputContainer.HandVRRightInputContainer.DragLocomotorInputContainer,
-                interactionConfig, InteractorType.LeftHandVR, raycastProvider, collisionDetectorFactory, ColliderType.HandVRLeft, localClientIDProvider, 
+                interactionConfig, InteractorType.LeftHandVR, raycastProvider, collisionDetectorFactory, ColliderType.HandVRLeft, localClientIDWrapper, 
                 leftHandGrabbableWrapper, rightHandGrabbableWrapper, secondaryUIService, movementModeConfig, false);
 
-            _handControllerRight = CreateHandController(handVRRightGO, handVRLeftGO, interactorContainer,
+            _handControllerRight = CreateHandController(handVRRightGO, handVRLeftGO, interactorContainer, grabInteractablesContainer, 
                 playerVRInputContainer.HandVRRightInputContainer, playerVRInputContainer.HandVRLeftInputContainer.DragLocomotorInputContainer,
-                interactionConfig, InteractorType.RightHandVR, raycastProvider, collisionDetectorFactory, ColliderType.HandVRRight, localClientIDProvider, 
+                interactionConfig, InteractorType.RightHandVR, raycastProvider, collisionDetectorFactory, ColliderType.HandVRRight, localClientIDWrapper, 
                 rightHandGrabbableWrapper, leftHandGrabbableWrapper, secondaryUIService, movementModeConfig, true);
         
             ConfigureCamera(cameraConfig);
         }
 
 
-        private HandController CreateHandController(GameObject handGO, GameObject otherHandGO, HandInteractorContainer interactorContainer,
+        private HandController CreateHandController(GameObject handGO, GameObject otherHandGO, HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer,
             HandVRInputContainer handVRInputContainer, DragLocomotorInputContainer otherHandDragInputContainer, PlayerInteractionConfig playerInteractionConfig, InteractorType interactorType,
-            IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ColliderType colliderType, ILocalClientIDProvider multiplayerSupport, FreeGrabbableWrapper thisHandGrabbableWrapper,
+            IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ColliderType colliderType, ILocalClientIDWrapper localClientID, FreeGrabbableWrapper thisHandGrabbableWrapper,
             FreeGrabbableWrapper otherHandGrabbableWrapper, ISecondaryUIServiceInternal secondaryUIService, MovementModeConfig movementModeConfig, bool needsToFlip)
         {
             HandVRReferences thisHandVRReferences = handGO.GetComponent<HandVRReferences>();
@@ -117,9 +118,9 @@ namespace VE2.Core.Player.Internal
             HoveringOverScrollableIndicator hoveringOverScrollableIndicator = new();
 
             InteractorVR interactor = new(
-                interactorContainer, handVRInputContainer.InteractorVRInputContainer,
+                interactorContainer, grabInteractablesContainer, handVRInputContainer.InteractorVRInputContainer,
                 playerInteractionConfig, thisHandVRReferences.InteractorVRReferences, 
-                interactorType, raycastProvider, collisionDetectorFactory, colliderType, multiplayerSupport, thisHandGrabbableWrapper, hoveringOverScrollableIndicator);
+                interactorType, raycastProvider, collisionDetectorFactory, colliderType, localClientID, thisHandGrabbableWrapper, hoveringOverScrollableIndicator);
 
             DragLocomotorController dragLocomotor = new(
                 thisHandVRReferences.LocomotorVRReferences,

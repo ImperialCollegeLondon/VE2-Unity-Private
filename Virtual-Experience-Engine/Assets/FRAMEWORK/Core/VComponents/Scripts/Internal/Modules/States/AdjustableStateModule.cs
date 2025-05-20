@@ -2,9 +2,10 @@ using System;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
-using static VE2.Core.Common.CommonSerializables;
+using VE2.Core.VComponents.Shared;
+using static VE2.Common.Shared.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -46,7 +47,8 @@ namespace VE2.Core.VComponents.Internal
         public float OutputValue => _state.Value;
         public void SetOutputValue(float newValue) => SetValue(newValue, ushort.MaxValue);
         public UnityEvent<float> OnValueAdjusted => _config.OnValueAdjusted;
-        public ushort MostRecentInteractingClientID => _state.MostRecentInteractingClientID;
+        public IClientIDWrapper MostRecentInteractingClientID => _state.MostRecentInteractingClientID == ushort.MaxValue ? null : 
+            new ClientIDWrapper(_state.MostRecentInteractingClientID, _state.MostRecentInteractingClientID == _localClientIdWrapper.Value);
 
         public float MinimumOutputValue { get => _config.MinimumOutputValue; set => _config.MinimumOutputValue = value; }
         public float MaximumOutputValue { get => _config.MaximumOutputValue; set => _config.MaximumOutputValue = value; }
@@ -59,7 +61,10 @@ namespace VE2.Core.VComponents.Internal
 
         internal event Action<float> OnValueChangedInternal;
 
-        public AdjustableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncService worldStateSyncService) : base(state, config, id, worldStateSyncService)
+        private readonly IClientIDWrapper _localClientIdWrapper;
+
+        public AdjustableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncableContainer worldStateSyncableContainer, IClientIDWrapper localClientIdWrapper) 
+            : base(state, config, id, worldStateSyncableContainer)
         {
             if (_config.EmitValueOnStart)
                 InvokeOnValueAdjustedEvents(_state.Value);
@@ -67,6 +72,8 @@ namespace VE2.Core.VComponents.Internal
             _config.InspectorDebug.OnDebugUpdateStatePressed += SetOutputValue;
             _config.InspectorDebug.Value = _state.Value;
             _config.InspectorDebug.ClientID = _state.MostRecentInteractingClientID;
+
+            _localClientIdWrapper = localClientIdWrapper;
         }
 
         public void SetValue(float value, ushort clientID)
@@ -115,7 +122,7 @@ namespace VE2.Core.VComponents.Internal
     }
 
     [Serializable]
-    public class AdjustableState : VE2Serializable
+    internal class AdjustableState : VE2Serializable
     {
         public ushort StateChangeNumber { get; set; }
         public float Value { get; set; }

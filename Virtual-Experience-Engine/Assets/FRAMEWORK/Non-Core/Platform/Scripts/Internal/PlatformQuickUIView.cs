@@ -3,12 +3,12 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 
 namespace VE2.NonCore.Platform.Internal
 {
     [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
-    public class V_PlatformQuickUIView : MonoBehaviour
+    internal class V_PlatformQuickUIView : MonoBehaviour
     {
         [SerializeField] private TMP_Text _playerNameText;
 

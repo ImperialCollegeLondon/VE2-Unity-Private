@@ -1,8 +1,7 @@
 using System;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 
 namespace VE2.Core.UI.Internal
 {

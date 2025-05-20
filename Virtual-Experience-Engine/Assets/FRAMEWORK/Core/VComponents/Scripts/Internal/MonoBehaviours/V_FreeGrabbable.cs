@@ -1,29 +1,48 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
-using VE2.Common.TransformWrapper;
 using VE2.Core.VComponents.API;
 using Unity.Collections;
+using VE2.Common.API;
+using UnityEngine.Events;
+using VE2.Common.Shared;
 
 namespace VE2.Core.VComponents.Internal
 {
+    internal partial class V_FreeGrabbable : IV_FreeGrabbable
+    {
+        #region State Module Interface
+        internal IGrabbableStateModule _StateModule => _Service.StateModule;
+
+        public UnityEvent OnGrab => _StateModule.OnGrab;
+        public UnityEvent OnDrop => _StateModule.OnDrop;
+
+        public bool IsGrabbed { get { return _StateModule.IsGrabbed; } }
+        public IClientIDWrapper MostRecentInteractingClientID => _StateModule.MostRecentInteractingClientID;
+        #endregion
+
+        #region Ranged Interaction Module Interface
+        internal IRangedGrabInteractionModule _RangedGrabModule => _Service.RangedGrabInteractionModule;
+        public float InteractRange { get => _RangedGrabModule.InteractRange; set => _RangedGrabModule.InteractRange = value; }
+        #endregion
+
+        #region General Interaction Module Interface
+        //We have two General Interaction Modules here, it doesn't matter which one we point to, both share the same General Interaction Config object!
+        public bool AdminOnly {get => _RangedGrabModule.AdminOnly; set => _RangedGrabModule.AdminOnly = value; }
+        public bool EnableControllerVibrations { get => _RangedGrabModule.EnableControllerVibrations; set => _RangedGrabModule.EnableControllerVibrations = value; }
+        public bool ShowTooltipsAndHighlight { get => _RangedGrabModule.ShowTooltipsAndHighlight; set => _RangedGrabModule.ShowTooltipsAndHighlight = value; }
+        #endregion
+    }
+
     [RequireComponent(typeof(MeshFilter))]
     [ExecuteAlways]
-    internal class V_FreeGrabbable : MonoBehaviour, IV_FreeGrabbable, IRangedGrabInteractionModuleProvider, IGrabbableRigidbody
+    internal partial class V_FreeGrabbable : MonoBehaviour, IRangedGrabInteractionModuleProvider, IGrabbableRigidbody
     {
-        // [Help("TestHelp", UnityMessageType.Error, ApplyCondition = true)]
-        // [SerializeField, ShowDisabledIf(nameof(_showError), true)] private bool Test;
-
         [SerializeField, HideLabel, IgnoreParent] private FreeGrabbableConfig _config = new();
         [SerializeField, HideInInspector] private GrabbableState _state = new();
 
-        #region Plugin Interfaces     
-        IGrabbableStateModule IV_FreeGrabbable._StateModule => _service.StateModule;
-        IRangedGrabInteractionModule IV_FreeGrabbable._RangedGrabModule => _service.RangedGrabInteractionModule;
-        #endregion
-
         #region Player Interfaces
-        IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _service.RangedGrabInteractionModule;
+        IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _Service.RangedGrabInteractionModule;
         #endregion
 
         #region Inspector Utils
@@ -51,6 +70,16 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         private FreeGrabbableService _service = null;
+        private FreeGrabbableService _Service
+        {
+            get
+            {
+                if (_service == null)
+                    OnEnable();
+                return _service;
+            }
+        }
+
         private RigidbodyWrapper _rigidbodyWrapper = null;
 
         private Action<ushort> _internalOnGrab;
@@ -82,7 +111,7 @@ namespace VE2.Core.VComponents.Internal
 
         private void OnEnable()
         {
-            if (!Application.isPlaying)
+            if (!Application.isPlaying || _service != null)
                 return;
 
             string id = "FreeGrabbable-" + gameObject.name;
@@ -101,11 +130,13 @@ namespace VE2.Core.VComponents.Internal
                 _config, 
                 _state, 
                 id,
-                VComponentsAPI.WorldStateSyncService,
-                VComponentsAPI.InteractorContainer,
+                VE2API.WorldStateSyncableContainer,
+                VE2API.GrabInteractablesContainer,
+                VE2API.InteractorContainer,
                 _rigidbodyWrapper,
                 Resources.Load<PhysicsConstants>("PhysicsConstants"),
-                (IGrabbableRigidbody)this);
+                (IGrabbableRigidbody)this,
+                VE2API.LocalClientIdWrapper);
 
             _service.OnGrabConfirmed += HandleGrabConfirmed;
             _service.OnDropConfirmed += HandleDropConfirmed;

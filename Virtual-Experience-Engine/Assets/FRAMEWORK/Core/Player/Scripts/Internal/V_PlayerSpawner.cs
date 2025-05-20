@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
-using VE2.Core.Common;
+using VE2.Common.API;
+using VE2.Common.Shared;
 using VE2.Core.Player.API;
 using VE2.Core.UI.API;
 using static VE2.Core.Player.API.PlayerSerializables;
@@ -46,7 +46,7 @@ namespace VE2.Core.Player.Internal
         [HideIf(nameof(_hasMultiplayerSupport), false)]
         [SpaceArea(spaceAfter: 10), BeginGroup(Style = GroupStyle.Round, ApplyCondition = true), EndGroup(ApplyCondition = true), SerializeField, IgnoreParent] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new(TransmissionProtocol.UDP, 35);
         
-        private bool _hasMultiplayerSupport => PlayerAPI.HasMultiPlayerSupport;
+        private bool _hasMultiplayerSupport => VE2API.HasMultiPlayerSupport;
     }
 
     [Serializable]
@@ -60,7 +60,8 @@ namespace VE2.Core.Player.Internal
     [Serializable]
     internal class PlayerInteractionConfig
     {
-        [SerializeField] internal LayerMask RaycastLayers;
+        [Tooltip("Player raycasts will hit objects on these layers, hands and feet will interact with interactables on these layers. Doesn't effect movement")]
+        [SerializeField] internal LayerMask InteractableLayers;
     }
 
     [Serializable]
@@ -119,7 +120,7 @@ namespace VE2.Core.Player.Internal
             }
         }
 
-        public string GameObjectName { get => gameObject.name; }
+        public bool IsEnabled => gameObject != null && enabled && gameObject.activeInHierarchy;
         #endregion
 
         [SerializeField, HideInInspector] private bool _transformDataSetup = false;
@@ -133,7 +134,7 @@ namespace VE2.Core.Player.Internal
             _playerConfig = new();
 
             //Can't set LayerMask in serialization, so we do it here
-            _playerConfig.PlayerInteractionConfig.RaycastLayers = -1;
+            _playerConfig.PlayerInteractionConfig.InteractableLayers = -1;
             _playerConfig.MovementModeConfig.TraversableLayers = LayerMask.GetMask("Ground");
             _playerConfig.MovementModeConfig.CollisionLayers = LayerMask.GetMask("Default"); 
             _playerConfig.CameraConfig.CullingMask = -1;
@@ -151,11 +152,11 @@ namespace VE2.Core.Player.Internal
             if (!Application.isPlaying && !_editorListenersSetup)
             {
                 _editorListenersSetup = true;
-                Selection.selectionChanged += OnSelectionChanged;
+                UnityEditor.Selection.selectionChanged += OnSelectionChanged;
             }
             #endif
 
-            PlayerAPI.PlayerServiceProvider = this;
+            VE2API.PlayerServiceProvider = this;
 
             if (!Application.isPlaying || _playerService != null)
                 return;
@@ -178,7 +179,7 @@ namespace VE2.Core.Player.Internal
 
                 #if UNITY_EDITOR
                 if (_playerConfig.PlayerModeConfig.SupportedPlayerModes == SupportedPlayerModes.Both)
-                    _playerTransformData.IsVRMode = PlayerAPI.PreferVRMode;
+                    _playerTransformData.IsVRMode = VE2API.PreferVRMode;
                 #endif
             }
 
@@ -190,8 +191,8 @@ namespace VE2.Core.Player.Internal
                 xrManagerWrapper = new GameObject("XRManagerWrapper").AddComponent<XRManagerWrapper>();
 
             //May be null if UIs aren't available
-            IPrimaryUIServiceInternal primaryUIService = UIAPI.PrimaryUIService as IPrimaryUIServiceInternal;
-            ISecondaryUIServiceInternal secondaryUIService = UIAPI.SecondaryUIService as ISecondaryUIServiceInternal;
+            IPrimaryUIServiceInternal primaryUIService = VE2API.PrimaryUIService as IPrimaryUIServiceInternal;
+            ISecondaryUIServiceInternal secondaryUIService = VE2API.SecondaryUIService as ISecondaryUIServiceInternal;
 
             _playerService = VE2PlayerServiceFactory.Create(
                 _playerTransformData, 
@@ -224,7 +225,7 @@ namespace VE2.Core.Player.Internal
             if (!Application.isPlaying && _editorListenersSetup)
             {
                 _editorListenersSetup = false;
-                Selection.selectionChanged -= OnSelectionChanged;
+                UnityEditor.Selection.selectionChanged -= OnSelectionChanged;
             }
             #endif
 
@@ -236,6 +237,7 @@ namespace VE2.Core.Player.Internal
 
         private void CreatePlayerPreview()
         {
+#if UNITY_EDITOR
             GameObject playerPreview = GameObject.Instantiate<GameObject>(Resources.Load<GameObject>("VE2PlayerPreviewVisualisation"));
             playerPreview.transform.SetParent(transform);
             playerPreview.transform.localPosition = Vector3.zero;
@@ -244,9 +246,10 @@ namespace VE2.Core.Player.Internal
             foreach (Transform child in playerPreview.GetComponentsInChildren<Transform>(true))
             {
                 child.hideFlags = HideFlags.HideInHierarchy; // Keep it hidden
-                SceneVisibilityManager.instance.EnablePicking(child.gameObject, true); // Allow clicking in Scene view   
+                UnityEditor.SceneVisibilityManager.instance.EnablePicking(child.gameObject, true); // Allow clicking in Scene view   
             }
-        }
+            #endif
+        }   
 
 #if UNITY_EDITOR
         private void OnSelectionChanged()
@@ -259,8 +262,8 @@ namespace VE2.Core.Player.Internal
             {
                 if (IsChildOrSelf(_playerPreview, selected))
                 {
-                    EditorApplication.delayCall += () => UnityEditor.Selection.activeGameObject = gameObject;
-                    EditorApplication.delayCall += () => EditorApplication.RepaintHierarchyWindow();
+                    UnityEditor.EditorApplication.delayCall += () => UnityEditor.Selection.activeGameObject = gameObject;
+                    UnityEditor.EditorApplication.delayCall += () => UnityEditor.EditorApplication.RepaintHierarchyWindow();
                     break;
                 }
             }

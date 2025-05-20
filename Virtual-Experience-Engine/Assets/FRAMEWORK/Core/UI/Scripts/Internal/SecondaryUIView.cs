@@ -1,6 +1,6 @@
 using TMPro;
 using UnityEngine;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 
 namespace VE2.Core.UI.Internal
 {

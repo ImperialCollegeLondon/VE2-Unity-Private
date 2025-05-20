@@ -37,8 +37,8 @@ namespace VE2.NonCore.Instancing.Internal
                 startInfo.WorkingDirectory = Path.GetDirectoryName(fullPath);
                 startInfo.FileName = fullPath;
                 Process.Start(startInfo);
-                #endif
             }
+            #endif
         }
     }
 }

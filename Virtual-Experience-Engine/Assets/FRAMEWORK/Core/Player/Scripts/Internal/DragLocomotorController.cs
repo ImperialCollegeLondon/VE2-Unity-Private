@@ -1,5 +1,5 @@
 using UnityEngine;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 using VE2.Core.Player.API;
 
 namespace VE2.Core.Player.Internal
@@ -228,6 +228,8 @@ namespace VE2.Core.Player.Internal
 
                 Vector3 currentRaycastPosition = _rootTransform.position + new Vector3(0, maxStepHeight, 0);
                 Vector3 targetRaycastPosition = currentRaycastPosition + moveVector;
+
+                //TODO: There's def a bug here, we're able to get stuck on non-ground objects, and then we can't move away
 
                 //Rayacst down from current position to check how high we are above ground
                 //If we don't hit anything, or if the thing we hit is not within the traversable layers, abort movement

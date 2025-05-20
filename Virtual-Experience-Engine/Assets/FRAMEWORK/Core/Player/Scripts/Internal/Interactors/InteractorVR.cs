@@ -1,5 +1,6 @@
 using UnityEngine;
-using VE2.Core.Common;
+using VE2.Common.API;
+using VE2.Common.Shared;
 using VE2.Core.Player.API;
 using VE2.Core.VComponents.API;
 
@@ -16,20 +17,20 @@ namespace VE2.Core.Player.Internal
         private ColorConfiguration _colorConfig => ColorConfiguration.Instance;
         private const float LINE_EMISSION_INTENSITY = 15;
 
-        internal InteractorVR(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer, PlayerInteractionConfig playerInteractionConfig,
+        internal InteractorVR(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, InteractorInputContainer interactorInputContainer, PlayerInteractionConfig playerInteractionConfig,
             InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ColliderType colliderType,
-            ILocalClientIDProvider multiplayerSupport, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator) :
-            base(interactorContainer, interactorInputContainer, playerInteractionConfig,
-                interactorReferences, interactorType, raycastProvider, multiplayerSupport, grabbableWrapper, hoveringOverScrollableIndicator)
+            ILocalClientIDWrapper localClientID, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator) :
+            base(interactorContainer, grabInteractablesContainer, interactorInputContainer, playerInteractionConfig,
+                interactorReferences, interactorType, raycastProvider, localClientID, grabbableWrapper, hoveringOverScrollableIndicator)
 
         {
             InteractorVRReferences interactorVRReferences = interactorReferences as InteractorVRReferences;
 
             _handVisualGO = interactorVRReferences.HandVisualGO;
-            _collisionDetector = collisionDetectorFactory.CreateCollisionDetector(interactorVRReferences.HandCollider, colliderType);
+            _collisionDetector = collisionDetectorFactory.CreateCollisionDetector(interactorVRReferences.HandCollider, colliderType, playerInteractionConfig.InteractableLayers);
 
             _lineRenderer = interactorVRReferences.LineRenderer;
-            _lineMaterial = Application.isPlaying ? _lineRenderer.material : null; //SetUp : Unhandled log message: '[Error] Instantiating material due to calling renderer.material during edit mode. This will leak materials into the scene. You most likely want to use renderer.sharedMaterial instead.'. Use UnityEngine.TestTools.LogAssert.Expect
+            _lineMaterial = Application.isPlaying ? _lineRenderer.material : null; 
             _lineMaterial?.EnableKeyword("_EMISSION");
         }
 
@@ -49,7 +50,7 @@ namespace VE2.Core.Player.Internal
 
         private void HandleCollideStart(ICollideInteractionModule collideInteractionModule)
         {
-            if (!_WaitingForLocalClientID && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Hand)
+            if (_LocalClientIDWrapper.IsClientIDReady && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Hand)
             {
                 collideInteractionModule.InvokeOnCollideEnter(_InteractorID);
                 HeldActivatableIDs.Add(collideInteractionModule.ID);
@@ -58,7 +59,7 @@ namespace VE2.Core.Player.Internal
 
         private void HandleCollideEnd(ICollideInteractionModule collideInteractionModule)
         {
-            if (!_WaitingForLocalClientID && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Hand)
+            if (_LocalClientIDWrapper.IsClientIDReady && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Hand)
             {
                 collideInteractionModule.InvokeOnCollideExit(_InteractorID);
                 HeldActivatableIDs.Remove(collideInteractionModule.ID);

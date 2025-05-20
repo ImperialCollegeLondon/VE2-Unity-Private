@@ -2,6 +2,8 @@
     "name": "VE2.NonCore.Instancing.API",
     "rootNamespace": "",
     "references": [
+        "GUID:696a0953692949b40bec8730e64e1fdd",
+        "GUID:1b845e2499b39be4aab3e6ac2c8aa02a",
         "GUID:111c54dcd318c434faa4cad0b1ad6d57"
     ],
     "includePlatforms": [],

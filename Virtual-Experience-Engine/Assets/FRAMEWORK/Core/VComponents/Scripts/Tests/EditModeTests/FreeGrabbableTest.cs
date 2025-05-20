@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using NSubstitute;
 using NUnit.Framework;
+using UnityEngine.Events;
+using VE2.Common.API;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
 
@@ -8,6 +11,7 @@ namespace VE2.Core.VComponents.Tests
 {
     internal class FreeGrabbableTest
     {
+        //TODO: Doesn't belong here? Looks like an integration test moreso than a unit/service test
         [Test]
         public void FreeGrabbable_WhenGrabbed_EmitsToPlugin()
         {
@@ -25,11 +29,13 @@ namespace VE2.Core.VComponents.Tests
                 new FreeGrabbableConfig(),
                 new GrabbableState(), 
                 "debug",
-                Substitute.For<IWorldStateSyncService>(),
+                Substitute.For<IWorldStateSyncableContainer>(),
+                Substitute.For<IGrabInteractablesContainer>(),
                 interactorContainerStub,
                 Substitute.For<IRigidbodyWrapper>(), 
                 new PhysicsConstants(),
-                new V_FreeGrabbable());
+                new V_FreeGrabbable(),
+                Substitute.For<IClientIDWrapper>());
 
             //Stub out the VC (integration layer) with the grabbable
             V_FreeGrabbableProviderStub v_freeGrabbableStub = new(freeGrabbable);
@@ -48,13 +54,13 @@ namespace VE2.Core.VComponents.Tests
             grabbablePlayerInterface.RequestLocalGrab(interactorID);
             pluginScript.Received(1).HandleGrabReceived();
             Assert.IsTrue(grabbablePluginInterface.IsGrabbed);
-            Assert.AreEqual(grabbablePluginInterface.MostRecentInteractingClientID, localClientID);
+            Assert.AreEqual(grabbablePluginInterface.MostRecentInteractingClientID.Value, localClientID);
 
             //Invoke drop, Check customer received the drop, and that the interactorID is set
             grabbablePlayerInterface.RequestLocalDrop(interactorID);
             pluginScript.Received(1).HandleDropReceived();
             Assert.IsFalse(grabbablePluginInterface.IsGrabbed);
-            Assert.AreEqual(grabbablePluginInterface.MostRecentInteractingClientID, localClientID);
+            Assert.AreEqual(grabbablePluginInterface.MostRecentInteractingClientID.Value, localClientID);
         }
     }
 
@@ -65,27 +71,47 @@ namespace VE2.Core.VComponents.Tests
         public virtual void HandleDropReceived() { }
     }
 
-    internal class V_FreeGrabbableProviderStub : IV_FreeGrabbable, IRangedGrabInteractionModuleProvider
+    internal partial class V_FreeGrabbableProviderStub : IV_FreeGrabbable
     {
-        #region Plugin Interfaces     
-        IGrabbableStateModule IV_FreeGrabbable._StateModule => _service.StateModule;
-        IRangedGrabInteractionModule IV_FreeGrabbable._RangedGrabModule => _service.RangedGrabInteractionModule;
+        #region State Module Interface
+        internal IGrabbableStateModule _StateModule => _Service.StateModule;
+
+        public UnityEvent OnGrab => _StateModule.OnGrab;
+        public UnityEvent OnDrop => _StateModule.OnDrop;
+
+        public bool IsGrabbed { get { return _StateModule.IsGrabbed; } }
+        public IClientIDWrapper MostRecentInteractingClientID => _StateModule.MostRecentInteractingClientID;
         #endregion
 
+        #region Ranged Interaction Module Interface
+        internal IRangedGrabInteractionModule _RangedGrabModule => _Service.RangedGrabInteractionModule;
+        public float InteractRange { get => _RangedGrabModule.InteractRange; set => _RangedGrabModule.InteractRange = value; }
+        #endregion
+
+        #region General Interaction Module Interface
+        //We have two General Interaction Modules here, it doesn't matter which one we point to, both share the same General Interaction Config object!
+        public bool AdminOnly {get => _RangedGrabModule.AdminOnly; set => _RangedGrabModule.AdminOnly = value; }
+        public bool EnableControllerVibrations { get => _RangedGrabModule.EnableControllerVibrations; set => _RangedGrabModule.EnableControllerVibrations = value; }
+        public bool ShowTooltipsAndHighlight { get => _RangedGrabModule.ShowTooltipsAndHighlight; set => _RangedGrabModule.ShowTooltipsAndHighlight = value; }
+        #endregion
+    }
+
+    internal partial class V_FreeGrabbableProviderStub : IRangedGrabInteractionModuleProvider
+    {
         #region Player Interfaces
-        IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _service.RangedGrabInteractionModule;
+        IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _Service.RangedGrabInteractionModule;
         #endregion
 
-        private readonly FreeGrabbableService _service = null;
+        private readonly FreeGrabbableService _Service = null;
 
         public V_FreeGrabbableProviderStub(FreeGrabbableService service)
         {
-            _service = service;
+            _Service = service;
         }
 
         public void TearDown()
         {
-            _service.TearDown();
+            _Service.TearDown();
         }
     }
 }

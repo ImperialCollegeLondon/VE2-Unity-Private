@@ -2,10 +2,11 @@ using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
-using UnityEngine.Events;
-using VE2.Core.VComponents.API;
+using VE2.Core.VComponents.Shared;
 using VE2.NonCore.Instancing.API;
-using static VE2.Core.Common.CommonSerializables;
+using VE2.Common.Shared;
+using UnityEngine.Events;
+using static VE2.Common.Shared.CommonSerializables;
 
 namespace VE2.NonCore.Instancing.Internal
 {
@@ -24,7 +25,8 @@ namespace VE2.NonCore.Instancing.Internal
         private NetworkObjectState _state => (NetworkObjectState)State;
         private NetworkObjectStateConfig _config => (NetworkObjectStateConfig)Config;
 
-        public NetworkObjectStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncService worldStateSyncService) : base(state, config, id, worldStateSyncService) {}
+        public NetworkObjectStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncableContainer worldStateSyncableContainer) 
+            : base(state, config, id, worldStateSyncableContainer) {}
 
         private void SerializeNetworkObject(object unserializedNetworkObject)
         {
@@ -71,7 +73,7 @@ namespace VE2.NonCore.Instancing.Internal
     }
 
     [Serializable]
-    public class NetworkObjectState : VE2Serializable
+    internal class NetworkObjectState : VE2Serializable
     {
         public ushort StateChangeNumber { get; set; }
         private MemoryStream _serializedNetworkObject;

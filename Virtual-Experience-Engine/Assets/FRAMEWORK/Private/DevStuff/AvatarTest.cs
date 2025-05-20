@@ -1,7 +1,7 @@
 using UnityEngine;
-using VE2.Core.Player.API;
+using VE2.Common.API;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
-using VE2.NonCore.Instancing.API;
 
 public class NewInterfaceReferenceExample : MonoBehaviour
 {
@@ -9,13 +9,13 @@ public class NewInterfaceReferenceExample : MonoBehaviour
 
     public void DoThing()
     {
-        if (_toggleButton.Interface.MostRecentInteractingClientID == InstancingAPI.InstanceService.LocalClientID) 
-            PlayerAPI.Player.SetAvatarHeadOverride(0);
+        if (_toggleButton.Interface.MostRecentInteractingClientID.IsLocal) 
+            VE2API.Player.SetAvatarHeadOverride(0);
     }
 
     public void DoOtherThing()
     {
-        if (_toggleButton.Interface.MostRecentInteractingClientID == InstancingAPI.InstanceService.LocalClientID)
-            PlayerAPI.Player.ClearAvatarHeadOverride();
+        if (_toggleButton.Interface.MostRecentInteractingClientID.IsLocal)
+            VE2API.Player.ClearAvatarHeadOverride();
     }
 }

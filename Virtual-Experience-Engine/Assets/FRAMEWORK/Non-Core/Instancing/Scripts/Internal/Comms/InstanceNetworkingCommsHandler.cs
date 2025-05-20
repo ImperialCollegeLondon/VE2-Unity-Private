@@ -5,7 +5,7 @@ using System.Net;
 using DRMessageReader = DarkRift.DarkRiftReader;
 using DRMessageWrapper = DarkRift.Message;
 using System.Collections.Generic;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 using System.Threading.Tasks;
 
 namespace VE2.NonCore.Instancing.Internal
@@ -117,6 +117,9 @@ namespace VE2.NonCore.Instancing.Internal
                             break;
                         case InstanceSyncSerializables.InstanceNetworkingMessageCodes.PingMessage:
                             OnReceivePingMessage?.Invoke(bytes);
+                            break;
+                        case InstanceSyncSerializables.InstanceNetworkingMessageCodes.InstantMessage:
+                            OnReceiveInstantMessage?.Invoke(bytes);
                             break;
                     }
                 });

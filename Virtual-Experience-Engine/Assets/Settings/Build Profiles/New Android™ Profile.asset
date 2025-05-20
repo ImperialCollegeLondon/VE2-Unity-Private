@@ -20,10 +20,6 @@ MonoBehaviour:
     rid: 2780094747114733568
   m_OverrideGlobalSceneList: 1
   m_Scenes:
-  - m_enabled: 0
-    m_path: Assets/FRAMEWORK/DevStuff/Dev.unity
-  - m_enabled: 0
-    m_path: Assets/PluginTests/Green/DevGreen.unity
   - m_enabled: 1
     m_path: Assets/FRAMEWORK/Private/Hub/Hub.unity
   m_ScriptingDefines: []
@@ -286,7 +282,7 @@ MonoBehaviour:
     - line: '|   clonedFromGUID: 3c72c65a16f0acb438eed22b8b16c24a'
     - line: '|   templatePackageId: com.unity.template.urp-blank@14.0.0'
     - line: '|   templateDefaultScene: Assets/Scenes/SampleScene.unity'
-    - line: '|   useCustomMainManifest: 1'
+    - line: '|   useCustomMainManifest: 0'
     - line: '|   useCustomLauncherManifest: 0'
     - line: '|   useCustomMainGradleTemplate: 0'
     - line: '|   useCustomLauncherGradleManifest: 0'

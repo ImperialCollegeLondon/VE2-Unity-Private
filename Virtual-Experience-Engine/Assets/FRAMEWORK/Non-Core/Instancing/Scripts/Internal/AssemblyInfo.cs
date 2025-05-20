@@ -1,2 +1,3 @@
 using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("VE2.NonCore.Instancing.VComponents.Tests")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")] //For NSubstitute substitutes

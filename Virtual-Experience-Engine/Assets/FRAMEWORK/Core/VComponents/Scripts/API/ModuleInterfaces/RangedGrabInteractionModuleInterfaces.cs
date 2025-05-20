@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using VE2.Common.TransformWrapper;
+using VE2.Common.Shared;
 
 namespace VE2.Core.VComponents.API
 {
@@ -11,9 +10,9 @@ namespace VE2.Core.VComponents.API
         public void RequestLocalDrop(InteractorID interactorID);
         public List<IHandheldInteractionModule> HandheldInteractions { get; }
         public ITransformWrapper AttachPoint { get; }
-        public bool VrFailsafeGrab { get; }
-        public float FailsafeGrabRange { get; }
-        public float FailsafeGrabRangeBackOfHand { get; }
+        public bool VrRaySnap { get; }
+        public float VRRaySnapRange { get; }
+        public float VRRaySnapRangeBackOfHand { get; }
         public float FailsafeGrabMultiplier { get; }
     }
 }

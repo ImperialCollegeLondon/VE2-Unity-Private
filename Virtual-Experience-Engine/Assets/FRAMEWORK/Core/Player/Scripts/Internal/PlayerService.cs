@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using VE2.Core.Common;
+using VE2.Common.API;
+using VE2.Common.Shared;
 using VE2.Core.Player.API;
 using VE2.Core.UI.API;
-using VE2.Core.VComponents.API;
 using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.Core.Player.Internal
@@ -15,15 +15,17 @@ namespace VE2.Core.Player.Internal
             IXRManagerWrapper xrManagerWrapper, IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService)
         {
             return new PlayerService(state, config, 
-                VComponentsAPI.InteractorContainer,
+                VE2API.InteractorContainer,
                 playerPersistentDataHandler,
-                PlayerAPI.LocalClientIDProvider,
-                PlayerAPI.InputHandler.PlayerInputContainer,
+                VE2API.LocalClientIdWrapper,
+                VE2API.LocalPlayerSyncableContainer,
+                VE2API.GrabInteractablesContainer,
+                VE2API.InputHandler.PlayerInputContainer,
                 new RaycastProvider(),
                 new CollisionDetectorFactory(),
                 xrManagerWrapper,
                 primaryUIService,
-                secondaryUIService);
+                secondaryUIService); //TODO: reorder these?
         }
     }
 
@@ -59,6 +61,8 @@ namespace VE2.Core.Player.Internal
         public float TransmissionFrequency => _config.RepeatedTransmissionConfig.TransmissionFrequency;
 
         public bool IsVRMode => PlayerTransformData.IsVRMode;
+        public event Action OnChangeToVRMode;
+        public event Action OnChangeTo2DMode;
 
         public List<GameObject> HeadOverrideGOs => _config.AvatarAppearanceOverrideConfig.HeadOverrideGameObjects;
         public List<GameObject> TorsoOverrideGOs => _config.AvatarAppearanceOverrideConfig.TorsoOverrideGameObjects;
@@ -110,11 +114,13 @@ namespace VE2.Core.Player.Internal
 
         private readonly PlayerInputContainer _playerInputContainer;
         private readonly IPlayerPersistentDataHandler _playerSettingsHandler;
+        private readonly ILocalClientIDWrapper _localClientIDWrapper;
+        private readonly ILocalPlayerSyncableContainer _playerSyncContainer;
 
         private readonly IPrimaryUIServiceInternal _primaryUIService;
 
-        internal PlayerService(PlayerTransformData transformData, PlayerConfig config, HandInteractorContainer interactorContainer, 
-            IPlayerPersistentDataHandler playerSettingsHandler, ILocalClientIDProvider playerSyncer, 
+        internal PlayerService(PlayerTransformData transformData, PlayerConfig config, HandInteractorContainer interactorContainer, IPlayerPersistentDataHandler playerSettingsHandler, 
+            ILocalClientIDWrapper localClientIDWrapper, ILocalPlayerSyncableContainer playerSyncContainer, IGrabInteractablesContainer grabInteractablesContainer, 
             PlayerInputContainer playerInputContainer, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, IXRManagerWrapper xrManagerWrapper, 
             IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService)
         {
@@ -123,23 +129,26 @@ namespace VE2.Core.Player.Internal
 
             _playerInputContainer = playerInputContainer;
             _playerSettingsHandler = playerSettingsHandler;
+            _localClientIDWrapper = localClientIDWrapper;
+            _playerSyncContainer = playerSyncContainer;
+            _playerSyncContainer.RegisterLocalPlayer(this);
 
             if (_config.PlayerModeConfig.EnableVR)
             {
                 xrManagerWrapper.InitializeLoader(); 
 
                 _playerVR = new PlayerControllerVR(
-                    interactorContainer, _playerInputContainer.PlayerVRInputContainer,
+                    interactorContainer, grabInteractablesContainer, _playerInputContainer.PlayerVRInputContainer,
                     playerSettingsHandler, new PlayerVRControlConfig(), _config.PlayerInteractionConfig, _config.MovementModeConfig, _config.CameraConfig,
-                    raycastProvider, collisionDetectorFactory, xrManagerWrapper, playerSyncer, primaryUIService, secondaryUIService);
+                    raycastProvider, collisionDetectorFactory, xrManagerWrapper, localClientIDWrapper, primaryUIService, secondaryUIService);
             }
 
             if (_config.PlayerModeConfig.Enable2D)
             {
                 _player2D = new PlayerController2D(
-                    interactorContainer, _playerInputContainer.Player2DInputContainer,
+                    interactorContainer, grabInteractablesContainer, _playerInputContainer.Player2DInputContainer,
                     playerSettingsHandler, new Player2DControlConfig(), _config.PlayerInteractionConfig, _config.MovementModeConfig, _config.CameraConfig,
-                    raycastProvider, collisionDetectorFactory, playerSyncer, primaryUIService, secondaryUIService, this);
+                    raycastProvider, collisionDetectorFactory, localClientIDWrapper, primaryUIService, secondaryUIService, this);
             }
 
             _playerSettingsHandler.OnDebugSaveAppearance += HandlePlayerPresentationChanged;
@@ -221,6 +230,18 @@ namespace VE2.Core.Player.Internal
             {
                 Debug.LogError("Error changing player mode: " + e.Message + " - " + e.StackTrace);
             }
+
+            try 
+            {
+                if (PlayerTransformData.IsVRMode)
+                    OnChangeToVRMode?.Invoke();
+                else 
+                    OnChangeTo2DMode?.Invoke();
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError("Error emitting OnChangeToVRMode or OnChangeTo2DMode: " + e.Message + " - " + e.StackTrace);
+            }
         }
 
         private void HandlePlayerPresentationChanged(PlayerPresentationConfig presentationConfig)
@@ -256,6 +277,8 @@ namespace VE2.Core.Player.Internal
         
         public void TearDown() 
         {
+            _playerSyncContainer.DeregisterLocalPlayer();
+
             //TODO - maybe make these TearDown methods instead?
             if (_player2D != null)
             {

@@ -36,21 +36,27 @@ namespace VE2.Core.Player.Internal
         }
     }
 
-    public interface ICollisionDetectorFactory
+    internal interface ICollisionDetectorFactory
     {
-        internal ICollisionDetector CreateCollisionDetector(Collider collider, ColliderType colliderType);
+        internal ICollisionDetector CreateCollisionDetector(Collider collider, ColliderType colliderType, LayerMask collisionLayers);
     }
 
-    public class CollisionDetectorFactory : ICollisionDetectorFactory
+    internal class CollisionDetectorFactory : ICollisionDetectorFactory
     {
-        ICollisionDetector ICollisionDetectorFactory.CreateCollisionDetector(Collider collider, ColliderType colliderType)
+        ICollisionDetector ICollisionDetectorFactory.CreateCollisionDetector(Collider collider, ColliderType colliderType, LayerMask collisionLayers)
         {
-            var collisionDetector = collider.gameObject.AddComponent<CollisionDetector>();
-            return collisionDetector;
+            if (collider == null)
+            {
+                Debug.LogError("Collider is null. Cannot create CollisionDetector.");
+                return null;
+            }
+
+            collider.includeLayers = collisionLayers;
+            return collider.gameObject.AddComponent<CollisionDetector>();
         }
     }
 
-    public enum ColliderType
+    internal enum ColliderType
     {
         Feet2D,
         FeetVR,
