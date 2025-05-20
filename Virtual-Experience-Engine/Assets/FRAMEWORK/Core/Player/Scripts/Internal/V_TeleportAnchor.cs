@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using UnityEditor;
 using UnityEngine;
+using VE2.Common.API;
 using VE2.Core.Player.API;
 
 namespace VE2.Core.Player.Internal
@@ -26,7 +27,7 @@ namespace VE2.Core.Player.Internal
             }
 #endif
 
-            gameObject.SetActive(!(Application.isPlaying && !PlayerAPI.Player.IsVRMode));
+            gameObject.SetActive(!(Application.isPlaying && !VE2API.Player.IsVRMode));
             _lineRenderer.enabled = !Application.isPlaying;
         }
 
