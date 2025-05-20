@@ -37,7 +37,7 @@
             
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <!-- <category android:name="android.intent.category.LAUNCHER" /> REMOVED: Should only be accessible through the launcher --> 
                 <category android:name="com.oculus.intent.category.VR" />
             </intent-filter>
             
