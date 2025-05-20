@@ -14,6 +14,7 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField, IgnoreParent] public FreeGrabbableInteractionConfig InteractionConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
         [SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfig = new();
+        [SerializeField, IgnoreParent] public RangedFreeGrabInteractionConfig RangedFreeGrabInteractionConfig = new();
     }
 
     internal class FreeGrabbableService
@@ -52,7 +53,7 @@ namespace VE2.Core.VComponents.Internal
             IWorldStateSyncService worldStateSyncService, HandInteractorContainer interactorContainer, 
             IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants, IGrabbableRigidbody grabbableRigidbodyInterface)
         {
-            _RangedGrabInteractionModule = new(handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
+            _RangedGrabInteractionModule = new(handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig, config.RangedFreeGrabInteractionConfig);
             _StateModule = new(state, config.StateConfig, id, worldStateSyncService, interactorContainer, RangedGrabInteractionModule);
             _stateConfig = config.StateConfig;
             _interactionConfig = config.InteractionConfig;
@@ -85,7 +86,7 @@ namespace VE2.Core.VComponents.Internal
         }
         // private void HandleLocalInteractorRequestGrab(InteractorID interactorID) =>  _StateModule.SetGrabbed(interactorID);
 
-        // private void HandleLocalInteractorRequestD  rop(InteractorID interactorID) => _StateModule.SetDropped(interactorID);
+        // private void HandleLocalInteractorRequestDrop(InteractorID interactorID) => _StateModule.SetDropped(interactorID);
 
         private void HandleGrabConfirmed(ushort grabberClientID)
         {
@@ -125,13 +126,7 @@ namespace VE2.Core.VComponents.Internal
         {
             Debug.Log("HandleOnInspectModeEnter Called in FGS");
             _originalGrabPositionBeforeInspect = grabberTransform.position;
-            _originalGrabRotationBeforeInspect = grabberTransform.rotation;
-
-            Vector3 targetPosition = Camera.main.transform.position + new Vector3(0, 0, 0.5f);
-
-            grabberTransform.position = targetPosition;
-
-            
+            _originalGrabRotationBeforeInspect = grabberTransform.rotation;           
         }
 
         public void HandleOnInspectModeExit(Transform grabberTransform)

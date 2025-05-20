@@ -20,8 +20,10 @@ namespace VE2.Core.Player.Internal
         private Tween _inspectModeTween = null;
         private float verticalRotation = 0;
 
-        public Action OnEnterInspectMode;
-        public Action OnExitInspectMode;
+        private float _zoomStep = 1.0f;
+        private float _minZoom = 2.0f; 
+        private float _maxZoom = 5.0f; 
+        private IRangedFreeGrabInteractionModule _rangedFreeGrabbingGrabbable => _CurrentGrabbingGrabbable as IRangedFreeGrabInteractionModule;
 
         internal Interactor2D(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
             InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider,
@@ -110,6 +112,127 @@ namespace VE2.Core.Player.Internal
             _connectionPromptHandler.NotifyConnected();
         }
 
+        protected override void HandleGrabPressed()
+        {
+            if (IsCurrentlyGrabbing)
+            {
+                if(_inspectModeIndicator.IsInspectModeEnabled)
+                    ExitInspectMode();
+
+                IRangedGrabInteractionModule rangedGrabInteractableToDrop = _CurrentGrabbingGrabbable;
+                rangedGrabInteractableToDrop.RequestLocalDrop(_InteractorID);
+            }
+            else
+            {
+                RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
+
+                if (!_WaitingForLocalClientID && raycastResultWrapper != null && raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange)
+                {
+                    if (!raycastResultWrapper.RangedInteractable.AdminOnly)
+                    {
+                        if (raycastResultWrapper.RangedInteractable is IRangedGrabInteractionModule rangedGrabInteractable)
+                        {
+                            rangedGrabInteractable.RequestLocalGrab(_InteractorID);
+                        }
+                    }
+                    else
+                    {
+                        //TODO, maybe play an error sound or something
+                    }
+                }
+            }
+        }
+
+        protected override void HandleScrollUp()
+        {
+            if (IsCurrentlyGrabbing)
+            {
+                if (_inspectModeIndicator.IsInspectModeEnabled)
+                {
+                    Debug.Log("Zoom Feature Running Scroll Up");
+                    ZoomIn();
+                }
+                else
+                {
+                    foreach (IHandheldInteractionModule handheldInteraction in _CurrentGrabbingGrabbable.HandheldInteractions)
+                    {
+                        if (handheldInteraction is IHandheldScrollInteractionModule handheldScrollInteraction)
+                        {
+                            handheldScrollInteraction.ScrollUp(_InteractorID.ClientID);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
+
+                if (!_WaitingForLocalClientID && raycastResultWrapper != null && raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange)
+                {
+                    if (!raycastResultWrapper.RangedInteractable.AdminOnly)
+                    {
+                        //if while scrolling up, raycast returns an adjustable module
+                        if (raycastResultWrapper.RangedInteractable is IRangedAdjustableInteractionModule rangedAdjustableInteraction)
+                        {
+                            rangedAdjustableInteraction.ScrollUp();
+                        }
+                    }
+                }
+            }
+        }
+
+        private void ZoomIn()
+        {
+            Vector3 targetPosition = GrabberTransform.localPosition;
+            targetPosition.z = Mathf.Clamp(targetPosition.z - _zoomStep, _minZoom, _maxZoom);
+            GrabberTransform.DOLocalMove(targetPosition, 0.1f); 
+        }
+
+        private void ZoomOut()
+        {
+            Vector3 targetPosition = GrabberTransform.localPosition;
+            targetPosition.z = Mathf.Clamp(targetPosition.z + _zoomStep, _minZoom, _maxZoom);
+            GrabberTransform.DOLocalMove(targetPosition, 0.1f);
+        }
+
+        protected override void HandleScrollDown()
+        {
+            if (IsCurrentlyGrabbing)
+            {
+                if (_inspectModeIndicator.IsInspectModeEnabled)
+                {
+                    Debug.Log("Zoom Feature Running Scroll Down");
+                    ZoomOut();
+                }
+                else
+                {
+                    foreach (IHandheldInteractionModule handheldInteraction in _CurrentGrabbingGrabbable.HandheldInteractions)
+                    {
+                        if (handheldInteraction is IHandheldScrollInteractionModule handheldScrollInteraction)
+                        {
+                            handheldScrollInteraction.ScrollDown(_InteractorID.ClientID);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
+
+                if (!_WaitingForLocalClientID && raycastResultWrapper != null && raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange)
+                {
+                    if (!raycastResultWrapper.RangedInteractable.AdminOnly)
+                    {
+                        //if while scrolling up, raycast returns an adjustable module
+                        if (raycastResultWrapper.RangedInteractable is IRangedAdjustableInteractionModule rangedAdjustableInteraction)
+                        {
+                            rangedAdjustableInteraction.ScrollDown();
+                        }
+                    }
+                }
+            }
+        }
+
         private void HandleInspectModePressed()
         {
             if (!IsCurrentlyGrabbing)
@@ -134,12 +257,12 @@ namespace VE2.Core.Player.Internal
             try
             {
                 _inspectModeTween = GrabberTransform.DOMove(_grabberInspectTransform.position, 0.3f).SetEase(Ease.InOutExpo);
-                OnEnterInspectMode?.Invoke();
+                _rangedFreeGrabbingGrabbable.SetInspectModeEnter();
                 _inspectModeIndicator.IsInspectModeEnabled = true;
             }
             catch (Exception e)
             {
-                Debug.Log($"Error when emitting OnEnterInspectMode \n{e.Message}\n{e.StackTrace}");
+                Debug.Log($"Error when emitting OnInspectModeEnter \n{e.Message}\n{e.StackTrace}");
             }
         }
 
@@ -150,7 +273,7 @@ namespace VE2.Core.Player.Internal
             try
             {
                 _inspectModeTween = GrabberTransform.DOLocalMove(Vector3.zero, 0.3f).SetEase(Ease.InOutExpo);
-                OnExitInspectMode?.Invoke();
+                _rangedFreeGrabbingGrabbable.SetInspectModeExit();
                 _inspectModeIndicator.IsInspectModeEnabled = false;
 
                 if (_CurrentGrabbingGrabbable == null)
@@ -163,7 +286,7 @@ namespace VE2.Core.Player.Internal
             }
             catch (Exception e)
             {
-                Debug.Log($"Error when emitting OnExitInspectMode \n{e.Message}\n{e.StackTrace}");
+                Debug.Log($"Error when emitting OnInspectModeExit \n{e.Message}\n{e.StackTrace}");
             }
         }
     }

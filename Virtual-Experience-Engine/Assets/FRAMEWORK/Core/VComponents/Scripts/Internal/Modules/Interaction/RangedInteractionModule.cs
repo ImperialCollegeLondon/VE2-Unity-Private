@@ -11,7 +11,7 @@ namespace VE2.Core.VComponents.Internal
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Space(5)]
-        [Title("Ranged Interation Settings")]
+        [Title("Ranged Interaction Settings")]
         [SerializeField] public float InteractionRange = 50;
 
         [Space(5)]
