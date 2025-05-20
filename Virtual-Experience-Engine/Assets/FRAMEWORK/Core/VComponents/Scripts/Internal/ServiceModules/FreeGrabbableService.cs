@@ -34,8 +34,6 @@ namespace VE2.Core.VComponents.Internal
         private bool _isKinematicOnGrab;
         private PhysicsConstants _physicsConstants;
         private IGrabbableRigidbody _grabbableRigidbodyInterface;
-        private Vector3 _originalGrabPositionBeforeInspect;
-        private Quaternion _originalGrabRotationBeforeInspect;
 
 
 
@@ -48,6 +46,7 @@ namespace VE2.Core.VComponents.Internal
         private FreeGrabbableInteractionConfig _interactionConfig;
 
         private Vector3 positionOnGrab = new();
+        private Quaternion rotationOnGrab = new();
 
         public FreeGrabbableService(List<IHandheldInteractionModule> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id, 
             IWorldStateSyncService worldStateSyncService, HandInteractorContainer interactorContainer, 
@@ -96,6 +95,7 @@ namespace VE2.Core.VComponents.Internal
                 _rigidbody.isKinematic = false;
             }
             positionOnGrab = _rigidbody.position;
+            rotationOnGrab = _rigidbody.rotation;
             OnGrabConfirmed?.Invoke(grabberClientID);
         }
     
@@ -122,27 +122,25 @@ namespace VE2.Core.VComponents.Internal
             }
         } 
 
-        private void HandleOnInspectModeEnter(Transform grabberTransform)
-        {
-            Debug.Log("HandleOnInspectModeEnter Called in FGS");
-            _originalGrabPositionBeforeInspect = grabberTransform.position;
-            _originalGrabRotationBeforeInspect = grabberTransform.rotation;           
-        }
-
-        public void HandleOnInspectModeExit(Transform grabberTransform)
-        {
-            Debug.Log("HandleOnInspectModeExit Called in FGS");
-
-            grabberTransform.position = _originalGrabPositionBeforeInspect;
-            grabberTransform.rotation = _originalGrabRotationBeforeInspect;
-        }
         public void HandleFixedUpdate()
         {
             _StateModule.HandleFixedUpdate();
             if(_StateModule.IsGrabbed)
             {
                 TrackPosition(_StateModule.CurrentGrabbingInteractor.GrabberTransform.position);
-                TrackRotation(_StateModule.CurrentGrabbingInteractor.GrabberTransform.rotation);
+
+                Quaternion rotationDelta = Quaternion.Inverse(rotationOnGrab) * _StateModule.CurrentGrabbingInteractor.GrabberTransform.rotation;
+
+                if (RangedGrabInteractionModule.UseAttachPointOrientationOnGrab)
+                {
+                    TrackRotation(rotationDelta);
+                    Debug.Log("Using attach point orientation on grab");
+                }
+                else
+                {
+                    TrackRotation(_StateModule.CurrentGrabbingInteractor.GrabberTransform.rotation);
+                    Debug.Log("Using grabber orientation on grab");
+                }
             }
         }
 

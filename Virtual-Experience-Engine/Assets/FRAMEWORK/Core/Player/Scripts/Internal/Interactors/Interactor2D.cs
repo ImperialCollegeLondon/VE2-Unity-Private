@@ -276,13 +276,16 @@ namespace VE2.Core.Player.Internal
                 _rangedFreeGrabbingGrabbable.SetInspectModeExit();
                 _inspectModeIndicator.IsInspectModeEnabled = false;
 
+
                 if (_CurrentGrabbingGrabbable == null)
                 {
                     V_Logger.Error("Tried to exit inspect mode, but no grabbable grabbed!");
                     return;
                 }
+                if (!_rangedFreeGrabbingGrabbable.KeepInspectModeOrientation)
+                    GrabberTransform.localRotation = Quaternion.identity;
+                    
 
-                GrabberTransform.localRotation = Quaternion.identity;
             }
             catch (Exception e)
             {
