@@ -6,6 +6,7 @@ using VE2.Core.Player.API;
 
 namespace VE2.Core.Player.Internal
 {
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     [ExecuteAlways]
     internal class V_TeleportAnchor : MonoBehaviour
     {
@@ -66,6 +67,7 @@ namespace VE2.Core.Player.Internal
 #if UNITY_EDITOR
         private void OnSelectionChanged()
         {
+            return;
             // Check if the selected object is the target or a child of it
             foreach (var selected in Selection.gameObjects)
             {
