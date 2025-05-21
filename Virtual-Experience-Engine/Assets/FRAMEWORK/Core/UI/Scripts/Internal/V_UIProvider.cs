@@ -28,7 +28,7 @@ namespace VE2.Core.UI.Internal
                 return _secondaryUIService;
             }
         }
-        public bool IsEnabled => gameObject != null && enabled && gameObject.activeInHierarchy;
+        public bool IsEnabled => this != null && gameObject != null && enabled && gameObject.activeInHierarchy;
 
         [Help("If enabled, the secondary UI can be customised. If disabled, the secondary UI  This is always enabled for the primary UI.")]
         [SerializeField, HideInInspector] private bool _lastUseSecondaryUI;

@@ -120,7 +120,7 @@ namespace VE2.Core.Player.Internal
             }
         }
 
-        public bool IsEnabled => gameObject != null && enabled && gameObject.activeInHierarchy;
+        public bool IsEnabled => this != null && gameObject != null && enabled && gameObject.activeInHierarchy;
         #endregion
 
         [SerializeField, HideInInspector] private bool _transformDataSetup = false;
