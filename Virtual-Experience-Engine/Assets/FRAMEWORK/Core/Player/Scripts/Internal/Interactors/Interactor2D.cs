@@ -149,7 +149,6 @@ namespace VE2.Core.Player.Internal
             {
                 if (_inspectModeIndicator.IsInspectModeEnabled)
                 {
-                    Debug.Log("Zoom Feature Running Scroll Up");
                     ZoomIn();
                 }
                 else
@@ -201,7 +200,6 @@ namespace VE2.Core.Player.Internal
             {
                 if (_inspectModeIndicator.IsInspectModeEnabled)
                 {
-                    Debug.Log("Zoom Feature Running Scroll Down");
                     ZoomOut();
                 }
                 else
@@ -237,7 +235,6 @@ namespace VE2.Core.Player.Internal
         {
             if (!IsCurrentlyGrabbing)
             {
-                Debug.LogWarning("ToggleInspectMode - Cannot toggle inspect mode while no object is grabbed. Ignoring request.");
                 return;
             }
 
@@ -252,7 +249,6 @@ namespace VE2.Core.Player.Internal
 
         private void EnterInspectMode()
         {
-            Debug.Log("We are now in Inspect Mode");
 
             try
             {
@@ -262,7 +258,7 @@ namespace VE2.Core.Player.Internal
             }
             catch (Exception e)
             {
-                Debug.Log($"Error when emitting OnInspectModeEnter \n{e.Message}\n{e.StackTrace}");
+                V_Logger.Error($"Error when emitting OnInspectModeEnter \n{e.Message}\n{e.StackTrace}");
             }
         }
 
@@ -282,14 +278,14 @@ namespace VE2.Core.Player.Internal
                     V_Logger.Error("Tried to exit inspect mode, but no grabbable grabbed!");
                     return;
                 }
-                if (!_rangedFreeGrabbingGrabbable.KeepInspectModeOrientation)
+                if (!_rangedFreeGrabbingGrabbable.PreserveInspectModeOrientation)
                     GrabberTransform.localRotation = Quaternion.identity;
                     
 
             }
             catch (Exception e)
             {
-                Debug.Log($"Error when emitting OnInspectModeExit \n{e.Message}\n{e.StackTrace}");
+                V_Logger.Error($"Error when emitting OnInspectModeExit \n{e.Message}\n{e.StackTrace}");
             }
         }
     }

@@ -13,10 +13,10 @@ namespace VE2.Core.VComponents.Internal
         [BeginGroup(Style = GroupStyle.Round)]
         [Space(5)]
         [Title("Ranged Free Grab Interaction Settings")]
-        [SerializeField] public bool KeepInspectModeOrientation = false;
+        [SerializeField] public bool PreserveInspectModeOrientation = false;
 
         [Space(5)]
-        [SerializeField] public bool UseAttachPointOrientationOnGrab = false;
+        [SerializeField] public bool AlignOrientationOnGrab = false;
 
         [Space(5)]
         public UnityEvent OnInspectModeEnter;
@@ -32,8 +32,8 @@ namespace VE2.Core.VComponents.Internal
         internal UnityEvent OnInspectModeEnter => _rangedFreeGrabInteractionConfig.OnInspectModeEnter;
         internal UnityEvent OnInspectModeExit => _rangedFreeGrabInteractionConfig.OnInspectModeExit;
 
-        public bool KeepInspectModeOrientation { get => _rangedFreeGrabInteractionConfig.KeepInspectModeOrientation; set => _rangedFreeGrabInteractionConfig.KeepInspectModeOrientation = value; }
-        public bool UseAttachPointOrientationOnGrab { get => _rangedFreeGrabInteractionConfig.UseAttachPointOrientationOnGrab; set => _rangedFreeGrabInteractionConfig.UseAttachPointOrientationOnGrab = value; }
+        public bool PreserveInspectModeOrientation { get => _rangedFreeGrabInteractionConfig.PreserveInspectModeOrientation; set => _rangedFreeGrabInteractionConfig.PreserveInspectModeOrientation = value; }
+        public bool AlignOrientationOnGrab { get => _rangedFreeGrabInteractionConfig.AlignOrientationOnGrab; set => _rangedFreeGrabInteractionConfig.AlignOrientationOnGrab = value; }
 
         private readonly RangedFreeGrabInteractionConfig _rangedFreeGrabInteractionConfig;
         public RangedFreeGrabInteractionModule(List<IHandheldInteractionModule> handheldInteractions, RangedInteractionConfig config, GeneralInteractionConfig generalInteractionConfig, RangedFreeGrabInteractionConfig rangedFreeGrabInteractionConfig) : base(handheldInteractions, config, generalInteractionConfig)

@@ -8,8 +8,8 @@ namespace VE2.Core.VComponents.API
 {
     internal interface IRangedFreeGrabInteractionModule : IRangedGrabInteractionModule
     {
-        public bool KeepInspectModeOrientation { get; set; }
-        public bool UseAttachPointOrientationOnGrab { get; set; }
+        public bool PreserveInspectModeOrientation { get; set; }
+        public bool AlignOrientationOnGrab { get; set; }
 
         public void SetInspectModeEnter();
         public void SetInspectModeExit();

@@ -131,7 +131,7 @@ namespace VE2.Core.VComponents.Internal
 
                 Quaternion rotationDelta = Quaternion.Inverse(rotationOnGrab) * _StateModule.CurrentGrabbingInteractor.GrabberTransform.rotation;
 
-                if (RangedGrabInteractionModule.UseAttachPointOrientationOnGrab)
+                if (RangedGrabInteractionModule.AlignOrientationOnGrab)
                 {
                     TrackRotation(rotationDelta);
                     Debug.Log("Using attach point orientation on grab");
