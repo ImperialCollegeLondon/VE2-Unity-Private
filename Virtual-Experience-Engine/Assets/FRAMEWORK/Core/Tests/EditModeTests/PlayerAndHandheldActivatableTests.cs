@@ -70,7 +70,7 @@ namespace VE2.Core.Tests
             //Stub out the raycast provider to hit the activatable GO with 0 range
             RayCastProviderSetup.RaycastProviderStub
                 .Raycast(default, default, default, default)
-                .ReturnsForAnyArgs(new RaycastResultWrapper(_grabbableRaycastInterface.RangedGrabInteractionModule, null, 0));
+                .ReturnsForAnyArgs(new RaycastResultWrapper(_grabbableRaycastInterface.RangedGrabInteractionModule, null, 0, true));
 
             //Wire up the customer script to receive the events
             PluginActivatableScript pluginScriptMock = Substitute.For<PluginActivatableScript>();

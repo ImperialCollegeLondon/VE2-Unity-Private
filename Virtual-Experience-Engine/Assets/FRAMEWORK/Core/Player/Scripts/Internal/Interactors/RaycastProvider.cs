@@ -27,7 +27,7 @@ namespace VE2.Core.Player.Internal
 
                 if (button != null)
                 {
-                    result = new(null, button, raycastHit.distance);
+                    result = new(null, button, raycastHit.distance, true, raycastHit.point);
                 }
                 else //Search up through the heirarchy looking for 
                 {
@@ -44,17 +44,17 @@ namespace VE2.Core.Player.Internal
 
                     if (rangedInteractionModuleProvider != null)
                     {
-                        result = new(rangedInteractionModuleProvider.RangedInteractionModule, null, raycastHit.distance, raycastHit.transform.position);
+                        result = new(rangedInteractionModuleProvider.RangedInteractionModule, null, raycastHit.distance, true, raycastHit.point);
                     }
                     else
                     {
-                        result = new(null, null, raycastHit.distance);
+                        result = new(null, null, raycastHit.distance, true, raycastHit.point);
                     }
                 }
             }
             else
             {
-                result = new(null, null, maxRaycastDistance);
+                result = new(null, null, maxRaycastDistance, false);
             }
 
             return result;
@@ -115,16 +115,16 @@ namespace VE2.Core.Player.Internal
 
                 if (closestRangedGrabInteractionProvider != null)
                 {
-                    result = new(closestRangedGrabInteractionProvider.RangedInteractionModule, null, closestDistance, closestHitPoint);
+                    result = new(closestRangedGrabInteractionProvider.RangedInteractionModule, null, closestDistance, true, closestHitPoint);
                 }
                 else
                 {
-                    result = new(null, null, maxRaycastDistance);
+                    result = new(null, null, maxRaycastDistance, true, closestHitPoint);
                 }
             }
             else
             {
-                result = new(null, null, maxRaycastDistance);
+                result = new(null, null, maxRaycastDistance, false);
             }
 
             return result;
@@ -159,6 +159,7 @@ namespace VE2.Core.Player.Internal
         public Button UIButton;
         public float HitDistance { get; private set; }
         public Vector3 HitPosition { get; private set; }
+        public bool HitAnything { get; private set; }
         public bool HitInteractableOrUI => HitInteractable || HitUIButton;
         public bool HitInteractable => RangedInteractable != null;
         public bool HitInteractableInRange => HitInteractable && RangedInteractableIsInRange;
@@ -167,10 +168,11 @@ namespace VE2.Core.Player.Internal
         public bool HitScrollableInteractableInRange => HitInteractableInRange && RangedInteractable is IRangedAdjustableInteractionModule;
         public bool HitScrollableUI => HitUIButton && false /*TODO: replace w/ && UIButton is IScrollableUI*/;
 
-        public RaycastResultWrapper(IRangedInteractionModule rangedInteractable, Button uiButton, float distance, Vector3 hitPosition = default)
+        public RaycastResultWrapper(IRangedInteractionModule rangedInteractable, Button uiButton, float distance, bool hitAnything, Vector3 hitPosition = default)
         {
             HitPosition = hitPosition;
             RangedInteractable = rangedInteractable;
+            HitAnything = hitAnything;
             UIButton = uiButton;
             HitDistance = distance;
         }
