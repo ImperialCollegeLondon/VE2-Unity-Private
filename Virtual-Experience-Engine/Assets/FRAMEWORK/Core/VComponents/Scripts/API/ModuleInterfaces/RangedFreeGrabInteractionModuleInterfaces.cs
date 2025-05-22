@@ -11,7 +11,7 @@ namespace VE2.Core.VComponents.API
         public bool PreserveInspectModeOrientation { get; set; }
         public bool AlignOrientationOnGrab { get; set; }
 
-        public void SetInspectModeEnter();
+        public void NotifyInspectModeEnter();
         public void SetInspectModeExit();
         public void ApplyDeltaWhenGrabbed(Vector3 deltaPostion, Quaternion deltaRotation);
     }

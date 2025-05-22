@@ -367,8 +367,7 @@ namespace VE2.Core.Player.API
 
         public PlayerInputContainer(
             IPressableInput changeMode2D,
-            IPressableInput inspectModeButton,
-            IPressableInput rangedClick2D, IPressableInput grab2D, IPressableInput handheldClick2D, IScrollInput scrollTickUp2D, IScrollInput scrollTickDown2D,
+            IPressableInput rangedClick2D, IPressableInput grab2D, IPressableInput handheldClick2D, IPressableInput inspectModeInput, IScrollInput scrollTickUp2D, IScrollInput scrollTickDown2D, IValueInput<Vector2> mouseDeltaInput,
             IDelayedChargableInput resetViewVR,
             IValueInput<Vector3> handVRLeftPosition, IValueInput<Quaternion> handVRLeftRotation,
             IPressableInput rangedClickVRLeft, IPressableInput grabVRLeft, IPressableInput handheldClickVRLeft, IScrollInput scrollTickUpVRLeft, IScrollInput scrollTickDownVRLeft,
@@ -383,8 +382,7 @@ namespace VE2.Core.Player.API
             ChangeMode = changeMode2D;
 
             Player2DInputContainer = new(
-                inspectModeButton,
-                new InteractorInputContainer(rangedClick2D, grab2D, handheldClick2D,scrollTickUp2D, scrollTickDown2D)
+                new Interactor2DInputContainer(rangedClick2D, grab2D, handheldClick2D,inspectModeInput, scrollTickUp2D, scrollTickDown2D, mouseDeltaInput)
             );
 
             PlayerVRInputContainer = new(
@@ -410,12 +408,10 @@ namespace VE2.Core.Player.API
 
     public class Player2DInputContainer
     {
-        public IPressableInput InspectModeButton { get; private set; }
-        public InteractorInputContainer InteractorInputContainer2D { get; private set; }
+        public Interactor2DInputContainer InteractorInputContainer2D { get; private set; }
 
-        public Player2DInputContainer(IPressableInput inspectModeButton, InteractorInputContainer interactorInputContainer2D)
+        public Player2DInputContainer(Interactor2DInputContainer interactorInputContainer2D)
         {
-            InspectModeButton = inspectModeButton;
             InteractorInputContainer2D = interactorInputContainer2D;
         }
     }
@@ -472,6 +468,17 @@ namespace VE2.Core.Player.API
         }
     }
 
+    public class Interactor2DInputContainer: InteractorInputContainer
+    {
+        public IValueInput<Vector2> MouseInput { get; private set; }
+        public IPressableInput InspectModeInput { get; private set; }
+        public Interactor2DInputContainer(IPressableInput rangedClick, IPressableInput grab, IPressableInput handheldClick,IPressableInput inspectModeInput, IScrollInput scrollTickUp, IScrollInput scrollTickDown, IValueInput<Vector2> mouseInput) : base(rangedClick, grab, handheldClick, scrollTickUp, scrollTickDown)
+        {
+            MouseInput = mouseInput;
+            InspectModeInput = inspectModeInput;
+        }
+    }
+
     public class DragLocomotorInputContainer 
     {
         public IPressableInput HorizontalDrag { get; private set; }
@@ -498,7 +505,6 @@ namespace VE2.Core.Player.API
     public class TeleportInputContainer
     {
         public IPressableInput Teleport { get; private set; }
-
         public IValueInput<Vector2> TeleportDirection { get; private set; }
         public TeleportInputContainer(IPressableInput teleport, IValueInput<Vector2> teleportDirection)
         {
@@ -579,17 +585,15 @@ namespace VE2.Core.Player.API
             InputActionMap actionMapPlayer = inputActionAsset.FindActionMap("InputPlayer");
             PressableInput changeMode2D = new(actionMapPlayer.FindAction("ToggleMode"));
 
-            // 2D Action Map
-            InputActionMap actionMap2D = inputActionAsset.FindActionMap("Input2D");
-            PressableInput inspectModeButton = new(actionMap2D.FindAction("InspectMode"));
-
             // 2D Interactor Action Map
             InputActionMap actionMapInteractor2D = inputActionAsset.FindActionMap("InputInteractor2D");
             PressableInput rangedClick2D = new(actionMapInteractor2D.FindAction("RangedClick"));
             PressableInput grab2D = new(actionMapInteractor2D.FindAction("Grab"));
             PressableInput handheldClick2D = new(actionMapInteractor2D.FindAction("HandheldClick"));
+            PressableInput inspectModeInput = new(actionMapInteractor2D.FindAction("InspectMode"));
             ScrollInput scrollTickUp2D = new(actionMapInteractor2D.FindAction("ScrollValue"), MIN_SCROLL_THRESHOLD_2D, MAX_SCROLL_THRESHOLD_2D, MIN_SCROLL_TICKS_PER_SECOND_2D, MAX_SCROLL_TICKS_PER_SECOND_2D, true);
             ScrollInput scrollTickDown2D = new(actionMapInteractor2D.FindAction("ScrollValue"), MIN_SCROLL_THRESHOLD_2D, MAX_SCROLL_THRESHOLD_2D, MIN_SCROLL_TICKS_PER_SECOND_2D, MAX_SCROLL_TICKS_PER_SECOND_2D, false);
+            ValueInput<Vector2> mouseDeltaInput = new(actionMapInteractor2D.FindAction("MouseDelta"));
 
             // VR Action Map
             InputActionMap actionMapVR = inputActionAsset.FindActionMap("InputVR");
@@ -650,12 +654,13 @@ namespace VE2.Core.Player.API
             // Initialize the PlayerInputContainer
             PlayerInputContainer = new(
                 changeMode2D: changeMode2D,
-                inspectModeButton: inspectModeButton,
                 rangedClick2D: rangedClick2D,
                 grab2D: grab2D,
                 handheldClick2D: handheldClick2D,
+                inspectModeInput: inspectModeInput,
                 scrollTickUp2D: scrollTickUp2D,
                 scrollTickDown2D: scrollTickDown2D,
+                mouseDeltaInput: mouseDeltaInput,
                 resetViewVR: resetViewVR,
                 handVRLeftPosition: handVRLeftPosition,
                 handVRLeftRotation: handVRLeftRotation,

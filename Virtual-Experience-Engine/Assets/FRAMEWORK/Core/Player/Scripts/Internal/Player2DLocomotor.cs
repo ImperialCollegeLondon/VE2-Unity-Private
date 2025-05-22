@@ -120,7 +120,7 @@ namespace VE2.Core.Player.Internal
             if (Application.isFocused && isCursorLocked)
             {
                 // Mouse look
-                if (!_inspectModeIndicator.IsInspectModeEnabled)
+                if (!_inspectModeIndicator.IsInspectModeActive)
                 {
                     float mouseX = Mouse.current.delta.x.ReadValue() * mouseSensitivity;
                     _transform.Rotate(Vector3.up * mouseX);

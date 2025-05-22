@@ -199,6 +199,6 @@ namespace VE2.Core.Player.Internal
 
     internal class InspectModeIndicator
     {
-        public bool IsInspectModeEnabled = false;
+        public bool IsInspectModeActive = false;
     }
 }

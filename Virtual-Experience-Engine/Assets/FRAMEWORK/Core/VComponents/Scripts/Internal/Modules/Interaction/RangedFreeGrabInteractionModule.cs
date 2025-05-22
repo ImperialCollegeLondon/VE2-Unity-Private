@@ -41,7 +41,7 @@ namespace VE2.Core.VComponents.Internal
             _rangedFreeGrabInteractionConfig = rangedFreeGrabInteractionConfig;
         }
 
-        public void SetInspectModeEnter()
+        public void NotifyInspectModeEnter()
         {
             OnInspectModeEnter?.Invoke();
         }

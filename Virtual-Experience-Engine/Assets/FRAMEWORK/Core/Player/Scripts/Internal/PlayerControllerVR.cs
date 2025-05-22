@@ -152,7 +152,6 @@ namespace VE2.Core.Player.Internal
             else
                 _xrManagerSettingsWrapper.OnLoaderInitialized += HandleXRInitComplete;
 
-
             _playerVRInputContainer.ResetView.OnStartCharging += HandleResetViewChargeStarted;
             _playerVRInputContainer.ResetView.OnChargeComplete += HandleResetViewCharged;
             _playerVRInputContainer.ResetView.OnCancelCharging += HandleResetViewCancelled;
