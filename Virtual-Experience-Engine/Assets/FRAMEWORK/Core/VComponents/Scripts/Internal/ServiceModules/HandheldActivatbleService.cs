@@ -32,17 +32,9 @@ namespace VE2.Core.VComponents.Internal
             _HandheldClickInteractionModule = new(grabbable, config.HandheldClickInteractionConfig, config.GeneralInteractionConfig);
             Grabbable = grabbable;
 
-            // Wire differently based on whether we’re in hold or toggle mode.
-            if (_HandheldClickInteractionModule.IsHoldMode)
-            {
-                _HandheldClickInteractionModule.OnClick += HandleClick;
-                _HandheldClickInteractionModule.OnClickUp += HandleClickUp;
-            }
-            else
-            {
-                // In toggle mode, a click simply toggles the state.
-                _HandheldClickInteractionModule.OnClick += HandleToggle;
-            }
+            _HandheldClickInteractionModule.OnClickDown += HandleClickDown;
+            _HandheldClickInteractionModule.OnClickUp += HandleClickUp;
+
         }
 
         public void HandleFixedUpdate()
@@ -50,49 +42,31 @@ namespace VE2.Core.VComponents.Internal
             _StateModule.HandleFixedUpdate();
         }
 
-        private void HandleClick(ushort clientID)
-        { 
-            if (!_StateModule.IsActivated)
-            {
-                _StateModule.SetHoldActivatableState(clientID, true);
+        private void HandleClickDown(ushort clientID)
+        {
+            _StateModule.SetNewState(clientID);
 
-                if (_HandheldClickInteractionModule.DeactivateOnDrop)
-                {
-                    Grabbable.OnDrop.AddListener(HandleExternalClickUp);
-                }
-            }
-
+            if (_HandheldClickInteractionModule.DeactivateOnDrop)
+                Grabbable.OnDrop.AddListener(HandleExternalClickUp);
         }
 
         private void HandleClickUp(ushort clientID)
-        {  
-            if (_StateModule.IsActivated)
+        {
+            if (_HandheldClickInteractionModule.IsHoldMode)
             {
-                _StateModule.SetHoldActivatableState(clientID, false);
+                if (_StateModule.IsActivated)
+                {
+                    _StateModule.SetNewState(clientID);
+                }
             }
         }
 
         private void HandleExternalClickUp()
         {
             if (_HandheldClickInteractionModule.IsHoldMode)
-            {
                 HandleClickUp(Grabbable.MostRecentInteractingClientID);
-            }
             else
-            {
-                HandleToggle(Grabbable.MostRecentInteractingClientID);
-            }
-        }
-
-        private void HandleToggle(ushort clientID)
-        {   
-            Debug.Log("Handle Toggle Click");
-            _StateModule.ToggleActivatableState(clientID);
-            if (_HandheldClickInteractionModule.DeactivateOnDrop)
-            {
-                Debug.Log("Handle Toggle Click - DeactivateOnDrop");
-                Grabbable.OnDrop.AddListener(HandleExternalClickUp);
-            }
+                HandleClickDown(Grabbable.MostRecentInteractingClientID);
         }
 
         public void TearDown()

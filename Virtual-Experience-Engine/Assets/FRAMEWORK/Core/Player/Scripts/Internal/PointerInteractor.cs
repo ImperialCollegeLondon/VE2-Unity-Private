@@ -391,8 +391,7 @@ namespace VE2.Core.Player.Internal
                 {
                     if (handheldInteraction is IHandheldClickInteractionModule handheldClickInteraction)
                     {
-                        Debug.Log($"Clicking handheld interaction {handheldClickInteraction} on {_InteractorID.ClientID}");
-                        handheldClickInteraction.Click(_InteractorID.ClientID);
+                        handheldClickInteraction.ClickDown(_InteractorID.ClientID);
                     }
                 }
             }

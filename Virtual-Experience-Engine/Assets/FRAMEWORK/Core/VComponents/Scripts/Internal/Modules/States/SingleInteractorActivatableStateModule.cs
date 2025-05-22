@@ -54,7 +54,7 @@ namespace VE2.Core.VComponents.Internal
         public void SetActivated(bool newIsActivated)
         {
             if (newIsActivated != _state.IsActivated)
-                ToggleActivatableState(ushort.MaxValue);
+                SetNewState(ushort.MaxValue);
             else
                 Debug.LogWarning($"Tried to set activated state on {ID} to {newIsActivated} but state is already {_state.IsActivated}");
         }
@@ -87,66 +87,27 @@ namespace VE2.Core.VComponents.Internal
         private void HandleExternalActivation(bool newIsActivated)
         {
             if (newIsActivated != _state.IsActivated)
-                ToggleActivatableState(ushort.MaxValue);
+                SetNewState(ushort.MaxValue);
             else
                 Debug.LogWarning($"Tried to set activated state on {ID} to {newIsActivated} but state is already {_state.IsActivated}");
         }
 
-        public void ToggleActivatableState(ushort clientID)
+        public void SetNewState(ushort clientID)
         {
-            Debug.Log($"ToggleActivatableState called on {ID} with clientID {clientID}");
+            // If this module belongs to an activation group, deactivate others.
             if (_isInActivationGroup)
             {
-                List<ISingleInteractorActivatableStateModule> singleInteractorActivatableStateModules = _activatableGroupsContainer.GetSingleInteractorActivatableStateModule(_activationGroupID);
+                List<ISingleInteractorActivatableStateModule> groupModules = _activatableGroupsContainer.GetSingleInteractorActivatableStateModule(_activationGroupID);
+                foreach (ISingleInteractorActivatableStateModule module in groupModules)
+                {
+                    if (module != this && module.IsActivated)
+                        module.Deactivate();
+                }
+            }
 
-                foreach (ISingleInteractorActivatableStateModule activatable in singleInteractorActivatableStateModules)
-                {
-                    if (activatable != this && activatable.IsActivated)
-                        activatable.Deactivate();
-                }
-
-                InvertState(clientID);
-            }
-            else
-            {
-                InvertState(clientID);
-            }
-        }
-
-        public void SetHoldActivatableState(ushort clientID, bool isHolding)
-        {
-            if (isHolding)
-            {
-                // If this module belongs to an activation group, deactivate others.
-                if (_isInActivationGroup)
-                {
-                    List<ISingleInteractorActivatableStateModule> groupModules = _activatableGroupsContainer.GetSingleInteractorActivatableStateModule(_activationGroupID);
-                    foreach (ISingleInteractorActivatableStateModule module in groupModules)
-                    {
-                        if (module != this && module.IsActivated)
-                            module.Deactivate();
-                    }
-                }
-                // Activate this module if not already active.
-                if (!_state.IsActivated)
-                {
-                    UpdateActivationState(clientID, true);
-                }
-            }
-            else
-            {
-                // When the hold is released, deactivate if currently active.
-                if (_state.IsActivated)
-                {
-                    UpdateActivationState(clientID, false);
-                }
-            }
-        }
-        public void InvertState(ushort clientID)
-        {
-            Debug.Log($"InvertState called on {ID} with clientID {clientID}");
             UpdateActivationState(clientID, !_state.IsActivated);
         }
+
         private void UpdateActivationState(ushort clientID, bool newState)
         {
             // Only update if the state is actually changing.

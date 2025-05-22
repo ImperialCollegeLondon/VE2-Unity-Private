@@ -49,7 +49,7 @@ namespace VE2.Core.VComponents.Internal
 
         private void HandleInteract(InteractorID interactorID)
         {
-            _StateModule.ToggleActivatableState(interactorID.ClientID);
+            _StateModule.SetNewState(interactorID.ClientID);
         }
 
         public void TearDown() 

@@ -7,12 +7,12 @@ namespace VE2.Core.VComponents.Internal
 {
     internal class HandheldClickInteractionModule : GeneralInteractionModule, IHandheldClickInteractionModule
     {
-        public bool IsHoldMode { get; set; } //Detects if it is Toggle or Hold mode
-        public bool DeactivateOnDrop { get; set; } //If true, the activatable will deactivate when the handheld is dropped
+        public bool IsHoldMode { get; private set; } //Detects if it is Toggle or Hold mode
+        public bool DeactivateOnDrop { get; private set; } //If true, the activatable will deactivate when the handheld is dropped
 
-        public void Click(ushort clientID)
+        public void ClickDown(ushort clientID)
         {
-            OnClick?.Invoke(clientID);
+            OnClickDown?.Invoke(clientID);
         }
 
         public void ClickUp(ushort clientID)
@@ -20,7 +20,7 @@ namespace VE2.Core.VComponents.Internal
             OnClickUp?.Invoke(clientID);
         }
 
-        public event Action<ushort> OnClick;
+        public event Action<ushort> OnClickDown;
         public event Action<ushort> OnClickUp;
 
         public HandheldClickInteractionModule(IV_FreeGrabbable grabbable, HandHeldClickInteractionConfig handheldClickInteractionConfig, GeneralInteractionConfig config) : base(config)
