@@ -267,14 +267,22 @@ namespace VE2.Core.Player.Internal
                 if(this is Interactor2D)
                     return;
 
-                //if raycast is not null then set it to the distance of the raycast
-                //else if the spherecast is not null then set it to the distance of the spherecast
-                //else set it to the distance of the raycast (which is 10)
-                float distance = raycastResultWrapper.HitInteractable ? raycastResultWrapper.HitDistance : sphereCastResultWrapper.HitInteractable ? sphereCastResultWrapper.HitDistance : MAX_RAYCAST_DISTANCE;
-                bool isOnPalm = !raycastResultWrapper.HitInteractable && sphereCastResultWrapper.HitInteractable && sphereCastResultWrapper.RangedInteractableIsInRange;
+                //If the main ray hits an interactable, point the line at that
+                //Otherwise, if the proximity ray hits an interactable, point the line at that
+                //OTHERWISE, if the main ray hit ANYTHING, point the line at that
+                //If none of those, just point the ray forward at max distance 
+                Vector3 rayEndPosition;
+                if (raycastResultWrapper.HitInteractableOrUI)
+                    rayEndPosition = raycastResultWrapper.HitPosition;
+                else if (sphereCastResultWrapper.HitInteractableOrUI)
+                    rayEndPosition = sphereCastResultWrapper.HitPosition;
+                else if (raycastResultWrapper.HitAnything)
+                    rayEndPosition = raycastResultWrapper.HitPosition;
+                else 
+                    rayEndPosition = _RayOrigin.position + _RayOrigin.forward * MAX_RAYCAST_DISTANCE;
                 
                 //jank way to set the parameters for the raycast distance
-                HandleRaycastDistance(distance, isOnPalm, sphereCastResultWrapper.HitPosition);
+                HandleRaycastDistance(rayEndPosition);
             }
         }
 
@@ -325,7 +333,7 @@ namespace VE2.Core.Player.Internal
                 colorHandler.OnPointerExit();
         }
 
-        protected virtual void HandleRaycastDistance(float distance, bool isOnPalm = false, Vector3 point = default) { } //TODO: Code smell? InteractorVR needs this to set the LineRenderer length
+        protected virtual void HandleRaycastDistance(Vector3 point) { } //TODO: Code smell? InteractorVR needs this to set the LineRenderer length
 
         private RaycastResultWrapper GetRayCastResult()
         {
