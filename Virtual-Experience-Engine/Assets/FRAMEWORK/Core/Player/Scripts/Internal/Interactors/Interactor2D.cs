@@ -11,37 +11,34 @@ namespace VE2.Core.Player.Internal
 {
     internal class Interactor2D : PointerInteractor
     {
+        private const float INSPECT_ZOOM_SPEED = 1.0f;
+        private const float INSPECT_MIN_ZOOM = 2.0f;
+        private const float INSPECT_MAX_ZOOM = 5.0f;
+        private const float INSPECT_ROTATE_SPEED = 0.1f;
+
         private ColorConfiguration _colorConfig => ColorConfiguration.Instance;
         private readonly Image _reticuleImage;
         private readonly PlayerConnectionPromptHandler _connectionPromptHandler;
         private Interactor2DInputContainer _interactor2DInputContainer;
         private InspectModeIndicator _inspectModeIndicator;
-        private Transform _grabberInspectTransform;
+        private Transform _grabberInspectGuideTransform;
         private Tween _inspectModeTween = null;
-        private float verticalRotation = 0;
 
-        private float _zoomStep = 1.0f;
-        private float _minZoom = 2.0f; 
-        private float _maxZoom = 5.0f; 
         private IRangedFreeGrabInteractionModule _rangedFreeGrabbingGrabbable => _CurrentGrabbingGrabbable as IRangedFreeGrabInteractionModule;
 
         internal Interactor2D(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, Interactor2DInputContainer interactor2DInputContainer,
             PlayerInteractionConfig interactionConfig, InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider,
-            ILocalClientIDWrapper localClientIDWrapper, InspectModeIndicator inspectModeIndicator) : 
+            ILocalClientIDWrapper localClientIDWrapper, InspectModeIndicator inspectModeIndicator) :
             base(interactorContainer, grabInteractablesContainer, interactor2DInputContainer, interactionConfig,
-                interactorReferences, interactorType, raycastProvider, localClientIDWrapper, null, new HoveringOverScrollableIndicator())   
+                interactorReferences, interactorType, raycastProvider, localClientIDWrapper, null, new HoveringOverScrollableIndicator())
         {
             Interactor2DReferences interactor2DReferences = interactorReferences as Interactor2DReferences;
             _reticuleImage = interactor2DReferences.ReticuleImage;
             _inspectModeIndicator = inspectModeIndicator;
 
             _connectionPromptHandler = interactor2DReferences.ConnectionPromptHandler;
-            _grabberInspectTransform = interactor2DReferences.GrabberInspectTransform;
+            _grabberInspectGuideTransform = interactor2DReferences.GrabberInspectTransform;
             _interactor2DInputContainer = interactor2DInputContainer;
-
-            //TODO: Don't want to do this in constructor, should happen in HandleOnEnable
-            if (!localClientIDWrapper.IsClientIDReady)
-                _connectionPromptHandler.NotifyWaitingForConnection();
         }
 
         protected override void SetInteractorState(InteractorState newState)
@@ -69,6 +66,9 @@ namespace VE2.Core.Player.Internal
         {
             base.HandleOnEnable();
             _interactor2DInputContainer.InspectModeInput.OnReleased += HandleInspectModePressed;
+
+            if (!_LocalClientIDWrapper.IsClientIDReady)
+                _connectionPromptHandler.NotifyWaitingForConnection();
         }
 
         public override void HandleOnDisable()
@@ -83,12 +83,14 @@ namespace VE2.Core.Player.Internal
 
             if (_inspectModeIndicator.IsInspectModeActive)
             {
-                Vector2 mouseInput = _interactor2DInputContainer.MouseInput.Value * 0.1f;
-                //float mouseX = Mouse.current.delta.x.ReadValue() * 0.1f;
-                //float mouseY = Mouse.current.delta.y.ReadValue() * 0.1f;
-                GrabberTransform.Rotate(mouseInput.y,-mouseInput.x,0f); //TODO - take into account camera rotation
+                Vector2 mouseInput = _interactor2DInputContainer.MouseInput.Value * INSPECT_ROTATE_SPEED;
+
+                //Rotate relative to the inspect guide transform's local axes
+                GrabberTransform.Rotate(_grabberInspectGuideTransform.right, mouseInput.y, Space.World);
+                GrabberTransform.Rotate(_grabberInspectGuideTransform.up, -mouseInput.x, Space.World);
             }
         }
+
         protected override void HandleStartGrabbingAdjustable(IRangedAdjustableInteractionModule rangedAdjustableInteraction)
         {
             //Unlike VR, we should just apply a one-time offset on grab, and have the grabber behave like its on the end of a stick
@@ -149,7 +151,7 @@ namespace VE2.Core.Player.Internal
         {
             try
             {
-                _inspectModeTween = GrabberTransform.DOMove(_grabberInspectTransform.position, 0.3f).SetEase(Ease.InOutExpo);
+                _inspectModeTween = GrabberTransform.DOMove(_grabberInspectGuideTransform.position, 0.3f).SetEase(Ease.InOutExpo);
                 _rangedFreeGrabbingGrabbable.NotifyInspectModeEnter();
                 _inspectModeIndicator.IsInspectModeActive = true;
             }
@@ -183,7 +185,7 @@ namespace VE2.Core.Player.Internal
         private void AdjustZoom(bool zoomIn)
         {
             Vector3 targetPosition = GrabberTransform.localPosition;
-            targetPosition.z = Mathf.Clamp(targetPosition.z + (zoomIn ? -_zoomStep : _zoomStep), _minZoom, _maxZoom);
+            targetPosition.z = Mathf.Clamp(targetPosition.z + (zoomIn ? -INSPECT_ZOOM_SPEED : INSPECT_ZOOM_SPEED), INSPECT_MIN_ZOOM, INSPECT_MAX_ZOOM);
             GrabberTransform.DOLocalMove(targetPosition, 0.1f);
         }
     }
