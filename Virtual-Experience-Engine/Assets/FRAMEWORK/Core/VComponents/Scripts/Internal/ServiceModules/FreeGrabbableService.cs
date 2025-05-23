@@ -5,6 +5,7 @@ using VE2.Core.VComponents.API;
 using VE2.Common.API;
 using VE2.Common.Shared;
 using static VE2.Common.Shared.CommonSerializables;
+using VE2.Core.VComponents.Shared;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -12,6 +13,8 @@ namespace VE2.Core.VComponents.Internal
     internal class FreeGrabbableConfig
     {
         [SerializeField, IgnoreParent] public GrabbableStateConfig StateConfig = new();
+        [SerializeField, IgnoreParent] public WorldStateSyncConfig SyncConfig = new();
+
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
         [SerializeField, IgnoreParent] public RangedFreeGrabInteractionConfig RangedFreeGrabInteractionConfig = new();
     }
@@ -47,7 +50,7 @@ namespace VE2.Core.VComponents.Internal
             //even though this is never null in theory, done so to satisfy the tests
             _transform = config.RangedFreeGrabInteractionConfig.AttachPoint != null ? new TransformWrapper(config.RangedFreeGrabInteractionConfig.AttachPoint) : _rigidbody != null ? _rigidbody.transform : null;
             _RangedGrabInteractionModule = new(id, grabInteractablesContainer, _transform, handheldInteractions, config.RangedFreeGrabInteractionConfig, config.GeneralInteractionConfig);
-            _StateModule = new(state, config.StateConfig, id, worldStateSyncableContainer, interactorContainer, localClientIdWrapper);
+            _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, interactorContainer, localClientIdWrapper);
 
             _rigidbody = rigidbody;
             _physicsConstants = physicsConstants;

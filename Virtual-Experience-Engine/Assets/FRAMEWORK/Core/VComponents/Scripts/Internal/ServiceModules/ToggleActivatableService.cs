@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
+using VE2.Core.VComponents.Shared;
 using static VE2.Common.Shared.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
@@ -10,8 +11,10 @@ namespace VE2.Core.VComponents.Internal
     internal class ToggleActivatableConfig
     {
         [SerializeField, IgnoreParent] public ToggleActivatableStateConfig StateConfig = new();
-        [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
+        [SerializeField, IgnoreParent] public WorldStateSyncConfig SyncConfig = new();
+
         [SerializeField, IgnoreParent] public ActivatableInteractionConfig ActivatableRangedInteractionConfig = new();
+        [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
     }
 
     [Serializable]
@@ -40,7 +43,7 @@ namespace VE2.Core.VComponents.Internal
         public ToggleActivatableService(ToggleActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncableContainer worldStateSyncableContainer, 
             ActivatableGroupsContainer activatableGroupsContainer, IClientIDWrapper localClientIdWrapper)
         {
-            _StateModule = new(state, config.StateConfig, id, worldStateSyncableContainer, activatableGroupsContainer, localClientIdWrapper);
+            _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, activatableGroupsContainer, localClientIdWrapper);
 
             _RangedClickInteractionModule = new(config.ActivatableRangedInteractionConfig, config.GeneralInteractionConfig, id, config.ActivatableRangedInteractionConfig.ActivateAtRangeInVR);
 

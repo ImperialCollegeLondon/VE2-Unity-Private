@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
+using VE2.Core.VComponents.Shared;
 using static VE2.Common.Shared.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
@@ -9,8 +10,11 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class HandheldAdjustableConfig
     {
-        [SerializeField, IgnoreParent] public AdjustableStateConfig StateConfig = new();
         [SerializeField, IgnoreParent] public HandheldAdjustableServiceConfig HandheldAdjustableServiceConfig = new();
+
+        [SerializeField, IgnoreParent] public AdjustableStateConfig StateConfig = new();
+        [SerializeField, IgnoreParent] public WorldStateSyncConfig SyncConfig = new();
+
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
     }
 
@@ -42,7 +46,7 @@ namespace VE2.Core.VComponents.Internal
 
         public HandheldAdjustableService(HandheldAdjustableConfig config, VE2Serializable state, string id, IWorldStateSyncableContainer worldStateSyncableContainer, IClientIDWrapper localClientIdWrapper)
         {
-            _StateModule = new(state, config.StateConfig, id, worldStateSyncableContainer, localClientIdWrapper);
+            _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, localClientIdWrapper);
             _HandheldScrollInteractionModule = new(config.GeneralInteractionConfig);
 
             _StateModule.SetValue(config.StateConfig.StartingOutputValue, ushort.MaxValue);

@@ -9,6 +9,7 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class HoldActivatableConfig
     {
+        //Note, no WorldStateSyncConfig here, as this is not a syncable state, syncinmg happens through the interactors
         [SerializeField, IgnoreParent] public HoldActivatableStateConfig StateConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
         [SerializeField, IgnoreParent] public ActivatableInteractionConfig ActivatableRangedInteractionConfig = new();

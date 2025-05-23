@@ -8,7 +8,7 @@ using static VE2.Common.Shared.CommonSerializables;
 namespace VE2.Core.VComponents.Shared
 {
     [Serializable]
-    internal class BaseWorldStateConfig 
+    internal class WorldStateSyncConfig 
     {
         [BeginGroup(Style = GroupStyle.Round, ApplyCondition = true)]
         [Title("Transmission Settings", ApplyCondition = true)]
@@ -27,26 +27,26 @@ namespace VE2.Core.VComponents.Shared
     internal abstract class BaseWorldStateModule : IWorldStateModule, IBaseStateModule //TOOD: Refactor into IWorldStateModule and IWorldStateModuleInternal
     {
         public VE2Serializable State { get; }
-        protected BaseWorldStateConfig Config { get; private set; }
+        protected WorldStateSyncConfig _SyncConfig { get; private set; }
         private readonly IWorldStateSyncableContainer _worldStateModulesContainer;
 
         private bool _wasNetworkedLastFrame;
-        public bool IsNetworked => Config.IsNetworked;
+        public bool IsNetworked => _SyncConfig.IsNetworked;
 
-        public TransmissionProtocol TransmissionProtocol => Config.RepeatedTransmissionConfig.TransmissionType;
-        public float TransmissionFrequency => Config.RepeatedTransmissionConfig.TransmissionFrequency;
+        public TransmissionProtocol TransmissionProtocol => _SyncConfig.RepeatedTransmissionConfig.TransmissionType;
+        public float TransmissionFrequency => _SyncConfig.RepeatedTransmissionConfig.TransmissionFrequency;
 
         public string ID { get; private set; }
         public byte[] StateAsBytes { get => State.Bytes; set => UpdateBytes(value); }
         protected abstract void UpdateBytes(byte[] newBytes);
 
-        public void SetNetworked(bool isNetworked) => Config.IsNetworked = isNetworked;
+        public void SetNetworked(bool isNetworked) => _SyncConfig.IsNetworked = isNetworked;
 
-        public BaseWorldStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncableContainer worldStateModulesContainer)
+        public BaseWorldStateModule(VE2Serializable state, WorldStateSyncConfig config, string id, IWorldStateSyncableContainer worldStateModulesContainer)
         {
             ID = id;
             State = state;
-            Config = config;
+            _SyncConfig = config;
 
             _worldStateModulesContainer =  worldStateModulesContainer;
 

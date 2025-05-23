@@ -11,7 +11,7 @@ using static VE2.Common.Shared.CommonSerializables;
 namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
-    internal class GrabbableStateConfig : BaseWorldStateConfig
+    internal class GrabbableStateConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Grab State Settings", ApplyCondition = true)]
@@ -33,8 +33,8 @@ namespace VE2.Core.VComponents.Internal
     internal class GrabbableStateModule : BaseWorldStateModule, IGrabbableStateModule
     {
         #region Interfaces
-        public UnityEvent OnGrab => _config.OnGrab;
-        public UnityEvent OnDrop => _config.OnDrop;
+        public UnityEvent OnGrab => _grabbableStateConfig.OnGrab;
+        public UnityEvent OnDrop => _grabbableStateConfig.OnDrop;
         public bool IsGrabbed { get => _state.IsGrabbed; private set => _state.IsGrabbed = value; }
         public bool IsLocalGrabbed => MostRecentInteractingClientID != null && IsGrabbed && MostRecentInteractingClientID.IsLocal;
         public IClientIDWrapper MostRecentInteractingClientID => _state.MostRecentInteractingInteractorID.ClientID == ushort.MaxValue ? null : 
@@ -42,8 +42,8 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         private GrabbableState _state => (GrabbableState)State;
-        private GrabbableStateConfig _config => (GrabbableStateConfig)Config;
 
+        private readonly GrabbableStateConfig _grabbableStateConfig;
         private readonly HandInteractorContainer _interactorContainer;
         private readonly IClientIDWrapper _localClientIdWrapper;
 
@@ -51,10 +51,11 @@ namespace VE2.Core.VComponents.Internal
         internal event Action<ushort> OnGrabConfirmed;
         internal event Action<ushort> OnDropConfirmed;
 
-        public GrabbableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncableContainer worldStateSyncableContainer, 
+        public GrabbableStateModule(VE2Serializable state, GrabbableStateConfig grabbableStateConfig, WorldStateSyncConfig syncConfig, string id, IWorldStateSyncableContainer worldStateSyncableContainer, 
             HandInteractorContainer interactorContainer, IClientIDWrapper localClientIdWrapper) :
-            base(state, config, id, worldStateSyncableContainer)
+            base(state, syncConfig, id, worldStateSyncableContainer)
         {
+            _grabbableStateConfig = grabbableStateConfig;
             _interactorContainer = interactorContainer;
             _localClientIdWrapper = localClientIdWrapper;
         }
@@ -90,15 +91,15 @@ namespace VE2.Core.VComponents.Internal
                     _state.MostRecentInteractingInteractorID = interactorID;
                     _state.StateChangeNumber++;
 
-                    _config.InspectorDebug.IsGrabbed = true;
-                    _config.InspectorDebug.ClientID = interactorID.ClientID;
+                    _grabbableStateConfig.InspectorDebug.IsGrabbed = true;
+                    _grabbableStateConfig.InspectorDebug.ClientID = interactorID.ClientID;
 
                     interactor.ConfirmGrab(ID);
                     OnGrabConfirmed?.Invoke(interactorID.ClientID);
 
                     try
                     {
-                        _config.OnGrab?.Invoke();
+                        _grabbableStateConfig.OnGrab?.Invoke();
                     }
                     catch (Exception e)
                     {
@@ -122,8 +123,8 @@ namespace VE2.Core.VComponents.Internal
             _state.IsGrabbed = false;
             _state.StateChangeNumber++;
 
-            _config.InspectorDebug.IsGrabbed = true;
-            _config.InspectorDebug.ClientID = interactorID.ClientID;
+            _grabbableStateConfig.InspectorDebug.IsGrabbed = true;
+            _grabbableStateConfig.InspectorDebug.ClientID = interactorID.ClientID;
 
             if (_interactorContainer.Interactors.TryGetValue(interactorID.ToString(), out IInteractor interactor))
                 interactor.ConfirmDrop();
@@ -132,7 +133,7 @@ namespace VE2.Core.VComponents.Internal
 
             try
             {
-                _config.OnDrop?.Invoke();
+                _grabbableStateConfig.OnDrop?.Invoke();
             }
             catch (Exception e)
             {

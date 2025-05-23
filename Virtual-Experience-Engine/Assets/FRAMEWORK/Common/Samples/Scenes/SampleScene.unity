@@ -502,10 +502,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config:
     StateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsActivated: 0
         ClientID: 65535
@@ -615,10 +611,11 @@ MonoBehaviour:
             m_CallState: 2
       UseActivationGroup: 1
       ActivationGroupID: Sample
-    GeneralInteractionConfig:
-      AdminOnly: 0
-      EnableControllerVibrations: 1
-      ShowTooltipsAndHighlight: 1
+    SyncConfig:
+      IsNetworked: 1
+      RepeatedTransmissionConfig:
+        TransmissionType: 0
+        TransmissionFrequency: 1
     ActivatableRangedInteractionConfig:
       InteractionRange: 5
       OnLocalHoverEnter:
@@ -677,6 +674,10 @@ MonoBehaviour:
             m_CallState: 2
       ActivateAtRangeInVR: 1
       ActivateWithCollisionInVR: 1
+    GeneralInteractionConfig:
+      AdminOnly: 0
+      EnableControllerVibrations: 1
+      ShowTooltipsAndHighlight: 1
   _collider: {fileID: 23840100}
 --- !u!23 &23840102
 MeshRenderer:
@@ -5892,10 +5893,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config:
     StateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsActivated: 0
         ClientID: 65535
@@ -6005,10 +6002,11 @@ MonoBehaviour:
             m_CallState: 2
       UseActivationGroup: 1
       ActivationGroupID: Sample
-    GeneralInteractionConfig:
-      AdminOnly: 0
-      EnableControllerVibrations: 1
-      ShowTooltipsAndHighlight: 1
+    SyncConfig:
+      IsNetworked: 1
+      RepeatedTransmissionConfig:
+        TransmissionType: 0
+        TransmissionFrequency: 1
     ActivatableRangedInteractionConfig:
       InteractionRange: 5
       OnLocalHoverEnter:
@@ -6067,6 +6065,10 @@ MonoBehaviour:
             m_CallState: 2
       ActivateAtRangeInVR: 1
       ActivateWithCollisionInVR: 1
+    GeneralInteractionConfig:
+      AdminOnly: 0
+      EnableControllerVibrations: 1
+      ShowTooltipsAndHighlight: 1
   _collider: {fileID: 539028773}
 --- !u!23 &539028775
 MeshRenderer:
@@ -8116,10 +8118,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config:
     StateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsActivated: 0
         ClientID: 65535
@@ -8229,10 +8227,11 @@ MonoBehaviour:
             m_CallState: 2
       UseActivationGroup: 0
       ActivationGroupID: None
-    GeneralInteractionConfig:
-      AdminOnly: 0
-      EnableControllerVibrations: 1
-      ShowTooltipsAndHighlight: 1
+    SyncConfig:
+      IsNetworked: 1
+      RepeatedTransmissionConfig:
+        TransmissionType: 0
+        TransmissionFrequency: 1
     ActivatableRangedInteractionConfig:
       InteractionRange: 5
       OnLocalHoverEnter:
@@ -8291,6 +8290,10 @@ MonoBehaviour:
             m_CallState: 2
       ActivateAtRangeInVR: 1
       ActivateWithCollisionInVR: 1
+    GeneralInteractionConfig:
+      AdminOnly: 0
+      EnableControllerVibrations: 1
+      ShowTooltipsAndHighlight: 1
   _collider: {fileID: 756509172}
 --- !u!114 &756509174
 MonoBehaviour:
@@ -12592,10 +12595,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config:
     StateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsActivated: 0
         ClientID: 65535
@@ -12705,10 +12704,11 @@ MonoBehaviour:
             m_CallState: 2
       UseActivationGroup: 1
       ActivationGroupID: Sample
-    GeneralInteractionConfig:
-      AdminOnly: 0
-      EnableControllerVibrations: 1
-      ShowTooltipsAndHighlight: 1
+    SyncConfig:
+      IsNetworked: 1
+      RepeatedTransmissionConfig:
+        TransmissionType: 0
+        TransmissionFrequency: 1
     ActivatableRangedInteractionConfig:
       InteractionRange: 5
       OnLocalHoverEnter:
@@ -12767,6 +12767,10 @@ MonoBehaviour:
             m_CallState: 2
       ActivateAtRangeInVR: 1
       ActivateWithCollisionInVR: 1
+    GeneralInteractionConfig:
+      AdminOnly: 0
+      EnableControllerVibrations: 1
+      ShowTooltipsAndHighlight: 1
   _collider: {fileID: 1064730504}
 --- !u!23 &1064730506
 MeshRenderer:
@@ -13177,10 +13181,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config:
     StateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsGrabbed: 0
         ClientID: 0
@@ -13190,23 +13190,35 @@ MonoBehaviour:
       OnDrop:
         m_PersistentCalls:
           m_Calls: []
-    InteractionConfig:
+    SyncConfig:
+      IsNetworked: 1
+      RepeatedTransmissionConfig:
+        TransmissionType: 0
+        TransmissionFrequency: 1
+    GeneralInteractionConfig:
+      AdminOnly: 0
+      EnableControllerVibrations: 1
+      ShowTooltipsAndHighlight: 1
+    RangedFreeGrabInteractionConfig:
+      InteractionRange: 50
+      OnLocalHoverEnter:
+        m_PersistentCalls:
+          m_Calls: []
+      OnLocalHoverExit:
+        m_PersistentCalls:
+          m_Calls: []
       AttachPoint: {fileID: 0}
       VrFailsafeGrab: 1
       VRRaySnapRange: 0.15
       VRRaySnapRangeBackOfHand: 0.1
       failsafeGrabMultiplier: 1.2
       dropBehaviour: 0
-    GeneralInteractionConfig:
-      AdminOnly: 0
-      EnableControllerVibrations: 1
-      ShowTooltipsAndHighlight: 1
-    RangedInteractionConfig:
-      InteractionRange: 5
-      OnLocalHoverEnter:
+      PreserveInspectModeOrientation: 0
+      AlignOrientationOnGrab: 0
+      OnInspectModeEnter:
         m_PersistentCalls:
           m_Calls: []
-      OnLocalHoverExit:
+      OnInspectModeExit:
         m_PersistentCalls:
           m_Calls: []
   _collider: {fileID: 0}
@@ -22087,11 +22099,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _config:
+    HandheldAdjustableServiceConfig:
+      LoopValues: 0
     StateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         Value: 0
         ClientID: 65535
@@ -22116,8 +22126,11 @@ MonoBehaviour:
       StartingOutputValue: 4
       EmitValueOnStart: 1
       IncrementPerScrollTick: 1
-    HandheldAdjustableServiceConfig:
-      LoopValues: 0
+    SyncConfig:
+      IsNetworked: 1
+      RepeatedTransmissionConfig:
+        TransmissionType: 0
+        TransmissionFrequency: 1
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
@@ -22136,10 +22149,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config:
     StateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsActivated: 0
         ClientID: 65535
@@ -22177,6 +22186,11 @@ MonoBehaviour:
             m_CallState: 2
       UseActivationGroup: 0
       ActivationGroupID: None
+    SyncConfig:
+      IsNetworked: 1
+      RepeatedTransmissionConfig:
+        TransmissionType: 0
+        TransmissionFrequency: 1
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
@@ -22195,10 +22209,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config:
     StateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsGrabbed: 0
         ClientID: 0
@@ -22232,49 +22242,37 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-    InteractionConfig:
-      AttachPoint: {fileID: 2103749180}
+    SyncConfig:
+      IsNetworked: 1
+      RepeatedTransmissionConfig:
+        TransmissionType: 0
+        TransmissionFrequency: 1
+    GeneralInteractionConfig:
+      AdminOnly: 0
+      EnableControllerVibrations: 1
+      ShowTooltipsAndHighlight: 1
+    RangedFreeGrabInteractionConfig:
+      InteractionRange: 50
+      OnLocalHoverEnter:
+        m_PersistentCalls:
+          m_Calls: []
+      OnLocalHoverExit:
+        m_PersistentCalls:
+          m_Calls: []
+      AttachPoint: {fileID: 0}
       VrFailsafeGrab: 1
       VRRaySnapRange: 0.15
       VRRaySnapRangeBackOfHand: 0.1
       failsafeGrabMultiplier: 1.2
       dropBehaviour: 0
-    GeneralInteractionConfig:
-      AdminOnly: 0
-      EnableControllerVibrations: 1
-      ShowTooltipsAndHighlight: 1
-    RangedInteractionConfig:
-      InteractionRange: 5
-      OnLocalHoverEnter:
+      PreserveInspectModeOrientation: 0
+      AlignOrientationOnGrab: 0
+      OnInspectModeEnter:
         m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 2103749186}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMax
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-      OnLocalHoverExit:
+          m_Calls: []
+      OnInspectModeExit:
         m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 2103749186}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMin
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
+          m_Calls: []
   _collider: {fileID: 2103749181}
   _rigidbody: {fileID: 2103749182}
 --- !u!114 &2103749186
@@ -25558,10 +25556,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config:
     StateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsGrabbed: 0
         ClientID: 0
@@ -25595,49 +25589,37 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-    InteractionConfig:
-      AttachPoint: {fileID: 543450651613274442}
-      VrFailsafeGrab: 1
-      VRRaySnapRange: 0.15
-      VRRaySnapRangeBackOfHand: 0.1
-      failsafeGrabMultiplier: 1.2
-      dropBehaviour: 1
+    SyncConfig:
+      IsNetworked: 1
+      RepeatedTransmissionConfig:
+        TransmissionType: 0
+        TransmissionFrequency: 1
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
-    RangedInteractionConfig:
-      InteractionRange: 5
+    RangedFreeGrabInteractionConfig:
+      InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 3469287837677006579}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMax
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
+          m_Calls: []
       OnLocalHoverExit:
         m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 3469287837677006579}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMin
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
+          m_Calls: []
+      AttachPoint: {fileID: 0}
+      VrFailsafeGrab: 1
+      VRRaySnapRange: 0.15
+      VRRaySnapRangeBackOfHand: 0.1
+      failsafeGrabMultiplier: 1.2
+      dropBehaviour: 0
+      PreserveInspectModeOrientation: 0
+      AlignOrientationOnGrab: 0
+      OnInspectModeEnter:
+        m_PersistentCalls:
+          m_Calls: []
+      OnInspectModeExit:
+        m_PersistentCalls:
+          m_Calls: []
   _collider: {fileID: 3469287837677006577}
   _rigidbody: {fileID: 3469287837677006576}
 --- !u!114 &3469287837677006579
@@ -26851,10 +26833,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config:
     StateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsGrabbed: 0
         ClientID: 0
@@ -26888,49 +26866,37 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-    InteractionConfig:
-      AttachPoint: {fileID: 7336850990320701898}
+    SyncConfig:
+      IsNetworked: 1
+      RepeatedTransmissionConfig:
+        TransmissionType: 0
+        TransmissionFrequency: 1
+    GeneralInteractionConfig:
+      AdminOnly: 0
+      EnableControllerVibrations: 1
+      ShowTooltipsAndHighlight: 1
+    RangedFreeGrabInteractionConfig:
+      InteractionRange: 50
+      OnLocalHoverEnter:
+        m_PersistentCalls:
+          m_Calls: []
+      OnLocalHoverExit:
+        m_PersistentCalls:
+          m_Calls: []
+      AttachPoint: {fileID: 0}
       VrFailsafeGrab: 1
       VRRaySnapRange: 0.15
       VRRaySnapRangeBackOfHand: 0.1
       failsafeGrabMultiplier: 1.2
       dropBehaviour: 0
-    GeneralInteractionConfig:
-      AdminOnly: 0
-      EnableControllerVibrations: 1
-      ShowTooltipsAndHighlight: 1
-    RangedInteractionConfig:
-      InteractionRange: 5
-      OnLocalHoverEnter:
+      PreserveInspectModeOrientation: 0
+      AlignOrientationOnGrab: 0
+      OnInspectModeEnter:
         m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 7336850990320701902}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMax
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-      OnLocalHoverExit:
+          m_Calls: []
+      OnInspectModeExit:
         m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 7336850990320701902}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMin
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
+          m_Calls: []
   _collider: {fileID: 7336850990320701901}
   _rigidbody: {fileID: 7336850990320701900}
 --- !u!54 &7336850990320701900
@@ -27190,10 +27156,6 @@ MonoBehaviour:
       MinimumSpatialValue: -0.115
       MaximumSpatialValue: 0.115
     AdjustableStateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         Value: 0
         ClientID: 65535
@@ -27232,10 +27194,6 @@ MonoBehaviour:
       EmitValueOnStart: 1
       IncrementPerScrollTick: 0.25
     GrabbableStateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsGrabbed: 0
         ClientID: 0
@@ -27269,45 +27227,25 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-    InteractionConfig:
-      AttachPoint: {fileID: 7630708130437203443}
+    SyncConfig:
+      IsNetworked: 1
+      RepeatedTransmissionConfig:
+        TransmissionType: 0
+        TransmissionFrequency: 1
+    rangedAdjustableConfig:
+      InteractionRange: 50
+      OnLocalHoverEnter:
+        m_PersistentCalls:
+          m_Calls: []
+      OnLocalHoverExit:
+        m_PersistentCalls:
+          m_Calls: []
+      AttachPoint: {fileID: 0}
       VrFailsafeGrab: 1
       VRRaySnapRange: 0.15
       VRRaySnapRangeBackOfHand: 0.1
       failsafeGrabMultiplier: 1.2
-      TransformToAdjust: {fileID: 601521730583208394}
-    RangedInteractionConfig:
-      InteractionRange: 5
-      OnLocalHoverEnter:
-        m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 7006551141978014410}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMax
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-      OnLocalHoverExit:
-        m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 7006551141978014410}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMin
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
+      TransformToAdjust: {fileID: 0}
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
@@ -27696,10 +27634,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config:
     StateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsGrabbed: 0
         ClientID: 0
@@ -27733,49 +27667,37 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-    InteractionConfig:
-      AttachPoint: {fileID: 3828157529544342433}
+    SyncConfig:
+      IsNetworked: 1
+      RepeatedTransmissionConfig:
+        TransmissionType: 0
+        TransmissionFrequency: 1
+    GeneralInteractionConfig:
+      AdminOnly: 0
+      EnableControllerVibrations: 1
+      ShowTooltipsAndHighlight: 1
+    RangedFreeGrabInteractionConfig:
+      InteractionRange: 50
+      OnLocalHoverEnter:
+        m_PersistentCalls:
+          m_Calls: []
+      OnLocalHoverExit:
+        m_PersistentCalls:
+          m_Calls: []
+      AttachPoint: {fileID: 0}
       VrFailsafeGrab: 1
       VRRaySnapRange: 0.15
       VRRaySnapRangeBackOfHand: 0.1
       failsafeGrabMultiplier: 1.2
       dropBehaviour: 0
-    GeneralInteractionConfig:
-      AdminOnly: 0
-      EnableControllerVibrations: 1
-      ShowTooltipsAndHighlight: 1
-    RangedInteractionConfig:
-      InteractionRange: 5
-      OnLocalHoverEnter:
+      PreserveInspectModeOrientation: 0
+      AlignOrientationOnGrab: 0
+      OnInspectModeEnter:
         m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 5649163510472391521}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMax
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-      OnLocalHoverExit:
+          m_Calls: []
+      OnInspectModeExit:
         m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 5649163510472391521}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMin
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
+          m_Calls: []
   _collider: {fileID: 4685923080939936383}
   _rigidbody: {fileID: 9134239090849065903}
 --- !u!23 &8727780707645870087
@@ -27961,10 +27883,6 @@ MonoBehaviour:
       MinimumSpatialValue: 0
       MaximumSpatialValue: 360
     AdjustableStateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         Value: 0
         ClientID: 65535
@@ -28003,10 +27921,6 @@ MonoBehaviour:
       EmitValueOnStart: 1
       IncrementPerScrollTick: 0.1
     GrabbableStateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsGrabbed: 0
         ClientID: 0
@@ -28040,45 +27954,25 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-    InteractionConfig:
-      AttachPoint: {fileID: 2942569303062809500}
+    SyncConfig:
+      IsNetworked: 1
+      RepeatedTransmissionConfig:
+        TransmissionType: 0
+        TransmissionFrequency: 1
+    rangedAdjustableInteractionConfig:
+      InteractionRange: 50
+      OnLocalHoverEnter:
+        m_PersistentCalls:
+          m_Calls: []
+      OnLocalHoverExit:
+        m_PersistentCalls:
+          m_Calls: []
+      AttachPoint: {fileID: 0}
       VrFailsafeGrab: 1
       VRRaySnapRange: 0.15
       VRRaySnapRangeBackOfHand: 0.1
       failsafeGrabMultiplier: 1.2
-      TransformToAdjust: {fileID: 6276480324959252713}
-    RangedInteractionConfig:
-      InteractionRange: 5
-      OnLocalHoverEnter:
-        m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 4463280335519051189}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMax
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-      OnLocalHoverExit:
-        m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 4463280335519051189}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMin
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
+      TransformToAdjust: {fileID: 0}
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
@@ -28103,10 +27997,6 @@ MonoBehaviour:
       MinimumSpatialValue: -47.687
       MaximumSpatialValue: 47.687
     AdjustableStateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         Value: 0
         ClientID: 65535
@@ -28145,10 +28035,6 @@ MonoBehaviour:
       EmitValueOnStart: 1
       IncrementPerScrollTick: 0.1
     GrabbableStateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsGrabbed: 0
         ClientID: 0
@@ -28182,45 +28068,25 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-    InteractionConfig:
-      AttachPoint: {fileID: 312694930724920086}
+    SyncConfig:
+      IsNetworked: 1
+      RepeatedTransmissionConfig:
+        TransmissionType: 0
+        TransmissionFrequency: 1
+    rangedAdjustableInteractionConfig:
+      InteractionRange: 50
+      OnLocalHoverEnter:
+        m_PersistentCalls:
+          m_Calls: []
+      OnLocalHoverExit:
+        m_PersistentCalls:
+          m_Calls: []
+      AttachPoint: {fileID: 0}
       VrFailsafeGrab: 1
       VRRaySnapRange: 0.15
       VRRaySnapRangeBackOfHand: 0.1
       failsafeGrabMultiplier: 1.2
-      TransformToAdjust: {fileID: 428635686494013578}
-    RangedInteractionConfig:
-      InteractionRange: 5
-      OnLocalHoverEnter:
-        m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 4505097480685781333}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMax
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-      OnLocalHoverExit:
-        m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 4505097480685781333}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMin
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
+      TransformToAdjust: {fileID: 0}
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
