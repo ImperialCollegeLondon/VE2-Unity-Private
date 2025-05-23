@@ -57,8 +57,17 @@ namespace VE2.Core.VComponents.Internal
         #endregion
     }
     
-    internal partial class V_LinearAdjustable : MonoBehaviour, IRangedGrabInteractionModuleProvider
+    internal partial class V_LinearAdjustable : BaseVComponent, IRangedGrabInteractionModuleProvider
     {
+        [PropertyOrder(-1000)]
+        [SerializeField] public Transform TransformToAdjust = null;
+
+        [PropertyOrder(1000)]
+        public float test;
+
+        [PropertyOrder(-2000)]
+        [SerializeField] public float testttt = 0.5f;
+
         [SerializeField, HideLabel, IgnoreParent] private LinearAdjustableConfig _config = new();
         [SerializeField, HideInInspector] private AdjustableState _adjustableState = null;
         [SerializeField, HideInInspector] private GrabbableState _freeGrabbableState = new();

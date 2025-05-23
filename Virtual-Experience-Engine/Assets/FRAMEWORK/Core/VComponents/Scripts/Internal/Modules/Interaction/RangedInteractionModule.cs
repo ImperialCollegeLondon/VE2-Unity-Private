@@ -8,7 +8,7 @@ using VE2.Core.VComponents.API;
 namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
-    internal class RangedInteractionConfig
+    internal class RangedInteractionConfig : BaseConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Space(5)]

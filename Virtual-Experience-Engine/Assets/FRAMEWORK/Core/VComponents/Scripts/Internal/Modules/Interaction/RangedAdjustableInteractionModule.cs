@@ -13,7 +13,14 @@ namespace VE2.Core.VComponents.Internal
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Adjustable Interaction Settings", ApplyCondition = true)]
         [EndGroup]
+        [PropertyOrder(-1000)]
         [SerializeField] public Transform TransformToAdjust = null;
+
+        [PropertyOrder(1000)]
+        public float test;
+
+        [PropertyOrder(-2000)]
+        [SerializeField] public float testttt = 0.5f;
     }
 
     internal class RangedAdjustableInteractionModule : RangedGrabInteractionModule, IRangedAdjustableInteractionModule

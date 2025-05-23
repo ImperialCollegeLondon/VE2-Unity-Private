@@ -24,7 +24,7 @@ namespace VE2.Core.VComponents.Internal
     }
 
     [Serializable]
-    internal class LinearAdjustableConfig
+    internal class LinearAdjustableConfig : BaseConfig
     {
         [SerializeField, IgnoreParent] public AdjustableStateConfig AdjustableStateConfig = new();
         [SerializeField, IgnoreParent] public SpatialAdjustableServiceConfig LinearAdjustableServiceConfig = new();
