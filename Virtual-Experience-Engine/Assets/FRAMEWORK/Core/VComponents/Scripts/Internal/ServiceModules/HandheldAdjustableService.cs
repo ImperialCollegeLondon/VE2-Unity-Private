@@ -10,12 +10,12 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class HandheldAdjustableConfig
     {
+        [SerializeField, IgnoreParent] public AdjustableStateConfig StateConfig = new();
         [SerializeField, IgnoreParent] public HandheldAdjustableServiceConfig HandheldAdjustableServiceConfig = new();
 
-        [SerializeField, IgnoreParent] public AdjustableStateConfig StateConfig = new();
-        [SerializeField, IgnoreParent] public WorldStateSyncConfig SyncConfig = new();
-
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
+
+        [SerializeField, IgnoreParent] public WorldStateSyncConfig SyncConfig = new();
     }
 
     [Serializable]

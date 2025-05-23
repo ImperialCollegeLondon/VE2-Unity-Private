@@ -11,10 +11,11 @@ namespace VE2.Core.VComponents.Internal
     internal class ToggleActivatableConfig
     {
         [SerializeField, IgnoreParent] public ToggleActivatableStateConfig StateConfig = new();
-        [SerializeField, IgnoreParent] public WorldStateSyncConfig SyncConfig = new();
 
         [SerializeField, IgnoreParent] public ActivatableInteractionConfig ActivatableRangedInteractionConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
+        
+        [SerializeField, IgnoreParent] public WorldStateSyncConfig SyncConfig = new();
     }
 
     [Serializable]

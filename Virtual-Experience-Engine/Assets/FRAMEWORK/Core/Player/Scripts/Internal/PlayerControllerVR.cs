@@ -27,10 +27,9 @@ namespace VE2.Core.Player.Internal
                     handVRLeftRotation: _handControllerLeft.Transform.localRotation,
                     handVRRightPosition: _handControllerRight.Transform.localPosition,
                     handVRRightRotation: _handControllerRight.Transform.localRotation,
-                    activatableIDsVRLeft: _handControllerLeft.HeldActivatableIDs,
-                    activatableIDsVRRight: _handControllerRight.HeldActivatableIDs,
-                    activatableIDsFeet: _feetInteractorVR.HeldActivatableIDs
-
+                    activatableIDsVRLeft: (List<string>)_handControllerLeft.HeldActivatableIDs,
+                    activatableIDsVRRight: (List<string>)_handControllerRight.HeldActivatableIDs,
+                    activatableIDsFeet: (List<string>)_feetInteractorVR.HeldActivatableIDs
                 );
             }
         }

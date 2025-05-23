@@ -12,13 +12,14 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class RotationalAdjustableConfig
     {
-        [SerializeField, IgnoreParent] public SpatialAdjustableServiceConfig RotationalAdjustableServiceConfig = new();
         [SerializeField, IgnoreParent] public AdjustableStateConfig AdjustableStateConfig = new();
+        [SerializeField, IgnoreParent] public SpatialAdjustableServiceConfig RotationalAdjustableServiceConfig = new();
         [SerializeField, IgnoreParent] public GrabbableStateConfig GrabbableStateConfig = new();
-        [SerializeField, IgnoreParent] public WorldStateSyncConfig SyncConfig = new();
 
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public RangedAdjustableInteractionConfig rangedAdjustableInteractionConfig = new();
         [SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
+
+        [SerializeField, IgnoreParent] public WorldStateSyncConfig SyncConfig = new();
     }
 
     internal class RotationalAdjustableService

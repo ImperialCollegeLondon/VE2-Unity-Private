@@ -8,7 +8,10 @@ namespace VE2.Core.VComponents.Internal
     internal class PressurePlateConfig
     {
         [SerializeField, IgnoreParent] public HoldActivatableStateConfig StateConfig = new();
+
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
+
+        //Note, no WorldStateSyncConfig here, as this is not a syncable state, syncing happens through the player
     }
     
     internal class PressurePlateService

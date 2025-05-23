@@ -46,11 +46,11 @@ namespace VE2.Core.Player.Internal
     internal abstract class PointerInteractor : IInteractor
     {
         public Transform GrabberTransform => _GrabberTransform;
-        public List<string> HeldActivatableIDs { get => _heldActivatableIDs; set => _heldActivatableIDs = value; }
+        public IReadOnlyList<string> HeldActivatableIDs => _heldActivatableIDs;
 
         protected bool IsCurrentlyGrabbing => _CurrentGrabbingGrabbable != null;
         protected InteractorID _InteractorID => _LocalClientIDWrapper.IsClientIDReady ? new InteractorID(_LocalClientIDWrapper.Value, _InteractorType) : null;
-        protected List<string> _heldActivatableIDs = new();
+        protected readonly List<string> _heldActivatableIDs = new();
         protected const float MAX_RAYCAST_DISTANCE = 10;
         protected const float MAX_SPHERECAST_RADIUS = 10;
         protected IRangedInteractionModule _CurrentHoveringInteractable;
@@ -119,7 +119,7 @@ namespace VE2.Core.Player.Internal
             _interactorInputContainer.ScrollTickUp.OnTickOver += HandleScrollUp;
             _interactorInputContainer.ScrollTickDown.OnTickOver += HandleScrollDown;
 
-            _heldActivatableIDs = new();
+            _heldActivatableIDs.Clear();
 
             if (!_LocalClientIDWrapper.IsClientIDReady)
                 _LocalClientIDWrapper.OnClientIDReady += HandleLocalClientIDReady;
@@ -136,7 +136,7 @@ namespace VE2.Core.Player.Internal
             _interactorInputContainer.ScrollTickUp.OnTickOver -= HandleScrollUp;
             _interactorInputContainer.ScrollTickDown.OnTickOver -= HandleScrollDown;
 
-            _heldActivatableIDs = new();
+            _heldActivatableIDs.Clear();
 
             _LocalClientIDWrapper.OnClientIDReady -= HandleLocalClientIDReady;
             _interactorContainer?.DeregisterInteractor(_InteractorID.ToString());

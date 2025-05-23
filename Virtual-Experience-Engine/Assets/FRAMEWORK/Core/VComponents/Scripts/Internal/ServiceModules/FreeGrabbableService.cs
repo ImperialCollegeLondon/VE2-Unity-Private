@@ -13,10 +13,11 @@ namespace VE2.Core.VComponents.Internal
     internal class FreeGrabbableConfig
     {
         [SerializeField, IgnoreParent] public GrabbableStateConfig StateConfig = new();
-        [SerializeField, IgnoreParent] public WorldStateSyncConfig SyncConfig = new();
 
-        [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
         [SerializeField, IgnoreParent] public RangedFreeGrabInteractionConfig RangedFreeGrabInteractionConfig = new();
+        [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
+        
+        [SerializeField, IgnoreParent] public WorldStateSyncConfig SyncConfig = new();
     }
 
     internal class FreeGrabbableService

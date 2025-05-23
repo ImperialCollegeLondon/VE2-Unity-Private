@@ -11,9 +11,10 @@ namespace VE2.Core.VComponents.Internal
     internal class HandheldActivatableConfig
     {
         [SerializeField, IgnoreParent] public ToggleActivatableStateConfig StateConfig = new();
-        [SerializeField, IgnoreParent] public WorldStateSyncConfig SyncConfig = new();
 
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
+        
+        [SerializeField, IgnoreParent] public WorldStateSyncConfig SyncConfig = new();
     }
     internal class HandheldActivatableService
     {

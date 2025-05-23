@@ -53,7 +53,7 @@ namespace VE2.Core.Player.Internal
             if (_LocalClientIDWrapper.IsClientIDReady && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Hand)
             {
                 collideInteractionModule.InvokeOnCollideEnter(_InteractorID);
-                HeldActivatableIDs.Add(collideInteractionModule.ID);
+                _heldActivatableIDs.Add(collideInteractionModule.ID);
             }
         }
 
@@ -62,7 +62,7 @@ namespace VE2.Core.Player.Internal
             if (_LocalClientIDWrapper.IsClientIDReady && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Hand)
             {
                 collideInteractionModule.InvokeOnCollideExit(_InteractorID);
-                HeldActivatableIDs.Remove(collideInteractionModule.ID);
+                _heldActivatableIDs.Remove(collideInteractionModule.ID);
             }
         }
 

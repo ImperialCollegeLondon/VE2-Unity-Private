@@ -21,7 +21,7 @@ namespace VE2.Core.VComponents.Internal
         [SpaceArea(spaceAfter: 10, Order = -1), SerializeField] internal UnityEvent OnDeactivate = new();
 
         [BeginGroup(Style = GroupStyle.Round, ApplyCondition = true)]
-        [Title("Transmission Settings", ApplyCondition = true)]
+        [Title("Sync Settings", ApplyCondition = true)]
         [EndGroup(ApplyCondition = true, Order = 5)]
         [SerializeField] internal bool IsNetworked = true;
     }

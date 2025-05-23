@@ -11,7 +11,7 @@ namespace VE2.Core.VComponents.Shared
     internal class WorldStateSyncConfig 
     {
         [BeginGroup(Style = GroupStyle.Round, ApplyCondition = true)]
-        [Title("Transmission Settings", ApplyCondition = true)]
+        [Title("Sync Settings", ApplyCondition = true)]
         [HideIf("MultiplayerSupportPresent", false)]
         [SerializeField] public bool IsNetworked = true;
 

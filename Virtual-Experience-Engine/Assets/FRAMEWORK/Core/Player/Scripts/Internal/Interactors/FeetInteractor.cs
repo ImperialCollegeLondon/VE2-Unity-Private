@@ -7,9 +7,9 @@ namespace VE2.Core.Player.Internal
 {
     internal class FeetInteractor
     {
-        public List<string> HeldActivatableIDs => _heldActivatableIDs;
+        public IReadOnlyList<string> HeldActivatableIDs => _heldActivatableIDs;
 
-        private List<string> _heldActivatableIDs = new();
+        private readonly List<string> _heldActivatableIDs = new();
         private InteractorID _interactorID => _localClientIDWrapper.IsClientIDReady ? new InteractorID(_localClientIDWrapper.Value, _InteractorType) : null;
 
         public ICollisionDetector _collisionDetector;
@@ -29,7 +29,7 @@ namespace VE2.Core.Player.Internal
             _collisionDetector.OnCollideStart += HandleCollideStart;
             _collisionDetector.OnCollideEnd += HandleCollideEnd;
 
-            _heldActivatableIDs = new();
+            _heldActivatableIDs.Clear();
 
             if (!_localClientIDWrapper.IsClientIDReady)
                 _localClientIDWrapper.OnClientIDReady += HandleLocalClientIDReady;
@@ -42,7 +42,7 @@ namespace VE2.Core.Player.Internal
             _collisionDetector.OnCollideStart -= HandleCollideStart;
             _collisionDetector.OnCollideEnd -= HandleCollideEnd;
 
-            _heldActivatableIDs = new();
+            _heldActivatableIDs.Clear();
 
             _localClientIDWrapper.OnClientIDReady -= HandleLocalClientIDReady;
         }
