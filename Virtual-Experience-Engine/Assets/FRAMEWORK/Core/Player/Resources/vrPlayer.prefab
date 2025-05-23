@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3159802187104049321}
   - component: {fileID: 3046815335016098313}
   - component: {fileID: 246589483165251602}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Feet Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -80,7 +80,7 @@ GameObject:
   - component: {fileID: 1924557315638327936}
   - component: {fileID: 295431133941835490}
   - component: {fileID: 480382811255692076}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: VRPrimaryUICanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -223,7 +223,7 @@ GameObject:
   - component: {fileID: 259628672909679164}
   - component: {fileID: 5218702097607858904}
   - component: {fileID: 4385733037268120872}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Frame
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -310,7 +310,7 @@ GameObject:
   - component: {fileID: 4007238194187039637}
   - component: {fileID: 937865728980041353}
   - component: {fileID: 405031956616205462}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Ears
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -395,7 +395,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2120674381144681540}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Camera Offset
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -429,7 +429,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2563037661476499376}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: NeutralPositionOffset
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -462,7 +462,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3623827804121735478}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: V_Avatar_Head_Default_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -499,7 +499,7 @@ GameObject:
   - component: {fileID: 1217932889194906101}
   - component: {fileID: 6656381294461650972}
   - component: {fileID: 2285103226659310569}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: vrPlayer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -552,11 +552,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _camera: {fileID: 6879644447418486601}
+  _primaryUIHolderRect: {fileID: 852471172109446637}
   _rootTransform: {fileID: 7775038711954809053}
   _verticalOffsetTransform: {fileID: 2120674381144681540}
   _headTransform: {fileID: 292132094415373342}
   _feetCollider: {fileID: 3046815335016098313}
-  _primaryUIHolderRect: {fileID: 852471172109446637}
   _resetViewUIHandler: {fileID: 7743711904936339478}
   _neutralPositionOffsetTransform: {fileID: 2563037661476499376}
 --- !u!54 &2285103226659310569
@@ -595,7 +595,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8013760889895394950}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: V_Avatar_Torso_Default_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -629,7 +629,7 @@ GameObject:
   - component: {fileID: 8368245470023819464}
   - component: {fileID: 910419523939146954}
   - component: {fileID: 4320166575188982730}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Frame
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -719,7 +719,7 @@ GameObject:
   - component: {fileID: 7739979584130590143}
   - component: {fileID: 1980993597209579410}
   - component: {fileID: 7743711904936339478}
-  m_Layer: 11
+  m_Layer: 6
   m_Name: ResetViewCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -849,7 +849,7 @@ GameObject:
   - component: {fileID: 8466467703382970456}
   - component: {fileID: 3978321726694585125}
   - component: {fileID: 3364571805484774572}
-  m_Layer: 11
+  m_Layer: 6
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -938,7 +938,7 @@ GameObject:
   - component: {fileID: 823744136378925802}
   - component: {fileID: 279897700377222908}
   - component: {fileID: 3931211478672094914}
-  m_Layer: 11
+  m_Layer: 6
   m_Name: Eye
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1015,7 +1015,7 @@ GameObject:
   - component: {fileID: 2836593838704088464}
   - component: {fileID: 6100387056543962159}
   - component: {fileID: 2521768518319466113}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Main Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
@@ -1171,7 +1171,7 @@ GameObject:
   - component: {fileID: 1062566083736049780}
   - component: {fileID: 8146344643760390737}
   - component: {fileID: 3173034397703600308}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1307,7 +1307,7 @@ GameObject:
   - component: {fileID: 4208752524855385993}
   - component: {fileID: 6058943870870948400}
   - component: {fileID: 2894159248786041051}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: TestPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1382,7 +1382,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4696153105402551316}
   - component: {fileID: 4300912658935366773}
-  m_Layer: 11
+  m_Layer: 6
   m_Name: Radial Progress Bar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1438,7 +1438,7 @@ GameObject:
   - component: {fileID: 7694830835352541336}
   - component: {fileID: 8086168018774338639}
   - component: {fileID: 2880981108565847218}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Face
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1524,7 +1524,7 @@ GameObject:
   - component: {fileID: 3727803311816233580}
   - component: {fileID: 978960449749134408}
   - component: {fileID: 7137367690354920918}
-  m_Layer: 11
+  m_Layer: 6
   m_Name: Loading Bar
   m_TagString: Untagged
   m_Icon: {fileID: 0}

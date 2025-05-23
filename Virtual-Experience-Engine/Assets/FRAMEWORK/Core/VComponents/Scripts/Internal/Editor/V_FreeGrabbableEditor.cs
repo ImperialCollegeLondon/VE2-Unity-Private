@@ -6,7 +6,7 @@ using UnityEngine;
 namespace VE2.Core.VComponents.Internal
 {
     [CustomEditor(typeof(V_FreeGrabbable))]
-    public class V_FreeGrabbableEditor : ToolboxEditor
+    internal class V_FreeGrabbableEditor : ToolboxEditor
     {
         public override void DrawCustomInspector()
         {

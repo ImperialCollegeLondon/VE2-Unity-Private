@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 
 namespace VE2.Core.UI.Internal
 {
@@ -50,7 +50,7 @@ namespace VE2.Core.UI.Internal
         private Color _buttonSubElementsNonSelectedColor;
         private Color _buttonSubElementsHighlightedColor;
 
-        private ColorConfiguration _colorConfiguration;
+        private ColorConfiguration _colorConfiguration => ColorConfiguration.Instance;
 
         private bool _doneSetup = false;
 
@@ -73,7 +73,6 @@ namespace VE2.Core.UI.Internal
             _subText = GetComponentInChildren<TMP_Text>();
 
             _button = GetComponent<Button>();
-            _colorConfiguration = (ColorConfiguration)Resources.Load("ColorConfiguration");
 
             UpdateColor();
             AssignButtonColors();

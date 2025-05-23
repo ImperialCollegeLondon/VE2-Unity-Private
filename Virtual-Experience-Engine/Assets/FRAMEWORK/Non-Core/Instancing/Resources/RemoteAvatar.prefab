@@ -7350,7 +7350,7 @@ MonoBehaviour:
   _interactorVRLeftGameObject: {fileID: 5864581236906259765}
   _interactorVRRightGameObject: {fileID: 547645932810410104}
   _interactorFeetGameObject: {fileID: 1607372436580782194}
-  _localAvatarHandler: {fileID: 3623029543306159528}
+  _avatarHandler: {fileID: 3623029543306159528}
 --- !u!114 &3623029543306159528
 MonoBehaviour:
   m_ObjectHideFlags: 0

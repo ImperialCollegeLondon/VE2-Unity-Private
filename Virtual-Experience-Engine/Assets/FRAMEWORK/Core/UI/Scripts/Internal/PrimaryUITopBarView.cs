@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 namespace VE2.Core.UI.Internal
 {
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     internal class PrimaryUITopBarView : MonoBehaviour
     {
         [SerializeField] private TMP_Text _titleText;

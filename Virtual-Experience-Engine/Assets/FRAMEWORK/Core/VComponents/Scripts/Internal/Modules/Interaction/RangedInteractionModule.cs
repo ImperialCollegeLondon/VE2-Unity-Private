@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
@@ -7,7 +8,7 @@ using VE2.Core.VComponents.API;
 namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
-    public class RangedInteractionConfig
+    internal class RangedInteractionConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Space(5)]
@@ -17,8 +18,7 @@ namespace VE2.Core.VComponents.Internal
         [Space(5)]
         [SerializeField] public UnityEvent OnLocalHoverEnter = new();
 
-        [EndGroup]
-        [SerializeField] public UnityEvent OnLocalHoverExit = new();
+        [EndGroup, SerializeField] public UnityEvent OnLocalHoverExit = new();
     }
 
     internal class RangedInteractionModule : GeneralInteractionModule, IRangedInteractionModule
@@ -26,34 +26,50 @@ namespace VE2.Core.VComponents.Internal
         public float InteractRange { get => _rangedConfig.InteractionRange; set => _rangedConfig.InteractionRange = value; }
 
         private readonly RangedInteractionConfig _rangedConfig;
+        private List<InteractorID> _hoveringInteractors = new();
 
         public RangedInteractionModule(RangedInteractionConfig config, GeneralInteractionConfig generalInteractionConfig) : base(generalInteractionConfig)
         {
             _rangedConfig = config;
         }
 
-        public void EnterHover()
+        public void EnterHover(InteractorID interactorID)
         {
-            try
+            if (_hoveringInteractors.Contains(interactorID))
+                return;
+
+            _hoveringInteractors.Add(interactorID);
+
+            if (_hoveringInteractors.Count > 0)
             {
-                _rangedConfig.OnLocalHoverEnter?.Invoke();
+                try
+                {
+                    _rangedConfig.OnLocalHoverEnter?.Invoke();
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"ERROR HOVER INVOKE config null?- {_rangedConfig == null}");
+                    Debug.LogError($"Error invoking OnHoverEnter event - {e.Message} - {e.StackTrace}");
+                }
             }
-            catch (Exception e)
-            {
-                Debug.LogError($"ERROR HOVER INVOKE config null?- {_rangedConfig == null}");
-                Debug.LogError($"Error invoking OnHoverEnter event - {e.Message} - {e.StackTrace}");
-            }
+
         }
 
-        public void ExitHover()
+        public void ExitHover(InteractorID interactorID)
         {
-            try
+            if(_hoveringInteractors.Contains(interactorID))
+                _hoveringInteractors.Remove(interactorID);
+
+            if (_hoveringInteractors.Count == 0)
             {
-                _rangedConfig.OnLocalHoverExit?.Invoke();
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"Error invoking OnHoverExit event - {e.Message} - {e.StackTrace}");
+                try
+                {
+                    _rangedConfig.OnLocalHoverExit?.Invoke();
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"Error invoking OnHoverExit event - {e.Message} - {e.StackTrace}");
+                }
             }
         }
     }

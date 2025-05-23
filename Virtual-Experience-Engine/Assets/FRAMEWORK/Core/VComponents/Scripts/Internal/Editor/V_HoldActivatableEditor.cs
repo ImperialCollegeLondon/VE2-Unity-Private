@@ -7,7 +7,7 @@ using VE2.Core.VComponents.Internal;
 namespace VE2.Core.VComponents.Internal
 {
     [CustomEditor(typeof(V_HoldActivatable))]
-    public class V_HoldActivatableEditor : ToolboxEditor
+    internal class V_HoldActivatableEditor : ToolboxEditor
     {
         public override void DrawCustomInspector()
         {

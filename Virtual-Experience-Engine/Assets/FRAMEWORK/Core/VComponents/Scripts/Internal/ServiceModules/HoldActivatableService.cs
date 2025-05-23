@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Events;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 
 namespace VE2.Core.VComponents.Internal
@@ -27,9 +28,9 @@ namespace VE2.Core.VComponents.Internal
         private readonly ColliderInteractionModule _ColliderInteractionModule;
         #endregion
 
-        public HoldActivatableService(HoldActivatableConfig config, MultiInteractorActivatableState state, string id)
+        public HoldActivatableService(HoldActivatableConfig config, MultiInteractorActivatableState state, string id, IClientIDWrapper localClientIdWrapper)
         {
-            _StateModule = new(state, config.StateConfig, id);
+            _StateModule = new(state, config.StateConfig, id, localClientIdWrapper);
             _RangedHoldClickInteractionModule = new(config.ActivatableRangedInteractionConfig, config.GeneralInteractionConfig, id, config.ActivatableRangedInteractionConfig.ActivateAtRangeInVR);
 
             if(config.ActivatableRangedInteractionConfig.ActivateWithCollisionInVR)

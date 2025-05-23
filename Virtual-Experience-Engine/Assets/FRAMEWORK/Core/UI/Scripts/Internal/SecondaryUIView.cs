@@ -1,9 +1,10 @@
 using TMPro;
 using UnityEngine;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 
 namespace VE2.Core.UI.Internal
 {
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     internal class SecondaryUIView : MonoBehaviour
     {
         [SerializeField] private TMP_Text _clockText; 

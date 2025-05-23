@@ -1,5 +1,7 @@
 using NSubstitute;
 using NUnit.Framework;
+using UnityEngine.Events;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
 
@@ -34,7 +36,13 @@ namespace VE2.Core.VComponents.Tests
                 GeneralInteractionConfig = new(),
                 ActivatableRangedInteractionConfig = new()
             };
-            ToggleActivatableService toggleActivatable = new(config, new SingleInteractorActivatableState(), "debug", Substitute.For<IWorldStateSyncService>(), _activatableGroupsContainer);
+            ToggleActivatableService toggleActivatable = new(
+                config,
+                new SingleInteractorActivatableState(),
+                "debug",
+                Substitute.For<IWorldStateSyncableContainer>(),
+                _activatableGroupsContainer,
+                Substitute.For<IClientIDWrapper>());
 
             // Stub out the VC (provider layer) with the activatable
             _v_toggleActivatableProviderStub = new(toggleActivatable);
@@ -49,17 +57,17 @@ namespace VE2.Core.VComponents.Tests
         [Test]
         public void PushActivatable_WhenClicked_EmitsToPlugin()
         {
-            //Activate, Check customer received the activation, and that the interactorID is set
+            //Activate, Check customer received the activation, and that the interactorID reflects programmatic activation (ie, null!)
             _activatablePluginInterface.Activate();
             _customerScript.Received(1).HandleActivateReceived();
             Assert.IsTrue(_activatablePluginInterface.IsActivated, "Activatable should be activated");
-            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
+            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, null);
 
             //Deactivate and check
             _activatablePluginInterface.Deactivate();
             _customerScript.Received(1).HandleDeactivateReceived();
             Assert.IsFalse(_activatablePluginInterface.IsActivated, "Activatable should be deactivated");
-            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
+            Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, null);
         }
 
         //tear down that runs after every test method in this class
@@ -92,7 +100,13 @@ namespace VE2.Core.VComponents.Tests
                 GeneralInteractionConfig = new(),
                 ActivatableRangedInteractionConfig = new()
             };
-            ToggleActivatableService toggleActivatable2 = new(config, new SingleInteractorActivatableState(), "debug2", Substitute.For<IWorldStateSyncService>(), _activatableGroupsContainer);
+            ToggleActivatableService toggleActivatable2 = new(
+                config,
+                new SingleInteractorActivatableState(),
+                "debug2",
+                Substitute.For<IWorldStateSyncableContainer>(),
+                _activatableGroupsContainer,
+                Substitute.For<IClientIDWrapper>());
 
             // Stub out the VC (provider layer) with the activatable
             _v_toggleActivatableProviderStub2 = new(toggleActivatable2);
@@ -124,12 +138,39 @@ namespace VE2.Core.VComponents.Tests
         public virtual void HandleDeactivateReceived() { }
     }
 
-    internal class V_ToggleActivatableProviderStub : IV_ToggleActivatable, IRangedToggleClickInteractionModuleProvider, ICollideInteractionModuleProvider
+    partial class V_ToggleActivatableProviderStub : IV_ToggleActivatable
+    {
+        #region State Module Interface
+
+        public UnityEvent OnActivate => _StateModule.OnActivate;
+        public UnityEvent OnDeactivate => _StateModule.OnDeactivate;
+
+        public bool IsActivated  => _StateModule.IsActivated;
+        public void Activate() => _StateModule.Activate();
+        public void Deactivate() => _StateModule.Deactivate();
+        public void SetActivated(bool isActivated) => _StateModule.SetActivated(isActivated);
+        public IClientIDWrapper MostRecentInteractingClientID => _StateModule.MostRecentInteractingClientID;
+
+        public void SetNetworked(bool isNetworked) => _StateModule.SetNetworked(isNetworked);
+        #endregion
+
+        #region Ranged Interaction Module Interface
+        public float InteractRange { get => _RangedToggleClickModule.InteractRange; set => _RangedToggleClickModule.InteractRange = value; }
+        #endregion
+
+        #region General Interaction Module Interface
+        //We have two General Interaction Modules here, it doesn't matter which one we point to, both share the same General Interaction Config object!
+        public bool AdminOnly {get => _RangedToggleClickModule.AdminOnly; set => _RangedToggleClickModule.AdminOnly = value; }
+        public bool EnableControllerVibrations { get => _RangedToggleClickModule.EnableControllerVibrations; set => _RangedToggleClickModule.EnableControllerVibrations = value; }
+        public bool ShowTooltipsAndHighlight { get => _RangedToggleClickModule.ShowTooltipsAndHighlight; set => _RangedToggleClickModule.ShowTooltipsAndHighlight = value; }
+        #endregion
+    }
+
+    internal partial class V_ToggleActivatableProviderStub : IRangedToggleClickInteractionModuleProvider, ICollideInteractionModuleProvider
     {
         #region Plugin Interfaces
-
-        ISingleInteractorActivatableStateModule IV_ToggleActivatable._StateModule => _ToggleActivatable.StateModule;
-        IRangedToggleClickInteractionModule IV_ToggleActivatable._RangedToggleClickModule => _ToggleActivatable.RangedClickInteractionModule;
+        ISingleInteractorActivatableStateModule _StateModule => _ToggleActivatable.StateModule;
+        IRangedToggleClickInteractionModule _RangedToggleClickModule => _ToggleActivatable.RangedClickInteractionModule;
         #endregion
 
         #region Player Interfaces

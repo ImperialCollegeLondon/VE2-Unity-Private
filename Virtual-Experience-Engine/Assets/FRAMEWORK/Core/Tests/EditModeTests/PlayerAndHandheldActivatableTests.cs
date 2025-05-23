@@ -2,6 +2,7 @@ using NSubstitute;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using VE2.Common.Shared;
 using VE2.Core.Player.Internal;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
@@ -34,8 +35,9 @@ namespace VE2.Core.Tests
                 new HandheldActivatableConfig(), 
                 new SingleInteractorActivatableState(), 
                 "debug", 
-                Substitute.For<IWorldStateSyncService>(),
-                new ActivatableGroupsContainer());
+                Substitute.For<IWorldStateSyncableContainer>(),
+                new ActivatableGroupsContainer(),
+                LocalClientIDWrapperSetup.LocalClientIDWrapper);
 
             //Stub out provider layer
             _v_handheldActivatableProviderStub = new(handheldActivatable);
@@ -50,11 +52,13 @@ namespace VE2.Core.Tests
                 new FreeGrabbableConfig(),
                 new GrabbableState(),
                 "debug",
-                Substitute.For<IWorldStateSyncService>(),
+                Substitute.For<IWorldStateSyncableContainer>(),
+                GrabInteractableContainerSetup.GrabInteractableContainer,
                 InteractorContainerSetup.InteractorContainer,
                 Substitute.For<IRigidbodyWrapper>(),
                 new PhysicsConstants(),
-                new V_FreeGrabbable());
+                new V_FreeGrabbable(),
+                LocalClientIDWrapperSetup.LocalClientIDWrapper);
 
             //Stub out provider layer
             _v_freeGrabbableProviderStub = new(freeGrabbable);
@@ -66,7 +70,7 @@ namespace VE2.Core.Tests
             //Stub out the raycast provider to hit the activatable GO with 0 range
             RayCastProviderSetup.RaycastProviderStub
                 .Raycast(default, default, default, default)
-                .ReturnsForAnyArgs(new RaycastResultWrapper(_grabbableRaycastInterface.RangedGrabInteractionModule, null, 0));
+                .ReturnsForAnyArgs(new RaycastResultWrapper(_grabbableRaycastInterface.RangedGrabInteractionModule, null, 0, true));
 
             //Wire up the customer script to receive the events
             PluginActivatableScript pluginScriptMock = Substitute.For<PluginActivatableScript>();
@@ -76,19 +80,22 @@ namespace VE2.Core.Tests
             //Invoke grab, check customer received the grab, and that the interactorID is set
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
             Assert.IsTrue(_grabbablePluginInterface.IsGrabbed);
-            Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID, LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID);
+            Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID.Value, LocalClientIDWrapperSetup.LocalClientIDWrapper.Value);
+            Assert.IsTrue(_grabbablePluginInterface.MostRecentInteractingClientID.IsLocal);
 
             //Invoke Activate, Check customer received the activate, and that the interactorID is set
             PlayerInputContainerSetup.HandheldClick2D.OnPressed += Raise.Event<Action>();
             pluginScriptMock.Received(1).HandleActivateReceived();
             Assert.IsTrue(_handheldActivatablePluginInterface.IsActivated);
-            Assert.AreEqual(_handheldActivatablePluginInterface.MostRecentInteractingClientID, LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID);
+            Assert.AreEqual(_handheldActivatablePluginInterface.MostRecentInteractingClientID.Value, LocalClientIDWrapperSetup.LocalClientIDWrapper.Value);
+            Assert.IsTrue(_grabbablePluginInterface.MostRecentInteractingClientID.IsLocal);
 
             //Invoke Deactivate, Check customer received the deactivate, and that the interactorID is set
             PlayerInputContainerSetup.HandheldClick2D.OnPressed += Raise.Event<Action>();
             pluginScriptMock.Received(1).HandleDeactivateReceived();
             Assert.IsFalse(_handheldActivatablePluginInterface.IsActivated);
-            Assert.AreEqual(_handheldActivatablePluginInterface.MostRecentInteractingClientID, LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID);
+            Assert.AreEqual(_handheldActivatablePluginInterface.MostRecentInteractingClientID.Value, LocalClientIDWrapperSetup.LocalClientIDWrapper.Value);
+            Assert.IsTrue(_grabbablePluginInterface.MostRecentInteractingClientID.IsLocal);
         }
 
         [TearDown]

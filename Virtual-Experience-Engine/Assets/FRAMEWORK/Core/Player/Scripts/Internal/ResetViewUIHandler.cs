@@ -1,9 +1,11 @@
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
+using VE2.Common.Shared;
 
 namespace VE2.Core.Player.Internal
 {
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     internal class ResetViewUIHandler : MonoBehaviour
     {
         [SerializeField] private CanvasGroup _canvasGroup;

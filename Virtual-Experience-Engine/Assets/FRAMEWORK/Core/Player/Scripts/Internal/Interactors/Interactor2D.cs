@@ -2,19 +2,19 @@ using DG.Tweening;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
-using VE2.Core.Common;
+using VE2.Common.API;
+using VE2.Common.Shared;
 using VE2.Core.Player.API;
 using VE2.Core.VComponents.API;
-using UnityEngine.InputSystem;
 
 namespace VE2.Core.Player.Internal
 {
     internal class Interactor2D : PointerInteractor
     {
+        private ColorConfiguration _colorConfig => ColorConfiguration.Instance;
         private readonly Image _reticuleImage;
-        private readonly ColorConfiguration _colorConfig;
         private readonly PlayerConnectionPromptHandler _connectionPromptHandler;
-        private Player2DInputContainer _player2DInputContainer;
+        private Interactor2DInputContainer _interactor2DInputContainer;
         private InspectModeIndicator _inspectModeIndicator;
         private Transform _grabberInspectTransform;
         private Tween _inspectModeTween = null;
@@ -25,22 +25,22 @@ namespace VE2.Core.Player.Internal
         private float _maxZoom = 5.0f; 
         private IRangedFreeGrabInteractionModule _rangedFreeGrabbingGrabbable => _CurrentGrabbingGrabbable as IRangedFreeGrabInteractionModule;
 
-        internal Interactor2D(HandInteractorContainer interactorContainer, InteractorInputContainer interactorInputContainer,
-            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider,
-            ILocalClientIDProvider localClientIDProvider, Player2DInputContainer player2DInputContainer, InspectModeIndicator inspectModeIndicator) :
-            base(interactorContainer, interactorInputContainer,
-                interactorReferences, interactorType, raycastProvider, localClientIDProvider, null, new HoveringOverScrollableIndicator())
+        internal Interactor2D(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, Interactor2DInputContainer interactor2DInputContainer,
+            PlayerInteractionConfig interactionConfig, InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider,
+            ILocalClientIDWrapper localClientIDWrapper, InspectModeIndicator inspectModeIndicator) : 
+            base(interactorContainer, grabInteractablesContainer, interactor2DInputContainer, interactionConfig,
+                interactorReferences, interactorType, raycastProvider, localClientIDWrapper, null, new HoveringOverScrollableIndicator())   
         {
             Interactor2DReferences interactor2DReferences = interactorReferences as Interactor2DReferences;
             _reticuleImage = interactor2DReferences.ReticuleImage;
             _inspectModeIndicator = inspectModeIndicator;
 
-            _colorConfig = Resources.Load<ColorConfiguration>("ColorConfiguration"); //TODO: Inject, can probably actually go into the base class
-
             _connectionPromptHandler = interactor2DReferences.ConnectionPromptHandler;
             _grabberInspectTransform = interactor2DReferences.GrabberInspectTransform;
-            _player2DInputContainer = player2DInputContainer;
-            if (_WaitingForLocalClientID)
+            _interactor2DInputContainer = interactor2DInputContainer;
+
+            //TODO: Don't want to do this in constructor, should happen in HandleOnEnable
+            if (!localClientIDWrapper.IsClientIDReady)
                 _connectionPromptHandler.NotifyWaitingForConnection();
         }
 
@@ -68,13 +68,13 @@ namespace VE2.Core.Player.Internal
         public override void HandleOnEnable()
         {
             base.HandleOnEnable();
-            _player2DInputContainer.InteractorInputContainer2D.InspectModeInput.OnReleased += HandleInspectModePressed;
+            _interactor2DInputContainer.InspectModeInput.OnReleased += HandleInspectModePressed;
         }
 
         public override void HandleOnDisable()
         {
             base.HandleOnDisable();
-            _player2DInputContainer.InteractorInputContainer2D.InspectModeInput.OnReleased -= HandleInspectModePressed;
+            _interactor2DInputContainer.InspectModeInput.OnReleased -= HandleInspectModePressed;
         }
 
         public override void HandleUpdate()
@@ -83,10 +83,10 @@ namespace VE2.Core.Player.Internal
 
             if (_inspectModeIndicator.IsInspectModeActive)
             {
-                Vector2 mouseInput = _player2DInputContainer.InteractorInputContainer2D.MouseInput.Value * 0.1f;
+                Vector2 mouseInput = _interactor2DInputContainer.MouseInput.Value * 0.1f;
                 //float mouseX = Mouse.current.delta.x.ReadValue() * 0.1f;
                 //float mouseY = Mouse.current.delta.y.ReadValue() * 0.1f;
-                GrabberTransform.Rotate(mouseInput.y,-mouseInput.x,0f);
+                GrabberTransform.Rotate(mouseInput.y,-mouseInput.x,0f); //TODO - take into account camera rotation
             }
         }
         protected override void HandleStartGrabbingAdjustable(IRangedAdjustableInteractionModule rangedAdjustableInteraction)
@@ -155,7 +155,7 @@ namespace VE2.Core.Player.Internal
             }
             catch (Exception e)
             {
-                V_Logger.Error($"Error when emitting OnInspectModeEnter \n{e.Message}\n{e.StackTrace}");
+                Debug.LogError($"Error when emitting OnInspectModeEnter \n{e.Message}\n{e.StackTrace}");
             }
         }
 
@@ -168,7 +168,7 @@ namespace VE2.Core.Player.Internal
                 _inspectModeIndicator.IsInspectModeActive = false;
                 if (_CurrentGrabbingGrabbable == null)
                 {
-                    V_Logger.Error("Tried to exit inspect mode, but no grabbable grabbed!");
+                    Debug.LogError("Tried to exit inspect mode, but no grabbable grabbed!");
                     return;
                 }
                 if (!_rangedFreeGrabbingGrabbable.PreserveInspectModeOrientation)
@@ -176,7 +176,7 @@ namespace VE2.Core.Player.Internal
             }
             catch (Exception e)
             {
-                V_Logger.Error($"Error when emitting OnInspectModeExit \n{e.Message}\n{e.StackTrace}");
+                Debug.LogError($"Error when emitting OnInspectModeExit \n{e.Message}\n{e.StackTrace}");
             }
         }
 

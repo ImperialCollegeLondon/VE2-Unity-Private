@@ -8,7 +8,7 @@ namespace VE2.Core.VComponents.Internal
 {
     //TODO: Implement! Needs to be smarter than just "does the attach point have a collider"
     // [CustomEditor(typeof(V_LinearAdjustable))]
-    // public class V_LinearAdjustableEditor : ToolboxEditor
+    // internal class V_LinearAdjustableEditor : ToolboxEditor
     // {
     //     public override void DrawCustomInspector()
     //     {

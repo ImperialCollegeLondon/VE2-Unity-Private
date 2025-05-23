@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace VE2.Core.VComponents.Internal
 {
-    public enum DropBehaviour
+    internal enum DropBehaviour
     {
         KeepMomentum,
         IgnoreMomentum,

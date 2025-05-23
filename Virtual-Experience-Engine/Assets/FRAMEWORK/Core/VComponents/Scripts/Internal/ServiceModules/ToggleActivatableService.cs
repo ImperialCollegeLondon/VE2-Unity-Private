@@ -1,7 +1,8 @@
 using System;
 using UnityEngine;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
-using static VE2.Core.Common.CommonSerializables;
+using static VE2.Common.Shared.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -19,7 +20,7 @@ namespace VE2.Core.VComponents.Internal
         [BeginGroup(Style = GroupStyle.Round, ApplyCondition = true)]
         [Title("Activatable Ranged Interaction Settings")]
         [SerializeField, IgnoreParent] public bool ActivateAtRangeInVR = true;
-        [SerializeField, IgnoreParent] public bool ActivateWithCollisionInVR= true;
+        [SerializeField, IgnoreParent, EndGroup] public bool ActivateWithCollisionInVR= true;
     }
 
     internal class ToggleActivatableService
@@ -36,13 +37,10 @@ namespace VE2.Core.VComponents.Internal
         private readonly ColliderInteractionModule _ColliderInteractionModule;
         #endregion
 
-        //private readonly string _activationGroupID = "None";
-        //private readonly bool _isInActivationGroup = false;     
-        internal bool test = false;
-
-        public ToggleActivatableService(ToggleActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncService worldStateSyncService, ActivatableGroupsContainer activatableGroupsContainer)
+        public ToggleActivatableService(ToggleActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncableContainer worldStateSyncableContainer, 
+            ActivatableGroupsContainer activatableGroupsContainer, IClientIDWrapper localClientIdWrapper)
         {
-            _StateModule = new(state, config.StateConfig, id, worldStateSyncService,activatableGroupsContainer);
+            _StateModule = new(state, config.StateConfig, id, worldStateSyncableContainer, activatableGroupsContainer, localClientIdWrapper);
 
             _RangedClickInteractionModule = new(config.ActivatableRangedInteractionConfig, config.GeneralInteractionConfig, id, config.ActivatableRangedInteractionConfig.ActivateAtRangeInVR);
 

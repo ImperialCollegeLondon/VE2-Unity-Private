@@ -3,7 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using VE2.Core.Common;
+using VE2.Common.API;
+using VE2.Common.Shared;
 using VE2.Core.Player.API;
 using VE2.Core.UI.API;
 using VE2.Core.VComponents.API;
@@ -45,8 +46,7 @@ namespace VE2.Core.Player.Internal
                 );
             }
         }
-        public readonly Camera Camera;
-
+        
         private readonly GameObject _playerGO;
         private readonly Player2DControlConfig _controlConfig;
         private readonly Player2DInputContainer _player2DInputContainer;
@@ -63,8 +63,9 @@ namespace VE2.Core.Player.Internal
         private readonly RectTransform _overlayUIRect;
         private readonly InspectModeIndicator _inspectModeIndicator;
 
-        internal PlayerController2D(HandInteractorContainer interactorContainer, Player2DInputContainer player2DInputContainer, IPlayerPersistentDataHandler playerPersistentDataHandler,
-            Player2DControlConfig controlConfig, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ILocalClientIDProvider multiplayerSupport, 
+        internal PlayerController2D(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, Player2DInputContainer player2DInputContainer, 
+            IPlayerPersistentDataHandler playerPersistentDataHandler, Player2DControlConfig controlConfig, PlayerInteractionConfig interactionConfig, MovementModeConfig movementModeConfig, 
+            CameraConfig cameraConfig, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ILocalClientIDWrapper localClientIDWrapper, 
             IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IPlayerServiceInternal playerService) 
         {
             GameObject player2DPrefab = Resources.Load("2dPlayer") as GameObject;
@@ -88,15 +89,16 @@ namespace VE2.Core.Player.Internal
             _inspectModeIndicator = new InspectModeIndicator();
 
             _interactor2D = new(
-                interactorContainer, player2DInputContainer.InteractorInputContainer2D,
-                player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, multiplayerSupport, player2DInputContainer, _inspectModeIndicator);
+                interactorContainer, grabInteractablesContainer, player2DInputContainer.InteractorInputContainer2D, interactionConfig,
+                player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, localClientIDWrapper, _inspectModeIndicator);
 
-            _feetInteractor2D = new(collisionDetectorFactory, ColliderType.Feet2D, player2DReferences.Interactor2DReferences.FeetCollider, InteractorType.Feet, multiplayerSupport);
-
-            _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences, _inspectModeIndicator);
+            _feetInteractor2D = new(collisionDetectorFactory, ColliderType.Feet2D, player2DReferences.Interactor2DReferences.FeetCollider, InteractorType.Feet, localClientIDWrapper, interactionConfig);
+            _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences, movementModeConfig, _inspectModeIndicator);
 
             base._PlayerHeadTransform = _playerLocomotor2D.HeadTransform;
-            base._FeetCollisionDetector = _feetInteractor2D._collisionDetector as V_CollisionDetector;
+            base._FeetCollisionDetector = _feetInteractor2D._collisionDetector as CollisionDetector;
+
+            ConfigureCamera(cameraConfig);  
             
             //TODO: think about inspect mode, does that live in the interactor, or the player controller?
             //If interactor, will need to make the interactor2d constructor take a this as a param, and forward the other params to the base constructor

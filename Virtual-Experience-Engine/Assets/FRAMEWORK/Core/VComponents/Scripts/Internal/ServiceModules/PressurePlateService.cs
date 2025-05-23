@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 namespace VE2.Core.VComponents.Internal
 {
@@ -22,9 +23,9 @@ namespace VE2.Core.VComponents.Internal
         private readonly ColliderInteractionModule _ColliderInteractionModule;
         #endregion
 
-        public PressurePlateService(PressurePlateConfig config, MultiInteractorActivatableState state, string id)
+        public PressurePlateService(PressurePlateConfig config, MultiInteractorActivatableState state, string id, IClientIDWrapper localClientIdWrapper)
         {
-            _StateModule = new(state, config.StateConfig, id);
+            _StateModule = new(state, config.StateConfig, id, localClientIdWrapper);
             _ColliderInteractionModule = new(config.GeneralInteractionConfig, id, CollideInteractionType.Feet);
 
             _ColliderInteractionModule.OnCollideEnter += AddToInteractingInteractors;

@@ -1,8 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Jobs;
@@ -11,147 +7,193 @@ using UnityEngine;
 namespace VE2.NonCore.Instancing.Internal
 {
     [BurstCompile]
-    internal class PredictiveWorldStateHistoryQueue
+    internal class PredictiveWorldStateHistoryQueue : IDisposable
     {
-        public FixedSizedQueue<byte[]> RecentStates { get; private set; }
+        private NativeList<byte> flatBuffer;
+        private NativeList<int> stateOffsets; // Offset into flatBuffer
+        private NativeList<int> stateLengths;
+        private int limit;
+
+        public int Count => stateLengths.Length;
+        public int Limit
+        {
+            get => limit;
+            set
+            {
+                if (value != limit)
+                    Resize(value);
+            }
+        }
 
         public PredictiveWorldStateHistoryQueue(int queueSize)
         {
-            RecentStates = new()
-            {
-                Limit = queueSize
-            };
+            if (queueSize <= 0)
+                throw new ArgumentException("Queue size must be > 0");
+
+            limit = queueSize;
+            flatBuffer = new NativeList<byte>(Allocator.Persistent);
+            stateOffsets = new NativeList<int>(limit, Allocator.Persistent);
+            stateLengths = new NativeList<int>(limit, Allocator.Persistent);
         }
 
-        public bool DoesStateAppearInStateList(byte[] bytesToCheck)
+        private void Resize(int newSize)
         {
-            var receivedStateNativeArray = new NativeArray<byte>(bytesToCheck, Allocator.TempJob);
-            var jobHandles = new NativeArray<JobHandle>(RecentStates.Count, Allocator.TempJob);
-            var results = new NativeArray<NativeArray<bool>>(RecentStates.Count, Allocator.TempJob);
-            var recentStateNativeArrays = new NativeArray<byte>[RecentStates.Count]; // Track the NativeArrays to dispose later
+            if (newSize == limit) return;
 
-            for (int i = 0; i < RecentStates.Count; i++)
+            // Drop oldest states if reducing size
+            if (newSize < stateLengths.Length)
             {
-                byte[] stateToCheckAgainst = RecentStates.values[i];
-                if (stateToCheckAgainst == null)
+                int dropCount = stateLengths.Length - newSize;
+                int newStartOffset = stateOffsets[dropCount];
+                int newFlatSize = flatBuffer.Length - newStartOffset;
+
+                // Compact the buffer
+                NativeArray<byte>.Copy(flatBuffer.AsArray().GetSubArray(newStartOffset, newFlatSize), flatBuffer.AsArray(), newFlatSize);
+                flatBuffer.Resize(newFlatSize, NativeArrayOptions.ClearMemory);
+
+                // Shift offsets and lengths
+                var newOffsets = new NativeList<int>(newSize, Allocator.Persistent);
+                var newLengths = new NativeList<int>(newSize, Allocator.Persistent);
+                for (int i = dropCount; i < stateOffsets.Length; i++)
                 {
-                    jobHandles[i] = default;
-                    continue;
+                    newOffsets.Add(stateOffsets[i] - newStartOffset);
+                    newLengths.Add(stateLengths[i]);
                 }
 
-                var recentStateNativeArray = new NativeArray<byte>(stateToCheckAgainst, Allocator.TempJob);
-                recentStateNativeArrays[i] = recentStateNativeArray; // Keep a reference to dispose later
-                var result = new NativeArray<bool>(1, Allocator.TempJob);
-                results[i] = result;
-
-                var job = new CompareBytesJob
-                {
-                    Array1 = recentStateNativeArray,
-                    Array2 = receivedStateNativeArray,
-                    Result = result
-                };
-
-                jobHandles[i] = job.Schedule();
+                stateOffsets.Dispose();
+                stateLengths.Dispose();
+                stateOffsets = newOffsets;
+                stateLengths = newLengths;
             }
 
-            JobHandle.CompleteAll(jobHandles);
-
-            bool doesAppear = false;
-            for (int i = 0; i < results.Length; i++)
-            {
-                if (results[i].IsCreated && results[i][0])
-                {
-                    doesAppear = true;
-                    break;
-                }
-            }
-
-            receivedStateNativeArray.Dispose();
-            for (int i = 0; i < results.Length; i++)
-            {
-                if (results[i].IsCreated)
-                    results[i].Dispose();
-            }
-            for (int i = 0; i < recentStateNativeArrays.Length; i++)
-            {
-                if (recentStateNativeArrays[i].IsCreated)
-                    recentStateNativeArrays[i].Dispose();
-            }
-            results.Dispose();
-            jobHandles.Dispose();
-
-            //Debug.Log("State appears? " + doesAppear);
-            return doesAppear;
-        }
-
-        [BurstCompile]
-        private struct CompareBytesJob : IJob
-        {
-            [Unity.Collections.ReadOnly] public NativeArray<byte> Array1;
-            [Unity.Collections.ReadOnly] public NativeArray<byte> Array2;
-            [WriteOnly] public NativeArray<bool> Result;
-
-            public void Execute()
-            {
-                if (Array1.Length != Array2.Length)
-                {
-                    Result[0] = false;
-                    return;
-                }
-
-                for (int i = 0; i < Array1.Length; i++)
-                {
-                    if (Array1[i] != Array2[i])
-                    {
-                        Result[0] = false;
-                        return;
-                    }
-                }
-
-                Result[0] = true;
-            }
-        }
-
-        private void UpdateWorldStateBufferQueueSize(int newSize)
-        {
-            RecentStates.Limit = newSize;
+            limit = newSize;
         }
 
         public void AddStateToQueue(byte[] state)
         {
-            RecentStates.Enqueue(state);
-        }
-    }
+            if (state == null)
+                throw new ArgumentNullException(nameof(state));
 
-    internal class FixedSizedQueue<T>
-    {
-        ConcurrentQueue<T> q = new();
-        private object lockObject = new();
+            if (state.Length == 0)
+                return;
 
-        public int Limit { get; set; }
-        public void Enqueue(T obj)
-        {
-            q.Enqueue(obj);
-            lock (lockObject)
+            if (stateLengths.Length == limit)
             {
-                T overflow;
-                while (q.Count > Limit && q.TryDequeue(out overflow)) ;
+                // Remove the oldest state
+                int removeLength = stateLengths[0];
+                int nextStart = stateOffsets[1];
+
+                // Shift buffer left
+                NativeArray<byte>.Copy(flatBuffer.AsArray().GetSubArray(nextStart, flatBuffer.Length - nextStart), flatBuffer.AsArray(), flatBuffer.Length - nextStart);
+                flatBuffer.Resize(flatBuffer.Length - removeLength, NativeArrayOptions.ClearMemory);
+
+                // Update offsets
+                for (int i = 1; i < stateOffsets.Length; i++)
+                    stateOffsets[i - 1] = stateOffsets[i] - removeLength;
+
+                stateOffsets[stateOffsets.Length - 1] = 0; // Will be replaced
+                for (int i = 1; i < stateLengths.Length; i++)
+                    stateLengths[i - 1] = stateLengths[i];
+
+                stateOffsets.Resize(stateOffsets.Length - 1, NativeArrayOptions.UninitializedMemory);
+                stateLengths.Resize(stateLengths.Length - 1, NativeArrayOptions.UninitializedMemory);
             }
+
+            int offset = flatBuffer.Length;
+            using (var nativeState = new NativeArray<byte>(state, Allocator.Temp))
+                flatBuffer.AddRange(nativeState);
+
+            stateOffsets.Add(offset);
+            stateLengths.Add(state.Length);
         }
 
-        public int Count => q.Count;
-
-        public T[] values => q.ToArray();
-
-        public void Clear()
+        public bool DoesStateAppearInStateList(byte[] bytesToCheck)
         {
-            q.Clear();
+            if (bytesToCheck == null)
+                throw new ArgumentNullException(nameof(bytesToCheck));
+            if (Count == 0)
+                return false;
+
+            var targetState = new NativeArray<byte>(bytesToCheck, Allocator.TempJob);
+            var offsets = new NativeArray<int>(stateOffsets.AsArray(), Allocator.TempJob);
+            var lengths = new NativeArray<int>(stateLengths.AsArray(), Allocator.TempJob);
+            var flat = new NativeArray<byte>(flatBuffer.AsArray(), Allocator.TempJob);
+            var results = new NativeArray<bool>(Count, Allocator.TempJob);
+
+            var job = new CompareFlatStatesJob
+            {
+                TargetState = targetState,
+                StateOffsets = offsets,
+                StateLengths = lengths,
+                FlatBuffer = flat,
+                Result = results
+            };
+
+            job.Schedule().Complete();
+
+            bool found = false;
+            for (int i = 0; i < results.Length; i++)
+            {
+                if (results[i])
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            results.Dispose();
+            flat.Dispose();
+            offsets.Dispose();
+            lengths.Dispose();
+            targetState.Dispose();
+
+            return found;
         }
 
-        public T PeekFront()
+        public void Dispose()
         {
-            q.TryPeek(out T value);
-            return value;
+            if (flatBuffer.IsCreated)
+                flatBuffer.Dispose();
+            if (stateOffsets.IsCreated)
+                stateOffsets.Dispose();
+            if (stateLengths.IsCreated)
+                stateLengths.Dispose();
+        }
+
+        [BurstCompile]
+        private struct CompareFlatStatesJob : IJob
+        {
+            [ReadOnly] public NativeArray<byte> TargetState;
+            [ReadOnly] public NativeArray<int> StateOffsets;
+            [ReadOnly] public NativeArray<int> StateLengths;
+            [ReadOnly] public NativeArray<byte> FlatBuffer;
+
+            [WriteOnly] public NativeArray<bool> Result;
+
+            public void Execute()
+            {
+                for (int i = 0; i < StateOffsets.Length; i++)
+                {
+                    if (StateLengths[i] != TargetState.Length)
+                    {
+                        Result[i] = false;
+                        continue;
+                    }
+
+                    int offset = StateOffsets[i];
+                    bool match = true;
+                    for (int j = 0; j < TargetState.Length; j++)
+                    {
+                        if (FlatBuffer[offset + j] != TargetState[j])
+                        {
+                            match = false;
+                            break;
+                        }
+                    }
+
+                    Result[i] = match;
+                }
+            }
         }
     }
 }

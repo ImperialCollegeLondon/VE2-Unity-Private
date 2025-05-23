@@ -8,57 +8,62 @@ using UnityEditor.TestTools.TestRunner;
 using UnityEditor.TestTools.TestRunner.Api;
 using UnityEngine;
 
-[InitializeOnLoad]
-public static class TestRunnerAutomate
+namespace VE2.Core.Tests
 {
-    static TestRunnerAutomate()
+    [InitializeOnLoad]
+    internal static class TestRunnerAutomate
     {
-        EditorApplication.update += CheckForTestSignal;
-        EditorApplication.quitting += () => EditorApplication.update -= CheckForTestSignal;
-    }
+        private static TestRunnerApi _testRunnerApi;
 
-    static void CheckForTestSignal()
-    {
-        string signalFile = "RunEditModeTests.flag";
-        if (File.Exists(signalFile))
+        static TestRunnerAutomate()
         {
-            File.Delete(signalFile);
-            RunTests();
+            _testRunnerApi = ScriptableObject.CreateInstance<TestRunnerApi>();
+            EditorApplication.update += CheckForTestSignal;
+            EditorApplication.quitting += () => EditorApplication.update -= CheckForTestSignal;
+        }
+
+        static void CheckForTestSignal()
+        {
+            string signalFile = "RunEditModeTests.flag";
+            if (File.Exists(signalFile))
+            {
+                File.Delete(signalFile);
+                RunTests();
+            }
+        }
+
+        static void RunTests()
+        {
+            _testRunnerApi.RegisterCallbacks(new TestRunnerApiCallbacks());
+            Filter filter = new()
+            {
+                testMode = TestMode.EditMode
+            };
+            _testRunnerApi.Execute(new ExecutionSettings(filter));
         }
     }
 
-    static void RunTests()
+    class TestRunnerApiCallbacks : ICallbacks
     {
-        TestRunnerApi testRunnerApi = ScriptableObject.CreateInstance<TestRunnerApi>();
-        testRunnerApi.RegisterCallbacks(new TestRunnerApiCallbacks());
-        Filter filter = new()
+        public void RunStarted(ITestAdaptor testsToRun) 
         {
-            testMode = TestMode.EditMode
-        };
-        testRunnerApi.Execute(new ExecutionSettings(filter));
-    }
-}
+            TestRunnerWindow.ShowWindow();
+        }
 
-class TestRunnerApiCallbacks : ICallbacks
-{
-    public void RunStarted(ITestAdaptor testsToRun) 
-    {
-        TestRunnerWindow.ShowWindow();
-    }
+        public void RunFinished(ITestResultAdaptor result) 
+        { 
 
-    public void RunFinished(ITestResultAdaptor result) 
-    { 
+        }
 
-    }
+        public void TestStarted(ITestAdaptor test) 
+        { 
 
-    public void TestStarted(ITestAdaptor test) 
-    { 
+        }
 
-    }
+        public void TestFinished(ITestResultAdaptor result)
+        {
 
-    public void TestFinished(ITestResultAdaptor result)
-    {
-
+        }
     }
 }
 #endif

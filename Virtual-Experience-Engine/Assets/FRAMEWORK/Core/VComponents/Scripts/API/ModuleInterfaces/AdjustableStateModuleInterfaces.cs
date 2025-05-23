@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using VE2.Common.Shared;
 
 namespace VE2.Core.VComponents.API
 {
@@ -13,7 +14,7 @@ namespace VE2.Core.VComponents.API
         public float MinimumOutputValue {  get; set; }
         public float MaximumOutputValue { get; set; }
         
-        public ushort MostRecentInteractingClientID { get; }
+        public IClientIDWrapper MostRecentInteractingClientID { get; }
     }
 }
 

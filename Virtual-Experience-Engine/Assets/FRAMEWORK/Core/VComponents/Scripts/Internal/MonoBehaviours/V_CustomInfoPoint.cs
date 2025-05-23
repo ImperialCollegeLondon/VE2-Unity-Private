@@ -4,12 +4,42 @@ using VE2.Core.VComponents.API;
 using UnityEngine.UI;
 using System.Collections;
 using DG.Tweening;
+using UnityEngine.Events;
+using VE2.Common.Shared;
 
 namespace VE2.Core.VComponents.Integration
 {
+    internal partial class V_CustomInfoPoint : IV_InfoPoint
+    {
+        #region State Module Interface
+
+        public UnityEvent OnActivate => _StateModule.OnActivate;
+        public UnityEvent OnDeactivate => _StateModule.OnDeactivate;
+
+        public bool IsActivated  => _StateModule.IsActivated;
+        public void Activate() => _StateModule.Activate();
+        public void Deactivate() => _StateModule.Deactivate();
+        public void SetActivated(bool isActivated) => _StateModule.SetActivated(isActivated);
+        public IClientIDWrapper MostRecentInteractingClientID => _StateModule.MostRecentInteractingClientID;
+
+        public void SetNetworked(bool isNetworked) => _StateModule.SetNetworked(isNetworked);
+        #endregion
+
+        #region Ranged Interaction Module Interface
+        public float InteractRange { get => _RangedToggleClickModule.InteractRange; set => _RangedToggleClickModule.InteractRange = value; }
+        #endregion
+
+        #region General Interaction Module Interface
+        //We have two General Interaction Modules here, it doesn't matter which one we point to, both share the same General Interaction Config object!
+        public bool AdminOnly {get => _RangedToggleClickModule.AdminOnly; set => _RangedToggleClickModule.AdminOnly = value; }
+        public bool EnableControllerVibrations { get => _RangedToggleClickModule.EnableControllerVibrations; set => _RangedToggleClickModule.EnableControllerVibrations = value; }
+        public bool ShowTooltipsAndHighlight { get => _RangedToggleClickModule.ShowTooltipsAndHighlight; set => _RangedToggleClickModule.ShowTooltipsAndHighlight = value; }
+        #endregion
+    }
+
     [ExecuteAlways]
     [AddComponentMenu("")] //Better to create this from the gameobject menu, where it'll spawn the entire prefab. Hide this from the AC menu
-    internal class V_CustomInfoPoint : MonoBehaviour, IV_InfoPoint
+    internal partial class V_CustomInfoPoint : MonoBehaviour
     {
         [Title("InfoPoint Settings", Order = -50)]
         [SerializeField, BeginGroup] private GameObject _triggerGameObject;
@@ -19,16 +49,24 @@ namespace VE2.Core.VComponents.Integration
         [SerializeField, IgnoreParent] private ToggleActivatableConfig _toggleActivatableConfig = new();
 
         #region Plugin Interfaces
-        ISingleInteractorActivatableStateModule IV_ToggleActivatable._StateModule => _triggerProgrammaticInterface._StateModule;
-        IRangedToggleClickInteractionModule IV_ToggleActivatable._RangedToggleClickModule => _triggerProgrammaticInterface._RangedToggleClickModule;
+        ISingleInteractorActivatableStateModule _StateModule => _TriggerActivatable._StateModule;
+        IRangedToggleClickInteractionModule _RangedToggleClickModule => _TriggerActivatable._RangedToggleClickModule;
         #endregion
 
         private V_ToggleActivatable _triggerActivatable = null;
-        private IV_ToggleActivatable _triggerProgrammaticInterface => _triggerActivatable as IV_ToggleActivatable;
+        private V_ToggleActivatable _TriggerActivatable
+        {
+            get
+            {
+                if (_triggerActivatable == null)
+                    OnEnable();
+                return _triggerActivatable;
+            }
+        }
 
         private void OnEnable()
         {
-            if (!Application.isPlaying)
+            if (!Application.isPlaying || _triggerActivatable != null)
                 return;
 
             //Set up trigger=================================
@@ -64,7 +102,7 @@ namespace VE2.Core.VComponents.Integration
             _canvasCloseButton?.onClick.AddListener(() => ToggleCanvas(false));
         }
 
-        public void ToggleCanvas(bool canvasActive) => _triggerProgrammaticInterface.SetActivated(canvasActive);
+        public void ToggleCanvas(bool canvasActive) => _TriggerActivatable.SetActivated(canvasActive);
 
         private void OnDisable()
         {

@@ -3,11 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 
 namespace VE2.NonCore.Instancing.Internal
 {
-    internal interface IPluginSyncCommsHandler
+    internal interface IPluginSyncCommsHandler //TODO: Rename to IInstanceCommsHandler?
     {
         public bool IsReadyToTransmit { get; }
 

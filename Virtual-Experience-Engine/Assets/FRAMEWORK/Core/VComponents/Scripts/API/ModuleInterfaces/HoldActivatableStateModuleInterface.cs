@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using VE2.Common.Shared;
 
 namespace VE2.Core.VComponents.API
 {
@@ -10,7 +11,7 @@ namespace VE2.Core.VComponents.API
         public UnityEvent OnDeactivate { get; }
 
         public bool IsActivated { get; }
-        public ushort MostRecentInteractingClientID { get; }
-        public List<ushort> CurrentlyInteractingClientIDs { get; }
+        public IClientIDWrapper MostRecentInteractingClientID { get; }
+        public List<IClientIDWrapper> CurrentlyInteractingClientIDs { get; }
     }
 }

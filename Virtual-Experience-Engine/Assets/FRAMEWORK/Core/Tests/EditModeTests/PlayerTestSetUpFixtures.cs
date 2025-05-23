@@ -7,32 +7,34 @@ using VE2.Core.Player.API;
 using static VE2.Core.Player.API.PlayerSerializables;
 using VE2.Core.UI.API;
 using System.Collections.Generic;
+using VE2.Common.API;
+using VE2.Common.Shared;
 
 namespace VE2.Core.Tests
 {
-    internal class LocalClientIDProviderSetup
+    internal class LocalClientIDWrapperSetup
     {
-        public static ILocalClientIDProvider LocalClientIDProviderStub { get; private set; }
+        public static ILocalClientIDWrapper LocalClientIDWrapper { get; private set; }
         public static InteractorID InteractorID { get; private set; }
-        public static ushort LocalClientID => LocalClientIDProviderStub.LocalClientID;
+        public static ushort LocalClientID => LocalClientIDWrapper.Value;
         public static string InteractorGameobjectName { get; private set; }
 
-        public static void MultiplayerSupportStubSetupOnce()
+        public static void LocalClientIDWrapperStubSetupOnce()
         {
             //Stub out the multiplayer support
             System.Random random = new();
             ushort localClientID = (ushort)random.Next(0, ushort.MaxValue);
 
-            LocalClientIDProviderStub = Substitute.For<ILocalClientIDProvider>();
-            LocalClientIDProviderStub.IsClientIDReady.Returns(true);
-            LocalClientIDProviderStub.LocalClientID.Returns(localClientID);
+            LocalClientIDWrapper = Substitute.For<ILocalClientIDWrapper>();
+            LocalClientIDWrapper.IsClientIDReady.Returns(true);
+            LocalClientIDWrapper.Value.Returns(localClientID);
             InteractorID = new(localClientID, InteractorType.Mouse2D);
             InteractorGameobjectName = $"Interactor{InteractorID.ClientID}-{InteractorID.InteractorType}";
         }
 
         public static void StubLocalClientIDForMultiplayerSupportStub(ushort localClientID)
         {
-            LocalClientIDProviderStub.LocalClientID.Returns(localClientID);
+            LocalClientIDWrapper.Value.Returns(localClientID);
         }
     }
 
@@ -55,7 +57,28 @@ namespace VE2.Core.Tests
         public static void InteractorContainerSetupOnce()
         {
             InteractorContainer = new();
-            InteractorContainer.RegisterInteractor(LocalClientIDProviderSetup.InteractorID.ToString(), InteractorSetup.InteractorStub);
+            //InteractorContainer.RegisterInteractor(LocalClientIDWrapperSetup.InteractorID.ToString(), InteractorSetup.InteractorStub);
+        }
+    }
+
+    internal class LocalPlayerSyncableContainerSetup
+    {
+        public static ILocalPlayerSyncableContainer LocalPlayerSyncableContainerStub { get; private set; }
+
+        public static void LocalPlayerSyncableContainerStubSetupOnce()
+        {
+            LocalPlayerSyncableContainerStub = new LocalPlayerSyncableContainer();
+            //LocalPlayerSyncableContainerStub.LocalPlayerID.Returns(LocalClientIDWrapperSetup.InteractorID.ClientID);
+        }
+    }
+
+    internal class GrabInteractableContainerSetup
+    {
+        public static IGrabInteractablesContainer GrabInteractableContainer { get; private set; }
+
+        public static void GrabInteractableContainerStubSetupOnce()
+        {
+            GrabInteractableContainer = new GrabInteractablesContainer();
         }
     }
 
@@ -68,11 +91,18 @@ namespace VE2.Core.Tests
             RaycastProviderStub = Substitute.For<IRaycastProvider>();
         }
 
-        public static void StubRangedInteractionModuleForRaycastProviderStub(IRangedInteractionModule rangedInteractionModule)
+        public static void StubRangedInteractionModuleForRaycast(IRangedInteractionModule rangedInteractionModule)
         {
             RaycastProviderStub
                 .Raycast(default, default, default, default)
-                .ReturnsForAnyArgs(new RaycastResultWrapper(rangedInteractionModule, null, 0));
+                .ReturnsForAnyArgs(new RaycastResultWrapper(rangedInteractionModule, null, 0, true));
+        }
+
+        public static void StubRangedInteractionModuleForSpherecastAll(IRangedInteractionModule rangedInteractionModule)
+        {
+            RaycastProviderStub
+                .SphereCastAll(default, default, default, default, default)
+                .ReturnsForAnyArgs(new RaycastResultWrapper(rangedInteractionModule, null, 0, true));
         }
     }
 
@@ -86,12 +116,11 @@ namespace VE2.Core.Tests
         }
     }
 
-    
-    public class CollisionDetectorFactoryStub : ICollisionDetectorFactory
+    internal class CollisionDetectorFactoryStub : ICollisionDetectorFactory
     {
         internal Dictionary<ColliderType, ICollisionDetector> CollisionDetectorStubs { get; } = new();
 
-        ICollisionDetector ICollisionDetectorFactory.CreateCollisionDetector(Collider collider, ColliderType colliderType)
+        ICollisionDetector ICollisionDetectorFactory.CreateCollisionDetector(Collider collider, ColliderType colliderType, LayerMask collisionLayers)
         {
             ICollisionDetector collisionDetector = Substitute.For<ICollisionDetector>();
             collisionDetector.ColliderType.Returns(colliderType);
@@ -112,7 +141,7 @@ namespace VE2.Core.Tests
         }
     }
 
-    public class PlayerInputContainerSetup
+    internal class PlayerInputContainerSetup
     {
         public static PlayerInputContainer PlayerInputContainerStub { get; private set; }
 
@@ -213,13 +242,15 @@ namespace VE2.Core.Tests
         [OneTimeSetUp] //This is done to remove the crazy Hierarchy of tests in the Unity Test Runner
         public void SetUpPlayerServiceOnce()
         {
-            LocalClientIDProviderSetup.MultiplayerSupportStubSetupOnce();
+            LocalClientIDWrapperSetup.LocalClientIDWrapperStubSetupOnce();
             InteractorSetup.InteractorStubSetupOnce();
             InteractorContainerSetup.InteractorContainerSetupOnce();
             RayCastProviderSetup.RayCastProviderStubSetupOnce();
             CollisionDetectorFactoryStubSetup.CollisionDetectorStubSetupOnce();
             PlayerPersistentDataHandlerSetup.PlayerPersistentDataHandlerStubSetupOnce();
             PlayerInputContainerSetup.SetupPlayerInputContainerStubWrapper();
+            LocalPlayerSyncableContainerSetup.LocalPlayerSyncableContainerStubSetupOnce();
+            GrabInteractableContainerSetup.GrabInteractableContainerStubSetupOnce();
         }
 
         [SetUp]
@@ -230,7 +261,9 @@ namespace VE2.Core.Tests
                 new PlayerConfig(),
                 InteractorContainerSetup.InteractorContainer,
                 PlayerPersistentDataHandlerSetup.PlayerPersistentDataHandlerStub,
-                LocalClientIDProviderSetup.LocalClientIDProviderStub,
+                LocalClientIDWrapperSetup.LocalClientIDWrapper,
+                LocalPlayerSyncableContainerSetup.LocalPlayerSyncableContainerStub,
+                GrabInteractableContainerSetup.GrabInteractableContainer,
                 PlayerInputContainerSetup.PlayerInputContainerStub,
                 RayCastProviderSetup.RaycastProviderStub, 
                 CollisionDetectorFactoryStubSetup.CollisionDetectorFactoryStub,

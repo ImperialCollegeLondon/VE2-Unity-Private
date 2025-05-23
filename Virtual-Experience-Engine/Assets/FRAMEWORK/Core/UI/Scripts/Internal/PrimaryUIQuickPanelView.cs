@@ -1,11 +1,11 @@
 using System;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 
 namespace VE2.Core.UI.Internal
 {
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     internal class PrimaryUIQuickPanelView : MonoBehaviour
     {
         [SerializeField] private GameObject _platformQuickPanelHolder;
