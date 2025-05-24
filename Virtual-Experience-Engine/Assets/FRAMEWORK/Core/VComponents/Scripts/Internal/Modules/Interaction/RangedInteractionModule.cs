@@ -8,20 +8,17 @@ using VE2.Core.VComponents.API;
 namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
-    internal class RangedInteractionConfig : BaseConfig
+    internal class RangedInteractionConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Space(5)]
         [Title("Ranged Interaction Settings")]
-        [PropertyOrder(0)]
-        [SerializeField] public float InteractionRange = 50;
+        [SerializeField, PropertyOrder(0)] public float InteractionRange = 50;
 
         [Space(5)]
-        [PropertyOrder(1)]
-        [SerializeField] public UnityEvent OnLocalHoverEnter = new();
+        [SerializeField, PropertyOrder(1)] public UnityEvent OnLocalHoverEnter = new();
 
-        [PropertyOrder(2)]
-        [EndGroup, SerializeField] public UnityEvent OnLocalHoverExit = new();
+        [EndGroup, SerializeField, PropertyOrder(2)] public UnityEvent OnLocalHoverExit = new();
     }
 
     internal class RangedInteractionModule : GeneralInteractionModule, IRangedInteractionModule

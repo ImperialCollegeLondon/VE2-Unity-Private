@@ -41,7 +41,7 @@ namespace VE2.Core.VComponents.Internal
     internal partial class V_ToggleActivatable : MonoBehaviour, IRangedInteractionModuleProvider, ICollideInteractionModuleProvider
     {
         internal ToggleActivatableConfig Config { get => _config; set { _config = value; }}
-        [SerializeField, HideLabel, IgnoreParent] private ToggleActivatableConfig _config = new();
+        [SerializeField, IgnoreParent] private ToggleActivatableConfig _config = new();
         [SerializeField, HideInInspector] private SingleInteractorActivatableState _state = new();
 
         #region Player Interfaces

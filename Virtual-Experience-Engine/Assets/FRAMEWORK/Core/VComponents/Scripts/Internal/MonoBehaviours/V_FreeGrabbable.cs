@@ -38,7 +38,7 @@ namespace VE2.Core.VComponents.Internal
     [ExecuteAlways]
     internal partial class V_FreeGrabbable : MonoBehaviour, IRangedGrabInteractionModuleProvider, IGrabbableRigidbody
     {
-        [SerializeField, HideLabel, IgnoreParent] private FreeGrabbableConfig _config = new();
+        [SerializeField, IgnoreParent] private FreeGrabbableConfig _config = new();
         [SerializeField, HideInInspector] private GrabbableState _state = new();
 
         #region Player Interfaces

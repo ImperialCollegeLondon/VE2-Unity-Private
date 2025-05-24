@@ -11,20 +11,12 @@ namespace VE2.Core.VComponents.Internal
     internal class ToggleActivatableConfig
     {
         [SerializeField, IgnoreParent] public ToggleActivatableStateConfig StateConfig = new();
-
-        [SerializeField, IgnoreParent] public ActivatableInteractionConfig ActivatableRangedInteractionConfig = new();
+        
+        [SerializeField, IgnoreParent] public CollisionClickInteractionConfig CollisionClickInteractionConfig = new();
+        [SerializeField, IndentArea(-1)] public RangedClickInteractionConfig RangedClickInteractionConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
         
         [SerializeField, IgnoreParent] public WorldStateSyncConfig SyncConfig = new();
-    }
-
-    [Serializable]
-    internal class ActivatableInteractionConfig : RangedInteractionConfig
-    {
-        [BeginGroup(Style = GroupStyle.Round, ApplyCondition = true)]
-        [Title("Activatable Ranged Interaction Settings")]
-        [SerializeField, IgnoreParent] public bool ActivateAtRangeInVR = true;
-        [SerializeField, IgnoreParent, EndGroup] public bool ActivateWithCollisionInVR= true;
     }
 
     internal class ToggleActivatableService
@@ -41,17 +33,13 @@ namespace VE2.Core.VComponents.Internal
         private readonly ColliderInteractionModule _ColliderInteractionModule;
         #endregion
 
-        public ToggleActivatableService(ToggleActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncableContainer worldStateSyncableContainer, 
+        public ToggleActivatableService(ToggleActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncableContainer worldStateSyncableContainer,
             ActivatableGroupsContainer activatableGroupsContainer, IClientIDWrapper localClientIdWrapper)
         {
             _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, activatableGroupsContainer, localClientIdWrapper);
 
-            _RangedClickInteractionModule = new(config.ActivatableRangedInteractionConfig, config.GeneralInteractionConfig, id, config.ActivatableRangedInteractionConfig.ActivateAtRangeInVR);
-
-            if(config.ActivatableRangedInteractionConfig.ActivateWithCollisionInVR)
-                _ColliderInteractionModule = new(config.GeneralInteractionConfig, id, CollideInteractionType.Hand);
-            else
-                _ColliderInteractionModule = new(config.GeneralInteractionConfig, id, CollideInteractionType.None);
+            _RangedClickInteractionModule = new(config.RangedClickInteractionConfig, config.GeneralInteractionConfig, id, config.RangedClickInteractionConfig.ClickAtRangeInVR);
+            _ColliderInteractionModule = new(config.CollisionClickInteractionConfig, config.GeneralInteractionConfig, id);
 
             _RangedClickInteractionModule.OnClickDown += HandleInteract;
             _ColliderInteractionModule.OnCollideEnter += HandleInteract;
@@ -69,7 +57,7 @@ namespace VE2.Core.VComponents.Internal
             _StateModule.ToggleActivatableState(interactorID.ClientID);
         }
 
-        public void TearDown() 
+        public void TearDown()
         {
             _StateModule.TearDown();
         }

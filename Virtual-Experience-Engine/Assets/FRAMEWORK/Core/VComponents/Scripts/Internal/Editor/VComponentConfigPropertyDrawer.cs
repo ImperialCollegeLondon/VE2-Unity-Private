@@ -8,16 +8,13 @@ using Toolbox.Editor.Drawers;
 
 namespace VE2.Core.VComponents.Internal
 {
-    public class OrderedTargetTypeDrawer : ToolboxTargetTypeDrawer
+    public abstract class OrderedTargetTypeDrawer : ToolboxTargetTypeDrawer
     {
-        public OrderedTargetTypeDrawer()
-        {
-            Debug.Log($"OrderedTargetTypeDrawer constructor called");
-        }
+        public OrderedTargetTypeDrawer() { }
 
         public override void OnGui(SerializedProperty property, GUIContent label)
         {
-            Debug.Log($"Hello???");
+            //Debug.Log($"Hello???");
 
             if (!property.isExpanded)
             {
@@ -91,8 +88,11 @@ namespace VE2.Core.VComponents.Internal
         }
 
         //These are Toolbox's way of implementing [CustomPropertyDrawer(typeof(object), true)]
-        public override System.Type GetTargetType() => typeof(RangedAdjustableInteractionConfig);
+        // public override System.Type GetTargetType() => throw new System.NotImplementedException();
+        public override System.Type GetTargetType() => TargetType;
         public override bool UseForChildren() => true;
+
+        protected abstract System.Type TargetType { get; }
 
         private struct OrderedProperty
         {
@@ -106,4 +106,23 @@ namespace VE2.Core.VComponents.Internal
             }
         }
     }
+
+    #region Property Drawer Implementations
+    //NOTE, each of these drawers must be added to the ToolboxEditorSettings' TargetTypeDrawers list
+
+    public class RangedAdjustableInteractionConfigDrawer : OrderedTargetTypeDrawer
+    {
+        protected override System.Type TargetType => typeof(RangedAdjustableInteractionConfig);
+    }
+
+    public class RangedFreeGrabInteractionConfigDrawer : OrderedTargetTypeDrawer
+    {
+        protected override System.Type TargetType => typeof(RangedFreeGrabInteractionConfig);
+    }
+
+    public class RangedClickInteractionConfigDrawer : OrderedTargetTypeDrawer
+    {
+        protected override System.Type TargetType => typeof(RangedClickInteractionConfig);
+    }
+    #endregion
 }

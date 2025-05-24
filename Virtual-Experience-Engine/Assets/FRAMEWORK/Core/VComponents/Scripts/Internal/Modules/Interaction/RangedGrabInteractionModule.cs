@@ -12,7 +12,7 @@ namespace VE2.Core.VComponents.Internal
     internal class RangedGrabInteractionConfig : RangedInteractionConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
-        [Title("Grab Interaction Settings", ApplyCondition = true)]
+        [Title("Ranged Grab Interaction Settings", ApplyCondition = true)]
         [SerializeField, PropertyOrder(-10)] public Transform AttachPoint = null;
         [SerializeField, PropertyOrder(-9)] public bool VrFailsafeGrab = true;
         [SerializeField, PropertyOrder(-8), ShowIf(nameof(VrFailsafeGrab), true)] public float VRRaySnapRange = 0.15f;
