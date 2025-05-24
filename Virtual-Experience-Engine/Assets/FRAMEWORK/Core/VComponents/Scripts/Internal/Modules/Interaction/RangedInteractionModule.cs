@@ -13,11 +13,14 @@ namespace VE2.Core.VComponents.Internal
         [BeginGroup(Style = GroupStyle.Round)]
         [Space(5)]
         [Title("Ranged Interaction Settings")]
+        [PropertyOrder(0)]
         [SerializeField] public float InteractionRange = 50;
 
         [Space(5)]
+        [PropertyOrder(1)]
         [SerializeField] public UnityEvent OnLocalHoverEnter = new();
 
+        [PropertyOrder(2)]
         [EndGroup, SerializeField] public UnityEvent OnLocalHoverExit = new();
     }
 

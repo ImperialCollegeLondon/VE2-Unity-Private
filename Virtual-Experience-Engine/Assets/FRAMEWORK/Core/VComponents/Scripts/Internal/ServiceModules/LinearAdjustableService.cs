@@ -30,7 +30,7 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField, IgnoreParent] public SpatialAdjustableServiceConfig LinearAdjustableServiceConfig = new();
         [SerializeField, IgnoreParent] public GrabbableStateConfig GrabbableStateConfig = new();
 
-        [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public RangedAdjustableInteractionConfig rangedAdjustableConfig = new();
+        [SpaceArea(spaceAfter: 10), SerializeField, IndentArea(-1)] public RangedAdjustableInteractionConfig rangedAdjustableConfig = new();
         [SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
         
         [SerializeField, IgnoreParent] public WorldStateSyncConfig SyncConfig = new();
