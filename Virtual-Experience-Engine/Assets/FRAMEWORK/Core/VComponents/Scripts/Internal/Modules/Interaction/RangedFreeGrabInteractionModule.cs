@@ -14,20 +14,20 @@ namespace VE2.Core.VComponents.Internal
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Space(5)]
-        [Title("Ranged Free Grab Interaction Settings")]
-        [SerializeField] public DropBehaviour dropBehaviour = new();
+        [Title("Ranged Free Grab Interaction Settings", ApplyCondition = true)]
+        [SerializeField, PropertyOrder(-100)] public DropBehaviour dropBehaviour = new();
 
-        [SerializeField] public bool PreserveInspectModeOrientation = false;
-
-        [Space(5)]
-        [SerializeField] public bool AlignOrientationOnGrab = false;
+        [SerializeField, PropertyOrder(-99)] public bool PreserveInspectModeOrientation = false;
 
         [Space(5)]
-        public UnityEvent OnInspectModeEnter;
+        [SerializeField, PropertyOrder(-98)] public bool AlignOrientationOnGrab = false;
+
+        [Space(5)]
+        [SerializeField, PropertyOrder(-97)]public UnityEvent OnInspectModeEnter;
 
         [Space(5)]
         [EndGroup]
-        public UnityEvent OnInspectModeExit;
+        [SerializeField, PropertyOrder(-96)]public UnityEvent OnInspectModeExit;
     }
     
     internal class RangedFreeGrabInteractionModule : RangedGrabInteractionModule, IRangedFreeGrabInteractionModule

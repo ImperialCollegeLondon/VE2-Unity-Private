@@ -11,7 +11,8 @@ namespace VE2.Core.VComponents.Internal
     {
         [SerializeField, IgnoreParent] public HoldActivatableStateConfig StateConfig = new();
 
-        [SerializeField, IgnoreParent] public ActivatableInteractionConfig ActivatableRangedInteractionConfig = new();
+        [SerializeField, IgnoreParent] public CollisionClickInteractionConfig CollisionClickInteractionConfig = new();
+        [SerializeField, IndentArea(-1)] public RangedClickInteractionConfig ActivatableRangedInteractionConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
 
         //Note, no WorldStateSyncConfig here, as this is not a syncable state, syncinmg happens through the player
@@ -34,12 +35,9 @@ namespace VE2.Core.VComponents.Internal
         public HoldActivatableService(HoldActivatableConfig config, MultiInteractorActivatableState state, string id, IClientIDWrapper localClientIdWrapper)
         {
             _StateModule = new(state, config.StateConfig, id, localClientIdWrapper);
-            _RangedHoldClickInteractionModule = new(config.ActivatableRangedInteractionConfig, config.GeneralInteractionConfig, id, config.ActivatableRangedInteractionConfig.ActivateAtRangeInVR);
 
-            if(config.ActivatableRangedInteractionConfig.ActivateWithCollisionInVR)
-                _ColliderInteractionModule = new(config.GeneralInteractionConfig, id, CollideInteractionType.Hand);
-            else
-                _ColliderInteractionModule = new(config.GeneralInteractionConfig, id, CollideInteractionType.None);
+            _RangedHoldClickInteractionModule = new(config.ActivatableRangedInteractionConfig, config.GeneralInteractionConfig, id, config.ActivatableRangedInteractionConfig.ClickAtRangeInVR);
+            _ColliderInteractionModule = new(config.CollisionClickInteractionConfig, config.GeneralInteractionConfig, id);
 
             _RangedHoldClickInteractionModule.OnClickDown += AddToInteractingInteractors;
             _RangedHoldClickInteractionModule.OnClickUp += RemoveFromInteractingInteractors;

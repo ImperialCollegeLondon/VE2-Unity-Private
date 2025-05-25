@@ -14,7 +14,7 @@ namespace VE2.Core.VComponents.Internal
     {
         [SerializeField, IgnoreParent] public GrabbableStateConfig StateConfig = new();
 
-        [SerializeField, IgnoreParent] public RangedFreeGrabInteractionConfig RangedFreeGrabInteractionConfig = new();
+        [SerializeField, IndentArea(-1)] public RangedFreeGrabInteractionConfig RangedFreeGrabInteractionConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
         
         [SerializeField, IgnoreParent] public WorldStateSyncConfig SyncConfig = new();
