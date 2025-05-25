@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Events;
+using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 
@@ -15,7 +16,10 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField, IndentArea(-1)] public RangedClickInteractionConfig ActivatableRangedInteractionConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
 
-        //Note, no WorldStateSyncConfig here, as this is not a syncable state, syncinmg happens through the player
+        [HideIf(nameof(MultiplayerSupportPresent), false)]
+        [SerializeField] internal HoldActivatableNetworkIndicator SyncConfig = new HoldActivatableNetworkIndicator();
+
+        private bool MultiplayerSupportPresent => VE2API.HasMultiPlayerSupport;
     }
 
     internal class HoldActivatableService
@@ -36,8 +40,8 @@ namespace VE2.Core.VComponents.Internal
         {
             _StateModule = new(state, config.StateConfig, id, localClientIdWrapper);
 
-            _RangedHoldClickInteractionModule = new(config.ActivatableRangedInteractionConfig, config.GeneralInteractionConfig, id, config.ActivatableRangedInteractionConfig.ClickAtRangeInVR);
-            _ColliderInteractionModule = new(config.CollisionClickInteractionConfig, config.GeneralInteractionConfig, id);
+            _RangedHoldClickInteractionModule = new(config.ActivatableRangedInteractionConfig, config.GeneralInteractionConfig, config.SyncConfig, id, config.ActivatableRangedInteractionConfig.ClickAtRangeInVR);
+            _ColliderInteractionModule = new(config.CollisionClickInteractionConfig, config.GeneralInteractionConfig, config.SyncConfig, id);
 
             _RangedHoldClickInteractionModule.OnClickDown += AddToInteractingInteractors;
             _RangedHoldClickInteractionModule.OnClickUp += RemoveFromInteractingInteractors;

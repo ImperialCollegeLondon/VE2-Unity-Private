@@ -19,11 +19,19 @@ namespace VE2.Core.VComponents.Internal
 
         [EndGroup(Order = 1)]
         [SpaceArea(spaceAfter: 10, Order = -1), SerializeField] internal UnityEvent OnDeactivate = new();
+    }
 
+    [Serializable]
+    internal class HoldActivatableNetworkIndicator
+    {
         [BeginGroup(Style = GroupStyle.Round, ApplyCondition = true)]
         [Title("Sync Settings", ApplyCondition = true)]
         [EndGroup(ApplyCondition = true, Order = 5)]
-        [SerializeField] internal bool IsNetworked = true;
+        [Help("This component is syncronised through the player, and so will use the player's sync settings.")]
+        [SerializeField, DisableInPlayMode] public bool IsNetworked = true;
+
+        //Note, if we want this to be configurable at runtime, we'll need to add an event for the player to listen to 
+        //The player will need to remove the activatable from its list when becoming not networked, and vice versa
     }
 
     [Serializable]

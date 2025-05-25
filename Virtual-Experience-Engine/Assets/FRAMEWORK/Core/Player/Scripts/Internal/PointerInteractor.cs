@@ -171,10 +171,12 @@ namespace VE2.Core.Player.Internal
             {
                 previousHoveringInteractable.ExitHover(_InteractorID);
 
-                if (previousHoveringInteractable is IRangedHoldClickInteractionModule previousRangedClickInteractable && _heldActivatableIDs.Contains(previousRangedClickInteractable.ID))
+                if (previousHoveringInteractable is IRangedHoldClickInteractionModule previousHoldClickInteractable && _heldActivatableIDs.Contains(previousHoldClickInteractable.ID))
                 {
-                    previousRangedClickInteractable.ClickUp(_InteractorID);
-                    _heldActivatableIDs.Remove(previousRangedClickInteractable.ID);
+                    previousHoldClickInteractable.ClickUp(_InteractorID);
+
+                    if (previousHoldClickInteractable.IsNetworked)
+                        _heldActivatableIDs.Remove(previousHoldClickInteractable.ID);
                 }
             }
 
@@ -371,7 +373,7 @@ namespace VE2.Core.Player.Internal
                 rangedClickInteractable.ClickDown(_InteractorID);
                 _CurrentHoveringInteractable = rangedClickInteractable;
 
-                if (rangedClickInteractable is IRangedHoldClickInteractionModule)
+                if (rangedClickInteractable is IRangedHoldClickInteractionModule holdClickInteractable && holdClickInteractable.IsNetworked)
                     _heldActivatableIDs.Add(rangedClickInteractable.ID);
             }
             else if (raycastResultWrapper.HitUIButton && raycastResultWrapper.UIButton.IsInteractable())
@@ -388,7 +390,9 @@ namespace VE2.Core.Player.Internal
             if (_CurrentHoveringClickInteractable != null && _CurrentHoveringClickInteractable is IRangedHoldClickInteractionModule _CurrentHoveringHoldClickInteractable)
             {
                 _CurrentHoveringHoldClickInteractable.ClickUp(_InteractorID);
-                _heldActivatableIDs.Remove(_CurrentHoveringHoldClickInteractable.ID);
+
+                if (_CurrentHoveringHoldClickInteractable.IsNetworked)
+                    _heldActivatableIDs.Remove(_CurrentHoveringHoldClickInteractable.ID);
             }
         }
 

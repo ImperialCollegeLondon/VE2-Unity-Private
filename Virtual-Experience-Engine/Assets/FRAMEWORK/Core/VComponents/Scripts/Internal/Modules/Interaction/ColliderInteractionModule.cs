@@ -14,6 +14,8 @@ namespace VE2.Core.VComponents.Internal
 
     internal class ColliderInteractionModule : GeneralInteractionModule, ICollideInteractionModule
     {
+        public bool IsNetworked => _syncConfig.IsNetworked;
+
         public event Action<InteractorID> OnCollideEnter;
         public event Action<InteractorID> OnCollideExit;
         public CollideInteractionType CollideInteractionType => _collideInteractionType;
@@ -23,19 +25,22 @@ namespace VE2.Core.VComponents.Internal
 
         public string ID { get; }
         private CollideInteractionType _collideInteractionType;
+        private readonly HoldActivatableNetworkIndicator _syncConfig;
 
-        public ColliderInteractionModule(CollisionClickInteractionConfig collClickConfig, GeneralInteractionConfig generalConfig, string id) : base(generalConfig)
+        public ColliderInteractionModule(CollisionClickInteractionConfig collClickConfig, GeneralInteractionConfig generalConfig, HoldActivatableNetworkIndicator syncConfig, string id) : base(generalConfig)
         {
             ID = id;
             _collideInteractionType = collClickConfig.ClickWithCollisionInVR
                  ? CollideInteractionType.Hand
                  : CollideInteractionType.None;
+            _syncConfig = syncConfig;
         }
 
-        public ColliderInteractionModule(CollideInteractionType collideInteractionType, GeneralInteractionConfig generalConfig, string id) : base(generalConfig)
+        public ColliderInteractionModule(CollideInteractionType collideInteractionType, GeneralInteractionConfig generalConfig, HoldActivatableNetworkIndicator syncConfig, string id) : base(generalConfig)
         {
             ID = id;
             _collideInteractionType = collideInteractionType;
+            _syncConfig = syncConfig;
         }
     }
 }

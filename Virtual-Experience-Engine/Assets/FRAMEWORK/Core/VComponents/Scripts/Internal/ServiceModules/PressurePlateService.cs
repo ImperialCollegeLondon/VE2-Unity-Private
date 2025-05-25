@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 namespace VE2.Core.VComponents.Internal
@@ -11,7 +12,10 @@ namespace VE2.Core.VComponents.Internal
 
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
 
-        //Note, no WorldStateSyncConfig here, as this is not a syncable state, syncing happens through the player
+        [HideIf(nameof(MultiplayerSupportPresent), false)]
+        [SerializeField] internal HoldActivatableNetworkIndicator SyncConfig = new HoldActivatableNetworkIndicator();
+
+        private bool MultiplayerSupportPresent => VE2API.HasMultiPlayerSupport;
     }
     
     internal class PressurePlateService
@@ -29,7 +33,7 @@ namespace VE2.Core.VComponents.Internal
         public PressurePlateService(PressurePlateConfig config, MultiInteractorActivatableState state, string id, IClientIDWrapper localClientIdWrapper)
         {
             _StateModule = new(state, config.StateConfig, id, localClientIdWrapper);
-            _ColliderInteractionModule = new(CollideInteractionType.Feet, config.GeneralInteractionConfig, id);
+            _ColliderInteractionModule = new(CollideInteractionType.Feet, config.GeneralInteractionConfig, config.SyncConfig, id);
 
             _ColliderInteractionModule.OnCollideEnter += AddToInteractingInteractors;
             _ColliderInteractionModule.OnCollideExit += RemoveFromInteractingInteractors;

@@ -43,7 +43,15 @@ namespace VE2.Core.VComponents.Internal
             _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, activatableGroupsContainer, localClientIdWrapper);
 
             _RangedClickInteractionModule = new(config.RangedClickInteractionConfig, config.GeneralInteractionConfig, id, config.RangedClickInteractionConfig.ClickAtRangeInVR);
-            _ColliderInteractionModule = new(config.CollisionClickInteractionConfig, config.GeneralInteractionConfig, id);
+
+            /*
+                What's the deal here...?
+                Toggle activatables should probably use a "ToggleCollisionInteractionModule" instead of a "ColliderInteractionModule",
+                That way, we wont worry about the interactor storing that coll interface in its list of held interactables...
+                that held activatables list is for syncing, toggle activatables sync through their state module!
+
+            */
+            _ColliderInteractionModule = new(config.CollisionClickInteractionConfig, config.GeneralInteractionConfig, config.SyncConfig, id);
 
             _RangedClickInteractionModule.OnClickDown += HandleInteract;
             _ColliderInteractionModule.OnCollideEnter += HandleInteract;
