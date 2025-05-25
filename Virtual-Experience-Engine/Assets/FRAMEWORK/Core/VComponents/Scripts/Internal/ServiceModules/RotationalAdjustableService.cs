@@ -19,7 +19,10 @@ namespace VE2.Core.VComponents.Internal
         [SpaceArea(spaceAfter: 10), SerializeField, IndentArea(-1)] public RangedAdjustableInteractionConfig rangedAdjustableInteractionConfig = new();
         [SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
 
+        [HideIf(nameof(MultiplayerSupportPresent), false)]
         [SerializeField, IgnoreParent] public WorldStateSyncConfig SyncConfig = new();
+
+        private bool MultiplayerSupportPresent => VE2API.HasMultiPlayerSupport;
     }
 
     internal class RotationalAdjustableService

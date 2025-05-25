@@ -8,19 +8,19 @@ using static VE2.Common.Shared.CommonSerializables;
 namespace VE2.Core.VComponents.Shared
 {
     [Serializable]
-    internal class WorldStateSyncConfig 
+    internal class WorldStateSyncConfig
     {
         [BeginGroup(Style = GroupStyle.Round, ApplyCondition = true)]
         [Title("Sync Settings", ApplyCondition = true)]
-        [HideIf("MultiplayerSupportPresent", false)]
         [SerializeField] public bool IsNetworked = true;
 
-        [HideIf("MultiplayerSupportPresent", false)]
+        [IgnoreParent]
         [DisableIf(nameof(IsNetworked), false)]
-        [EndGroup(ApplyCondition = true, Order = 5)]
-        [SpaceArea(spaceAfter: 10, Order = -1), SerializeField, IgnoreParent] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new(TransmissionProtocol.UDP, 1);
+        [Suffix("Hz"), Range(0.2f, 50f)]
+        [SerializeField] public float TransmissionFrequency = 1;
 
-        public bool MultiplayerSupportPresent => VE2API.HasMultiPlayerSupport;
+        [DisableIf(nameof(IsNetworked), false)]
+        [SerializeField, EndGroup] public TransmissionProtocol TransmissionType;
     }
 
     //Note - this lives here so other packages can use it
@@ -33,8 +33,8 @@ namespace VE2.Core.VComponents.Shared
         private bool _wasNetworkedLastFrame;
         public bool IsNetworked => _SyncConfig.IsNetworked;
 
-        public TransmissionProtocol TransmissionProtocol => _SyncConfig.RepeatedTransmissionConfig.TransmissionType;
-        public float TransmissionFrequency => _SyncConfig.RepeatedTransmissionConfig.TransmissionFrequency;
+        public TransmissionProtocol TransmissionProtocol => _SyncConfig.TransmissionType;
+        public float TransmissionFrequency => _SyncConfig.TransmissionFrequency;
 
         public string ID { get; private set; }
         public byte[] StateAsBytes { get => State.Bytes; set => UpdateBytes(value); }

@@ -17,7 +17,10 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField, IndentArea(-1)] public RangedFreeGrabInteractionConfig RangedFreeGrabInteractionConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
         
+        [HideIf(nameof(MultiplayerSupportPresent), false)]
         [SerializeField, IgnoreParent] public WorldStateSyncConfig SyncConfig = new();
+
+        private bool MultiplayerSupportPresent => VE2API.HasMultiPlayerSupport;
     }
 
     internal class FreeGrabbableService

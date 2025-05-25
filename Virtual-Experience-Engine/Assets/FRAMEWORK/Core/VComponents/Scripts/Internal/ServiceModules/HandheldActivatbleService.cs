@@ -4,6 +4,7 @@ using VE2.Core.VComponents.API;
 using static VE2.Common.Shared.CommonSerializables;
 using VE2.Common.Shared;
 using VE2.Core.VComponents.Shared;
+using VE2.Common.API;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -14,7 +15,10 @@ namespace VE2.Core.VComponents.Internal
 
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
         
+        [HideIf(nameof(MultiplayerSupportPresent), false)]
         [SerializeField, IgnoreParent] public WorldStateSyncConfig SyncConfig = new();
+
+        private bool MultiplayerSupportPresent => VE2API.HasMultiPlayerSupport;
     }
     internal class HandheldActivatableService
     {
