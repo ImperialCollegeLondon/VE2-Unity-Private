@@ -11,7 +11,7 @@ using static VE2.Common.Shared.CommonSerializables;
 namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
-    internal class ToggleActivatableStateConfig : BaseWorldStateConfig
+    internal class ToggleActivatableStateConfig
     {
         [Title("Activation State", ApplyCondition = true, Order = -50)]
         [BeginGroup(Style = GroupStyle.Round, ApplyCondition = false)]
@@ -48,8 +48,8 @@ namespace VE2.Core.VComponents.Internal
 
     internal class SingleInteractorActivatableStateModule : BaseWorldStateModule, ISingleInteractorActivatableStateModule
     {
-        public UnityEvent OnActivate => _config.OnActivate;
-        public UnityEvent OnDeactivate => _config.OnDeactivate;
+        public UnityEvent OnActivate => _toggleActivatableStateConfig.OnActivate;
+        public UnityEvent OnDeactivate => _toggleActivatableStateConfig.OnDeactivate;
         public bool IsActivated { get => _state.IsActivated; }
         public IClientIDWrapper MostRecentInteractingClientID => _state.MostRecentInteractingClientID == ushort.MaxValue ? null : 
             new ClientIDWrapper(_state.MostRecentInteractingClientID, _state.MostRecentInteractingClientID == _localClientIdWrapper.Value);
@@ -60,23 +60,23 @@ namespace VE2.Core.VComponents.Internal
         {
             if (newIsActivated != _state.IsActivated)
                 ToggleActivatableState(ushort.MaxValue);
-            // else
-            //     Debug.LogWarning($"Tried to set activated state on {ID} to {newIsActivated} but state is already {_state.IsActivated}");
         }
 
         private string _activationGroupID = "None";
         private bool _isInActivationGroup = false;
         private SingleInteractorActivatableState _state => (SingleInteractorActivatableState)State;
-        private ToggleActivatableStateConfig _config => (ToggleActivatableStateConfig)Config;
 
 
+        private readonly ToggleActivatableStateConfig _toggleActivatableStateConfig;
         private readonly ActivatableGroupsContainer _activatableGroupsContainer;
         private readonly IClientIDWrapper _localClientIdWrapper;
 
-        public SingleInteractorActivatableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncableContainer worldStateSyncableContainer, 
-            ActivatableGroupsContainer activatableGroupsContainer, IClientIDWrapper localClientIdWrapper) : base(state, config, id, worldStateSyncableContainer)
+        public SingleInteractorActivatableStateModule(VE2Serializable state, ToggleActivatableStateConfig toggleActivatableStateConfig, WorldStateSyncConfig syncConfig, string id, IWorldStateSyncableContainer worldStateSyncableContainer, 
+            ActivatableGroupsContainer activatableGroupsContainer, IClientIDWrapper localClientIdWrapper) : base(state, syncConfig, id, worldStateSyncableContainer)
         {
-            _activationGroupID = _config.ActivationGroupID;
+            _toggleActivatableStateConfig = toggleActivatableStateConfig;
+
+            _activationGroupID = toggleActivatableStateConfig.ActivationGroupID;
             _activatableGroupsContainer = activatableGroupsContainer;
             if (_activationGroupID != "None")
             {
@@ -89,15 +89,7 @@ namespace VE2.Core.VComponents.Internal
             }
 
             _localClientIdWrapper = localClientIdWrapper;
-            _config.InspectorDebug.OnDebugUpdateStatePressed += (bool newState) => SetActivated(newState);
-        }
-
-        private void HandleExternalActivation(bool newIsActivated)
-        {
-            if (newIsActivated != _state.IsActivated)
-                ToggleActivatableState(ushort.MaxValue);
-            else
-                Debug.LogWarning($"Tried to set activated state on {ID} to {newIsActivated} but state is already {_state.IsActivated}");
+            toggleActivatableStateConfig.InspectorDebug.OnDebugUpdateStatePressed += (bool newState) => SetActivated(newState);
         }
 
         public void ToggleActivatableState(ushort clientID)
@@ -122,8 +114,8 @@ namespace VE2.Core.VComponents.Internal
         public void InvertState(ushort clientID)
         {
             _state.IsActivated = !_state.IsActivated;
-            _config.InspectorDebug.IsActivated = _state.IsActivated;
-            _config.InspectorDebug.ClientID = clientID;
+            _toggleActivatableStateConfig.InspectorDebug.IsActivated = _state.IsActivated;
+            _toggleActivatableStateConfig.InspectorDebug.ClientID = clientID;
 
             if (clientID != ushort.MaxValue)
                 _state.MostRecentInteractingClientID = clientID;
@@ -140,7 +132,7 @@ namespace VE2.Core.VComponents.Internal
         {
             try
             {
-                _config.OnActivate?.Invoke();
+                _toggleActivatableStateConfig.OnActivate?.Invoke();
             }
             catch (Exception e)
             {
@@ -152,7 +144,7 @@ namespace VE2.Core.VComponents.Internal
         {
             try
             {
-                _config.OnDeactivate?.Invoke();
+                _toggleActivatableStateConfig.OnDeactivate?.Invoke();
             }
             catch (Exception e)
             {

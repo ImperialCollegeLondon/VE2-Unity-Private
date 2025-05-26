@@ -10,7 +10,7 @@ using static VE2.Common.Shared.CommonSerializables;
 namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
-    internal class AdjustableStateConfig : BaseWorldStateConfig
+    internal class AdjustableStateConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Adjustable State Settings", ApplyCondition = true)]
@@ -46,39 +46,41 @@ namespace VE2.Core.VComponents.Internal
     {
         public float OutputValue => _state.Value;
         public void SetOutputValue(float newValue) => SetValue(newValue, ushort.MaxValue);
-        public UnityEvent<float> OnValueAdjusted => _config.OnValueAdjusted;
+        public UnityEvent<float> OnValueAdjusted => _adjustableStateConfig.OnValueAdjusted;
         public IClientIDWrapper MostRecentInteractingClientID => _state.MostRecentInteractingClientID == ushort.MaxValue ? null : 
             new ClientIDWrapper(_state.MostRecentInteractingClientID, _state.MostRecentInteractingClientID == _localClientIdWrapper.Value);
 
-        public float MinimumOutputValue { get => _config.MinimumOutputValue; set => _config.MinimumOutputValue = value; }
-        public float MaximumOutputValue { get => _config.MaximumOutputValue; set => _config.MaximumOutputValue = value; }
+        public float MinimumOutputValue { get => _adjustableStateConfig.MinimumOutputValue; set => _adjustableStateConfig.MinimumOutputValue = value; }
+        public float MaximumOutputValue { get => _adjustableStateConfig.MaximumOutputValue; set => _adjustableStateConfig.MaximumOutputValue = value; }
         private AdjustableState _state => (AdjustableState)State;
-        private AdjustableStateConfig _config => (AdjustableStateConfig)Config;
 
         internal float Range => (MaximumOutputValue - MinimumOutputValue) + 1;
-        internal bool IsAtMinimumValue => OutputValue == _config.MinimumOutputValue;
-        internal bool IsAtMaximumValue => OutputValue == _config.MaximumOutputValue;
+        internal bool IsAtMinimumValue => OutputValue == _adjustableStateConfig.MinimumOutputValue;
+        internal bool IsAtMaximumValue => OutputValue == _adjustableStateConfig.MaximumOutputValue;
 
         internal event Action<float> OnValueChangedInternal;
 
+        private readonly AdjustableStateConfig _adjustableStateConfig;
         private readonly IClientIDWrapper _localClientIdWrapper;
 
-        public AdjustableStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncableContainer worldStateSyncableContainer, IClientIDWrapper localClientIdWrapper) 
-            : base(state, config, id, worldStateSyncableContainer)
+        public AdjustableStateModule(VE2Serializable state, AdjustableStateConfig adjustableStateConfig, WorldStateSyncConfig syncConfig, string id, IWorldStateSyncableContainer worldStateSyncableContainer, IClientIDWrapper localClientIdWrapper) 
+            : base(state, syncConfig, id, worldStateSyncableContainer)
         {
-            if (_config.EmitValueOnStart)
+            _adjustableStateConfig = adjustableStateConfig;
+
+            if (_adjustableStateConfig.EmitValueOnStart)
                 InvokeOnValueAdjustedEvents(_state.Value);
 
-            _config.InspectorDebug.OnDebugUpdateStatePressed += SetOutputValue;
-            _config.InspectorDebug.Value = _state.Value;
-            _config.InspectorDebug.ClientID = _state.MostRecentInteractingClientID;
+            _adjustableStateConfig.InspectorDebug.OnDebugUpdateStatePressed += SetOutputValue;
+            _adjustableStateConfig.InspectorDebug.Value = _state.Value;
+            _adjustableStateConfig.InspectorDebug.ClientID = _state.MostRecentInteractingClientID;
 
             _localClientIdWrapper = localClientIdWrapper;
         }
 
         public void SetValue(float value, ushort clientID)
         {   
-            if (value < _config.MinimumOutputValue || value > _config.MaximumOutputValue)
+            if (value < _adjustableStateConfig.MinimumOutputValue || value > _adjustableStateConfig.MaximumOutputValue)
             {
                 Debug.LogError($"Value ({value}) is beyond limits");
                 return;
@@ -91,8 +93,8 @@ namespace VE2.Core.VComponents.Internal
 
             _state.StateChangeNumber++;
 
-            _config.InspectorDebug.Value = _state.Value;
-            _config.InspectorDebug.ClientID = _state.MostRecentInteractingClientID;
+            _adjustableStateConfig.InspectorDebug.Value = _state.Value;
+            _adjustableStateConfig.InspectorDebug.ClientID = _state.MostRecentInteractingClientID;
 
             InvokeOnValueAdjustedEvents(_state.Value);
         }

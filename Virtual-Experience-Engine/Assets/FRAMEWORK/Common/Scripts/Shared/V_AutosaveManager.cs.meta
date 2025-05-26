@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Virtual-Experience-Engine/Assets/FRAMEWORK/Non-Core/Instancing/Scripts/Tests/EditModeTests/InstantMessageHandlerTests.cs.meta
+guid: 88f3a02c3aa0fd44f9f669931bcc4e16
+========
 guid: 51233b46e6e04214ba3824b98b9c4bf9
+>>>>>>>> Fred/HoldActivatableRework:Virtual-Experience-Engine/Assets/FRAMEWORK/Common/Scripts/Shared/V_AutosaveManager.cs.meta
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2

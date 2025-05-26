@@ -34,7 +34,7 @@ namespace VE2.Core.VComponents.Tests
             {
                 StateConfig = stateConfig,
                 GeneralInteractionConfig = new(),
-                ActivatableRangedInteractionConfig = new()
+                RangedClickInteractionConfig = new()
             };
             ToggleActivatableService toggleActivatable = new(
                 config,
@@ -98,7 +98,7 @@ namespace VE2.Core.VComponents.Tests
             {
                 StateConfig = stateConfig,
                 GeneralInteractionConfig = new(),
-                ActivatableRangedInteractionConfig = new()
+                RangedClickInteractionConfig = new()
             };
             ToggleActivatableService toggleActivatable2 = new(
                 config,

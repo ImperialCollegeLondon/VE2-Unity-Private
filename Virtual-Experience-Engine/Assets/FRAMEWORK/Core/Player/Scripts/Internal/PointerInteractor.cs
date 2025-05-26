@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using VE2.Common.API;
@@ -46,12 +47,11 @@ namespace VE2.Core.Player.Internal
     internal abstract class PointerInteractor : IInteractor
     {
         public Transform GrabberTransform => _GrabberTransform;
-        public List<string> HeldActivatableIDs { get => _heldActivatableIDs; set => _heldActivatableIDs = value; }
+        public IReadOnlyList<string> HeldNetworkedActivatableIDs => _heldActivatableIDsAgainstNetworkFlags.Where(kvp => kvp.Value).Select(kvp => kvp.Key).ToList();
 
         protected bool IsCurrentlyGrabbing => _CurrentGrabbingGrabbable != null;
         protected InteractorID _InteractorID => _LocalClientIDWrapper.IsClientIDReady ? new InteractorID(_LocalClientIDWrapper.Value, _InteractorType) : null;
-        protected List<string> _heldActivatableIDs = new();
-
+        protected readonly Dictionary<string, bool> _heldActivatableIDsAgainstNetworkFlags = new();
         protected const float MAX_RAYCAST_DISTANCE = 10;
         protected const float MAX_SPHERECAST_RADIUS = 10;
         protected IRangedInteractionModule _CurrentHoveringInteractable;
@@ -64,6 +64,7 @@ namespace VE2.Core.Player.Internal
         private readonly HandInteractorContainer _interactorContainer;
         private readonly IGrabInteractablesContainer _grabInteractablesContainer;
         private readonly InteractorInputContainer _interactorInputContainer;
+
         private readonly LayerMask _raycastLayerMask;
 
         protected readonly Transform _interactorParentTransform;
@@ -81,7 +82,6 @@ namespace VE2.Core.Player.Internal
 
         //TODO - this can probably live just in InteractorVR... is there any reason the 2d interactor needs this? Think its just for teleporting?
         internal readonly FreeGrabbableWrapper GrabbableWrapper;
-
         private readonly HoveringOverScrollableIndicator _hoveringOverScrollableIndicator;
 
         internal PointerInteractor(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, InteractorInputContainer interactorInputContainer, PlayerInteractionConfig interactionConfig,
@@ -120,7 +120,7 @@ namespace VE2.Core.Player.Internal
             _interactorInputContainer.ScrollTickUp.OnTickOver += HandleScrollUp;
             _interactorInputContainer.ScrollTickDown.OnTickOver += HandleScrollDown;
 
-            _heldActivatableIDs = new();
+            _heldActivatableIDsAgainstNetworkFlags.Clear();
 
             if (!_LocalClientIDWrapper.IsClientIDReady)
                 _LocalClientIDWrapper.OnClientIDReady += HandleLocalClientIDReady;
@@ -137,7 +137,7 @@ namespace VE2.Core.Player.Internal
             _interactorInputContainer.ScrollTickUp.OnTickOver -= HandleScrollUp;
             _interactorInputContainer.ScrollTickDown.OnTickOver -= HandleScrollDown;
 
-            _heldActivatableIDs = new();
+            _heldActivatableIDsAgainstNetworkFlags.Clear();
 
             _LocalClientIDWrapper.OnClientIDReady -= HandleLocalClientIDReady;
             _interactorContainer?.DeregisterInteractor(_InteractorID.ToString());
@@ -149,7 +149,7 @@ namespace VE2.Core.Player.Internal
             _interactorContainer.RegisterInteractor(_InteractorID.ToString(), this);
         }
 
-        public void HandleUpdate()
+        public virtual void HandleUpdate()
         {
             RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
             RaycastResultWrapper sphereCastResultWrapper = GetSphereCastResult(); // for 2D interactor, this will be null
@@ -172,10 +172,10 @@ namespace VE2.Core.Player.Internal
             {
                 previousHoveringInteractable.ExitHover(_InteractorID);
 
-                if (previousHoveringInteractable is IRangedHoldClickInteractionModule previousRangedClickInteractable && _heldActivatableIDs.Contains(previousRangedClickInteractable.ID))
+                if (previousHoveringInteractable is IRangedHoldClickInteractionModule previousHoldClickInteractable && _heldActivatableIDsAgainstNetworkFlags.ContainsKey(previousHoldClickInteractable.ID))
                 {
-                    previousRangedClickInteractable.ClickUp(_InteractorID);
-                    _heldActivatableIDs.Remove(previousRangedClickInteractable.ID);
+                    previousHoldClickInteractable.ClickUp(_InteractorID);
+                    _heldActivatableIDsAgainstNetworkFlags.Remove(previousHoldClickInteractable.ID);
                 }
             }
 
@@ -192,7 +192,6 @@ namespace VE2.Core.Player.Internal
             if (IsCurrentlyGrabbing && _CurrentGrabbingGrabbable is IRangedAdjustableInteractionModule rangedAdjustableInteraction)
             {
                 _hoveringOverScrollableIndicator.IsHoveringOverScrollableObject = false;
-
                 _grabbableLineVisLineRenderer.startWidth = _grabbableLineVisLineRenderer.endWidth = 0.005f;
                 _grabbableLineVisLineRenderer.SetPosition(0, _GrabberVisualisationRayOrigin.position);
                 _grabbableLineVisLineRenderer.SetPosition(1, rangedAdjustableInteraction.Transform.position);
@@ -335,7 +334,7 @@ namespace VE2.Core.Player.Internal
 
         protected virtual void HandleRaycastDistance(Vector3 point) { } //TODO: Code smell? InteractorVR needs this to set the LineRenderer length
 
-        private RaycastResultWrapper GetRayCastResult()
+        protected RaycastResultWrapper GetRayCastResult()
         {
             if (_RayOrigin == null)
                 return null;
@@ -373,8 +372,8 @@ namespace VE2.Core.Player.Internal
                 rangedClickInteractable.ClickDown(_InteractorID);
                 _CurrentHoveringInteractable = rangedClickInteractable;
 
-                if (rangedClickInteractable is IRangedHoldClickInteractionModule)
-                    _heldActivatableIDs.Add(rangedClickInteractable.ID);
+                if (rangedClickInteractable is IRangedHoldClickInteractionModule rangedHoldClickInteractable)
+                    _heldActivatableIDsAgainstNetworkFlags.Add(rangedClickInteractable.ID, rangedHoldClickInteractable.IsNetworked);
             }
             else if (raycastResultWrapper.HitUIButton && raycastResultWrapper.UIButton.IsInteractable())
             {
@@ -390,7 +389,7 @@ namespace VE2.Core.Player.Internal
             if (_CurrentHoveringClickInteractable != null && _CurrentHoveringClickInteractable is IRangedHoldClickInteractionModule _CurrentHoveringHoldClickInteractable)
             {
                 _CurrentHoveringHoldClickInteractable.ClickUp(_InteractorID);
-                _heldActivatableIDs.Remove(_CurrentHoveringHoldClickInteractable.ID);
+                _heldActivatableIDsAgainstNetworkFlags.Remove(_CurrentHoveringHoldClickInteractable.ID);
             }
         }
 
@@ -398,6 +397,7 @@ namespace VE2.Core.Player.Internal
         {
             if (IsCurrentlyGrabbing)
             {
+                CheckForExitInspectMode();
                 IRangedGrabInteractionModule rangedGrabInteractableToDrop = _CurrentGrabbingGrabbable;
                 rangedGrabInteractableToDrop.RequestLocalDrop(_InteractorID);
             }
@@ -447,7 +447,10 @@ namespace VE2.Core.Player.Internal
             }
         }
 
+        protected virtual void CheckForExitInspectMode() { } //Do nothing, unless overridden by 2d interactor
+
         public void ConfirmGrab(string id)
+
         {
             if (!_grabInteractablesContainer.GrabInteractables.TryGetValue(id, out IRangedGrabInteractionModule rangedGrabInteractable))
             {
@@ -504,11 +507,12 @@ namespace VE2.Core.Player.Internal
                 }
             }
         }
-
+        protected virtual void CheckForInspectModeOnScroll(bool scrollUp) { }
         private void HandleScrollUp()
         {
             if (IsCurrentlyGrabbing)
             {
+                CheckForInspectModeOnScroll(true);
                 foreach (IHandheldInteractionModule handheldInteraction in _CurrentGrabbingGrabbable.HandheldInteractions)
                 {
                     if (handheldInteraction is IHandheldScrollInteractionModule handheldScrollInteraction)
@@ -539,6 +543,7 @@ namespace VE2.Core.Player.Internal
         {
             if (IsCurrentlyGrabbing)
             {
+                CheckForInspectModeOnScroll(false);
                 foreach (IHandheldInteractionModule handheldInteraction in _CurrentGrabbingGrabbable.HandheldInteractions)
                 {
                     if (handheldInteraction is IHandheldScrollInteractionModule handheldScrollInteraction)
@@ -564,7 +569,6 @@ namespace VE2.Core.Player.Internal
                 }
             }
         }
-
 
         protected abstract void SetInteractorState(InteractorState newState);
 

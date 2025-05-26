@@ -11,7 +11,7 @@ namespace VE2.Core.Player.Internal
         public Transform GrabberTransform => _interactor.GrabberTransform;
 
         internal Transform Transform => _handGO.transform;
-        internal List<string> HeldActivatableIDs => _interactor.HeldActivatableIDs;
+        internal IReadOnlyList<string> HeldActivatableIDs => _interactor.HeldNetworkedActivatableIDs;
 
         private readonly GameObject _handGO;
         private readonly IValueInput<Vector3> _positionInput;

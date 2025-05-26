@@ -44,7 +44,7 @@ namespace VE2.Core.Player.Internal
 
         [Title("Transmission Settings", ApplyCondition = true)]
         [HideIf(nameof(_hasMultiplayerSupport), false)]
-        [SpaceArea(spaceAfter: 10), BeginGroup(Style = GroupStyle.Round, ApplyCondition = true), EndGroup(ApplyCondition = true), SerializeField, IgnoreParent] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new(TransmissionProtocol.UDP, 35);
+        [SpaceArea(spaceAfter: 10), BeginGroup(Style = GroupStyle.Round, ApplyCondition = true), EndGroup(ApplyCondition = true), SerializeField, IgnoreParent] public PlayerTransmissionConfig RepeatedTransmissionConfig = new(TransmissionProtocol.UDP, 35);
         
         private bool _hasMultiplayerSupport => VE2API.HasMultiPlayerSupport;
     }
@@ -97,6 +97,28 @@ namespace VE2.Core.Player.Internal
         [SerializeField] internal bool OverrideTorso = false;
         [SerializeField, EnableIf(nameof(OverrideTorso), true)] internal ushort TorsoOverrideIndex = 0;
         [SerializeField, ReorderableList] internal List<GameObject> TorsoOverrideGameObjects = new();
+    }
+
+    [Serializable]
+    internal class PlayerTransmissionConfig 
+    {
+        [Suffix("Hz")]
+        [Range(0.2f, 50f)]
+        [SerializeField] public float TransmissionFrequency = 1;
+
+        [SerializeField] public TransmissionProtocol TransmissionType;
+
+        public PlayerTransmissionConfig(TransmissionProtocol transmissionType, float transmissionFrequency)
+        {
+            TransmissionType = transmissionType;
+            TransmissionFrequency = transmissionFrequency;
+        }
+
+        protected virtual void OnValidate() //TODO - OnVlidate needs to come from VC
+        {
+            if (TransmissionFrequency > 1)
+                TransmissionFrequency = Mathf.RoundToInt(TransmissionFrequency);
+        }
     }
 
     [ExecuteAlways]

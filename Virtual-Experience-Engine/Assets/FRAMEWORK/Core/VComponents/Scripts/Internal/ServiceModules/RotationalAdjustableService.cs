@@ -4,6 +4,7 @@ using UnityEngine;
 using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
+using VE2.Core.VComponents.Shared;
 using static VE2.Common.Shared.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
@@ -11,12 +12,17 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class RotationalAdjustableConfig
     {
-        [SerializeField, IgnoreParent] public SpatialAdjustableServiceConfig RotationalAdjustableServiceConfig = new();
         [SerializeField, IgnoreParent] public AdjustableStateConfig AdjustableStateConfig = new();
+        [SerializeField, IgnoreParent] public SpatialAdjustableServiceConfig RotationalAdjustableServiceConfig = new();
         [SerializeField, IgnoreParent] public GrabbableStateConfig GrabbableStateConfig = new();
-        [SerializeField, IgnoreParent] public AdjustableInteractionConfig InteractionConfig = new();
-        [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfig = new();
+
+        [SpaceArea(spaceAfter: 10), SerializeField, IndentArea(-1)] public RangedAdjustableInteractionConfig rangedAdjustableInteractionConfig = new();
         [SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
+
+        [HideIf(nameof(MultiplayerSupportPresent), false)]
+        [SerializeField, IgnoreParent] public WorldStateSyncConfig SyncConfig = new();
+
+        private bool MultiplayerSupportPresent => VE2API.HasMultiPlayerSupport;
     }
 
     internal class RotationalAdjustableService
@@ -57,13 +63,13 @@ namespace VE2.Core.VComponents.Internal
         public RotationalAdjustableService(ITransformWrapper transformWrapper, List<IHandheldInteractionModule> handheldInteractions, RotationalAdjustableConfig config, VE2Serializable adjustableState, VE2Serializable grabbableState, string id,
             IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer, IClientIDWrapper localClientIdWrapper)
         {
-            ITransformWrapper transformToRotateWrapper = config.InteractionConfig.TransformToAdjust == null ? transformWrapper : new TransformWrapper(config.InteractionConfig.TransformToAdjust);
+            ITransformWrapper transformToRotateWrapper = config.rangedAdjustableInteractionConfig.TransformToAdjust == null ? transformWrapper : new TransformWrapper(config.rangedAdjustableInteractionConfig.TransformToAdjust);
 
             //get attach point transform if it exists, if null take the transform wrapper of the object itself
-            _attachPointTransform = config.InteractionConfig.AttachPoint == null ? transformToRotateWrapper : new TransformWrapper(config.InteractionConfig.AttachPoint);
+            _attachPointTransform = config.rangedAdjustableInteractionConfig.AttachPoint == null ? transformToRotateWrapper : new TransformWrapper(config.rangedAdjustableInteractionConfig.AttachPoint);
 
             //initialize module for ranged adjustable interaction (scrolling)
-            _RangedAdjustableInteractionModule = new(id, grabInteractablesContainer, _attachPointTransform, handheldInteractions, config.InteractionConfig, config.RangedInteractionConfig, config.GeneralInteractionConfig);
+            _RangedAdjustableInteractionModule = new(id, grabInteractablesContainer, _attachPointTransform, handheldInteractions, config.rangedAdjustableInteractionConfig, config.GeneralInteractionConfig);
 
             _incrementPerScrollTick = config.AdjustableStateConfig.IncrementPerScrollTick;
             _transformToRotateWrapper = transformToRotateWrapper;
@@ -79,8 +85,8 @@ namespace VE2.Core.VComponents.Internal
 
             //seperate modules for adjustable state and free grabbable state. Give the adjustable state module a different ID so it doesn't clash in the syncer with the grabbable state module
             //The Grabbable state module needs the same ID that is passed to the ranged adjustable interaction module, so the interactor can pull the module from the grab interactable container
-            _AdjustableStateModule = new(adjustableState, config.AdjustableStateConfig, $"ADJ-{id}", worldStateSyncableContainer, localClientIdWrapper);
-            _FreeGrabbableStateModule = new(grabbableState, config.GrabbableStateConfig, $"{id}", worldStateSyncableContainer, interactorContainer, localClientIdWrapper);
+            _AdjustableStateModule = new(adjustableState, config.AdjustableStateConfig, config.SyncConfig, $"ADJ-{id}", worldStateSyncableContainer, localClientIdWrapper);
+            _FreeGrabbableStateModule = new(grabbableState, config.GrabbableStateConfig, config.SyncConfig, $"{id}", worldStateSyncableContainer, interactorContainer, localClientIdWrapper);
 
             _RangedAdjustableInteractionModule.OnLocalInteractorRequestGrab += (InteractorID interactorID) => _FreeGrabbableStateModule.SetGrabbed(interactorID);
             _RangedAdjustableInteractionModule.OnLocalInteractorRequestDrop += (InteractorID interactorID) => _FreeGrabbableStateModule.SetDropped(interactorID);

@@ -38,7 +38,7 @@ namespace VE2.Core.VComponents.Internal
     [ExecuteAlways]
     internal partial class V_FreeGrabbable : MonoBehaviour, IRangedGrabInteractionModuleProvider, IGrabbableRigidbody
     {
-        [SerializeField, HideLabel, IgnoreParent] private FreeGrabbableConfig _config = new();
+        [SerializeField, IgnoreParent] private FreeGrabbableConfig _config = new();
         [SerializeField, HideInInspector] private GrabbableState _state = new();
 
         #region Player Interfaces
@@ -96,8 +96,8 @@ namespace VE2.Core.VComponents.Internal
 
         private void Awake()
         {
-            if (_config.InteractionConfig.AttachPoint == null)
-                _config.InteractionConfig.AttachPoint = transform;
+            if (_config.RangedFreeGrabInteractionConfig.AttachPoint == null)
+                _config.RangedFreeGrabInteractionConfig.AttachPoint = transform;
 
             if (Application.isPlaying)
                 return;

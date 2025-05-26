@@ -5,6 +5,7 @@ using UnityEngine;
 using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
+using VE2.Core.VComponents.Shared;
 using static VE2.Common.Shared.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
@@ -25,12 +26,17 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class LinearAdjustableConfig
     {
-        [SerializeField, IgnoreParent] public SpatialAdjustableServiceConfig LinearAdjustableServiceConfig = new();
         [SerializeField, IgnoreParent] public AdjustableStateConfig AdjustableStateConfig = new();
+        [SerializeField, IgnoreParent] public SpatialAdjustableServiceConfig LinearAdjustableServiceConfig = new();
         [SerializeField, IgnoreParent] public GrabbableStateConfig GrabbableStateConfig = new();
-        [SerializeField, IgnoreParent] public AdjustableInteractionConfig InteractionConfig = new();
-        [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfig = new();
+
+        [SpaceArea(spaceAfter: 10), SerializeField, IndentArea(-1)] public RangedAdjustableInteractionConfig rangedAdjustableConfig = new();
         [SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
+        
+        [HideIf(nameof(MultiplayerSupportPresent), false)]
+        [SerializeField, IgnoreParent] public WorldStateSyncConfig SyncConfig = new();
+
+        private bool MultiplayerSupportPresent => VE2API.HasMultiPlayerSupport;
     }
 
     [Serializable]
@@ -47,15 +53,6 @@ namespace VE2.Core.VComponents.Internal
         // [SerializeField] public bool SinglePressScroll = false;
         // [ShowIf("SinglePressScroll", false)]
         // [EndGroup, SerializeField] public float IncrementPerSecondVRStickHeld = 4;
-    }
-
-    [Serializable]
-    internal class AdjustableInteractionConfig : GrabInteractionConfig
-    {
-        [BeginGroup(Style = GroupStyle.Round)]
-        [Title("Adjustable Interaction Settings", ApplyCondition = true)]
-        [EndGroup]
-        [SerializeField] public Transform TransformToAdjust = null;
     }
 
     internal class LinearAdjustableService
@@ -89,13 +86,13 @@ namespace VE2.Core.VComponents.Internal
         public LinearAdjustableService(ITransformWrapper transformWrapper, List<IHandheldInteractionModule> handheldInteractions, LinearAdjustableConfig config, VE2Serializable adjustableState, VE2Serializable grabbableState, string id,
             IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer, IClientIDWrapper localClientIdWrapper)
         {
-            ITransformWrapper transformToTranslate = config.InteractionConfig.TransformToAdjust == null ? transformWrapper : new TransformWrapper(config.InteractionConfig.TransformToAdjust);
+            ITransformWrapper transformToTranslate = config.rangedAdjustableConfig.TransformToAdjust == null ? transformWrapper : new TransformWrapper(config.rangedAdjustableConfig.TransformToAdjust);
 
             //get attach point transform, if null, use the transform wrapper (the object itself)
-            _attachPointTransform = config.InteractionConfig.AttachPoint == null ? transformToTranslate : new TransformWrapper(config.InteractionConfig.AttachPoint);
+            _attachPointTransform = config.rangedAdjustableConfig.AttachPoint == null ? transformToTranslate : new TransformWrapper(config.rangedAdjustableConfig.AttachPoint);
 
             //initialize module for ranged adjustable interaction (scrolling)
-            _RangedAdjustableInteractionModule = new(id, grabInteractablesContainer, _attachPointTransform, handheldInteractions, config.InteractionConfig, config.RangedInteractionConfig, config.GeneralInteractionConfig);
+            _RangedAdjustableInteractionModule = new(id, grabInteractablesContainer, _attachPointTransform, handheldInteractions, config.rangedAdjustableConfig, config.GeneralInteractionConfig);
 
             _incrementPerScrollTick = config.AdjustableStateConfig.IncrementPerScrollTick;
             _transformToTranslate = transformToTranslate;
@@ -111,8 +108,8 @@ namespace VE2.Core.VComponents.Internal
 
             //seperate modules for adjustable state and free grabbable state. Give the adjustable state module a different ID so it doesn't clash in the syncer with the grabbable state module
             //The Grabbable state module needs the same ID that is passed to the ranged adjustable interaction module, so the interactor can pull the module from the grab interactable container
-            _AdjustableStateModule = new(adjustableState, config.AdjustableStateConfig, $"ADJ-{id}", worldStateSyncableContainer, localClientIdWrapper);
-            _GrabbableStateModule = new(grabbableState, config.GrabbableStateConfig, $"{id}", worldStateSyncableContainer, interactorContainer, localClientIdWrapper);
+            _AdjustableStateModule = new(adjustableState, config.AdjustableStateConfig, config.SyncConfig, $"ADJ-{id}", worldStateSyncableContainer, localClientIdWrapper);
+            _GrabbableStateModule = new(grabbableState, config.GrabbableStateConfig, config.SyncConfig, $"{id}", worldStateSyncableContainer, interactorContainer, localClientIdWrapper);
 
             _RangedAdjustableInteractionModule.OnLocalInteractorRequestGrab += (InteractorID interactorID) => _GrabbableStateModule.SetGrabbed(interactorID);
             _RangedAdjustableInteractionModule.OnLocalInteractorRequestDrop += (InteractorID interactorID) => _GrabbableStateModule.SetDropped(interactorID);

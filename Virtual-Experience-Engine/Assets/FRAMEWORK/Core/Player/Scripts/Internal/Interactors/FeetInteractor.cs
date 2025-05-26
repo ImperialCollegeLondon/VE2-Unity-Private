@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
@@ -7,12 +8,13 @@ namespace VE2.Core.Player.Internal
 {
     internal class FeetInteractor
     {
-        public List<string> HeldActivatableIDs => _heldActivatableIDs;
+        public IReadOnlyList<string> HeldNetworkedActivatableIDs => _heldActivatableIDsAgainstNetworkFlags.Where(kvp => kvp.Value).Select(kvp => kvp.Key).ToList();
 
-        private List<string> _heldActivatableIDs = new();
+
+        private readonly Dictionary<string, bool> _heldActivatableIDsAgainstNetworkFlags = new();
         private InteractorID _interactorID => _localClientIDWrapper.IsClientIDReady ? new InteractorID(_localClientIDWrapper.Value, _InteractorType) : null;
 
-        public ICollisionDetector _collisionDetector;
+        public readonly ICollisionDetector _collisionDetector;
         private readonly InteractorType _InteractorType;
         private readonly ILocalClientIDWrapper _localClientIDWrapper;
 
@@ -29,7 +31,7 @@ namespace VE2.Core.Player.Internal
             _collisionDetector.OnCollideStart += HandleCollideStart;
             _collisionDetector.OnCollideEnd += HandleCollideEnd;
 
-            _heldActivatableIDs = new();
+            _heldActivatableIDsAgainstNetworkFlags.Clear();
 
             if (!_localClientIDWrapper.IsClientIDReady)
                 _localClientIDWrapper.OnClientIDReady += HandleLocalClientIDReady;
@@ -42,7 +44,7 @@ namespace VE2.Core.Player.Internal
             _collisionDetector.OnCollideStart -= HandleCollideStart;
             _collisionDetector.OnCollideEnd -= HandleCollideEnd;
 
-            _heldActivatableIDs = new();
+            _heldActivatableIDsAgainstNetworkFlags.Clear();
 
             _localClientIDWrapper.OnClientIDReady -= HandleLocalClientIDReady;
         }
@@ -57,7 +59,9 @@ namespace VE2.Core.Player.Internal
             if (_localClientIDWrapper.IsClientIDReady && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Feet)
             {
                 collideInteractionModule.InvokeOnCollideEnter(_interactorID);
-                _heldActivatableIDs.Add(collideInteractionModule.ID);
+
+                if (collideInteractionModule.IsNetworked)
+                    _heldActivatableIDsAgainstNetworkFlags.Add(collideInteractionModule.ID, collideInteractionModule.IsNetworked);
             }
         }
 
@@ -66,7 +70,9 @@ namespace VE2.Core.Player.Internal
             if (_localClientIDWrapper.IsClientIDReady && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Feet)
             {
                 collideInteractionModule.InvokeOnCollideExit(_interactorID);
-                _heldActivatableIDs.Remove(collideInteractionModule.ID);
+
+                if (collideInteractionModule.IsNetworked)
+                    _heldActivatableIDsAgainstNetworkFlags.Remove(collideInteractionModule.ID);
             }
         }
     }

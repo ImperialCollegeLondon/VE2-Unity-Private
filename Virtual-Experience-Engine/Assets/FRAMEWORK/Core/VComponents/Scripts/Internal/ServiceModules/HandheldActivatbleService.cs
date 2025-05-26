@@ -3,6 +3,8 @@ using System;
 using VE2.Core.VComponents.API;
 using static VE2.Common.Shared.CommonSerializables;
 using VE2.Common.Shared;
+using VE2.Core.VComponents.Shared;
+using VE2.Common.API;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -10,7 +12,13 @@ namespace VE2.Core.VComponents.Internal
     internal class HandheldActivatableConfig
     {
         [SerializeField, IgnoreParent] public ToggleActivatableStateConfig StateConfig = new();
+
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
+        
+        [HideIf(nameof(MultiplayerSupportPresent), false)]
+        [SerializeField, IgnoreParent] public WorldStateSyncConfig SyncConfig = new();
+
+        private bool MultiplayerSupportPresent => VE2API.HasMultiPlayerSupport;
     }
     internal class HandheldActivatableService
     {
@@ -27,7 +35,7 @@ namespace VE2.Core.VComponents.Internal
         public HandheldActivatableService(HandheldActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncableContainer worldStateSyncableContainer, 
             ActivatableGroupsContainer activatableGroupsContainer, IClientIDWrapper localClientIdWrapper)
         {
-            _StateModule = new(state, config.StateConfig, id, worldStateSyncableContainer, activatableGroupsContainer, localClientIdWrapper);
+            _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, activatableGroupsContainer, localClientIdWrapper);
             _HandheldClickInteractionModule = new(config.GeneralInteractionConfig);
 
             _HandheldClickInteractionModule.OnClickDown += HandleInteract;

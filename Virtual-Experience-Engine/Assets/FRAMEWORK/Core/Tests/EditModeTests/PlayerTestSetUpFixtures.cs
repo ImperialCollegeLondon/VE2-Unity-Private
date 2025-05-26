@@ -148,12 +148,13 @@ namespace VE2.Core.Tests
         public static IPressableInput ChangeMode2D { get; private set; } = Substitute.For<IPressableInput>();
 
         // 2D player
-        public static IPressableInput InspectModeButton { get; private set; } = Substitute.For<IPressableInput>();
         public static IPressableInput RangedClick2D { get; private set; } = Substitute.For<IPressableInput>();
         public static IPressableInput Grab2D { get; private set; } = Substitute.For<IPressableInput>();
         public static IPressableInput HandheldClick2D { get; private set; } = Substitute.For<IPressableInput>();
+        public static IPressableInput InspectModeInput { get; private set; } = Substitute.For<IPressableInput>();
         public static IScrollInput ScrollTickUp2D { get; private set; } = Substitute.For<IScrollInput>();
         public static IScrollInput ScrollTickDown2D { get; private set; } = Substitute.For<IScrollInput>();
+        public static IValueInput<Vector2> MousePosition { get; private set; } = Substitute.For<IValueInput<Vector2>>();
 
         // VR reset
         public static IDelayedChargableInput ResetViewVR { get; private set; } = Substitute.For<IDelayedChargableInput>();
@@ -192,12 +193,13 @@ namespace VE2.Core.Tests
         {
             PlayerInputContainerStub = new PlayerInputContainer(
                 changeMode2D: ChangeMode2D,
-                inspectModeButton: InspectModeButton,
                 rangedClick2D: RangedClick2D,
                 grab2D: Grab2D,
                 handheldClick2D: HandheldClick2D,
+                inspectModeInput: InspectModeInput,
                 scrollTickUp2D: ScrollTickUp2D,
                 scrollTickDown2D: ScrollTickDown2D,
+                mouseDeltaInput: MousePosition,
                 resetViewVR: ResetViewVR,
                 handVRLeftPosition: HandVRLeftPosition,
                 handVRLeftRotation: HandVRLeftRotation,
