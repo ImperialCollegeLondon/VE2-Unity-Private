@@ -3,11 +3,12 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 
 namespace VE2.NonCore.Platform.Internal
 {
-    public class V_PlatformQuickUIView : MonoBehaviour
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
+    internal class V_PlatformQuickUIView : MonoBehaviour
     {
         [SerializeField] private TMP_Text _playerNameText;
 
@@ -22,7 +23,7 @@ namespace VE2.NonCore.Platform.Internal
         internal event Action OnBackToHubClicked;
         internal event Action OnToggleVoiceChatButtonClicked;
 
-        private ColorConfiguration _colorConfiguration;
+        private ColorConfiguration _colorConfiguration => ColorConfiguration.Instance;
 
         internal void SetPlayerNameText(string playerName) => _playerNameText.text = playerName;
 
@@ -51,7 +52,6 @@ namespace VE2.NonCore.Platform.Internal
         {
             _backToHubButton.onClick.AddListener(HandleBackToHubButtonClicked);
             _toggleVoiceChatButton.onClick.AddListener(HandleToggleVoiceChatButtonClicked);
-            _colorConfiguration = Resources.Load<ColorConfiguration>("ColorConfiguration"); //TODO: Inject
 
             _handler = new(this);
         }

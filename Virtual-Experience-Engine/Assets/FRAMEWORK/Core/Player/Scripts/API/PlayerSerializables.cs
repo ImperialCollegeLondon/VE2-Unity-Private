@@ -1,6 +1,6 @@
 using System;
 using System.IO;
-using static VE2.Core.Common.CommonSerializables;
+using static VE2.Common.Shared.CommonSerializables;
 
 #if UNITY_EDITOR
 using UnityEngine;
@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace VE2.Core.Player.API
 {
-        public class PlayerSerializables
+        internal class PlayerSerializables
         {
                 [Serializable]
                 public class PlayerVRControlConfig : VE2Serializable
@@ -217,23 +217,26 @@ namespace VE2.Core.Player.API
                         }
                 }
 
-                //TODO: Should live in Player API?
                 [Serializable]
                 public class OverridableAvatarAppearance : VE2Serializable
                 {
                         public PlayerPresentationConfig PresentationConfig { get; set; }
-                        public AvatarAppearanceOverrideType HeadOverrideType { get; set; }
-                        public AvatarAppearanceOverrideType TorsoOverrideType { get; set; }
+                        public bool OverrideHead { get; set; }
+                        public ushort HeadOverrideIndex { get; set; }
+                        public bool OverrideTorso { get; set; }
+                        public ushort TorsoOverrideIndex { get; set; }
 
                         public OverridableAvatarAppearance() { }
 
                         public OverridableAvatarAppearance(byte[] bytes) : base(bytes) { }
 
-                        public OverridableAvatarAppearance(PlayerPresentationConfig presentationConfig, AvatarAppearanceOverrideType headOverrideType, AvatarAppearanceOverrideType torsoOverrideType)
+                        public OverridableAvatarAppearance(PlayerPresentationConfig presentationConfig, bool overrideHead, ushort headOverrideIndex, bool overrideTorso, ushort torsoOverrideIndex)
                         {
                                 PresentationConfig = presentationConfig;
-                                HeadOverrideType = headOverrideType;
-                                TorsoOverrideType = torsoOverrideType;
+                                OverrideHead = overrideHead;
+                                HeadOverrideIndex = headOverrideIndex;
+                                OverrideTorso = overrideTorso;
+                                TorsoOverrideIndex = torsoOverrideIndex;
                         }
 
                         protected override byte[] ConvertToBytes()
@@ -245,8 +248,11 @@ namespace VE2.Core.Player.API
                                 writer.Write((ushort)presentationConfigBytes.Length);
                                 writer.Write(presentationConfigBytes);
 
-                                writer.Write((ushort)HeadOverrideType);
-                                writer.Write((ushort)TorsoOverrideType);
+                                writer.Write(OverrideHead);
+                                writer.Write((ushort)HeadOverrideIndex);
+
+                                writer.Write(OverrideTorso);
+                                writer.Write((ushort)TorsoOverrideIndex);
 
                                 return stream.ToArray();
                         }
@@ -260,8 +266,11 @@ namespace VE2.Core.Player.API
                                 byte[] presentationConfigBytes = reader.ReadBytes(presentationConfigLength);
                                 PresentationConfig = new PlayerPresentationConfig(presentationConfigBytes);
 
-                                HeadOverrideType = (AvatarAppearanceOverrideType)reader.ReadUInt16();
-                                TorsoOverrideType = (AvatarAppearanceOverrideType)reader.ReadUInt16();
+                                OverrideHead = reader.ReadBoolean();
+                                HeadOverrideIndex = reader.ReadUInt16();
+
+                                OverrideTorso = reader.ReadBoolean();
+                                TorsoOverrideIndex = reader.ReadUInt16();
                         }
 
                         public override bool Equals(object obj)
@@ -269,22 +278,13 @@ namespace VE2.Core.Player.API
                                 if (obj is OverridableAvatarAppearance other)
                                 {
                                         return PresentationConfig.Equals(other.PresentationConfig) &&
-                                               HeadOverrideType == other.HeadOverrideType &&
-                                               TorsoOverrideType == other.TorsoOverrideType;
+                                               OverrideHead == other.OverrideHead &&
+                                               HeadOverrideIndex == other.HeadOverrideIndex &&
+                                               OverrideTorso == other.OverrideTorso &&
+                                               TorsoOverrideIndex == other.TorsoOverrideIndex;
                                 }
                                 return false;
                         }
-                }
-
-                //TODO: These should all also probably be in the Player API
-                public enum AvatarAppearanceOverrideType
-                {
-                        None,
-                        OverideOne,
-                        OverrideTwo,
-                        OverrideThree,
-                        OverrideFour,
-                        OverrideFive,
                 }
 
                 public enum VE2AvatarHeadAppearanceType

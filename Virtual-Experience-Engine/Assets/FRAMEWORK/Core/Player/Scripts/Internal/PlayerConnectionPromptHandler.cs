@@ -3,14 +3,15 @@ using System.Collections;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 
 namespace VE2.Core.Player.Internal
 {
-    public class PlayerConnectionPromptHandler : MonoBehaviour
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
+    internal class PlayerConnectionPromptHandler : MonoBehaviour
     {
         [SerializeField] private TMP_Text _connectionPromptText;
-        private ColorConfiguration _colorConfig;
+        private ColorConfiguration _colorConfig  => ColorConfiguration.Instance;
 
         private bool _waitingForConnection = false;
         private bool _showingMessage = false;
@@ -22,7 +23,6 @@ namespace VE2.Core.Player.Internal
         {
             _connectionPromptText.enabled = false;
             enabled = false;
-            _colorConfig = Resources.Load<ColorConfiguration>("ColorConfiguration"); //TODO: Inject, can probably actually go into the base class
         }
 
         public void NotifyWaitingForConnection()

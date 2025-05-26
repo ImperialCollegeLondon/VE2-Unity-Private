@@ -1,41 +1,63 @@
 using System;
 using UnityEngine;
+using UnityEngine.Events;
+using VE2.Common.API;
 using VE2.Core.VComponents.API;
 using VE2.NonCore.Instancing.API;
 
 namespace VE2.NonCore.Instancing.Internal
 {
-    internal class V_NetworkObject : MonoBehaviour, IV_NetworkObject
+    internal partial class V_NetworkObject : IV_NetworkObject
+    {
+        #region State Module Interface
+        internal INetworkObjectStateModule _StateModule => _Service.StateModule;
+
+        public UnityEvent<object> OnDataChange => _StateModule.OnStateChange;
+        public object CurrentData => _StateModule.NetworkObject;
+        public void UpdateData(object data) => _StateModule.NetworkObject = data;
+        #endregion
+    }
+
+    internal partial class V_NetworkObject : MonoBehaviour
     {
         [SerializeField, HideLabel, IgnoreParent] private NetworkObjectStateConfig _config = new();
         [SerializeField, HideInInspector] private NetworkObjectState _state = new();
 
-        #region Plugin Interfaces
-        INetworkObjectStateModule IV_NetworkObject._StateModule => _service.StateModule;
-        #endregion
-
         private NetworkObjectService _service = null;
-
-        private void Reset()
+        private NetworkObjectService _Service
         {
-            //Kicks off the lazy init for the VCLocator instance
-            //var reference = VComponents_Locator.Instance; don't think we need this
+            get
+            {
+                if (_service == null)
+                    OnEnable();
+                return _service;
+            }
         }
 
         private void OnEnable()
         {
+            if (!Application.isPlaying || _service != null)
+                return;
+
             string id = "NetObj-" + gameObject.name;
-            _service = new NetworkObjectService(_config, _state, id, VComponentsAPI.WorldStateSyncService);
+
+            if (VE2API.InstanceService == null)
+            {
+                Debug.LogError("Instance service is null, cannot initialise NetworkObject, please add a V_InstanceIntegration component to the scene.");
+                return;
+            }
+
+            _service = new NetworkObjectService(_config, _state, id, VE2API.WorldStateSyncableContainer);
         }
 
         private void FixedUpdate()
         {
-            _service.HandleFixedUpdate();
+            _service?.HandleFixedUpdate();
         }
 
         private void OnDisable()
         {
-            _service.TearDown();
+            _service?.TearDown();
             _service = null;
         }
     }

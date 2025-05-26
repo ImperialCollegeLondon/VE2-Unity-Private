@@ -7,7 +7,7 @@ using VE2.Core.VComponents.Internal;
 namespace VE2.Core.VComponents.Internal
 {
     [CustomEditor(typeof(V_ToggleActivatable))]
-    public class V_ToggleActivatableEditor : ToolboxEditor
+    internal class V_ToggleActivatableEditor : ToolboxEditor
     {
         public override void DrawCustomInspector()
         {

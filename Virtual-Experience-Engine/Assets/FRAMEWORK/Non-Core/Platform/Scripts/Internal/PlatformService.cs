@@ -9,10 +9,10 @@ using static VE2.NonCore.Platform.Internal.PlatformSerializables;
 using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 using VE2.Core.Player.API;
 using VE2.NonCore.Platform.API;
-using VE2.Core.Common;
 using static VE2.Core.Player.API.PlayerSerializables;
 using VE2.Core.UI.API;
-using VE2.NonCore.Instancing.API;
+using VE2.Common.API;
+using VE2.Common.Shared;
 
 namespace VE2.NonCore.Platform.Internal
 {
@@ -21,14 +21,14 @@ namespace VE2.NonCore.Platform.Internal
         internal static PlatformService Create(IPlatformSettingsHandler platformSettingsHandler)
         {
             PlatformCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
-            IPlayerServiceInternal playerService = PlayerAPI.Player as IPlayerServiceInternal;
+            IPlayerServiceInternal playerService = VE2API.Player as IPlayerServiceInternal; //TODO: Think about this - pretty sure the platform can just take the container, rather than initing the player directly 
             PluginLoader pluginLoader = new PluginLoader(platformSettingsHandler, playerService);
             return new PlatformService(
                 commsHandler, 
                 pluginLoader, 
                 playerService, 
                 platformSettingsHandler, 
-                UIAPI.PrimaryUIService as IPrimaryUIServiceInternal);
+                VE2API.PrimaryUIService as IPrimaryUIServiceInternal);
         }
     }
 

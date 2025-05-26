@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 namespace VE2.NonCore.Platform.API
 {
     [ExecuteAlways]
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     public class PlatformAPI : MonoBehaviour
     {
         private static PlatformAPI _instance;

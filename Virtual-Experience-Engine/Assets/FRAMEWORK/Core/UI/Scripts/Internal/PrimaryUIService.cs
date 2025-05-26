@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.InputSystem.UI;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 using VE2.Core.Player.API;
 using VE2.Core.UI.API;
 using UnityEngine.SceneManagement;
@@ -69,7 +69,7 @@ namespace VE2.Core.UI.Internal
         public void SetInstanceCodeText(string text) => _topBarView.SubtitleText = text;
         #endregion
 
-        private readonly IPressableInput _onToggleUIPressed;
+        private readonly IQuickPressInput _onToggleUIPressed;
         private readonly InputSystemUIInputModule _UIInputModule;
 
         private readonly GameObject _primaryUIHolderGameObject;
@@ -80,10 +80,10 @@ namespace VE2.Core.UI.Internal
         private readonly PrimaryUIQuickPanelView _quickPanelView;
         private readonly PrimaryUIUtilsPanelView _utilsPanelView;
 
-        public PrimaryUIService(IPressableInput onToggleUIPressed, InputSystemUIInputModule uiInputModule)
+        public PrimaryUIService(IQuickPressInput onToggleUIPressed, InputSystemUIInputModule uiInputModule)
         {
             _onToggleUIPressed = onToggleUIPressed;
-            _onToggleUIPressed.OnPressed += HandleToggleUIPressed;
+            _onToggleUIPressed.OnQuickPress += HandleToggleUIPressed;
 
             _UIInputModule = uiInputModule;
             _UIInputModule.cursorLockBehavior = InputSystemUIInputModule.CursorLockBehavior.OutsideScreen;
@@ -132,7 +132,7 @@ namespace VE2.Core.UI.Internal
 
         internal void TearDown()
         {
-            _onToggleUIPressed.OnPressed -= HandleToggleUIPressed;
+            _onToggleUIPressed.OnQuickPress -= HandleToggleUIPressed;
         }
     }
 }

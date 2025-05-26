@@ -2,17 +2,40 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using System;
-using UnityEngine.XR;
-using VE2.Core.VComponents.API;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 using static VE2.NonCore.Instancing.Internal.InstanceSyncSerializables;
 
 namespace VE2.NonCore.Instancing.Internal
 {
-    internal class WorldStateSyncer : IWorldStateSyncService
+    internal class WorldStateSyncer 
     {
-        #region syncer interfaces
-        public void RegisterWorldStateModule(IWorldStateModule stateModule)
+        private readonly Dictionary<int, int> _numOfSyncablesPerSyncOffsets = new();
+
+        private readonly List<WorldStateBundle> _incommingWorldStateBundleBuffer = new();
+        private readonly List<IWorldStateModule> _debugClashedStateModules = new();
+        private int _cycleNumber = 0;
+
+        private const int WORLD_STATE_SYNC_INTERVAL_MS = 20;
+        public int WorldStateHistoryQueueSize { get; private set; } = 100; //TODO tie this into ping
+
+        private IPluginSyncCommsHandler _commsHandler;
+        private readonly InstanceInfoContainer _instanceInfoContainer;
+        private readonly IWorldStateSyncableContainer _worldStateSyncableContainer;
+        private Dictionary<string, SyncInfo> _syncInfosAgainstIDs = new();
+
+        public WorldStateSyncer(IPluginSyncCommsHandler commsHandler, InstanceInfoContainer instanceInfoContainer, IWorldStateSyncableContainer worldStateSyncableContainer) 
+        {
+            _commsHandler = commsHandler;
+            _commsHandler.OnReceiveWorldStateSyncableBundle += HandleReceiveWorldStateBundle;
+
+            _instanceInfoContainer = instanceInfoContainer;
+            _worldStateSyncableContainer = worldStateSyncableContainer;
+
+            _worldStateSyncableContainer.OnWorldStateSyncableRegistered += HandleWorldStateSyncableRegistered;
+            _worldStateSyncableContainer.OnWorldStateSyncableDeregistered += HandleWorldStateSyncableDeregistered;
+        } 
+
+        private void HandleWorldStateSyncableRegistered(IWorldStateModule stateModule)
         {
             if (_syncInfosAgainstIDs.ContainsKey(stateModule.ID))
             {
@@ -27,8 +50,11 @@ namespace VE2.NonCore.Instancing.Internal
             _syncInfosAgainstIDs.Add(stateModule.ID, syncInfo);
         }
 
-        public void DeregisterWorldStateModule(IWorldStateModule stateModule)
+        private void HandleWorldStateSyncableDeregistered(IWorldStateModule stateModule)
         {
+            if (_syncInfosAgainstIDs == null || stateModule == null) //Null if deregistrations happen when leaving play mode
+                return;
+
             if (_syncInfosAgainstIDs.TryGetValue(stateModule.ID, out SyncInfo syncInfo))
             {
                 if (_numOfSyncablesPerSyncOffsets.ContainsKey(syncInfo.HostSyncOffset))
@@ -37,36 +63,6 @@ namespace VE2.NonCore.Instancing.Internal
                 _syncInfosAgainstIDs.Remove(stateModule.ID);
             }
         }
-        #endregion
-
-        //public event Action<BytesAndProtocol> OnLocalChangeOrHostBroadcastWorldStateData; 
-        private readonly Dictionary<int, int> _numOfSyncablesPerSyncOffsets = new();
-
-        private readonly List<WorldStateBundle> _incommingWorldStateBundleBuffer = new();
-        private readonly List<IWorldStateModule> _debugClashedStateModules = new();
-        private int _cycleNumber = 0;
-
-        private const int WORLD_STATE_SYNC_INTERVAL_MS = 20;
-        public int WorldStateHistoryQueueSize { get; private set; } = 100; //TODO tie this into ping
-
-        private IPluginSyncCommsHandler _commsHandler;
-        //private readonly WorldStateModulesContainer _worldStateModulesContainer; //TODO: remove
-        private readonly InstanceInfoContainer _instanceInfoContainer;
-        private readonly SyncInfosContainer _syncInfosContainer;
-        private Dictionary<string, SyncInfo> _syncInfosAgainstIDs => _syncInfosContainer._syncInfosAgainstIDs;
-
-        public WorldStateSyncer(IPluginSyncCommsHandler commsHandler, InstanceInfoContainer instanceInfoContainer, SyncInfosContainer syncInfosContainer) 
-        {
-            _commsHandler = commsHandler;
-            _commsHandler.OnReceiveWorldStateSyncableBundle += HandleReceiveWorldStateBundle;
-
-            _instanceInfoContainer = instanceInfoContainer;
-            _syncInfosContainer = syncInfosContainer;
-
-            //Debug.Log("WorldStateSyncer created, syncinfos = " + _syncInfosAgainstIDs.Count + " - ID=" + _syncInfosContainer.ID);
-
-            //TODO: Rethink this container... maybe we should go back to the pattern of having the syncables put themselves into a container that lives in the VCAPI
-        } 
 
         public void HandleReceiveWorldStateBundle(byte[] byteData)
         {
@@ -241,10 +237,11 @@ namespace VE2.NonCore.Instancing.Internal
         {
             _commsHandler.OnReceiveWorldStateSyncableBundle -= HandleReceiveWorldStateBundle;
 
-            // _worldStateModulesContainer.OnWorldStateModuleRegistered -= RegisterStateModule;
-            // _worldStateModulesContainer.OnWorldStateModuleDeregistered -= DerigsterFromSyncer;
+            _worldStateSyncableContainer.OnWorldStateSyncableRegistered -= HandleWorldStateSyncableRegistered;
+            _worldStateSyncableContainer.OnWorldStateSyncableDeregistered -= HandleWorldStateSyncableDeregistered;
 
             _numOfSyncablesPerSyncOffsets.Clear();
+            _syncInfosAgainstIDs.Clear();
         }
     }
 

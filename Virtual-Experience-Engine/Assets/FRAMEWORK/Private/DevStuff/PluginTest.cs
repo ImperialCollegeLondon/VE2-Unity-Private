@@ -53,12 +53,12 @@ public class PluginTest : MonoBehaviour
         _linearAdjustable?.OnValueAdjusted.AddListener(OnLinearAdjustableValueAdjusted);
         _rotationalAdjustable?.OnValueAdjusted.AddListener(OnRotationalAdjustableValueAdjusted);
 
-        _networkObject?.OnStateChange.AddListener(HandleNetworkObjectStateChange);
+        _networkObject?.OnDataChange.AddListener(HandleNetworkObjectStateChange);
     }
 
     public void OnButtonActivate()
     {
-        ushort clientID = _pushActivatable.MostRecentInteractingClientID;
+        ushort clientID = _pushActivatable.MostRecentInteractingClientID.Value;
         Debug.Log("Button activated! ");
         Debug.Log($"Button state = {_pushActivatable.IsActivated}");
 
@@ -114,7 +114,7 @@ public class PluginTest : MonoBehaviour
         else if (Keyboard.current.digit3Key.wasPressedThisFrame)
         {
             _counter++;
-            _networkObject.NetworkObject = _counter;
+            _networkObject.UpdateData(_counter);
         }
         else if (Keyboard.current.digit4Key.wasPressedThisFrame)
             _handheldActivatable.SetActivated(!_pushActivatable.IsActivated);

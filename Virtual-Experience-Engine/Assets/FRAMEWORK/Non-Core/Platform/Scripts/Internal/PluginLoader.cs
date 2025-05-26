@@ -47,7 +47,7 @@ namespace VE2.NonCore.Platform.Internal
                 Although, it probs needs to be renamed to e.g V_PlatformProvider, rather V_PlatformIntegration
             */
 
-            IFileSystemInternal fileSystem = GameObject.FindObjectOfType<V_InternalFileSystem>();
+            IFileSystemInternal fileSystem = GameObject.FindObjectOfType<InternalFileSystem>();
             if (fileSystem == null)
             {
                 Debug.LogError("Could not load plugin as FileSystem  can't be found");

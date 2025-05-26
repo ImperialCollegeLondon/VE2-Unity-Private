@@ -1,17 +1,9 @@
-using Codice.Client.Common;
-using log4net.Util;
-using NUnit.Framework;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UIElements;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 using VE2.NonCore.Instancing.API;
-using static PlasticGui.PlasticTableColumn;
-using static VE2.Core.Common.CommonSerializables;
+using static VE2.Common.Shared.CommonSerializables;
 using Time = UnityEngine.Time;
 
 namespace VE2.NonCore.Instancing.Internal
@@ -63,10 +55,11 @@ namespace VE2.NonCore.Instancing.Internal
         private uint _grabCounter = 0;
         #endregion
 
-        public RigidbodySyncableService(RigidbodySyncableStateConfig config, VE2Serializable state, string id, IWorldStateSyncService worldStateSyncService, IInstanceService instanceService, IRigidbodyWrapper rigidbodyWrapper, IGrabbableRigidbody grabbableRigidbody)
+        public RigidbodySyncableService(RigidbodySyncableStateConfig config, VE2Serializable state, string id, IWorldStateSyncableContainer worldStateSyncableContainer, 
+            IInstanceService instanceService, IRigidbodyWrapper rigidbodyWrapper, IGrabbableRigidbody grabbableRigidbody)
         {
             _config = config;
-            _stateModule = new(state, config, id, worldStateSyncService);
+            _stateModule = new(state, config, id, worldStateSyncableContainer);
             _instanceService = instanceService;
             _rigidbody = rigidbodyWrapper;
             _isKinematicOnStart = _rigidbody.isKinematic;
@@ -76,6 +69,7 @@ namespace VE2.NonCore.Instancing.Internal
                 _grabbableRigidbody = grabbableRigidbody;
                 _grabbableRigidbody.InternalOnGrab += HandleOnGrab;
                 _grabbableRigidbody.InternalOnDrop += HandleOnDrop;
+                _grabbableRigidbody.FreeGrabbableHandlesKinematics = false;
             }
 
             _receivedRigidbodyStates = new();
@@ -83,8 +77,6 @@ namespace VE2.NonCore.Instancing.Internal
             _stateModule.OnReceiveState?.AddListener(HandleReceiveRigidbodyState);
             _instanceService.OnBecomeHost += HandleBecomeHost;
             _instanceService.OnLoseHost += HandleBecomeNonHost;
-
-            grabbableRigidbody.FreeGrabbableHandlesKinematics = false;
         }
 
         private void HandleOnGrab(ushort grabberClientID)
@@ -216,7 +208,8 @@ namespace VE2.NonCore.Instancing.Internal
 
                 SetRigidbodyValues(Vector3.Lerp(previousState.Position, nextState.Position, interpValueBetweenStates), Quaternion.Slerp(previousState.Rotation, nextState.Rotation, interpValueBetweenStates));
 
-                Debug.Log($"Smoothing on host over {_storedHostLagCompensationStates.Count} frames, with {_hostSmoothingFramesLeft} frames left. TotalVal = {interpolationValueAlongStoredStates}, indexFrom = {indexOfStateToInterpolateFrom}, interpVal = {interpValueBetweenStates}");
+                if (_config.LogInterpolationDebug)
+                    Debug.Log($"Smoothing on host over {_storedHostLagCompensationStates.Count} frames, with {_hostSmoothingFramesLeft} frames left. TotalVal = {interpolationValueAlongStoredStates}, indexFrom = {indexOfStateToInterpolateFrom}, interpVal = {interpValueBetweenStates}");
 
                 _hostSmoothingFramesLeft--;
 
@@ -327,7 +320,9 @@ namespace VE2.NonCore.Instancing.Internal
                     _nonHostSimulating = false;
                     _isKinematicOnStart = _rigidbody.isKinematic;
                     _rigidbody.isKinematic = true;
-                    Debug.Log($"Received first pair of states at time {Time.fixedTime}");
+
+                    if (_config.LogSendReceiveDebugMessages)
+                        Debug.Log($"Received first pair of states at time {Time.fixedTime}");
                 }
 
                 AddReceivedStateToHistory(new(receivedState.FixedTime, receivedState.Position, receivedState.Rotation, receivedState.GrabCounter));
@@ -407,7 +402,8 @@ namespace VE2.NonCore.Instancing.Internal
                     Color lineColour = lerpParameter >= 0 ? Color.white : Color.red;
                     Debug.DrawLine(_rigidbody.position, _rigidbody.position + Vector3.Cross(_rigidbody.linearVelocity, Vector3.up).normalized / 5, Color.white, 20f);
                 }
-                if (_config.LogInterpolationDebug) { 
+                if (_config.LogInterpolationDebug) 
+                { 
                     Debug.Log($"LocalTime = {delayedLocalTime}, StateFixedTimes = {previousState.FixedTime} & {nextState.FixedTime}, lerpParam = {lerpParameter}");
                 }
             }

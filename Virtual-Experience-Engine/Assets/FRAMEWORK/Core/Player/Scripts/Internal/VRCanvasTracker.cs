@@ -1,9 +1,11 @@
 using UnityEngine;
+using VE2.Common.API;
 using VE2.Core.UI.API;
 
 namespace VE2.Core.Player.Internal
 {
-    public class VRCanvasTracker : MonoBehaviour
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
+    internal class VRCanvasTracker : MonoBehaviour
     {
         [SerializeField] private Transform _cameraTransform; 
         [SerializeField] private Collider _canvasCollider;
@@ -29,7 +31,7 @@ namespace VE2.Core.Player.Internal
 
         private void Awake()
         {
-            _primaryUIService = UIAPI.PrimaryUIService;
+            _primaryUIService = VE2API.PrimaryUIService;
             if (_primaryUIService != null)
             {
                 _primaryUIService.OnUIShow += HandlePrimaryUIShown;

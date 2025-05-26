@@ -2,21 +2,25 @@ using UnityEngine;
 
 namespace VE2.Core.Player.Internal
 {
-    public class PlayerVRReferences : MonoBehaviour
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
+    internal class PlayerVRReferences : BasePlayerReferences
     {
-        public Transform RootTransform => _rootTransform;
+        internal Transform RootTransform => _rootTransform;
         [SerializeField] private Transform _rootTransform;
 
-        public Transform VerticalOffsetTransform => _verticalOffsetTransform;
+        internal Transform VerticalOffsetTransform => _verticalOffsetTransform;
         [SerializeField] private Transform _verticalOffsetTransform;
 
-        public Transform HeadTransform => _headTransform;
+        internal Transform HeadTransform => _headTransform;
         [SerializeField] private Transform _headTransform;   
 
-        internal V_CollisionDetector FeetCollisionDetector => _feetCollisionDetector;
-        [SerializeField] private V_CollisionDetector _feetCollisionDetector;
+        internal Collider FeetCollider => _feetCollider;
+        [SerializeField] private Collider _feetCollider;
 
-        public RectTransform PrimaryUIHolderRect => _primaryUIHolderRect;     
-        [SerializeField] private RectTransform _primaryUIHolderRect;
+        internal ResetViewUIHandler ResetViewUIHandler => _resetViewUIHandler;
+        [SerializeField] private ResetViewUIHandler _resetViewUIHandler;
+
+        internal Transform NeutralPositionOffsetTransform => _neutralPositionOffsetTransform;
+        [SerializeField] private Transform _neutralPositionOffsetTransform;
     }
 }

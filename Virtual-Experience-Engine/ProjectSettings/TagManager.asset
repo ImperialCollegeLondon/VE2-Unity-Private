@@ -3,7 +3,17 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - V_Tag0
+  - V_Tag1
+  - V_Tag2
+  - V_Tag3
+  - V_Tag4
+  - V_Tag5
+  - V_Tag6
+  - V_Tag7
+  - V_Tag8
+  - V_Tag9
   layers:
   - Default
   - TransparentFX
@@ -11,17 +21,17 @@ TagManager:
   - Ground
   - Water
   - UI
-  - Player
-  - V_Walls
-  - V_Custom1
-  - V_Custom2
-  - Traversible
-  - V_Custom3
-  - EditorOnly
-  - 
-  - 
-  - 
-  - 
+  - V_Player
+  - V_Layer0
+  - V_Layer1
+  - V_Layer2
+  - V_Layer3
+  - V_Layer4
+  - V_Layer5
+  - V_Layer6
+  - V_Layer7
+  - V_Layer8
+  - V_Layer9
   - 
   - 
   - 

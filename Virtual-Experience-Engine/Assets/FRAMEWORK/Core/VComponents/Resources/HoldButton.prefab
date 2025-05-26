@@ -391,7 +391,7 @@ MonoBehaviour:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
-    RangedInteractionConfig:
+    ActivatableRangedInteractionConfig:
       InteractionRange: 5
       OnLocalHoverEnter:
         m_PersistentCalls:
@@ -447,6 +447,7 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+      ActivateAtRangeInVR: 1
   _collider: {fileID: 903195033027267892}
 --- !u!65 &903195033027267892
 BoxCollider:

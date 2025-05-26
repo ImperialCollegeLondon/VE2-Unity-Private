@@ -4,10 +4,11 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 
 namespace VE2.Core.UI.Internal
 {
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     internal class PrimaryUICenterPanelView : MonoBehaviour
     {
         [SerializeField] private HorizontalLayoutGroup _tabLayoutGroup;

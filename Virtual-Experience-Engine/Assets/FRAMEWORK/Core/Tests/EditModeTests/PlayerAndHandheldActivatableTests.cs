@@ -2,6 +2,7 @@ using NSubstitute;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using VE2.Common.Shared;
 using VE2.Core.Player.Internal;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
@@ -49,27 +50,30 @@ namespace VE2.Core.Tests
             //Create the activatable with default values
             HandheldActivatableService handheldActivatable = new(
                 _v_freeGrabbableProviderStub,
-                new HandheldActivatableConfig(),
-                new SingleInteractorActivatableState(),
-                "debug",
-                Substitute.For<IWorldStateSyncService>(),
-                new ActivatableGroupsContainer());
+                new HandheldActivatableConfig(), 
+                new SingleInteractorActivatableState(), 
+                "testHandHeldActivatable", 
+                Substitute.For<IWorldStateSyncableContainer>(),
+                new ActivatableGroupsContainer(),
+                LocalClientIDWrapperSetup.LocalClientIDWrapper);
 
             //Set the HandheldActivatableService to the provider stub NOTE: This is a bit of a hack because MonoBehaviours are used to initialise both the FreeGrabbable and HandheldActivatable services.
-            _v_handheldActivatableProviderStub.SetHandheldActivatableService(handheldActivatable);
+            _v_handheldActivatableProviderStub.Service = handheldActivatable;
 
             FreeGrabbableService freeGrabbable = new(
                 new List<IHandheldInteractionModule>() { _handheldActivatablePlayerInterface },
                 new FreeGrabbableConfig(),
                 new GrabbableState(),
-                "debug",
-                Substitute.For<IWorldStateSyncService>(),
+                "testGrabbable",
+                Substitute.For<IWorldStateSyncableContainer>(),
+                GrabInteractableContainerSetup.GrabInteractableContainer,
                 InteractorContainerSetup.InteractorContainer,
                 Substitute.For<IRigidbodyWrapper>(),
                 new PhysicsConstants(),
-                new V_FreeGrabbable());
+                new V_FreeGrabbable(),
+                LocalClientIDWrapperSetup.LocalClientIDWrapper);
 
-            _v_freeGrabbableProviderStub.SetFreeGrabbableService(freeGrabbable);
+            _v_freeGrabbableProviderStub.Service = freeGrabbable;
 
 
             //Stub out provider layer
@@ -93,24 +97,27 @@ namespace VE2.Core.Tests
                 _v_freeGrabbable2ProviderStub,
                 handheldActivatableConfig,
                 new SingleInteractorActivatableState(),
-                "debug",
-                Substitute.For<IWorldStateSyncService>(),
-                new ActivatableGroupsContainer());
+                "testHoldActivatable",
+                Substitute.For<IWorldStateSyncableContainer>(),
+                new ActivatableGroupsContainer(),
+                LocalClientIDWrapperSetup.LocalClientIDWrapper);
 
-            _v_handheldHoldActivatableProviderStub.SetHandheldActivatableService(handheldActivatableHold);
+            _v_handheldHoldActivatableProviderStub.Service = handheldActivatableHold;
 
             FreeGrabbableService freeGrabbable2 = new(
                 new List<IHandheldInteractionModule>() { _handheldHoldActivatablePlayerInterface },
                 new FreeGrabbableConfig(),
                 new GrabbableState(),
-                "debug",
-                Substitute.For<IWorldStateSyncService>(),
+                "testGrabbable2",
+                Substitute.For<IWorldStateSyncableContainer>(),
+                GrabInteractableContainerSetup.GrabInteractableContainer,
                 InteractorContainerSetup.InteractorContainer,
                 Substitute.For<IRigidbodyWrapper>(),
                 new PhysicsConstants(),
-                new V_FreeGrabbable());
+                new V_FreeGrabbable(),
+                LocalClientIDWrapperSetup.LocalClientIDWrapper);
 
-            _v_freeGrabbable2ProviderStub.SetFreeGrabbableService(freeGrabbable2);
+            _v_freeGrabbable2ProviderStub.Service = freeGrabbable2;
 
             //wire up the customer script to receive the events
             _customerScript = Substitute.For<PluginActivatableScript>();
@@ -129,7 +136,7 @@ namespace VE2.Core.Tests
             //Stub out the raycast provider to hit the activatable GO with 0 range
             RayCastProviderSetup.RaycastProviderStub
                 .Raycast(default, default, default, default)
-                .ReturnsForAnyArgs(new RaycastResultWrapper(_grabbableRaycastInterface.RangedGrabInteractionModule, null, 0));
+                .ReturnsForAnyArgs(new RaycastResultWrapper(_grabbableRaycastInterface.RangedGrabInteractionModule, null, 0, true));
 
             //Wire up the customer script to receive the events
             PluginActivatableScript pluginScriptMock = Substitute.For<PluginActivatableScript>();
@@ -139,19 +146,22 @@ namespace VE2.Core.Tests
             //Invoke grab, check customer received the grab, and that the interactorID is set
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
             Assert.IsTrue(_grabbablePluginInterface.IsGrabbed);
-            Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID, LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID);
+            Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID.Value, LocalClientIDWrapperSetup.LocalClientIDWrapper.Value);
+            Assert.IsTrue(_grabbablePluginInterface.MostRecentInteractingClientID.IsLocal);
 
             //Invoke Activate, Check customer received the activate, and that the interactorID is set
             PlayerInputContainerSetup.HandheldClick2D.OnPressed += Raise.Event<Action>();
             pluginScriptMock.Received(1).HandleActivateReceived();
             Assert.IsTrue(_handheldActivatablePluginInterface.IsActivated);
-            Assert.AreEqual(_handheldActivatablePluginInterface.MostRecentInteractingClientID, LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID);
+            Assert.AreEqual(_handheldActivatablePluginInterface.MostRecentInteractingClientID.Value, LocalClientIDWrapperSetup.LocalClientIDWrapper.Value);
+            Assert.IsTrue(_grabbablePluginInterface.MostRecentInteractingClientID.IsLocal);
 
             //Invoke Deactivate, Check customer received the deactivate, and that the interactorID is set
             PlayerInputContainerSetup.HandheldClick2D.OnPressed += Raise.Event<Action>();
             pluginScriptMock.Received(1).HandleDeactivateReceived();
             Assert.IsFalse(_handheldActivatablePluginInterface.IsActivated);
-            Assert.AreEqual(_handheldActivatablePluginInterface.MostRecentInteractingClientID, LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID);
+            Assert.AreEqual(_handheldActivatablePluginInterface.MostRecentInteractingClientID.Value, LocalClientIDWrapperSetup.LocalClientIDWrapper.Value);
+            Assert.IsTrue(_grabbablePluginInterface.MostRecentInteractingClientID.IsLocal);
         }
 
         [Test]
@@ -160,7 +170,7 @@ namespace VE2.Core.Tests
             // Stub out the raycast provider so that it "hits" the activatable GameObject with 0 range.
             RayCastProviderSetup.RaycastProviderStub
                 .Raycast(default, default, default, default)
-                .ReturnsForAnyArgs(new RaycastResultWrapper(_grabbable2RaycastInterface.RangedGrabInteractionModule, null, 0));
+                .ReturnsForAnyArgs(new RaycastResultWrapper(_grabbable2RaycastInterface.RangedGrabInteractionModule, null, 0, true));
 
             // Wire up the customer script (using a NSubstitute mock) to receive the events on the hold activatable interface.
             PluginActivatableScript pluginScriptMock = Substitute.For<PluginActivatableScript>();
@@ -170,34 +180,35 @@ namespace VE2.Core.Tests
             // Simulate the grab input event.
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
             Assert.IsTrue(_grabbable2PluginInterface.IsGrabbed);
-            Assert.AreEqual(LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID,
-                            _grabbable2PluginInterface.MostRecentInteractingClientID);
+            Assert.AreEqual(LocalClientIDWrapperSetup.LocalClientID,
+                            _grabbable2PluginInterface.MostRecentInteractingClientID.Value);
 
             // Simulate the user click to activate the hold activatable.
             PlayerInputContainerSetup.HandheldClick2D.OnPressed += Raise.Event<Action>();
             pluginScriptMock.Received(1).HandleActivateReceived();
             Assert.IsTrue(_handheldHoldActivatablePluginInterface.IsActivated);
-            Assert.AreEqual(LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID,
-                            _handheldHoldActivatablePluginInterface.MostRecentInteractingClientID);
+            Assert.AreEqual(LocalClientIDWrapperSetup.LocalClientID,
+                            _handheldHoldActivatablePluginInterface.MostRecentInteractingClientID.Value);
 
             // Simulate the user release to deactivate it (using OnRelease).
             PlayerInputContainerSetup.HandheldClick2D.OnReleased += Raise.Event<Action>();
             pluginScriptMock.Received(1).HandleDeactivateReceived();
             Assert.IsFalse(_handheldHoldActivatablePluginInterface.IsActivated);
-            Assert.AreEqual(LocalClientIDProviderSetup.LocalClientIDProviderStub.LocalClientID,
-                            _handheldHoldActivatablePluginInterface.MostRecentInteractingClientID);
+            Assert.AreEqual(LocalClientIDWrapperSetup.LocalClientID,
+                            _handheldHoldActivatablePluginInterface.MostRecentInteractingClientID.Value);
         }
 
         [TearDown]
         public void TearDownAfterEveryTest()
         {
-            _customerScript.ClearReceivedCalls();  
+            _customerScript.ClearReceivedCalls();
 
             _handheldActivatablePluginInterface.OnActivate.RemoveAllListeners();
             _handheldActivatablePluginInterface.OnDeactivate.RemoveAllListeners();
 
             _v_handheldActivatableProviderStub.TearDown();
             _v_freeGrabbableProviderStub.TearDown();
+            _v_freeGrabbable2ProviderStub.TearDown();
         }
     }
 }

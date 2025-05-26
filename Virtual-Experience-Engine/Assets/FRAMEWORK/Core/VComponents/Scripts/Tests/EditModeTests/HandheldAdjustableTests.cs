@@ -1,6 +1,8 @@
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.Events;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
 
@@ -25,7 +27,8 @@ namespace VE2.Core.VComponents.Tests
                 new HandheldAdjustableConfig(), 
                 new AdjustableState(), 
                 "debug", 
-                Substitute.For<IWorldStateSyncService>());
+                Substitute.For<IWorldStateSyncableContainer>(),
+                Substitute.For<IClientIDWrapper>());
 
             _v_handheldAdjustableProviderStub = new(handheldAdjustable);
 
@@ -39,10 +42,10 @@ namespace VE2.Core.VComponents.Tests
             //set the adjustable value
             _handheldAdjustablePluginInterface.SetValue(randomValue);
 
-            //Check customer received the value adjusted, and that the interactorID is set
+            //Check customer received the value adjusted, and that the interactorID reflects programmatic activation (ie, null!)
             _customerScript.Received(1).HandleValueAdjusted(randomValue);
             Assert.IsTrue(_handheldAdjustablePluginInterface.Value == randomValue);
-            Assert.AreEqual(_handheldAdjustablePluginInterface.MostRecentInteractingClientID, ushort.MaxValue);
+            Assert.AreEqual(_handheldAdjustablePluginInterface.MostRecentInteractingClientID, null);
         }
     }
 
@@ -51,25 +54,44 @@ namespace VE2.Core.VComponents.Tests
         public virtual void HandleValueAdjusted(float value) { }
     }
 
-    internal class V_HandheldAdjustableProviderStub : IV_HandheldAdjustable
+    internal partial class V_HandheldAdjustableProviderStub : IV_HandheldAdjustable
     {
-        #region Plugin Interfaces
-        IAdjustableStateModule IV_HandheldAdjustable._StateModule => _HandheldAdjustable.StateModule;
-        IHandheldScrollInteractionModule IV_HandheldAdjustable._HandheldScrollModule => _HandheldAdjustable.HandheldScrollInteractionModule;
+        #region State Module Interface
+        internal IAdjustableStateModule _StateModule => _Service.StateModule;
+
+        public UnityEvent<float> OnValueAdjusted => _StateModule.OnValueAdjusted;
+        public float Value => _StateModule.OutputValue;
+        public void SetValue(float value) => _StateModule.SetOutputValue(value);
+        public float MinimumValue { get => _StateModule.MinimumOutputValue; set => _StateModule.MinimumOutputValue = value; }
+        public float MaximumValue { get => _StateModule.MaximumOutputValue; set => _StateModule.MaximumOutputValue = value; }
+        public IClientIDWrapper MostRecentInteractingClientID => _StateModule.MostRecentInteractingClientID;
         #endregion
 
-        internal IHandheldScrollInteractionModule HandheldScrollInteractionModule => _HandheldAdjustable.HandheldScrollInteractionModule;
-        protected HandheldAdjustableService _HandheldAdjustable = null;
+        #region Handheld Interaction Module Interface
+        internal IHandheldScrollInteractionModule _HandheldScrollModule => _Service.HandheldScrollInteractionModule;
+        #endregion
 
-        public V_HandheldAdjustableProviderStub (HandheldAdjustableService HandheldAdjustable)
+        #region General Interaction Module Interface
+        public bool AdminOnly { get => _HandheldScrollModule.AdminOnly; set => _HandheldScrollModule.AdminOnly = value; }
+        public bool EnableControllerVibrations { get => _HandheldScrollModule.EnableControllerVibrations; set => _HandheldScrollModule.EnableControllerVibrations = value; }
+        public bool ShowTooltipsAndHighlight { get => _HandheldScrollModule.ShowTooltipsAndHighlight; set => _HandheldScrollModule.ShowTooltipsAndHighlight = value; }
+        #endregion
+    }
+
+    internal partial class V_HandheldAdjustableProviderStub
+    {
+        internal IHandheldScrollInteractionModule HandheldScrollInteractionModule => _Service.HandheldScrollInteractionModule;
+        protected HandheldAdjustableService _Service = null;
+
+        public V_HandheldAdjustableProviderStub(HandheldAdjustableService service)
         {
-            _HandheldAdjustable = HandheldAdjustable;
+            _Service = service;
         }
 
         public void TearDown()
         {
-            _HandheldAdjustable.TearDown();
-            _HandheldAdjustable = null;
+            _Service.TearDown();
+            _Service = null;
         }
     }
 }
