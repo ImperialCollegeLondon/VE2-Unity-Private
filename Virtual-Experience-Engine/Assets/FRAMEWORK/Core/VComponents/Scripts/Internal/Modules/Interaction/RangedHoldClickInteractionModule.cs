@@ -10,10 +10,10 @@ namespace VE2.Core.VComponents.Internal
 
         internal event Action<InteractorID> OnClickUp;
 
-        private readonly HoldActivatableNetworkIndicator _syncConfig;
+        private readonly HoldActivatablePlayerSyncIndicator _syncConfig;
 
         //TODO: activateAtRangeInVR should be wrapped in a config class
-        public RangedHoldClickInteractionModule(RangedInteractionConfig rangedConfig, GeneralInteractionConfig generalConfig, HoldActivatableNetworkIndicator syncConfig,
+        public RangedHoldClickInteractionModule(RangedInteractionConfig rangedConfig, GeneralInteractionConfig generalConfig, HoldActivatablePlayerSyncIndicator syncConfig,
             string id, bool activateAtRangeInVR) : base(rangedConfig, generalConfig, id, activateAtRangeInVR)
         {
             _syncConfig = syncConfig;

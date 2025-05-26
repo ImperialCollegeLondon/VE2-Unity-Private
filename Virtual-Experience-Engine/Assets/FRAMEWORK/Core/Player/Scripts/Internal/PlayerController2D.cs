@@ -41,8 +41,8 @@ namespace VE2.Core.Player.Internal
                     headRotation: _playerLocomotor2D.HeadLocalRotation,
                     hand2DPosition: _interactor2D.GrabberTransform.localPosition, 
                     hand2DRotation: _interactor2D.GrabberTransform.localRotation,
-                    activatableIDs2D: (List<string>)_interactor2D.HeldActivatableIDs,
-                    activatableIDsFeet: (List<string>)_feetInteractor2D.HeldActivatableIDs
+                    activatableIDs2D: (List<string>)_interactor2D.HeldNetworkedActivatableIDs,
+                    activatableIDsFeet: (List<string>)_feetInteractor2D.HeldNetworkedActivatableIDs
                 );
             }
         }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using VE2.Common.API;
@@ -46,11 +47,11 @@ namespace VE2.Core.Player.Internal
     internal abstract class PointerInteractor : IInteractor
     {
         public Transform GrabberTransform => _GrabberTransform;
-        public IReadOnlyList<string> HeldActivatableIDs => _heldActivatableIDs;
+        public IReadOnlyList<string> HeldNetworkedActivatableIDs => _heldActivatableIDsAgainstNetworkFlags.Where(kvp => kvp.Value).Select(kvp => kvp.Key).ToList();
 
         protected bool IsCurrentlyGrabbing => _CurrentGrabbingGrabbable != null;
         protected InteractorID _InteractorID => _LocalClientIDWrapper.IsClientIDReady ? new InteractorID(_LocalClientIDWrapper.Value, _InteractorType) : null;
-        protected readonly List<string> _heldActivatableIDs = new();
+        protected readonly Dictionary<string, bool> _heldActivatableIDsAgainstNetworkFlags = new();
         protected const float MAX_RAYCAST_DISTANCE = 10;
         protected const float MAX_SPHERECAST_RADIUS = 10;
         protected IRangedInteractionModule _CurrentHoveringInteractable;
@@ -119,7 +120,7 @@ namespace VE2.Core.Player.Internal
             _interactorInputContainer.ScrollTickUp.OnTickOver += HandleScrollUp;
             _interactorInputContainer.ScrollTickDown.OnTickOver += HandleScrollDown;
 
-            _heldActivatableIDs.Clear();
+            _heldActivatableIDsAgainstNetworkFlags.Clear();
 
             if (!_LocalClientIDWrapper.IsClientIDReady)
                 _LocalClientIDWrapper.OnClientIDReady += HandleLocalClientIDReady;
@@ -136,7 +137,7 @@ namespace VE2.Core.Player.Internal
             _interactorInputContainer.ScrollTickUp.OnTickOver -= HandleScrollUp;
             _interactorInputContainer.ScrollTickDown.OnTickOver -= HandleScrollDown;
 
-            _heldActivatableIDs.Clear();
+            _heldActivatableIDsAgainstNetworkFlags.Clear();
 
             _LocalClientIDWrapper.OnClientIDReady -= HandleLocalClientIDReady;
             _interactorContainer?.DeregisterInteractor(_InteractorID.ToString());
@@ -171,12 +172,10 @@ namespace VE2.Core.Player.Internal
             {
                 previousHoveringInteractable.ExitHover(_InteractorID);
 
-                if (previousHoveringInteractable is IRangedHoldClickInteractionModule previousHoldClickInteractable && _heldActivatableIDs.Contains(previousHoldClickInteractable.ID))
+                if (previousHoveringInteractable is IRangedHoldClickInteractionModule previousHoldClickInteractable && _heldActivatableIDsAgainstNetworkFlags.ContainsKey(previousHoldClickInteractable.ID))
                 {
                     previousHoldClickInteractable.ClickUp(_InteractorID);
-
-                    if (previousHoldClickInteractable.IsNetworked)
-                        _heldActivatableIDs.Remove(previousHoldClickInteractable.ID);
+                    _heldActivatableIDsAgainstNetworkFlags.Remove(previousHoldClickInteractable.ID);
                 }
             }
 
@@ -373,8 +372,8 @@ namespace VE2.Core.Player.Internal
                 rangedClickInteractable.ClickDown(_InteractorID);
                 _CurrentHoveringInteractable = rangedClickInteractable;
 
-                if (rangedClickInteractable is IRangedHoldClickInteractionModule holdClickInteractable && holdClickInteractable.IsNetworked)
-                    _heldActivatableIDs.Add(rangedClickInteractable.ID);
+                if (rangedClickInteractable is IRangedHoldClickInteractionModule rangedHoldClickInteractable)
+                    _heldActivatableIDsAgainstNetworkFlags.Add(rangedClickInteractable.ID, rangedHoldClickInteractable.IsNetworked);
             }
             else if (raycastResultWrapper.HitUIButton && raycastResultWrapper.UIButton.IsInteractable())
             {
@@ -390,9 +389,7 @@ namespace VE2.Core.Player.Internal
             if (_CurrentHoveringClickInteractable != null && _CurrentHoveringClickInteractable is IRangedHoldClickInteractionModule _CurrentHoveringHoldClickInteractable)
             {
                 _CurrentHoveringHoldClickInteractable.ClickUp(_InteractorID);
-
-                if (_CurrentHoveringHoldClickInteractable.IsNetworked)
-                    _heldActivatableIDs.Remove(_CurrentHoveringHoldClickInteractable.ID);
+                _heldActivatableIDsAgainstNetworkFlags.Remove(_CurrentHoveringHoldClickInteractable.ID);
             }
         }
 

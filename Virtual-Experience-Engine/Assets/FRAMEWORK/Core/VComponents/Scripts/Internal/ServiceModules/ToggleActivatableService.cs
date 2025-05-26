@@ -44,14 +44,11 @@ namespace VE2.Core.VComponents.Internal
 
             _RangedClickInteractionModule = new(config.RangedClickInteractionConfig, config.GeneralInteractionConfig, id, config.RangedClickInteractionConfig.ClickAtRangeInVR);
 
-            /*
-                What's the deal here...?
-                Toggle activatables should probably use a "ToggleCollisionInteractionModule" instead of a "ColliderInteractionModule",
-                That way, we wont worry about the interactor storing that coll interface in its list of held interactables...
-                that held activatables list is for syncing, toggle activatables sync through their state module!
-
-            */
-            _ColliderInteractionModule = new(config.CollisionClickInteractionConfig, config.GeneralInteractionConfig, config.SyncConfig, id);
+            //Note - yes, this network indicator seems strange on first glance
+            //Toggle activatables will sync via the state module, this network indicator is used to indicate whether it should sync through the player or not
+            //This is required for hold activatables and pressure plates, but not for toggle activatables, so we just create a new flag with 'false' here
+            HoldActivatablePlayerSyncIndicator networkIndicator = new(false);
+            _ColliderInteractionModule = new(config.CollisionClickInteractionConfig, config.GeneralInteractionConfig, networkIndicator, id);
 
             _RangedClickInteractionModule.OnClickDown += HandleInteract;
             _ColliderInteractionModule.OnCollideEnter += HandleInteract;

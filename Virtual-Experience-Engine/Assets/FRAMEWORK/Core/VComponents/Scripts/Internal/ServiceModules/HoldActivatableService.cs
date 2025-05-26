@@ -17,7 +17,7 @@ namespace VE2.Core.VComponents.Internal
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
 
         [HideIf(nameof(MultiplayerSupportPresent), false)]
-        [SerializeField] internal HoldActivatableNetworkIndicator SyncConfig = new HoldActivatableNetworkIndicator();
+        [SerializeField, IgnoreParent] internal HoldActivatablePlayerSyncIndicator SyncConfig = new();
 
         private bool MultiplayerSupportPresent => VE2API.HasMultiPlayerSupport;
     }

@@ -23104,7 +23104,6 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-      IsNetworked: 1
     CollisionClickInteractionConfig:
       ClickWithCollisionInVR: 1
     ActivatableRangedInteractionConfig:
@@ -23168,6 +23167,8 @@ MonoBehaviour:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
+    SyncConfig:
+      IsNetworked: 1
   _collider: {fileID: 2137345507}
 --- !u!1 &2144054240
 GameObject:
@@ -23970,11 +23971,12 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-      IsNetworked: 1
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
+    SyncConfig:
+      IsNetworked: 1
 --- !u!82 &919132147501691428
 AudioSource:
   m_ObjectHideFlags: 0

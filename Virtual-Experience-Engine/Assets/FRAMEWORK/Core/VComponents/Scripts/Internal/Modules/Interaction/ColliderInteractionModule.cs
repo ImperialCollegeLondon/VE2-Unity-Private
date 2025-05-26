@@ -25,9 +25,9 @@ namespace VE2.Core.VComponents.Internal
 
         public string ID { get; }
         private CollideInteractionType _collideInteractionType;
-        private readonly HoldActivatableNetworkIndicator _syncConfig;
+        private readonly HoldActivatablePlayerSyncIndicator _syncConfig;
 
-        public ColliderInteractionModule(CollisionClickInteractionConfig collClickConfig, GeneralInteractionConfig generalConfig, HoldActivatableNetworkIndicator syncConfig, string id) : base(generalConfig)
+        public ColliderInteractionModule(CollisionClickInteractionConfig collClickConfig, GeneralInteractionConfig generalConfig, HoldActivatablePlayerSyncIndicator syncConfig, string id) : base(generalConfig)
         {
             ID = id;
             _collideInteractionType = collClickConfig.ClickWithCollisionInVR
@@ -36,7 +36,7 @@ namespace VE2.Core.VComponents.Internal
             _syncConfig = syncConfig;
         }
 
-        public ColliderInteractionModule(CollideInteractionType collideInteractionType, GeneralInteractionConfig generalConfig, HoldActivatableNetworkIndicator syncConfig, string id) : base(generalConfig)
+        public ColliderInteractionModule(CollideInteractionType collideInteractionType, GeneralInteractionConfig generalConfig, HoldActivatablePlayerSyncIndicator syncConfig, string id) : base(generalConfig)
         {
             ID = id;
             _collideInteractionType = collideInteractionType;

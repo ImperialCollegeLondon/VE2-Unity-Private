@@ -31,7 +31,7 @@ namespace VE2.Core.VComponents.Internal
 
     internal partial class V_PressurePlate : MonoBehaviour, IV_PressurePlate, ICollideInteractionModuleProvider
     {
-        [SerializeField, HideLabel, IgnoreParent] private PressurePlateConfig _config = new();
+        [SerializeField, IgnoreParent] private PressurePlateConfig _config = new();
         [SerializeField, HideInInspector] private MultiInteractorActivatableState _state = new();
 
         #region Player Interfaces
