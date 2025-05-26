@@ -154,6 +154,7 @@ namespace VE2.Core.Tests
             Assert.AreEqual(_firstActivatablePluginInterface.MostRecentInteractingClientID.Value, localClientID);
             Assert.IsTrue(_firstActivatablePluginInterface.MostRecentInteractingClientID.IsLocal);
 
+            handCollider.OnCollideEnd += Raise.Event<Action<ICollideInteractionModule>>(_firstActivatableCollideInterface.CollideInteractionModule);
             handCollider.OnCollideStart += Raise.Event<Action<ICollideInteractionModule>>(_firstActivatableCollideInterface.CollideInteractionModule);
             _customerScript.Received(1).HandleDeactivateReceived();
             Assert.IsFalse(_firstActivatablePluginInterface.IsActivated, "Activatable should be deactivated");
