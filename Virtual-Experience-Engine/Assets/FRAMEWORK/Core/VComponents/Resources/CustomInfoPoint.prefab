@@ -51,10 +51,6 @@ MonoBehaviour:
   _canvasCloseButton: {fileID: 1983875036905344831}
   _toggleActivatableConfig:
     StateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsActivated: 0
         ClientID: 65535
@@ -116,17 +112,16 @@ MonoBehaviour:
             m_CallState: 2
       UseActivationGroup: 0
       ActivationGroupID: None
-    GeneralInteractionConfig:
-      AdminOnly: 0
-      EnableControllerVibrations: 1
-      ShowTooltipsAndHighlight: 1
-    ActivatableRangedInteractionConfig:
-      InteractionRange: 10
+    CollisionClickInteractionConfig:
+      ClickWithCollisionInVR: 1
+    RangedClickInteractionConfig:
+      InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
           m_Calls:
           - m_Target: {fileID: 1254226768070530210}
-            m_TargetAssemblyTypeName: InfoPointTriggerAnimationHandler, VE2.Core.VComponents.Internal
+            m_TargetAssemblyTypeName: VE2.Core.VComponents.Internal.InfoPointTriggerAnimationHandler,
+              VE2.Core.VComponents.Internal
             m_MethodName: ToggleHighlight
             m_Mode: 6
             m_Arguments:
@@ -141,7 +136,8 @@ MonoBehaviour:
         m_PersistentCalls:
           m_Calls:
           - m_Target: {fileID: 1254226768070530210}
-            m_TargetAssemblyTypeName: InfoPointTriggerAnimationHandler, VE2.Core.VComponents.Internal
+            m_TargetAssemblyTypeName: VE2.Core.VComponents.Internal.InfoPointTriggerAnimationHandler,
+              VE2.Core.VComponents.Internal
             m_MethodName: ToggleHighlight
             m_Mode: 6
             m_Arguments:
@@ -152,7 +148,15 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-      ActivateAtRangeInVR: 1
+      ClickAtRangeInVR: 1
+    GeneralInteractionConfig:
+      AdminOnly: 0
+      EnableControllerVibrations: 1
+      ShowTooltipsAndHighlight: 1
+    SyncConfig:
+      IsNetworked: 1
+      TransmissionFrequency: 1
+      TransmissionType: 0
 --- !u!1001 &6823851080146084258
 PrefabInstance:
   m_ObjectHideFlags: 0
