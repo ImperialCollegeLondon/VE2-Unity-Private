@@ -109,7 +109,7 @@ namespace VE2.Core.VComponents.Internal
             string id = "RotationalAdjustable-" + gameObject.name;
 
             if (_adjustableState == null)
-                _adjustableState = new AdjustableState(float.MaxValue);
+                _adjustableState = new AdjustableState(_config.AdjustableStateConfig.StartingOutputValue);
 
             List<IHandheldInteractionModule> handheldInteractions = new();
 

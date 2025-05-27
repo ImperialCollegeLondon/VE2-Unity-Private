@@ -1967,7 +1967,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1ff4a5f906d2bab458e82f663b4ab28b, type: 2}
+  - {fileID: 2100000, guid: fa8fdd9f27bcbcb43ad6a5f657a84898, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -20145,7 +20145,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51233b46e6e04214ba3824b98b9c4bf9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minutesBetweenAutosave: 5
 --- !u!1 &1948422849
 GameObject:
   m_ObjectHideFlags: 0
@@ -21964,8 +21963,6 @@ GameObject:
   - component: {fileID: 2103749181}
   - component: {fileID: 2103749182}
   - component: {fileID: 2103749186}
-  - component: {fileID: 2103749188}
-  - component: {fileID: 2103749187}
   - component: {fileID: 2103749189}
   m_Layer: 0
   m_Name: Torch
@@ -22127,6 +22124,19 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 1
             m_CallState: 2
+          - m_Target: {fileID: 156762055}
+            m_TargetAssemblyTypeName: UnityEngine.Renderer, UnityEngine
+            m_MethodName: set_material
+            m_Mode: 2
+            m_Arguments:
+              m_ObjectArgument: {fileID: 2100000, guid: 1ff4a5f906d2bab458e82f663b4ab28b,
+                type: 2}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Material, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 1
+            m_CallState: 2
       OnDeactivate:
         m_PersistentCalls:
           m_Calls:
@@ -22142,8 +22152,24 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+          - m_Target: {fileID: 156762055}
+            m_TargetAssemblyTypeName: UnityEngine.Renderer, UnityEngine
+            m_MethodName: set_material
+            m_Mode: 2
+            m_Arguments:
+              m_ObjectArgument: {fileID: 2100000, guid: fa8fdd9f27bcbcb43ad6a5f657a84898,
+                type: 2}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Material, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
       UseActivationGroup: 0
       ActivationGroupID: None
+    HandheldClickInteractionConfig:
+      IsHoldMode: 0
+      DeactivateOnDrop: 1
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
@@ -22256,59 +22282,6 @@ MonoBehaviour:
   _tweenDuration: 0.5
   _easeType: 19
   _startAtMin: 1
---- !u!23 &2103749187
-MeshRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2103749179}
-  m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 2
-  m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
-  m_SmallMeshCulling: 1
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 0}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_AdditionalVertexStreams: {fileID: 0}
---- !u!33 &2103749188
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2103749179}
-  m_Mesh: {fileID: 0}
 --- !u!114 &2103749189
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27041,7 +27014,7 @@ MonoBehaviour:
       VRRaySnapRange: 0.15
       VRRaySnapRangeBackOfHand: 0.1
       failsafeGrabMultiplier: 1.2
-      TransformToAdjust: {fileID: 601521730583208394}
+      TransformToAdjust: {fileID: 7630708130437203443}
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
@@ -27879,7 +27852,7 @@ MonoBehaviour:
       VRRaySnapRange: 0.15
       VRRaySnapRangeBackOfHand: 0.1
       failsafeGrabMultiplier: 1.2
-      TransformToAdjust: {fileID: 428635686494013578}
+      TransformToAdjust: {fileID: 7302318795587373846}
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
