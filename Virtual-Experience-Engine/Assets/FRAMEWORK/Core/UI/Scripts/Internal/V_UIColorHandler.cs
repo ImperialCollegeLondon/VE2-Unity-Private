@@ -29,6 +29,7 @@ namespace VE2.Core.UI.Internal
         }
 
         [SerializeField, HideIf(nameof(_hasButton), true)] private ColorType _colorType;
+        [SerializeField, HideIf(nameof(_hasButton), true)] private float _colorAlpha = 1f;
         [SerializeField, HideIf(nameof(_hasButton), false)] private ButtonType _buttonType;
 
         private bool _hasButton => _button != null; 
@@ -112,50 +113,52 @@ namespace VE2.Core.UI.Internal
 
         private void UpdateColor() 
         {
+            Color ApplyAlpha(Color color) => new Color(color.r, color.g, color.b, _colorAlpha);
+
             switch (_colorType)
             {
-                case ColorType.Primary:
-                    if (_image != null && !_hasButton)
-                        _image.color = _colorConfiguration.PrimaryColor;
-                    if (_text != null)
-                        _text.color = _colorConfiguration.PrimaryColor;
-                    break;
-                case ColorType.Secondary:
-                    if (_image != null && !_hasButton)
-                        _image.color = _colorConfiguration.SecondaryColor;
-                    if (_text != null)
-                        _text.color = _colorConfiguration.SecondaryColor;
-                    break;
-                case ColorType.Tertiary:
-                    if (_image != null && !_hasButton)
-                        _image.color = _colorConfiguration.TertiaryColor;
-                    if (_text != null)
-                        _text.color = _colorConfiguration.TertiaryColor;
-                    break;
-                case ColorType.Quaternary:
-                    if (_image != null && !_hasButton)
-                        _image.color = _colorConfiguration.QuaternaryColor;
-                    if (_text != null)
-                        _text.color = _colorConfiguration.QuaternaryColor;
-                    break;
-                case ColorType.AccentPrimary:
-                    if (_image != null && !_hasButton)
-                        _image.color = _colorConfiguration.AccentPrimaryColor;
-                    if (_text != null)
-                        _text.color = _colorConfiguration.AccentPrimaryColor;
-                    break;
-                case ColorType.AccentSecondary:
-                    if (_image != null && !_hasButton)
-                        _image.color = _colorConfiguration.AccentSecondaryColor;
-                    if (_text != null)
-                        _text.color = _colorConfiguration.AccentSecondaryColor;
-                    break;
+            case ColorType.Primary:
+                if (_image != null && !_hasButton)
+                _image.color = ApplyAlpha(_colorConfiguration.PrimaryColor);
+                if (_text != null)
+                _text.color = ApplyAlpha(_colorConfiguration.PrimaryColor);
+                break;
+            case ColorType.Secondary:
+                if (_image != null && !_hasButton)
+                _image.color = ApplyAlpha(_colorConfiguration.SecondaryColor);
+                if (_text != null)
+                _text.color = ApplyAlpha(_colorConfiguration.SecondaryColor);
+                break;
+            case ColorType.Tertiary:
+                if (_image != null && !_hasButton)
+                _image.color = ApplyAlpha(_colorConfiguration.TertiaryColor);
+                if (_text != null)
+                _text.color = ApplyAlpha(_colorConfiguration.TertiaryColor);
+                break;
+            case ColorType.Quaternary:
+                if (_image != null && !_hasButton)
+                _image.color = ApplyAlpha(_colorConfiguration.QuaternaryColor);
+                if (_text != null)
+                _text.color = ApplyAlpha(_colorConfiguration.QuaternaryColor);
+                break;
+            case ColorType.AccentPrimary:
+                if (_image != null && !_hasButton)
+                _image.color = ApplyAlpha(_colorConfiguration.AccentPrimaryColor);
+                if (_text != null)
+                _text.color = ApplyAlpha(_colorConfiguration.AccentPrimaryColor);
+                break;
+            case ColorType.AccentSecondary:
+                if (_image != null && !_hasButton)
+                _image.color = ApplyAlpha(_colorConfiguration.AccentSecondaryColor);
+                if (_text != null)
+                _text.color = ApplyAlpha(_colorConfiguration.AccentSecondaryColor);
+                break;
             }
 
             if (_hasButton)
             {
-                AssignButtonColors();
-                SetToNonSelectedColors();
+            AssignButtonColors();
+            SetToNonSelectedColors();
             }
         }
 
