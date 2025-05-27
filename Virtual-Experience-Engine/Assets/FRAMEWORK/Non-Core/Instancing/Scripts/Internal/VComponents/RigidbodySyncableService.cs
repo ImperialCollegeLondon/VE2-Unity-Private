@@ -142,8 +142,6 @@ namespace VE2.NonCore.Instancing.Internal
                 rigidbodyInSceneWrapper.isKinematic = true;
             }
 
-            _rigidbody.renderer.enabled = false;
-
             // Simulate a "lag compensation time" into the future so that the non-host starts receiving states
             // for a smooth drop on their side
             // float lagCompensationTime = ;
@@ -190,9 +188,6 @@ namespace VE2.NonCore.Instancing.Internal
             // If _hostSmoothingFramesLeft > 0, extra processing has to be done for host-side
             if (_isHost && _hostNotSendingStates && _hostSmoothingFramesLeft > 0)
             {
-                if (!_rigidbody.renderer.enabled)
-                _rigidbody.renderer.enabled = true;
-
                 // Send state from list instead of current _rigidbody state
                 RigidbodySyncableState syncState = _storedHostLagCompensationStates[^_hostSmoothingFramesLeft];
                 _stateModule.SetStateFromHost(syncState.FixedTime, syncState.Position, syncState.Rotation, syncState.GrabCounter);
