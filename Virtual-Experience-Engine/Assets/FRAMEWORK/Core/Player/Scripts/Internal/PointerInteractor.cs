@@ -52,7 +52,7 @@ namespace VE2.Core.Player.Internal
         protected bool IsCurrentlyGrabbing => _CurrentGrabbingGrabbable != null;
         protected InteractorID _InteractorID => _LocalClientIDWrapper.IsClientIDReady ? new InteractorID(_LocalClientIDWrapper.Value, _InteractorType) : null;
         protected readonly Dictionary<string, bool> _heldActivatableIDsAgainstNetworkFlags = new();
-        protected const float MAX_RAYCAST_DISTANCE = 10;
+        protected const float MAX_RAYCAST_DISTANCE = 30;
         protected const float MAX_SPHERECAST_RADIUS = 10;
         protected IRangedInteractionModule _CurrentHoveringInteractable;
         protected IRangedClickInteractionModule _CurrentHoveringClickInteractable => _CurrentHoveringInteractable as IRangedClickInteractionModule;
