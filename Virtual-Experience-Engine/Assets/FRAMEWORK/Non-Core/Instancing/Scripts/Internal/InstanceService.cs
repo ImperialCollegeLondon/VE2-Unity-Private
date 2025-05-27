@@ -296,8 +296,7 @@ namespace VE2.NonCore.Instancing.Internal
 
         public event Action OnBecomeHost;
         public event Action OnLoseHost;
-
-        public bool IsHost => InstanceInfo == null || InstanceInfo.HostID == LocalClientID;
+        public bool IsHost => InstanceInfo != null && InstanceInfo.HostID == LocalClientID;
         public ushort HostID => InstanceInfo.HostID;
 
         public event Action<InstancedInstanceInfo> OnInstanceInfoChanged;
@@ -317,7 +316,7 @@ namespace VE2.NonCore.Instancing.Internal
                     bool wasHost = IsHost;
                     _instanceInfo = value;
 
-                    if (!wasHost &&IsHost)
+                    if (!wasHost && IsHost)
                     {
                         try 
                         {
