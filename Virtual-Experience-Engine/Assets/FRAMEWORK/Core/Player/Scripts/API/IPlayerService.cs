@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.Core.Player.API
@@ -18,6 +19,11 @@ namespace VE2.Core.Player.API
 
         public Camera ActiveCamera { get; }
 
-        public event Action OnTeleport;
+        public UnityEvent OnTeleport { get; }
+        public UnityEvent<string> OnSnapTurn { get; }
+        public UnityEvent OnHorizontalDrag { get; }
+        public UnityEvent OnVerticalDrag { get; }
+        public UnityEvent OnJump2D { get; }
+        public UnityEvent OnCrouch2D { get; }
     }
 }

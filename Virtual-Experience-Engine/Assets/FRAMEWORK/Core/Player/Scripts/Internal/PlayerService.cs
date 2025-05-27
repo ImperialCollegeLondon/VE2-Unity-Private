@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.Player.API;
@@ -29,9 +30,9 @@ namespace VE2.Core.Player.Internal
         }
     }
 
-    internal class PlayerService : IPlayerService, IPlayerServiceInternal 
+    internal class PlayerService : IPlayerService, IPlayerServiceInternal
     {
-        #region Interfaces 
+        #region Interfaces  
         public PlayerTransformData PlayerTransformData {get; private set;}
 
         public event Action<OverridableAvatarAppearance> OnOverridableAvatarAppearanceChanged;
@@ -63,7 +64,12 @@ namespace VE2.Core.Player.Internal
         public bool IsVRMode => PlayerTransformData.IsVRMode;
         public event Action OnChangeToVRMode;
         public event Action OnChangeTo2DMode;
-        public event Action OnTeleport;
+        public UnityEvent OnTeleport => _config.MovementModeConfig.OnTeleport; 
+        public UnityEvent<string> OnSnapTurn => _config.MovementModeConfig.OnSnapTurn;
+        public UnityEvent OnHorizontalDrag => _config.MovementModeConfig.OnHorizontalDrag;
+        public UnityEvent OnVerticalDrag => _config.MovementModeConfig.OnVerticalDrag;
+        public UnityEvent OnJump2D => _config.MovementModeConfig.OnJump2D;
+        public UnityEvent OnCrouch2D => _config.MovementModeConfig.OnCrouch2D;
 
         public List<GameObject> HeadOverrideGOs => _config.AvatarAppearanceOverrideConfig.HeadOverrideGameObjects;
         public List<GameObject> TorsoOverrideGOs => _config.AvatarAppearanceOverrideConfig.TorsoOverrideGameObjects;
@@ -260,13 +266,6 @@ namespace VE2.Core.Player.Internal
             _player2D?.HandleReceiveAvatarAppearance(OverridableAvatarAppearance);
         }
 
-        private void HandleMovement()
-        {
-            if (PlayerTransformData.IsVRMode)
-            {
-                //_playerVR.
-            }
-        }
         public void HandleFixedUpdate()
         {
             if (PlayerTransformData.IsVRMode)

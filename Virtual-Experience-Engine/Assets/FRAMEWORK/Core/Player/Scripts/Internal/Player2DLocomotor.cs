@@ -19,9 +19,10 @@ namespace VE2.Core.Player.Internal
         private readonly Transform _verticalOffsetTransform;
         private readonly Transform _cameraTransform;
 
-        private readonly LayerMask _traversableLayers;
+        private readonly MovementModeConfig _movementModeConfig;
         private readonly InspectModeIndicator _inspectModeIndicator;
 
+        private LayerMask _traversableLayers => _movementModeConfig.TraversableLayers;
         private float _originalControllerHeight;
         private float verticalVelocity = 0f;
         private bool isCrouching = false;
@@ -77,7 +78,7 @@ namespace VE2.Core.Player.Internal
             _originalControllerHeight = locomotor2DReferences.Controller.height;
             _cameraTransform = locomotor2DReferences.CameraTransform;
 
-            _traversableLayers = movementModeConfig.TraversableLayers;
+            _movementModeConfig = movementModeConfig;
             _characterController.includeLayers = movementModeConfig.TraversableLayers | movementModeConfig.CollisionLayers;
 
             _inspectModeIndicator = inspectModeIndicator;
@@ -145,6 +146,7 @@ namespace VE2.Core.Player.Internal
                 if (Keyboard.current.spaceKey.wasPressedThisFrame && IsGrounded())
                 {
                     verticalVelocity = jumpForce;
+                    _movementModeConfig.OnJump2D?.Invoke();
                 }
 
                 // Crouch
@@ -156,7 +158,11 @@ namespace VE2.Core.Player.Internal
                         _characterController.height = _originalControllerHeight;
                     }
                     else
+                    {
                         _characterController.height = crouchHeight;
+                        _movementModeConfig.OnCrouch2D?.Invoke();
+                    }
+
 
                     isCrouching = !isCrouching;
                 }
