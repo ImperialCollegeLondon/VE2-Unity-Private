@@ -34,7 +34,6 @@ namespace VE2.Core.VComponents.Internal
         #endregion
     }
 
-    [RequireComponent(typeof(MeshFilter))]
     [ExecuteAlways]
     internal partial class V_FreeGrabbable : MonoBehaviour, IRangedGrabInteractionModuleProvider, IGrabbableRigidbody
     {
