@@ -62,14 +62,15 @@ namespace VE2.Core.Player.Internal
         public float TransmissionFrequency => _config.RepeatedTransmissionConfig.TransmissionFrequency;
 
         public bool IsVRMode => PlayerTransformData.IsVRMode;
-        public event Action OnChangeToVRMode;
-        public event Action OnChangeTo2DMode;
+        public UnityEvent OnChangeToVRMode => _config.PlayerModeConfig.OnChangeToVRMode;
+        public UnityEvent OnChangeTo2DMode => _config.PlayerModeConfig.OnChangeTo2DMode;
         public UnityEvent OnTeleport => _config.MovementModeConfig.OnTeleport; 
         public UnityEvent<string> OnSnapTurn => _config.MovementModeConfig.OnSnapTurn;
         public UnityEvent OnHorizontalDrag => _config.MovementModeConfig.OnHorizontalDrag;
         public UnityEvent OnVerticalDrag => _config.MovementModeConfig.OnVerticalDrag;
         public UnityEvent OnJump2D => _config.MovementModeConfig.OnJump2D;
         public UnityEvent OnCrouch2D => _config.MovementModeConfig.OnCrouch2D;
+        public UnityEvent OnResetViewVR => _config.CameraConfig.OnResetViewVR;
 
         public List<GameObject> HeadOverrideGOs => _config.AvatarAppearanceOverrideConfig.HeadOverrideGameObjects;
         public List<GameObject> TorsoOverrideGOs => _config.AvatarAppearanceOverrideConfig.TorsoOverrideGameObjects;
@@ -110,6 +111,21 @@ namespace VE2.Core.Player.Internal
             OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
         }
 
+        public Vector3 GetPlayerPosition()
+        {
+            if (PlayerTransformData.IsVRMode)
+                return _playerVR.GetPlayerPosition();
+            else
+                return _player2D.GetPlayerPosition();
+        }
+
+        public void SetPlayerPosition(Vector3 position)
+        {
+            if (PlayerTransformData.IsVRMode)
+                _playerVR.SetPlayerPosition(position);
+            else
+                _player2D.SetPlayerPosition(position);
+        }
         public AndroidJavaObject AddArgsToIntent(AndroidJavaObject intent) => _playerSettingsHandler.AddArgsToIntent(intent);
 
         public void AddPanelTo2DOverlayUI(RectTransform rect) => _player2D.MoveRectToOverlayUI(rect);

@@ -38,12 +38,13 @@ namespace VE2.Core.Player.Internal
         private readonly PlayerVRInputContainer _playerVRInputContainer;
         private readonly PlayerVRControlConfig _controlConfig;
         private readonly IXRManagerWrapper _xrManagerSettingsWrapper;
-        private readonly Transform _rootTransform;
         private readonly Transform _verticalOffsetTransform;
         private readonly Transform _headTransform;
         private readonly FeetInteractor _feetInteractorVR;
         private readonly ResetViewUIHandler _resetViewUIHandler;
         private readonly Transform _neutralPositionOffsetTransform;
+        private readonly MovementModeConfig _movementModeConfig;
+        private readonly CameraConfig _cameraConfig;
 
         private readonly HandController _handControllerLeft;
         private readonly HandController _handControllerRight;
@@ -79,6 +80,8 @@ namespace VE2.Core.Player.Internal
             _feetInteractorVR = new FeetInteractor(collisionDetectorFactory, ColliderType.FeetVR, playerVRReferences.FeetCollider, InteractorType.Feet, localClientIDWrapper, interactionConfig);
             _resetViewUIHandler = playerVRReferences.ResetViewUIHandler;
             _neutralPositionOffsetTransform = playerVRReferences.NeutralPositionOffsetTransform;
+            _movementModeConfig = movementModeConfig;
+            _cameraConfig = cameraConfig;
 
             base._PlayerHeadTransform = _headTransform;
             base._FeetCollisionDetector = _feetInteractorVR._collisionDetector as CollisionDetector;
@@ -242,6 +245,8 @@ namespace VE2.Core.Player.Internal
             // Apply the inverse rotation (i.e., rotate the offset transform by the angle needed to cancel the camera's yaw offset)
             Quaternion yRotation = Quaternion.AngleAxis(signedYawDelta, Vector3.up);
             _neutralPositionOffsetTransform.rotation = yRotation * _neutralPositionOffsetTransform.rotation;
+
+            _cameraConfig.OnResetViewVR?.Invoke();
         }
 
         private void HandleResetViewCancelled()

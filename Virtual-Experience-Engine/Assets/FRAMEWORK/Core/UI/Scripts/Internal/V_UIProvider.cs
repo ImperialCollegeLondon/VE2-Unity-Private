@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem.UI;
 using VE2.Common.API;
 using VE2.Core.UI.API;
@@ -34,12 +36,15 @@ namespace VE2.Core.UI.Internal
         [SerializeField, HideInInspector] private bool _lastUseSecondaryUI;
         [SerializeField] private bool _useCustomSecondaryUI = true;
 
+        [SerializeField] private MenuUIConfig _menuUIConfig = new MenuUIConfig();
+
         private PrimaryUIService _primaryUIService;
         private SecondaryUIService _secondaryUIService;
 
         private GameObject _pluginPrimaryUIHolder => FindFirstObjectByType<PluginPrimaryHolderUITag>(FindObjectsInactive.Include)?.gameObject;
         private GameObject _pluginSecondaryUIHolder => FindFirstObjectByType<PluginSecondaryUIHolderTag>(FindObjectsInactive.Include)?.gameObject;
         private string _primaryUIPluginTabName => "World Info";
+
 
         private void OnValidate()
         {
@@ -76,7 +81,7 @@ namespace VE2.Core.UI.Internal
                 if (inputSystemUIInputModule == null)
                     inputSystemUIInputModule = new GameObject("InputSystemUIInputModule").AddComponent<InputSystemUIInputModule>();
 
-                _primaryUIService = new PrimaryUIService(VE2API.InputHandler.TogglePrimaryUI, inputSystemUIInputModule);
+                _primaryUIService = new PrimaryUIService(VE2API.InputHandler.TogglePrimaryUI, inputSystemUIInputModule, _menuUIConfig);
 
                 //Move plugin primary UI to primary UI==========
                 GameObject pluginPrimaryUI = _pluginPrimaryUIHolder.transform.GetChild(0).gameObject;
@@ -139,4 +144,11 @@ namespace VE2.Core.UI.Internal
         I.E - have the actual service itself be responsible for spawning the gameobject 
 
     */
+
+    [Serializable]
+    internal class MenuUIConfig
+    {
+        [SerializeField] internal UnityEvent OnActivateMainMenu = new UnityEvent();
+        [SerializeField] internal UnityEvent OnDeactivateMainMenu = new UnityEvent();
+    }
 }

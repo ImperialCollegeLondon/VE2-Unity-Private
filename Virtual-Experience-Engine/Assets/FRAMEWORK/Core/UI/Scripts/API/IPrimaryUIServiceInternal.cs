@@ -12,6 +12,8 @@ namespace VE2.Core.UI.API
         public event Action OnSwitchTo2DButtonClicked;
         public event Action OnSwitchToVRButtonClicked;
 
+        public event Action OnUIShowInternal;
+        public event Action OnUIHideInternal;
         public void EnableModeSwitchButtons();
         public void ShowSwitchToVRButton();
         public void ShowSwitchTo2DButton();

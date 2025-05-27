@@ -94,6 +94,7 @@ namespace VE2.Core.Player.Internal
 
             _feetInteractor2D = new(collisionDetectorFactory, ColliderType.Feet2D, player2DReferences.Interactor2DReferences.FeetCollider, InteractorType.Feet, localClientIDWrapper, interactionConfig);
             _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences, movementModeConfig, _inspectModeIndicator);
+            _rootTransform = player2DReferences.Locomotor2DReferences.Controller.transform;
 
             base._PlayerHeadTransform = _playerLocomotor2D.HeadTransform;
             base._FeetCollisionDetector = _feetInteractor2D._collisionDetector as CollisionDetector;
@@ -126,12 +127,12 @@ namespace VE2.Core.Player.Internal
 
             if (_primaryUIService != null)
             {
-                _primaryUIService.OnUIShow += HandlePrimaryUIActivated;
-                _primaryUIService.OnUIHide += HandlePrimaryUIDeactivated;
+                _primaryUIService.OnUIShowInternal += HandlePrimaryUIActivated;
+                _primaryUIService.OnUIHideInternal += HandlePrimaryUIDeactivated;
             }
         }
 
-        internal void DeactivatePlayer() 
+        internal void DeactivatePlayer()
         {
             if (_playerGO != null)
                 _playerGO.gameObject.SetActive(false);
@@ -142,9 +143,8 @@ namespace VE2.Core.Player.Internal
 
             if (_primaryUIService != null)
             {
-                _primaryUIService.OnUIShow -= HandlePrimaryUIActivated;
-                _primaryUIService.OnUIHide -= HandlePrimaryUIDeactivated;
-            }
+                _primaryUIService.OnUIShowInternal -= HandlePrimaryUIActivated;
+                _primaryUIService.OnUIHideInternal -= HandlePrimaryUIDeactivated;            }
         }
 
         internal override void HandleUpdate() 
@@ -182,7 +182,12 @@ namespace VE2.Core.Player.Internal
             CommonUtils.MovePanelToFillRect(newRect, _overlayUIRect);
         }
 
-        internal void TearDown() 
+        public override void SetPlayerPosition(Vector3 position)
+        {
+            _playerLocomotor2D.RootPosition = position;
+        }
+
+        internal void TearDown()
         {
             _playerLocomotor2D?.HandleOnDisable();
             _interactor2D?.HandleOnDisable();
@@ -190,8 +195,8 @@ namespace VE2.Core.Player.Internal
 
             if (_primaryUIService != null)
             {
-                _primaryUIService.OnUIShow -= HandlePrimaryUIActivated;
-                _primaryUIService.OnUIHide -= HandlePrimaryUIDeactivated;
+                _primaryUIService.OnUIShow.RemoveListener(HandlePrimaryUIActivated);
+                _primaryUIService.OnUIHide.RemoveListener(HandlePrimaryUIDeactivated);
             }
 
             if (_playerGO != null)

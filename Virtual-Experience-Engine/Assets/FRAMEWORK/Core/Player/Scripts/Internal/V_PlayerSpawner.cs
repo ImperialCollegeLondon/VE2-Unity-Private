@@ -56,6 +56,9 @@ namespace VE2.Core.Player.Internal
         [SerializeField] internal SupportedPlayerModes SupportedPlayerModes = SupportedPlayerModes.Both;
         internal bool EnableVR => SupportedPlayerModes == SupportedPlayerModes.Both || SupportedPlayerModes == SupportedPlayerModes.OnlyVR;
         internal bool Enable2D => SupportedPlayerModes == SupportedPlayerModes.Both || SupportedPlayerModes == SupportedPlayerModes.Only2D;
+
+        [SerializeField] internal UnityEvent OnChangeToVRMode;
+        [SerializeField] internal UnityEvent OnChangeTo2DMode;
     }
 
     [Serializable]
@@ -92,6 +95,7 @@ namespace VE2.Core.Player.Internal
         private bool _showAAQuality => AntiAliasing == AntialiasingMode.SubpixelMorphologicalAntiAliasing || AntiAliasing == AntialiasingMode.TemporalAntiAliasing;
         [SerializeField] internal bool EnablePostProcessing = true;
         [SerializeField] internal bool OcclusionCulling = true;
+        [SerializeField] internal UnityEvent OnResetViewVR = new UnityEvent();
     }
 
     [Serializable]
