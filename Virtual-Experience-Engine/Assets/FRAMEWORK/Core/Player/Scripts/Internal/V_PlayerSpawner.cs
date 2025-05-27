@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Rendering.Universal;
 using VE2.Common.API;
 using VE2.Common.Shared;
@@ -71,6 +72,7 @@ namespace VE2.Core.Player.Internal
         [SerializeField] internal LayerMask CollisionLayers;
         [SerializeField] internal bool FreeFlyMode = false;
         [SerializeField] internal float TeleportRangeMultiplier = 1.0f;
+        [SerializeField] internal UnityEvent OnTeleport = new UnityEvent();
     }
 
     [Serializable]

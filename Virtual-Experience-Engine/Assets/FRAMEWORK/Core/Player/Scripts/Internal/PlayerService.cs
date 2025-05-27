@@ -63,6 +63,7 @@ namespace VE2.Core.Player.Internal
         public bool IsVRMode => PlayerTransformData.IsVRMode;
         public event Action OnChangeToVRMode;
         public event Action OnChangeTo2DMode;
+        public event Action OnTeleport;
 
         public List<GameObject> HeadOverrideGOs => _config.AvatarAppearanceOverrideConfig.HeadOverrideGameObjects;
         public List<GameObject> TorsoOverrideGOs => _config.AvatarAppearanceOverrideConfig.TorsoOverrideGameObjects;
@@ -259,6 +260,13 @@ namespace VE2.Core.Player.Internal
             _player2D?.HandleReceiveAvatarAppearance(OverridableAvatarAppearance);
         }
 
+        private void HandleMovement()
+        {
+            if (PlayerTransformData.IsVRMode)
+            {
+                //_playerVR.
+            }
+        }
         public void HandleFixedUpdate()
         {
             if (PlayerTransformData.IsVRMode)

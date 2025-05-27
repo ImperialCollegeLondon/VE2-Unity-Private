@@ -17,5 +17,7 @@ namespace VE2.Core.Player.API
         public void ClearAvatarTorsoOverride();
 
         public Camera ActiveCamera { get; }
+
+        public event Action OnTeleport;
     }
 }
