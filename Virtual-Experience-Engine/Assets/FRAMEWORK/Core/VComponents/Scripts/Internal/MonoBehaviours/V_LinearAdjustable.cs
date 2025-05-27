@@ -57,7 +57,7 @@ namespace VE2.Core.VComponents.Internal
         #endregion
     }
     
-    internal partial class V_LinearAdjustable : BaseVComponent, IRangedGrabInteractionModuleProvider
+    internal partial class V_LinearAdjustable : MonoBehaviour, IRangedGrabInteractionModuleProvider
     {
         [SerializeField, IgnoreParent] private LinearAdjustableConfig _config = new();
         [SerializeField, HideInInspector] private AdjustableState _adjustableState = null;

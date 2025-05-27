@@ -61,11 +61,11 @@ namespace VE2.NonCore.Instancing.VComponents.Tests
     internal partial class V_NetworkObjectStub : IV_NetworkObject
     {
         #region State Module Interface
-        internal INetworkObjectStateModule _StateModule => _Service.StateModule;
+        INetworkObjectStateModule IV_NetworkObject._stateModule => _Service.StateModule;
 
-        public UnityEvent<object> OnDataChange => _StateModule.OnStateChange;
-        public object CurrentData => _StateModule.NetworkObject;
-        public void UpdateData(object data) => _StateModule.NetworkObject = data;
+        public UnityEvent<object> OnDataChange => _Service.StateModule.OnStateChange;
+        public object CurrentData => _Service.StateModule.NetworkObject;
+        public void UpdateData(object data) => _Service.StateModule.NetworkObject = data;
         #endregion
     }
 
