@@ -27009,12 +27009,12 @@ MonoBehaviour:
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
-      AttachPoint: {fileID: 0}
+      AttachPoint: {fileID: 7630708130437203443}
       VrFailsafeGrab: 1
       VRRaySnapRange: 0.15
       VRRaySnapRangeBackOfHand: 0.1
       failsafeGrabMultiplier: 1.2
-      TransformToAdjust: {fileID: 0}
+      TransformToAdjust: {fileID: 7630708130437203443}
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1

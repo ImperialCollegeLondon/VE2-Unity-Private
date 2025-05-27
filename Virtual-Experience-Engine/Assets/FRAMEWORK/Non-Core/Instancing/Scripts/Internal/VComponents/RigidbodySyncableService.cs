@@ -176,7 +176,7 @@ namespace VE2.NonCore.Instancing.Internal
             _stateModule.HandleFixedUpdate();
 
             // Hosts send states on FixedUpdate when hostNotSendingStates flag is false
-            if (_isHost && !_hostNotSendingStates)
+            if (_instanceService.IsConnectedToServer && _isHost && !_hostNotSendingStates)
             {
                 if (_config.LogSendReceiveDebugMessages)
                 { 
@@ -186,7 +186,7 @@ namespace VE2.NonCore.Instancing.Internal
             }
 
             // If _hostSmoothingFramesLeft > 0, extra processing has to be done for host-side
-            if (_isHost && _hostNotSendingStates && _hostSmoothingFramesLeft > 0)
+            if (_instanceService.IsConnectedToServer && _isHost && _hostNotSendingStates && _hostSmoothingFramesLeft > 0)
             {
                 // Send state from list instead of current _rigidbody state
                 RigidbodySyncableState syncState = _storedHostLagCompensationStates[^_hostSmoothingFramesLeft];
@@ -225,7 +225,7 @@ namespace VE2.NonCore.Instancing.Internal
         {
 
             // Non host interpolates on Update when not simulating for themselves
-            if (!_isHost && !_nonHostSimulating)
+            if (_instanceService.IsConnectedToServer && !_isHost && !_nonHostSimulating)
             {
                 InterpolateRigidbody();
             }
