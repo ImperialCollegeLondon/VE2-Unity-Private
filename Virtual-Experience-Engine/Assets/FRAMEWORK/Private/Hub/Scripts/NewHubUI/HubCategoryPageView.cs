@@ -1,16 +1,52 @@
+using System;
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
+using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 
-public class HubCategoryPageView : MonoBehaviour
+internal class HubCategoryPageView : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [SerializeField] private Button _backButton;
+    [SerializeField] private Image _categoryIcon;
+    [SerializeField] private TMP_Text _categoryTitle;
+    [SerializeField] private VerticalLayoutGroup _verticalWorldsGroup;
+    [SerializeField] private GameObject _horizontalWorldsGroupPrefab;
+
+    [SerializeField] private GameObject _worldButtonPrefab;
+
+    private const int MAX_CATEGORIES_PER_ROW = 4;
+
+    public event Action<WorldDetails> OnWorldClicked;
+    public event Action OnBackClicked;
+
+    void SetupView(WorldCategory worldCategory)
     {
-        
+        _backButton.onClick.AddListener(() => OnBackClicked?.Invoke());
+        _categoryTitle.text = worldCategory.CategoryName;
+        //_categoryIcon.sprite = worldCategory.CategoryIcon; //TODO!
+
+        if (worldCategory.Worlds.Count == 0)
+        {
+            Debug.LogError("Opened categvory has no worlds!");
+            return;
+        }
+
+        GameObject horizontalCategoriesGroup = null;
+
+        for (int i = 0; i < worldCategory.Worlds.Count; i++)
+        {
+            if (i % MAX_CATEGORIES_PER_ROW == 0)
+                horizontalCategoriesGroup = Instantiate(_horizontalWorldsGroupPrefab, _verticalWorldsGroup.transform);
+
+            GameObject worldButton = Instantiate(_worldButtonPrefab, horizontalCategoriesGroup.transform);
+            CreateWorldView(worldCategory.Worlds[i], worldButton.GetComponent<HubWorldButtonView>());
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+    private void CreateWorldView(WorldDetails worldDetails, HubWorldButtonView worldView)
     {
-        
+        worldView.SetupView(worldDetails);
+        worldView.OnWorldClicked += OnWorldClicked;
     }
 }

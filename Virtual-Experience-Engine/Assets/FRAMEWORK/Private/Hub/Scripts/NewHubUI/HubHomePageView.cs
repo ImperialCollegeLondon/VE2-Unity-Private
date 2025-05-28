@@ -73,9 +73,9 @@ internal class HubHomePageView : MonoBehaviour
 internal class WorldCategory
 {
     public readonly string CategoryName;
-    public readonly WorldDetails[] Worlds;
+    public readonly List<WorldDetails> Worlds;
 
-    public WorldCategory(string categoryName, WorldDetails[] worlds)
+    public WorldCategory(string categoryName, List<WorldDetails> worlds)
     {
         CategoryName = categoryName;
         Worlds = worlds;
