@@ -17,18 +17,18 @@ internal class HubHomePageView : MonoBehaviour
     private const int MAX_CATEGORIES_PER_ROW = 4;
     private const int MAX_CATEGORY_ROWS = 2;
 
-    public event Action<WorldDetails> OnWorldClicked;
+    public event Action<HubWorldDetails> OnWorldClicked;
     public event Action<WorldCategory> OnCategoryClicked;
 
-    void SetupView(WorldDetails[] suggestedWorldDetails, List<WorldCategory> worldCategories)
+    public void SetupView(List<HubWorldDetails> suggestedWorldDetails, List<WorldCategory> worldCategories)
     {
-        if (suggestedWorldDetails.Length == 0)
+        if (suggestedWorldDetails.Count == 0)
         {
             Debug.LogWarning("No suggested worlds provided!");
             return;
         }
 
-        for (int i = 0; i < _suggestedWorldViews.Length && i < suggestedWorldDetails.Length; i++)
+        for (int i = 0; i < _suggestedWorldViews.Length && i < suggestedWorldDetails.Count; i++)
             CreateWorldView(suggestedWorldDetails[i], _suggestedWorldViews[i]);
 
         //TODO
@@ -57,8 +57,9 @@ internal class HubHomePageView : MonoBehaviour
         }
     }
 
-    private void CreateWorldView(WorldDetails worldDetails, HubWorldButtonView worldView)
+    private void CreateWorldView(HubWorldDetails worldDetails, HubWorldButtonView worldView)
     {
+        worldView.gameObject.SetActive(true); // Ensure the view is active
         worldView.SetupView(worldDetails);
         worldView.OnWorldClicked += OnWorldClicked;
     }
@@ -73,9 +74,9 @@ internal class HubHomePageView : MonoBehaviour
 internal class WorldCategory
 {
     public readonly string CategoryName;
-    public readonly List<WorldDetails> Worlds;
+    public readonly List<HubWorldDetails> Worlds;
 
-    public WorldCategory(string categoryName, List<WorldDetails> worlds)
+    public WorldCategory(string categoryName, List<HubWorldDetails> worlds)
     {
         CategoryName = categoryName;
         Worlds = worlds;

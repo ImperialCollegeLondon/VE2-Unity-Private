@@ -35,18 +35,18 @@ internal class HubWorldPageView : MonoBehaviour
 
     public event Action OnBackClicked;
 
-    public event Action<WorldDetails> OnAutoSelectInstanceClicked;
+    public event Action<HubWorldDetails> OnAutoSelectInstanceClicked;
     public event Action OnEnterInstanceCodeClicked;
 
-    public event Action<WorldDetails> OnDownloadWorldClicked;
-    public event Action<WorldDetails> OnInstallWorldClicked;
-    public event Action<WorldDetails> OnEnterWorldClicked;
+    public event Action<HubWorldDetails> OnDownloadWorldClicked;
+    public event Action<HubWorldDetails> OnInstallWorldClicked;
+    public event Action<HubWorldDetails> OnEnterWorldClicked;
 
     //TODO - also pass in some world state to tell us if we need to download, or install?
     //We probably shouldn't be using the WorldDetails object... maybe LocalWorldDetails, that includes the local state of the world?
     //TODO - also need to pass in instance details
     //TODO - also also need to pass in current play mode (2D/VR) and whether we can switch modes
-    public void SetupView(WorldDetails worldDetails)
+    public void SetupView(HubWorldDetails worldDetails)
     {
         _backButton.onClick.AddListener(() => OnBackClicked?.Invoke());
         _worldTitle.text = worldDetails.Name;

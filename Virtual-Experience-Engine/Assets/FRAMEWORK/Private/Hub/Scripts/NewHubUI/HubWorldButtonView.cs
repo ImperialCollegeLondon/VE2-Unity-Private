@@ -12,11 +12,11 @@ internal class HubWorldButtonView : MonoBehaviour
     [SerializeField] private Image _needsDownloadIcon;
     [SerializeField] private Image _readyIcon;
 
-    public event Action<WorldDetails> OnWorldClicked;
+    public event Action<HubWorldDetails> OnWorldClicked;
 
-    private WorldDetails _worldDetails;
+    private HubWorldDetails _worldDetails;
 
-    public void SetupView(WorldDetails worldDetails)
+    public void SetupView(HubWorldDetails worldDetails)
     {
         _worldDetails = worldDetails;
 

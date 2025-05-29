@@ -233,7 +233,7 @@ namespace VE2.NonCore.Platform.Internal
             //Are we then worried about missing the message?
             PlatformInstanceInfo newLocalInstanceInfo = newGlobalInfo.InstanceInfoForClient(LocalClientID);
 
-            if (newLocalInstanceInfo.FullInstanceCode != CurrentInstanceCode)
+            if (CurrentInstanceCode == null || newLocalInstanceInfo.FullInstanceCode != CurrentInstanceCode)
             {
                 HandleInstanceAllocation(newLocalInstanceInfo);
             }

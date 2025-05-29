@@ -17,10 +17,10 @@ internal class HubCategoryPageView : MonoBehaviour
 
     private const int MAX_CATEGORIES_PER_ROW = 4;
 
-    public event Action<WorldDetails> OnWorldClicked;
+    public event Action<HubWorldDetails> OnWorldClicked;
     public event Action OnBackClicked;
 
-    void SetupView(WorldCategory worldCategory)
+    public void SetupView(WorldCategory worldCategory)
     {
         _backButton.onClick.AddListener(() => OnBackClicked?.Invoke());
         _categoryTitle.text = worldCategory.CategoryName;
@@ -31,6 +31,8 @@ internal class HubCategoryPageView : MonoBehaviour
             Debug.LogError("Opened categvory has no worlds!");
             return;
         }
+
+        Debug.Log($"Setting up category view for {worldCategory.CategoryName} with {worldCategory.Worlds.Count} worlds.");
 
         GameObject horizontalCategoriesGroup = null;
 
@@ -44,7 +46,7 @@ internal class HubCategoryPageView : MonoBehaviour
         }
     }
 
-    private void CreateWorldView(WorldDetails worldDetails, HubWorldButtonView worldView)
+    private void CreateWorldView(HubWorldDetails worldDetails, HubWorldButtonView worldView)
     {
         worldView.SetupView(worldDetails);
         worldView.OnWorldClicked += OnWorldClicked;

@@ -22,7 +22,7 @@ namespace VE2.Private.Hub
         Every time we start in the hub, we should request allocation to the hub 
 
     */
-    public class HubController : MonoBehaviour
+    public class HubControllerOLD : MonoBehaviour
     {
         private void OnEnable()
         {
