@@ -14,12 +14,14 @@ namespace VE2.Core.Player.Internal
         private readonly GameObject _handVisualGO;
         private readonly LineRenderer _lineRenderer;
         private readonly Material _lineMaterial;
+
+        private readonly IXRHapticsWrapper _xrHapticsWrapper;
         private ColorConfiguration _colorConfig => ColorConfiguration.Instance;
         private const float LINE_EMISSION_INTENSITY = 15;
 
         internal InteractorVR(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, InteractorInputContainer interactorInputContainer, PlayerInteractionConfig playerInteractionConfig,
             InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ColliderType colliderType,
-            ILocalClientIDWrapper localClientID, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator) :
+            ILocalClientIDWrapper localClientID, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator, IXRHapticsWrapper xRHapticsWrapper) :
             base(interactorContainer, grabInteractablesContainer, interactorInputContainer, playerInteractionConfig,
                 interactorReferences, interactorType, raycastProvider, localClientID, grabbableWrapper, hoveringOverScrollableIndicator)
 
@@ -29,6 +31,7 @@ namespace VE2.Core.Player.Internal
             _handVisualGO = interactorVRReferences.HandVisualGO;
             _collisionDetector = collisionDetectorFactory.CreateCollisionDetector(interactorVRReferences.HandCollider, colliderType, playerInteractionConfig.InteractableLayers);
 
+            _xrHapticsWrapper = xRHapticsWrapper;
             _lineRenderer = interactorVRReferences.LineRenderer;
             _lineMaterial = Application.isPlaying ? _lineRenderer.material : null; 
             _lineMaterial?.EnableKeyword("_EMISSION");
@@ -46,6 +49,10 @@ namespace VE2.Core.Player.Internal
             base.HandleOnDisable();
             _collisionDetector.OnCollideStart -= HandleCollideStart;
             _collisionDetector.OnCollideEnd -= HandleCollideEnd;
+        }
+        public override void Vibrate(float amplitude, float duration)
+        {
+            _xrHapticsWrapper.Vibrate(_InteractorID, amplitude, duration);
         }
 
         private void HandleCollideStart(ICollideInteractionModule collideInteractionModule)

@@ -151,6 +151,10 @@ namespace VE2.Core.Player.Internal
             _interactorContainer.RegisterInteractor(_InteractorID.ToString(), this);
         }
 
+        public virtual void Vibrate(float amplitude, float duration)
+        {
+            //No vibration for pointer interactors
+        }
         public virtual void HandleUpdate()
         {
             RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
