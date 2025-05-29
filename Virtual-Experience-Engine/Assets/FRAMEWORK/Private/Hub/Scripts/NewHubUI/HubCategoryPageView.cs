@@ -20,11 +20,20 @@ internal class HubCategoryPageView : MonoBehaviour
     public event Action<HubWorldDetails> OnWorldClicked;
     public event Action OnBackClicked;
 
+    private bool _firstTimeSetup = true;
+
     public void SetupView(WorldCategory worldCategory)
     {
-        _backButton.onClick.AddListener(() => OnBackClicked?.Invoke());
+        if (_firstTimeSetup)
+        {
+            _firstTimeSetup = false;
+            _backButton.onClick.AddListener(() => OnBackClicked?.Invoke());
+        }
         _categoryTitle.text = worldCategory.CategoryName;
         //_categoryIcon.sprite = worldCategory.CategoryIcon; //TODO!
+
+        foreach (Transform child in _verticalWorldsGroup.transform)
+            Destroy(child.gameObject);
 
         if (worldCategory.Worlds.Count == 0)
         {

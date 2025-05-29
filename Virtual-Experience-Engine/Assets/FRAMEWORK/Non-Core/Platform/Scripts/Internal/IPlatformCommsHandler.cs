@@ -1,5 +1,6 @@
 using System;
 using System.Net;
+using System.Threading.Tasks;
 using VE2.Common.Shared;
 
 namespace VE2.NonCore.Platform.Internal
@@ -8,7 +9,7 @@ namespace VE2.NonCore.Platform.Internal
     {
         public bool IsReadyToTransmit { get; }
 
-        public void ConnectToServer(IPAddress ipAddress, int portNumber);
+        public Task ConnectToServerAsync(IPAddress ipAddress, int portNumber);
         public void SendMessage(byte[] messageAsBytes, PlatformSerializables.PlatformNetworkingMessageCodes messageCode, TransmissionProtocol transmissionProtocol);
         public void MainThreadUpdate();
         public void DisconnectFromServer();

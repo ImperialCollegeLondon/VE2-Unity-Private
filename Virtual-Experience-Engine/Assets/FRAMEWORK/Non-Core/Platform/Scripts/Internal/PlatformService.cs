@@ -122,7 +122,7 @@ namespace VE2.NonCore.Platform.Internal
             Debug.Log("Connecting to platform with settings -" + _platformSettingsHandler.PlatformServerConnectionSettings.ServerAddress + "-:-" + _platformSettingsHandler.PlatformServerConnectionSettings.ServerPort + "-:-" + _platformSettingsHandler.InstanceCode);
             CurrentInstanceCode = _platformSettingsHandler.InstanceCode;
             //IPAddress.Parse("PlatformIP"), PlatformPort, instanceCode
-            _commsHandler.ConnectToServer(IPAddress.Parse(_platformSettingsHandler.PlatformServerConnectionSettings.ServerAddress), _platformSettingsHandler.PlatformServerConnectionSettings.ServerPort);
+            _commsHandler.ConnectToServerAsync(IPAddress.Parse(_platformSettingsHandler.PlatformServerConnectionSettings.ServerAddress), _platformSettingsHandler.PlatformServerConnectionSettings.ServerPort);
         }
 
         internal event Action<string> OnInstanceCodeChange;
