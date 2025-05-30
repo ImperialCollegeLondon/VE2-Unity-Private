@@ -128,16 +128,101 @@ internal class HubController : MonoBehaviour
         _hubHomePageView.SetupView(suggestedWorldDetails, worldCategories.Values.ToList());
     }
 
+    //DOWNLOADING WORLDS======================================================================
+    private List<string> _filesToDownload;
+    private int _curentFileDownloadIndex;
 
-    public void HandleWorldClicked(HubWorldDetails worldDetails)
+    private void HandleDownloadWorldClicked(HubWorldDetails worldDetails)
+    {
+        Debug.Log("Download world clicked: " + worldDetails.Name);
+
+        //First, we have to search for the files within the world folder
+        // IRemoteFileSearchInfo searchInfo = _fileSystem.GetRemoteFilesAtPath($"{worldDetails.Name}/{_activeRemoteVersion.ToString("D3")}");
+        // searchInfo.OnSearchComplete += HandleWorldFilesSearchComplete;
+
+    }
+
+    private HubWorldDetails _viewingWorldDetails;
+
+    private void HandleWorldClicked(HubWorldDetails worldDetails)
     {
         Debug.Log("World clicked: " + worldDetails.Name);
+        _viewingWorldDetails = worldDetails;
 
         _hubWorldPageView.SetupView(worldDetails);
         _hubHomePageView.gameObject.SetActive(false);
         _hubCategoryPageView.gameObject.SetActive(false);
         _hubWorldPageView.gameObject.SetActive(true);
 
+        //First, we have to search for the versions of that world
+        IRemoteFolderSearchInfo searchInfo = _fileSystem.GetRemoteFoldersAtPath($"{worldDetails.Name}");
+        searchInfo.OnSearchComplete += HandleWorldVersionSearchComplete;
+    }
+
+    private void HandleWorldVersionSearchComplete(IRemoteFolderSearchInfo searchInfo)
+    {
+        if (searchInfo.CompletionCode.ToUpper().Contains("ERROR"))
+        {
+            Debug.LogError("Failed to search for world versions: " + searchInfo.CompletionCode);
+            return;
+        }
+
+        Debug.Log("World version search complete: " + searchInfo.FoldersFound.Count);
+        foreach (string file in searchInfo.FoldersFound)
+        {
+            Debug.Log("Found version: " + file);
+        }
+
+        // Version folder names are strings in the format 000, 001, 002, etc. Convert these to integers and populate the list
+        _viewingWorldDetails.VersionsAvailableRemotely = searchInfo.FoldersFound
+            .Select(s => int.TryParse(s, out var v) ? (int?)v : null)
+            .Where(v => v.HasValue)
+            .Select(v => v.Value)
+            .ToList();
+
+        _viewingWorldDetails.VersionsAvailableLocally = _fileSystem.GetLocalFoldersAtPath($"{_viewingWorldDetails.Name}")
+            .Select(s => int.TryParse(s, out var v) ? (int?)v : null)
+            .Where(v => v.HasValue)
+            .Select(v => v.Value)
+            .ToList();
+
+        int targetVersion;
+
+        if (_viewingWorldDetails.IsExperimental)
+        {
+            targetVersion = _viewingWorldDetails.VersionsAvailableRemotely.Max();
+        }
+        else
+        {
+            if (_viewingWorldDetails.VersionsAvailableRemotely.Contains(_viewingWorldDetails.LiveVersionNumber))
+            {
+                targetVersion = _viewingWorldDetails.LiveVersionNumber;
+            }
+            else
+            {
+                Debug.LogError($"Live version {_viewingWorldDetails.LiveVersionNumber} not found for world {_viewingWorldDetails.Name}");
+                targetVersion = -1; //TODO - show some error on UI  
+            }
+        }
+
+        //TODO: don't show non-live versions if we haven't ticked "show experimental worlds" on the UI somewhere
+        _hubWorldPageView.ShowAvailableVersions(_viewingWorldDetails.VersionsAvailableRemotely);
+
+        bool needsDownload = !_viewingWorldDetails.VersionsAvailableLocally.Contains(targetVersion);
+        bool downloadedButNotInstalled;
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            downloadedButNotInstalled = false; // TODO: Check if world and version is installed 
+        }
+        else
+        {
+            downloadedButNotInstalled = false; //On windows, no need to install
+        }
+        bool isVersionExperimental = targetVersion != _viewingWorldDetails.LiveVersionNumber;
+
+        _hubWorldPageView.ShowSelectedVersion(targetVersion, needsDownload, downloadedButNotInstalled, isVersionExperimental);
+
+        //_hubWorldPageView.SupplyVersions
     }
 
     private void HandleCategoryClicked(WorldCategory category)
@@ -212,6 +297,14 @@ internal class HubWorldDetails
     public string Author;
     public DateTime DateOfPublish;
     //======================================================================
+
+    public List<int> VersionsAvailableLocally;
+    public List<int> VersionsAvailableRemotely;
+
+    /*
+        So we open the world page, one that happens we search for remote versions, 
+        Controller then tells the view what the versions are, and which one to be targeting 
+    */
 }
 
 /*

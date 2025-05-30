@@ -13,6 +13,7 @@ internal class HubWorldPageView : MonoBehaviour
     [SerializeField] private TMP_Text _worldTitle;
     [SerializeField] private TMP_Text _worldSubtitle;
     [SerializeField] private TMP_Text _worldExtraInfo;
+    [SerializeField] private TMP_Text _selectedVersionNumber;
 
     [SerializeField] private Button _autoSelectInstanceButton;
     [SerializeField] private Button _enterInstanceCodeButton;
@@ -25,6 +26,7 @@ internal class HubWorldPageView : MonoBehaviour
     [SerializeField] private Button _switchTo2dButton;
     [SerializeField] private Button _switchToVrButton;
 
+    [SerializeField] private GameObject _confirmingVersionsPanel;
     [SerializeField] private Button _downloadWorldButton;
     [SerializeField] private Button _installWorldButton;
     [SerializeField] private Button _enterWorldButton;
@@ -38,9 +40,11 @@ internal class HubWorldPageView : MonoBehaviour
     public event Action<HubWorldDetails> OnAutoSelectInstanceClicked;
     public event Action OnEnterInstanceCodeClicked;
 
-    public event Action<HubWorldDetails> OnDownloadWorldClicked;
-    public event Action<HubWorldDetails> OnInstallWorldClicked;
-    public event Action<HubWorldDetails> OnEnterWorldClicked;
+    public event Action<HubWorldDetails, int> OnDownloadWorldClicked;
+    public event Action<HubWorldDetails, int> OnInstallWorldClicked;
+    public event Action<HubWorldDetails, int> OnEnterWorldClicked;
+    
+    private HubWorldDetails _worldDetails;
 
     //TODO - also pass in some world state to tell us if we need to download, or install?
     //We probably shouldn't be using the WorldDetails object... maybe LocalWorldDetails, that includes the local state of the world?
@@ -48,16 +52,18 @@ internal class HubWorldPageView : MonoBehaviour
     //TODO - also also need to pass in current play mode (2D/VR) and whether we can switch modes
     public void SetupView(HubWorldDetails worldDetails)
     {
+        _worldDetails = worldDetails;
+
         _backButton.onClick.AddListener(() => OnBackClicked?.Invoke());
         _worldTitle.text = worldDetails.Name;
 
-        _autoSelectInstanceButton.onClick.AddListener(() => OnAutoSelectInstanceClicked?.Invoke(worldDetails));
+        _autoSelectInstanceButton.onClick.AddListener(() => OnAutoSelectInstanceClicked?.Invoke(_worldDetails));
         _enterInstanceCodeButton.onClick.AddListener(() => OnEnterInstanceCodeClicked?.Invoke());
 
         //TODO=======
-        //_worldBanner.sprite = worldDetails.Banner;
-        //_worldSubtitle.text = worldDetails.SubTitle; 
-        //_worldExtraInfo.text = $"Created by: {worldDetails.CreatorName}";
+        //_worldBanner.sprite = _worldDetails.Banner;
+        //_worldSubtitle.text = _worldDetails.SubTitle; 
+        //_worldExtraInfo.text = $"Created by: {_worldDetails.CreatorName}";
         _2dEnabledIcon.gameObject.SetActive(true);
         _2dDisabledIcon.gameObject.SetActive(false);
         _vrEnabledIcon.gameObject.SetActive(true);
@@ -68,5 +74,39 @@ internal class HubWorldPageView : MonoBehaviour
         _switchToVrButton.gameObject.SetActive(!isVrMode);
         //===========
 
+        _confirmingVersionsPanel.SetActive(true);
+        _downloadWorldButton.gameObject.SetActive(false);
+        _installWorldButton.gameObject.SetActive(false);
+        _enterWorldButton.gameObject.SetActive(false);
+
+        _downloadWorldButton.onClick.AddListener(() => OnDownloadWorldClicked?.Invoke(_worldDetails, 0));
     }
+
+    public void ShowAvailableVersions(List<int> versions)
+    {
+        Debug.Log($"Showing available versions for world: {_worldDetails.Name}");
+        foreach (int version in versions)
+        {
+            Debug.Log($"Available version: {version}");
+        }
+    }
+
+    public void ShowSelectedVersion(int version, bool needsDownload, bool downloadedButNotInstalled, bool IsExperimental)
+    {
+        Debug.Log($"Selected version: {version} for world: {_worldDetails.Name}");
+
+        _confirmingVersionsPanel.SetActive(false);
+        _downloadWorldButton.gameObject.SetActive(needsDownload);
+        _installWorldButton.gameObject.SetActive(downloadedButNotInstalled);
+        _enterWorldButton.gameObject.SetActive(!needsDownload && !downloadedButNotInstalled);
+
+        _selectedVersionNumber.text = $"V{version} {(IsExperimental ? "<i>(Experimental)</i>" : "")}";
+    }
+
+    /*
+        How do we know which version we're asking to download/install/enter?
+        We need to show available versions
+
+        When we first open the world view page, we need to search for all versions of that world
+    */
 }
