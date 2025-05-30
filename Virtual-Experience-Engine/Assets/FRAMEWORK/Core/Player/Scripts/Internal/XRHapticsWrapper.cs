@@ -7,35 +7,42 @@ namespace VE2.Core.Player.Internal
 {
     internal interface IXRHapticsWrapper
     {
-        public void Vibrate(InteractorID interactorID, float amplitude, float duration);
+        public void Vibrate( float amplitude, float duration);
     }
 
-    internal class XRHapticsWrapper : MonoBehaviour, IXRHapticsWrapper
+    internal class XRHapticsWrapper : IXRHapticsWrapper
     {
-        public void Vibrate(InteractorID interactorID, float amplitude, float duration)
+        private bool _isLeftController;
+
+        internal XRHapticsWrapper(bool isLeftController)
         {
-            InputDevice device = GetDeviceForInteractor(interactorID);
+            _isLeftController = isLeftController;
+        }
+        public void Vibrate(float amplitude, float duration)
+        {
+            InputDevice device = GetDeviceForHand();
             if (device.isValid && device.TryGetHapticCapabilities(out var capabilities) && capabilities.supportsImpulse)
             {
                 device.SendHapticImpulse(0, amplitude, duration);
             }
         }
 
-        private InputDevice GetDeviceForInteractor(InteractorID interactorID)
+        private InputDevice GetDeviceForHand()
         {
-            return interactorID.InteractorType switch
+            if (_isLeftController)
             {
-                InteractorType.LeftHandVR => InputDevices.GetDeviceAtXRNode(XRNode.LeftHand),
-                InteractorType.RightHandVR => InputDevices.GetDeviceAtXRNode(XRNode.RightHand),
-                _ => default
-            };
+                return InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
+            }
+            else
+            {
+                return InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
+            }
         }
 
-        private void Awake()
-        {
-            //gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
-            gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
-        }
+        //private void Awake()
+        //{
+        //    //gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
+        //    gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
+        //}
     }
-
 }

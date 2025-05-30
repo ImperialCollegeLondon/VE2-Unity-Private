@@ -50,10 +50,6 @@ namespace VE2.Core.Player.Internal
             _collisionDetector.OnCollideStart -= HandleCollideStart;
             _collisionDetector.OnCollideEnd -= HandleCollideEnd;
         }
-        public override void Vibrate(float amplitude, float duration)
-        {
-            _xrHapticsWrapper.Vibrate(_InteractorID, amplitude, duration);
-        }
 
         private void HandleCollideStart(ICollideInteractionModule collideInteractionModule)
         {
@@ -61,6 +57,8 @@ namespace VE2.Core.Player.Internal
             {
                 collideInteractionModule.InvokeOnCollideEnter(_InteractorID);
                 _heldActivatableIDsAgainstNetworkFlags.Add(collideInteractionModule.ID, collideInteractionModule.IsNetworked);
+
+                _xrHapticsWrapper.Vibrate(0.7f,0.1f);
             }
         }
 
@@ -70,6 +68,8 @@ namespace VE2.Core.Player.Internal
             {
                 collideInteractionModule.InvokeOnCollideExit(_InteractorID);
                 _heldActivatableIDsAgainstNetworkFlags.Remove(collideInteractionModule.ID);
+
+                _xrHapticsWrapper.Vibrate(0.5f, 0.1f);
             }
         }
 

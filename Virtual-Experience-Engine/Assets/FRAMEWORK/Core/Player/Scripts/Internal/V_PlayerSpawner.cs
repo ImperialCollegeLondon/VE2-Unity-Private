@@ -212,9 +212,8 @@ namespace VE2.Core.Player.Internal
             if (xrManagerWrapper == null)
                 xrManagerWrapper = new GameObject("XRManagerWrapper").AddComponent<XRManagerWrapper>();
 
-            XRHapticsWrapper xRHapticsWrapper = FindFirstObjectByType<XRHapticsWrapper>();
-            if (xRHapticsWrapper == null)
-                xRHapticsWrapper = new GameObject("_xrHapticsWrapper").AddComponent<XRHapticsWrapper>();
+            XRHapticsWrapper xRHapticsWrapperLeft = new(true);
+            XRHapticsWrapper xRHapticsWrapperRight = new(false);
 
             //May be null if UIs aren't available
             IPrimaryUIServiceInternal primaryUIService = VE2API.PrimaryUIService as IPrimaryUIServiceInternal;
@@ -227,7 +226,8 @@ namespace VE2.Core.Player.Internal
                 xrManagerWrapper,
                 primaryUIService,
                 secondaryUIService,
-                xRHapticsWrapper);
+                xRHapticsWrapperLeft,
+                xRHapticsWrapperRight);
         }
 
         private void FixedUpdate() 

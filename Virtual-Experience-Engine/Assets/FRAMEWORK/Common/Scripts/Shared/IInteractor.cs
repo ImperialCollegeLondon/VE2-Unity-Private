@@ -8,7 +8,5 @@ namespace VE2.Common.Shared
         public Transform GrabberTransform { get; }
         public void ConfirmGrab(string id);
         public void ConfirmDrop();
-
-        public void Vibrate(float amp, float duration);
     }
 }
