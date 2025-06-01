@@ -39,9 +39,9 @@ public class TestAPI : MonoBehaviour
         Debug.Log("OnTeleport called");
     }
 
-    public void CallOnSnapTurn(string direction)
+    public void CallOnSnapTurn()
     {
-        Debug.Log($"OnSnapTurn called with direction: {direction}");
+        Debug.Log($"OnSnapTurn called");
     }
 
     public void CallOnHorizontalDrag()
@@ -78,13 +78,13 @@ public class TestAPI : MonoBehaviour
 
     public void SetPlayerPosition(Vector3 position)
     {
-        VE2API.Player.SetPlayerPosition(position);
+        VE2API.Player.PlayerPosition = position;
         Debug.Log($"Set player position to: {position}");
     }
 
     public Vector3 GetPlayerPosition()
     {
-        Vector3 position = VE2API.Player.GetPlayerPosition();
+        Vector3 position = VE2API.Player.PlayerPosition;
         Debug.Log($"Get player position: {position}");
         return position;
     }

@@ -66,7 +66,7 @@ namespace VE2.Core.Player.Internal
             if (_otherHandGrabbableWrapper.RangedFreeGrabInteraction != null)
                 _otherHandGrabbableWrapper.RangedFreeGrabInteraction.ApplyDeltaWhenGrabbed(deltaPosition, deltaRotation);
 
-            _movementModeConfig.OnSnapTurn?.Invoke("LEFT");
+            _movementModeConfig.OnSnapTurn?.Invoke();
         }
 
         private void HandleSnapTurnRight()
@@ -91,7 +91,7 @@ namespace VE2.Core.Player.Internal
             if (_otherHandGrabbableWrapper.RangedFreeGrabInteraction != null)
                 _otherHandGrabbableWrapper.RangedFreeGrabInteraction.ApplyDeltaWhenGrabbed(deltaPosition, deltaRotation);
 
-            _movementModeConfig.OnSnapTurn?.Invoke("RIGHT");
+            _movementModeConfig.OnSnapTurn?.Invoke();
         }
     }
 }

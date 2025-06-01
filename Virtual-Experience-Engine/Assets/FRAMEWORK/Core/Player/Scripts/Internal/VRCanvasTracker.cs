@@ -26,15 +26,15 @@ namespace VE2.Core.Player.Internal
 
         private Vector3 targetLocalPosition;
         private Quaternion targetLocalRotation;
-        private IPrimaryUIService _primaryUIService;
+        private IPrimaryUIServiceInternal _primaryUIService;
 
         private void Awake()
         {
-            _primaryUIService = VE2API.PrimaryUIService;
+            _primaryUIService = VE2API.PrimaryUIService as IPrimaryUIServiceInternal;
             if (_primaryUIService != null)
             {
-                _primaryUIService.OnUIShow.AddListener(HandlePrimaryUIShown);
-                _primaryUIService.OnUIHide.AddListener(HandlePrimaryUIHidden);
+                _primaryUIService.OnUIShowInternal += HandlePrimaryUIShown;
+                _primaryUIService.OnUIHideInternal += HandlePrimaryUIHidden;
             }
 
             _canvasCollider.enabled = false;

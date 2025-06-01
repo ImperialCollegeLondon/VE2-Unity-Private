@@ -76,7 +76,7 @@ namespace VE2.Core.Player.Internal
         [SerializeField] internal bool FreeFlyMode = false;
         [SerializeField] internal float TeleportRangeMultiplier = 1.0f;
         [SerializeField] internal UnityEvent OnTeleport = new UnityEvent();
-        [SerializeField] internal UnityEvent<string> OnSnapTurn = new UnityEvent<string>();
+        [SerializeField] internal UnityEvent OnSnapTurn = new UnityEvent();
         [SerializeField] internal UnityEvent OnHorizontalDrag = new UnityEvent();
         [SerializeField] internal UnityEvent OnVerticalDrag = new UnityEvent();
         [SerializeField] internal UnityEvent OnJump2D = new UnityEvent();

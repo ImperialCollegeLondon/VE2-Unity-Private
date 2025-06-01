@@ -133,7 +133,7 @@ namespace VE2.Core.Player.Internal
             SnapTurnController snapTurn = new(
                 handVRInputContainer.SnapTurnInputContainer,
                 _rootTransform,
-                handVRInputContainer.TeleportInputContainer, thisHandGrabbableWrapper, otherHandGrabbableWrapper, thisHandVRReferences.InteractorVRReferences.RayOrigin, otherHandVRReferences.InteractorVRReferences.RayOrigin,movementModeConfig);
+                handVRInputContainer.TeleportInputContainer, thisHandGrabbableWrapper, otherHandGrabbableWrapper, thisHandVRReferences.InteractorVRReferences.RayOrigin, otherHandVRReferences.InteractorVRReferences.RayOrigin, movementModeConfig);
 
             TeleportController teleport = new(
                 handVRInputContainer.TeleportInputContainer,

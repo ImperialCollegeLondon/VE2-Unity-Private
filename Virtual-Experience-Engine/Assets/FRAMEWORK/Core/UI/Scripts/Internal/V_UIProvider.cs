@@ -7,6 +7,13 @@ using VE2.Core.UI.API;
 
 namespace VE2.Core.UI.Internal
 {
+    [Serializable]
+    internal class MenuUIConfig
+    {
+        [SerializeField] internal UnityEvent OnActivateMainMenu = new UnityEvent();
+        [SerializeField] internal UnityEvent OnDeactivateMainMenu = new UnityEvent();
+    }
+
     [ExecuteAlways]
     public class V_UIProvider : MonoBehaviour, IUIProvider
     {
@@ -144,11 +151,4 @@ namespace VE2.Core.UI.Internal
         I.E - have the actual service itself be responsible for spawning the gameobject 
 
     */
-
-    [Serializable]
-    internal class MenuUIConfig
-    {
-        [SerializeField] internal UnityEvent OnActivateMainMenu = new UnityEvent();
-        [SerializeField] internal UnityEvent OnDeactivateMainMenu = new UnityEvent();
-    }
 }

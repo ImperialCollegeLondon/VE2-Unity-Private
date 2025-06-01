@@ -65,7 +65,7 @@ namespace VE2.Core.Player.Internal
         public UnityEvent OnChangeToVRMode => _config.PlayerModeConfig.OnChangeToVRMode;
         public UnityEvent OnChangeTo2DMode => _config.PlayerModeConfig.OnChangeTo2DMode;
         public UnityEvent OnTeleport => _config.MovementModeConfig.OnTeleport; 
-        public UnityEvent<string> OnSnapTurn => _config.MovementModeConfig.OnSnapTurn;
+        public UnityEvent OnSnapTurn => _config.MovementModeConfig.OnSnapTurn;
         public UnityEvent OnHorizontalDrag => _config.MovementModeConfig.OnHorizontalDrag;
         public UnityEvent OnVerticalDrag => _config.MovementModeConfig.OnVerticalDrag;
         public UnityEvent OnJump2D => _config.MovementModeConfig.OnJump2D;
@@ -111,20 +111,22 @@ namespace VE2.Core.Player.Internal
             OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
         }
 
-        public Vector3 GetPlayerPosition()
+        public Vector3 PlayerPosition
         {
-            if (PlayerTransformData.IsVRMode)
-                return _playerVR.GetPlayerPosition();
-            else
-                return _player2D.GetPlayerPosition();
-        }
-
-        public void SetPlayerPosition(Vector3 position)
-        {
-            if (PlayerTransformData.IsVRMode)
-                _playerVR.SetPlayerPosition(position);
-            else
-                _player2D.SetPlayerPosition(position);
+            get
+            {
+                if (PlayerTransformData.IsVRMode)
+                    return _playerVR.GetPlayerPosition();
+                else
+                    return _player2D.GetPlayerPosition();
+            }
+            set
+            {
+                if (PlayerTransformData.IsVRMode)
+                    _playerVR.SetPlayerPosition(value);
+                else
+                    _player2D.SetPlayerPosition(value);
+            }
         }
         public AndroidJavaObject AddArgsToIntent(AndroidJavaObject intent) => _playerSettingsHandler.AddArgsToIntent(intent);
 

@@ -20,14 +20,13 @@ namespace VE2.Core.Player.API
         public Camera ActiveCamera { get; }
 
         public UnityEvent OnTeleport { get; }
-        public UnityEvent<string> OnSnapTurn { get; }
+        public UnityEvent OnSnapTurn { get; }
         public UnityEvent OnHorizontalDrag { get; }
         public UnityEvent OnVerticalDrag { get; }
         public UnityEvent OnJump2D { get; }
         public UnityEvent OnCrouch2D { get; }
         public UnityEvent OnResetViewVR { get; }
 
-        public Vector3 GetPlayerPosition();
-        public void SetPlayerPosition(Vector3 position);
+        public Vector3 PlayerPosition { get; set; }
     }
 }
