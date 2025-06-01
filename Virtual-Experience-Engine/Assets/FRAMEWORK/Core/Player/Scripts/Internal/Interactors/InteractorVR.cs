@@ -18,7 +18,6 @@ namespace VE2.Core.Player.Internal
         private readonly IXRHapticsWrapper _xrHapticsWrapper;
         private ColorConfiguration _colorConfig => ColorConfiguration.Instance;
         private const float LINE_EMISSION_INTENSITY = 15;
-
         internal InteractorVR(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, InteractorInputContainer interactorInputContainer, PlayerInteractionConfig playerInteractionConfig,
             InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ColliderType colliderType,
             ILocalClientIDWrapper localClientID, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator, IXRHapticsWrapper xRHapticsWrapper) :
@@ -51,6 +50,11 @@ namespace VE2.Core.Player.Internal
             _collisionDetector.OnCollideEnd -= HandleCollideEnd;
         }
 
+        protected override void Vibrate(float amplitude, float duration)
+        {
+            _xrHapticsWrapper.Vibrate(amplitude, duration);
+        }
+
         private void HandleCollideStart(ICollideInteractionModule collideInteractionModule)
         {
             if (_LocalClientIDWrapper.IsClientIDReady && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Hand)
@@ -58,7 +62,7 @@ namespace VE2.Core.Player.Internal
                 collideInteractionModule.InvokeOnCollideEnter(_InteractorID);
                 _heldActivatableIDsAgainstNetworkFlags.Add(collideInteractionModule.ID, collideInteractionModule.IsNetworked);
 
-                _xrHapticsWrapper.Vibrate(0.7f,0.1f);
+                Vibrate(HAPTICS_AMPLITUDE, HAPTICS_DURATION);
             }
         }
 
@@ -69,7 +73,7 @@ namespace VE2.Core.Player.Internal
                 collideInteractionModule.InvokeOnCollideExit(_InteractorID);
                 _heldActivatableIDsAgainstNetworkFlags.Remove(collideInteractionModule.ID);
 
-                _xrHapticsWrapper.Vibrate(0.5f, 0.1f);
+                Vibrate(HAPTICS_AMPLITUDE, HAPTICS_DURATION);
             }
         }
 

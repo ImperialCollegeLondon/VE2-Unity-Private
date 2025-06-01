@@ -188,5 +188,10 @@ namespace VE2.Core.Player.Internal
             targetPosition.z = Mathf.Clamp(targetPosition.z + (zoomIn ? -INSPECT_ZOOM_SPEED : INSPECT_ZOOM_SPEED), INSPECT_MIN_ZOOM, INSPECT_MAX_ZOOM);
             GrabberTransform.DOLocalMove(targetPosition, 0.1f);
         }
+
+        protected override void Vibrate(float amplitude, float duration)
+        {
+            //Do Nothing
+        }
     }
 }
