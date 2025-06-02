@@ -79,7 +79,10 @@ namespace VE2.Core.VComponents.Internal
         }
 
         public void SetValue(float value, ushort clientID)
-        {   
+        {
+            if (_state.Value == value)
+                return;
+
             if (value < _adjustableStateConfig.MinimumOutputValue || value > _adjustableStateConfig.MaximumOutputValue)
             {
                 Debug.LogError($"Value ({value}) is beyond limits");

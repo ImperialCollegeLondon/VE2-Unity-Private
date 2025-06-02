@@ -18,6 +18,8 @@ namespace VE2.Core.Player.Internal
         private readonly IXRHapticsWrapper _xrHapticsWrapper;
         private ColorConfiguration _colorConfig => ColorConfiguration.Instance;
         private const float LINE_EMISSION_INTENSITY = 15;
+        private IRangedAdjustableInteractionModule _rangedAdjustableInteractionModule;
+
         internal InteractorVR(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, InteractorInputContainer interactorInputContainer, PlayerInteractionConfig playerInteractionConfig,
             InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ColliderType colliderType,
             ILocalClientIDWrapper localClientID, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator, IXRHapticsWrapper xRHapticsWrapper) :
@@ -53,6 +55,11 @@ namespace VE2.Core.Player.Internal
         protected override void Vibrate(float amplitude, float duration)
         {
             _xrHapticsWrapper.Vibrate(amplitude, duration);
+        }
+
+        internal void TriggerDefaultVibration()
+        {
+            Vibrate(HAPTICS_AMPLITUDE, HAPTICS_DURATION);
         }
 
         private void HandleCollideStart(ICollideInteractionModule collideInteractionModule)
@@ -115,6 +122,10 @@ namespace VE2.Core.Player.Internal
             //We'll control its position in Update - it needs an offset towards the adjustable, without being affected by the parent transform's rotation
             _GrabberTransform.SetParent(_interactorParentTransform.parent);
             _grabberTransformOffset = rangedAdjustableInteraction.Transform.position - GrabberTransform.position;
+
+            //The interactor when grabbing an adjustable should listen to the ranged adjustable interaction module's value changes
+            _rangedAdjustableInteractionModule = rangedAdjustableInteraction;
+            _rangedAdjustableInteractionModule.OnValueChanged += TriggerDefaultVibration;
         }
 
         protected override void HandleUpdateGrabbingAdjustable()
@@ -129,6 +140,9 @@ namespace VE2.Core.Player.Internal
             _GrabberTransform.SetParent(_interactorParentTransform);
             _GrabberTransform.localPosition = Vector3.zero;
             _GrabberTransform.localRotation = Quaternion.identity;
+
+            // Unsubscribe from the ranged adjustable interaction module's value changes when stopping grabbing
+            _rangedAdjustableInteractionModule.OnValueChanged -= TriggerDefaultVibration;
         }
     }
 }

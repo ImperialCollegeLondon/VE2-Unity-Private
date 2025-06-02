@@ -22,27 +22,15 @@ namespace VE2.Core.Player.Internal
         {
             InputDevice device = GetDeviceForHand();
             if (device.isValid && device.TryGetHapticCapabilities(out var capabilities) && capabilities.supportsImpulse)
-            {
                 device.SendHapticImpulse(0, amplitude, duration);
-            }
         }
 
         private InputDevice GetDeviceForHand()
         {
             if (_isLeftController)
-            {
                 return InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
-            }
             else
-            {
                 return InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
-            }
         }
-
-        //private void Awake()
-        //{
-        //    //gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
-        //    gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
-        //}
     }
 }
