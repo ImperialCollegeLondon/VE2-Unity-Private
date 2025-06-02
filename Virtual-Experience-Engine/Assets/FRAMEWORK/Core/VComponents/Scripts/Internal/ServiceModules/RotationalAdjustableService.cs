@@ -290,7 +290,7 @@ namespace VE2.Core.VComponents.Internal
 
             float newValue = _AdjustableStateModule.MinimumOutputValue + stepIndex * stepSize;
 
-            _AdjustableStateModule.SetOutputValue(value);
+            _AdjustableStateModule.SetOutputValue(newValue);
         }
 
         private float ConvertToSpatialValue(float outputValue)

@@ -184,7 +184,6 @@ namespace VE2.Core.VComponents.Internal
             }
 
             _RangedAdjustableInteractionModule.NotifyValueChanged();
-            //UnityEngine.Debug.Log($"Spatial Value: {_spatialValue}, Output Value: {value}, Adjustment Type: {_adjustmentType}");
         }
 
         public void HandleFixedUpdate()
