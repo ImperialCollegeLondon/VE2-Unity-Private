@@ -6,48 +6,47 @@ namespace VE2.Core.UI.Internal
 {
     public class V_ScrollRect : ScrollRect, IScrollableUI
     {
-        public Scrollbar VerticalScrollbar => this.verticalScrollbar;
-        public Scrollbar HorizontalScrollbar => this.horizontalScrollbar;
-
-        public override void OnDrag(PointerEventData eventData)
-        {
-
-        }
-
-        public override void OnBeginDrag(PointerEventData eventData)
-        {
-
-        }
-
-        public override void OnEndDrag(PointerEventData eventData)
-        {
-
-        }
-
         public void OnScrollUp()
         {
-            if (VerticalScrollbar != null)
+            if (vertical && verticalScrollbar != null)
             {
-                Debug.Log($"Scrolling up: {VerticalScrollbar.value}");
-                VerticalScrollbar.value += 0.1f; // Adjust the value as needed
+                verticalScrollbar.value += 0.1f * scrollSensitivity;
             }
         }
-        
+
         public void OnScrollDown()
         {
-            if (VerticalScrollbar != null)
+            if (vertical && verticalScrollbar != null)
             {
-                Debug.Log($"Scrolling down: {VerticalScrollbar.value}");
-                VerticalScrollbar.value -= 0.1f; // Adjust the value as needed
+                verticalScrollbar.value -= 0.1f * scrollSensitivity;
+            }
+        }
+
+        public void OnScrollLeft()
+        {
+            if (horizontal && horizontalScrollbar != null)
+            {
+                horizontalScrollbar.value -= 0.1f * scrollSensitivity;
+            }
+        }
+
+        public void OnScrollRight()
+        {
+            if (horizontal && horizontalScrollbar != null)
+            {
+                horizontalScrollbar.value += 0.1f * scrollSensitivity;
             }
         }
     }
 
     public interface IScrollableUI
     {
-        public Scrollbar VerticalScrollbar { get; }
-        public Scrollbar HorizontalScrollbar { get; }
+        public GameObject GameObject => ((Component)this).gameObject;
+        public Scrollbar VerticalScrollbar => ((V_ScrollRect)this).verticalScrollbar;
+        public Scrollbar HorizontalScrollbar => ((V_ScrollRect)this).horizontalScrollbar;
         public void OnScrollUp();
         public void OnScrollDown();
+        public void OnScrollLeft();
+        public void OnScrollRight();
     }
 }

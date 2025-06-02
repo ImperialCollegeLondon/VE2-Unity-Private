@@ -17,7 +17,7 @@ namespace VE2.Core.Player.Internal
         [SerializeField, IgnoreParent] private Transform _interactorParentTransform;
 
         public Transform GrabberVisualisationRayOrigin => _grabberVisualisationRayOrigin;
-        [SerializeField, IgnoreParent] private Transform _grabberVisualisationRayOrigin; 
+        [SerializeField, IgnoreParent] private Transform _grabberVisualisationRayOrigin;
 
         public Transform GrabberTransform => _grabberTransform;
         [SerializeField, IgnoreParent] private Transform _grabberTransform;
@@ -85,7 +85,7 @@ namespace VE2.Core.Player.Internal
         private readonly HoveringOverScrollableIndicator _hoveringOverScrollableIndicator;
 
         internal PointerInteractor(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, InteractorInputContainer interactorInputContainer, PlayerInteractionConfig interactionConfig,
-            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, 
+            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider,
             ILocalClientIDWrapper localClientIDWrapper, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator)
         {
             _interactorContainer = interactorContainer;
@@ -161,9 +161,9 @@ namespace VE2.Core.Player.Internal
             //Update the current hovering interactable, as long as we're not waiting for id, and it's not a grabbable that we were previously hovering over
             if (_LocalClientIDWrapper.IsClientIDReady && !(previousHoveringInteractable is IRangedGrabInteractionModule previousRangedGrabInteractable && _CurrentGrabbingGrabbable == previousRangedGrabInteractable))
             {
-                if(raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange)
+                if (raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange)
                     _CurrentHoveringInteractable = raycastResultWrapper.RangedInteractableInRange;
-                else if(this is InteractorVR && !raycastResultWrapper.HitInteractable && sphereCastResultWrapper != null && sphereCastResultWrapper.HitInteractable && sphereCastResultWrapper.RangedInteractableIsInRange)
+                else if (this is InteractorVR && !raycastResultWrapper.HitInteractable && sphereCastResultWrapper != null && sphereCastResultWrapper.HitInteractable && sphereCastResultWrapper.RangedInteractableIsInRange)
                     _CurrentHoveringInteractable = sphereCastResultWrapper.RangedInteractableInRange;
                 else
                     _CurrentHoveringInteractable = null;
@@ -205,7 +205,7 @@ namespace VE2.Core.Player.Internal
                 bool isAllowedToInteract = false;
 
                 //If hovering over an interactable, handle interactor and hover=========
-                if (_LocalClientIDWrapper.IsClientIDReady && (raycastResultWrapper.HitUIButton || raycastResultWrapper.HitInteractableInRange))
+                if (_LocalClientIDWrapper.IsClientIDReady && (raycastResultWrapper.HitScrollableUI || raycastResultWrapper.HitUIButton || raycastResultWrapper.HitInteractableInRange))
                 {
                     if (raycastResultWrapper.HitInteractable)
                     {
@@ -226,6 +226,14 @@ namespace VE2.Core.Player.Internal
                             HandleHoverOverUIGameObject(raycastResultWrapper.UIButton.gameObject);
                         else
                             HandleNoHoverOverUIGameObject();
+                    }
+                    else if (raycastResultWrapper.HitScrollableUI)
+                    {
+                        isAllowedToInteract = true;
+                        _hoveringOverScrollableIndicator.IsHoveringOverScrollableObject = true;
+                        _raycastHitDebug.Value = raycastResultWrapper.ScrollableUI.GameObject.name;
+
+                        HandleHoverOverUIGameObject(raycastResultWrapper.ScrollableUI.GameObject);
                     }
 
                     SetInteractorState(isAllowedToInteract ? InteractorState.InteractionAvailable : InteractorState.InteractionLocked);
@@ -263,9 +271,9 @@ namespace VE2.Core.Player.Internal
                         _raycastHitDebug.Value = "none";
                     }
                 }
-                
+
                 //break out of the whole thing if we're in 2D, this bit is just to manage the raycast distance for the VR interactor
-                if(this is Interactor2D)
+                if (this is Interactor2D)
                     return;
 
                 //If the main ray hits an interactable, point the line at that
@@ -279,9 +287,9 @@ namespace VE2.Core.Player.Internal
                     rayEndPosition = sphereCastResultWrapper.HitPosition;
                 else if (raycastResultWrapper.HitAnything)
                     rayEndPosition = raycastResultWrapper.HitPosition;
-                else 
+                else
                     rayEndPosition = _RayOrigin.position + _RayOrigin.forward * MAX_RAYCAST_DISTANCE;
-                
+
                 //jank way to set the parameters for the raycast distance
                 HandleRaycastDistance(rayEndPosition);
             }
