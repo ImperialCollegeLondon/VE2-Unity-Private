@@ -57,9 +57,9 @@ namespace VE2.Core.Player.Internal
             _xrHapticsWrapper.Vibrate(amplitude, duration);
         }
 
-        internal void TriggerDefaultVibration()
+        internal void RespondToAdjustableWithVibration()
         {
-            Vibrate(HAPTICS_AMPLITUDE, HAPTICS_DURATION);
+            Vibrate(HIGH_HAPTICS_AMPLITUDE, HIGH_HAPTICS_DURATION);
         }
 
         private void HandleCollideStart(ICollideInteractionModule collideInteractionModule)
@@ -69,7 +69,7 @@ namespace VE2.Core.Player.Internal
                 collideInteractionModule.InvokeOnCollideEnter(_InteractorID);
                 _heldActivatableIDsAgainstNetworkFlags.Add(collideInteractionModule.ID, collideInteractionModule.IsNetworked);
 
-                Vibrate(HAPTICS_AMPLITUDE, HAPTICS_DURATION);
+                Vibrate(HIGH_HAPTICS_AMPLITUDE, HIGH_HAPTICS_DURATION);
             }
         }
 
@@ -80,7 +80,7 @@ namespace VE2.Core.Player.Internal
                 collideInteractionModule.InvokeOnCollideExit(_InteractorID);
                 _heldActivatableIDsAgainstNetworkFlags.Remove(collideInteractionModule.ID);
 
-                Vibrate(HAPTICS_AMPLITUDE, HAPTICS_DURATION);
+                Vibrate(HIGH_HAPTICS_AMPLITUDE, HIGH_HAPTICS_DURATION);
             }
         }
 
@@ -125,7 +125,7 @@ namespace VE2.Core.Player.Internal
 
             //The interactor when grabbing an adjustable should listen to the ranged adjustable interaction module's value changes
             _rangedAdjustableInteractionModule = rangedAdjustableInteraction;
-            _rangedAdjustableInteractionModule.OnValueChanged += TriggerDefaultVibration;
+            _rangedAdjustableInteractionModule.OnValueChanged += RespondToAdjustableWithVibration;
         }
 
         protected override void HandleUpdateGrabbingAdjustable()
@@ -142,7 +142,7 @@ namespace VE2.Core.Player.Internal
             _GrabberTransform.localRotation = Quaternion.identity;
 
             // Unsubscribe from the ranged adjustable interaction module's value changes when stopping grabbing
-            _rangedAdjustableInteractionModule.OnValueChanged -= TriggerDefaultVibration;
+            _rangedAdjustableInteractionModule.OnValueChanged -= RespondToAdjustableWithVibration;
         }
     }
 }
