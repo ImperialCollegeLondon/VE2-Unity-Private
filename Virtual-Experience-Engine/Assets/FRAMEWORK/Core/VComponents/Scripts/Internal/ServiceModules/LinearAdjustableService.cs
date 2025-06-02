@@ -163,7 +163,12 @@ namespace VE2.Core.VComponents.Internal
         {
             //Values received from the state are always output values
             //convert the output value to spatial value
-            _spatialValue = ConvertToSpatialValue(value);
+            float newSpatialValue = ConvertToSpatialValue(value);
+
+            if(newSpatialValue == _spatialValue)
+                return;
+
+            _spatialValue = newSpatialValue;
 
             switch (_adjustmentType)
             {
@@ -177,6 +182,8 @@ namespace VE2.Core.VComponents.Internal
                     _transformToTranslate.localPosition = new Vector3(_transformToTranslate.localPosition.x, _transformToTranslate.localPosition.y, _spatialValue);
                     break;
             }
+
+            _RangedAdjustableInteractionModule.NotifyValueChanged();
         }
 
         public void HandleFixedUpdate()
@@ -247,7 +254,7 @@ namespace VE2.Core.VComponents.Internal
 
             float newValue = _AdjustableStateModule.MinimumOutputValue + stepIndex * stepSize;
 
-            _AdjustableStateModule.SetOutputValue(value);
+            _AdjustableStateModule.SetOutputValue(newValue);
         }
 
         private float ConvertToSpatialValue(float outputValue)

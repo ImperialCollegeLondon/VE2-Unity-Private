@@ -20,6 +20,8 @@ namespace VE2.Core.VComponents.Internal
     {
         public event Action OnScrollUp;
         public event Action OnScrollDown;
+        public event Action OnValueChanged;
+
         public ITransformWrapper Transform { get; }
 
         public RangedAdjustableInteractionModule(string id, IGrabInteractablesContainer grabInteractablesContainer, ITransformWrapper transform,
@@ -31,5 +33,10 @@ namespace VE2.Core.VComponents.Internal
 
         public void ScrollUp() => OnScrollUp?.Invoke();
         public void ScrollDown() => OnScrollDown?.Invoke();
+
+        public void NotifyValueChanged()
+        {
+            OnValueChanged?.Invoke();
+        }
     }
 }

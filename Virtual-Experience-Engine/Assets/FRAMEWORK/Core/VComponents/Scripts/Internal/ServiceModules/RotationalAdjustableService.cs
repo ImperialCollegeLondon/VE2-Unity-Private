@@ -155,7 +155,12 @@ namespace VE2.Core.VComponents.Internal
         {
             //Values received from the state are always output values
             //convert the output value to spatial value
-            _spatialValue = ConvertToSpatialValue(value);
+            float newSpatialValue = ConvertToSpatialValue(value);
+
+            if (newSpatialValue == _spatialValue)
+                return;
+
+            _spatialValue = newSpatialValue;
 
             // //set revs and the old rotational value received from the state if host so the values remained synced
             // _numberOfRevolutions = Mathf.FloorToInt(_spatialValue / 360);
@@ -173,6 +178,8 @@ namespace VE2.Core.VComponents.Internal
                     _transformToRotateWrapper.localRotation = Quaternion.Euler(_transformToRotateWrapper.localRotation.x, _transformToRotateWrapper.localRotation.y, _spatialValue);
                     break;
             }
+
+            _RangedAdjustableInteractionModule.NotifyValueChanged();
         }
 
         public void HandleFixedUpdate()
@@ -283,7 +290,7 @@ namespace VE2.Core.VComponents.Internal
 
             float newValue = _AdjustableStateModule.MinimumOutputValue + stepIndex * stepSize;
 
-            _AdjustableStateModule.SetOutputValue(value);
+            _AdjustableStateModule.SetOutputValue(newValue);
         }
 
         private float ConvertToSpatialValue(float outputValue)
