@@ -269,7 +269,9 @@ namespace VE2.Core.Tests
                 CollisionDetectorFactoryStubSetup.CollisionDetectorFactoryStub,
                 Substitute.For<IXRManagerWrapper>(),
                 Substitute.For<IPrimaryUIServiceInternal>(),
-                Substitute.For<ISecondaryUIServiceInternal>()
+                Substitute.For<ISecondaryUIServiceInternal>(),
+                Substitute.For<XRHapticsWrapper>(),
+                Substitute.For<IXRHapticsWrapper>()
             );
         }
 

@@ -79,6 +79,8 @@ namespace VE2.Core.Player.Internal
         private readonly InteractorType _InteractorType;
         private readonly IRaycastProvider _RaycastProvider;
         protected readonly ILocalClientIDWrapper _LocalClientIDWrapper;
+        protected const float HAPTICS_AMPLITUDE = 0.7f;
+        protected const float HAPTICS_DURATION = 0.1f;
 
         //TODO - this can probably live just in InteractorVR... is there any reason the 2d interactor needs this? Think its just for teleporting?
         internal readonly FreeGrabbableWrapper GrabbableWrapper;
@@ -145,6 +147,8 @@ namespace VE2.Core.Player.Internal
             _interactorContainer?.DeregisterInteractor(_InteractorID.ToString());
         }
 
+        protected abstract void Vibrate(float amplitude, float duration);
+
         protected virtual void HandleLocalClientIDReady(ushort clientID)
         {
             _LocalClientIDWrapper.OnClientIDReady -= HandleLocalClientIDReady;
@@ -173,6 +177,7 @@ namespace VE2.Core.Player.Internal
             if (previousHoveringInteractable != null && previousHoveringInteractable != _CurrentHoveringInteractable)
             {
                 previousHoveringInteractable.ExitHover(_InteractorID);
+                Vibrate(0.2f, 0.1f);
 
                 if (previousHoveringInteractable is IRangedHoldClickInteractionModule previousHoldClickInteractable && _heldActivatableIDsAgainstNetworkFlags.ContainsKey(previousHoldClickInteractable.ID))
                 {
@@ -188,6 +193,7 @@ namespace VE2.Core.Player.Internal
                     return;
 
                 _CurrentHoveringInteractable.EnterHover(_InteractorID);
+                Vibrate(0.2f, 0.1f);
             }
 
             //if grabbing an adjustable module, update the visualisation, and update input value
@@ -372,6 +378,7 @@ namespace VE2.Core.Player.Internal
                     return;
 
                 rangedClickInteractable.ClickDown(_InteractorID);
+                Vibrate(HAPTICS_AMPLITUDE, HAPTICS_DURATION);
                 _CurrentHoveringInteractable = rangedClickInteractable;
 
                 if (rangedClickInteractable is IRangedHoldClickInteractionModule rangedHoldClickInteractable)
@@ -380,6 +387,7 @@ namespace VE2.Core.Player.Internal
             else if (raycastResultWrapper.HitUIButton && raycastResultWrapper.UIButton.IsInteractable())
             {
                 raycastResultWrapper.UIButton.onClick.Invoke();
+                Vibrate(HAPTICS_AMPLITUDE, HAPTICS_DURATION); 
             }
         }
 
@@ -392,6 +400,7 @@ namespace VE2.Core.Player.Internal
             {
                 _CurrentHoveringHoldClickInteractable.ClickUp(_InteractorID);
                 _heldActivatableIDsAgainstNetworkFlags.Remove(_CurrentHoveringHoldClickInteractable.ID);
+                Vibrate(HAPTICS_AMPLITUDE, HAPTICS_DURATION);
             }
         }
 
@@ -402,6 +411,7 @@ namespace VE2.Core.Player.Internal
                 CheckForExitInspectMode();
                 IRangedGrabInteractionModule rangedGrabInteractableToDrop = _CurrentGrabbingGrabbable;
                 rangedGrabInteractableToDrop.RequestLocalDrop(_InteractorID);
+                Vibrate(HAPTICS_AMPLITUDE, HAPTICS_DURATION);
             }
             else
             {
@@ -416,6 +426,7 @@ namespace VE2.Core.Player.Internal
                             if (raycastResultWrapper.RangedInteractable is IRangedGrabInteractionModule rangedGrabInteractable)
                             {
                                 rangedGrabInteractable.RequestLocalGrab(_InteractorID);
+                                Vibrate(HAPTICS_AMPLITUDE, HAPTICS_DURATION);
                             }
                         }
                         else
@@ -437,6 +448,7 @@ namespace VE2.Core.Player.Internal
                                 if (sphereCastResultWrapper.RangedInteractable is IRangedGrabInteractionModule rangedGrabInteractable)
                                 {
                                     rangedGrabInteractable.RequestLocalGrab(_InteractorID);
+                                    Vibrate(HAPTICS_AMPLITUDE, HAPTICS_DURATION);
                                 }
                             }
                             else
@@ -505,6 +517,7 @@ namespace VE2.Core.Player.Internal
                     if (handheldInteraction is IHandheldClickInteractionModule handheldClickInteraction)
                     {
                         handheldClickInteraction.ClickDown(_InteractorID.ClientID);
+                        Vibrate(HAPTICS_AMPLITUDE, HAPTICS_DURATION);
                     }
                 }
             }
@@ -519,6 +532,7 @@ namespace VE2.Core.Player.Internal
                     if (handheldInteraction is IHandheldClickInteractionModule handheldClickInteraction)
                     {
                         handheldClickInteraction.ClickUp(_InteractorID.ClientID);
+                        Vibrate(HAPTICS_AMPLITUDE, HAPTICS_DURATION);
                     }
                 }
             }
@@ -534,6 +548,7 @@ namespace VE2.Core.Player.Internal
                     if (handheldInteraction is IHandheldScrollInteractionModule handheldScrollInteraction)
                     {
                         handheldScrollInteraction.ScrollUp(_InteractorID.ClientID);
+                        Vibrate(HAPTICS_AMPLITUDE, HAPTICS_DURATION);
                     }
                 }
             }
@@ -549,6 +564,7 @@ namespace VE2.Core.Player.Internal
                         if (raycastResultWrapper.RangedInteractable is IRangedAdjustableInteractionModule rangedAdjustableInteraction)
                         {
                             rangedAdjustableInteraction.ScrollUp();
+                            Vibrate(HAPTICS_AMPLITUDE, HAPTICS_DURATION);
                         }
                     }
                 }
@@ -565,6 +581,7 @@ namespace VE2.Core.Player.Internal
                     if (handheldInteraction is IHandheldScrollInteractionModule handheldScrollInteraction)
                     {
                         handheldScrollInteraction.ScrollDown(_InteractorID.ClientID);
+                        Vibrate(HAPTICS_AMPLITUDE, HAPTICS_DURATION);
                     }
                 }
             }
@@ -580,6 +597,7 @@ namespace VE2.Core.Player.Internal
                         if (raycastResultWrapper.RangedInteractable is IRangedAdjustableInteractionModule rangedAdjustableInteraction)
                         {
                             rangedAdjustableInteraction.ScrollDown();
+                            Vibrate(HAPTICS_AMPLITUDE, HAPTICS_DURATION);
                         }
                     }
                 }

@@ -13,7 +13,7 @@ namespace VE2.Core.Player.Internal
     internal static class VE2PlayerServiceFactory
     {
         internal static PlayerService Create(PlayerTransformData state, PlayerConfig config, IPlayerPersistentDataHandler playerPersistentDataHandler, 
-            IXRManagerWrapper xrManagerWrapper, IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService)
+            IXRManagerWrapper xrManagerWrapper, IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IXRHapticsWrapper xRHapticsWrapperLeft, IXRHapticsWrapper xRHapticsWrapperRight)
         {
             return new PlayerService(state, config, 
                 VE2API.InteractorContainer,
@@ -26,7 +26,9 @@ namespace VE2.Core.Player.Internal
                 new CollisionDetectorFactory(),
                 xrManagerWrapper,
                 primaryUIService,
-                secondaryUIService); //TODO: reorder these?
+                secondaryUIService,
+                xRHapticsWrapperLeft,
+                xRHapticsWrapperRight); //TODO: reorder these?
         }
     }
 
@@ -147,7 +149,7 @@ namespace VE2.Core.Player.Internal
         internal PlayerService(PlayerTransformData transformData, PlayerConfig config, HandInteractorContainer interactorContainer, IPlayerPersistentDataHandler playerSettingsHandler, 
             ILocalClientIDWrapper localClientIDWrapper, ILocalPlayerSyncableContainer playerSyncContainer, IGrabInteractablesContainer grabInteractablesContainer, 
             PlayerInputContainer playerInputContainer, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, IXRManagerWrapper xrManagerWrapper, 
-            IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService)
+            IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IXRHapticsWrapper xRHapticsWrapperLeft, IXRHapticsWrapper xRHapticsWrapperRight)
         {
             PlayerTransformData = transformData;
             _config = config;
@@ -165,7 +167,7 @@ namespace VE2.Core.Player.Internal
                 _playerVR = new PlayerControllerVR(
                     interactorContainer, grabInteractablesContainer, _playerInputContainer.PlayerVRInputContainer,
                     playerSettingsHandler, new PlayerVRControlConfig(), _config.PlayerInteractionConfig, _config.MovementModeConfig, _config.CameraConfig,
-                    raycastProvider, collisionDetectorFactory, xrManagerWrapper, localClientIDWrapper, primaryUIService, secondaryUIService);
+                    raycastProvider, collisionDetectorFactory, xrManagerWrapper, localClientIDWrapper, primaryUIService, secondaryUIService, xRHapticsWrapperLeft, xRHapticsWrapperRight);
             }
 
             if (_config.PlayerModeConfig.Enable2D)
