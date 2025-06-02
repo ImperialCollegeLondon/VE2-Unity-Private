@@ -9,7 +9,7 @@ namespace VE2.Core.Player.Internal
     internal class ResetViewUIHandler : MonoBehaviour
     {
         [SerializeField] private CanvasGroup _canvasGroup;
-        [SerializeField] private V_RadialProgressBar _radialProgressBar;
+        [SerializeField] private RadialProgressBar _radialProgressBar;
         [SerializeField] private Image _centerImage;
 
         private static readonly Color _defaultColor = new Color(1f, 1f, 1f, 1f);    

@@ -6,7 +6,7 @@ using DG.Tweening;
 namespace VE2.Common.Shared
 {
     [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
-    internal class V_RadialProgressBar : MonoBehaviour
+    internal class RadialProgressBar : MonoBehaviour
     {
         [SerializeField] private float _maxValue = 100;
 

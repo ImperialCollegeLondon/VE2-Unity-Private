@@ -141,6 +141,20 @@ internal class HubController : MonoBehaviour
         // searchInfo.OnSearchComplete += HandleWorldFilesSearchComplete;
 
     }
+    private void HandleStartDownloadClicked()
+    {
+
+    }
+
+    private void HandleCancelDownloadClicked()
+    {
+        
+    }
+
+    private void HandleDownloadCompleted()
+    {
+    
+    }
 
     private HubWorldDetails _viewingWorldDetails;
 

@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using VE2.Common.API;
+using VE2.Common.Shared;
 using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 
 internal class HubWorldPageView : MonoBehaviour
@@ -28,6 +29,9 @@ internal class HubWorldPageView : MonoBehaviour
 
     [SerializeField] private GameObject _confirmingVersionsPanel;
     [SerializeField] private Button _downloadWorldButton;
+    [SerializeField] private GameObject _downloadingWorldPanel;
+    [SerializeField] private Button _cancelDownloadButton;
+    [SerializeField] private RadialProgressBar _downloadingWorldProgressBar;
     [SerializeField] private Button _installWorldButton;
     [SerializeField] private Button _enterWorldButton;
 
@@ -43,7 +47,7 @@ internal class HubWorldPageView : MonoBehaviour
     public event Action<HubWorldDetails, int> OnDownloadWorldClicked;
     public event Action<HubWorldDetails, int> OnInstallWorldClicked;
     public event Action<HubWorldDetails, int> OnEnterWorldClicked;
-    
+
     private HubWorldDetails _worldDetails;
 
     //TODO - also pass in some world state to tell us if we need to download, or install?
@@ -74,11 +78,7 @@ internal class HubWorldPageView : MonoBehaviour
         _switchToVrButton.gameObject.SetActive(!isVrMode);
         //===========
 
-        _confirmingVersionsPanel.SetActive(true);
-        _downloadWorldButton.gameObject.SetActive(false);
-        _installWorldButton.gameObject.SetActive(false);
-        _enterWorldButton.gameObject.SetActive(false);
-
+        //TODO - remove version and world details here, view doesn't need this? Controller has them
         _downloadWorldButton.onClick.AddListener(() => OnDownloadWorldClicked?.Invoke(_worldDetails, 0));
     }
 
@@ -101,6 +101,34 @@ internal class HubWorldPageView : MonoBehaviour
         _enterWorldButton.gameObject.SetActive(!needsDownload && !downloadedButNotInstalled);
 
         _selectedVersionNumber.text = $"V{version} {(IsExperimental ? "<i>(Experimental)</i>" : "")}";
+    }
+
+    public void ShowStartDownloadWorldButton()
+    {
+        _downloadWorldButton.gameObject.SetActive(true);
+        _installWorldButton.gameObject.SetActive(false);
+        _enterWorldButton.gameObject.SetActive(false);
+    }
+
+    public void ShowDownloadingWorldPanel()
+    {
+        _downloadingWorldPanel.SetActive(true);
+        _downloadingWorldProgressBar.ChangeValue(0);
+    }
+
+    public void UpdateDownloadingWorldProgress(float progress)
+    {
+        _downloadingWorldProgressBar.ChangeValue(progress * 100);
+    }
+
+    public void ShowInstallWorldButton()
+    {
+
+    }
+
+    public void ShowEnterWorldButton()
+    {
+
     }
 
     /*
