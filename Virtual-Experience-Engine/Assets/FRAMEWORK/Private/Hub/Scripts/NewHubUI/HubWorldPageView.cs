@@ -41,14 +41,15 @@ internal class HubWorldPageView : MonoBehaviour
 
     public event Action OnBackClicked;
 
-    public event Action<HubWorldDetails> OnAutoSelectInstanceClicked;
+    public event Action OnAutoSelectInstanceClicked;
     public event Action OnEnterInstanceCodeClicked;
 
-    public event Action<HubWorldDetails, int> OnDownloadWorldClicked;
-    public event Action<HubWorldDetails, int> OnInstallWorldClicked;
-    public event Action<HubWorldDetails, int> OnEnterWorldClicked;
+    public event Action OnDownloadWorldClicked;
+    public event Action OnCancelDownloadClicked;
+    public event Action OnInstallWorldClicked;
+    public event Action OnEnterWorldClicked;
 
-    private HubWorldDetails _worldDetails;
+    //private HubWorldDetails _worldDetails;
 
     //TODO - also pass in some world state to tell us if we need to download, or install?
     //We probably shouldn't be using the WorldDetails object... maybe LocalWorldDetails, that includes the local state of the world?
@@ -56,12 +57,12 @@ internal class HubWorldPageView : MonoBehaviour
     //TODO - also also need to pass in current play mode (2D/VR) and whether we can switch modes
     public void SetupView(HubWorldDetails worldDetails)
     {
-        _worldDetails = worldDetails;
+        // _worldDetails = worldDetails;
 
         _backButton.onClick.AddListener(() => OnBackClicked?.Invoke());
         _worldTitle.text = worldDetails.Name;
 
-        _autoSelectInstanceButton.onClick.AddListener(() => OnAutoSelectInstanceClicked?.Invoke(_worldDetails));
+        _autoSelectInstanceButton.onClick.AddListener(() => OnAutoSelectInstanceClicked?.Invoke());
         _enterInstanceCodeButton.onClick.AddListener(() => OnEnterInstanceCodeClicked?.Invoke());
 
         //TODO=======
@@ -78,13 +79,21 @@ internal class HubWorldPageView : MonoBehaviour
         _switchToVrButton.gameObject.SetActive(!isVrMode);
         //===========
 
-        //TODO - remove version and world details here, view doesn't need this? Controller has them
-        _downloadWorldButton.onClick.AddListener(() => OnDownloadWorldClicked?.Invoke(_worldDetails, 0));
+        _downloadWorldButton.onClick.AddListener(() => OnDownloadWorldClicked?.Invoke());
+        _cancelDownloadButton.onClick.AddListener(() => OnCancelDownloadClicked?.Invoke());
+        _installWorldButton.onClick.AddListener(() => OnInstallWorldClicked?.Invoke());
+        _enterWorldButton.onClick.AddListener(() => OnEnterWorldClicked?.Invoke());
+
+        _confirmingVersionsPanel.SetActive(false);
+        _downloadWorldButton.gameObject.SetActive(false);
+        _downloadingWorldPanel.SetActive(false);
+        _installWorldButton.gameObject.SetActive(false);
+        _enterWorldButton.gameObject.SetActive(false);
     }
 
     public void ShowAvailableVersions(List<int> versions)
     {
-        Debug.Log($"Showing available versions for world: {_worldDetails.Name}");
+        Debug.Log($"Showing available versions");
         foreach (int version in versions)
         {
             Debug.Log($"Available version: {version}");
@@ -93,7 +102,7 @@ internal class HubWorldPageView : MonoBehaviour
 
     public void ShowSelectedVersion(int version, bool needsDownload, bool downloadedButNotInstalled, bool IsExperimental)
     {
-        Debug.Log($"Selected version: {version} for world: {_worldDetails.Name}");
+        Debug.Log($"Selected version: {version}");
 
         _confirmingVersionsPanel.SetActive(false);
         _downloadWorldButton.gameObject.SetActive(needsDownload);
@@ -106,29 +115,40 @@ internal class HubWorldPageView : MonoBehaviour
     public void ShowStartDownloadWorldButton()
     {
         _downloadWorldButton.gameObject.SetActive(true);
+        _downloadingWorldPanel.SetActive(false);
         _installWorldButton.gameObject.SetActive(false);
         _enterWorldButton.gameObject.SetActive(false);
     }
 
     public void ShowDownloadingWorldPanel()
     {
+        _downloadingWorldProgressBar.SetValue(0);
+
+        _downloadWorldButton.gameObject.SetActive(false);
         _downloadingWorldPanel.SetActive(true);
-        _downloadingWorldProgressBar.ChangeValue(0);
+        _installWorldButton.gameObject.SetActive(false);
+        _enterWorldButton.gameObject.SetActive(false);
     }
 
     public void UpdateDownloadingWorldProgress(float progress)
     {
-        _downloadingWorldProgressBar.ChangeValue(progress * 100);
+        _downloadingWorldProgressBar.SetValue(progress);
     }
 
     public void ShowInstallWorldButton()
     {
-
+        _downloadWorldButton.gameObject.SetActive(false);
+        _downloadingWorldPanel.SetActive(false);
+        _installWorldButton.gameObject.SetActive(true);
+        _enterWorldButton.gameObject.SetActive(false);
     }
 
     public void ShowEnterWorldButton()
     {
-
+        _downloadWorldButton.gameObject.SetActive(false);
+        _downloadingWorldPanel.SetActive(false);
+        _installWorldButton.gameObject.SetActive(false);
+        _enterWorldButton.gameObject.SetActive(true);
     }
 
     /*

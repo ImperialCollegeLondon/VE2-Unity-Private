@@ -12,6 +12,12 @@ namespace VE2.NonCore.FileSystem.API
         public string LocalWorkingPath { get; }
 
         public Dictionary<string, LocalFileDetails> GetLocalFilesAtPath(string path);
+
+        /// <summary>
+        /// Returns a list of folder names only, doesn't include the path to the folder
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         public List<string> GetLocalFoldersAtPath(string path);
 
         public IRemoteFileSearchInfo GetRemoteFilesAtPath(string path);

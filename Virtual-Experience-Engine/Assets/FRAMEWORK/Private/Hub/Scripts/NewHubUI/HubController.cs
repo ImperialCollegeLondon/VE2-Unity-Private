@@ -28,7 +28,14 @@ internal class HubController : MonoBehaviour
         _hubCategoryPageView.OnWorldClicked += HandleWorldClicked;
         _hubHomePageView.OnCategoryClicked += HandleCategoryClicked;
         _hubCategoryPageView.OnBackClicked += HandleBackClicked;
+
         _hubWorldPageView.OnBackClicked += HandleBackClicked;
+        _hubWorldPageView.OnDownloadWorldClicked += HandleStartDownloadClicked;
+        _hubWorldPageView.OnCancelDownloadClicked += HandleCancelDownloadClicked;
+        _hubWorldPageView.OnInstallWorldClicked += HandleInstallWorldClicked;
+        _hubWorldPageView.OnEnterWorldClicked += HandleEnterWorldClicked;
+
+
     }
 
     private void OnEnable()
@@ -45,6 +52,16 @@ internal class HubController : MonoBehaviour
         else
             _fileSystem.OnFileSystemReady += HandleFileSystemReady;
     }
+
+    private void Update()
+    {
+        if (_curentFileDownloadIndex != -1)
+        {
+            //TODO - this could be a bit faster, I.E, account for actual data size, not just num files 
+            int progressPercent = Mathf.FloorToInt(_currentDownloadTask.Progress * 100 / _filesToDownload.Count);
+            _hubWorldPageView.UpdateDownloadingWorldProgress(progressPercent);
+        }
+    } 
 
     private void HandleFileSystemReady()
     {
@@ -128,35 +145,121 @@ internal class HubController : MonoBehaviour
         _hubHomePageView.SetupView(suggestedWorldDetails, worldCategories.Values.ToList());
     }
 
-    //DOWNLOADING WORLDS======================================================================
     private List<string> _filesToDownload;
-    private int _curentFileDownloadIndex;
+    private int _curentFileDownloadIndex = -1;
+    private IRemoteFileTaskInfo _currentDownloadTask;
 
-    private void HandleDownloadWorldClicked(HubWorldDetails worldDetails)
-    {
-        Debug.Log("Download world clicked: " + worldDetails.Name);
-
-        //First, we have to search for the files within the world folder
-        // IRemoteFileSearchInfo searchInfo = _fileSystem.GetRemoteFilesAtPath($"{worldDetails.Name}/{_activeRemoteVersion.ToString("D3")}");
-        // searchInfo.OnSearchComplete += HandleWorldFilesSearchComplete;
-
-    }
     private void HandleStartDownloadClicked()
     {
+        Debug.Log("Download world clicked: " + _viewingWorldDetails.Name);
+        _hubWorldPageView.ShowStartDownloadWorldButton();
 
+        _hubWorldPageView.UpdateDownloadingWorldProgress(0);
+
+        IRemoteFileSearchInfo searchInfo = _fileSystem.GetRemoteFilesAtPath($"{_viewingWorldDetails.Name}/{_selectedWorldVersion.ToString("D3")}");
+        searchInfo.OnSearchComplete += HandleWorldFilesSearchComplete;
     }
+
+    private void HandleWorldFilesSearchComplete(IRemoteFileSearchInfo searchInfo)
+    {
+        if (searchInfo.FilesFound.Count == 0)
+        {
+            Debug.LogError("No files found for world: " + _viewingWorldDetails.Name);
+            return;
+        }
+
+        //Check for correct number of files TODO
+        _filesToDownload = searchInfo.FilesFound
+            .Select(f => f.Key)
+            .ToList();
+        _curentFileDownloadIndex = 0;
+
+        searchInfo.OnSearchComplete -= HandleWorldFilesSearchComplete;
+
+        _hubWorldPageView.ShowDownloadingWorldPanel();
+        BeginDownloadNextFile();
+    }
+
+    private void BeginDownloadNextFile()
+    {
+        string fileNameAndPath = _filesToDownload[_curentFileDownloadIndex];
+        Debug.Log("Downloading file: " + fileNameAndPath);
+
+        _currentDownloadTask = _fileSystem.DownloadFile($"{fileNameAndPath}");
+        _currentDownloadTask.OnStatusChanged += HandleWorldFileDownloadStatusChanged;
+    }
+
+    private void HandleWorldFileDownloadStatusChanged(RemoteFileTaskStatus status)
+    {
+        Debug.LogWarning("==========================");
+        Debug.Log($"Download status changed for file: {_currentDownloadTask.NameAndPath}, Status: {status}, Progress: {_currentDownloadTask.Progress}");
+
+        if (status == RemoteFileTaskStatus.Failed)
+        {
+            Debug.LogError($"Failed to download file: {_currentDownloadTask.NameAndPath}");
+            // TODO show some error on UI
+            _curentFileDownloadIndex = -1;
+            return;
+        }
+
+        if (status == RemoteFileTaskStatus.Cancelled)
+        {
+            Debug.Log($"Cancelled download file: {_currentDownloadTask.NameAndPath}");
+            _curentFileDownloadIndex = -1;
+            return;
+        }
+
+        if (status == RemoteFileTaskStatus.Succeeded)
+        {
+            _currentDownloadTask.OnStatusChanged -= HandleWorldFileDownloadStatusChanged;
+
+            _curentFileDownloadIndex++;
+            if (_curentFileDownloadIndex < _filesToDownload.Count)
+            {
+                Debug.Log($"File downloaded successfully: {_currentDownloadTask.NameAndPath}. Starting next download.");
+                BeginDownloadNextFile();
+            }
+            else
+            {
+                Debug.Log("All files downloaded successfully");
+                HandleAllWorldFilesDownloaded();
+            }
+        }
+    }
+
 
     private void HandleCancelDownloadClicked()
     {
-        
+        _hubWorldPageView.ShowStartDownloadWorldButton();
     }
 
-    private void HandleDownloadCompleted()
+    private void HandleAllWorldFilesDownloaded()
     {
-    
+        _curentFileDownloadIndex = -1;
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            _hubWorldPageView.ShowInstallWorldButton();
+        }
+        else
+        {
+            _hubWorldPageView.ShowEnterWorldButton();
+        }
+    }
+
+    private void HandleInstallWorldClicked()
+    {
+        //Start polling for successful instal of package
+    }
+
+    private void HandleEnterWorldClicked()
+    {
+        Debug.Log("Enter world clicked: " + _viewingWorldDetails.Name + " Version: " + _selectedWorldVersion);
+
+        _platformService.RequestInstanceAllocation(_viewingWorldDetails.Name, "dev-00", _selectedWorldVersion.ToString()); //TODO - why is version a string? Should be an int
     }
 
     private HubWorldDetails _viewingWorldDetails;
+    private int _selectedWorldVersion = -1;
 
     private void HandleWorldClicked(HubWorldDetails worldDetails)
     {
@@ -194,11 +297,28 @@ internal class HubController : MonoBehaviour
             .Select(v => v.Value)
             .ToList();
 
+        //TODO: This returns DevBlue/002, while the above just returns 002
+
+        //The question is, which do we want??
+        //Maybe it makes sense for there to be an ILocalFolderSearchInfo?? Idk
         _viewingWorldDetails.VersionsAvailableLocally = _fileSystem.GetLocalFoldersAtPath($"{_viewingWorldDetails.Name}")
             .Select(s => int.TryParse(s, out var v) ? (int?)v : null)
             .Where(v => v.HasValue)
             .Select(v => v.Value)
             .ToList();
+
+        List<string> localWorlds = _fileSystem.GetLocalFoldersAtPath($"{_viewingWorldDetails.Name}");
+        Debug.LogWarning("Local world strings found: " + localWorlds.Count);
+        foreach (string localWorld in localWorlds)
+        {
+            Debug.Log("Found local world: " + localWorld);
+        }
+
+        Debug.Log("Searched for local versions at " + $"{_viewingWorldDetails.Name}, found " + _viewingWorldDetails.VersionsAvailableLocally.Count + " local versions");
+        foreach (int version in _viewingWorldDetails.VersionsAvailableLocally)
+        {
+            Debug.Log("Found local version: " + version);
+        }
 
         int targetVersion;
 
@@ -234,7 +354,11 @@ internal class HubController : MonoBehaviour
         }
         bool isVersionExperimental = targetVersion != _viewingWorldDetails.LiveVersionNumber;
 
+        Debug.LogWarning("####################");
+        Debug.Log($"Showing selected version: {targetVersion}, Needs Download: {needsDownload}, Downloaded But Not Installed: {downloadedButNotInstalled}, Is Experimental: {isVersionExperimental}");
+
         _hubWorldPageView.ShowSelectedVersion(targetVersion, needsDownload, downloadedButNotInstalled, isVersionExperimental);
+        _selectedWorldVersion = targetVersion;
 
         //_hubWorldPageView.SupplyVersions
     }
@@ -280,7 +404,7 @@ internal class HubController : MonoBehaviour
 
     private void OnFocusChanged(bool hasFocus)
     {
-        Debug.Log("Focus changed: " + hasFocus);
+        //Debug.Log("Focus changed: " + hasFocus);
         if (Application.platform == RuntimePlatform.Android)
         {
             if (hasFocus)
