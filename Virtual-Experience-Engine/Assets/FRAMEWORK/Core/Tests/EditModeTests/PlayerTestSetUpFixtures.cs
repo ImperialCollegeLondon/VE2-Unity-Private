@@ -95,14 +95,14 @@ namespace VE2.Core.Tests
         {
             RaycastProviderStub
                 .Raycast(default, default, default, default)
-                .ReturnsForAnyArgs(new RaycastResultWrapper(rangedInteractionModule, null, 0, true));
+                .ReturnsForAnyArgs(new RaycastResultWrapper(rangedInteractionModule, null, null, 0, true));
         }
 
         public static void StubRangedInteractionModuleForSpherecastAll(IRangedInteractionModule rangedInteractionModule)
         {
             RaycastProviderStub
                 .SphereCastAll(default, default, default, default, default)
-                .ReturnsForAnyArgs(new RaycastResultWrapper(rangedInteractionModule, null, 0, true));
+                .ReturnsForAnyArgs(new RaycastResultWrapper(rangedInteractionModule, null, null, 0, true));
         }
     }
 

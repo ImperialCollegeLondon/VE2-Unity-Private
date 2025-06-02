@@ -213,7 +213,7 @@ namespace VE2.Core.Player.Internal
                         if (raycastResultWrapper.RangedInteractable is IRangedClickInteractionModule rangedClickInteraction && this is InteractorVR)
                             isAllowedToInteract &= rangedClickInteraction.ActivateAtRangeInVR;
 
-                        _hoveringOverScrollableIndicator.IsHoveringOverScrollableObject = raycastResultWrapper.HitScrollableInteractableInRange;
+                        _hoveringOverScrollableIndicator.IsHoveringOverScrollableObject = raycastResultWrapper.HitScrollableAdjustableInteractableInRange;
                         _raycastHitDebug.Value = raycastResultWrapper.RangedInteractable.ToString();
                     }
                     else if (raycastResultWrapper.HitUIButton)
@@ -239,7 +239,7 @@ namespace VE2.Core.Player.Internal
                         {
                             isAllowedToInteract = !sphereCastResultWrapper.RangedInteractable.AdminOnly;
 
-                            _hoveringOverScrollableIndicator.IsHoveringOverScrollableObject = sphereCastResultWrapper.HitScrollableInteractableInRange;
+                            _hoveringOverScrollableIndicator.IsHoveringOverScrollableObject = sphereCastResultWrapper.HitScrollableAdjustableInteractableInRange;
                             _raycastHitDebug.Value = sphereCastResultWrapper.RangedInteractable.ToString();
 
                             SetInteractorState(isAllowedToInteract ? InteractorState.InteractionAvailable : InteractorState.InteractionLocked);
@@ -541,15 +541,19 @@ namespace VE2.Core.Player.Internal
             {
                 RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
 
-                if (_LocalClientIDWrapper.IsClientIDReady && raycastResultWrapper != null && raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange)
+                if (_LocalClientIDWrapper.IsClientIDReady && raycastResultWrapper != null)
                 {
-                    if (!raycastResultWrapper.RangedInteractable.AdminOnly)
+                    if (raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange && !raycastResultWrapper.RangedInteractable.AdminOnly)
                     {
                         //if while scrolling up, raycast returns an adjustable module
                         if (raycastResultWrapper.RangedInteractable is IRangedAdjustableInteractionModule rangedAdjustableInteraction)
                         {
                             rangedAdjustableInteraction.ScrollUp();
                         }
+                    }
+                    else if (raycastResultWrapper.HitScrollableUI)
+                    {
+                        raycastResultWrapper.ScrollableUI.OnScrollUp();
                     }
                 }
             }
@@ -572,15 +576,19 @@ namespace VE2.Core.Player.Internal
             {
                 RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
 
-                if (_LocalClientIDWrapper.IsClientIDReady && raycastResultWrapper != null && raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange)
+                if (_LocalClientIDWrapper.IsClientIDReady && raycastResultWrapper != null)
                 {
-                    if (!raycastResultWrapper.RangedInteractable.AdminOnly)
+                    if (raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange && !raycastResultWrapper.RangedInteractable.AdminOnly)
                     {
                         //if while scrolling up, raycast returns an adjustable module
                         if (raycastResultWrapper.RangedInteractable is IRangedAdjustableInteractionModule rangedAdjustableInteraction)
                         {
                             rangedAdjustableInteraction.ScrollDown();
                         }
+                    }
+                    else if (raycastResultWrapper.HitScrollableUI)
+                    {
+                        raycastResultWrapper.ScrollableUI.OnScrollDown();
                     }
                 }
             }

@@ -13,7 +13,8 @@
         "VE2.Core.Player.API",
         "VE2.Common.API",
         "VE2.Core.UI.API",
-        "VE2.Common.Shared"
+        "VE2.Common.Shared",
+        "VE2.Core.UI.Internal"
     ],
     "includePlatforms": [
         "Editor"
