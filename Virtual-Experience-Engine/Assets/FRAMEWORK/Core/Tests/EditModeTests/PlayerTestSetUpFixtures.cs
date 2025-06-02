@@ -270,7 +270,7 @@ namespace VE2.Core.Tests
                 Substitute.For<IXRManagerWrapper>(),
                 Substitute.For<IPrimaryUIServiceInternal>(),
                 Substitute.For<ISecondaryUIServiceInternal>(),
-                Substitute.For<XRHapticsWrapper>(),
+                Substitute.For<IXRHapticsWrapper>(),
                 Substitute.For<IXRHapticsWrapper>()
             );
         }
