@@ -108,6 +108,7 @@ namespace VE2.Core.VComponents.Internal
             else if (_RangedGrabInteractionModule.DropBehaviour == DropBehaviour.ReturnToPositionBeforeGrab)
             {
                 _rigidbody.position = positionOnGrab;
+                _rigidbody.rotation = rotationOnGrab;
                 _rigidbody.linearVelocity = Vector3.zero;
                 _rigidbody.angularVelocity = Vector3.zero;
             }

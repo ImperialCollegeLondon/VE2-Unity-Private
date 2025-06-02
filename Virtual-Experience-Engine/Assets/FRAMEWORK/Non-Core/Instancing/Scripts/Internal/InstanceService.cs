@@ -14,15 +14,15 @@ namespace VE2.NonCore.Instancing.Internal
 {
     internal static class InstanceServiceFactory
     {
-        internal static InstanceService Create(bool connectAutomatically, 
-            ConnectionStateWrapper connectionStateDebugWrapper, ServerConnectionSettings debugServerSettings, string debugInstanceCode, 
-            InstanceCommsHandlerConfig config) 
+        internal static InstanceService Create(bool connectAutomatically,
+            ConnectionStateWrapper connectionStateDebugWrapper, ServerConnectionSettings debugServerSettings, string debugInstanceCode,
+            InstanceCommsHandlerConfig config)
         {
             InstanceNetworkingCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
 
             return new InstanceService(
-                commsHandler, 
-                VE2API.LocalClientIdWrapper as ILocalClientIDWrapperWritable, 
+                commsHandler,
+                VE2API.LocalClientIdWrapper as ILocalClientIDWrapperWritable,
                 connectionStateDebugWrapper,
                 VE2API.InteractorContainer,
                 VE2API.Player as IPlayerServiceInternal,
@@ -52,11 +52,14 @@ namespace VE2.NonCore.Instancing.Internal
         public event Action<ushort> OnClientIDReady;
 
         public bool IsHost => _instanceInfoContainer.IsHost;
-        public event Action OnBecomeHost {add => _instanceInfoContainer.OnBecomeHost += value; remove => _instanceInfoContainer.OnBecomeHost -= value;}
-        public event Action OnLoseHost {add => _instanceInfoContainer.OnLoseHost += value; remove => _instanceInfoContainer.OnLoseHost -= value;}
+        public event Action OnBecomeHost { add => _instanceInfoContainer.OnBecomeHost += value; remove => _instanceInfoContainer.OnBecomeHost -= value; }
+        public event Action OnLoseHost { add => _instanceInfoContainer.OnLoseHost += value; remove => _instanceInfoContainer.OnLoseHost -= value; }
         public ushort HostID => _instanceInfoContainer.HostID;
 
-        public int NumberOfClientsInCurrentInstance => _instanceInfoContainer.InstanceInfo.ClientInfos.Count;
+        public int NumberOfClientsInCurrentInstance =>
+            _instanceInfoContainer.InstanceInfo?.ClientInfos == null
+            ? 0
+            : _instanceInfoContainer.InstanceInfo.ClientInfos.Count;
 
         public float Ping => _pingSyncer.Ping;
         public int SmoothPing => _pingSyncer.SmoothPing;
@@ -72,9 +75,10 @@ namespace VE2.NonCore.Instancing.Internal
         #region Temp debug interfaces //TODO: remove once UI is in 
         public InstancedInstanceInfo InstanceInfo => _instanceInfoContainer.InstanceInfo;
 
-        public event Action<InstancedInstanceInfo> OnInstanceInfoChanged { 
-            add => _instanceInfoContainer.OnInstanceInfoChanged += value; 
-            remove => _instanceInfoContainer.OnInstanceInfoChanged -= value; 
+        public event Action<InstancedInstanceInfo> OnInstanceInfoChanged
+        {
+            add => _instanceInfoContainer.OnInstanceInfoChanged += value;
+            remove => _instanceInfoContainer.OnInstanceInfoChanged -= value;
         }
         #endregion
 
@@ -100,7 +104,7 @@ namespace VE2.NonCore.Instancing.Internal
 
         public InstanceService(IPluginSyncCommsHandler commsHandler, ILocalClientIDWrapperWritable localClientIDWrapper, ConnectionStateWrapper connectionStateDebugWrapper,
             HandInteractorContainer interactorContainer, IPlayerServiceInternal playerServiceInternal, IPrimaryUIServiceInternal primaryUIService,
-            bool connectAutomatically, ServerConnectionSettings serverSettings, string instanceCode, InstanceCommsHandlerConfig config, 
+            bool connectAutomatically, ServerConnectionSettings serverSettings, string instanceCode, InstanceCommsHandlerConfig config,
             IWorldStateSyncableContainer worldStateSyncableContainer, ILocalPlayerSyncableContainer localPlayerSyncableContainer)
 
         {
@@ -171,19 +175,19 @@ namespace VE2.NonCore.Instancing.Internal
             {
                 //TODO - handle bad netcode version
                 Debug.LogError($"Bad netcode version, received version {netcodeVersionConfirmation.NetcodeVersion} but we are on {InstanceNetcodeVersion}");
-            } 
+            }
             else
             {
                 SendServerRegistration();
             }
         }
 
-        private void SendServerRegistration() 
+        private void SendServerRegistration()
         {
             //Debug.Log("<color=green> Try register to server pop'n with instance code - " + _instanceCode);
 
-            bool usingFrameworkAvatar = _playerService != null; 
-            OverridableAvatarAppearance overridableAvatarAppearance = usingFrameworkAvatar? _playerService.OverridableAvatarAppearance : new();
+            bool usingFrameworkAvatar = _playerService != null;
+            OverridableAvatarAppearance overridableAvatarAppearance = usingFrameworkAvatar ? _playerService.OverridableAvatarAppearance : new();
             AvatarAppearanceWrapper avatarAppearanceWrapper = new(usingFrameworkAvatar, overridableAvatarAppearance);
 
             //We also send the LocalClientID here, this will either be maxvalue (if this is our first time connecting, the server will give us a new ID)..
@@ -204,12 +208,12 @@ namespace VE2.NonCore.Instancing.Internal
             OnConnectedToInstance?.Invoke();
         }
 
-        private void HandleReceiveInstanceInfoUpdate(byte[] bytes) 
+        private void HandleReceiveInstanceInfoUpdate(byte[] bytes)
         {
             _instanceInfoContainer.InstanceInfo = new InstancedInstanceInfo(bytes);
         }
 
-        internal void HandleUpdate() 
+        internal void HandleUpdate()
         {
             _commsHandler.MainThreadUpdate();
 
@@ -232,7 +236,7 @@ namespace VE2.NonCore.Instancing.Internal
             _pingSyncer.HandleReceivePingMessage(bytes);
         }
 
-        private void DisconnectFromServer() 
+        private void DisconnectFromServer()
         {
             if (_connectionStateWrapper.ConnectionState != ConnectionState.Connected)
             {
@@ -242,9 +246,9 @@ namespace VE2.NonCore.Instancing.Internal
 
             _shouldConnectToServer = false;
             _commsHandler.DisconnectFromServer();
-        } 
+        }
 
-        private void HandleDisconnectFromServer() 
+        private void HandleDisconnectFromServer()
         {
             Debug.Log("Disconnected from server");
 
@@ -294,16 +298,38 @@ namespace VE2.NonCore.Instancing.Internal
         public event Action OnBecomeHost;
         public event Action OnLoseHost;
 
-        public bool IsHost => InstanceInfo == null || InstanceInfo.HostID == LocalClientID;
+        public bool IsHost
+        {
+            get
+            {
+                try
+                {
+                    if (InstanceInfo == null)
+                    {
+                        string msg = "InstanceInfo is null, this variable should not be accessed before the instance is connected to the server, Please Subscribe to OnInstanceJoined event to get the HostID";
+                        throw new InvalidOperationException(msg);
+                    }
+                    else
+                        return InstanceInfo.HostID == LocalClientID;
+                }
+                catch (Exception e)
+                {
+                    throw new InvalidOperationException("Error in IsHost property: " + e.Message, e);
+                }
+            }
+        }
+
         public ushort HostID => InstanceInfo.HostID;
 
         public event Action<InstancedInstanceInfo> OnInstanceInfoChanged;
         private InstancedInstanceInfo _instanceInfo = null;
-        public InstancedInstanceInfo InstanceInfo {
-             get => _instanceInfo; 
-             set {
+        public InstancedInstanceInfo InstanceInfo
+        {
+            get => _instanceInfo;
+            set
+            {
                 if (_instanceInfo != null && _instanceInfo.Equals(value))
-                    return; 
+                    return;
 
                 if (_instanceInfo == null)
                 {
@@ -314,11 +340,11 @@ namespace VE2.NonCore.Instancing.Internal
                     bool wasHost = IsHost;
                     _instanceInfo = value;
 
-                    if (!wasHost &&IsHost)
+                    if (!wasHost && IsHost)
                     {
-                        try 
+                        try
                         {
-                            OnBecomeHost?.Invoke(); 
+                            OnBecomeHost?.Invoke();
                         }
                         catch (Exception e)
                         {
@@ -327,9 +353,9 @@ namespace VE2.NonCore.Instancing.Internal
                     }
                     else if (wasHost && !IsHost)
                     {
-                        try 
+                        try
                         {
-                            OnLoseHost?.Invoke(); 
+                            OnLoseHost?.Invoke();
                         }
                         catch (Exception e)
                         {
@@ -339,7 +365,7 @@ namespace VE2.NonCore.Instancing.Internal
                 }
 
                 OnInstanceInfoChanged?.Invoke(_instanceInfo);
-             } 
+            }
         }
 
         public InstanceInfoContainer(ILocalClientIDWrapperWritable localClientIdWrapper)

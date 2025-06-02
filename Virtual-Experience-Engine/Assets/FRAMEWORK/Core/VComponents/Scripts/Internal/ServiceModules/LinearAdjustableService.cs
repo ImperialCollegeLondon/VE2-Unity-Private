@@ -168,13 +168,13 @@ namespace VE2.Core.VComponents.Internal
             switch (_adjustmentType)
             {
                 case SpatialAdjustmentType.XAxis:
-                    _attachPointTransform.localPosition = new Vector3(_spatialValue, _attachPointTransform.localPosition.y, _attachPointTransform.localPosition.z);
+                    _transformToTranslate.localPosition = new Vector3(_spatialValue, _transformToTranslate.localPosition.y, _transformToTranslate.localPosition.z);
                     break;
                 case SpatialAdjustmentType.YAxis:
-                    _attachPointTransform.localPosition = new Vector3(_attachPointTransform.localPosition.x, _spatialValue, _attachPointTransform.localPosition.z);
+                    _transformToTranslate.localPosition = new Vector3(_transformToTranslate.localPosition.x, _spatialValue, _transformToTranslate.localPosition.z);
                     break;
                 case SpatialAdjustmentType.ZAxis:
-                    _attachPointTransform.localPosition = new Vector3(_attachPointTransform.localPosition.x, _attachPointTransform.localPosition.y, _spatialValue);
+                    _transformToTranslate.localPosition = new Vector3(_transformToTranslate.localPosition.x, _transformToTranslate.localPosition.y, _spatialValue);
                     break;
             }
         }

@@ -57,7 +57,7 @@ namespace VE2.Core.VComponents.Internal
         #endregion
     }
     
-    internal partial class V_LinearAdjustable : BaseVComponent, IRangedGrabInteractionModuleProvider
+    internal partial class V_LinearAdjustable : MonoBehaviour, IRangedGrabInteractionModuleProvider
     {
         [SerializeField, IgnoreParent] private LinearAdjustableConfig _config = new();
         [SerializeField, HideInInspector] private AdjustableState _adjustableState = null;
@@ -109,7 +109,7 @@ namespace VE2.Core.VComponents.Internal
             string id = "LinearAdjustable-" + gameObject.name;
 
             if (_adjustableState == null)
-                _adjustableState = new AdjustableState(float.MaxValue);
+                _adjustableState = new AdjustableState(_config.AdjustableStateConfig.StartingOutputValue);
 
             List<IHandheldInteractionModule> handheldInteractions = new();
 
