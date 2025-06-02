@@ -7,22 +7,18 @@ using UnityEngine.UIElements;
 using System;
 using System.Reflection;
 using VE2.Core.Player.Internal;
+using VE2.Core.Player.API;
+using VE2.Common.API;
 
 namespace VE2.Core.Player
 {
     [UnityEditor.InitializeOnLoad]
-    public static class VE2UnityEditorToolbar
+    internal static class VE2UnityEditorToolbar
     {
-        public static event Action OnPreferVRClicked;
-        public static event Action OnPrefer2DClicked;
-
-        public static bool PreferVRMode {get; private set;}
-
         private static V_PlayerSpawner _playerSpawner = null;
 
         static VE2UnityEditorToolbar()
         {
-            //Debug.Log("VE2UnityEditorToolbar initialized.");
             ToolboxEditorToolbar.OnToolbarGuiLeft  += OnToolbarGui;
         }
 
@@ -38,7 +34,7 @@ namespace VE2.Core.Player
                 return;
 
             // Determine if the button should be interactable
-            bool interactable = _playerSpawner._playerConfig.Enable2D && _playerSpawner._playerConfig.EnableVR;
+            bool interactable = _playerSpawner._playerConfig.PlayerModeConfig.Enable2D && _playerSpawner._playerConfig.PlayerModeConfig.EnableVR;
 
             // Save the current GUI enabled state, and set it to false if the button is not interactable
             bool originalGUIState = GUI.enabled;
@@ -47,24 +43,24 @@ namespace VE2.Core.Player
             string buttonText = "VE2: ";
             if (interactable)
             {
-                buttonText += PreferVRMode ? "Preferring VR" : "Preferring 2D";
+                buttonText += VE2API.PreferVRMode ? "Preferring VR" : "Preferring 2D";
             }
             else
             {
-                PreferVRMode = _playerSpawner._playerConfig.EnableVR;
-                buttonText += _playerSpawner._playerConfig.EnableVR ? "VR Only" : "2D Only";
+                VE2API.PreferVRMode = _playerSpawner._playerConfig.PlayerModeConfig.EnableVR;
+                buttonText += _playerSpawner._playerConfig.PlayerModeConfig.EnableVR ? "VR Only" : "2D Only";
             }
 
             // Create the toggle button
-            if (GUILayout.Toggle(PreferVRMode, buttonText, "Button"))
+            if (GUILayout.Toggle(VE2API.PreferVRMode, buttonText, "Button"))
             {
-                if (!PreferVRMode)
-                    PreferVRMode = true;
+                if (!VE2API.PreferVRMode)
+                    VE2API.PreferVRMode = true;
             }
             else
             {
-                if (PreferVRMode)
-                    PreferVRMode = false;
+                if (VE2API.PreferVRMode)
+                    VE2API.PreferVRMode = false;
             }
 
             // Restore the original GUI enabled state

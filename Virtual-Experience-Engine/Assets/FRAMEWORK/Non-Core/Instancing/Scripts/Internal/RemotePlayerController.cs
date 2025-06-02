@@ -2,15 +2,15 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using VE2.Core.Common;
+using VE2.Common.API;
 using VE2.Core.Player.API;
 using VE2.Core.Player.Internal;
 using VE2.Core.VComponents.API;
-using VE2.NonCore.Instancing.API;
 using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.NonCore.Instancing.Internal
 {
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     internal class RemoteAvatarController : MonoBehaviour
     {
         [SerializeField] private Transform _headHolder;
@@ -22,7 +22,7 @@ namespace VE2.NonCore.Instancing.Internal
         [SerializeField] private GameObject _interactorVRLeftGameObject;
         [SerializeField] private GameObject _interactorVRRightGameObject;
         [SerializeField] private GameObject _interactorFeetGameObject;
-        [SerializeField] private AvatarVisHandler _localAvatarHandler;
+        [SerializeField] private AvatarVisHandler _avatarHandler;
 
         /// <summary>
         /// Note, this WON'T set the initial appearance, HandleReceiveAvatarAppearance should be called after initialization
@@ -39,10 +39,10 @@ namespace VE2.NonCore.Instancing.Internal
             _interactor2DGameObject.GetComponent<RemoteInteractor>().Initialize(clientID, InteractorType.Mouse2D, interactorContainer);
             _interactorFeetGameObject.GetComponent<RemoteInteractor>().Initialize(clientID, InteractorType.Feet, interactorContainer);
 
-            _localAvatarHandler.Initialize(playerService);
+            _avatarHandler.Initialize(playerService);
         }
 
-        public void ToggleAvatarsTransparent(bool isTransparent) => _localAvatarHandler.SetTransparent(isTransparent);
+        public void ToggleAvatarsTransparent(bool isTransparent) => _avatarHandler.SetTransparent(isTransparent);
 
         public void HandleReceiveRemotePlayerState(PlayerTransformData playerState)
         {
@@ -95,7 +95,7 @@ namespace VE2.NonCore.Instancing.Internal
         internal void HandleReceiveAvatarAppearance(OverridableAvatarAppearance newAvatarAppearance)
         {
             _playerNameText.text = newAvatarAppearance.PresentationConfig.PlayerName;
-            _localAvatarHandler.HandleReceiveAvatarAppearance(newAvatarAppearance);
+            _avatarHandler.HandleReceiveAvatarAppearance(newAvatarAppearance);
         }
 
 

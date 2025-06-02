@@ -18,6 +18,8 @@ namespace VE2.Core.VComponents.API
 
     internal interface IRangedHoldClickInteractionModule : IRangedClickInteractionModule
     {
+        public bool IsNetworked { get; }
+
         public void ClickUp(InteractorID interactorID);
     }
 }

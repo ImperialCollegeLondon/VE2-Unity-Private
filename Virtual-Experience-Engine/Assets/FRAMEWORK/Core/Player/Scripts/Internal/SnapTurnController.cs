@@ -15,8 +15,9 @@ namespace VE2.Core.Player.Internal
         private readonly FreeGrabbableWrapper _otherHandGrabbableWrapper;
         private readonly Transform _handTransform;
         private readonly Transform _otherHandTransform;
-        
-        public SnapTurnController(SnapTurnInputContainer inputContainer, Transform rootTransform, TeleportInputContainer teleportInputContainer, FreeGrabbableWrapper thisHandGrabbableWrapper, FreeGrabbableWrapper otherHandGrabbaleWrapper, Transform handTransform, Transform otherHandTransform)
+        private readonly MovementModeConfig _movementModeConfig;
+
+        public SnapTurnController(SnapTurnInputContainer inputContainer, Transform rootTransform, TeleportInputContainer teleportInputContainer, FreeGrabbableWrapper thisHandGrabbableWrapper, FreeGrabbableWrapper otherHandGrabbaleWrapper, Transform handTransform, Transform otherHandTransform,MovementModeConfig movementModeConfig)
         {
             _inputContainer = inputContainer;
             _rootTransform = rootTransform;
@@ -25,6 +26,7 @@ namespace VE2.Core.Player.Internal
             _otherHandGrabbableWrapper = otherHandGrabbaleWrapper;
             _handTransform = handTransform;
             _otherHandTransform = otherHandTransform;
+            _movementModeConfig = movementModeConfig;
 
         }
 
@@ -63,6 +65,8 @@ namespace VE2.Core.Player.Internal
 
             if (_otherHandGrabbableWrapper.RangedFreeGrabInteraction != null)
                 _otherHandGrabbableWrapper.RangedFreeGrabInteraction.ApplyDeltaWhenGrabbed(deltaPosition, deltaRotation);
+
+            _movementModeConfig.OnSnapTurn?.Invoke();
         }
 
         private void HandleSnapTurnRight()
@@ -86,6 +90,8 @@ namespace VE2.Core.Player.Internal
 
             if (_otherHandGrabbableWrapper.RangedFreeGrabInteraction != null)
                 _otherHandGrabbableWrapper.RangedFreeGrabInteraction.ApplyDeltaWhenGrabbed(deltaPosition, deltaRotation);
+
+            _movementModeConfig.OnSnapTurn?.Invoke();
         }
     }
 }

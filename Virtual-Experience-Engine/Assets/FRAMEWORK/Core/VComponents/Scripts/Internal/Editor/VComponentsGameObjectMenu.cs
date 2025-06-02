@@ -2,11 +2,11 @@
 
 using UnityEditor;
 using UnityEngine;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 
 namespace VE2.Core.VComponents.Internal 
 {
-    public class VComponentsEditorMenu
+    internal class VComponentsEditorMenu
     {
         [MenuItem("/GameObject/VE2/Interactables/ToggleButton", priority = 0)]
         private static void CreateToggleButton()
@@ -42,6 +42,18 @@ namespace VE2.Core.VComponents.Internal
         private static void CreateSlider()
         {
             CommonUtils.InstantiateResource("AdjustableSlider");
+        }
+
+        [MenuItem("/GameObject/VE2/UIs/CustomInfoPoint", priority = 6)]
+        private static void CreateCustomInfoPoint()
+        {
+            GameObject infoPoint = CommonUtils.InstantiateResource("CustomInfoPoint");
+
+            GameObject trigger = infoPoint.GetComponentInChildren<InfoPointTriggerAnimationHandler>().gameObject;
+            trigger.name = $"{infoPoint.name}_Trigger"; //The actual trigger holds the activatable!
+
+            GameObject canvas = infoPoint.GetComponentInChildren<InfoPointCanvasAnimationHandler>().gameObject; 
+            canvas.name = $"{infoPoint.name}_Canvas"; //May as well do the same to the canvas, for consistency
         }
     }
 }

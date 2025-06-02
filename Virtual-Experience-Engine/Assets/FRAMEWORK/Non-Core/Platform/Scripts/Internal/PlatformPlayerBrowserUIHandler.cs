@@ -4,7 +4,7 @@ namespace VE2.NonCore.Platform.Internal
 {
     internal class PlatformPlayerBrowserUIHandler
     {
-        internal PlatformPlayerBrowserUIHandler(V_PlatformPlayerBrowserUIReferences playerBrowserUIReferences)
+        internal PlatformPlayerBrowserUIHandler(PlatformPlayerBrowserUIReferences playerBrowserUIReferences)
         {
 
         }

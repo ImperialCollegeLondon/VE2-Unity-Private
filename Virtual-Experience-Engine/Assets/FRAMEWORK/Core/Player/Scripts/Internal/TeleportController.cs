@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 using VE2.Core.Player.API;
 
 namespace VE2.Core.Player.Internal
@@ -14,7 +14,7 @@ namespace VE2.Core.Player.Internal
         private LineRenderer _teleportLineRenderer;
         private readonly LineRenderer _interactorLineRenderer; // Position of the teleport raycast origin
         private readonly Material _teleportLineMaterial;
-        private readonly ColorConfiguration _colorConfig;
+        private ColorConfiguration _colorConfig => ColorConfiguration.Instance;
         private readonly GameObject _teleportCursor;
         private const float LINE_EMISSION_INTENSITY = 15;
 
@@ -48,7 +48,7 @@ namespace VE2.Core.Player.Internal
 
         public TeleportController(TeleportInputContainer inputContainer,
             LineRenderer teleportLineRenderer, LineRenderer interactorLineRenderer, GameObject teleportCursorPrefab,
-            Transform rootTransform, Transform headTransform, Transform otherHandTransformReference,  
+            Transform rootTransform, Transform headTransform, Transform otherHandTransformReference,
             FreeGrabbableWrapper thisHandGrabbableWrapper, FreeGrabbableWrapper otherHandGrabbableWrapper,
             HoveringOverScrollableIndicator hoveringOverScrollableIndicator, MovementModeConfig movementModeConfig)
         {
@@ -59,7 +59,6 @@ namespace VE2.Core.Player.Internal
             _interactorLineRenderer = interactorLineRenderer.GetComponent<LineRenderer>();
             _otherHandTransformReference = otherHandTransformReference;
 
-            _colorConfig = Resources.Load<ColorConfiguration>("ColorConfiguration"); //TODO: Inject
             _teleportLineRenderer = teleportLineRenderer;
             _teleportLineRenderer.positionCount = _lineSegmentCount + 1;
             _teleportLineRenderer.enabled = false;
@@ -80,7 +79,7 @@ namespace VE2.Core.Player.Internal
 
         public void HandleUpdate()
         {
-            if (_teleporterActive) 
+            if (_teleporterActive)
                 UpdateTeleportRay();
         }
 
@@ -96,12 +95,12 @@ namespace VE2.Core.Player.Internal
             _inputContainer.Teleport.OnReleased -= HandleTeleportDeactivated;
         }
 
-        private void HandleTeleportActivated() 
-        { 
+        private void HandleTeleportActivated()
+        {
             //only handle TP if that we were clear of interactables at the time of activation
             //Fixes case of "point at a scrollable, hold up, point away, release stick", which causees an unexpected TP
             if (_hoveringOverScrollableIndicator.IsHoveringOverScrollableObject || _thisHandGrabbableWrapper.RangedFreeGrabInteraction != null)
-                return; 
+                return;
 
             _teleporterActive = true;
             ToggleTeleportVisual(true);
@@ -135,7 +134,9 @@ namespace VE2.Core.Player.Internal
 
                 //if the other hand is grabbing something, teleport it along with us 
                 //We don't have to worry about that for this hand, can't be teleporting if we're grabbing!
-                _otherHandGrabbableWrapper.RangedFreeGrabInteraction?.ApplyDeltaWhenGrabbed(deltaPosition, deltaRotation); 
+                _otherHandGrabbableWrapper.RangedFreeGrabInteraction?.ApplyDeltaWhenGrabbed(deltaPosition, deltaRotation);
+
+                _movementModeConfig.OnTeleport?.Invoke();
             }
         }
 
@@ -153,24 +154,25 @@ namespace VE2.Core.Player.Internal
             Vector3 startPosition = _teleportRayOrigin.position;
             Vector3 direction = _teleportRayOrigin.forward;
 
-            if (_movementModeConfig.EnableFreeFlyMode)
+            if (_movementModeConfig.FreeFlyMode)
             {
                 float stickX = _inputContainer.TeleportDirection.Value.x;
                 float distance = Mathf.Lerp(1f, 3f, stickX); // TODO: Make this configurable
                 Vector3 teleportDestination = startPosition + direction * distance;
-                
+
                 DrawStraightLine(startPosition, teleportDestination);
 
-                if (CanTeleport(startPosition, teleportDestination))
+                if (CanTeleportToFreeFlyDestination(startPosition, teleportDestination))
                 {
                     _teleportCursor.transform.position = teleportDestination;
 
                     /*TODO: We may need to rethink this. Terrain below may not be level, or even present at all 
-                    When entering freefly, maybe we should intead reconfigure the rig so the head is always at the root 
+                    possible approach: When entering freefly, maybe we should intead reconfigure the rig so the head is always at the root 
                     Then we just teleport the whole root to the target, and verticalDragMove up by root?
                     Would need to reconfigure the rig back when leaving freefly though
-                    not ideal... means the drag loco needs to know about FreeFly - will have to think!
-                    Think drag loco DOES nees to know though. if we drag in the air, we don't want our elevation to change if the floor below changes*/
+                    Maybe better approach: No rig reconfiguring, just look at the target teleport pos, and work out what delta we need to apply 
+                    to the root transform so that's where the camera ends up... 
+                    ...this approach might not work as well for drag though, maybe collapsing the rig is simpler after all*/
                     Vector3 delta = teleportDestination - _headTransform.position;
                     Vector3 newRootPosition = _rootTransform.position + delta;
                     if (Physics.Raycast(teleportDestination, Vector3.down, out RaycastHit hit, _movementModeConfig.TraversableLayers))
@@ -185,7 +187,7 @@ namespace VE2.Core.Player.Internal
                     {
                         arrowDirection.Normalize();
                     }
-                    _teleportRotation =  Quaternion.LookRotation(arrowDirection, Vector3.up);
+                    _teleportRotation = Quaternion.LookRotation(arrowDirection, Vector3.up);
 
                     ToggleTeleportLineVisualShowsValid(true);
 
@@ -223,19 +225,19 @@ namespace VE2.Core.Player.Internal
                     Vector3 segmentDir = (currentPoint - previousPoint).normalized;
                     float segmentDistance = Vector3.Distance(currentPoint, previousPoint);
 
-                    // First check: is there any object not on the Traversible layer blocking this segment?
-                    RaycastHit blockingHit;
-                    if (Physics.Raycast(previousPoint, segmentDir, out blockingHit, segmentDistance, ~_movementModeConfig.TraversableLayers))
-                    {
-                        // A non-traversible object is in the way  cancel teleport.
-                        hitFound = false;
-                        break;
-                    }
-
-                    // Second check: does the segment hit a valid teleport surface (i.e. on the Traversible layer)?
+                    //First check, does the teleporter hit anything in the traversable, or collision layers?
                     if (Physics.Raycast(previousPoint, segmentDir, out hit, segmentDistance, _movementModeConfig.TraversableLayers))
                     {
-                        // If a valid hit is detected, update the trajectory point and mark teleport as possible.
+                        GameObject hitObject = hit.collider.gameObject;
+
+                        // Second check, is the thing that was hit traversable? If not, it's a blocking object, and we can't teleport
+                        if (!CommonUtils.IsGameObjectInLayerMask(hitObject, _movementModeConfig.TraversableLayers))
+                        {
+                            hitFound = false;
+                            break;
+                        }
+
+                        // Otherwise, it's traversable, so mark as valid and update the trajectory point.
                         trajectoryPoints[trajectoryPoints.Count - 1] = hit.point;
                         hitFound = true;
                         break;
@@ -244,19 +246,34 @@ namespace VE2.Core.Player.Internal
                 }
 
                 // --- Update Visuals and Teleport Target ---
-                if (hitFound && IsValidSurface(hit.normal))
+                if (hitFound && IsValidSurface(hit))
                 {
                     _hitPoint = hit.point;
                     _teleportCursor.transform.position = _hitPoint;
 
-                    UpdateTargetRotation(hit.normal);
+                    V_TeleportAnchor teleportAnchor = SphereCastFromPoint(hit.point, hit.normal);
 
-                    // Update the line renderer with the simulated trajectory points.
-                    _teleportLineRenderer.positionCount = trajectoryPoints.Count;
-                    for (int i = 0; i < trajectoryPoints.Count; i++)
+                    if (teleportAnchor != null)
                     {
-                        _teleportLineRenderer.SetPosition(i, _teleportLineRenderer.transform.InverseTransformPoint(trajectoryPoints[i]));
+                        _hitPoint = teleportAnchor.transform.position;
+                        _teleportCursor.transform.position = _hitPoint;
+                        _teleportCursor.transform.rotation = teleportAnchor.transform.rotation;
+                        _teleportRotation = teleportAnchor.transform.rotation;
+
+                        DrawBezierCurve(startPosition, _hitPoint, _lineSegmentCount);
                     }
+                    else
+                    {
+                        UpdateTargetRotation(hit.normal);
+
+                        // Update the line renderer with the simulated trajectory points.
+                        _teleportLineRenderer.positionCount = trajectoryPoints.Count;
+                        for (int i = 0; i < trajectoryPoints.Count; i++)
+                        {
+                            _teleportLineRenderer.SetPosition(i, _teleportLineRenderer.transform.InverseTransformPoint(trajectoryPoints[i]));
+                        }
+                    }
+
                     ToggleTeleportLineVisualShowsValid(true);
                     _teleportCursor.SetActive(true);
                     _isTeleportTargetValid = true;
@@ -276,6 +293,32 @@ namespace VE2.Core.Player.Internal
             }
         }
 
+        private V_TeleportAnchor SphereCastFromPoint(Vector3 point, Vector3 normal)
+        {
+            RaycastHit[] hits = Physics.SphereCastAll(point, 3f, normal, 0f);
+
+            if (hits.Length == 0)
+                return null;
+
+            V_TeleportAnchor closestAnchor = null;
+            float closestDistance = float.MaxValue;
+
+            foreach (RaycastHit hit in hits)
+            {
+                if (hit.collider.gameObject.TryGetComponent(out V_TeleportAnchor teleportAnchor))
+                {
+                    float distance = Vector3.Distance(point, teleportAnchor.transform.position);
+                    if (distance <= teleportAnchor.Range && distance < closestDistance)
+                    {
+                        closestAnchor = teleportAnchor;
+                        closestDistance = distance;
+                    }
+                }
+            }
+
+            return closestAnchor;
+        }
+
         private void ToggleTeleportLineVisualShowsValid(bool toggle)
         {
             if (_teleportLineMaterial == null)
@@ -286,10 +329,13 @@ namespace VE2.Core.Player.Internal
             _teleportLineMaterial.SetColor("_EmissionColor", newColor * LINE_EMISSION_INTENSITY);
         }
 
-        private bool IsValidSurface(Vector3 normal)
+        private bool IsValidSurface(RaycastHit hit)
         {
+            if(hit.collider.gameObject.TryGetComponent(out V_TeleportAnchor teleportAnchor))
+                return true;
+
             // Check if the surface normal is within the acceptable slope angle
-            float angle = Vector3.Angle(Vector3.up, normal);
+            float angle = Vector3.Angle(Vector3.up, hit.normal);
             return angle <= _maxSlopeAngle;
         }
 
@@ -327,22 +373,64 @@ namespace VE2.Core.Player.Internal
             _teleportLineRenderer.SetPosition(1, _teleportLineRenderer.transform.InverseTransformPoint(endPosition));
         }
 
-        private bool CanTeleport(Vector3 startPosition, Vector3 teleportDestination)
+        private bool CanTeleportToFreeFlyDestination(Vector3 startPosition, Vector3 teleportDestination)
         {
             Vector3 direction = teleportDestination - startPosition;
             float distance = direction.magnitude;
             direction.Normalize();
 
-            // Perform a raycast without any layer mask filtering, are there obstacles we would want to leave out? Hmmm...
-            if (Physics.Raycast(startPosition, direction, distance))
+            if (Physics.Raycast(startPosition, direction, distance, _movementModeConfig.CollisionLayers))
             {
                 return false; // There is an obstacle in the way
             }
 
             return true; // No obstacles, can teleport
         }
+
+        private void DrawBezierCurve(Vector3 startPoint, Vector3 hitpos, int segments = 30)
+        {
+            Vector3 endPoint = hitpos;
+
+            Vector3 controlPointPos = CalculateControlPoint(startPoint, endPoint);
+
+            Vector3[] points = new Vector3[segments];
+
+            for (int i = 0; i < points.Length; i++)
+            {
+                float t = i / (float)(points.Length - 1);
+                Vector3 currentPoint = CalculateBezierPoint(startPoint, endPoint, controlPointPos, t);
+                points[i] = _teleportLineRenderer.transform.InverseTransformPoint(currentPoint);
+            }
+
+            _teleportLineRenderer.positionCount = points.Length;
+            _teleportLineRenderer.SetPositions(points);
+        }
+
+        private Vector3 CalculateControlPoint(Vector3 start, Vector3 end)
+        {
+            Vector3 midPoint = (start + end) * 0.5f;
+
+            // Raise the midpoint along the Y axis to create the arc
+            float arcHeight = Vector3.Distance(start, end) * 0.35f; // Customize this multiplier as needed
+            Vector3 controlPoint = midPoint + Vector3.up * arcHeight;
+
+            return controlPoint;
+        }
+
+        private Vector3 CalculateBezierPoint(Vector3 start, Vector3 end, Vector3 controlPoint, float t)
+        {
+            float u = 1 - t;
+            float tt = t * t;
+            float uu = u * u;
+
+            Vector3 point = uu * start;
+            point += 2 * u * t * controlPoint;
+            point += tt * end;
+
+            return point;
+        }
     }
-    
+
     internal class HoveringOverScrollableIndicator
     {
         public bool IsHoveringOverScrollableObject = false;

@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace VE2.Core.UI.API
 {
@@ -8,10 +9,10 @@ namespace VE2.Core.UI.API
         public bool IsShowing { get; }
 
         public void ShowUI();
-        public event Action OnUIShow;
+        public UnityEvent OnUIShow { get; }
 
         public void HideUI();
-        public event Action OnUIHide;
+        public UnityEvent OnUIHide { get; }
 
         /// <summary>
         /// Takes the target index, returns the actual index - the two may differ if another panel got that index first 

@@ -1,4 +1,5 @@
 using UnityEngine;
+using VE2.Common.API;
 using VE2.NonCore.Instancing.API;
 using VE2.NonCore.Platform.API;
 
@@ -19,7 +20,7 @@ namespace VE2.NonCore.Platform.Internal
 
             //These are done here, called by awake from the view, so we only fetch these services once they are ready
             _platformService = PlatformAPI.PlatformService as IPlatformServiceInternal;
-            _instanceService = InstancingAPI.InstanceService;
+            _instanceService = VE2API.InstanceService;
 
             _quickUIView.SetPlayerNameText(_platformService.PlayerDisplayName);
             _quickUIView.SetPingTextMS(0);

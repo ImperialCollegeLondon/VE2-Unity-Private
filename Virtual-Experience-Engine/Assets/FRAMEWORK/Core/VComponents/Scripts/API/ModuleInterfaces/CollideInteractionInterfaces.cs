@@ -3,6 +3,7 @@ namespace VE2.Core.VComponents.API
 {
     internal interface ICollideInteractionModule : IGeneralInteractionModule
     {
+        public bool IsNetworked { get; }
         public void InvokeOnCollideEnter(InteractorID interactorID);
         public void InvokeOnCollideExit(InteractorID interactorID);
         public string ID { get; }
@@ -12,6 +13,7 @@ namespace VE2.Core.VComponents.API
     enum CollideInteractionType
     {
         Hand,
-        Feet
+        Feet,
+        None
     }
 }

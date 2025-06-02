@@ -384,6 +384,54 @@ Transform:
   - {fileID: 1204356003}
   m_Father: {fileID: 670374472}
   m_LocalEulerAnglesHint: {x: 0, y: 60, z: 0}
+--- !u!1 &167518522
+GameObject:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 167518524}
+  - component: {fileID: 167518523}
+  m_Layer: 0
+  m_Name: VE2APIHub
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &167518523
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 167518522}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42c71687d1b78b848b78a9a33d60f5dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _preferVRMode: 0
+  _localClientIdWrapper:
+    _ClientID: 65535
+  _uiProviderGOName: 
+--- !u!4 &167518524
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 167518522}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &167777610
 GameObject:
   m_ObjectHideFlags: 1
@@ -461,6 +509,43 @@ Transform:
   - {fileID: 670374472}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!84 &202320140
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_IsAlphaChannelOptional: 0
+  serializedVersion: 6
+  m_Width: 1399
+  m_Height: 666
+  m_AntiAliasing: 1
+  m_MipCount: -1
+  m_DepthStencilFormat: 90
+  m_ColorFormat: 8
+  m_MipMap: 1
+  m_GenerateMips: 1
+  m_SRGB: 0
+  m_UseDynamicScale: 0
+  m_UseDynamicScaleExplicit: 0
+  m_BindMS: 0
+  m_EnableCompatibleFormat: 1
+  m_EnableRandomWrite: 0
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
+  m_ShadowSamplingMode: 2
 --- !u!1 &222517767
 GameObject:
   m_ObjectHideFlags: 0
@@ -927,7 +1012,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 889b57ac24328574a8a9fd18daba2af0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _uiProviderGOName: PlayerSpawner
 --- !u!4 &328713085
 Transform:
   m_ObjectHideFlags: 1
@@ -1245,6 +1329,7 @@ MonoBehaviour:
         IsActivated: 0
         ClientID: 65535
         _newState: 0
+      ActivateOnStart: 0
       OnActivate:
         m_PersistentCalls:
           m_Calls:
@@ -1269,14 +1354,16 @@ MonoBehaviour:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
-    RangedInteractionConfig:
-      InteractionRange: 5
+    ActivatableRangedInteractionConfig:
+      InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
           m_Calls: []
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
+      ActivateAtRangeInVR: 1
+      ActivateWithCollisionInVR: 1
   _collider: {fileID: 0}
 --- !u!65 &481441531
 BoxCollider:
@@ -1651,6 +1738,7 @@ MonoBehaviour:
         IsActivated: 0
         ClientID: 65535
         _newState: 0
+      ActivateOnStart: 0
       OnActivate:
         m_PersistentCalls:
           m_Calls:
@@ -1675,14 +1763,16 @@ MonoBehaviour:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
-    RangedInteractionConfig:
-      InteractionRange: 5
+    ActivatableRangedInteractionConfig:
+      InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
           m_Calls: []
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
+      ActivateAtRangeInVR: 1
+      ActivateWithCollisionInVR: 1
   _collider: {fileID: 0}
 --- !u!65 &607023618
 BoxCollider:
@@ -17399,43 +17489,6 @@ Transform:
   - {fileID: 463467099}
   m_Father: {fileID: 670374472}
   m_LocalEulerAnglesHint: {x: 0, y: -60, z: 0}
---- !u!84 &931264590
-RenderTexture:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_IsAlphaChannelOptional: 0
-  serializedVersion: 6
-  m_Width: 1996
-  m_Height: 690
-  m_AntiAliasing: 1
-  m_MipCount: -1
-  m_DepthStencilFormat: 90
-  m_ColorFormat: 8
-  m_MipMap: 1
-  m_GenerateMips: 1
-  m_SRGB: 0
-  m_UseDynamicScale: 0
-  m_UseDynamicScaleExplicit: 0
-  m_BindMS: 0
-  m_EnableCompatibleFormat: 1
-  m_EnableRandomWrite: 0
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 1
-    m_WrapV: 1
-    m_WrapW: 1
-  m_Dimension: 2
-  m_VolumeDepth: 1
-  m_ShadowSamplingMode: 2
 --- !u!1 &961237055
 GameObject:
   m_ObjectHideFlags: 0
@@ -23356,8 +23409,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f28b7673bc136f439394adf5c45112d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerServiceProviderGOName: PlayerSpawner
-  _playerSyncProviderGOName: 
 --- !u!4 &1040919564
 Transform:
   m_ObjectHideFlags: 1
@@ -24100,7 +24151,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_TargetTexture
       value: 
-      objectReference: {fileID: 931264590}
+      objectReference: {fileID: 202320140}
     - target: {fileID: 7584404486134375354, guid: b08cdd5bb92d2124ab625ea1e5e17415,
         type: 3}
       propertyPath: m_Name
@@ -26151,6 +26202,7 @@ MonoBehaviour:
         IsActivated: 0
         ClientID: 65535
         _newState: 0
+      ActivateOnStart: 0
       OnActivate:
         m_PersistentCalls:
           m_Calls:
@@ -26259,62 +26311,16 @@ MonoBehaviour:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
-    RangedInteractionConfig:
-      InteractionRange: 5
+    ActivatableRangedInteractionConfig:
+      InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 1540130736}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMax
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-          - m_Target: {fileID: 1496819361}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMax
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
+          m_Calls: []
       OnLocalHoverExit:
         m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 1540130736}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMin
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-          - m_Target: {fileID: 1496819361}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMin
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
+          m_Calls: []
+      ActivateAtRangeInVR: 1
+      ActivateWithCollisionInVR: 1
   _collider: {fileID: 0}
 --- !u!23 &1540130739
 MeshRenderer:
@@ -27073,6 +27079,7 @@ MonoBehaviour:
         IsActivated: 0
         ClientID: 65535
         _newState: 0
+      ActivateOnStart: 0
       OnActivate:
         m_PersistentCalls:
           m_Calls:
@@ -27097,14 +27104,16 @@ MonoBehaviour:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
-    RangedInteractionConfig:
-      InteractionRange: 5
+    ActivatableRangedInteractionConfig:
+      InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
           m_Calls: []
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
+      ActivateAtRangeInVR: 1
+      ActivateWithCollisionInVR: 1
   _collider: {fileID: 0}
 --- !u!1 &1745958809
 GameObject:
@@ -27342,7 +27351,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f7cb8a15be104e42983e54af205dc1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _worldStateSyncProviderGOName: 
 --- !u!4 &1753902615
 Transform:
   m_ObjectHideFlags: 1
@@ -27705,25 +27713,39 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerConfig:
-    SupportedPlayerModes: 2
+    PlayerModeConfig:
+      SupportedPlayerModes: 2
+    PlayerInteractionConfig:
+      InteractableLayers:
+        serializedVersion: 2
+        m_Bits: 130984
     MovementModeConfig:
       TraversableLayers:
         serializedVersion: 2
-        m_Bits: 0
-      EnableFreeFlyMode: 0
+        m_Bits: 8
+      CollisionLayers:
+        serializedVersion: 2
+        m_Bits: 130953
+      FreeFlyMode: 0
       TeleportRangeMultiplier: 1
-    HeadOverrideType: 0
-    TorsoOverrideType: 0
-    HeadOverrideOne: {fileID: 0}
-    HeadOverrideTwo: {fileID: 0}
-    HeadOverrideThree: {fileID: 0}
-    HeadOverrideFour: {fileID: 0}
-    HeadOverrideFive: {fileID: 0}
-    TorsoOverrideOne: {fileID: 0}
-    TorsoOverrideTwo: {fileID: 0}
-    TorsoOverrideThree: {fileID: 0}
-    TorsoOverrideFour: {fileID: 0}
-    TorsoOverrideFive: {fileID: 0}
+    CameraConfig:
+      FieldOfView2D: 60
+      NearClippingPlane: 0.15
+      FarClippingPlane: 1000
+      CullingMask:
+        serializedVersion: 2
+        m_Bits: 4294967295
+      AntiAliasing: 1
+      AntiAliasingQuality: 1
+      EnablePostProcessing: 1
+      OcclusionCulling: 1
+    AvatarAppearanceOverrideConfig:
+      OverrideHead: 0
+      HeadOverrideIndex: 0
+      HeadOverrideGameObjects: []
+      OverrideTorso: 0
+      TorsoOverrideIndex: 0
+      TorsoOverrideGameObjects: []
     RepeatedTransmissionConfig:
       TransmissionType: 0
       TransmissionFrequency: 35
@@ -29403,7 +29425,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1218663160943845413}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.50000006
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -29993,7 +30015,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 15281, y: 5697.1934}
+  m_AnchoredPosition: {x: 15281, y: 5697.194}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!1 &7129766439557370346
@@ -30564,3 +30586,4 @@ SceneRoots:
   - {fileID: 381433549182357117}
   - {fileID: 1725532772}
   - {fileID: 1296816648}
+  - {fileID: 167518524}

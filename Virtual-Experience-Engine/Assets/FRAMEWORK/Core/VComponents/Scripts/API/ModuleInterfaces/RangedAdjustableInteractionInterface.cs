@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using VE2.Common;
-using VE2.Common.TransformWrapper;
+using System;
+using VE2.Common.Shared;
 
 namespace VE2.Core.VComponents.API
 {
@@ -13,5 +10,7 @@ namespace VE2.Core.VComponents.API
         public void ScrollUp();
 
         public void ScrollDown();
+
+        public event Action OnValueChanged;
     }
 }

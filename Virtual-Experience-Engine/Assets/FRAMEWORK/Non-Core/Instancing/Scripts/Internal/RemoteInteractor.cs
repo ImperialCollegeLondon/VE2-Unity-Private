@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
-using VE2.Core.Player.API;
+using VE2.Common.API;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 
 namespace VE2.NonCore.Instancing.Internal
 {
+    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     internal class RemoteInteractor : MonoBehaviour, IInteractor //TODO: Maybe doesn't need to be a mononbehaviour?
     {
         public Transform GrabberTransform => transform;
@@ -54,7 +56,7 @@ namespace VE2.NonCore.Instancing.Internal
                 GameObject activatableObject = GameObject.Find(cleanID);
 
                 if (activatableObject != null)
-                    return activatableObject.GetComponent<IV_HoldActivatable>()._RangedHoldClickModule;
+                    return activatableObject.GetComponent<IRangedInteractionModuleProvider>().RangedInteractionModule as IRangedHoldClickInteractionModule;
                 else
                     return null;
             }
@@ -70,7 +72,7 @@ namespace VE2.NonCore.Instancing.Internal
                 GameObject activatableObject = GameObject.Find(cleanID);
 
                 if (activatableObject != null)
-                    return activatableObject.GetComponent<IV_PressurePlate>()._ColliderModule;
+                    return activatableObject.GetComponent<ICollideInteractionModuleProvider>().CollideInteractionModule;
                 else
                     return null;
             }
@@ -83,7 +85,7 @@ namespace VE2.NonCore.Instancing.Internal
             _interactorContainer.DeregisterInteractor(_interactorID.ToString());
         }
 
-        public void ConfirmGrab(IRangedGrabInteractionModule rangedGrabInteractionModule)
+        public void ConfirmGrab(string id)
         {
             //TODO: hide
         }

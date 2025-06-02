@@ -6,10 +6,11 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.InputSystem.UI;
-using VE2.Core.Common;
+using VE2.Common.Shared;
 using VE2.Core.Player.API;
 using VE2.Core.UI.API;
 using UnityEngine.SceneManagement;
+using UnityEngine.Events;
 
 namespace VE2.Core.UI.Internal
 {
@@ -17,6 +18,10 @@ namespace VE2.Core.UI.Internal
     {
         #region Public Interfaces
         public bool IsShowing => _primaryUIGameObject.activeSelf;
+
+        public UnityEvent OnUIShow => _menuUIConfig.OnActivateMainMenu;
+        public UnityEvent OnUIHide => _menuUIConfig.OnDeactivateMainMenu;
+
         public void ShowUI() //TODO - cursor locking should move into the player
         {
             Cursor.visible = true;
@@ -24,8 +29,6 @@ namespace VE2.Core.UI.Internal
             _primaryUIGameObject.SetActive(true);
             OnUIShow?.Invoke();
         }
-        public event Action OnUIShow;
-        public event Action OnUIHide;
         public void HideUI() 
         {
             Cursor.visible = false;
@@ -64,12 +67,24 @@ namespace VE2.Core.UI.Internal
             remove => _utilsPanelView.OnSwitchToVRButtonClicked -= value;
         }
 
+
+        public event Action OnUIShowInternal
+        {
+            add => OnUIShow.AddListener(() => value?.Invoke());
+            remove => OnUIShow.RemoveListener(() => value?.Invoke());
+        }
+        public event Action OnUIHideInternal
+        {
+            add => OnUIHide.AddListener(() => value?.Invoke());
+            remove => OnUIHide.RemoveListener(() => value?.Invoke());
+        }
+
         public void SetPlatformQuickpanel(GameObject platformQuickPanel) => _quickPanelView.SetPlatformQuickpanel(platformQuickPanel);
 
         public void SetInstanceCodeText(string text) => _topBarView.SubtitleText = text;
         #endregion
 
-        private readonly IPressableInput _onToggleUIPressed;
+        private readonly IQuickPressInput _onToggleUIPressed;
         private readonly InputSystemUIInputModule _UIInputModule;
 
         private readonly GameObject _primaryUIHolderGameObject;
@@ -79,14 +94,18 @@ namespace VE2.Core.UI.Internal
         private readonly PrimaryUICenterPanelView _centerPanelView;
         private readonly PrimaryUIQuickPanelView _quickPanelView;
         private readonly PrimaryUIUtilsPanelView _utilsPanelView;
+        private readonly MenuUIConfig _menuUIConfig;
 
-        public PrimaryUIService(IPressableInput onToggleUIPressed, InputSystemUIInputModule uiInputModule)
+
+        public PrimaryUIService(IQuickPressInput onToggleUIPressed, InputSystemUIInputModule uiInputModule, MenuUIConfig menuUIConfig)
         {
             _onToggleUIPressed = onToggleUIPressed;
-            _onToggleUIPressed.OnPressed += HandleToggleUIPressed;
+            _onToggleUIPressed.OnQuickPress += HandleToggleUIPressed;
 
             _UIInputModule = uiInputModule;
             _UIInputModule.cursorLockBehavior = InputSystemUIInputModule.CursorLockBehavior.OutsideScreen;
+
+            _menuUIConfig = menuUIConfig;
 
             _primaryUIHolderGameObject = GameObject.Instantiate(Resources.Load<GameObject>("PrimaryUIHolder"));
             _primaryUIGameObject = _primaryUIHolderGameObject.transform.GetChild(0).gameObject;
@@ -132,7 +151,7 @@ namespace VE2.Core.UI.Internal
 
         internal void TearDown()
         {
-            _onToggleUIPressed.OnPressed -= HandleToggleUIPressed;
+            _onToggleUIPressed.OnQuickPress -= HandleToggleUIPressed;
         }
     }
 }

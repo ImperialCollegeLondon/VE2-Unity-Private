@@ -2,8 +2,10 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 using VE2.Core.VComponents.API;
-using static VE2.Core.Common.CommonSerializables;
-using VE2.Common.TransformWrapper;
+using VE2.Common.API;
+using VE2.Common.Shared;
+using static VE2.Common.Shared.CommonSerializables;
+using VE2.Core.VComponents.Shared;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -11,9 +13,14 @@ namespace VE2.Core.VComponents.Internal
     internal class FreeGrabbableConfig
     {
         [SerializeField, IgnoreParent] public GrabbableStateConfig StateConfig = new();
-        [SerializeField, IgnoreParent] public FreeGrabbableInteractionConfig InteractionConfig = new();
+
+        [SerializeField, IndentArea(-1)] public RangedFreeGrabInteractionConfig RangedFreeGrabInteractionConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
-        [SerializeField, IgnoreParent] public RangedInteractionConfig RangedInteractionConfig = new();
+        
+        [HideIf(nameof(MultiplayerSupportPresent), false)]
+        [SerializeField, IgnoreParent] public WorldStateSyncConfig SyncConfig = new();
+
+        private bool MultiplayerSupportPresent => VE2API.HasMultiPlayerSupport;
     }
 
     internal class FreeGrabbableService
@@ -37,23 +44,19 @@ namespace VE2.Core.VComponents.Internal
         public event Action<ushort> OnGrabConfirmed;
         public event Action<ushort> OnDropConfirmed;
 
-        //TODO, state config shouldn't live in the service. DropBehaviour should be in ServiceConfig
-        private GrabbableStateConfig _stateConfig;
-        private FreeGrabbableInteractionConfig _interactionConfig;
-
         private Vector3 positionOnGrab = new();
+        private Quaternion rotationOnGrab = new();
 
-        public FreeGrabbableService(List<IHandheldInteractionModule> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id, 
-            IWorldStateSyncService worldStateSyncService, HandInteractorContainer interactorContainer, 
-            IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants, IGrabbableRigidbody grabbableRigidbodyInterface)
+        public FreeGrabbableService(List<IHandheldInteractionModule> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id,
+            IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer,
+            IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants, IGrabbableRigidbody grabbableRigidbodyInterface, IClientIDWrapper localClientIdWrapper)
         {
-            _RangedGrabInteractionModule = new(handheldInteractions, config.RangedInteractionConfig, config.GeneralInteractionConfig);
-            _StateModule = new(state, config.StateConfig, id, worldStateSyncService, interactorContainer, RangedGrabInteractionModule);
-            _stateConfig = config.StateConfig;
-            _interactionConfig = config.InteractionConfig;
+            //even though this is never null in theory, done so to satisfy the tests
+            _transform = config.RangedFreeGrabInteractionConfig.AttachPoint != null ? new TransformWrapper(config.RangedFreeGrabInteractionConfig.AttachPoint) : _rigidbody != null ? _rigidbody.transform : null;
+            _RangedGrabInteractionModule = new(id, grabInteractablesContainer, _transform, handheldInteractions, config.RangedFreeGrabInteractionConfig, config.GeneralInteractionConfig);
+            _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, interactorContainer, localClientIdWrapper);
 
-            _rigidbody  = rigidbody;
-            _transform = config.InteractionConfig.AttachPoint == null ? new TransformWrapper(_rigidbody.transform) : new TransformWrapper(config.InteractionConfig.AttachPoint);
+            _rigidbody = rigidbody;
             _physicsConstants = physicsConstants;
             _isKinematicOnGrab = _rigidbody.isKinematic;
             _grabbableRigidbodyInterface = grabbableRigidbodyInterface;
@@ -69,7 +72,7 @@ namespace VE2.Core.VComponents.Internal
         //This is for teleporting the grabbed object along with the player - TODO: Tweak names for clarity 
         private void ApplyDeltaWhenGrabbed(Vector3 deltaPosition, Quaternion deltaRotation)
         {
-            Debug.Log("Applying delta when grabbed");   
+            Debug.Log("Applying delta when grabbed");
             _rigidbody.isKinematic = true;
 
             _rigidbody.position += deltaPosition;
@@ -78,7 +81,6 @@ namespace VE2.Core.VComponents.Internal
             _rigidbody.linearVelocity = Vector3.zero;
             _rigidbody.isKinematic = false;
         }
-
         // private void HandleLocalInteractorRequestGrab(InteractorID interactorID) =>  _StateModule.SetGrabbed(interactorID);
 
         // private void HandleLocalInteractorRequestDrop(InteractorID interactorID) => _StateModule.SetDropped(interactorID);
@@ -91,20 +93,22 @@ namespace VE2.Core.VComponents.Internal
                 _rigidbody.isKinematic = false;
             }
             positionOnGrab = _rigidbody.position;
+            rotationOnGrab = _rigidbody.rotation;
             OnGrabConfirmed?.Invoke(grabberClientID);
         }
-    
+
         private void HandleDropConfirmed(ushort dropperClientID)
         {
             // Handle drop behaviours
-            if (_interactionConfig.dropBehaviour == DropBehaviour.IgnoreMomentum)
+            if (_RangedGrabInteractionModule.DropBehaviour == DropBehaviour.IgnoreMomentum)
             {
                 _rigidbody.linearVelocity = Vector3.zero;
                 _rigidbody.angularVelocity = Vector3.zero;
             }
-            else if (_interactionConfig.dropBehaviour == DropBehaviour.ReturnToPositionBeforeGrab)
+            else if (_RangedGrabInteractionModule.DropBehaviour == DropBehaviour.ReturnToPositionBeforeGrab)
             {
                 _rigidbody.position = positionOnGrab;
+                _rigidbody.rotation = rotationOnGrab;
                 _rigidbody.linearVelocity = Vector3.zero;
                 _rigidbody.angularVelocity = Vector3.zero;
             }
@@ -115,15 +119,27 @@ namespace VE2.Core.VComponents.Internal
             {
                 _rigidbody.isKinematic = _isKinematicOnGrab;
             }
-        } 
+        }
 
         public void HandleFixedUpdate()
         {
             _StateModule.HandleFixedUpdate();
-            if(_StateModule.IsGrabbed)
+            if (_StateModule.IsGrabbed)
             {
                 TrackPosition(_StateModule.CurrentGrabbingInteractor.GrabberTransform.position);
-                TrackRotation(_StateModule.CurrentGrabbingInteractor.GrabberTransform.rotation);
+
+                Quaternion rotationDelta = Quaternion.Inverse(rotationOnGrab) * _StateModule.CurrentGrabbingInteractor.GrabberTransform.rotation;
+
+                if (RangedGrabInteractionModule.AlignOrientationOnGrab)
+                {
+                    TrackRotation(rotationDelta);
+                    Debug.Log("Using attach point orientation on grab");
+                }
+                else
+                {
+                    TrackRotation(_StateModule.CurrentGrabbingInteractor.GrabberTransform.rotation);
+                    Debug.Log("Using grabber orientation on grab");
+                }
             }
         }
 
@@ -155,6 +171,7 @@ namespace VE2.Core.VComponents.Internal
         public void TearDown()
         {
             _StateModule.TearDown();
+            _RangedGrabInteractionModule.TearDown();
 
             _StateModule.OnGrabConfirmed -= HandleGrabConfirmed;
             _StateModule.OnDropConfirmed -= HandleDropConfirmed;

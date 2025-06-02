@@ -678,8 +678,7 @@ namespace VE2.NonCore.Platform.Internal
             {
                 if (component == null || component.GetType() == null || component.GetType().Assembly == null)
                 {
-                    Debug.Log("PluginBuilder encoutered a problematic script on " + go.name);
-                    DestroyImmediate(go);
+                    Debug.LogWarning("Missing assemblies encountered on Gameobject: " + go.name);
                 }
 
                 yield return component.GetType().Assembly;

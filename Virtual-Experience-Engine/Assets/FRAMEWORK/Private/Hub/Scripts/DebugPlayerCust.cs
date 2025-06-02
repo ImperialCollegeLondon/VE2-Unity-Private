@@ -1,11 +1,12 @@
 using UnityEngine;
+using VE2.Common.API;
 using VE2.Core.Player.API;
 
 namespace VE2.Private.Hub
 {
     internal class DebugPlayerCust : MonoBehaviour
     {
-        private IPlayerServiceInternal _playerServiceInternal => (IPlayerServiceInternal)PlayerAPI.Player;
+        private IPlayerServiceInternal _playerServiceInternal => (IPlayerServiceInternal)VE2API.Player;
 
         public void SetPlayerRed() 
         {

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using VE2.Common.Shared;
 
 namespace VE2.Core.VComponents.API
 {
@@ -12,6 +13,6 @@ namespace VE2.Core.VComponents.API
 
         public bool IsGrabbed { get; }
         public bool IsLocalGrabbed { get; }
-        public ushort MostRecentInteractingClientID { get; }
+        public IClientIDWrapper MostRecentInteractingClientID { get; }
     }
 }
