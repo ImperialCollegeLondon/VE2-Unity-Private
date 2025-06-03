@@ -5,11 +5,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using static VE2.Core.Player.API.PlayerSerializables;
-using static VE2.Server.CommonSerializables;
-using static VE2.Server.PlatformPublicSerializables;
 using UnityEngine;
 using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 using ClientInfoBase = VE2.NonCore.Platform.API.PlatformPublicSerializables.ClientInfoBase;
+using static VE2.Common.Shared.CommonSerializables;
 
 namespace VE2.NonCore.Instancing.Internal
 {
