@@ -34,10 +34,11 @@ namespace VE2.NonCore.Platform.Internal
 
     internal class PlatformService: IPlatformServiceInternal
     {
-        #region Interfaces
+        #region Interfaces //TODO - separate this between public and internal interfaces
         public ushort LocalClientID { get => _platformSettingsHandler.PlatformClientID; private set => _platformSettingsHandler.PlatformClientID = value; }
         public Dictionary<string, WorldDetails> ActiveWorlds { get => _platformSettingsHandler.ActiveWorlds; private set => _platformSettingsHandler.ActiveWorlds = value; }
-        public string CurrentInstanceCode { get => _platformSettingsHandler.InstanceCode; private set => _platformSettingsHandler.InstanceCode = value; }
+        public string CurrentInstanceNumber => _platformSettingsHandler.InstanceCode.InstanceSuffix;
+        public string CurrentWorldName => _platformSettingsHandler.InstanceCode.WorldName;
 
         public bool IsConnectedToServer { get; private set; }
         public event Action OnConnectedToServer;
@@ -59,12 +60,12 @@ namespace VE2.NonCore.Platform.Internal
 
         public event Action<GlobalInfo> OnGlobalInfoChanged;
 
-        public void RequestInstanceAllocation(string worldFolderName, string instanceSuffix, string versionNumber)
+        public void RequestInstanceAllocation(InstanceCode instanceCode)
         {
             if (IsConnectedToServer)
             {
-                Debug.Log($"Requesting instance allocation to {worldFolderName}-{instanceSuffix}-{versionNumber}");
-                InstanceAllocationRequest instanceAllocationRequest = new(worldFolderName, instanceSuffix, versionNumber);
+                Debug.Log($"Requesting instance allocation to {instanceCode}");
+                InstanceAllocationRequest instanceAllocationRequest = new(instanceCode);
                 _commsHandler.SendMessage(instanceAllocationRequest.Bytes, PlatformNetworkingMessageCodes.InstanceAllocationRequest, TransmissionProtocol.TCP);
             }
             else
@@ -78,7 +79,7 @@ namespace VE2.NonCore.Platform.Internal
         /// </summary>
         public void RequestHubAllocation()
         {
-            RequestInstanceAllocation("Hub", "Solo", "NoVersion");
+            RequestInstanceAllocation(new InstanceCode("Hub", "Solo", 0));
         }
 
         public void ReturnToHub()
@@ -109,7 +110,7 @@ namespace VE2.NonCore.Platform.Internal
         public ServerConnectionSettings GetInternalWorldStoreFTPSettings() => _platformSettingsHandler.WorldBuildsFTPServerSettings;
 
         //Called by hub
-        public void UpdateSettings(ServerConnectionSettings serverConnectionSettings, string instanceCode)
+        public void UpdateSettings(ServerConnectionSettings serverConnectionSettings, InstanceCode instanceCode)
         {
             Debug.Log("Update settings handler - " + serverConnectionSettings.ServerAddress + " - " + serverConnectionSettings.ServerPort + " - " + instanceCode);
             _platformSettingsHandler.PlatformServerConnectionSettings = serverConnectionSettings;
@@ -120,12 +121,12 @@ namespace VE2.NonCore.Platform.Internal
         public void ConnectToPlatform()
         {
             Debug.Log("Connecting to platform with settings -" + _platformSettingsHandler.PlatformServerConnectionSettings.ServerAddress + "-:-" + _platformSettingsHandler.PlatformServerConnectionSettings.ServerPort + "-:-" + _platformSettingsHandler.InstanceCode);
-            CurrentInstanceCode = _platformSettingsHandler.InstanceCode;
+            //CurrentInstanceCode = _platformSettingsHandler.InstanceCode;
             //IPAddress.Parse("PlatformIP"), PlatformPort, instanceCode
             _commsHandler.ConnectToServerAsync(IPAddress.Parse(_platformSettingsHandler.PlatformServerConnectionSettings.ServerAddress), _platformSettingsHandler.PlatformServerConnectionSettings.ServerPort);
         }
 
-        internal event Action<string> OnInstanceCodeChange;
+        internal event Action<InstanceCode> OnInstanceCodeChange;
 
         /*
                 We should probably just be hiding UserSettingsDebug when there IS a platform service?
@@ -135,6 +136,8 @@ namespace VE2.NonCore.Platform.Internal
                 Yeah ok so the instance service should find the primary UI service 
         */
         public string PlayerDisplayName => _playerService.OverridableAvatarAppearance.PresentationConfig.PlayerName;
+
+        public InstanceCode CurrentInstanceCode { get => _platformSettingsHandler.InstanceCode; private set => _platformSettingsHandler.InstanceCode = value; }
         #endregion
 
         private readonly IPlatformCommsHandler _commsHandler;
@@ -190,7 +193,7 @@ namespace VE2.NonCore.Platform.Internal
                 //Otherwise, send reg request to platform
                 string customerID = "test", customerKey = "test"; //TODO - figure out these too!
 
-                Debug.Log("Rec netcode - requesting reg into " + CurrentInstanceCode);
+                Debug.Log("Rec netcode - requesting reg into " + CurrentInstanceCode.ToString());
                 ServerRegistrationRequest serverRegistrationRequest = new(customerID, customerKey, CurrentInstanceCode, _playerService.OverridableAvatarAppearance.PresentationConfig);
                 _commsHandler.SendMessage(serverRegistrationRequest.Bytes, PlatformNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
             }
@@ -233,7 +236,21 @@ namespace VE2.NonCore.Platform.Internal
             //Are we then worried about missing the message?
             PlatformInstanceInfo newLocalInstanceInfo = newGlobalInfo.InstanceInfoForClient(LocalClientID);
 
-            if (CurrentInstanceCode == null || newLocalInstanceInfo.FullInstanceCode != CurrentInstanceCode)
+            if (newLocalInstanceInfo == null)
+            {
+                Debug.LogError($"No instance info found for local client (#{LocalClientID}) in global info update. Printing all instance infos:");
+                foreach (var instanceInfo in newGlobalInfo.InstanceInfos)
+                {
+                    Debug.Log($"Instance Code: {instanceInfo.Key} ===========");
+                    foreach (var clientInfo in instanceInfo.Value.ClientInfos)
+                    {
+                        Debug.Log($"  Client ID: {clientInfo.Key}");
+                    }
+                }
+                return;
+            }
+
+            if (CurrentInstanceCode == null || newLocalInstanceInfo.InstanceCode != CurrentInstanceCode)
             {
                 HandleInstanceAllocation(newLocalInstanceInfo);
             }
@@ -244,18 +261,18 @@ namespace VE2.NonCore.Platform.Internal
 
         private void HandleInstanceAllocation(PlatformInstanceInfo newInstanceInfo)
         {
-            Debug.Log($"<color=green>Detected allocation to new instance, going to {newInstanceInfo.FullInstanceCode}</color>");
+            Debug.Log($"<color=green>Detected allocation to new instance, going to {newInstanceInfo.InstanceCode.ToString()}</color>");
 
-            CurrentInstanceCode = newInstanceInfo.FullInstanceCode;
-            OnInstanceCodeChange?.Invoke(newInstanceInfo.FullInstanceCode);
+            CurrentInstanceCode = newInstanceInfo.InstanceCode;
+            OnInstanceCodeChange?.Invoke(CurrentInstanceCode);
 
-            if (newInstanceInfo.FullInstanceCode.StartsWith("Hub"))
+            if (newInstanceInfo.InstanceCode.WorldName.ToUpper().Equals("HUB"))
             {
                 SceneManager.LoadScene("Hub");
             }
             else
             {
-                _pluginLoader.LoadPlugin(newInstanceInfo.WorldFolderName, int.Parse(newInstanceInfo.VersionNumber));
+                _pluginLoader.LoadPlugin(newInstanceInfo.InstanceCode.WorldName, newInstanceInfo.InstanceCode.VersionNumber);
             }
         }
 
@@ -292,10 +309,10 @@ namespace VE2.NonCore.Platform.Internal
                 _playerService.OnOverridableAvatarAppearanceChanged -= HandlePlayerPresentationConfigChanged;
         }
 
-        void IPlatformServiceInternal.RequestInstanceAllocation(string worldFolderName, string instanceSuffix, string versionNumber)
-        {
-            RequestInstanceAllocation(worldFolderName, instanceSuffix, versionNumber);
-        }
+        // void IPlatformServiceInternal.RequestInstanceAllocation(string worldFolderName, string instanceSuffix, string versionNumber)
+        // {
+        //     RequestInstanceAllocation(worldFolderName, instanceSuffix, versionNumber);
+        // }
     }
 
     internal static class GlobalInfoExtensions

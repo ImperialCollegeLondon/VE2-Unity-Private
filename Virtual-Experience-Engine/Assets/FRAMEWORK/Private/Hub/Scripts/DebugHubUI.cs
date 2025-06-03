@@ -39,7 +39,7 @@ public class DebugHubUI : MonoBehaviour
             return;
         }
 
-        _platformService.RequestInstanceAllocation("Misc-Dev", "test", "NoVersion");
+        _platformService.RequestInstanceAllocation(new PlatformPublicSerializables.InstanceCode("Dev", "test", 0));
     }
 
     public void OnGoToDev2ButtonPressed()
@@ -50,7 +50,7 @@ public class DebugHubUI : MonoBehaviour
             return;
         }
 
-        _platformService.RequestInstanceAllocation("Misc-Dev", "dev2", "NoVersion");
+        _platformService.RequestInstanceAllocation(new PlatformPublicSerializables.InstanceCode("Dev", "test2", 0));
     }
 
     private void OnDisable()

@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,12 +8,14 @@ using static VE2.Core.Player.API.PlayerSerializables;
 using static VE2.Server.CommonSerializables;
 using static VE2.Server.PlatformPublicSerializables;
 using UnityEngine;
+using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
+using ClientInfoBase = VE2.NonCore.Platform.API.PlatformPublicSerializables.ClientInfoBase;
 
 namespace VE2.NonCore.Instancing.Internal
 {
     internal class InstanceSyncSerializables
     {
-        public static readonly int InstanceNetcodeVersion = 6;
+        public static readonly int InstanceNetcodeVersion = 7;
 
         public enum InstanceNetworkingMessageCodes
         {
@@ -131,13 +134,13 @@ namespace VE2.NonCore.Instancing.Internal
 
         public class ServerRegistrationRequest : VE2Serializable
         {
-            public string InstanceCode { get; private set; }
+            public InstanceCode InstanceCode { get; private set; }
             public ushort IDToRestore { get; private set; }
             public AvatarAppearanceWrapper AvatarAppearanceWrapper { get; private set; } 
 
             public ServerRegistrationRequest(byte[] bytes) : base(bytes) { }
 
-            public ServerRegistrationRequest(string instanceCode, ushort idToRestore, AvatarAppearanceWrapper avatarAppearanceWrapper)
+            public ServerRegistrationRequest(InstanceCode instanceCode, ushort idToRestore, AvatarAppearanceWrapper avatarAppearanceWrapper)
             {
                 InstanceCode = instanceCode;
                 IDToRestore = idToRestore;
@@ -149,7 +152,7 @@ namespace VE2.NonCore.Instancing.Internal
                 using MemoryStream stream = new();
                 using BinaryWriter writer = new(stream);
 
-                writer.Write(InstanceCode);
+                writer.Write(InstanceCode.ToString());
                 writer.Write(IDToRestore);
 
                 byte[] avatarAppearanceBytes = AvatarAppearanceWrapper.Bytes;
@@ -164,7 +167,7 @@ namespace VE2.NonCore.Instancing.Internal
                 using MemoryStream stream = new(bytes);
                 using BinaryReader reader = new(stream);
 
-                InstanceCode = reader.ReadString();
+                InstanceCode = new(reader.ReadString());
                 IDToRestore = reader.ReadUInt16();
 
                 ushort avatarAppearanceBytesLength = reader.ReadUInt16();
@@ -210,7 +213,7 @@ namespace VE2.NonCore.Instancing.Internal
             }
         }
 
-        public class InstancedInstanceInfo : InstanceInfoBase
+        public class InstancedInstanceInfo : Platform.API.PlatformPublicSerializables.InstanceInfoBase
         {
             public ushort HostID;
             public bool InstanceMuted; //TODO should this live here?
@@ -223,7 +226,7 @@ namespace VE2.NonCore.Instancing.Internal
 
             public InstancedInstanceInfo(byte[] bytes) : base(bytes) { }
 
-            public InstancedInstanceInfo(string fullInstanceCode, ushort hostID, bool instanceMuted, Dictionary<ushort, InstancedClientInfo> clientInfos) : base(fullInstanceCode)
+            public InstancedInstanceInfo(InstanceCode instanceCode, ushort hostID, bool instanceMuted, Dictionary<ushort, InstancedClientInfo> clientInfos) : base(instanceCode)
             {
                 HostID = hostID;
                 InstanceMuted = instanceMuted;

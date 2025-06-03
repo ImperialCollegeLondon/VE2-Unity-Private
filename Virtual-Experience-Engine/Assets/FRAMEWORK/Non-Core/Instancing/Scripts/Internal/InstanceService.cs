@@ -15,7 +15,7 @@ namespace VE2.NonCore.Instancing.Internal
     internal static class InstanceServiceFactory
     {
         internal static InstanceService Create(bool connectAutomatically, 
-            ConnectionStateWrapper connectionStateDebugWrapper, ServerConnectionSettings debugServerSettings, string debugInstanceCode, 
+            ConnectionStateWrapper connectionStateDebugWrapper, ServerConnectionSettings debugServerSettings, InstanceCode debugInstanceCode, 
             InstanceCommsHandlerConfig config) 
         {
             InstanceNetworkingCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
@@ -90,7 +90,7 @@ namespace VE2.NonCore.Instancing.Internal
         private readonly HandInteractorContainer _interactorContainer;
         private readonly InstanceInfoContainer _instanceInfoContainer;
         private readonly ServerConnectionSettings _serverSettings;
-        private readonly string _instanceCode;
+        private readonly InstanceCode _instanceCode;
 
         internal readonly WorldStateSyncer _worldStateSyncer;
         internal readonly LocalPlayerSyncer _localPlayerSyncer;
@@ -100,7 +100,7 @@ namespace VE2.NonCore.Instancing.Internal
 
         public InstanceService(IPluginSyncCommsHandler commsHandler, ILocalClientIDWrapperWritable localClientIDWrapper, ConnectionStateWrapper connectionStateDebugWrapper,
             HandInteractorContainer interactorContainer, IPlayerServiceInternal playerServiceInternal, IPrimaryUIServiceInternal primaryUIService,
-            bool connectAutomatically, ServerConnectionSettings serverSettings, string instanceCode, InstanceCommsHandlerConfig config, 
+            bool connectAutomatically, ServerConnectionSettings serverSettings, InstanceCode instanceCode, InstanceCommsHandlerConfig config, 
             IWorldStateSyncableContainer worldStateSyncableContainer, ILocalPlayerSyncableContainer localPlayerSyncableContainer)
 
         {
@@ -126,7 +126,7 @@ namespace VE2.NonCore.Instancing.Internal
             _pingSyncer = new(_commsHandler, _instanceInfoContainer); //receives and transmits
             _instantMessageRouter = new(_commsHandler);
 
-            _primaryUIService?.SetInstanceCodeText(_instanceCode);
+            _primaryUIService?.SetInstanceCodeText(_instanceCode.ToString());
 
             if (connectAutomatically)
                 ConnectToServer();

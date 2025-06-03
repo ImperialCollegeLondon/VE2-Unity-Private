@@ -15,7 +15,7 @@ namespace VE2.NonCore.Platform.Internal
 {
     internal class PlatformSerializables
     {
-        internal static readonly int PlatformNetcodeVersion = 1;
+        internal static readonly int PlatformNetcodeVersion = 2;
 
         public enum PlatformNetworkingMessageCodes
         {
@@ -100,10 +100,10 @@ namespace VE2.NonCore.Platform.Internal
         {
             public string CustomerID;
             private string CustomerKey;
-            public string StartingInstanceCode { get; private set; }
+            public InstanceCode StartingInstanceCode { get; private set; }
             public PlayerPresentationConfig PlayerPresentationConfig;
 
-            public ServerRegistrationRequest(string customerID, string customerKey, string startingInstanceCode, PlayerPresentationConfig playerPresentationConfig)
+            public ServerRegistrationRequest(string customerID, string customerKey, InstanceCode startingInstanceCode, PlayerPresentationConfig playerPresentationConfig)
             {
                 CustomerID = customerID;
                 CustomerKey = customerKey;
@@ -120,7 +120,8 @@ namespace VE2.NonCore.Platform.Internal
 
                 writer.Write(CustomerID);
                 writer.Write(CustomerKey);
-                writer.Write(StartingInstanceCode);
+
+                writer.Write(StartingInstanceCode.ToString());
 
                 byte[] playerPresentationConfigBytes = PlayerPresentationConfig.Bytes;
                 writer.Write((ushort)playerPresentationConfigBytes.Length);
@@ -135,7 +136,8 @@ namespace VE2.NonCore.Platform.Internal
 
                 CustomerID = reader.ReadString();
                 CustomerKey = reader.ReadString();
-                StartingInstanceCode = reader.ReadString();
+
+                StartingInstanceCode = new InstanceCode(reader.ReadString());
 
                 ushort playerPresentationConfigLength = reader.ReadUInt16();
                 byte[] playerPresentationConfigBytes = reader.ReadBytes(playerPresentationConfigLength);
@@ -253,18 +255,18 @@ namespace VE2.NonCore.Platform.Internal
 
         internal class GlobalInfo : VE2Serializable
         {
-            public Dictionary<string, PlatformInstanceInfo> InstanceInfos { get; private set; }
+            public Dictionary<InstanceCode, PlatformInstanceInfo> InstanceInfos { get; private set; }
 
             public GlobalInfo(byte[] bytes) : base(bytes) { }
 
-            public GlobalInfo(Dictionary<string, PlatformInstanceInfo> instanceInfos)
+            public GlobalInfo(Dictionary<InstanceCode, PlatformInstanceInfo> instanceInfos)
             {
                 InstanceInfos = instanceInfos;
             }
 
             public GlobalInfo()
             {
-                InstanceInfos = new Dictionary<string, PlatformInstanceInfo>();
+                InstanceInfos = new Dictionary<InstanceCode, PlatformInstanceInfo>();
             }
 
             protected override byte[] ConvertToBytes()
@@ -276,7 +278,7 @@ namespace VE2.NonCore.Platform.Internal
 
                 foreach (var kvp in InstanceInfos)
                 {
-                    writer.Write(kvp.Key);
+                    writer.Write(kvp.Key.ToString());
                     byte[] instanceInfoBytes = kvp.Value.Bytes;
                     writer.Write((ushort)instanceInfoBytes.Length);
                     writer.Write(instanceInfoBytes);
@@ -291,11 +293,11 @@ namespace VE2.NonCore.Platform.Internal
                 using BinaryReader reader = new(stream);
 
                 ushort instanceInfoCount = reader.ReadUInt16();
-                InstanceInfos = new Dictionary<string, PlatformInstanceInfo>();
+                InstanceInfos = new Dictionary<InstanceCode, PlatformInstanceInfo>();
 
                 for (int i = 0; i < instanceInfoCount; i++)
                 {
-                    string instanceCode = reader.ReadString();
+                    InstanceCode instanceCode = new(reader.ReadString());
                     ushort instanceInfoBytesLength = reader.ReadUInt16();
                     byte[] instanceInfoBytes = reader.ReadBytes(instanceInfoBytesLength);
                     PlatformInstanceInfo instanceInfo = new(instanceInfoBytes);
@@ -317,12 +319,7 @@ namespace VE2.NonCore.Platform.Internal
 
             public PlatformInstanceInfo(byte[] bytes) : base(bytes) { }
 
-            public PlatformInstanceInfo(string worldName, string instanceSuffix, string versionNumber, Dictionary<ushort, PlatformClientInfo> clientInfos) : base(worldName, instanceSuffix, versionNumber)
-            {
-                ClientInfos = clientInfos;
-            }
-
-            public PlatformInstanceInfo(string fullInstanceCode, Dictionary<ushort, PlatformClientInfo> clientInfos) : base(fullInstanceCode)
+            public PlatformInstanceInfo(InstanceCode instanceCode, Dictionary<ushort, PlatformClientInfo> clientInfos) : base(instanceCode)
             {
                 ClientInfos = clientInfos;
             }
@@ -418,18 +415,13 @@ namespace VE2.NonCore.Platform.Internal
 
         internal class InstanceAllocationRequest : VE2Serializable
         {
-            public string WorldName { get; private set; }
-            public string InstanceSuffix { get; private set; }
-            public string VersionNumber { get; private set; }
-            public string FullInstanceCode => $"{WorldName}-{InstanceSuffix}-{VersionNumber}";
+            public InstanceCode InstanceCode { get; private set; }
 
             public InstanceAllocationRequest(byte[] bytes) : base(bytes) { }
 
-            public InstanceAllocationRequest(string worldName, string instanceSuffix, string versionNumber)
+            public InstanceAllocationRequest(InstanceCode instanceCode)
             {
-                WorldName = worldName;
-                InstanceSuffix = instanceSuffix;
-                VersionNumber = versionNumber;
+                InstanceCode = instanceCode;
             }
 
             protected override byte[] ConvertToBytes()
@@ -437,9 +429,7 @@ namespace VE2.NonCore.Platform.Internal
                 using MemoryStream stream = new();
                 using BinaryWriter writer = new(stream);
 
-                writer.Write(WorldName);
-                writer.Write(InstanceSuffix);
-                writer.Write(VersionNumber);
+                writer.Write(InstanceCode.ToString());
 
                 return stream.ToArray();
             }
@@ -449,11 +439,8 @@ namespace VE2.NonCore.Platform.Internal
                 using MemoryStream stream = new(data);
                 using BinaryReader reader = new(stream);
 
-                WorldName = reader.ReadString();
-                InstanceSuffix = reader.ReadString();
-                VersionNumber = reader.ReadString();
+                InstanceCode = new InstanceCode(reader.ReadString());
             }
-
         }
     }
 }

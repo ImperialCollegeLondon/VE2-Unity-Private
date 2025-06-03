@@ -48,7 +48,7 @@ namespace VE2.NonCore.Platform.Internal
 
             foreach (PlatformInstanceInfo platformInstanceInfo in globalInfo.InstanceInfos.Values)
             {
-                globalInfoString += $"{platformInstanceInfo.FullInstanceCode}_____";
+                globalInfoString += $"{platformInstanceInfo.InstanceCode.ToString()}_____";
                 foreach (PlatformClientInfo clientInfo in platformInstanceInfo.ClientInfos.Values)
                 {
                     if (clientInfo.ClientID.Equals(_platformIntegration.LocalClientID))

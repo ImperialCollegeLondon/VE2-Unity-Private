@@ -13,7 +13,8 @@ namespace VE2.NonCore.Platform.API
     {
         public bool IsConnectedToServer { get; }
         public event Action OnConnectedToServer;
-        public string CurrentInstanceCode { get; }
+        public string CurrentInstanceNumber { get; }
+        public string CurrentWorldName { get; }
     }
 
     /*

@@ -28,7 +28,7 @@ namespace VE2.Private.Hub
         {
             Debug.Log("Connecting to hub instance");
             IPlatformServiceInternal platformService = (IPlatformServiceInternal)PlatformAPI.PlatformService;
-            platformService.UpdateSettings(_platformServerConnectionSettings, "Internal-Hub-Solo-NoVersion");
+            platformService.UpdateSettings(_platformServerConnectionSettings, new InstanceCode("Hub", "Solo", 0));
             platformService.ConnectToPlatform();
 
             Application.focusChanged += OnFocusChanged;

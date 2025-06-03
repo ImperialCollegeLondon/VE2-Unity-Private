@@ -42,7 +42,8 @@ internal class HubController : MonoBehaviour
     {
         Debug.Log("Connecting to hub instance");
         _platformService = (IPlatformServiceInternal)PlatformAPI.PlatformService;
-        _platformService.UpdateSettings(_platformServerConnectionSettings, "Internal-Hub-Solo-NoVersion");
+        InstanceCode hubInstanceCode = new InstanceCode("Hub", "Solo", 0);
+        _platformService.UpdateSettings(_platformServerConnectionSettings, hubInstanceCode);
         _platformService.ConnectToPlatform();
 
         Application.focusChanged += OnFocusChanged;
@@ -79,24 +80,12 @@ internal class HubController : MonoBehaviour
     {
         List<string> localWorlds = _fileSystem.GetLocalFoldersAtPath(folderToSearch);
 
-        Debug.Log("Found local folders: " + localWorlds.Count);
-        foreach (string localWorldFolder in localWorlds)
-        {
-            Debug.Log("Found local world folder: " + localWorldFolder);
-        }
-
-        Debug.Log("Found remote folders: " + search.FoldersFound.Count);
-        foreach (string remoteWorldFolder in search.FoldersFound)
-        {
-            Debug.Log("Found remote world folder: " + remoteWorldFolder);
-        }
-
         Dictionary<string, int> activeWorldsAndVersions = _platformService.ActiveWorldsNamesAndVersions.ToDictionary(w => w.Item1, w => w.Item2);
-        Debug.Log("Active worlds from platform service: " + activeWorldsAndVersions.Count);
-        foreach (var world in activeWorldsAndVersions)
-        {
-            Debug.Log($"Active world: {world.Key}, Version: {world.Value}");
-        }
+        // Debug.Log("Active worlds from platform service: " + activeWorldsAndVersions.Count);
+        // foreach (var world in activeWorldsAndVersions)
+        // {
+        //     Debug.Log($"Active world: {world.Key}, Version: {world.Value}");
+        // }
 
         List<HubWorldDetails> availableWorlds = new();
         Dictionary<string, WorldCategory> worldCategories = new();
@@ -191,9 +180,6 @@ internal class HubController : MonoBehaviour
 
     private void HandleWorldFileDownloadStatusChanged(RemoteFileTaskStatus status)
     {
-        Debug.LogWarning("==========================");
-        Debug.Log($"Download status changed for file: {_currentDownloadTask.NameAndPath}, Status: {status}, Progress: {_currentDownloadTask.Progress}");
-
         if (status == RemoteFileTaskStatus.Failed)
         {
             Debug.LogError($"Failed to download file: {_currentDownloadTask.NameAndPath}");
@@ -255,7 +241,13 @@ internal class HubController : MonoBehaviour
     {
         Debug.Log("Enter world clicked: " + _viewingWorldDetails.Name + " Version: " + _selectedWorldVersion);
 
-        _platformService.RequestInstanceAllocation(_viewingWorldDetails.Name, "dev-00", _selectedWorldVersion.ToString()); //TODO - why is version a string? Should be an int
+        if (_selectedWorldVersion == -1)
+        {
+            Debug.LogError("No version selected for world: " + _viewingWorldDetails.Name);
+            return;
+        }
+
+        _platformService.RequestInstanceAllocation(new InstanceCode(_viewingWorldDetails.Name, "00", (ushort)_selectedWorldVersion)); 
     }
 
     private HubWorldDetails _viewingWorldDetails;

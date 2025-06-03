@@ -30799,7 +30799,7 @@ MonoBehaviour:
   _platformServerConnectionSettings:
     Username: devName
     Password: devPassword
-    ServerAddress: 51.142.90.253
+    ServerAddress: 127.0.0.1
     ServerPort: 4298
   _fileSystemGameObject: {fileID: 720854551}
   folderToSearch: /

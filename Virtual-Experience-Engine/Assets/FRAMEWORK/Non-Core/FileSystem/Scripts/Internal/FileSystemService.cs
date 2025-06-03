@@ -67,6 +67,8 @@ namespace VE2.NonCore.FileSystem.Internal
                 Console.WriteLine($"An I/O error occurred: {ex.Message}");
             }
 
+            //Debug.LogWarning($"Found {localFiles.Count} local files at {localAbsolutePath}");
+
             return localFiles;
         }
 
@@ -76,7 +78,7 @@ namespace VE2.NonCore.FileSystem.Internal
             string correctedPath = path.StartsWith("/") ? path.Substring(1) : path;
             string localPath = $"{LocalWorkingPath}/{correctedPath}";
 
-            Debug.Log("Get local folders at " + localPath);
+            //Debug.Log("Get local folders at " + localPath);
 
             if (string.IsNullOrWhiteSpace(localPath))
                 throw new ArgumentException("Path cannot be null or empty.", nameof(localPath));
@@ -111,7 +113,7 @@ namespace VE2.NonCore.FileSystem.Internal
                 Console.WriteLine($"An I/O error occurred: {ex.Message}");
             }
 
-            Debug.Log($"Found {localFolders.Count} local folders at {localPath}");
+            //Debug.LogWarning($"Found {localFolders.Count} local folders at {localPath}");
             return localFolders;
         }
 

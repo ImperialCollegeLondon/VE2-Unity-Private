@@ -85,18 +85,19 @@ namespace VE2.NonCore.Instancing.Internal
             }
 
             ServerConnectionSettings instancingSettings = ((IPlatformServiceInternal)PlatformAPI.PlatformService).GetInstanceServerSettingsForCurrentWorld();
-            string instanceCode;
+            InstanceCode instanceCode;
 
             if (instancingSettings != null)
             {
-                instanceCode = PlatformAPI.PlatformService.CurrentInstanceCode;
+                instanceCode = ((IPlatformServiceInternal)PlatformAPI.PlatformService).CurrentInstanceCode;
             }
             else 
             {
                 if (Application.isEditor)
                 {
                     instancingSettings = new ServerConnectionSettings("username", "pass", _debugServerSettings.IpAddress, _debugServerSettings.Port);
-                    instanceCode = $"NoCat-{SceneManager.GetActiveScene().name}-{_debugServerSettings.InstanceCode}-NoVersion";
+                    instanceCode = new InstanceCode(_debugServerSettings.InstanceCode);
+                    instanceCode = new(SceneManager.GetActiveScene().name, _debugServerSettings.InstanceCode, 0);
                 }
                 else
                 {

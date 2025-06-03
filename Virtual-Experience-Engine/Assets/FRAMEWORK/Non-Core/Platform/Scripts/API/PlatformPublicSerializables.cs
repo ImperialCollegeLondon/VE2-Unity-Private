@@ -6,7 +6,7 @@ namespace VE2.NonCore.Platform.API
 {
     internal class PlatformPublicSerializables
     {
-        public class NetcodeVersionConfirmation : VE2Serializable
+        internal class NetcodeVersionConfirmation : VE2Serializable
         {
             public int NetcodeVersion { get; private set; }
 
@@ -82,30 +82,17 @@ namespace VE2.NonCore.Platform.API
         }
 
 
-        public class InstanceInfoBase : VE2Serializable
+        internal class InstanceInfoBase : VE2Serializable
         {
-            public string WorldFolderName { get; private set; }
-            public string InstanceSuffix { get; private set; }
-            public string VersionNumber { get; private set; }
-            public string FullInstanceCode => $"{WorldFolderName}-{InstanceSuffix}-{VersionNumber}";
+            public InstanceCode InstanceCode { get; private set; }
 
             public InstanceInfoBase() { }
 
             public InstanceInfoBase(byte[] bytes) : base(bytes) { }
 
-            public InstanceInfoBase(string worldFolderName, string instanceSuffix, string versionNumber)
+            public InstanceInfoBase(InstanceCode instanceCode)
             {
-                WorldFolderName = worldFolderName;
-                InstanceSuffix = instanceSuffix;
-                VersionNumber = versionNumber;
-            }
-
-            public InstanceInfoBase(string fullInstanceCode)
-            {
-                string[] parts = fullInstanceCode.Split('-');
-                WorldFolderName = $"{parts[0]}-{parts[1]}";
-                InstanceSuffix = parts[2];
-                VersionNumber = parts[3];
+                InstanceCode = instanceCode;
             }
 
             protected override byte[] ConvertToBytes()
@@ -113,9 +100,7 @@ namespace VE2.NonCore.Platform.API
                 using MemoryStream stream = new();
                 using BinaryWriter writer = new(stream);
 
-                writer.Write(WorldFolderName);
-                writer.Write(InstanceSuffix);
-                writer.Write(VersionNumber);
+                writer.Write(InstanceCode.ToString());
 
                 return stream.ToArray();
             }
@@ -125,14 +110,69 @@ namespace VE2.NonCore.Platform.API
                 using MemoryStream stream = new(bytes);
                 using BinaryReader reader = new(stream);
 
-                WorldFolderName = reader.ReadString();
-                InstanceSuffix = reader.ReadString();
-                VersionNumber = reader.ReadString();
+                InstanceCode = new InstanceCode(reader.ReadString());
             }
         }
 
+        internal class InstanceCode //: VE2Serializable
+        {
+            public string WorldName { get; private set; }
+            public string InstanceSuffix { get; private set; }
+            public ushort VersionNumber { get; private set; }
 
-        public abstract class ClientInfoBase : VE2Serializable
+            public InstanceCode() { }
+
+            //public InstanceCode(byte[] bytes) : base(bytes) { }
+
+            public InstanceCode(string worldName, string instanceSuffix, ushort versionNumber)
+            {
+                WorldName = worldName;
+                InstanceSuffix = instanceSuffix;
+                VersionNumber = versionNumber;
+            }
+
+            public InstanceCode(string instanceCodeString)
+            {
+                // Expected format: WorldName-InstanceSuffix-VersionNumber
+                string[] parts = instanceCodeString.Split('-');
+                if (parts.Length != 3)
+                    throw new ArgumentException("Invalid instance code format. Expected format: WorldName-InstanceSuffix-VersionNumber");
+
+                WorldName = parts[0];
+                InstanceSuffix = parts[1];
+                if (ushort.TryParse(parts[2], out ushort version))
+                    VersionNumber = version;
+                else
+                    throw new ArgumentException("Invalid version number in instance code.");
+            }
+
+            public override string ToString() => $"{WorldName}-{InstanceSuffix}-{VersionNumber}";
+
+            // protected override byte[] ConvertToBytes()
+            // {
+            //     using MemoryStream stream = new();
+            //     using BinaryWriter writer = new(stream);
+
+            //     writer.Write(WorldName);
+            //     writer.Write(InstanceSuffix);
+            //     writer.Write((ushort)VersionNumber);
+
+            //     return stream.ToArray();
+            // }
+
+            // protected override void PopulateFromBytes(byte[] bytes)
+            // {
+            //     using MemoryStream stream = new(bytes);
+            //     using BinaryReader reader = new(stream);
+
+            //     WorldName = reader.ReadString();
+            //     InstanceSuffix = reader.ReadString();
+            //     VersionNumber = reader.ReadUInt16();
+            // }
+        }
+
+
+        internal abstract class ClientInfoBase : VE2Serializable
         {
             public ushort ClientID;
             //public string DisplayName;
