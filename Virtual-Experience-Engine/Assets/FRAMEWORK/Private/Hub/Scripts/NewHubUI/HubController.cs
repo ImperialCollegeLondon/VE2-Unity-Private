@@ -34,8 +34,6 @@ internal class HubController : MonoBehaviour
         _hubWorldPageView.OnCancelDownloadClicked += HandleCancelDownloadClicked;
         _hubWorldPageView.OnInstallWorldClicked += HandleInstallWorldClicked;
         _hubWorldPageView.OnEnterWorldClicked += HandleEnterWorldClicked;
-
-
     }
 
     private void OnEnable()
@@ -58,8 +56,17 @@ internal class HubController : MonoBehaviour
     {
         if (_curentFileDownloadIndex != -1)
         {
-            //TODO - this could be a bit faster, I.E, account for actual data size, not just num files 
-            int progressPercent = Mathf.FloorToInt(_currentDownloadTask.Progress * 100 / _filesToDownload.Count);
+            _filesToDownload[_curentFileDownloadIndex].AmountDownloaded = (ulong)(_filesToDownload[_curentFileDownloadIndex].FileSize * _currentDownloadTask.Progress);
+
+            ulong totalDownloaded = 0;
+            foreach (HubFileDownloadInfo file in _filesToDownload)
+                totalDownloaded += file.AmountDownloaded;
+
+            ulong totalSize = 0;
+            foreach (HubFileDownloadInfo file in _filesToDownload)
+                totalSize += file.FileSize;
+
+            int progressPercent = Mathf.FloorToInt(totalDownloaded * 100 / totalSize);
             _hubWorldPageView.UpdateDownloadingWorldProgress(progressPercent);
         }
     } 
@@ -134,7 +141,22 @@ internal class HubController : MonoBehaviour
         _hubHomePageView.SetupView(suggestedWorldDetails, worldCategories.Values.ToList());
     }
 
-    private List<string> _filesToDownload;
+    private class HubFileDownloadInfo
+    {
+        public string FileNameAndPath;
+        public ulong FileSize;
+        public ulong AmountDownloaded;
+
+        public HubFileDownloadInfo(string fileNameAndPath, ulong fileSize, ulong amountDownloaded)
+        {
+            FileNameAndPath = fileNameAndPath;
+            FileSize = fileSize;
+            AmountDownloaded = amountDownloaded;
+        }
+
+        public void MarkComplete() {AmountDownloaded = FileSize;}
+    }
+    private List<HubFileDownloadInfo> _filesToDownload;
     private int _curentFileDownloadIndex = -1;
     private IRemoteFileTaskInfo _currentDownloadTask;
 
@@ -159,7 +181,7 @@ internal class HubController : MonoBehaviour
 
         //Check for correct number of files TODO
         _filesToDownload = searchInfo.FilesFound
-            .Select(f => f.Key)
+            .Select(f => new HubFileDownloadInfo(f.Key, f.Value.Size, (ulong)0))
             .ToList();
         _curentFileDownloadIndex = 0;
 
@@ -171,7 +193,7 @@ internal class HubController : MonoBehaviour
 
     private void BeginDownloadNextFile()
     {
-        string fileNameAndPath = _filesToDownload[_curentFileDownloadIndex];
+        string fileNameAndPath = _filesToDownload[_curentFileDownloadIndex].FileNameAndPath;
         Debug.Log("Downloading file: " + fileNameAndPath);
 
         _currentDownloadTask = _fileSystem.DownloadFile($"{fileNameAndPath}");
@@ -198,6 +220,8 @@ internal class HubController : MonoBehaviour
         if (status == RemoteFileTaskStatus.Succeeded)
         {
             _currentDownloadTask.OnStatusChanged -= HandleWorldFileDownloadStatusChanged;
+
+            _filesToDownload[_curentFileDownloadIndex].MarkComplete();
 
             _curentFileDownloadIndex++;
             if (_curentFileDownloadIndex < _filesToDownload.Count)
