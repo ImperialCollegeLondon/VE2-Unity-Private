@@ -170,23 +170,27 @@ namespace VE2.Core.VComponents.Internal
 
         public void ForceLocalGrab(bool lockGrab)
         {
-            _grabIsLocked = lockGrab;
-
-            // Get local interactor ID
-            InteractorID localInteractorId = new (_localClientIdWrapper.Value, InteractorType.Mouse2D);
-
-            if (_interactorContainer.Interactors.TryGetValue(localInteractorId.ToString(), out IInteractor interactor))
-            {
-                // Teleport grabbable to be at interactor to avoid things blocking
-                OnRequestTeleportRigidbody?.Invoke(interactor.GrabberTransform.position);
-
-                // SetGrabbed
-                SetGrabbed(localInteractorId);
-            }
-            else
+            // Get local interactor ID & interactor
+            InteractorID localInteractorId = new(_localClientIdWrapper.Value, InteractorType.Mouse2D);
+            if (!_interactorContainer.Interactors.TryGetValue(localInteractorId.ToString(), out IInteractor interactor))
             {
                 Debug.LogError($"Could not find Interactor with {localInteractorId.ClientID} and {localInteractorId.InteractorType}");
+                return;
             }
+
+            // Lock grab
+            _grabIsLocked = lockGrab;
+
+            // No grabbing if already grabbed by the same interactor
+            if (IsGrabbed && (_state.MostRecentInteractingInteractorID.ClientID != localInteractorId.ClientID || _state.MostRecentInteractingInteractorID.InteractorType == localInteractorId.InteractorType))
+                return;
+
+            // Teleport grabbable to be at interactor to avoid things blocking
+            OnRequestTeleportRigidbody?.Invoke(interactor.GrabberTransform.position);
+
+            // SetGrabbed
+            SetGrabbed(localInteractorId);
+
         }
 
         public void UnlockLocalGrab() => _grabIsLocked = false;
