@@ -51,6 +51,10 @@ namespace VE2.Core.VComponents.Internal
         internal event Action<ushort> OnGrabConfirmed;
         internal event Action<ushort> OnDropConfirmed;
 
+        internal event Action<Vector3> OnRequestTeleportRigidbody;
+
+        private bool _grabIsLocked = false;
+
         public GrabbableStateModule(VE2Serializable state, GrabbableStateConfig grabbableStateConfig, WorldStateSyncConfig syncConfig, string id, IWorldStateSyncableContainer worldStateSyncableContainer, 
             HandInteractorContainer interactorContainer, IClientIDWrapper localClientIdWrapper) :
             base(state, syncConfig, id, worldStateSyncableContainer)
@@ -115,7 +119,7 @@ namespace VE2.Core.VComponents.Internal
 
         public void SetDropped(InteractorID interactorID)
         {
-            if (!IsGrabbed)
+            if (!IsGrabbed || _grabIsLocked)
                 return;
 
             //Different validation to SetGrabbed. The interactor may have been destroyed (and is thus no longer present), but we still want to set the state to dropped
@@ -162,6 +166,40 @@ namespace VE2.Core.VComponents.Internal
             {
                 SetDropped(_state.MostRecentInteractingInteractorID);
             }
+        }
+
+        public void ForceLocalGrab(bool lockGrab)
+        {
+            _grabIsLocked = lockGrab;
+
+            // Get local interactor ID
+            InteractorID localInteractorId = new (_localClientIdWrapper.Value, InteractorType.Mouse2D);
+
+            if (_interactorContainer.Interactors.TryGetValue(localInteractorId.ToString(), out IInteractor interactor))
+            {
+                // Teleport grabbable to be at interactor to avoid things blocking
+                OnRequestTeleportRigidbody?.Invoke(interactor.GrabberTransform.position);
+
+                // SetGrabbed
+                SetGrabbed(localInteractorId);
+            }
+            else
+            {
+                Debug.LogError($"Could not find Interactor with {localInteractorId.ClientID} and {localInteractorId.InteractorType}");
+            }
+        }
+
+        public void UnlockLocalGrab() => _grabIsLocked = false;
+
+        public void ForceLocalDrop()
+        {
+            UnlockLocalGrab();
+
+            // Get local interactor ID
+            InteractorID localInteractorId = new(_localClientIdWrapper.Value, InteractorType.Mouse2D);
+
+            // SetDropped
+            SetDropped(localInteractorId);
         }
     }
 

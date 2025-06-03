@@ -23,5 +23,12 @@ namespace VE2.Core.VComponents.API
         public bool EnableControllerVibrations { get; set; }
         public bool ShowTooltipsAndHighlight { get; set; }
         #endregion
+
+        #region Force Grab and Drop Interface
+        public void ForceLocalGrab(bool lockGrab);
+        public void UnlockLocalGrab();
+        public void ForceLocalDrop();
+
+        #endregion
     }
 }

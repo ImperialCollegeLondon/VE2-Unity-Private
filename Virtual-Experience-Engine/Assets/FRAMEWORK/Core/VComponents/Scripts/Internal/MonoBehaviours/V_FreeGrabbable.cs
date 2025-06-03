@@ -6,6 +6,7 @@ using Unity.Collections;
 using VE2.Common.API;
 using UnityEngine.Events;
 using VE2.Common.Shared;
+using static UnityEngine.ParticleSystem;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -31,6 +32,14 @@ namespace VE2.Core.VComponents.Internal
         public bool AdminOnly {get => _RangedGrabModule.AdminOnly; set => _RangedGrabModule.AdminOnly = value; }
         public bool EnableControllerVibrations { get => _RangedGrabModule.EnableControllerVibrations; set => _RangedGrabModule.EnableControllerVibrations = value; }
         public bool ShowTooltipsAndHighlight { get => _RangedGrabModule.ShowTooltipsAndHighlight; set => _RangedGrabModule.ShowTooltipsAndHighlight = value; }
+        #endregion
+
+        #region Force Grab and Drop Interface
+        public void ForceLocalGrab(bool lockGrab) => _StateModule.ForceLocalGrab(lockGrab);
+
+        public void UnlockLocalGrab() => _StateModule.UnlockLocalGrab();
+
+        public void ForceLocalDrop() => _StateModule.ForceLocalDrop();
         #endregion
     }
 

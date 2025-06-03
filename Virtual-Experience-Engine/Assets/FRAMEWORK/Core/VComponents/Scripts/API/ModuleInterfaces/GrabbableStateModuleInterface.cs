@@ -14,5 +14,13 @@ namespace VE2.Core.VComponents.API
         public bool IsGrabbed { get; }
         public bool IsLocalGrabbed { get; }
         public IClientIDWrapper MostRecentInteractingClientID { get; }
+
+        #region Force Grab and Drop Interface
+        public void ForceLocalGrab(bool lockGrab);
+
+        public void UnlockLocalGrab();
+
+        public void ForceLocalDrop();
+        #endregion
     }
 }

@@ -67,6 +67,7 @@ namespace VE2.Core.VComponents.Internal
 
             _StateModule.OnGrabConfirmed += HandleGrabConfirmed;
             _StateModule.OnDropConfirmed += HandleDropConfirmed;
+            _StateModule.OnRequestTeleportRigidbody += HandleTeleportRigidbody;
         }
 
         //This is for teleporting the grabbed object along with the player - TODO: Tweak names for clarity 
@@ -119,6 +120,11 @@ namespace VE2.Core.VComponents.Internal
             {
                 _rigidbody.isKinematic = _isKinematicOnGrab;
             }
+        }
+
+        private void HandleTeleportRigidbody(Vector3 position)
+        {
+            _rigidbody.position += position;
         }
 
         public void HandleFixedUpdate()
