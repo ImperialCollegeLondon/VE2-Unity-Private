@@ -1287,6 +1287,51 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &136946237
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 136946239}
+  - component: {fileID: 136946238}
+  m_Layer: 0
+  m_Name: ForceGrabTester
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &136946238
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 136946237}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9917f8beb63bc3a4ebabed0f9241eba6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Grabbable: {fileID: 227671773}
+--- !u!4 &136946239
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 136946237}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.2541246, y: 2.6780422, z: -2.7438524}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &152444065
 GameObject:
   m_ObjectHideFlags: 0
@@ -2158,10 +2203,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config:
     StateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsGrabbed: 0
         ClientID: 65535
@@ -2171,25 +2212,36 @@ MonoBehaviour:
       OnDrop:
         m_PersistentCalls:
           m_Calls: []
-    InteractionConfig:
-      AttachPoint: {fileID: 227671779}
-      VrFailsafeGrab: 1
-      VRRaySnapRange: 0.15
-      VRRaySnapRangeBackOfHand: 0.1
-      failsafeGrabMultiplier: 1.2
-      dropBehaviour: 0
-    GeneralInteractionConfig:
-      AdminOnly: 0
-      EnableControllerVibrations: 1
-      ShowTooltipsAndHighlight: 1
-    RangedInteractionConfig:
-      InteractionRange: 5
+    RangedFreeGrabInteractionConfig:
+      InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
           m_Calls: []
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
+      AttachPoint: {fileID: 227671779}
+      VrFailsafeGrab: 1
+      VRRaySnapRange: 0.15
+      VRRaySnapRangeBackOfHand: 0.1
+      failsafeGrabMultiplier: 1.2
+      dropBehaviour: 0
+      PreserveInspectModeOrientation: 0
+      AlignOrientationOnGrab: 0
+      OnInspectModeEnter:
+        m_PersistentCalls:
+          m_Calls: []
+      OnInspectModeExit:
+        m_PersistentCalls:
+          m_Calls: []
+    GeneralInteractionConfig:
+      AdminOnly: 0
+      EnableControllerVibrations: 1
+      ShowTooltipsAndHighlight: 1
+    SyncConfig:
+      IsNetworked: 1
+      TransmissionFrequency: 1
+      TransmissionType: 0
   _collider: {fileID: 227671776}
   _rigidbody: {fileID: 227671774}
 --- !u!135 &227671776
@@ -2295,9 +2347,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config:
     IsNetworked: 1
-    RepeatedTransmissionConfig:
-      TransmissionType: 0
-      TransmissionFrequency: 1
+    TransmissionFrequency: 1
+    TransmissionType: 0
     LogSendReceiveDebugMessages: 0
     LogInterpolationDebug: 0
     DrawInterpolationLines: 0
@@ -7300,10 +7351,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config:
     StateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsActivated: 0
         ClientID: 65535
@@ -7341,20 +7388,25 @@ MonoBehaviour:
             m_CallState: 2
       UseActivationGroup: 1
       ActivationGroupID: lights
-    GeneralInteractionConfig:
-      AdminOnly: 0
-      EnableControllerVibrations: 1
-      ShowTooltipsAndHighlight: 1
-    ActivatableRangedInteractionConfig:
-      InteractionRange: 5
+    CollisionClickInteractionConfig:
+      ClickWithCollisionInVR: 1
+    RangedClickInteractionConfig:
+      InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
           m_Calls: []
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
-      ActivateAtRangeInVR: 1
-      ActivateWithCollisionInVR: 1
+      ClickAtRangeInVR: 1
+    GeneralInteractionConfig:
+      AdminOnly: 0
+      EnableControllerVibrations: 1
+      ShowTooltipsAndHighlight: 1
+    SyncConfig:
+      IsNetworked: 1
+      TransmissionFrequency: 1
+      TransmissionType: 0
   _collider: {fileID: 0}
 --- !u!65 &389759374
 BoxCollider:
@@ -7467,17 +7519,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _config:
-    RotationalAdjustableServiceConfig:
-      AdjustmentType: 0
-      AdjustmentProperty: 1
-      NumberOfValues: 5
-      MinimumSpatialValue: 0
-      MaximumSpatialValue: 360
     AdjustableStateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         Value: 0
         ClientID: 65535
@@ -7502,11 +7544,13 @@ MonoBehaviour:
       StartingOutputValue: 0
       EmitValueOnStart: 1
       IncrementPerScrollTick: 1
+    RotationalAdjustableServiceConfig:
+      AdjustmentType: 0
+      AdjustmentProperty: 1
+      NumberOfValues: 5
+      MinimumSpatialValue: 0
+      MaximumSpatialValue: 360
     GrabbableStateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsGrabbed: 0
         ClientID: 65535
@@ -7516,25 +7560,28 @@ MonoBehaviour:
       OnDrop:
         m_PersistentCalls:
           m_Calls: []
-    InteractionConfig:
-      AttachPoint: {fileID: 0}
-      VrFailsafeGrab: 1
-      VRRaySnapRange: 0.15
-      VRRaySnapRangeBackOfHand: 0.1
-      failsafeGrabMultiplier: 1.2
-      TransformToAdjust: {fileID: 0}
-    RangedInteractionConfig:
-      InteractionRange: 5
+    rangedAdjustableInteractionConfig:
+      InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
           m_Calls: []
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
+      AttachPoint: {fileID: 0}
+      VrFailsafeGrab: 1
+      VRRaySnapRange: 0.15
+      VRRaySnapRangeBackOfHand: 0.1
+      failsafeGrabMultiplier: 1.2
+      TransformToAdjust: {fileID: 0}
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
+    SyncConfig:
+      IsNetworked: 1
+      TransmissionFrequency: 1
+      TransmissionType: 0
 --- !u!1 &407925867
 GameObject:
   m_ObjectHideFlags: 0
@@ -8518,6 +8565,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _lastUseSecondaryUI: 1
   _useCustomSecondaryUI: 1
+  _menuUIConfig:
+    OnActivateMainMenu:
+      m_PersistentCalls:
+        m_Calls: []
+    OnDeactivateMainMenu:
+      m_PersistentCalls:
+        m_Calls: []
 --- !u!114 &487838682
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8533,6 +8587,12 @@ MonoBehaviour:
   _playerConfig:
     PlayerModeConfig:
       SupportedPlayerModes: 2
+      OnChangeToVRMode:
+        m_PersistentCalls:
+          m_Calls: []
+      OnChangeTo2DMode:
+        m_PersistentCalls:
+          m_Calls: []
     PlayerInteractionConfig:
       InteractableLayers:
         serializedVersion: 2
@@ -8546,6 +8606,24 @@ MonoBehaviour:
         m_Bits: 130953
       FreeFlyMode: 0
       TeleportRangeMultiplier: 1
+      OnTeleport:
+        m_PersistentCalls:
+          m_Calls: []
+      OnSnapTurn:
+        m_PersistentCalls:
+          m_Calls: []
+      OnHorizontalDrag:
+        m_PersistentCalls:
+          m_Calls: []
+      OnVerticalDrag:
+        m_PersistentCalls:
+          m_Calls: []
+      OnJump2D:
+        m_PersistentCalls:
+          m_Calls: []
+      OnCrouch2D:
+        m_PersistentCalls:
+          m_Calls: []
     CameraConfig:
       FieldOfView2D: 60
       NearClippingPlane: 0.15
@@ -8557,6 +8635,9 @@ MonoBehaviour:
       AntiAliasingQuality: 1
       EnablePostProcessing: 1
       OcclusionCulling: 1
+      OnResetViewVR:
+        m_PersistentCalls:
+          m_Calls: []
     AvatarAppearanceOverrideConfig:
       OverrideHead: 0
       HeadOverrideIndex: 0
@@ -8565,8 +8646,8 @@ MonoBehaviour:
       TorsoOverrideIndex: 0
       TorsoOverrideGameObjects: []
     RepeatedTransmissionConfig:
-      TransmissionType: 0
       TransmissionFrequency: 35
+      TransmissionType: 0
   _defaultPlayerPresentationConfig:
     PlayerName: Unknown
     AvatarHeadType: 0
@@ -12023,17 +12104,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _config:
-    RotationalAdjustableServiceConfig:
-      AdjustmentType: 2
-      AdjustmentProperty: 1
-      NumberOfValues: 15
-      MinimumSpatialValue: -360
-      MaximumSpatialValue: 360
     AdjustableStateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         Value: 0
         ClientID: 65535
@@ -12058,11 +12129,13 @@ MonoBehaviour:
       StartingOutputValue: 0
       EmitValueOnStart: 1
       IncrementPerScrollTick: 1
+    RotationalAdjustableServiceConfig:
+      AdjustmentType: 2
+      AdjustmentProperty: 1
+      NumberOfValues: 15
+      MinimumSpatialValue: -360
+      MaximumSpatialValue: 360
     GrabbableStateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsGrabbed: 0
         ClientID: 65535
@@ -12072,25 +12145,28 @@ MonoBehaviour:
       OnDrop:
         m_PersistentCalls:
           m_Calls: []
-    InteractionConfig:
-      AttachPoint: {fileID: 0}
-      VrFailsafeGrab: 1
-      VRRaySnapRange: 0.15
-      VRRaySnapRangeBackOfHand: 0.1
-      failsafeGrabMultiplier: 1.2
-      TransformToAdjust: {fileID: 0}
-    RangedInteractionConfig:
-      InteractionRange: 5
+    rangedAdjustableInteractionConfig:
+      InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
           m_Calls: []
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
+      AttachPoint: {fileID: 0}
+      VrFailsafeGrab: 1
+      VRRaySnapRange: 0.15
+      VRRaySnapRangeBackOfHand: 0.1
+      failsafeGrabMultiplier: 1.2
+      TransformToAdjust: {fileID: 0}
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
+    SyncConfig:
+      IsNetworked: 1
+      TransmissionFrequency: 1
+      TransmissionType: 0
 --- !u!65 &729986758
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -22270,10 +22346,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config:
     StateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsActivated: 0
         ClientID: 65535
@@ -22311,20 +22383,25 @@ MonoBehaviour:
             m_CallState: 2
       UseActivationGroup: 1
       ActivationGroupID: lights
-    GeneralInteractionConfig:
-      AdminOnly: 0
-      EnableControllerVibrations: 1
-      ShowTooltipsAndHighlight: 1
-    ActivatableRangedInteractionConfig:
-      InteractionRange: 5
+    CollisionClickInteractionConfig:
+      ClickWithCollisionInVR: 1
+    RangedClickInteractionConfig:
+      InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
           m_Calls: []
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
-      ActivateAtRangeInVR: 1
-      ActivateWithCollisionInVR: 1
+      ClickAtRangeInVR: 1
+    GeneralInteractionConfig:
+      AdminOnly: 0
+      EnableControllerVibrations: 1
+      ShowTooltipsAndHighlight: 1
+    SyncConfig:
+      IsNetworked: 1
+      TransmissionFrequency: 1
+      TransmissionType: 0
   _collider: {fileID: 0}
 --- !u!65 &962310504
 BoxCollider:
@@ -26477,10 +26554,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config:
     StateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsActivated: 0
         ClientID: 65535
@@ -26518,20 +26591,25 @@ MonoBehaviour:
             m_CallState: 2
       UseActivationGroup: 1
       ActivationGroupID: lights
-    GeneralInteractionConfig:
-      AdminOnly: 0
-      EnableControllerVibrations: 1
-      ShowTooltipsAndHighlight: 1
-    ActivatableRangedInteractionConfig:
-      InteractionRange: 5
+    CollisionClickInteractionConfig:
+      ClickWithCollisionInVR: 1
+    RangedClickInteractionConfig:
+      InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
           m_Calls: []
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
-      ActivateAtRangeInVR: 1
-      ActivateWithCollisionInVR: 1
+      ClickAtRangeInVR: 1
+    GeneralInteractionConfig:
+      AdminOnly: 0
+      EnableControllerVibrations: 1
+      ShowTooltipsAndHighlight: 1
+    SyncConfig:
+      IsNetworked: 1
+      TransmissionFrequency: 1
+      TransmissionType: 0
   _collider: {fileID: 0}
 --- !u!65 &1109928073
 BoxCollider:
@@ -33411,17 +33489,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _config:
-    RotationalAdjustableServiceConfig:
-      AdjustmentType: 1
-      AdjustmentProperty: 1
-      NumberOfValues: 5
-      MinimumSpatialValue: 0
-      MaximumSpatialValue: 360
     AdjustableStateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         Value: 0
         ClientID: 65535
@@ -33446,11 +33514,13 @@ MonoBehaviour:
       StartingOutputValue: 0
       EmitValueOnStart: 1
       IncrementPerScrollTick: 1
+    RotationalAdjustableServiceConfig:
+      AdjustmentType: 1
+      AdjustmentProperty: 1
+      NumberOfValues: 5
+      MinimumSpatialValue: 0
+      MaximumSpatialValue: 360
     GrabbableStateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsGrabbed: 0
         ClientID: 65535
@@ -33460,25 +33530,28 @@ MonoBehaviour:
       OnDrop:
         m_PersistentCalls:
           m_Calls: []
-    InteractionConfig:
-      AttachPoint: {fileID: 0}
-      VrFailsafeGrab: 1
-      VRRaySnapRange: 0.15
-      VRRaySnapRangeBackOfHand: 0.1
-      failsafeGrabMultiplier: 1.2
-      TransformToAdjust: {fileID: 0}
-    RangedInteractionConfig:
-      InteractionRange: 5
+    rangedAdjustableInteractionConfig:
+      InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
           m_Calls: []
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
+      AttachPoint: {fileID: 0}
+      VrFailsafeGrab: 1
+      VRRaySnapRange: 0.15
+      VRRaySnapRangeBackOfHand: 0.1
+      failsafeGrabMultiplier: 1.2
+      TransformToAdjust: {fileID: 0}
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
+    SyncConfig:
+      IsNetworked: 1
+      TransmissionFrequency: 1
+      TransmissionType: 0
 --- !u!1 &1250561189
 GameObject:
   m_ObjectHideFlags: 0
@@ -33550,10 +33623,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config:
     StateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsActivated: 0
         ClientID: 65535
@@ -33591,20 +33660,25 @@ MonoBehaviour:
             m_CallState: 2
       UseActivationGroup: 0
       ActivationGroupID: None
-    GeneralInteractionConfig:
-      AdminOnly: 0
-      EnableControllerVibrations: 1
-      ShowTooltipsAndHighlight: 1
-    ActivatableRangedInteractionConfig:
-      InteractionRange: 5
+    CollisionClickInteractionConfig:
+      ClickWithCollisionInVR: 1
+    RangedClickInteractionConfig:
+      InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
           m_Calls: []
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
-      ActivateAtRangeInVR: 1
-      ActivateWithCollisionInVR: 1
+      ClickAtRangeInVR: 1
+    GeneralInteractionConfig:
+      AdminOnly: 0
+      EnableControllerVibrations: 1
+      ShowTooltipsAndHighlight: 1
+    SyncConfig:
+      IsNetworked: 1
+      TransmissionFrequency: 1
+      TransmissionType: 0
   _collider: {fileID: 0}
 --- !u!1 &1261217401
 GameObject:
@@ -36695,9 +36769,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config:
     IsNetworked: 1
-    RepeatedTransmissionConfig:
-      TransmissionType: 0
-      TransmissionFrequency: 1
+    TransmissionFrequency: 1
+    TransmissionType: 0
     OnStateChange:
       m_PersistentCalls:
         m_Calls:
@@ -38098,10 +38171,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config:
     StateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsActivated: 0
         ClientID: 65535
@@ -38139,10 +38208,17 @@ MonoBehaviour:
             m_CallState: 2
       UseActivationGroup: 0
       ActivationGroupID: None
+    HandheldClickInteractionConfig:
+      IsHoldMode: 0
+      DeactivateOnDrop: 1
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
+    SyncConfig:
+      IsNetworked: 1
+      TransmissionFrequency: 1
+      TransmissionType: 0
 --- !u!114 &1542206482
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38157,10 +38233,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config:
     StateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsGrabbed: 0
         ClientID: 65535
@@ -38170,25 +38242,36 @@ MonoBehaviour:
       OnDrop:
         m_PersistentCalls:
           m_Calls: []
-    InteractionConfig:
-      AttachPoint: {fileID: 1542206486}
-      VrFailsafeGrab: 1
-      VRRaySnapRange: 0.15
-      VRRaySnapRangeBackOfHand: 0.1
-      failsafeGrabMultiplier: 1.2
-      dropBehaviour: 0
-    GeneralInteractionConfig:
-      AdminOnly: 0
-      EnableControllerVibrations: 1
-      ShowTooltipsAndHighlight: 1
-    RangedInteractionConfig:
-      InteractionRange: 5
+    RangedFreeGrabInteractionConfig:
+      InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
           m_Calls: []
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
+      AttachPoint: {fileID: 1542206486}
+      VrFailsafeGrab: 1
+      VRRaySnapRange: 0.15
+      VRRaySnapRangeBackOfHand: 0.1
+      failsafeGrabMultiplier: 1.2
+      dropBehaviour: 0
+      PreserveInspectModeOrientation: 0
+      AlignOrientationOnGrab: 0
+      OnInspectModeEnter:
+        m_PersistentCalls:
+          m_Calls: []
+      OnInspectModeExit:
+        m_PersistentCalls:
+          m_Calls: []
+    GeneralInteractionConfig:
+      AdminOnly: 0
+      EnableControllerVibrations: 1
+      ShowTooltipsAndHighlight: 1
+    SyncConfig:
+      IsNetworked: 1
+      TransmissionFrequency: 1
+      TransmissionType: 0
   _collider: {fileID: 0}
   _rigidbody: {fileID: 0}
 --- !u!65 &1542206483
@@ -38295,10 +38378,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config:
     StateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         Value: 0
         ClientID: 65535
@@ -38329,6 +38408,10 @@ MonoBehaviour:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
+    SyncConfig:
+      IsNetworked: 1
+      TransmissionFrequency: 1
+      TransmissionType: 0
 --- !u!114 &1542206488
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -38489,17 +38572,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _config:
-    LinearAdjustableServiceConfig:
-      AdjustmentType: 1
-      AdjustmentProperty: 1
-      NumberOfValues: 10
-      MinimumSpatialValue: -0.115
-      MaximumSpatialValue: 0.115
     AdjustableStateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         Value: 0
         ClientID: 65535
@@ -38524,11 +38597,13 @@ MonoBehaviour:
       StartingOutputValue: 0
       EmitValueOnStart: 1
       IncrementPerScrollTick: 0.5
+    LinearAdjustableServiceConfig:
+      AdjustmentType: 1
+      AdjustmentProperty: 1
+      NumberOfValues: 10
+      MinimumSpatialValue: -0.115
+      MaximumSpatialValue: 0.115
     GrabbableStateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsGrabbed: 0
         ClientID: 65535
@@ -38562,25 +38637,28 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-    InteractionConfig:
-      AttachPoint: {fileID: 0}
-      VrFailsafeGrab: 1
-      VRRaySnapRange: 0.15
-      VRRaySnapRangeBackOfHand: 0.1
-      failsafeGrabMultiplier: 1.2
-      TransformToAdjust: {fileID: 0}
-    RangedInteractionConfig:
-      InteractionRange: 5
+    rangedAdjustableConfig:
+      InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
           m_Calls: []
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
+      AttachPoint: {fileID: 0}
+      VrFailsafeGrab: 1
+      VRRaySnapRange: 0.15
+      VRRaySnapRangeBackOfHand: 0.1
+      failsafeGrabMultiplier: 1.2
+      TransformToAdjust: {fileID: 0}
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
+    SyncConfig:
+      IsNetworked: 1
+      TransmissionFrequency: 1
+      TransmissionType: 0
 --- !u!65 &1569725324
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -40633,9 +40711,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config:
     IsNetworked: 1
-    RepeatedTransmissionConfig:
-      TransmissionType: 0
-      TransmissionFrequency: 1
+    TransmissionFrequency: 1
+    TransmissionType: 0
     OnStateChange:
       m_PersistentCalls:
         m_Calls: []
@@ -52376,17 +52453,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _config:
-    LinearAdjustableServiceConfig:
-      AdjustmentType: 2
-      AdjustmentProperty: 1
-      NumberOfValues: 10
-      MinimumSpatialValue: -0.315
-      MaximumSpatialValue: 0.315
     AdjustableStateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         Value: 0
         ClientID: 65535
@@ -52411,11 +52478,13 @@ MonoBehaviour:
       StartingOutputValue: 100
       EmitValueOnStart: 1
       IncrementPerScrollTick: 50
+    LinearAdjustableServiceConfig:
+      AdjustmentType: 2
+      AdjustmentProperty: 1
+      NumberOfValues: 10
+      MinimumSpatialValue: -0.315
+      MaximumSpatialValue: 0.315
     GrabbableStateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsGrabbed: 0
         ClientID: 65535
@@ -52425,25 +52494,28 @@ MonoBehaviour:
       OnDrop:
         m_PersistentCalls:
           m_Calls: []
-    InteractionConfig:
-      AttachPoint: {fileID: 0}
-      VrFailsafeGrab: 1
-      VRRaySnapRange: 0.15
-      VRRaySnapRangeBackOfHand: 0.1
-      failsafeGrabMultiplier: 1.2
-      TransformToAdjust: {fileID: 0}
-    RangedInteractionConfig:
-      InteractionRange: 5
+    rangedAdjustableConfig:
+      InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
           m_Calls: []
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
+      AttachPoint: {fileID: 0}
+      VrFailsafeGrab: 1
+      VRRaySnapRange: 0.15
+      VRRaySnapRangeBackOfHand: 0.1
+      failsafeGrabMultiplier: 1.2
+      TransformToAdjust: {fileID: 0}
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
+    SyncConfig:
+      IsNetworked: 1
+      TransmissionFrequency: 1
+      TransmissionType: 0
 --- !u!65 &9150436264021684158
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -52486,17 +52558,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _config:
-    LinearAdjustableServiceConfig:
-      AdjustmentType: 0
-      AdjustmentProperty: 1
-      NumberOfValues: 10
-      MinimumSpatialValue: -0.115
-      MaximumSpatialValue: 0.115
     AdjustableStateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         Value: 0
         ClientID: 65535
@@ -52521,11 +52583,13 @@ MonoBehaviour:
       StartingOutputValue: 0
       EmitValueOnStart: 1
       IncrementPerScrollTick: 0.5
+    LinearAdjustableServiceConfig:
+      AdjustmentType: 0
+      AdjustmentProperty: 1
+      NumberOfValues: 10
+      MinimumSpatialValue: -0.115
+      MaximumSpatialValue: 0.115
     GrabbableStateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsGrabbed: 0
         ClientID: 65535
@@ -52559,25 +52623,28 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-    InteractionConfig:
-      AttachPoint: {fileID: 0}
-      VrFailsafeGrab: 1
-      VRRaySnapRange: 0.15
-      VRRaySnapRangeBackOfHand: 0.1
-      failsafeGrabMultiplier: 1.2
-      TransformToAdjust: {fileID: 0}
-    RangedInteractionConfig:
-      InteractionRange: 5
+    rangedAdjustableConfig:
+      InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
           m_Calls: []
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
+      AttachPoint: {fileID: 0}
+      VrFailsafeGrab: 1
+      VRRaySnapRange: 0.15
+      VRRaySnapRangeBackOfHand: 0.1
+      failsafeGrabMultiplier: 1.2
+      TransformToAdjust: {fileID: 0}
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
+    SyncConfig:
+      IsNetworked: 1
+      TransmissionFrequency: 1
+      TransmissionType: 0
 --- !u!65 &9150436264168510838
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -52620,17 +52687,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _config:
-    LinearAdjustableServiceConfig:
-      AdjustmentType: 2
-      AdjustmentProperty: 1
-      NumberOfValues: 10
-      MinimumSpatialValue: -0.115
-      MaximumSpatialValue: 0.115
     AdjustableStateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         Value: 0
         ClientID: 65535
@@ -52655,11 +52712,13 @@ MonoBehaviour:
       StartingOutputValue: 0
       EmitValueOnStart: 1
       IncrementPerScrollTick: 0.5
+    LinearAdjustableServiceConfig:
+      AdjustmentType: 2
+      AdjustmentProperty: 1
+      NumberOfValues: 10
+      MinimumSpatialValue: -0.115
+      MaximumSpatialValue: 0.115
     GrabbableStateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsGrabbed: 0
         ClientID: 65535
@@ -52693,25 +52752,28 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-    InteractionConfig:
-      AttachPoint: {fileID: 0}
-      VrFailsafeGrab: 1
-      VRRaySnapRange: 0.15
-      VRRaySnapRangeBackOfHand: 0.1
-      failsafeGrabMultiplier: 1.2
-      TransformToAdjust: {fileID: 0}
-    RangedInteractionConfig:
-      InteractionRange: 5
+    rangedAdjustableConfig:
+      InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
           m_Calls: []
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
+      AttachPoint: {fileID: 0}
+      VrFailsafeGrab: 1
+      VRRaySnapRange: 0.15
+      VRRaySnapRangeBackOfHand: 0.1
+      failsafeGrabMultiplier: 1.2
+      TransformToAdjust: {fileID: 0}
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
+    SyncConfig:
+      IsNetworked: 1
+      TransmissionFrequency: 1
+      TransmissionType: 0
 --- !u!65 &9150436264399730117
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -52754,17 +52816,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _config:
-    LinearAdjustableServiceConfig:
-      AdjustmentType: 2
-      AdjustmentProperty: 0
-      NumberOfValues: 10
-      MinimumSpatialValue: -0.315
-      MaximumSpatialValue: 0.315
     AdjustableStateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         Value: 0
         ClientID: 65535
@@ -52789,11 +52841,13 @@ MonoBehaviour:
       StartingOutputValue: 0
       EmitValueOnStart: 1
       IncrementPerScrollTick: 1
+    LinearAdjustableServiceConfig:
+      AdjustmentType: 2
+      AdjustmentProperty: 0
+      NumberOfValues: 10
+      MinimumSpatialValue: -0.315
+      MaximumSpatialValue: 0.315
     GrabbableStateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsGrabbed: 0
         ClientID: 65535
@@ -52803,25 +52857,28 @@ MonoBehaviour:
       OnDrop:
         m_PersistentCalls:
           m_Calls: []
-    InteractionConfig:
-      AttachPoint: {fileID: 0}
-      VrFailsafeGrab: 1
-      VRRaySnapRange: 0.15
-      VRRaySnapRangeBackOfHand: 0.1
-      failsafeGrabMultiplier: 1.2
-      TransformToAdjust: {fileID: 0}
-    RangedInteractionConfig:
-      InteractionRange: 5
+    rangedAdjustableConfig:
+      InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
           m_Calls: []
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
+      AttachPoint: {fileID: 0}
+      VrFailsafeGrab: 1
+      VRRaySnapRange: 0.15
+      VRRaySnapRangeBackOfHand: 0.1
+      failsafeGrabMultiplier: 1.2
+      TransformToAdjust: {fileID: 0}
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
+    SyncConfig:
+      IsNetworked: 1
+      TransmissionFrequency: 1
+      TransmissionType: 0
 --- !u!65 &9150436265101514826
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -52873,3 +52930,4 @@ SceneRoots:
   - {fileID: 1228387778}
   - {fileID: 1771295000}
   - {fileID: 1806206223}
+  - {fileID: 136946239}
