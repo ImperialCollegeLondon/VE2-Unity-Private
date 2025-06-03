@@ -136,14 +136,14 @@ namespace VE2.NonCore.Platform.API
                 // Expected format: WorldName-InstanceSuffix-VersionNumber
                 string[] parts = instanceCodeString.Split('-');
                 if (parts.Length != 3)
-                    throw new ArgumentException("Invalid instance code format. Expected format: WorldName-InstanceSuffix-VersionNumber");
+                    throw new ArgumentException("Invalid instance code format. Expected format: WorldName-InstanceSuffix-VersionNumber. Received: " + instanceCodeString);
 
                 WorldName = parts[0];
                 InstanceSuffix = parts[1];
                 if (ushort.TryParse(parts[2], out ushort version))
                     VersionNumber = version;
                 else
-                    throw new ArgumentException("Invalid version number in instance code.");
+                    throw new ArgumentException($"Invalid version number ({parts[2]}) in instance code ({instanceCodeString})");
             }
 
             public override string ToString() => $"{WorldName}-{InstanceSuffix}-{VersionNumber}";

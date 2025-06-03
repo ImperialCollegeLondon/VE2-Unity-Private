@@ -49,14 +49,11 @@ namespace VE2.NonCore.Platform.Internal
 
         private List<string> exportFiles;
 
-        private WorldCategory _lastWorldCategory = WorldCategory.Undefined;
-        private WorldCategory _worldCategory = WorldCategory.Undefined;
-
         private EnvironmentType _environmentType = EnvironmentType.Undefined;
         private EnvironmentType _lastEnvironmentType = EnvironmentType.Undefined;
 
         private Scene _sceneToExport;
-        private string _worldFolderName => $"{_worldCategory}-{_sceneToExport.name}";
+        private string _worldFolderName => $"{_sceneToExport.name}";
 
         private IFileSystemInternal _fileSystem;
 
@@ -219,20 +216,6 @@ namespace VE2.NonCore.Platform.Internal
 
             //WORLD VERSION ##################################################################
             //################################################################################
-
-            _worldCategory = (WorldCategory)EditorGUILayout.EnumPopup("World Category", _worldCategory);
-
-            if (_worldCategory != _lastWorldCategory)
-                _highestRemoteVersionFound = -1;
-
-            _lastWorldCategory = _worldCategory;
-
-            if (_worldCategory == WorldCategory.Undefined)
-            {
-                EditorGUILayout.HelpBox("Please enter a world category", (UnityEditor.MessageType)MessageType.Info);
-                EditorGUI.EndDisabledGroup();
-                return;
-            }
 
             if (!_searchingForVersion && _highestRemoteVersionFound == -1)
             {

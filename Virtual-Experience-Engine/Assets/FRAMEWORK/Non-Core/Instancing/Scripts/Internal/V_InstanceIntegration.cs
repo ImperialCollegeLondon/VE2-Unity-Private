@@ -39,7 +39,7 @@ namespace VE2.NonCore.Instancing.Internal
             [Help("These settings will be used when testing in editor. In build, the platform service will provide the correct settings.")]
             [SerializeField, BeginGroup("Debug Settings"), DisableInPlayMode] internal string IpAddress = "127.0.0.1";
             [SerializeField, DisableInPlayMode] internal ushort Port = 4297;
-            [SerializeField, EndGroup, DisableInPlayMode] internal string InstanceCode = "00";
+            [SerializeField, EndGroup, DisableInPlayMode] internal string InstanceNumber = "00";
         }
         [Space(10)]
         [SerializeField, HideLabel, IgnoreParent] private InstanceCommsHandlerConfig _config = new();
@@ -96,8 +96,7 @@ namespace VE2.NonCore.Instancing.Internal
                 if (Application.isEditor)
                 {
                     instancingSettings = new ServerConnectionSettings("username", "pass", _debugServerSettings.IpAddress, _debugServerSettings.Port);
-                    instanceCode = new InstanceCode(_debugServerSettings.InstanceCode);
-                    instanceCode = new(SceneManager.GetActiveScene().name, _debugServerSettings.InstanceCode, 0);
+                    instanceCode = new InstanceCode(SceneManager.GetActiveScene().name, _debugServerSettings.InstanceNumber, 0);
                 }
                 else
                 {

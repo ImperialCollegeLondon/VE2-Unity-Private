@@ -72,25 +72,13 @@ namespace VE2.NonCore.Platform.Internal
         Assembly[] locatedAssemblies = new Assembly[0];
         bool compressBundles = false;
 
-        public enum WorldCategory
-        {
-            ESE,
-            Aero, 
-            MechEng, 
-            Misc,
-            Undefined
-        }
-
-        private WorldCategory _lastWorldCategory = WorldCategory.Undefined;
-        private WorldCategory _worldCategory = WorldCategory.Undefined;
-
         string studentPassword = "";
         string staffPassword = "";
 
         bool passwordsWereIllegal = false;
 
         private Scene _sceneToExport;
-        private string _worldFolderName => $"{_worldCategory}-{_sceneToExport.name}";
+        private string _worldFolderName => $"{_sceneToExport.name}";
         private EnvironmentType _environmentType = EnvironmentType.Undefined;
         private EnvironmentType _lastEnvironmentType = EnvironmentType.Undefined;
 
@@ -275,20 +263,6 @@ namespace VE2.NonCore.Platform.Internal
 
             //WORLD VERSION ##################################################################
             //################################################################################
-
-            _worldCategory = (WorldCategory)EditorGUILayout.EnumPopup("World Category", _worldCategory);
-
-            if (_worldCategory != _lastWorldCategory)
-                _highestRemoteVersionFound = -1;
-
-            _lastWorldCategory = _worldCategory;
-
-            if (_worldCategory == WorldCategory.Undefined)
-            {
-                EditorGUILayout.HelpBox("Please enter a world category", (UnityEditor.MessageType)MessageType.Info);
-                EditorGUI.EndDisabledGroup();
-                return;
-            }
 
             if (!_searchingForVersion && _highestRemoteVersionFound == -1)
             {
