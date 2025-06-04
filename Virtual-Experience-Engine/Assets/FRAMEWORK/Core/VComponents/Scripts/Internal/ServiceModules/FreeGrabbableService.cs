@@ -124,7 +124,7 @@ namespace VE2.Core.VComponents.Internal
 
         private void HandleTeleportRigidbody(Vector3 position)
         {
-            _rigidbody.position += position;
+            _rigidbody.position = position;
         }
 
         public void HandleFixedUpdate()
@@ -139,12 +139,12 @@ namespace VE2.Core.VComponents.Internal
                 if (RangedGrabInteractionModule.AlignOrientationOnGrab)
                 {
                     TrackRotation(rotationDelta);
-                    Debug.Log("Using attach point orientation on grab");
+                    // Debug.Log("Using attach point orientation on grab");
                 }
                 else
                 {
                     TrackRotation(_StateModule.CurrentGrabbingInteractor.GrabberTransform.rotation);
-                    Debug.Log("Using grabber orientation on grab");
+                    // Debug.Log("Using grabber orientation on grab");
                 }
             }
         }

@@ -5,6 +5,7 @@ using UnityEngine.Events;
 using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
+using VE2.Core.Player.API;
 using VE2.Core.VComponents.Shared;
 using static VE2.Common.Shared.CommonSerializables;
 
@@ -170,8 +171,22 @@ namespace VE2.Core.VComponents.Internal
 
         public void ForceLocalGrab(bool lockGrab)
         {
+
+            // Decide whether to grab and what interactor to use (in progress)
+            InteractorType interactorType;
+            if (VE2API.Player.IsVRMode)
+            {
+                interactorType = InteractorType.RightHandVR;
+            }
+            else
+            {
+                interactorType = InteractorType.Mouse2D;
+            }
+
             // Get local interactor ID & interactor
-            InteractorID localInteractorId = new(_localClientIdWrapper.Value, InteractorType.Mouse2D);
+            InteractorID localInteractorId = new(_localClientIdWrapper.Value, interactorType);
+
+
             if (!_interactorContainer.Interactors.TryGetValue(localInteractorId.ToString(), out IInteractor interactor))
             {
                 Debug.LogError($"Could not find Interactor with {localInteractorId.ClientID} and {localInteractorId.InteractorType}");
@@ -185,10 +200,10 @@ namespace VE2.Core.VComponents.Internal
             if (IsGrabbed && (_state.MostRecentInteractingInteractorID.ClientID != localInteractorId.ClientID || _state.MostRecentInteractingInteractorID.InteractorType == localInteractorId.InteractorType))
                 return;
 
-            // Teleport grabbable to be at interactor to avoid things blocking
+            // Teleport grabbable to be at interactor to avoid anything in the way 
             OnRequestTeleportRigidbody?.Invoke(interactor.GrabberTransform.position);
 
-            // SetGrabbed
+            // Set grabbed in normal way
             SetGrabbed(localInteractorId);
 
         }
@@ -197,13 +212,16 @@ namespace VE2.Core.VComponents.Internal
 
         public void ForceLocalDrop()
         {
-            UnlockLocalGrab();
-
             // Get local interactor ID
             InteractorID localInteractorId = new(_localClientIdWrapper.Value, InteractorType.Mouse2D);
 
-            // SetDropped
-            SetDropped(localInteractorId);
+            // Only drop if local interactor is grabbing
+            if (IsGrabbed && _state.MostRecentInteractingInteractorID.ClientID == localInteractorId.ClientID)
+            {
+                UnlockLocalGrab();
+                // Set dropped in normal way
+                SetDropped(localInteractorId);
+            }
         }
     }
 
