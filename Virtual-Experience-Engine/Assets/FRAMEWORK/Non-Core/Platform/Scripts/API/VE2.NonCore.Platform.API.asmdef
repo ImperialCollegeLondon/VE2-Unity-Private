@@ -2,7 +2,8 @@
     "name": "VE2.NonCore.Platform.API",
     "rootNamespace": "",
     "references": [
-        "GUID:111c54dcd318c434faa4cad0b1ad6d57"
+        "GUID:111c54dcd318c434faa4cad0b1ad6d57",
+        "GUID:a846559b89903a647be42d7c2e0e6032"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

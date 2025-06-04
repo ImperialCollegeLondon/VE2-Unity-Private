@@ -8,6 +8,8 @@ namespace VE2.NonCore.Platform.API
     {
         public void UpdateSettings(ServerConnectionSettings serverConnectionSettings, InstanceCode instanceCode);
         public InstanceCode CurrentInstanceCode { get; }
+        public Dictionary<InstanceCode, PlatformInstanceInfo> InstanceInfos { get; }
+        public event Action<Dictionary<InstanceCode, PlatformInstanceInfo>> OnInstanceInfosChanged;
 
         public void ConnectToPlatform();
 

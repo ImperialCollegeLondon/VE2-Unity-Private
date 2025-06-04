@@ -138,6 +138,9 @@ namespace VE2.NonCore.Platform.Internal
         public string PlayerDisplayName => _playerService.OverridableAvatarAppearance.PresentationConfig.PlayerName;
 
         public InstanceCode CurrentInstanceCode { get => _platformSettingsHandler.InstanceCode; private set => _platformSettingsHandler.InstanceCode = value; }
+
+        public Dictionary<InstanceCode, PlatformInstanceInfo> InstanceInfos => GlobalInfo.InstanceInfos;
+        public event Action<Dictionary<InstanceCode, PlatformInstanceInfo>> OnInstanceInfosChanged;
         #endregion
 
         private readonly IPlatformCommsHandler _commsHandler;
@@ -250,13 +253,18 @@ namespace VE2.NonCore.Platform.Internal
                 return;
             }
 
-            if (CurrentInstanceCode == null || newLocalInstanceInfo.InstanceCode != CurrentInstanceCode)
+            if (CurrentInstanceCode == null || !newLocalInstanceInfo.InstanceCode.Equals(CurrentInstanceCode))
             {
+                Debug.Log($"INSTANCE ALLOC, CURRENT CODE NULL? {CurrentInstanceCode == null}, new code {newLocalInstanceInfo.InstanceCode}");
+                Debug.Log($"old code {CurrentInstanceCode}");
                 HandleInstanceAllocation(newLocalInstanceInfo);
             }
 
             GlobalInfo = newGlobalInfo;
+
+            //TODO - tidy these up, both doing the same thing!
             OnGlobalInfoChanged?.Invoke(GlobalInfo);
+            OnInstanceInfosChanged?.Invoke(GlobalInfo.InstanceInfos);
         }
 
         private void HandleInstanceAllocation(PlatformInstanceInfo newInstanceInfo)

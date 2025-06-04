@@ -11,7 +11,7 @@ namespace VE2.Core.Player.API
         internal class PlayerSerializables
         {
                 [Serializable]
-                public class PlayerVRControlConfig : VE2Serializable
+                internal class PlayerVRControlConfig : VE2Serializable
                 {
 #if UNITY_EDITOR
                         [BeginIndent, SerializeField, Range(0.1f, 3f)]
@@ -92,7 +92,7 @@ namespace VE2.Core.Player.API
                 }
 
                 [Serializable]
-                public class Player2DControlConfig : VE2Serializable
+                internal class Player2DControlConfig : VE2Serializable
                 {
 #if UNITY_EDITOR
                         [BeginIndent, SerializeField, Range(0.2f, 3f)]
@@ -132,7 +132,7 @@ namespace VE2.Core.Player.API
                 }
 
                 [Serializable]
-                public class PlayerPresentationConfig : VE2Serializable //TODO - this should just be a wrapper, don't like these attributes in here
+                internal class PlayerPresentationConfig : VE2Serializable //TODO - this should just be a wrapper, don't like these attributes in here
                 {
 #if UNITY_EDITOR
                         [BeginIndent, SerializeField, IgnoreParent]
@@ -218,7 +218,7 @@ namespace VE2.Core.Player.API
                 }
 
                 [Serializable]
-                public class OverridableAvatarAppearance : VE2Serializable
+                internal class OverridableAvatarAppearance : VE2Serializable
                 {
                         public PlayerPresentationConfig PresentationConfig { get; set; }
                         public bool OverrideHead { get; set; }
@@ -287,20 +287,20 @@ namespace VE2.Core.Player.API
                         }
                 }
 
-                public enum VE2AvatarHeadAppearanceType
+                internal enum VE2AvatarHeadAppearanceType
                 {
                         One,
                         Two,
                         Three
                 }
-                public enum VE2AvatarTorsoAppearanceType
+                internal enum VE2AvatarTorsoAppearanceType
                 {
                         One,
                         Two,
                         Three
                 }
 
-                public class PlayerStateWrapper : VE2Serializable //Accessed by the player spawner
+                internal class PlayerStateWrapper : VE2Serializable //Accessed by the player spawner
                 {
                         public ushort ID { get; private set; }
                         public byte[] StateBytes { get; private set; }

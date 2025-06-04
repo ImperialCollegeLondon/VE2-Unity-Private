@@ -43,11 +43,14 @@ internal class HubWorldPageView : MonoBehaviour
 
     public event Action OnAutoSelectInstanceClicked;
     public event Action OnEnterInstanceCodeClicked;
+    public event Action<InstanceCode> OnInstanceCodeSelected;
 
     public event Action OnDownloadWorldClicked;
     public event Action OnCancelDownloadClicked;
     public event Action OnInstallWorldClicked;
     public event Action OnEnterWorldClicked;
+
+    private Dictionary<PlatformInstanceInfo, HubInstanceView> _instanceViews = new();
 
     //private HubWorldDetails _worldDetails;
 
@@ -55,7 +58,7 @@ internal class HubWorldPageView : MonoBehaviour
     //We probably shouldn't be using the WorldDetails object... maybe LocalWorldDetails, that includes the local state of the world?
     //TODO - also need to pass in instance details
     //TODO - also also need to pass in current play mode (2D/VR) and whether we can switch modes
-    public void SetupView(HubWorldDetails worldDetails)
+    public void SetupView(HubWorldDetails worldDetails, List<PlatformInstanceInfo> instances)
     {
         // _worldDetails = worldDetails;
 
@@ -89,6 +92,8 @@ internal class HubWorldPageView : MonoBehaviour
         _downloadingWorldPanel.SetActive(false);
         _installWorldButton.gameObject.SetActive(false);
         _enterWorldButton.gameObject.SetActive(false);
+
+        UpdateInstances(instances);
     }
 
     public void ShowAvailableVersions(List<int> versions)
@@ -151,10 +156,43 @@ internal class HubWorldPageView : MonoBehaviour
         _enterWorldButton.gameObject.SetActive(true);
     }
 
-    /*
-        How do we know which version we're asking to download/install/enter?
-        We need to show available versions
+    public void UpdateInstances(List<PlatformInstanceInfo> instances)
+    {
+        //Remove old instances 
+        List<PlatformInstanceInfo> instancesToRemove = new();
+        foreach (KeyValuePair<PlatformInstanceInfo, HubInstanceView> instanceView in _instanceViews)
+        {
+            if (!instances.Contains(instanceView.Key))
+            {
+                Destroy(instanceView.Value.gameObject);
+                instanceView.Value.OnSelectInstance -= (instanceCode) => OnEnterWorldClicked?.Invoke();
+                instancesToRemove.Add(instanceView.Key);
+            }
+        }
+        foreach (PlatformInstanceInfo instanceInfo in instancesToRemove)
+            _instanceViews.Remove(instanceInfo);
 
-        When we first open the world view page, we need to search for all versions of that world
-    */
+        //Add new instances
+        foreach (PlatformInstanceInfo instanceInfo in instances)
+        {
+            if (!_instanceViews.ContainsKey(instanceInfo))
+            {
+                GameObject instanceButtonObject = Instantiate(instanceButtonPrefab, _instancesVerticalGroup.transform);
+                HubInstanceView instanceView = instanceButtonObject.GetComponent<HubInstanceView>();
+                instanceView.SetupView(instanceInfo);
+                instanceView.OnSelectInstance += (instanceInfo) => HandleInstanceButtonClicked(instanceInfo);
+                _instanceViews.Add(instanceInfo, instanceView);
+            }
+            else
+            {
+                _instanceViews[instanceInfo].UpdateInstanceInfo(instanceInfo);
+            }
+        }
+    }
+
+    private void HandleInstanceButtonClicked(PlatformInstanceInfo instanceInfo)
+    {
+        OnInstanceCodeSelected?.Invoke(instanceInfo.InstanceCode);
+    }
+
 }

@@ -33,6 +33,7 @@ internal class HubController : MonoBehaviour
         _hubWorldPageView.OnDownloadWorldClicked += HandleStartDownloadClicked;
         _hubWorldPageView.OnCancelDownloadClicked += HandleCancelDownloadClicked;
         _hubWorldPageView.OnInstallWorldClicked += HandleInstallWorldClicked;
+        _hubWorldPageView.OnInstanceCodeSelected += HandleInstanceSelected;
         _hubWorldPageView.OnEnterWorldClicked += HandleEnterWorldClicked;
     }
 
@@ -50,6 +51,14 @@ internal class HubController : MonoBehaviour
             HandleFileSystemReady();
         else
             _fileSystem.OnFileSystemReady += HandleFileSystemReady;
+
+        _platformService.OnInstanceInfosChanged += HandleInstanceInfosChanged;
+    }
+
+    private void HandleInstanceInfosChanged(Dictionary<InstanceCode, PlatformInstanceInfo> instanceInfos)
+    {
+        if (_viewingWorldDetails != null && _hubWorldPageView.gameObject.activeSelf)
+            _hubWorldPageView.UpdateInstances(GetInstancesForWorldName(_viewingWorldDetails.Name));
     }
 
     private void Update()
@@ -260,6 +269,11 @@ internal class HubController : MonoBehaviour
     {
         //Start polling for successful instal of package
     }
+    
+    private void HandleInstanceSelected(InstanceCode instanceCode)
+    {
+        _selectedInstanceCode = instanceCode;
+    }
 
     private void HandleEnterWorldClicked()
     {
@@ -271,18 +285,19 @@ internal class HubController : MonoBehaviour
             return;
         }
 
-        _platformService.RequestInstanceAllocation(new InstanceCode(_viewingWorldDetails.Name, "00", (ushort)_selectedWorldVersion)); 
+        _platformService.RequestInstanceAllocation(new InstanceCode(_viewingWorldDetails.Name, "00", (ushort)_selectedWorldVersion));
     }
 
     private HubWorldDetails _viewingWorldDetails;
     private int _selectedWorldVersion = -1;
+    private InstanceCode _selectedInstanceCode;
 
     private void HandleWorldClicked(HubWorldDetails worldDetails)
     {
         Debug.Log("World clicked: " + worldDetails.Name);
         _viewingWorldDetails = worldDetails;
 
-        _hubWorldPageView.SetupView(worldDetails);
+        _hubWorldPageView.SetupView(worldDetails, GetInstancesForWorldName(worldDetails.Name));
         _hubHomePageView.gameObject.SetActive(false);
         _hubCategoryPageView.gameObject.SetActive(false);
         _hubWorldPageView.gameObject.SetActive(true);
@@ -377,6 +392,22 @@ internal class HubController : MonoBehaviour
         _selectedWorldVersion = targetVersion;
 
         //_hubWorldPageView.SupplyVersions
+    }
+
+    private List<PlatformInstanceInfo> GetInstancesForWorldName(string worldName)
+    {
+        Dictionary<string, List<PlatformInstanceInfo>> instancesByWorldNames = new();
+        foreach (PlatformInstanceInfo instanceInfo in _platformService.InstanceInfos.Values)
+        {
+            if (!instancesByWorldNames.ContainsKey(instanceInfo.InstanceCode.WorldName))
+                instancesByWorldNames[instanceInfo.InstanceCode.WorldName] = new List<PlatformInstanceInfo>();
+
+            instancesByWorldNames[instanceInfo.InstanceCode.WorldName].Add(instanceInfo);
+        }
+
+        return instancesByWorldNames.ContainsKey(worldName)
+            ? instancesByWorldNames[worldName]
+            : new List<PlatformInstanceInfo>();
     }
 
     private void HandleCategoryClicked(WorldCategory category)
