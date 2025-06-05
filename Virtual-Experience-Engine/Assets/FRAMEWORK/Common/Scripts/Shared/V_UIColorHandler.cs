@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using VE2.Common.Shared;
 
-namespace VE2.Core.UI.Internal
+namespace VE2.Common.Shared
 {
 
     [ExecuteInEditMode]

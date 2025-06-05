@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using VE2.Common.Shared;
 using static VE2.Core.Player.API.PlayerSerializables;
 using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 
@@ -15,8 +16,29 @@ internal class HubInstanceView : MonoBehaviour
     private Dictionary<ushort, GameObject> _playerPreviews = new();
     [SerializeField] private TMP_Text _extraPlayersText;
     [SerializeField] private GameObject _playerPreviewPrefab;
+    [SerializeField] List<V_UIColorHandler> _colorHandlers;
 
     public event Action<PlatformInstanceInfo> OnSelectInstance;
+
+    private bool _isSelected;
+    public bool IsSelected
+    {
+        get => _isSelected;
+        set
+        {
+            if (_isSelected == value)
+                return;
+
+            _isSelected = value;
+            foreach (V_UIColorHandler _colorHandler in _colorHandlers)
+            {
+                if (_isSelected)
+                    _colorHandler.LockSelectedColor();
+                else
+                    _colorHandler.UnlockSelectedColor();
+            }
+        }
+    }
 
     private const int MAX_NUM_PLAYER_ICONS = 10;
 

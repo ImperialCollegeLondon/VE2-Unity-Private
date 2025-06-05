@@ -387,6 +387,9 @@ MonoBehaviour:
   _extraPlayersText: {fileID: 3867532089598840260}
   _playerPreviewPrefab: {fileID: 72159589658970449, guid: 942ae0e17954f8943847f884a91668d0,
     type: 3}
+  _colorHandlers:
+  - {fileID: 3728331191678313310}
+  - {fileID: 8216247284138192370}
 --- !u!1 &5881742892667195001
 GameObject:
   m_ObjectHideFlags: 0

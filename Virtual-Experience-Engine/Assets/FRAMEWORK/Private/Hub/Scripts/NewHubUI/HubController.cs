@@ -34,6 +34,7 @@ internal class HubController : MonoBehaviour
         _hubWorldPageView.OnCancelDownloadClicked += HandleCancelDownloadClicked;
         _hubWorldPageView.OnInstallWorldClicked += HandleInstallWorldClicked;
         _hubWorldPageView.OnInstanceCodeSelected += HandleInstanceSelected;
+        _hubWorldPageView.OnAutoSelectInstanceClicked += HandleChooseInstanceForMeSelected;
         _hubWorldPageView.OnEnterWorldClicked += HandleEnterWorldClicked;
     }
 
@@ -269,10 +270,23 @@ internal class HubController : MonoBehaviour
     {
         //Start polling for successful instal of package
     }
-    
+
     private void HandleInstanceSelected(InstanceCode instanceCode)
     {
         _selectedInstanceCode = instanceCode;
+        _hubWorldPageView.SetSelectedInstance(instanceCode);
+
+        if (_viewingWorldDetails.IsVersionDownloaded(_selectedWorldVersion) && _viewingWorldDetails.IsVersionInstalled(_selectedWorldVersion))
+            _hubWorldPageView.ShowEnterWorldButton();
+    }
+
+    private void HandleChooseInstanceForMeSelected()
+    {
+        //TODO - version number may change. need to think about how we're handling versions overall really 
+        //Maybe it should just be a bool for "live version" or "experimental version" 
+        InstanceCode instanceCode = new(_viewingWorldDetails.Name, "00", (ushort)_selectedWorldVersion);
+
+        HandleInstanceSelected(instanceCode);
     }
 
     private void HandleEnterWorldClicked()
@@ -290,7 +304,7 @@ internal class HubController : MonoBehaviour
 
     private HubWorldDetails _viewingWorldDetails;
     private int _selectedWorldVersion = -1;
-    private InstanceCode _selectedInstanceCode;
+    private InstanceCode _selectedInstanceCode = null;
 
     private void HandleWorldClicked(HubWorldDetails worldDetails)
     {
@@ -388,7 +402,7 @@ internal class HubController : MonoBehaviour
         Debug.LogWarning("####################");
         Debug.Log($"Showing selected version: {targetVersion}, Needs Download: {needsDownload}, Downloaded But Not Installed: {downloadedButNotInstalled}, Is Experimental: {isVersionExperimental}");
 
-        _hubWorldPageView.ShowSelectedVersion(targetVersion, needsDownload, downloadedButNotInstalled, isVersionExperimental);
+        _hubWorldPageView.ShowSelectedVersion(targetVersion, needsDownload, downloadedButNotInstalled, isVersionExperimental, _selectedInstanceCode != null);
         _selectedWorldVersion = targetVersion;
 
         //_hubWorldPageView.SupplyVersions
@@ -490,6 +504,24 @@ internal class HubWorldDetails
         So we open the world page, one that happens we search for remote versions, 
         Controller then tells the view what the versions are, and which one to be targeting 
     */
+
+    public bool IsVersionDownloaded(int version)
+    {
+        return VersionsAvailableLocally.Contains(version);
+    }
+
+    public bool IsVersionInstalled(int version)
+    {
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            return true; //TODO!
+        }
+        else
+        {
+            //On windows, we don't need to install, so if it's downloaded, it's installed
+            return IsVersionDownloaded(version);
+        }
+    }
 }
 
 /*
