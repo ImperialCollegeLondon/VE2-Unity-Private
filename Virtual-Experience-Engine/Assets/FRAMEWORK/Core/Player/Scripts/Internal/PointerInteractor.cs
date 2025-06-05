@@ -44,12 +44,12 @@ namespace VE2.Core.Player.Internal
         public IRangedFreeGrabInteractionModule RangedFreeGrabInteraction { get; internal set; }
     }
 
-    internal abstract class PointerInteractor : IInteractor
+    internal abstract class PointerInteractor : ILocalInteractor
     {
         public Transform GrabberTransform => _GrabberTransform;
         public IReadOnlyList<string> HeldNetworkedActivatableIDs => _heldActivatableIDsAgainstNetworkFlags.Where(kvp => kvp.Value).Select(kvp => kvp.Key).ToList();
 
-        protected bool IsCurrentlyGrabbing => _CurrentGrabbingGrabbable != null;
+        public bool IsCurrentlyGrabbing { get => _CurrentGrabbingGrabbable != null; }
         protected InteractorID _InteractorID => _LocalClientIDWrapper.IsClientIDReady ? new InteractorID(_LocalClientIDWrapper.Value, _InteractorType) : null;
         protected readonly Dictionary<string, bool> _heldActivatableIDsAgainstNetworkFlags = new();
         protected const float MAX_RAYCAST_DISTANCE = 30;

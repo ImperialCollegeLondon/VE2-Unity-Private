@@ -35,7 +35,7 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         #region Force Grab and Drop Interface
-        public void ForceLocalGrab(bool lockGrab) => _StateModule.ForceLocalGrab(lockGrab);
+        public bool TryLocalGrab(bool lockGrab) => _StateModule.TryLocalGrab(lockGrab);
 
         public void UnlockLocalGrab() => _StateModule.UnlockLocalGrab();
 

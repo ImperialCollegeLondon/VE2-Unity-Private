@@ -17,9 +17,9 @@ public class ForceGrabTester : MonoBehaviour
     void Update()
     {
         if (Keyboard.current.digit1Key.wasPressedThisFrame)
-            _grabbable.ForceLocalGrab(true);
+            _grabbable.TryLocalGrab(true);
         if (Keyboard.current.digit2Key.wasPressedThisFrame)
-            _grabbable.ForceLocalGrab(false);
+            _grabbable.TryLocalGrab(false);
         if (Keyboard.current.digit3Key.wasPressedThisFrame)
             _grabbable.ForceLocalDrop();
         if (Keyboard.current.digit4Key.wasPressedThisFrame)

@@ -94,7 +94,7 @@ namespace VE2.Core.VComponents.Tests
         public bool EnableControllerVibrations { get => _RangedGrabModule.EnableControllerVibrations; set => _RangedGrabModule.EnableControllerVibrations = value; }
         public bool ShowTooltipsAndHighlight { get => _RangedGrabModule.ShowTooltipsAndHighlight; set => _RangedGrabModule.ShowTooltipsAndHighlight = value; }
 
-        public void ForceLocalGrab(bool lockGrab) => _StateModule.ForceLocalGrab(lockGrab);
+        public bool TryLocalGrab(bool lockGrab) => _StateModule.TryLocalGrab(lockGrab);
 
         public void UnlockLocalGrab() => _StateModule.UnlockLocalGrab();
 

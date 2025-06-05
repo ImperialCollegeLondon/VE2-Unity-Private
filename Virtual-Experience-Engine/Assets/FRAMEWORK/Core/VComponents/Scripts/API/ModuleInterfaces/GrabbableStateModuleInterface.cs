@@ -16,7 +16,7 @@ namespace VE2.Core.VComponents.API
         public IClientIDWrapper MostRecentInteractingClientID { get; }
 
         #region Force Grab and Drop Interface
-        public void ForceLocalGrab(bool lockGrab);
+        public bool TryLocalGrab(bool lockGrab);
 
         public void UnlockLocalGrab();
 
