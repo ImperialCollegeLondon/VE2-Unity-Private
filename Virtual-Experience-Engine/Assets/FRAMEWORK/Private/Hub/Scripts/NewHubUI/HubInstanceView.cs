@@ -16,7 +16,7 @@ internal class HubInstanceView : MonoBehaviour
     private Dictionary<ushort, GameObject> _playerPreviews = new();
     [SerializeField] private TMP_Text _extraPlayersText;
     [SerializeField] private GameObject _playerPreviewPrefab;
-    [SerializeField] List<V_UIColorHandler> _colorHandlers;
+    [SerializeField] V_UIColorHandler _colorHandler;
 
     public event Action<PlatformInstanceInfo> OnSelectInstance;
 
@@ -30,13 +30,11 @@ internal class HubInstanceView : MonoBehaviour
                 return;
 
             _isSelected = value;
-            foreach (V_UIColorHandler _colorHandler in _colorHandlers)
-            {
-                if (_isSelected)
-                    _colorHandler.LockSelectedColor();
-                else
-                    _colorHandler.UnlockSelectedColor();
-            }
+
+            if (_isSelected)
+                _colorHandler.LockSelectedColor();
+            else
+                _colorHandler.UnlockSelectedColor();
         }
     }
 

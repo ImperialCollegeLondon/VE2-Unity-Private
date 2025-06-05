@@ -71,7 +71,7 @@ namespace VE2.Common.Shared
             _text = GetComponent<TMP_Text>();
 
             _subImage = GetComponentsInChildren<Image>(true)
-                .FirstOrDefault(img => img.gameObject != gameObject);
+                .FirstOrDefault(img => img.gameObject != gameObject && !img.gameObject.name.ToUpper().Contains("NOCOLORUIHANDLER"));
 
             _subText = GetComponentInChildren<TMP_Text>();
 

@@ -204,8 +204,11 @@ internal class HubWorldPageView : MonoBehaviour
                 {
                     RemoveInstanceView(kvp.Key);
                 }
+                else
+                {
+                    kvp.Value.IsSelected = false;
+                }
             }
-            kvp.Value.IsSelected = false;
         }
 
         if (!foundInstance)
