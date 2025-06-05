@@ -38,11 +38,18 @@ internal class HubController : MonoBehaviour
         _hubWorldPageView.OnEnterWorldClicked += HandleEnterWorldClicked;
     }
 
+    private void HandleLeaveInstance()
+    {
+        //We don't want to update the after we've already left the instance, otherwise we'll see a new instance pop up with our avatar 
+        //The UI is currently setup to show OTHER players in instances, not the local player themselves
+        _platformService.OnInstanceInfosChanged -= HandleInstanceInfosChanged;
+    }
+
     private void OnEnable()
     {
         Debug.Log("Connecting to hub instance");
         _platformService = (IPlatformServiceInternal)PlatformAPI.PlatformService;
-        InstanceCode hubInstanceCode = new InstanceCode("Hub", "Solo", 0);
+        InstanceCode hubInstanceCode = new("Hub", "Solo", 0);
         _platformService.UpdateSettings(_platformServerConnectionSettings, hubInstanceCode);
         _platformService.ConnectToPlatform();
 
@@ -54,6 +61,7 @@ internal class HubController : MonoBehaviour
             _fileSystem.OnFileSystemReady += HandleFileSystemReady;
 
         _platformService.OnInstanceInfosChanged += HandleInstanceInfosChanged;
+        _platformService.OnLeavingInstance += HandleLeaveInstance;
     }
 
     private void HandleInstanceInfosChanged(Dictionary<InstanceCode, PlatformInstanceInfo> instanceInfos)

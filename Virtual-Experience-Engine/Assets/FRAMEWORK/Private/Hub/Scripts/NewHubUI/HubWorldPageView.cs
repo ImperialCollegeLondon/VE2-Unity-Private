@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -99,11 +100,10 @@ internal class HubWorldPageView : MonoBehaviour
         _needToSelectInstancePanel.SetActive(false);
         _enterWorldButton.gameObject.SetActive(false);
 
-        foreach (KeyValuePair<PlatformInstanceInfo, HubInstanceView> kvp in _instanceViews)
-        {
-            kvp.Value.OnSelectInstance -= (instanceCode) => OnEnterWorldClicked?.Invoke();
-            Destroy(kvp.Value.gameObject);
-        }
+        List<PlatformInstanceInfo> instancesToRemove = _instanceViews.Keys.ToList();
+
+        foreach (PlatformInstanceInfo instanceToRemove in instancesToRemove)
+            RemoveInstanceView(instanceToRemove);
 
         UpdateInstances(instances);
     }
@@ -187,6 +187,7 @@ internal class HubWorldPageView : MonoBehaviour
     public void SetSelectedInstance(InstanceCode selectedInstanceCode)
     {
         Debug.Log($"Setting selected instance code on view: {selectedInstanceCode} existing codes...");
+        _noInstancesToShowPanel.SetActive(false);
 
         _selectedInstanceCodeText.text = "Instance #" + selectedInstanceCode.InstanceSuffix;
 
@@ -229,11 +230,7 @@ internal class HubWorldPageView : MonoBehaviour
         foreach (KeyValuePair<PlatformInstanceInfo, HubInstanceView> kvp in _instanceViews)
         {
             if (!instancesFromServer.Contains(kvp.Key) && !kvp.Value.IsSelected)
-            {
-                Destroy(kvp.Value.gameObject);
-                kvp.Value.OnSelectInstance -= (instanceCode) => OnEnterWorldClicked?.Invoke();
                 instancesToRemove.Add(kvp.Key);
-            }
         }
         foreach (PlatformInstanceInfo instanceInfo in instancesToRemove)
             RemoveInstanceView(instanceInfo);

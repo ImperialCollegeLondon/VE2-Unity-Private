@@ -59,6 +59,7 @@ namespace VE2.NonCore.Platform.Internal
         }
 
         public event Action<GlobalInfo> OnGlobalInfoChanged;
+        public event Action OnLeavingInstance;
 
         public void RequestInstanceAllocation(InstanceCode instanceCode)
         {
@@ -272,6 +273,9 @@ namespace VE2.NonCore.Platform.Internal
             Debug.Log($"<color=green>Detected allocation to new instance, going to {newInstanceInfo.InstanceCode.ToString()}</color>");
 
             CurrentInstanceCode = newInstanceInfo.InstanceCode;
+
+            //TODO - these two are a bit redundant, rework!
+            OnLeavingInstance?.Invoke();
             OnInstanceCodeChange?.Invoke(CurrentInstanceCode);
 
             if (newInstanceInfo.InstanceCode.WorldName.ToUpper().Equals("HUB"))
