@@ -273,6 +273,8 @@ namespace VE2.Core.Player.Internal
                 float newRootPositionY= targetGroundHeight + (currentRaycastPosition.y - maxStepHeight - currentGroundHeight);
                 _rootTransform.position = new(targetRaycastPosition.x, newRootPositionY, targetRaycastPosition.z);
             }
+
+            _movementModeConfig.OnHorizontalDrag?.Invoke();
         }
 
         private void HandleVerticalDragMovement(Vector3 dragVector)
@@ -302,6 +304,8 @@ namespace VE2.Core.Player.Internal
                 else
                     _headOffsetTransform.position = targetPosition;
             }
+
+            _movementModeConfig.OnVerticalDrag?.Invoke();
         }
     }
 }

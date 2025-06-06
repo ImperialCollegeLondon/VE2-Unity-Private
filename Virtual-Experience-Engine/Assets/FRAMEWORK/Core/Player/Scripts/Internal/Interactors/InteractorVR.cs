@@ -14,12 +14,15 @@ namespace VE2.Core.Player.Internal
         private readonly GameObject _handVisualGO;
         private readonly LineRenderer _lineRenderer;
         private readonly Material _lineMaterial;
+
+        private readonly IXRHapticsWrapper _xrHapticsWrapper;
         private ColorConfiguration _colorConfig => ColorConfiguration.Instance;
         private const float LINE_EMISSION_INTENSITY = 15;
+        private IRangedAdjustableInteractionModule _rangedAdjustableInteractionModule;
 
         internal InteractorVR(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, InteractorInputContainer interactorInputContainer, PlayerInteractionConfig playerInteractionConfig,
             InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ColliderType colliderType,
-            ILocalClientIDWrapper localClientID, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator) :
+            ILocalClientIDWrapper localClientID, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator, IXRHapticsWrapper xRHapticsWrapper) :
             base(interactorContainer, grabInteractablesContainer, interactorInputContainer, playerInteractionConfig,
                 interactorReferences, interactorType, raycastProvider, localClientID, grabbableWrapper, hoveringOverScrollableIndicator)
 
@@ -29,6 +32,7 @@ namespace VE2.Core.Player.Internal
             _handVisualGO = interactorVRReferences.HandVisualGO;
             _collisionDetector = collisionDetectorFactory.CreateCollisionDetector(interactorVRReferences.HandCollider, colliderType, playerInteractionConfig.InteractableLayers);
 
+            _xrHapticsWrapper = xRHapticsWrapper;
             _lineRenderer = interactorVRReferences.LineRenderer;
             _lineMaterial = Application.isPlaying ? _lineRenderer.material : null; 
             _lineMaterial?.EnableKeyword("_EMISSION");
@@ -48,12 +52,24 @@ namespace VE2.Core.Player.Internal
             _collisionDetector.OnCollideEnd -= HandleCollideEnd;
         }
 
+        protected override void Vibrate(float amplitude, float duration)
+        {
+            _xrHapticsWrapper.Vibrate(amplitude, duration);
+        }
+
+        internal void RespondToAdjustableWithVibration()
+        {
+            Vibrate(HIGH_HAPTICS_AMPLITUDE, HIGH_HAPTICS_DURATION);
+        }
+
         private void HandleCollideStart(ICollideInteractionModule collideInteractionModule)
         {
             if (_LocalClientIDWrapper.IsClientIDReady && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Hand)
             {
                 collideInteractionModule.InvokeOnCollideEnter(_InteractorID);
-                HeldActivatableIDs.Add(collideInteractionModule.ID);
+                _heldActivatableIDsAgainstNetworkFlags.Add(collideInteractionModule.ID, collideInteractionModule.IsNetworked);
+
+                Vibrate(HIGH_HAPTICS_AMPLITUDE, HIGH_HAPTICS_DURATION);
             }
         }
 
@@ -62,7 +78,9 @@ namespace VE2.Core.Player.Internal
             if (_LocalClientIDWrapper.IsClientIDReady && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Hand)
             {
                 collideInteractionModule.InvokeOnCollideExit(_InteractorID);
-                HeldActivatableIDs.Remove(collideInteractionModule.ID);
+                _heldActivatableIDsAgainstNetworkFlags.Remove(collideInteractionModule.ID);
+
+                Vibrate(HIGH_HAPTICS_AMPLITUDE, HIGH_HAPTICS_DURATION);
             }
         }
 
@@ -104,6 +122,10 @@ namespace VE2.Core.Player.Internal
             //We'll control its position in Update - it needs an offset towards the adjustable, without being affected by the parent transform's rotation
             _GrabberTransform.SetParent(_interactorParentTransform.parent);
             _grabberTransformOffset = rangedAdjustableInteraction.Transform.position - GrabberTransform.position;
+
+            //The interactor when grabbing an adjustable should listen to the ranged adjustable interaction module's value changes
+            _rangedAdjustableInteractionModule = rangedAdjustableInteraction;
+            _rangedAdjustableInteractionModule.OnValueChanged += RespondToAdjustableWithVibration;
         }
 
         protected override void HandleUpdateGrabbingAdjustable()
@@ -118,7 +140,9 @@ namespace VE2.Core.Player.Internal
             _GrabberTransform.SetParent(_interactorParentTransform);
             _GrabberTransform.localPosition = Vector3.zero;
             _GrabberTransform.localRotation = Quaternion.identity;
-        }
 
+            // Unsubscribe from the ranged adjustable interaction module's value changes when stopping grabbing
+            _rangedAdjustableInteractionModule.OnValueChanged -= RespondToAdjustableWithVibration;
+        }
     }
 }

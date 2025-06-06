@@ -135,6 +135,8 @@ namespace VE2.Core.Player.Internal
                 //if the other hand is grabbing something, teleport it along with us 
                 //We don't have to worry about that for this hand, can't be teleporting if we're grabbing!
                 _otherHandGrabbableWrapper.RangedFreeGrabInteraction?.ApplyDeltaWhenGrabbed(deltaPosition, deltaRotation);
+
+                _movementModeConfig.OnTeleport?.Invoke();
             }
         }
 

@@ -52,34 +52,6 @@
             ]
         },
         {
-            "name": "Input2D",
-            "id": "2a9154f7-62cb-4648-aaae-c794fdcea435",
-            "actions": [
-                {
-                    "name": "InspectMode",
-                    "type": "Button",
-                    "id": "47172c85-0669-46f0-a7b4-fec08e1a1bc7",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                }
-            ],
-            "bindings": [
-                {
-                    "name": "",
-                    "id": "1122da15-a6df-4b41-a960-c173285164cd",
-                    "path": "<Mouse>/rightButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "InspectMode",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                }
-            ]
-        },
-        {
             "name": "InputInteractor2D",
             "id": "09d4f250-ce8e-41ab-90cd-de0f299fad1c",
             "actions": [
@@ -115,6 +87,24 @@
                     "type": "Value",
                     "id": "b40e7fb2-eb07-4e50-8e3d-5744937ed42c",
                     "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "InspectMode",
+                    "type": "Button",
+                    "id": "649faab6-42bc-4ee3-be7a-95091e584fca",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "MouseDelta",
+                    "type": "Value",
+                    "id": "86b66ae3-58c0-4b20-ac0a-987988832000",
+                    "expectedControlType": "Delta",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
@@ -162,6 +152,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "ScrollValue",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "71bbfa08-380f-4f26-9217-e756591a1812",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "InspectMode",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "44284a11-90da-4bec-bbdd-ac2cabe4ff18",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MouseDelta",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

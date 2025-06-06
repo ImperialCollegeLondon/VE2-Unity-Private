@@ -1,7 +1,9 @@
 using System;
 using UnityEngine;
+using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
+using VE2.Core.VComponents.Shared;
 using static VE2.Common.Shared.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
@@ -10,17 +12,15 @@ namespace VE2.Core.VComponents.Internal
     internal class ToggleActivatableConfig
     {
         [SerializeField, IgnoreParent] public ToggleActivatableStateConfig StateConfig = new();
+        
+        [SerializeField, IgnoreParent] public CollisionClickInteractionConfig CollisionClickInteractionConfig = new();
+        [SerializeField, IndentArea(-1)] public RangedClickInteractionConfig RangedClickInteractionConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
-        [SerializeField, IgnoreParent] public ActivatableInteractionConfig ActivatableRangedInteractionConfig = new();
-    }
+        
+        [HideIf(nameof(MultiplayerSupportPresent), false)]
+        [SerializeField, IgnoreParent] public WorldStateSyncConfig SyncConfig = new();
 
-    [Serializable]
-    internal class ActivatableInteractionConfig : RangedInteractionConfig
-    {
-        [BeginGroup(Style = GroupStyle.Round, ApplyCondition = true)]
-        [Title("Activatable Ranged Interaction Settings")]
-        [SerializeField, IgnoreParent] public bool ActivateAtRangeInVR = true;
-        [SerializeField, IgnoreParent, EndGroup] public bool ActivateWithCollisionInVR= true;
+        private bool MultiplayerSupportPresent => VE2API.HasMultiPlayerSupport;
     }
 
     internal class ToggleActivatableService
@@ -37,17 +37,18 @@ namespace VE2.Core.VComponents.Internal
         private readonly ColliderInteractionModule _ColliderInteractionModule;
         #endregion
 
-        public ToggleActivatableService(ToggleActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncableContainer worldStateSyncableContainer, 
+        public ToggleActivatableService(ToggleActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncableContainer worldStateSyncableContainer,
             ActivatableGroupsContainer activatableGroupsContainer, IClientIDWrapper localClientIdWrapper)
         {
-            _StateModule = new(state, config.StateConfig, id, worldStateSyncableContainer, activatableGroupsContainer, localClientIdWrapper);
+            _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, activatableGroupsContainer, localClientIdWrapper);
 
-            _RangedClickInteractionModule = new(config.ActivatableRangedInteractionConfig, config.GeneralInteractionConfig, id, config.ActivatableRangedInteractionConfig.ActivateAtRangeInVR);
+            _RangedClickInteractionModule = new(config.RangedClickInteractionConfig, config.GeneralInteractionConfig, id, config.RangedClickInteractionConfig.ClickAtRangeInVR);
 
-            if(config.ActivatableRangedInteractionConfig.ActivateWithCollisionInVR)
-                _ColliderInteractionModule = new(config.GeneralInteractionConfig, id, CollideInteractionType.Hand);
-            else
-                _ColliderInteractionModule = new(config.GeneralInteractionConfig, id, CollideInteractionType.None);
+            //Note - yes, this network indicator seems strange on first glance
+            //Toggle activatables will sync via the state module, this network indicator is used to indicate whether it should sync through the player or not
+            //This is required for hold activatables and pressure plates, but not for toggle activatables, so we just create a new flag with 'false' here
+            HoldActivatablePlayerSyncIndicator networkIndicator = new(false);
+            _ColliderInteractionModule = new(config.CollisionClickInteractionConfig, config.GeneralInteractionConfig, networkIndicator, id);
 
             _RangedClickInteractionModule.OnClickDown += HandleInteract;
             _ColliderInteractionModule.OnCollideEnter += HandleInteract;
@@ -62,10 +63,10 @@ namespace VE2.Core.VComponents.Internal
 
         private void HandleInteract(InteractorID interactorID)
         {
-            _StateModule.ToggleActivatableState(interactorID.ClientID);
+            _StateModule.SetNewState(interactorID.ClientID);
         }
 
-        public void TearDown() 
+        public void TearDown()
         {
             _StateModule.TearDown();
         }

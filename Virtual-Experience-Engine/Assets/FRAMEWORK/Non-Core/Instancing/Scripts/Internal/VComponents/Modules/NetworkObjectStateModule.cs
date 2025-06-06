@@ -11,7 +11,7 @@ using static VE2.Common.Shared.CommonSerializables;
 namespace VE2.NonCore.Instancing.Internal
 {
     [Serializable]
-    internal class NetworkObjectStateConfig : BaseWorldStateConfig
+    internal class NetworkObjectStateConfig : WorldStateSyncConfig
     {
         [SerializeField] public UnityEvent<object> OnStateChange = new();
     }
@@ -23,9 +23,9 @@ namespace VE2.NonCore.Instancing.Internal
         public object NetworkObject { get => DeserializedNetworkObject(); set => SerializeNetworkObject(value); }
 
         private NetworkObjectState _state => (NetworkObjectState)State;
-        private NetworkObjectStateConfig _config => (NetworkObjectStateConfig)Config;
+        private NetworkObjectStateConfig _config => (NetworkObjectStateConfig)_SyncConfig;
 
-        public NetworkObjectStateModule(VE2Serializable state, BaseWorldStateConfig config, string id, IWorldStateSyncableContainer worldStateSyncableContainer) 
+        public NetworkObjectStateModule(VE2Serializable state, WorldStateSyncConfig config, string id, IWorldStateSyncableContainer worldStateSyncableContainer) 
             : base(state, config, id, worldStateSyncableContainer) {}
 
         private void SerializeNetworkObject(object unserializedNetworkObject)

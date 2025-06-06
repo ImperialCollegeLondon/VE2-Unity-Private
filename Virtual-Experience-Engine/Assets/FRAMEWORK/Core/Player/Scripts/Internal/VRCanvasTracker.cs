@@ -7,35 +7,34 @@ namespace VE2.Core.Player.Internal
     [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     internal class VRCanvasTracker : MonoBehaviour
     {
-        [SerializeField] private Transform _cameraTransform; 
+        [SerializeField] private Transform _cameraTransform;
         [SerializeField] private Collider _canvasCollider;
 
         [SerializeField] private float _distanceFromCamera = 1.5f;
-        [SerializeField] private float _distanceTolerance = 0.2f; // Tolerance in meters.
+        [SerializeField] private float _distanceTolerance = 0.2f; // Tolerance in meters.  
 
         [SerializeField] private float _verticalOffset = -0.1f;
 
         private bool _needsToRotate = false;
-        [SerializeField] private float _angleToStartMoving = 30f; // Tolerance in degrees.
+        [SerializeField] private float _angleToStartMoving = 30f; // Tolerance in degrees.  
 
         private float _timeEnteredStopMovingThreshold = -1;
         [SerializeField] private float _timeToBeWithinStopMovingAngleToStopMoving = 0.5f;
-        [SerializeField] private float _angleToStopMoving = 5f; // Tolerance in degrees.
+        [SerializeField] private float _angleToStopMoving = 5f; // Tolerance in degrees.  
 
-        
         [SerializeField] private float _moveSpeed = 5;
 
         private Vector3 targetLocalPosition;
         private Quaternion targetLocalRotation;
-        private IPrimaryUIService _primaryUIService;
+        private IPrimaryUIServiceInternal _primaryUIService;
 
         private void Awake()
         {
-            _primaryUIService = VE2API.PrimaryUIService;
+            _primaryUIService = VE2API.PrimaryUIService as IPrimaryUIServiceInternal;
             if (_primaryUIService != null)
             {
-                _primaryUIService.OnUIShow += HandlePrimaryUIShown;
-                _primaryUIService.OnUIHide += HandlePrimaryUIHidden;
+                _primaryUIService.OnUIShowInternal += HandlePrimaryUIShown;
+                _primaryUIService.OnUIHideInternal += HandlePrimaryUIHidden;
             }
 
             _canvasCollider.enabled = false;
@@ -45,15 +44,15 @@ namespace VE2.Core.Player.Internal
         {
             Vector3 cameraForward = _cameraTransform.parent.InverseTransformDirection(new Vector3(_cameraTransform.forward.x, 0, _cameraTransform.forward.z).normalized);
 
-            //If the canvas is outside the large angle, start rotating towards the camera forward 
-            //Once we're rotating, the canvas must be within a smaller angle, to the camera forward (for a certain duration) to stop rotating 
-            //This means the canvas will still track changes in camera direction once inside the larger threshold 
+            //If the canvas is outside the large angle, start rotating towards the camera forward   
+            //Once we're rotating, the canvas must be within a smaller angle, to the camera forward (for a certain duration) to stop rotating   
+            //This means the canvas will still track changes in camera direction once inside the larger threshold   
             if (!_needsToRotate)
             {
                 if (!IsCanvasWithinBounds(cameraForward, _angleToStartMoving))
                     _needsToRotate = true;
             }
-            else 
+            else
             {
                 if (IsCanvasWithinBounds(cameraForward, _angleToStopMoving))
                 {
@@ -67,7 +66,7 @@ namespace VE2.Core.Player.Internal
                         _needsToRotate = false;
                     }
                 }
-                else 
+                else
                 {
                     _timeEnteredStopMovingThreshold = -1;
                 }
@@ -82,12 +81,12 @@ namespace VE2.Core.Player.Internal
         private bool IsCanvasWithinBounds(Vector3 cameraForward, float angle)
         {
             Vector3 canvasForward = transform.localRotation * Vector3.forward;
-            canvasForward.y = 0; // Ensure it's XZ plane
+            canvasForward.y = 0; // Ensure it's XZ plane  
 
-            float angleDot = Vector3.Dot(cameraForward, canvasForward.normalized); // More efficient than Angle()
-            bool angleExceeded = angleDot < Mathf.Cos(angle * Mathf.Deg2Rad); // Compare against cosine of tolerance
+            float angleDot = Vector3.Dot(cameraForward, canvasForward.normalized); // More efficient than Angle()  
+            bool angleExceeded = angleDot < Mathf.Cos(angle * Mathf.Deg2Rad); // Compare against cosine of tolerance  
 
-            float localDistance = Vector3.Distance(transform.localPosition, _cameraTransform.localPosition); 
+            float localDistance = Vector3.Distance(transform.localPosition, _cameraTransform.localPosition);
             bool distanceExceeded = Mathf.Abs(localDistance - _distanceFromCamera) > _distanceTolerance;
 
             return !angleExceeded && !distanceExceeded;
@@ -102,16 +101,16 @@ namespace VE2.Core.Player.Internal
         private void SmoothMoveToTarget()
         {
             transform.SetLocalPositionAndRotation(
-                Vector3.Lerp(transform.localPosition, targetLocalPosition, Time.deltaTime * _moveSpeed), 
+                Vector3.Lerp(transform.localPosition, targetLocalPosition, Time.deltaTime * _moveSpeed),
                 Quaternion.Slerp(transform.localRotation, targetLocalRotation, Time.deltaTime * _moveSpeed));
         }
 
-        private void HandlePrimaryUIShown() 
+        private void HandlePrimaryUIShown()
         {
             _canvasCollider.enabled = true;
         }
 
-        private void HandlePrimaryUIHidden() 
+        private void HandlePrimaryUIHidden()
         {
             _canvasCollider.enabled = false;
         }

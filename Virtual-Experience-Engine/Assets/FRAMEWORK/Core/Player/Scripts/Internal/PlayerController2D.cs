@@ -23,6 +23,9 @@ namespace VE2.Core.Player.Internal
 
         public Collider FeetCollider => _feetCollider;
         [SerializeField, IgnoreParent] private Collider _feetCollider;
+
+        public Transform GrabberInspectTransform => _grabberInspectTransform;
+        [SerializeField, IgnoreParent] private Transform _grabberInspectTransform;
     }
 
     internal class PlayerController2D : BasePlayerController
@@ -38,8 +41,8 @@ namespace VE2.Core.Player.Internal
                     headRotation: _playerLocomotor2D.HeadLocalRotation,
                     hand2DPosition: _interactor2D.GrabberTransform.localPosition, 
                     hand2DRotation: _interactor2D.GrabberTransform.localRotation,
-                    activatableIDs2D: _interactor2D.HeldActivatableIDs,
-                    activatableIDsFeet: _feetInteractor2D.HeldActivatableIDs
+                    activatableIDs2D: (List<string>)_interactor2D.HeldNetworkedActivatableIDs,
+                    activatableIDsFeet: (List<string>)_feetInteractor2D.HeldNetworkedActivatableIDs
                 );
             }
         }
@@ -58,6 +61,7 @@ namespace VE2.Core.Player.Internal
         private readonly ISecondaryUIServiceInternal _secondaryUIService;
         private readonly RectTransform _secondaryUIHolder;
         private readonly RectTransform _overlayUIRect;
+        private readonly InspectModeIndicator _inspectModeIndicator;
 
         internal PlayerController2D(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, Player2DInputContainer player2DInputContainer, 
             IPlayerPersistentDataHandler playerPersistentDataHandler, Player2DControlConfig controlConfig, PlayerInteractionConfig interactionConfig, MovementModeConfig movementModeConfig, 
@@ -82,14 +86,15 @@ namespace VE2.Core.Player.Internal
             _primaryUIHolderRect = player2DReferences.PrimaryUIHolderRect;
             _secondaryUIHolder = player2DReferences.SecondaryUIHolderRect;
             _overlayUIRect = player2DReferences.OverlayUIRect;
+            _inspectModeIndicator = new InspectModeIndicator();
 
             _interactor2D = new(
                 interactorContainer, grabInteractablesContainer, player2DInputContainer.InteractorInputContainer2D, interactionConfig,
-                player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, localClientIDWrapper);
+                player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, localClientIDWrapper, _inspectModeIndicator);
 
             _feetInteractor2D = new(collisionDetectorFactory, ColliderType.Feet2D, player2DReferences.Interactor2DReferences.FeetCollider, InteractorType.Feet, localClientIDWrapper, interactionConfig);
-
-            _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences, movementModeConfig);
+            _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences, movementModeConfig, _inspectModeIndicator);
+            _rootTransform = player2DReferences.Locomotor2DReferences.Controller.transform;
 
             base._PlayerHeadTransform = _playerLocomotor2D.HeadTransform;
             base._FeetCollisionDetector = _feetInteractor2D._collisionDetector as CollisionDetector;
@@ -122,12 +127,12 @@ namespace VE2.Core.Player.Internal
 
             if (_primaryUIService != null)
             {
-                _primaryUIService.OnUIShow += HandlePrimaryUIActivated;
-                _primaryUIService.OnUIHide += HandlePrimaryUIDeactivated;
+                _primaryUIService.OnUIShowInternal += HandlePrimaryUIActivated;
+                _primaryUIService.OnUIHideInternal += HandlePrimaryUIDeactivated;
             }
         }
 
-        internal void DeactivatePlayer() 
+        internal void DeactivatePlayer()
         {
             if (_playerGO != null)
                 _playerGO.gameObject.SetActive(false);
@@ -138,9 +143,8 @@ namespace VE2.Core.Player.Internal
 
             if (_primaryUIService != null)
             {
-                _primaryUIService.OnUIShow -= HandlePrimaryUIActivated;
-                _primaryUIService.OnUIHide -= HandlePrimaryUIDeactivated;
-            }
+                _primaryUIService.OnUIShowInternal -= HandlePrimaryUIActivated;
+                _primaryUIService.OnUIHideInternal -= HandlePrimaryUIDeactivated;            }
         }
 
         internal override void HandleUpdate() 
@@ -178,7 +182,12 @@ namespace VE2.Core.Player.Internal
             CommonUtils.MovePanelToFillRect(newRect, _overlayUIRect);
         }
 
-        internal void TearDown() 
+        public override void SetPlayerPosition(Vector3 position)
+        {
+            _playerLocomotor2D.RootPosition = position;
+        }
+
+        internal void TearDown()
         {
             _playerLocomotor2D?.HandleOnDisable();
             _interactor2D?.HandleOnDisable();
@@ -186,12 +195,17 @@ namespace VE2.Core.Player.Internal
 
             if (_primaryUIService != null)
             {
-                _primaryUIService.OnUIShow -= HandlePrimaryUIActivated;
-                _primaryUIService.OnUIHide -= HandlePrimaryUIDeactivated;
+                _primaryUIService.OnUIShow.RemoveListener(HandlePrimaryUIActivated);
+                _primaryUIService.OnUIHide.RemoveListener(HandlePrimaryUIDeactivated);
             }
 
             if (_playerGO != null)
                 GameObject.Destroy(_playerGO);
         }
+    }
+
+    internal class InspectModeIndicator
+    {
+        public bool IsInspectModeActive = false;
     }
 }

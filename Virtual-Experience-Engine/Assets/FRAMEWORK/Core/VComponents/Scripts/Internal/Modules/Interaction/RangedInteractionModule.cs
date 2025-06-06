@@ -10,14 +10,15 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class RangedInteractionConfig
     {
-        [Title("Ranged Interation Settings")]
+        [BeginGroup(Style = GroupStyle.Round)]
         [Space(5)]
-        [BeginGroup(Style = GroupStyle.Round), SerializeField] public float InteractionRange = 50;
+        [Title("Ranged Interaction Settings")]
+        [SerializeField, PropertyOrder(0)] public float InteractionRange = 50;
 
         [Space(5)]
-        [SerializeField] public UnityEvent OnLocalHoverEnter = new();
+        [SerializeField, PropertyOrder(1)] public UnityEvent OnLocalHoverEnter = new();
 
-        [EndGroup, SerializeField] public UnityEvent OnLocalHoverExit = new();
+        [EndGroup, SerializeField, PropertyOrder(2)] public UnityEvent OnLocalHoverExit = new();
     }
 
     internal class RangedInteractionModule : GeneralInteractionModule, IRangedInteractionModule
@@ -25,7 +26,7 @@ namespace VE2.Core.VComponents.Internal
         public float InteractRange { get => _rangedConfig.InteractionRange; set => _rangedConfig.InteractionRange = value; }
 
         private readonly RangedInteractionConfig _rangedConfig;
-        private List<InteractorID> hoveringInteractors = new();
+        private List<InteractorID> _hoveringInteractors = new();
 
         public RangedInteractionModule(RangedInteractionConfig config, GeneralInteractionConfig generalInteractionConfig) : base(generalInteractionConfig)
         {
@@ -34,12 +35,12 @@ namespace VE2.Core.VComponents.Internal
 
         public void EnterHover(InteractorID interactorID)
         {
-            if (hoveringInteractors.Contains(interactorID))
+            if (_hoveringInteractors.Contains(interactorID))
                 return;
 
-            hoveringInteractors.Add(interactorID);
+            _hoveringInteractors.Add(interactorID);
 
-            if (hoveringInteractors.Count > 0)
+            if (_hoveringInteractors.Count > 0)
             {
                 try
                 {
@@ -56,10 +57,10 @@ namespace VE2.Core.VComponents.Internal
 
         public void ExitHover(InteractorID interactorID)
         {
-            if(hoveringInteractors.Contains(interactorID))
-                hoveringInteractors.Remove(interactorID);
+            if(_hoveringInteractors.Contains(interactorID))
+                _hoveringInteractors.Remove(interactorID);
 
-            if (hoveringInteractors.Count == 0)
+            if (_hoveringInteractors.Count == 0)
             {
                 try
                 {

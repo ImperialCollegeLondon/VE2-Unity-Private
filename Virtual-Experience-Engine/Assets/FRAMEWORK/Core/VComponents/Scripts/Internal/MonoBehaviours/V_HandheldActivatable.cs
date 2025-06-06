@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using VE2.Common.API;
@@ -32,6 +33,7 @@ namespace VE2.Core.VComponents.Internal
         #endregion
     }
 
+    [RequireComponent(typeof(V_FreeGrabbable))]
     internal partial class V_HandheldActivatable : MonoBehaviour
     {
         [SerializeField, HideLabel, IgnoreParent] private HandheldActivatableConfig _config = new();
@@ -57,13 +59,18 @@ namespace VE2.Core.VComponents.Internal
             if (!Application.isPlaying || _service != null)
                 return;
 
+            IV_FreeGrabbable grabbable = null;
+
+            if (TryGetComponent(out V_FreeGrabbable freeGrabbable))
+                grabbable = freeGrabbable;
+
             string id = "HHActivatable-" + gameObject.name;
-            _service = new(_config, _state, id, VE2API.WorldStateSyncableContainer, VComponentsAPI.ActivatableGroupsContainer, VE2API.LocalClientIdWrapper);
+            _service = new(grabbable, _config, _state, id, VE2API.WorldStateSyncableContainer, VComponentsAPI.ActivatableGroupsContainer, VE2API.LocalClientIdWrapper);
         }
 
         private void FixedUpdate()
         {
-            _service.HandleFixedUpdate();
+            _service?.HandleFixedUpdate();
         }
 
         private void OnDisable()

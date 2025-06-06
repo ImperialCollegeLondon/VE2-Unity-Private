@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Rendering.Universal;
 using VE2.Common.API;
 using VE2.Common.Shared;
@@ -44,7 +45,7 @@ namespace VE2.Core.Player.Internal
 
         [Title("Transmission Settings", ApplyCondition = true)]
         [HideIf(nameof(_hasMultiplayerSupport), false)]
-        [SpaceArea(spaceAfter: 10), BeginGroup(Style = GroupStyle.Round, ApplyCondition = true), EndGroup(ApplyCondition = true), SerializeField, IgnoreParent] public RepeatedTransmissionConfig RepeatedTransmissionConfig = new(TransmissionProtocol.UDP, 35);
+        [SpaceArea(spaceAfter: 10), BeginGroup(Style = GroupStyle.Round, ApplyCondition = true), EndGroup(ApplyCondition = true), SerializeField, IgnoreParent] public PlayerTransmissionConfig RepeatedTransmissionConfig = new(TransmissionProtocol.UDP, 35);
         
         private bool _hasMultiplayerSupport => VE2API.HasMultiPlayerSupport;
     }
@@ -55,6 +56,9 @@ namespace VE2.Core.Player.Internal
         [SerializeField] internal SupportedPlayerModes SupportedPlayerModes = SupportedPlayerModes.Both;
         internal bool EnableVR => SupportedPlayerModes == SupportedPlayerModes.Both || SupportedPlayerModes == SupportedPlayerModes.OnlyVR;
         internal bool Enable2D => SupportedPlayerModes == SupportedPlayerModes.Both || SupportedPlayerModes == SupportedPlayerModes.Only2D;
+
+        [SerializeField] internal UnityEvent OnChangeToVRMode;
+        [SerializeField] internal UnityEvent OnChangeTo2DMode;
     }
 
     [Serializable]
@@ -71,6 +75,12 @@ namespace VE2.Core.Player.Internal
         [SerializeField] internal LayerMask CollisionLayers;
         [SerializeField] internal bool FreeFlyMode = false;
         [SerializeField] internal float TeleportRangeMultiplier = 1.0f;
+        [SerializeField] internal UnityEvent OnTeleport = new UnityEvent();
+        [SerializeField] internal UnityEvent OnSnapTurn = new UnityEvent();
+        [SerializeField] internal UnityEvent OnHorizontalDrag = new UnityEvent();
+        [SerializeField] internal UnityEvent OnVerticalDrag = new UnityEvent();
+        [SerializeField] internal UnityEvent OnJump2D = new UnityEvent();
+        [SerializeField] internal UnityEvent OnCrouch2D = new UnityEvent();
     }
 
     [Serializable]
@@ -85,6 +95,7 @@ namespace VE2.Core.Player.Internal
         private bool _showAAQuality => AntiAliasing == AntialiasingMode.SubpixelMorphologicalAntiAliasing || AntiAliasing == AntialiasingMode.TemporalAntiAliasing;
         [SerializeField] internal bool EnablePostProcessing = true;
         [SerializeField] internal bool OcclusionCulling = true;
+        [SerializeField] internal UnityEvent OnResetViewVR = new UnityEvent();
     }
 
     [Serializable]
@@ -97,6 +108,28 @@ namespace VE2.Core.Player.Internal
         [SerializeField] internal bool OverrideTorso = false;
         [SerializeField, EnableIf(nameof(OverrideTorso), true)] internal ushort TorsoOverrideIndex = 0;
         [SerializeField, ReorderableList] internal List<GameObject> TorsoOverrideGameObjects = new();
+    }
+
+    [Serializable]
+    internal class PlayerTransmissionConfig 
+    {
+        [Suffix("Hz")]
+        [Range(0.2f, 50f)]
+        [SerializeField] public float TransmissionFrequency = 1;
+
+        [SerializeField] public TransmissionProtocol TransmissionType;
+
+        public PlayerTransmissionConfig(TransmissionProtocol transmissionType, float transmissionFrequency)
+        {
+            TransmissionType = transmissionType;
+            TransmissionFrequency = transmissionFrequency;
+        }
+
+        protected virtual void OnValidate() //TODO - OnVlidate needs to come from VC
+        {
+            if (TransmissionFrequency > 1)
+                TransmissionFrequency = Mathf.RoundToInt(TransmissionFrequency);
+        }
     }
 
     [ExecuteAlways]
@@ -190,6 +223,9 @@ namespace VE2.Core.Player.Internal
             if (xrManagerWrapper == null)
                 xrManagerWrapper = new GameObject("XRManagerWrapper").AddComponent<XRManagerWrapper>();
 
+            XRHapticsWrapper xRHapticsWrapperLeft = new(true);
+            XRHapticsWrapper xRHapticsWrapperRight = new(false);
+
             //May be null if UIs aren't available
             IPrimaryUIServiceInternal primaryUIService = VE2API.PrimaryUIService as IPrimaryUIServiceInternal;
             ISecondaryUIServiceInternal secondaryUIService = VE2API.SecondaryUIService as ISecondaryUIServiceInternal;
@@ -200,7 +236,9 @@ namespace VE2.Core.Player.Internal
                 playerPersistentDataHandler,
                 xrManagerWrapper,
                 primaryUIService,
-                secondaryUIService);
+                secondaryUIService,
+                xRHapticsWrapperLeft,
+                xRHapticsWrapperRight);
         }
 
         private void FixedUpdate() 

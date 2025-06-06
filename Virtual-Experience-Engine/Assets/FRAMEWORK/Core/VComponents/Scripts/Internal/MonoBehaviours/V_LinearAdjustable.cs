@@ -59,7 +59,7 @@ namespace VE2.Core.VComponents.Internal
     
     internal partial class V_LinearAdjustable : MonoBehaviour, IRangedGrabInteractionModuleProvider
     {
-        [SerializeField, HideLabel, IgnoreParent] private LinearAdjustableConfig _config = new();
+        [SerializeField, IgnoreParent] private LinearAdjustableConfig _config = new();
         [SerializeField, HideInInspector] private AdjustableState _adjustableState = null;
         [SerializeField, HideInInspector] private GrabbableState _freeGrabbableState = new();
 
@@ -72,12 +72,12 @@ namespace VE2.Core.VComponents.Internal
         {
             get
             {
-                if (_config.InteractionConfig.AttachPoint == null)
-                    _config.InteractionConfig.AttachPoint = transform;
-                return _config.InteractionConfig.AttachPoint.GetComponent<Collider>();
+                if (_config.rangedAdjustableConfig.AttachPoint == null)
+                    _config.rangedAdjustableConfig.AttachPoint = transform;
+                return _config.rangedAdjustableConfig.AttachPoint.GetComponent<Collider>();
             }
         }
-        internal string AttachPointGOName => _config.InteractionConfig.AttachPoint.name;
+        internal string AttachPointGOName => _config.rangedAdjustableConfig.AttachPoint.name;
         #endregion
 
         private LinearAdjustableService _service = null;
@@ -109,7 +109,7 @@ namespace VE2.Core.VComponents.Internal
             string id = "LinearAdjustable-" + gameObject.name;
 
             if (_adjustableState == null)
-                _adjustableState = new AdjustableState(float.MaxValue);
+                _adjustableState = new AdjustableState(_config.AdjustableStateConfig.StartingOutputValue);
 
             List<IHandheldInteractionModule> handheldInteractions = new();
 

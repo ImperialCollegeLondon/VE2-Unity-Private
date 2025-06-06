@@ -30,6 +30,7 @@ namespace VE2.Core.VComponents.Internal
         #endregion
     }
 
+    [RequireComponent(typeof(V_FreeGrabbable))]
     internal partial class V_HandheldAdjustable : MonoBehaviour
     {
         [SerializeField, HideLabel, IgnoreParent] private HandheldAdjustableConfig _config = new();

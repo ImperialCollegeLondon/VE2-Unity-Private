@@ -7,7 +7,8 @@ namespace VE2.Core.Player.Internal
     {
         internal Camera Camera;
         protected CollisionDetector _FeetCollisionDetector;
-        protected Transform _PlayerHeadTransform; 
+        protected Transform _PlayerHeadTransform;
+        protected Transform _rootTransform;
 
         internal virtual void HandleUpdate()
         {
@@ -27,6 +28,16 @@ namespace VE2.Core.Player.Internal
             cameraData.antialiasing = cameraConfig.AntiAliasing;
             cameraData.antialiasingQuality = cameraConfig.AntiAliasingQuality;;
             cameraData.renderPostProcessing = cameraConfig.EnablePostProcessing;
+        }
+
+        public virtual void SetPlayerPosition(Vector3 position)
+        {
+            _rootTransform.position = position;
+        }
+
+        public Vector3 GetPlayerPosition()
+        {
+            return _rootTransform.position;
         }
     }
 }

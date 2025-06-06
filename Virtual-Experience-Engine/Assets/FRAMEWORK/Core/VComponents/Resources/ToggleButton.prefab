@@ -107,10 +107,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config:
     StateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsActivated: 0
         ClientID: 65535
@@ -172,17 +168,15 @@ MonoBehaviour:
             m_CallState: 2
       UseActivationGroup: 0
       ActivationGroupID: None
-    GeneralInteractionConfig:
-      AdminOnly: 0
-      EnableControllerVibrations: 1
-      ShowTooltipsAndHighlight: 1
-    ActivatableRangedInteractionConfig:
-      InteractionRange: 5
+    CollisionClickInteractionConfig:
+      ClickWithCollisionInVR: 1
+    RangedClickInteractionConfig:
+      InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
           m_Calls:
           - m_Target: {fileID: 3581831800873733296}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
+            m_TargetAssemblyTypeName: VE2.Common.Shared.V_LightTweener, VE2.Common.Shared
             m_MethodName: GoToMax
             m_Mode: 1
             m_Arguments:
@@ -194,7 +188,7 @@ MonoBehaviour:
               m_BoolArgument: 0
             m_CallState: 2
           - m_Target: {fileID: 2050985138193512377}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
+            m_TargetAssemblyTypeName: VE2.Common.Shared.V_LightTweener, VE2.Common.Shared
             m_MethodName: GoToMax
             m_Mode: 1
             m_Arguments:
@@ -209,7 +203,7 @@ MonoBehaviour:
         m_PersistentCalls:
           m_Calls:
           - m_Target: {fileID: 3581831800873733296}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
+            m_TargetAssemblyTypeName: VE2.Common.Shared.V_LightTweener, VE2.Common.Shared
             m_MethodName: GoToMin
             m_Mode: 1
             m_Arguments:
@@ -221,7 +215,7 @@ MonoBehaviour:
               m_BoolArgument: 0
             m_CallState: 2
           - m_Target: {fileID: 2050985138193512377}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
+            m_TargetAssemblyTypeName: VE2.Common.Shared.V_LightTweener, VE2.Common.Shared
             m_MethodName: GoToMin
             m_Mode: 1
             m_Arguments:
@@ -232,7 +226,15 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-      ActivateAtRangeInVR: 1
+      ClickAtRangeInVR: 1
+    GeneralInteractionConfig:
+      AdminOnly: 0
+      EnableControllerVibrations: 1
+      ShowTooltipsAndHighlight: 1
+    SyncConfig:
+      IsNetworked: 1
+      TransmissionFrequency: 1
+      TransmissionType: 0
   _collider: {fileID: 3275372340644864633}
 --- !u!65 &3275372340644864633
 BoxCollider:

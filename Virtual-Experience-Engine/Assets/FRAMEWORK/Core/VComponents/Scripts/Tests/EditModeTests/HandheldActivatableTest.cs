@@ -15,6 +15,9 @@ namespace VE2.Core.VComponents.Tests
     {
         private IV_HandheldActivatable _activatablePluginInterface => _v_handheldActivatableProviderStub;
         private V_HandheldActivatableProviderStub _v_handheldActivatableProviderStub;
+
+        private IV_HandheldActivatable _activatableHoldPluginInterface => _v_handheldHoldActivatableProviderStub;
+        private V_HandheldActivatableProviderStub _v_handheldHoldActivatableProviderStub;
         private PluginActivatableScript _customerScript;
 
         //Setup Once for every single test in this test class
@@ -22,7 +25,8 @@ namespace VE2.Core.VComponents.Tests
         public void SetUpOnce()
         {
             //Create the activatable
-            HandheldActivatableService toggleActivatable = new(
+            HandheldActivatableService handheldActivatable = new(
+                Substitute.For<IV_FreeGrabbable>(),
                 new HandheldActivatableConfig(), 
                 new SingleInteractorActivatableState(), 
                 "debug", 
@@ -31,7 +35,30 @@ namespace VE2.Core.VComponents.Tests
                 Substitute.For<IClientIDWrapper>());
 
             //Stub out the VC (provider layer) with the activatable
-            _v_handheldActivatableProviderStub = new(toggleActivatable);
+            _v_handheldActivatableProviderStub = new(handheldActivatable);
+
+            //Create the activatable hold
+            HandheldActivatableConfig handheldActivatableConfig = new()
+            {
+                StateConfig = new ToggleActivatableStateConfig(),
+                HandheldClickInteractionConfig = new()
+                {
+                    IsHoldMode = true
+                },
+                GeneralInteractionConfig = new GeneralInteractionConfig()
+            };
+
+            HandheldActivatableService handheldActivatableHold = new(
+                Substitute.For<IV_FreeGrabbable>(),
+                handheldActivatableConfig,
+                new SingleInteractorActivatableState(),
+                "debug",
+                Substitute.For<IWorldStateSyncableContainer>(),
+                new ActivatableGroupsContainer(),
+                Substitute.For<IClientIDWrapper>());
+
+            //Stub out the VC (provider layer) with the activatable hold
+            _v_handheldHoldActivatableProviderStub = new(handheldActivatableHold);
 
             //Wire up the customer script to receive the events           
             _customerScript = Substitute.For<PluginActivatableScript>();
@@ -59,12 +86,35 @@ namespace VE2.Core.VComponents.Tests
             Assert.IsFalse(_activatablePluginInterface.IsActivated);
             Assert.AreEqual(_activatablePluginInterface.MostRecentInteractingClientID, null);
         }
+
+        [Test]
+        public void HandheldActivatableHoldType_WhenActivatedByPlugin_EmitsToPlugin()
+        {
+            //Wire up the customer script to receive the events
+            PluginActivatableScript customerScript = Substitute.For<PluginActivatableScript>();
+            _activatableHoldPluginInterface.OnActivate.AddListener(customerScript.HandleActivateReceived);
+            _activatableHoldPluginInterface.OnDeactivate.AddListener(customerScript.HandleDeactivateReceived);
+
+            //Activate, Check customer received the activation
+            _activatableHoldPluginInterface.Activate();
+
+            customerScript.Received(1).HandleActivateReceived();
+            Assert.IsTrue(_activatableHoldPluginInterface.IsActivated);
+            Assert.AreEqual(_activatableHoldPluginInterface.MostRecentInteractingClientID, null);
+
+            //Deactivate: Check that the click up event was received
+            _activatableHoldPluginInterface.Deactivate();
+
+            customerScript.Received(1).HandleDeactivateReceived();
+            Assert.IsFalse(_activatableHoldPluginInterface.IsActivated);
+            Assert.AreEqual(_activatableHoldPluginInterface.MostRecentInteractingClientID, null);
+        }
     }
     
     internal partial class V_HandheldActivatableProviderStub : IV_HandheldActivatable
     {
         #region State Module Interface
-        internal ISingleInteractorActivatableStateModule _StateModule => _Service.StateModule;
+        internal ISingleInteractorActivatableStateModule _StateModule => Service.StateModule;
 
         public UnityEvent OnActivate => _StateModule.OnActivate;
         public UnityEvent OnDeactivate => _StateModule.OnDeactivate;
@@ -77,7 +127,7 @@ namespace VE2.Core.VComponents.Tests
         #endregion
 
         #region Handheld Interaction Module Interface
-        internal IHandheldClickInteractionModule _HandheldClickModule => _Service.HandheldClickInteractionModule;
+        internal IHandheldClickInteractionModule _HandheldClickModule => Service.HandheldClickInteractionModule;
         #endregion
 
         #region General Interaction Module Interface
@@ -89,17 +139,22 @@ namespace VE2.Core.VComponents.Tests
 
     internal partial class V_HandheldActivatableProviderStub
     {
-        internal IHandheldClickInteractionModule HandheldClickInteractionModule => _Service.HandheldClickInteractionModule;
-        protected HandheldActivatableService _Service = null;
+        internal IHandheldClickInteractionModule HandheldClickInteractionModule => Service.HandheldClickInteractionModule;
+        public HandheldActivatableService Service { private get; set; }
 
         public V_HandheldActivatableProviderStub(HandheldActivatableService service)
         {
-            _Service = service;
+            Service = service;
+        }
+
+        public V_HandheldActivatableProviderStub()
+        {
+            // Default constructor for NSubstitute
         }
 
         public void TearDown()
         {
-            _Service.TearDown();
+            Service.TearDown();
         }
     }
 }

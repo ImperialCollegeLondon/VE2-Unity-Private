@@ -74,7 +74,7 @@ namespace VE2.Core.VComponents.Tests
     internal partial class V_FreeGrabbableProviderStub : IV_FreeGrabbable
     {
         #region State Module Interface
-        internal IGrabbableStateModule _StateModule => _Service.StateModule;
+        internal IGrabbableStateModule _StateModule => Service.StateModule;
 
         public UnityEvent OnGrab => _StateModule.OnGrab;
         public UnityEvent OnDrop => _StateModule.OnDrop;
@@ -84,7 +84,7 @@ namespace VE2.Core.VComponents.Tests
         #endregion
 
         #region Ranged Interaction Module Interface
-        internal IRangedGrabInteractionModule _RangedGrabModule => _Service.RangedGrabInteractionModule;
+        internal IRangedGrabInteractionModule _RangedGrabModule => Service.RangedGrabInteractionModule;
         public float InteractRange { get => _RangedGrabModule.InteractRange; set => _RangedGrabModule.InteractRange = value; }
         #endregion
 
@@ -99,19 +99,21 @@ namespace VE2.Core.VComponents.Tests
     internal partial class V_FreeGrabbableProviderStub : IRangedGrabInteractionModuleProvider
     {
         #region Player Interfaces
-        IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _Service.RangedGrabInteractionModule;
+        IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => Service.RangedGrabInteractionModule;
         #endregion
 
-        private readonly FreeGrabbableService _Service = null;
+        public FreeGrabbableService Service { private get; set; }
 
         public V_FreeGrabbableProviderStub(FreeGrabbableService service)
         {
-            _Service = service;
+            this.Service = service;
         }
+
+        public V_FreeGrabbableProviderStub() { }
 
         public void TearDown()
         {
-            _Service.TearDown();
+            Service.TearDown();
         }
     }
 }

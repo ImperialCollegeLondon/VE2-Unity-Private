@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Events;
+using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 
@@ -10,8 +11,15 @@ namespace VE2.Core.VComponents.Internal
     internal class HoldActivatableConfig
     {
         [SerializeField, IgnoreParent] public HoldActivatableStateConfig StateConfig = new();
+
+        [SerializeField, IgnoreParent] public CollisionClickInteractionConfig CollisionClickInteractionConfig = new();
+        [SerializeField, IndentArea(-1)] public RangedClickInteractionConfig ActivatableRangedInteractionConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
-        [SerializeField, IgnoreParent] public ActivatableInteractionConfig ActivatableRangedInteractionConfig = new();
+
+        [HideIf(nameof(MultiplayerSupportPresent), false)]
+        [SerializeField, IgnoreParent] internal HoldActivatablePlayerSyncIndicator SyncConfig = new();
+
+        private bool MultiplayerSupportPresent => VE2API.HasMultiPlayerSupport;
     }
 
     internal class HoldActivatableService
@@ -31,12 +39,9 @@ namespace VE2.Core.VComponents.Internal
         public HoldActivatableService(HoldActivatableConfig config, MultiInteractorActivatableState state, string id, IClientIDWrapper localClientIdWrapper)
         {
             _StateModule = new(state, config.StateConfig, id, localClientIdWrapper);
-            _RangedHoldClickInteractionModule = new(config.ActivatableRangedInteractionConfig, config.GeneralInteractionConfig, id, config.ActivatableRangedInteractionConfig.ActivateAtRangeInVR);
 
-            if(config.ActivatableRangedInteractionConfig.ActivateWithCollisionInVR)
-                _ColliderInteractionModule = new(config.GeneralInteractionConfig, id, CollideInteractionType.Hand);
-            else
-                _ColliderInteractionModule = new(config.GeneralInteractionConfig, id, CollideInteractionType.None);
+            _RangedHoldClickInteractionModule = new(config.ActivatableRangedInteractionConfig, config.GeneralInteractionConfig, config.SyncConfig, id, config.ActivatableRangedInteractionConfig.ClickAtRangeInVR);
+            _ColliderInteractionModule = new(config.CollisionClickInteractionConfig, config.GeneralInteractionConfig, config.SyncConfig, id);
 
             _RangedHoldClickInteractionModule.OnClickDown += AddToInteractingInteractors;
             _RangedHoldClickInteractionModule.OnClickUp += RemoveFromInteractingInteractors;
