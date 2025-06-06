@@ -16,6 +16,7 @@ internal class HubController : MonoBehaviour
     [EditorButton(nameof(HandleRefreshFilesButtonClicked), "Refresh Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
     [SerializeField] private string folderToSearch = "/";
 
+    [SerializeField] private HubMasterView _hubMasterView;
     [SerializeField] private HubHomePageView _hubHomePageView;
     [SerializeField] private HubCategoryPageView _hubCategoryPageView;
     [SerializeField] private HubWorldPageView _hubWorldPageView;
@@ -91,6 +92,7 @@ internal class HubController : MonoBehaviour
 
     private void HandleFileSystemReady()
     {
+        //If we're here, means we have connected to the platform successfully
         _fileSystem.OnFileSystemReady -= HandleFileSystemReady;
         StartSearch();
     }
@@ -103,6 +105,15 @@ internal class HubController : MonoBehaviour
 
     private void HandleGetRemoteFolders(IRemoteFolderSearchInfo search)
     {
+        if (search.CompletionCode.ToUpper().Contains("ERROR"))
+        {
+            //TODO - show some error on UI
+            Debug.LogError("Failed to search for remote folders: " + search.CompletionCode);
+            return;
+        }
+
+        _hubMasterView.HandleLoadingComplete();
+
         List<string> localWorlds = _fileSystem.GetLocalFoldersAtPath(folderToSearch);
 
         Dictionary<string, int> activeWorldsAndVersions = _platformService.ActiveWorldsNamesAndVersions.ToDictionary(w => w.Item1, w => w.Item2);
