@@ -316,7 +316,6 @@ internal class HubController : MonoBehaviour
 
     private void HandleWorldClicked(HubWorldDetails worldDetails)
     {
-        Debug.Log("World clicked: " + worldDetails.Name);
         _viewingWorldDetails = worldDetails;
 
         _hubWorldPageView.SetupView(worldDetails, GetInstancesForWorldName(worldDetails.Name));
@@ -361,17 +360,14 @@ internal class HubController : MonoBehaviour
             .ToList();
 
         List<string> localWorlds = _fileSystem.GetLocalFoldersAtPath($"{_viewingWorldDetails.Name}");
-        Debug.LogWarning("Local world strings found: " + localWorlds.Count);
-        foreach (string localWorld in localWorlds)
-        {
-            Debug.Log("Found local world: " + localWorld);
-        }
 
-        Debug.Log("Searched for local versions at " + $"{_viewingWorldDetails.Name}, found " + _viewingWorldDetails.VersionsAvailableLocally.Count + " local versions");
-        foreach (int version in _viewingWorldDetails.VersionsAvailableLocally)
-        {
-            Debug.Log("Found local version: " + version);
-        }
+        // Debug.LogWarning("Local world strings found: " + localWorlds.Count);
+        // foreach (string localWorld in localWorlds)
+        //     Debug.Log("Found local world: " + localWorld);
+
+        // Debug.Log("Searched for local versions at " + $"{_viewingWorldDetails.Name}, found " + _viewingWorldDetails.VersionsAvailableLocally.Count + " local versions");
+        // foreach (int version in _viewingWorldDetails.VersionsAvailableLocally)
+        //     Debug.Log("Found local version: " + version);
 
         int targetVersion;
 
@@ -407,9 +403,6 @@ internal class HubController : MonoBehaviour
         }
         bool isVersionExperimental = targetVersion != _viewingWorldDetails.LiveVersionNumber;
 
-        Debug.LogWarning("####################");
-        Debug.Log($"Showing selected version: {targetVersion}, Needs Download: {needsDownload}, Downloaded But Not Installed: {downloadedButNotInstalled}, Is Experimental: {isVersionExperimental}");
-
         _hubWorldPageView.ShowSelectedVersion(targetVersion, needsDownload, downloadedButNotInstalled, isVersionExperimental, _selectedInstanceCode != null);
         _selectedWorldVersion = targetVersion;
 
@@ -434,8 +427,6 @@ internal class HubController : MonoBehaviour
 
     private void HandleCategoryClicked(WorldCategory category)
     {
-        Debug.Log("Category clicked: " + category.CategoryName);
-
         _hubCategoryPageView.SetupView(category);
         _hubHomePageView.gameObject.SetActive(false);
         _hubCategoryPageView.gameObject.SetActive(true);
@@ -444,8 +435,6 @@ internal class HubController : MonoBehaviour
 
     private void HandleBackClicked()
     {
-        Debug.Log("Back clicked");
-
         _hubHomePageView.gameObject.SetActive(true);
         _hubCategoryPageView.gameObject.SetActive(false);
         _hubWorldPageView.gameObject.SetActive(false);

@@ -28,8 +28,6 @@ internal class HubHomePageView : MonoBehaviour
             return;
         }
 
-        Debug.Log($"Setting up home page view with {suggestedWorldDetails.Count} suggested worlds and {worldCategories.Count} categories.");
-
         for (int i = 0; i < _suggestedWorldViews.Length && i < suggestedWorldDetails.Count; i++)
             CreateWorldView(suggestedWorldDetails[i], _suggestedWorldViews[i]);
 

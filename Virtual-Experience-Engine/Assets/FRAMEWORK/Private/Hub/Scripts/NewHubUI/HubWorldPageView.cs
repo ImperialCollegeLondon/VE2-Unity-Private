@@ -110,11 +110,12 @@ internal class HubWorldPageView : MonoBehaviour
 
     public void ShowAvailableVersions(List<int> versions)
     {
-        Debug.Log($"Showing available versions");
-        foreach (int version in versions)
-        {
-            Debug.Log($"Available version: {version}");
-        }
+        //TODO show versions on UI 
+        // Debug.Log($"Showing available versions");
+        // foreach (int version in versions)
+        // {
+        //     Debug.Log($"Available version: {version}");
+        // }
     }
 
     /// <summary>
@@ -122,8 +123,6 @@ internal class HubWorldPageView : MonoBehaviour
     /// </summary>
     public void ShowSelectedVersion(int version, bool needsDownload, bool downloadedButNotInstalled, bool IsExperimental, bool isInstanceSelected)
     {
-        Debug.Log($"Selected version: {version}");
-
         _confirmingVersionsPanel.SetActive(false);
         _downloadWorldButton.gameObject.SetActive(needsDownload);
         _installWorldButton.gameObject.SetActive(downloadedButNotInstalled);
@@ -223,8 +222,6 @@ internal class HubWorldPageView : MonoBehaviour
 
     public void UpdateInstances(List<PlatformInstanceInfo> instancesFromServer)
     {
-        Debug.Log("Update instances called with " + instancesFromServer.Count + " instances===================");
-
         //Remove old instances 
         List<PlatformInstanceInfo> instancesToRemove = new();
         foreach (KeyValuePair<PlatformInstanceInfo, HubInstanceView> kvp in _instanceViews)
