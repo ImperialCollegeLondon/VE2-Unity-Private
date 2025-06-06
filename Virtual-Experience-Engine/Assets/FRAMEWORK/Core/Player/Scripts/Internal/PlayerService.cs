@@ -113,23 +113,25 @@ namespace VE2.Core.Player.Internal
             OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
         }
 
-        public Vector3 PlayerPosition
+        public Vector3 PlayerPosition => PlayerTransformData.IsVRMode ? _playerVR.PlayerPosition : _player2D.PlayerPosition;
+
+        public void SetPlayerPosition(Vector3 position)
         {
-            get
-            {
-                if (PlayerTransformData.IsVRMode)
-                    return _playerVR.GetPlayerPosition();
-                else
-                    return _player2D.GetPlayerPosition();
-            }
-            set
-            {
-                if (PlayerTransformData.IsVRMode)
-                    _playerVR.SetPlayerPosition(value);
-                else
-                    _player2D.SetPlayerPosition(value);
-            }
+            if (PlayerTransformData.IsVRMode)
+                _playerVR.SetPlayerPosition(position);
+            else
+                _player2D.SetPlayerPosition(position);
         }
+
+        public Quaternion PlayerRotation => PlayerTransformData.IsVRMode ? _playerVR.PlayerRotation : _player2D.PlayerRotation;
+        public void SetPlayerRotation(Quaternion rotation)
+        {
+            if (PlayerTransformData.IsVRMode)
+                _playerVR.SetPlayerRotation(rotation);
+            else
+                _player2D.SetPlayerRotation(rotation);
+        }
+        
         public AndroidJavaObject AddArgsToIntent(AndroidJavaObject intent) => _playerSettingsHandler.AddArgsToIntent(intent);
 
         public void AddPanelTo2DOverlayUI(RectTransform rect) => _player2D.MoveRectToOverlayUI(rect);
