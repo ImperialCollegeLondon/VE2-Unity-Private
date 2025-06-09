@@ -8,6 +8,7 @@ using VE2.Core.VComponents.API;
 using VE2.Core.Player.API;
 using VE2.Core.VComponents.Shared;
 using static VE2.Common.Shared.CommonSerializables;
+using System.Collections.Generic;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -169,92 +170,66 @@ namespace VE2.Core.VComponents.Internal
             }
         }
 
-        /// <summary>
-        /// Tries to grab object, prioritises right hand if in VR mode. Does not grab if both hands/ 2d interactor are already grabbing.
-        /// </summary>
-        /// <param name="lockGrab">If true, stops the player from dropping the grabbed object until UnlockLocalGrab or ForceLocalDrop are called.</param>
-        /// <returns>true if successful, false if both hands/ 2d interactor are already grabbing</returns>
-        public bool TryLocalGrab(bool lockGrab)
+        private bool DoLocalGrab(bool lockGrab, VRHandInteractorType handToGrabWith, bool forceDrop)
+        {
+            InteractorType interactorType = VE2API.Player.IsVRMode ? (InteractorType)handToGrabWith : InteractorType.Mouse2D;
+            InteractorID interactorID = new(_localClientIdWrapper.Value, interactorType);
+
+            if (!_interactorContainer.Interactors.TryGetValue(interactorID.ToString(), out IInteractor interactor))
+            {
+                Debug.LogError($"Could not find local interactor of type {interactorID.InteractorType}");
+                return false;
+            }
+
+            if (interactor is ILocalInteractor interactorLocal)
+            {
+                Debug.Log($"Here, currently grabbing: {interactorLocal.IsCurrentlyGrabbing}, forceDrop: {forceDrop}");
+                if (!interactorLocal.IsCurrentlyGrabbing || forceDrop)
+                {
+                    // Do grab
+                    UnlockLocalGrab();
+
+                    Debug.Log($"Dropping from {interactorID}");
+                    SetDropped(interactorID);
+
+                    // Teleport grabbable to be at interactor to avoid anything in the way 
+                    OnRequestTeleportRigidbody?.Invoke(interactor.GrabberTransform.position);
+
+                    // Set grabbed in normal way
+                    SetGrabbed(interactorID);
+
+                    // Lock grab if lockGrab is true, but don't unlock grab if already grabbed
+                    _grabIsLocked = lockGrab;
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public void ForceLocalGrab(bool lockGrab, VRHandInteractorType handToGrabWith)
+        {
+            bool forceDrop = true;
+            DoLocalGrab(lockGrab, handToGrabWith, forceDrop);
+        }
+
+        public bool TryLocalGrab(bool lockGrab, VRHandInteractorType priorityHandToGrabWith = VRHandInteractorType.RightHandVR)
         {
 
-            // Decide whether to grab and what interactor to use
-            InteractorType interactorType;
-            if (VE2API.Player.IsVRMode)
+            VRHandInteractorType[] handOrder = priorityHandToGrabWith == VRHandInteractorType.RightHandVR
+                ? new[] { VRHandInteractorType.RightHandVR, VRHandInteractorType.LeftHandVR }
+                : new[] { VRHandInteractorType.LeftHandVR, VRHandInteractorType.RightHandVR };
+
+            foreach (var hand in handOrder)
             {
-                InteractorID rightHandID = new(_localClientIdWrapper.Value, InteractorType.RightHandVR);
-                InteractorID leftHandID = new(_localClientIdWrapper.Value, InteractorType.LeftHandVR);
-
-                if (!_interactorContainer.Interactors.TryGetValue(rightHandID.ToString(), out IInteractor rightHand))
+                if (DoLocalGrab(lockGrab, hand, false))
                 {
-                    Debug.LogError("Could not find local right hand VR Interactor");
-                    return false;
-                }
-
-                if (rightHand is ILocalInteractor rightLocal && !rightLocal.IsCurrentlyGrabbing)
-                {
-                    interactorType = InteractorType.RightHandVR;
-                }
-                else
-                {
-                    if (!_interactorContainer.Interactors.TryGetValue(leftHandID.ToString(), out IInteractor leftHand))
-                    {
-                        Debug.LogError("Could not find local left hand VR Interactor");
-                        return false;
-                    }
-
-                    if (leftHand is ILocalInteractor leftLocal && !leftLocal.IsCurrentlyGrabbing)
-                    {
-                        interactorType = InteractorType.LeftHandVR;
-                    }
-                    else
-                    {
-                        // Both hands are grabbing
-                        return false;
-                    }
-                }
-            }
-            else
-            {
-                InteractorID mouseInteractorID = new(_localClientIdWrapper.Value, InteractorType.Mouse2D);
-
-                if (!_interactorContainer.Interactors.TryGetValue(mouseInteractorID.ToString(), out IInteractor mouseInteractor))
-                {
-                    Debug.LogError("Could not find local right hand VR Interactor");
-                    return false;
-                }
-
-                if (mouseInteractor is ILocalInteractor mouseInteractorLocal && !mouseInteractorLocal.IsCurrentlyGrabbing)
-                {
-                    interactorType = InteractorType.Mouse2D;
-                }
-                else
-                {
-                    // Both hands are grabbing
-                    return false;
+                    return true;
                 }
             }
 
-            // Get local interactor ID & interactor
-            InteractorID localInteractorId = new(_localClientIdWrapper.Value, interactorType);
-
-            if (!_interactorContainer.Interactors.TryGetValue(localInteractorId.ToString(), out IInteractor interactor))
-            {
-                Debug.LogError($"Could not find local interactor of type {localInteractorId.InteractorType}");
-                return false;
-            }
-
-            // No grabbing if already grabbed by the same interactor
-            if (IsGrabbed && (_state.MostRecentInteractingInteractorID.ClientID != localInteractorId.ClientID || _state.MostRecentInteractingInteractorID.InteractorType == localInteractorId.InteractorType))
-                return false;
-
-            // Teleport grabbable to be at interactor to avoid anything in the way 
-            OnRequestTeleportRigidbody?.Invoke(interactor.GrabberTransform.position);
-
-            // Set grabbed in normal way
-            SetGrabbed(localInteractorId);
-            // Lock grab if lockGrab is true, but don't unlock grab if already grabbed
-            _grabIsLocked = (_grabIsLocked || lockGrab);
-            return true;
+            return false;
 
         }
 
@@ -262,15 +237,11 @@ namespace VE2.Core.VComponents.Internal
 
         public void ForceLocalDrop()
         {
-            // Get local interactor ID
-            InteractorID localInteractorId = new(_localClientIdWrapper.Value, InteractorType.Mouse2D);
-
-            // Only drop if local interactor is grabbing
-            if (IsGrabbed && _state.MostRecentInteractingInteractorID.ClientID == localInteractorId.ClientID)
+            if (IsGrabbed)
             {
                 UnlockLocalGrab();
                 // Set dropped in normal way
-                SetDropped(localInteractorId);
+                SetDropped(_state.MostRecentInteractingInteractorID);
             }
         }
     }

@@ -70,4 +70,10 @@ namespace VE2.Core.VComponents.API
         RightHandVR,
         Feet
     }
+
+    public enum VRHandInteractorType
+    {
+        LeftHandVR = InteractorType.LeftHandVR,
+        RightHandVR = InteractorType.RightHandVR
+    }
 }

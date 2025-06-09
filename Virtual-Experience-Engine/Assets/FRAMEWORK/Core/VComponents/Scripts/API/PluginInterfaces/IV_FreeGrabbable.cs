@@ -25,7 +25,9 @@ namespace VE2.Core.VComponents.API
         #endregion
 
         #region Force Grab and Drop Interface
-        public bool TryLocalGrab(bool lockGrab);
+        public bool TryLocalGrab(bool lockGrab, VRHandInteractorType priorityHandToGrabWith = VRHandInteractorType.RightHandVR);
+
+        public void ForceLocalGrab (bool lockGrab, VRHandInteractorType handToGrabWith = VRHandInteractorType.RightHandVR);
         public void UnlockLocalGrab();
         public void ForceLocalDrop();
 

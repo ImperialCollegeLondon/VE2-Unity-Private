@@ -17,12 +17,22 @@ public class ForceGrabTester : MonoBehaviour
     void Update()
     {
         if (Keyboard.current.digit1Key.wasPressedThisFrame)
-            _grabbable.TryLocalGrab(true);
+            Debug.Log($"Try local grab locked: {_grabbable.TryLocalGrab(true)}");
         if (Keyboard.current.digit2Key.wasPressedThisFrame)
-            _grabbable.TryLocalGrab(false);
+            Debug.Log($"Try local grab unlocked: {_grabbable.TryLocalGrab(false)}");
         if (Keyboard.current.digit3Key.wasPressedThisFrame)
-            _grabbable.ForceLocalDrop();
+        {
+            Debug.Log($"Force local grab locked");
+            _grabbable.ForceLocalGrab(true);
+        }
         if (Keyboard.current.digit4Key.wasPressedThisFrame)
+        {
+            Debug.Log($"Force local grab unlocked");
+            _grabbable.ForceLocalGrab(false);
+        }
+        if (Keyboard.current.digit5Key.wasPressedThisFrame)
+            _grabbable.ForceLocalDrop();
+        if (Keyboard.current.digit6Key.wasPressedThisFrame)
             _grabbable.UnlockLocalGrab();
     }
 }
