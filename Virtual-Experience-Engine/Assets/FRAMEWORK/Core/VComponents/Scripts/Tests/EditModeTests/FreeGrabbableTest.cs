@@ -96,7 +96,7 @@ namespace VE2.Core.VComponents.Tests
 
         public bool TryLocalGrab(bool lockGrab, VRHandInteractorType priorityHandToGrabWith) => _StateModule.TryLocalGrab(lockGrab, priorityHandToGrabWith);
 
-        public void ForceLocalGrab(bool lockGrab, VRHandInteractorType handToGrabWith) => _StateModule.TryLocalGrab(lockGrab, handToGrabWith);
+        public void ForceLocalGrab(bool lockGrab, VRHandInteractorType handToGrabWith) => _StateModule.ForceLocalGrab(lockGrab, handToGrabWith);
 
         public void UnlockLocalGrab() => _StateModule.UnlockLocalGrab();
 
