@@ -57,6 +57,8 @@ namespace VE2.Core.Player.Internal
         protected IRangedInteractionModule _CurrentHoveringInteractable;
         protected IRangedClickInteractionModule _CurrentHoveringClickInteractable => _CurrentHoveringInteractable as IRangedClickInteractionModule;
         protected IRangedGrabInteractionModule _CurrentGrabbingGrabbable;
+        private string _currentlyGrabbedGrabbableID = null;
+        public string CurrentlyGrabbedGrabbableID => _currentlyGrabbedGrabbableID;
 
 
         private GameObject lastHoveredUIObject = null; // Keep track of the last hovered UI object
@@ -476,6 +478,7 @@ namespace VE2.Core.Player.Internal
             }
 
             _CurrentGrabbingGrabbable = rangedGrabInteractable;
+            _currentlyGrabbedGrabbableID = id;
 
             SetInteractorState(InteractorState.Grabbing);
 
@@ -500,6 +503,7 @@ namespace VE2.Core.Player.Internal
                 HandleStopGrabbingAdjustable();
 
             _CurrentGrabbingGrabbable = null;
+            _currentlyGrabbedGrabbableID = null;
 
             //reset the virtual grabber transform to the original position
             _GrabberTransform.localPosition = Vector3.zero;

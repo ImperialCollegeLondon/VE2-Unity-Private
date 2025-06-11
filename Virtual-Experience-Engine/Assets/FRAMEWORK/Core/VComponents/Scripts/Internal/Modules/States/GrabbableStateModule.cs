@@ -46,6 +46,7 @@ namespace VE2.Core.VComponents.Internal
         private GrabbableState _state => (GrabbableState)State;
 
         private readonly GrabbableStateConfig _grabbableStateConfig;
+        private readonly IGrabInteractablesContainer _grabInteractablesContainer;
         private readonly HandInteractorContainer _interactorContainer;
         private readonly IClientIDWrapper _localClientIdWrapper;
 
@@ -58,10 +59,11 @@ namespace VE2.Core.VComponents.Internal
         private bool _grabIsLocked = false;
 
         public GrabbableStateModule(VE2Serializable state, GrabbableStateConfig grabbableStateConfig, WorldStateSyncConfig syncConfig, string id, IWorldStateSyncableContainer worldStateSyncableContainer, 
-            HandInteractorContainer interactorContainer, IClientIDWrapper localClientIdWrapper) :
+            IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer, IClientIDWrapper localClientIdWrapper) :
             base(state, syncConfig, id, worldStateSyncableContainer)
         {
             _grabbableStateConfig = grabbableStateConfig;
+            _grabInteractablesContainer = grabInteractablesContainer;
             _interactorContainer = interactorContainer;
             _localClientIdWrapper = localClientIdWrapper;
         }
@@ -190,8 +192,15 @@ namespace VE2.Core.VComponents.Internal
                     // Do grab
                     UnlockLocalGrab();
 
-                    // Doesn't currently work, will need a different approach to do local drop of another grabbable!
-                    interactor.ConfirmDrop();
+                    // Drop other item
+                    if (interactorLocal.IsCurrentlyGrabbing)
+                    {
+                        string grabToDropID = interactorLocal.CurrentlyGrabbedGrabbableID;
+                        if (_grabInteractablesContainer.GrabInteractables.TryGetValue(grabToDropID, out IRangedGrabInteractionModule grabbableToDrop))
+                        {
+                            grabbableToDrop.RequestLocalDrop(interactorID);
+                        }
+                    }
 
                     // Teleport grabbable to be at interactor to avoid anything in the way 
                     OnRequestTeleportRigidbody?.Invoke(interactor.GrabberTransform.position);

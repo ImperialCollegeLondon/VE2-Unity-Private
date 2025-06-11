@@ -5,5 +5,7 @@ namespace VE2.Common.Shared
     internal interface ILocalInteractor: IInteractor
     {
         public bool IsCurrentlyGrabbing { get; }
+
+        public string CurrentlyGrabbedGrabbableID { get; }
     }
 }
