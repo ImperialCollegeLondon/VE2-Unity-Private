@@ -14,14 +14,12 @@ namespace VE2.Core.VComponents.Internal
 
         public override void OnGui(SerializedProperty property, GUIContent label)
         {
-            //Debug.Log($"Hello???");
-
-            if (!property.isExpanded)
-            {
-                EditorGUILayout.PropertyField(property);
-                //Debug.Log($"Property not expanded");
-                return;
-            }
+            //Commented out as it seems to cause a bug - field starts collapsed under a dropdown, but only until the header is clicked, then it fixes itself.
+            // if (!property.isExpanded)
+            // {
+            //     EditorGUILayout.PropertyField(property);
+            //     return;
+            // }
 
             using (new EditorGUI.IndentLevelScope())
             {
