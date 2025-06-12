@@ -6,6 +6,6 @@ namespace VE2.Common.Shared
     {
         public bool IsCurrentlyGrabbing { get; }
 
-        public string CurrentlyGrabbedGrabbableID { get; }
+        public bool TryLocalDrop();
     }
 }

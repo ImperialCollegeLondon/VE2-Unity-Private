@@ -189,30 +189,21 @@ namespace VE2.Core.VComponents.Internal
                 // Using != as conditional XOR
                 if (!interactorLocal.IsCurrentlyGrabbing || (forceDrop && !(_state.IsGrabbed && _state.MostRecentInteractingInteractorID == interactorID)))
                 {
-                    // Do grab
-                    UnlockLocalGrab();
-
-                    // Drop other item
-                    if (interactorLocal.IsCurrentlyGrabbing)
+                    Debug.Log("Got here");
+                    if (interactorLocal.TryLocalDrop())
                     {
-                        string grabToDropID = interactorLocal.CurrentlyGrabbedGrabbableID;
-                        if (_grabInteractablesContainer.GrabInteractables.TryGetValue(grabToDropID, out IRangedGrabInteractionModule grabbableToDrop))
-                        {
-                            grabbableToDrop.RequestLocalDrop(interactorID);
-                        }
+                        Debug.Log("Got here");
+                        // Teleport grabbable to be at interactor to avoid anything in the way 
+                        OnRequestTeleportRigidbody?.Invoke(interactor.GrabberTransform.position);
+
+                        // Set grabbed in normal way
+                        SetGrabbed(interactorID);
+
+                        // Lock grab if lockGrab is true, but don't unlock grab if already grabbed
+                        _grabIsLocked = lockGrab;
+
+                        return true;
                     }
-
-                    // Teleport grabbable to be at interactor to avoid anything in the way 
-                    OnRequestTeleportRigidbody?.Invoke(interactor.GrabberTransform.position);
-
-                    // Set grabbed in normal way
-                    SetGrabbed(interactorID);
-
-                    // Lock grab if lockGrab is true, but don't unlock grab if already grabbed
-                    _grabIsLocked = lockGrab;
-
-                    return true;
-
                 }
             }
 
