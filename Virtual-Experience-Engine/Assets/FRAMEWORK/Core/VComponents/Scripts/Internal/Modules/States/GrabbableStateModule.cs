@@ -172,14 +172,13 @@ namespace VE2.Core.VComponents.Internal
             }
         }
 
-        private bool DoLocalGrab(bool lockGrab, VRHandInteractorType handToGrabWith, bool forceDrop)
+        private bool DoLocalGrab(bool lockGrab, InteractorType interactorType, bool forceDrop)
         {
-            InteractorType interactorType = VE2API.Player.IsVRMode ? (InteractorType)handToGrabWith : InteractorType.Mouse2D;
             InteractorID interactorID = new(_localClientIdWrapper.Value, interactorType);
 
             if (!_interactorContainer.Interactors.TryGetValue(interactorID.ToString(), out IInteractor interactor))
             {
-                Debug.LogError($"Could not find local interactor of type {interactorID.InteractorType}");
+                Debug.LogError($"Could not find local interactor with ID {interactorID}");
                 return false;
             }
 
@@ -189,10 +188,8 @@ namespace VE2.Core.VComponents.Internal
                 // Using != as conditional XOR
                 if (!interactorLocal.IsCurrentlyGrabbing || (forceDrop && !(_state.IsGrabbed && _state.MostRecentInteractingInteractorID == interactorID)))
                 {
-                    Debug.Log("Got here");
                     if (interactorLocal.TryLocalDrop())
                     {
-                        Debug.Log("Got here");
                         // Teleport grabbable to be at interactor to avoid anything in the way 
                         OnRequestTeleportRigidbody?.Invoke(interactor.GrabberTransform.position);
 
@@ -210,22 +207,42 @@ namespace VE2.Core.VComponents.Internal
             return false;
         }
 
+        /// <summary>
+        /// Attempts to grab with given VR Hand Interactor (or 2D grabber)
+        /// </summary>
+        /// <param name="lockGrab"></param>
+        /// <param name="handToGrabWith"></param>
         public void ForceLocalGrab(bool lockGrab, VRHandInteractorType handToGrabWith)
         {
             bool forceDrop = true;
-            DoLocalGrab(lockGrab, handToGrabWith, forceDrop);
+            InteractorType interactorType = VE2API.Player.IsVRMode ? (InteractorType)handToGrabWith : InteractorType.Mouse2D;
+            DoLocalGrab(lockGrab, interactorType, forceDrop);
         }
 
+        /// <summary>
+        /// Tries to grab with given VR Hand interactor. If that hand is full, tries to grab with other hand. If that's full, fails to grab and returns false
+        /// In 2D, attempts to grab with 2D grabber
+        /// </summary>
+        /// <param name="lockGrab">Locks grabbable so it can't be dropped until either ForceLocalDrop() or UnlockLocalGrab() is called</param>
+        /// <param name="priorityHandToGrabWith">Optional, choose to attempt grab with right or left hand first, defaults to right hand</param>
+        /// <returns></returns>
         public bool TryLocalGrab(bool lockGrab, VRHandInteractorType priorityHandToGrabWith = VRHandInteractorType.RightHandVR)
         {
-
-            VRHandInteractorType[] handOrder = priorityHandToGrabWith == VRHandInteractorType.RightHandVR
-                ? new[] { VRHandInteractorType.RightHandVR, VRHandInteractorType.LeftHandVR }
-                : new[] { VRHandInteractorType.LeftHandVR, VRHandInteractorType.RightHandVR };
-
-            foreach (var hand in handOrder)
+            InteractorType[] interactorsToTry;
+            if (VE2API.Player.IsVRMode)
             {
-                if (DoLocalGrab(lockGrab, hand, false))
+                interactorsToTry = priorityHandToGrabWith == VRHandInteractorType.RightHandVR
+                    ? new[] { InteractorType.RightHandVR, InteractorType.LeftHandVR }
+                    : new[] { InteractorType.LeftHandVR, InteractorType.RightHandVR };
+            }
+            else
+            {
+                interactorsToTry = new[] { InteractorType.Mouse2D };
+            }
+
+            foreach (var interactorTypes in interactorsToTry)
+            {
+                if (DoLocalGrab(lockGrab, interactorTypes, false))
                 {
                     return true;
                 }
