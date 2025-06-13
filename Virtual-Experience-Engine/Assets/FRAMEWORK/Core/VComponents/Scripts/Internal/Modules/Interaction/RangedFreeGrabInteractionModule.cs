@@ -15,31 +15,29 @@ namespace VE2.Core.VComponents.Internal
         [BeginGroup(Style = GroupStyle.Round)]
         [Space(5)]
         [Title("Ranged Free Grab Interaction Settings", ApplyCondition = true)]
-        [SerializeField, PropertyOrder(-100)] public DropBehaviour dropBehaviour = new();
+        [SerializeField, PropertyOrder(-100)] public DropBehaviour DropBehaviour = DropBehaviour.KeepMomentum;
+        [SerializeField, PropertyOrder(-99)] public bool AlignOrientationOnGrab = false;
 
-        [SerializeField, PropertyOrder(-99)] public bool PreserveInspectModeOrientation = false;
-
-        [Space(5)]
-        [SerializeField, PropertyOrder(-98)] public bool AlignOrientationOnGrab = false;
+        [SerializeField, PropertyOrder(-98)] public bool PreserveInspectModeOrientation = false;
 
         [Space(5)]
-        [SerializeField, PropertyOrder(-97)]public UnityEvent OnInspectModeEnter;
+        [SerializeField, PropertyOrder(-97)] public UnityEvent OnLocalInspectModeEnter;
 
         [Space(5)]
         [EndGroup]
-        [SerializeField, PropertyOrder(-96)]public UnityEvent OnInspectModeExit;
+        [SerializeField, PropertyOrder(-96)] public UnityEvent OnLocalInspectModeExit;
     }
     
     internal class RangedFreeGrabInteractionModule : RangedGrabInteractionModule, IRangedFreeGrabInteractionModule
     {
         internal event Action<Vector3, Quaternion> OnGrabDeltaApplied;
 
-        internal UnityEvent OnInspectModeEnter => _rangedFreeGrabInteractionConfig.OnInspectModeEnter;
-        internal UnityEvent OnInspectModeExit => _rangedFreeGrabInteractionConfig.OnInspectModeExit;
+        internal UnityEvent OnInspectModeEnter => _rangedFreeGrabInteractionConfig.OnLocalInspectModeEnter;
+        internal UnityEvent OnInspectModeExit => _rangedFreeGrabInteractionConfig.OnLocalInspectModeExit;
 
         public bool PreserveInspectModeOrientation { get => _rangedFreeGrabInteractionConfig.PreserveInspectModeOrientation; set => _rangedFreeGrabInteractionConfig.PreserveInspectModeOrientation = value; }
         public bool AlignOrientationOnGrab { get => _rangedFreeGrabInteractionConfig.AlignOrientationOnGrab; set => _rangedFreeGrabInteractionConfig.AlignOrientationOnGrab = value; }
-        public DropBehaviour DropBehaviour { get => _rangedFreeGrabInteractionConfig.dropBehaviour; set => _rangedFreeGrabInteractionConfig.dropBehaviour = value; }
+        public DropBehaviour DropBehaviour { get => _rangedFreeGrabInteractionConfig.DropBehaviour; set => _rangedFreeGrabInteractionConfig.DropBehaviour = value; }
 
         private readonly RangedFreeGrabInteractionConfig _rangedFreeGrabInteractionConfig;
 
