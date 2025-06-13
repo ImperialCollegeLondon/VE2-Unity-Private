@@ -5,6 +5,7 @@ using VE2.Core.VComponents.API;
 using VE2.NonCore.Instancing.API;
 using static VE2.Common.Shared.CommonSerializables;
 using Time = UnityEngine.Time;
+using UnityEngine.SceneManagement;
 
 namespace VE2.NonCore.Instancing.Internal
 {
@@ -126,49 +127,93 @@ namespace VE2.NonCore.Instancing.Internal
 
         private void HandleHostSideLagCompensation(float lagCompensationTime)
         {
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+            GameObject rigidbodyGO = _rigidbody.gameObject.GameObject;
+            GameObject rigidbodyCloneGO = Object.Instantiate(rigidbodyGO, rigidbodyGO.transform.position, rigidbodyGO.transform.rotation);
+            Debug.Log($"RB clone took {stopwatch.ElapsedMilliseconds} ms");
 
-            // Make all rigidbodys in the scene, apart from this one, kinematic
-            Dictionary<IRigidbodyWrapper, bool> kinematicStates = new();
+            // 2. Create a new scene with its own physics scene
+            Scene lagCompensationScene = SceneManager.CreateScene("LagCompensationScene", new CreateSceneParameters(LocalPhysicsMode.Physics3D));
+            PhysicsScene lagCompensationPhysicsScene = lagCompensationScene.GetPhysicsScene();
+            Debug.Log($"Scene creation took {stopwatch.ElapsedMilliseconds} ms");
 
-            foreach (Rigidbody rigidbodyInScene in GameObject.FindObjectsByType<Rigidbody>(FindObjectsSortMode.None))
-            {
-                if (_rigidbody.Equals(rigidbodyInScene))
-                {
-                    continue;
-                }
-
-                IRigidbodyWrapper rigidbodyInSceneWrapper = new RigidbodyWrapper(rigidbodyInScene);
-                kinematicStates.Add(rigidbodyInSceneWrapper, rigidbodyInSceneWrapper.isKinematic);
-                rigidbodyInSceneWrapper.isKinematic = true;
-            }
+            SceneManager.MoveGameObjectToScene(rigidbodyCloneGO, lagCompensationScene);
+            Debug.Log($"Moving GO to new scene {stopwatch.ElapsedMilliseconds} ms");
 
             // Simulate a "lag compensation time" into the future so that the non-host starts receiving states
             // for a smooth drop on their side
             // float lagCompensationTime = ;
             int cyclesToSkipForward = Mathf.CeilToInt(lagCompensationTime / Time.fixedDeltaTime) + 1;
 
-            // Simulate physics into the future in steps
-            Physics.simulationMode = SimulationMode.Script;
-
             for (int i = 0; i < cyclesToSkipForward + LAG_COMP_SMOOTHING_FRAMES; i++)
             {
-                Physics.Simulate(UnityEngine.Time.fixedDeltaTime);
+                lagCompensationPhysicsScene.Simulate(Time.fixedDeltaTime);
                 // Keep a record of simulated steps for host smoothing purposes
                 _storedHostLagCompensationStates.Add(new(Time.fixedTime, _rigidbody.position, _rigidbody.rotation, _grabCounter, 0, _rigidbody.linearVelocity, _rigidbody.angularVelocity));
+                Debug.Log($"Stored frame {i}");
             }
 
-            // Return physics and the locked rigidbodies back to normal
-            Physics.simulationMode = SimulationMode.FixedUpdate;
+            stopwatch.Stop();
+            Debug.Log($"Running physics sim {stopwatch.ElapsedMilliseconds} ms");
 
-            foreach (KeyValuePair<IRigidbodyWrapper, bool> kinematicState in kinematicStates)
-                kinematicState.Key.isKinematic = kinematicState.Value;
+            SceneManager.UnloadSceneAsync(lagCompensationScene);
+
+            Debug.Log($"Unload scene {stopwatch.ElapsedMilliseconds} ms");
 
             // Set a > 0 value for host smoothing frames, which are then handled in FixedUpdate
             _hostSmoothingFramesLeft = LAG_COMP_SMOOTHING_FRAMES;
 
             // Rigidbody set to kinematic to prep for fixed upate smoothing
+            Debug.Log($"Set RB to kinematic");
             _rigidbody.isKinematic = true;
+
         }
+
+        //private void HandleHostSideLagCompensation(float lagCompensationTime)
+        //{
+
+        //    // Make all rigidbodys in the scene, apart from this one, kinematic
+        //    Dictionary<IRigidbodyWrapper, bool> kinematicStates = new();
+
+        //    foreach (Rigidbody rigidbodyInScene in GameObject.FindObjectsByType<Rigidbody>(FindObjectsSortMode.None))
+        //    {
+        //        if (_rigidbody.Equals(rigidbodyInScene))
+        //        {
+        //            continue;
+        //        }
+
+        //        IRigidbodyWrapper rigidbodyInSceneWrapper = new RigidbodyWrapper(rigidbodyInScene);
+        //        kinematicStates.Add(rigidbodyInSceneWrapper, rigidbodyInSceneWrapper.isKinematic);
+        //        rigidbodyInSceneWrapper.isKinematic = true;
+        //    }
+
+        //    // Simulate a "lag compensation time" into the future so that the non-host starts receiving states
+        //    // for a smooth drop on their side
+        //    // float lagCompensationTime = ;
+        //    int cyclesToSkipForward = Mathf.CeilToInt(lagCompensationTime / Time.fixedDeltaTime) + 1;
+
+        //    // Simulate physics into the future in steps
+        //    Physics.simulationMode = SimulationMode.Script;
+
+        //    for (int i = 0; i < cyclesToSkipForward + LAG_COMP_SMOOTHING_FRAMES; i++)
+        //    {
+        //        Physics.Simulate(UnityEngine.Time.fixedDeltaTime);
+        //        // Keep a record of simulated steps for host smoothing purposes
+        //        _storedHostLagCompensationStates.Add(new(Time.fixedTime, _rigidbody.position, _rigidbody.rotation, _grabCounter, 0, _rigidbody.linearVelocity, _rigidbody.angularVelocity));
+        //    }
+
+        //    // Return physics and the locked rigidbodies back to normal
+        //    Physics.simulationMode = SimulationMode.FixedUpdate;
+
+        //    foreach (KeyValuePair<IRigidbodyWrapper, bool> kinematicState in kinematicStates)
+        //        kinematicState.Key.isKinematic = kinematicState.Value;
+
+        //    // Set a > 0 value for host smoothing frames, which are then handled in FixedUpdate
+        //    _hostSmoothingFramesLeft = LAG_COMP_SMOOTHING_FRAMES;
+
+        //    // Rigidbody set to kinematic to prep for fixed upate smoothing
+        //    _rigidbody.isKinematic = true;
+        //}
 
 
         public void HandleFixedUpdate()
