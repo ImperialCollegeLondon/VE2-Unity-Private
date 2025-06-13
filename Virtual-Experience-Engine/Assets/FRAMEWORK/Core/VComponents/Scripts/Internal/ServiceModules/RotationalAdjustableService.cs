@@ -74,11 +74,11 @@ namespace VE2.Core.VComponents.Internal
             _incrementPerScrollTick = config.AdjustableStateConfig.IncrementPerScrollTick;
             _transformToRotateWrapper = transformToRotateWrapper;
 
-            _adjustmentType = config.RotationalAdjustableServiceConfig.AdjustmentType;
-            _adjustmentProperty = config.RotationalAdjustableServiceConfig.AdjustmentProperty;
+            _adjustmentType = config.RotationalAdjustableServiceConfig.AdjustmentAxis;
+            _adjustmentProperty = config.RotationalAdjustableServiceConfig.AdjustmentType;
 
             if (_adjustmentProperty == SpatialAdjustmentProperty.Discrete)
-                _numberOfValues = config.RotationalAdjustableServiceConfig.NumberOfValues;
+                _numberOfValues = config.RotationalAdjustableServiceConfig.NumberOfDiscreteValues;
 
             _minimumSpatialValue = config.RotationalAdjustableServiceConfig.MinimumSpatialValue;
             _maximumSpatialValue = config.RotationalAdjustableServiceConfig.MaximumSpatialValue;

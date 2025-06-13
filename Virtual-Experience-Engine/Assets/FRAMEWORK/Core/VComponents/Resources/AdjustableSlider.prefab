@@ -275,9 +275,9 @@ MonoBehaviour:
       EmitValueOnStart: 1
       IncrementPerScrollTick: 0.25
     LinearAdjustableServiceConfig:
-      AdjustmentType: 2
-      AdjustmentProperty: 1
-      NumberOfValues: 10
+      AdjustmentAxis: 2
+      AdjustmentType: 1
+      NumberOfDiscreteValues: 1
       MinimumSpatialValue: -0.115
       MaximumSpatialValue: 0.115
     GrabbableStateConfig:

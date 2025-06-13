@@ -178,9 +178,9 @@ MonoBehaviour:
       EmitValueOnStart: 1
       IncrementPerScrollTick: 0.1
     RotationalAdjustableServiceConfig:
+      AdjustmentAxis: 0
       AdjustmentType: 0
-      AdjustmentProperty: 1
-      NumberOfValues: 2
+      NumberOfDiscreteValues: 2
       MinimumSpatialValue: -47.687
       MaximumSpatialValue: 47.687
     GrabbableStateConfig:

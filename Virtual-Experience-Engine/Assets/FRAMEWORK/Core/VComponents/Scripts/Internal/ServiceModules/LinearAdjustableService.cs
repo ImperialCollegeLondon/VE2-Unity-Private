@@ -44,9 +44,9 @@ namespace VE2.Core.VComponents.Internal
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Spatial Adjustable Settings", ApplyCondition = true)]
-        [SerializeField] public SpatialAdjustmentType AdjustmentType = SpatialAdjustmentType.XAxis;
-        [SerializeField] public SpatialAdjustmentProperty AdjustmentProperty = SpatialAdjustmentProperty.Continuous;
-        [SerializeField, ShowIf("AdjustmentProperty", SpatialAdjustmentProperty.Discrete)] public int NumberOfValues = 1;
+        [SerializeField] public SpatialAdjustmentType AdjustmentAxis = SpatialAdjustmentType.XAxis;
+        [SerializeField] public SpatialAdjustmentProperty AdjustmentType = SpatialAdjustmentProperty.Continuous;
+        [SerializeField, ShowIf(nameof(AdjustmentType), SpatialAdjustmentProperty.Discrete)] public int NumberOfDiscreteValues = 1;
         [SerializeField] public float MinimumSpatialValue = 0f;
         [SerializeField, EndGroup] public float MaximumSpatialValue = 1f;
 
@@ -97,11 +97,11 @@ namespace VE2.Core.VComponents.Internal
             _incrementPerScrollTick = config.AdjustableStateConfig.IncrementPerScrollTick;
             _transformToTranslate = transformToTranslate;
 
-            _adjustmentType = config.LinearAdjustableServiceConfig.AdjustmentType;
-            _adjustmentProperty = config.LinearAdjustableServiceConfig.AdjustmentProperty;
+            _adjustmentType = config.LinearAdjustableServiceConfig.AdjustmentAxis;
+            _adjustmentProperty = config.LinearAdjustableServiceConfig.AdjustmentType;
 
             if (_adjustmentProperty == SpatialAdjustmentProperty.Discrete)
-                _numberOfValues = config.LinearAdjustableServiceConfig.NumberOfValues;
+                _numberOfValues = config.LinearAdjustableServiceConfig.NumberOfDiscreteValues;
 
             _minimumSpatialValue = config.LinearAdjustableServiceConfig.MinimumSpatialValue;
             _maximumSpatialValue = config.LinearAdjustableServiceConfig.MaximumSpatialValue;
