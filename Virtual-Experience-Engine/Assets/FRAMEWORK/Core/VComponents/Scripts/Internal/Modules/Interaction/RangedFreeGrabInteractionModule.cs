@@ -26,6 +26,10 @@ namespace VE2.Core.VComponents.Internal
         [Space(5)]
         [EndGroup]
         [SerializeField, PropertyOrder(-96)] public UnityEvent OnLocalInspectModeExit;
+
+        //internal RangedFreeGrabInteractionConfig(ITransformWrapper attachPointWrapper) : base(attachPointWrapper) { }
+
+        //internal RangedFreeGrabInteractionConfig() { }
     }
     
     internal class RangedFreeGrabInteractionModule : RangedGrabInteractionModule, IRangedFreeGrabInteractionModule
@@ -51,9 +55,9 @@ namespace VE2.Core.VComponents.Internal
             OnInspectModeExit?.Invoke();
         }
 
-        public RangedFreeGrabInteractionModule(string id, IGrabInteractablesContainer grabInteractablesContainer, ITransformWrapper transform, List<IHandheldInteractionModule> handheldInteractions,
+        public RangedFreeGrabInteractionModule(string id, IGrabInteractablesContainer grabInteractablesContainer, List<IHandheldInteractionModule> handheldInteractions,
             RangedFreeGrabInteractionConfig rangedFreeGrabInteractionConfig, GeneralInteractionConfig generalInteractionConfig)
-            : base(id, grabInteractablesContainer, transform, handheldInteractions, rangedFreeGrabInteractionConfig, generalInteractionConfig)
+            : base(id, grabInteractablesContainer, handheldInteractions, rangedFreeGrabInteractionConfig, generalInteractionConfig)
         {
             _rangedFreeGrabInteractionConfig = rangedFreeGrabInteractionConfig;
         }

@@ -16,11 +16,15 @@ namespace VE2.Core.VComponents.Internal
 
         [SerializeField, IndentArea(-1)] public RangedFreeGrabInteractionConfig RangedFreeGrabInteractionConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
-        
+
         [HideIf(nameof(MultiplayerSupportPresent), false)]
         [SerializeField, IgnoreParent] public WorldStateSyncConfig SyncConfig = new();
 
         private bool MultiplayerSupportPresent => VE2API.HasMultiPlayerSupport;
+
+        //Constructor used for tests
+        public FreeGrabbableConfig(ITransformWrapper attachPointWrapper) { RangedFreeGrabInteractionConfig.AttachPoint = attachPointWrapper; }
+        public FreeGrabbableConfig() {}
     }
 
     internal class FreeGrabbableService
@@ -35,8 +39,8 @@ namespace VE2.Core.VComponents.Internal
         private readonly RangedFreeGrabInteractionModule _RangedGrabInteractionModule;
         #endregion
 
-        private IRigidbodyWrapper _rigidbody;
-        private ITransformWrapper _transform;
+        private readonly IRigidbodyWrapper _rigidbody;
+        private ITransformWrapper _transform => _config.RangedFreeGrabInteractionConfig.AttachPoint;
         private bool _isKinematicOnGrab;
         private PhysicsConstants _physicsConstants;
         private IGrabbableRigidbody _grabbableRigidbodyInterface;
@@ -47,13 +51,15 @@ namespace VE2.Core.VComponents.Internal
         private Vector3 positionOnGrab = new();
         private Quaternion rotationOnGrab = new();
 
+        private readonly FreeGrabbableConfig _config;
+
         public FreeGrabbableService(List<IHandheldInteractionModule> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id,
             IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer,
             IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants, IGrabbableRigidbody grabbableRigidbodyInterface, IClientIDWrapper localClientIdWrapper)
         {
-            //even though this is never null in theory, done so to satisfy the tests
-            _transform = config.RangedFreeGrabInteractionConfig.AttachPoint != null ? new TransformWrapper(config.RangedFreeGrabInteractionConfig.AttachPoint) : _rigidbody != null ? _rigidbody.transform : null;
-            _RangedGrabInteractionModule = new(id, grabInteractablesContainer, _transform, handheldInteractions, config.RangedFreeGrabInteractionConfig, config.GeneralInteractionConfig);
+            _config = config;
+
+            _RangedGrabInteractionModule = new(id, grabInteractablesContainer, handheldInteractions, config.RangedFreeGrabInteractionConfig, config.GeneralInteractionConfig);
             _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, interactorContainer, localClientIdWrapper);
 
             _rigidbody = rigidbody;
@@ -128,17 +134,16 @@ namespace VE2.Core.VComponents.Internal
             {
                 TrackPosition(_StateModule.CurrentGrabbingInteractor.GrabberTransform.position);
 
+                //TODO - can probably calculate this in TrackRotation, checking if AlignOrientationOnGrab
                 Quaternion rotationDelta = Quaternion.Inverse(rotationOnGrab) * _StateModule.CurrentGrabbingInteractor.GrabberTransform.rotation;
 
                 if (RangedGrabInteractionModule.AlignOrientationOnGrab)
                 {
                     TrackRotation(rotationDelta);
-                    Debug.Log("Using attach point orientation on grab");
                 }
                 else
                 {
                     TrackRotation(_StateModule.CurrentGrabbingInteractor.GrabberTransform.rotation);
-                    Debug.Log("Using grabber orientation on grab");
                 }
             }
         }

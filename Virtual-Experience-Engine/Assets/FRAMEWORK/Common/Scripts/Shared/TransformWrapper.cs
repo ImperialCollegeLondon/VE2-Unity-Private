@@ -18,13 +18,15 @@ namespace VE2.Common.Shared
 
     internal class TransformWrapper : ITransformWrapper
     {
-        Transform ITransformWrapper._Transform => _transform;
+        Transform ITransformWrapper._Transform => Transform;
 
-        private readonly Transform _transform;
+        //Accessible to monobehaviour layer, but not once its abstracted behind the ITransformWrapper interface
+        public readonly Transform Transform;
+        public GameObject GameObject => Transform.gameObject;
 
         public TransformWrapper(Transform transform)
         {
-            _transform = transform;
+            Transform = transform;
         }
     }
 }

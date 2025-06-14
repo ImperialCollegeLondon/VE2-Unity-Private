@@ -26,7 +26,7 @@ namespace VE2.Core.VComponents.Tests
 
             FreeGrabbableService freeGrabbable = new( 
                 new List<IHandheldInteractionModule>() {},
-                new FreeGrabbableConfig(),
+                new FreeGrabbableConfig(Substitute.For<ITransformWrapper>()),
                 new GrabbableState(), 
                 "debug",
                 Substitute.For<IWorldStateSyncableContainer>(),
