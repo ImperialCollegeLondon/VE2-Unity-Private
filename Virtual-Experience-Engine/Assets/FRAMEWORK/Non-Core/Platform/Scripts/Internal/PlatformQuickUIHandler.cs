@@ -19,7 +19,7 @@ namespace VE2.NonCore.Platform.Internal
             _quickUIView = quickUIView;
 
             //These are done here, called by awake from the view, so we only fetch these services once they are ready
-            _platformService = PlatformAPI.PlatformService as IPlatformServiceInternal;
+            _platformService = VE2API.PlatformService as IPlatformServiceInternal;
             _instanceService = VE2API.InstanceService;
 
             _quickUIView.SetPlayerNameText(_platformService.PlayerDisplayName);

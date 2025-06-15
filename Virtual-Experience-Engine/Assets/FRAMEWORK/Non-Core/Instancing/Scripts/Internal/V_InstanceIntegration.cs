@@ -74,7 +74,7 @@ namespace VE2.NonCore.Instancing.Internal
             if (!Application.isPlaying)
                 return;
 
-            if (PlatformAPI.PlatformService == null) //TODO - should point to VE2API
+            if (VE2API.PlatformService == null) //TODO - should point to VE2API
             {
                 if (!_bootErrorLogged)
                 {
@@ -84,12 +84,12 @@ namespace VE2.NonCore.Instancing.Internal
                 return;
             }
 
-            ServerConnectionSettings instancingSettings = ((IPlatformServiceInternal)PlatformAPI.PlatformService).GetInstanceServerSettingsForCurrentWorld();
+            ServerConnectionSettings instancingSettings = ((IPlatformServiceInternal)VE2API.PlatformService).GetInstanceServerSettingsForCurrentWorld();
             InstanceCode instanceCode;
 
             if (instancingSettings != null)
             {
-                instanceCode = ((IPlatformServiceInternal)PlatformAPI.PlatformService).CurrentInstanceCode;
+                instanceCode = ((IPlatformServiceInternal)VE2API.PlatformService).CurrentInstanceCode;
             }
             else 
             {

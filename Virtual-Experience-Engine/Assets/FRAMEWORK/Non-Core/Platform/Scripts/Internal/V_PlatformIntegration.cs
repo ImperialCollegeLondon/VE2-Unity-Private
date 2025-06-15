@@ -5,6 +5,7 @@ using System.Net;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VE2.Common.API;
 using VE2.NonCore.Platform.API;
 
 namespace VE2.NonCore.Platform.Internal
@@ -43,7 +44,7 @@ namespace VE2.NonCore.Platform.Internal
 
         private void OnEnable() //TODO - handle reconnect
         {
-            PlatformAPI.PlatformProvider = this;
+            VE2API.PlatformProvider = this;
 
             if (!Application.isPlaying || _platformService != null)
                 return;

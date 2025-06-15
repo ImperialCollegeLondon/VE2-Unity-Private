@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using VE2.Common.API;
 using VE2.NonCore.FileSystem.API;
 using VE2.NonCore.Platform.API;
 using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
@@ -49,7 +50,7 @@ internal class HubController : MonoBehaviour
     private void OnEnable()
     {
         Debug.Log("Connecting to hub instance");
-        _platformService = (IPlatformServiceInternal)PlatformAPI.PlatformService;
+        _platformService = (IPlatformServiceInternal)VE2API.PlatformService;
         InstanceCode hubInstanceCode = new("Hub", "Solo", 0);
         _platformService.UpdateSettings(_platformServerConnectionSettings, hubInstanceCode);
         _platformService.ConnectToPlatform();
@@ -466,7 +467,7 @@ internal class HubController : MonoBehaviour
         if (Application.platform == RuntimePlatform.Android)
         {
             Debug.Log("Disconnecting from hub instance");
-            IPlatformServiceInternal platformService = (IPlatformServiceInternal)PlatformAPI.PlatformService;
+            IPlatformServiceInternal platformService = (IPlatformServiceInternal)VE2API.PlatformService;
             platformService.TearDown();
         }
     }

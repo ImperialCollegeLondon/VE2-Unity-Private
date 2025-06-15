@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VE2.Common.API;
 using VE2.NonCore.FileSystem.API;
 using VE2.NonCore.Platform.API;
 using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
@@ -17,7 +18,7 @@ namespace VE2.NonCore.FileSystem.Internal
 
         private void OnEnable()
         {
-            ServerConnectionSettings serverSettings = ((IPlatformServiceInternal)PlatformAPI.PlatformService).GetWorldSubStoreFTPSettingsForCurrentWorld();
+            ServerConnectionSettings serverSettings = ((IPlatformServiceInternal)VE2API.PlatformService).GetWorldSubStoreFTPSettingsForCurrentWorld();
 
             if (serverSettings == null)
             {

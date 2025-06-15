@@ -28169,7 +28169,7 @@ MonoBehaviour:
     RotationalAdjustableServiceConfig:
       AdjustmentAxis: 0
       AdjustmentType: 1
-      NumberOfDiscreteValues: 2
+      NumberOfDiscreteValues: 3
       MinimumSpatialValue: -47.687
       MaximumSpatialValue: 47.687
     GrabbableStateConfig:
