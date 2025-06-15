@@ -26,7 +26,7 @@ namespace VE2.Core.VComponents.Internal
     internal class HandheldAdjustableServiceConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
-        [Title("Scroll Settings")]
+        [Title("Handheld Adjustable Interaction Settings")]
         [EndGroup, SerializeField] public bool LoopValues = false;
 
         // [SerializeField] public bool SinglePressScroll = false;
