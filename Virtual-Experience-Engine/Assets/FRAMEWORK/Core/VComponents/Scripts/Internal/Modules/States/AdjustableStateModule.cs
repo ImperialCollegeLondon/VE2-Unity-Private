@@ -54,9 +54,7 @@ namespace VE2.Core.VComponents.Internal
         public float MaximumOutputValue { get => _adjustableStateConfig.MaximumOutputValue; set => _adjustableStateConfig.MaximumOutputValue = value; }
         private AdjustableState _state => (AdjustableState)State;
 
-        internal float Range => (MaximumOutputValue - MinimumOutputValue) + 1;
-        internal bool IsAtMinimumValue => OutputValue == _adjustableStateConfig.MinimumOutputValue;
-        internal bool IsAtMaximumValue => OutputValue == _adjustableStateConfig.MaximumOutputValue;
+        internal float Range => (MaximumOutputValue - MinimumOutputValue) + 1; //TODO - why +1 here?
 
         internal event Action<float> OnValueChangedInternal;
 

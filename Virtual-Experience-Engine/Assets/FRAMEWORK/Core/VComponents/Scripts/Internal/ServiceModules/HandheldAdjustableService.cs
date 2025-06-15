@@ -72,28 +72,27 @@ namespace VE2.Core.VComponents.Internal
         {
             float targetValue = _StateModule.OutputValue + _adjustableStateConfig.IncrementPerScrollTick;
 
-            if (_StateModule.IsAtMaximumValue)
+            if (targetValue > _StateModule.MaximumOutputValue)
             {
                 if (_handheldAdjustableServiceConfig.LoopValues)
-                {
                     targetValue -= _StateModule.Range;
-                }
+                else
+                    targetValue = Mathf.Clamp(targetValue, _StateModule.MinimumOutputValue, _StateModule.MaximumOutputValue);
             }
 
             _StateModule.SetValue(targetValue, clientID);
-            
         }
 
         private void HandleScrollDown(ushort clientID)
         {
             float targetValue = _StateModule.OutputValue - _adjustableStateConfig.IncrementPerScrollTick;
 
-            if (_StateModule.IsAtMinimumValue)
+            if (targetValue < _StateModule.MinimumOutputValue)
             {
                 if (_handheldAdjustableServiceConfig.LoopValues)
-                {
                     targetValue += _StateModule.Range;
-                }
+                else
+                    targetValue = Mathf.Clamp(targetValue, _StateModule.MinimumOutputValue, _StateModule.MaximumOutputValue);
             }
 
             _StateModule.SetValue(targetValue, clientID);
