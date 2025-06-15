@@ -65,12 +65,11 @@ namespace VE2.Core.VComponents.Internal
 
     internal class LinearAdjustableService
     {
+        private ITransformWrapper _transformToAdjust => _config.RangedAdjustableInteractionConfig.TransformToAdjust;
         private float _spatialValue;
         public float SpatialValue { get => _spatialValue; set => SetSpatialValue(value); }
-        private float _minimumSpatialValue => _config.LinearAdjustableServiceConfig.MinimumSpatialValue;
-        private float _maximumSpatialValue => _config.LinearAdjustableServiceConfig.MaximumSpatialValue;
-        public float MinimumSpatialValue { get => _minimumSpatialValue; set => _config.LinearAdjustableServiceConfig.MinimumSpatialValue = value; }
-        public float MaximumSpatialValue { get => _maximumSpatialValue; set => _config.LinearAdjustableServiceConfig.MaximumSpatialValue = value; }
+        public float MinimumSpatialValue { get => _config.LinearAdjustableServiceConfig.MinimumSpatialValue; set => _config.LinearAdjustableServiceConfig.MinimumSpatialValue = value; }
+        public float MaximumSpatialValue { get => _config.LinearAdjustableServiceConfig.MaximumSpatialValue; set => _config.LinearAdjustableServiceConfig.MaximumSpatialValue = value; }
         private int _numberOfValues => _config.LinearAdjustableServiceConfig.NumberOfDiscreteValues;
         public int NumberOfValues { get => _numberOfValues; set => UpdateSteps(value); }
 
@@ -87,7 +86,6 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         private readonly LinearAdjustableConfig _config;
-        private ITransformWrapper _transformToAdjust => _config.RangedAdjustableInteractionConfig.TransformToAdjust;
 
         public LinearAdjustableService(List<IHandheldInteractionModule> handheldInteractions, LinearAdjustableConfig config, AdjustableState adjustableState, VE2Serializable grabbableState, string id,
             IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer, IClientIDWrapper localClientIdWrapper)
@@ -146,7 +144,7 @@ namespace VE2.Core.VComponents.Internal
 
         private void SetSpatialValue(float spatialValue)
         {
-            _spatialValue = Mathf.Clamp(spatialValue, _minimumSpatialValue, _maximumSpatialValue);
+            _spatialValue = Mathf.Clamp(spatialValue, MinimumSpatialValue, MaximumSpatialValue);
             float OutputValue = ConvertToOutputValue(_spatialValue);
             SetValueOnStateModule(OutputValue);
         }
@@ -199,13 +197,13 @@ namespace VE2.Core.VComponents.Internal
             switch (_config.LinearAdjustableServiceConfig.AdjustmentAxis)
             {
                 case SpatialAdjustmentAxis.XAxis:
-                    adjustment = Mathf.Clamp(localGrabPosition.x, _minimumSpatialValue, _maximumSpatialValue);
+                    adjustment = Mathf.Clamp(localGrabPosition.x, MinimumSpatialValue, MaximumSpatialValue);
                     break;
                 case SpatialAdjustmentAxis.YAxis:
-                    adjustment = Mathf.Clamp(localGrabPosition.y, _minimumSpatialValue, _maximumSpatialValue);
+                    adjustment = Mathf.Clamp(localGrabPosition.y, MinimumSpatialValue, MaximumSpatialValue);
                     break;
                 case SpatialAdjustmentAxis.ZAxis:
-                    adjustment = Mathf.Clamp(localGrabPosition.z, _minimumSpatialValue, _maximumSpatialValue);
+                    adjustment = Mathf.Clamp(localGrabPosition.z, MinimumSpatialValue, MaximumSpatialValue);
                     break;
             }
 
@@ -251,12 +249,12 @@ namespace VE2.Core.VComponents.Internal
 
         private float ConvertToSpatialValue(float outputValue)
         {
-            return Mathf.Lerp(_minimumSpatialValue, _maximumSpatialValue, Mathf.InverseLerp(_AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue, outputValue));
+            return Mathf.Lerp(MinimumSpatialValue, MaximumSpatialValue, Mathf.InverseLerp(_AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue, outputValue));
         }
 
         private float ConvertToOutputValue(float spatialValue)
         {
-            return Mathf.Lerp(_AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue, Mathf.InverseLerp(_minimumSpatialValue, _maximumSpatialValue, spatialValue));
+            return Mathf.Lerp(_AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue, Mathf.InverseLerp(MinimumSpatialValue, MaximumSpatialValue, spatialValue));
         }
 
         public void TearDown()
