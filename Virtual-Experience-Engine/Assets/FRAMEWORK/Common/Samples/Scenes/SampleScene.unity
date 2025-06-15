@@ -678,6 +678,8 @@ MonoBehaviour:
       IsNetworked: 1
       TransmissionFrequency: 1
       TransmissionType: 0
+  _state:
+    IsInitialised: 0
   _collider: {fileID: 23840100}
 --- !u!23 &23840102
 MeshRenderer:
@@ -6133,6 +6135,8 @@ MonoBehaviour:
       IsNetworked: 1
       TransmissionFrequency: 1
       TransmissionType: 0
+  _state:
+    IsInitialised: 0
   _collider: {fileID: 539028773}
 --- !u!23 &539028775
 MeshRenderer:
@@ -8589,6 +8593,8 @@ MonoBehaviour:
       IsNetworked: 1
       TransmissionFrequency: 1
       TransmissionType: 0
+  _state:
+    IsInitialised: 0
   _collider: {fileID: 756509172}
 --- !u!114 &756509174
 MonoBehaviour:
@@ -13066,6 +13072,8 @@ MonoBehaviour:
       IsNetworked: 1
       TransmissionFrequency: 1
       TransmissionType: 0
+  _state:
+    IsInitialised: 0
   _collider: {fileID: 1064730504}
 --- !u!23 &1064730506
 MeshRenderer:
@@ -20213,7 +20221,6 @@ GameObject:
   - component: {fileID: 1932811764}
   - component: {fileID: 1932811763}
   - component: {fileID: 1932811762}
-  - component: {fileID: 1932811765}
   m_Layer: 0
   m_Name: PlayerSpawner
   m_TagString: Untagged
@@ -20242,6 +20249,7 @@ MonoBehaviour:
     OnDeactivateMainMenu:
       m_PersistentCalls:
         m_Calls: []
+  _uiPanelsSetup: 0
 --- !u!114 &1932811763
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20349,18 +20357,6 @@ Transform:
   - {fileID: 699851117}
   m_Father: {fileID: 351135655}
   m_LocalEulerAnglesHint: {x: 0, y: 14.473, z: 0}
---- !u!114 &1932811765
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1932811761}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 51233b46e6e04214ba3824b98b9c4bf9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1938445656
 GameObject:
   m_ObjectHideFlags: 0
@@ -22385,6 +22381,8 @@ MonoBehaviour:
       IsNetworked: 1
       TransmissionFrequency: 1
       TransmissionType: 0
+  _state:
+    IsInitialised: 0
 --- !u!114 &2103749184
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22447,6 +22445,8 @@ MonoBehaviour:
       IsNetworked: 1
       TransmissionFrequency: 1
       TransmissionType: 0
+  _state:
+    IsInitialised: 0
 --- !u!114 &2103749185
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27681,6 +27681,8 @@ MonoBehaviour:
       IsNetworked: 1
       TransmissionFrequency: 1
       TransmissionType: 0
+  _adjustableState:
+    IsInitialised: 0
 --- !u!1 &8285160347106024234
 GameObject:
   m_ObjectHideFlags: 0
@@ -27844,6 +27846,8 @@ MonoBehaviour:
       IsNetworked: 1
       TransmissionFrequency: 1
       TransmissionType: 0
+  _adjustableState:
+    IsInitialised: 0
 --- !u!114 &8727625953135869404
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28225,6 +28229,8 @@ MonoBehaviour:
       IsNetworked: 1
       TransmissionFrequency: 1
       TransmissionType: 0
+  _adjustableState:
+    IsInitialised: 0
 --- !u!54 &9134239090849065903
 Rigidbody:
   m_ObjectHideFlags: 0

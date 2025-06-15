@@ -164,7 +164,7 @@ namespace VE2.Core.Player.Internal
 
             if (_config.PlayerModeConfig.EnableVR)
             {
-                xrManagerWrapper.InitializeLoader(); 
+                xrManagerWrapper.InitializeLoader(); //TODO: might not need to do this if its already been init? E.G, don't do again on domain reload - could just put a flag in the wrapper?
 
                 _playerVR = new PlayerControllerVR(
                     interactorContainer, grabInteractablesContainer, _playerInputContainer.PlayerVRInputContainer,
@@ -290,18 +290,22 @@ namespace VE2.Core.Player.Internal
 
         public void HandleFixedUpdate()
         {
+            //Note: Subcontrollers return new instances of PTD, breaking the reference to the one serialized at the MB level 
+            //This means the MB has to manually update its serialized field with the new data
             if (PlayerTransformData.IsVRMode)
                 PlayerTransformData = _playerVR.PlayerTransformData;
-            else 
-                PlayerTransformData = _player2D.PlayerTransformData;
+            else
+                PlayerTransformData = _player2D.PlayerTransformData;                
         }
 
-        public void HandleUpdate() 
+        public void HandleUpdate()
         {
             if (PlayerTransformData.IsVRMode)
                 _playerVR.HandleUpdate();
-            else 
+            else
                 _player2D.HandleUpdate();
+
+            //Debug.Log("Transform data update - " + PlayerTransformData.RootPosition.ToString()); 
         }
         
         public void TearDown() 

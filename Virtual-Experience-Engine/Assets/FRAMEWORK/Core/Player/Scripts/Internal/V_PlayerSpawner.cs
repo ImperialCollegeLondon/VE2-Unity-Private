@@ -241,12 +241,16 @@ namespace VE2.Core.Player.Internal
                 xRHapticsWrapperRight);
         }
 
-        private void FixedUpdate() 
+        private void FixedUpdate()
         {
             if (!Application.isPlaying)
                 return;
 
             _playerService?.HandleFixedUpdate();
+
+            //Note - unlike VCs, player service creates new instances of the state each frame. 
+            //This means we have to assign it into our serialized field manually, rather than relying on the reference to persist between the MB and the service
+            _playerTransformData = _playerService.PlayerTransformData;
         }
 
         private void Update() 
