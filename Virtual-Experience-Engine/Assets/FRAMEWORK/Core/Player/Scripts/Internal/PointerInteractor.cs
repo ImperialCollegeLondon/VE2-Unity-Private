@@ -513,15 +513,12 @@ namespace VE2.Core.Player.Internal
 
         private void HandleHandheldClickPressed()
         {
-            Debug.Log("Current grabbing? " + IsCurrentlyGrabbing);
             if (_LocalClientIDWrapper.IsClientIDReady && IsCurrentlyGrabbing)
             {
-                Debug.Log("HH?? " + _CurrentGrabbingGrabbable.HandheldInteractions.Count);
                 foreach (IHandheldInteractionModule handheldInteraction in _CurrentGrabbingGrabbable.HandheldInteractions)
                 {
                     if (handheldInteraction is IHandheldClickInteractionModule handheldClickInteraction)
                     {
-                        Debug.Log("DO CLICK!");
                         handheldClickInteraction.ClickDown(_InteractorID.ClientID);
                         Vibrate(HIGH_HAPTICS_AMPLITUDE, HIGH_HAPTICS_DURATION);
                     }

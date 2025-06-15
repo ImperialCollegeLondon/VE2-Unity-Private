@@ -130,8 +130,6 @@ namespace VE2.Core.VComponents.Internal
 
             _rigidbodyWrapper = new(GetComponent<Rigidbody>());
 
-            Debug.Log("Create FG on " + gameObject.name + " - HH " + handheldInteractions.Count);
-
             _service = new FreeGrabbableService(
                 handheldInteractions,
                 _config, 
