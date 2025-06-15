@@ -48,12 +48,14 @@ namespace VE2.Core.VComponents.Internal
         private readonly HandheldAdjustableServiceConfig  _handheldAdjustableServiceConfig;
         private readonly AdjustableStateConfig  _adjustableStateConfig;
 
-        public HandheldAdjustableService(HandheldAdjustableConfig config, VE2Serializable state, string id, IWorldStateSyncableContainer worldStateSyncableContainer, IClientIDWrapper localClientIdWrapper)
+        public HandheldAdjustableService(HandheldAdjustableConfig config, AdjustableState state, string id, IWorldStateSyncableContainer worldStateSyncableContainer, IClientIDWrapper localClientIdWrapper)
         {
             _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, localClientIdWrapper);
             _HandheldScrollInteractionModule = new(config.GeneralInteractionConfig);
 
-            _StateModule.SetValue(config.StateConfig.StartingOutputValue, ushort.MaxValue);
+            if (!state.IsInitialised)
+                _StateModule.SetValue(config.StateConfig.StartingOutputValue, ushort.MaxValue);
+            state.IsInitialised = true;
 
             _handheldAdjustableServiceConfig = config.HandheldAdjustableServiceConfig;
             _adjustableStateConfig = config.StateConfig;

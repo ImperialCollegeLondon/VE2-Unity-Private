@@ -89,7 +89,7 @@ namespace VE2.Core.VComponents.Internal
         private readonly LinearAdjustableConfig _config;
         private ITransformWrapper _transformToAdjust => _config.RangedAdjustableInteractionConfig.TransformToAdjust;
 
-        public LinearAdjustableService(List<IHandheldInteractionModule> handheldInteractions, LinearAdjustableConfig config, VE2Serializable adjustableState, VE2Serializable grabbableState, string id,
+        public LinearAdjustableService(List<IHandheldInteractionModule> handheldInteractions, LinearAdjustableConfig config, AdjustableState adjustableState, VE2Serializable grabbableState, string id,
             IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer, IClientIDWrapper localClientIdWrapper)
         {
             _config = config;
@@ -115,7 +115,9 @@ namespace VE2.Core.VComponents.Internal
             //UnityEngine.Debug.Log(config.AdjustableStateConfig.StartingOutputValue);
 
             //set the initial value of the adjustable state module
-            SetValueOnStateModule(config.AdjustableStateConfig.StartingOutputValue);
+            if (!adjustableState.IsInitialised)
+                SetValueOnStateModule(config.AdjustableStateConfig.StartingOutputValue);
+            adjustableState.IsInitialised = true;
         }
 
         private void OnScrollUp()

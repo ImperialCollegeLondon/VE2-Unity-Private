@@ -129,6 +129,7 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class AdjustableState : VE2Serializable
     {
+        public bool IsInitialised = false;
         public ushort StateChangeNumber { get; set; }
         public float Value { get; set; }
         public ushort MostRecentInteractingClientID { get; set; }

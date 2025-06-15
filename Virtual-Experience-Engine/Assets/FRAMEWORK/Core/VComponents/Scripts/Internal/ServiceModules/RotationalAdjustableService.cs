@@ -71,7 +71,7 @@ namespace VE2.Core.VComponents.Internal
         private int _minRevs => (int)_minimumSpatialValue / 360;
         private int _maxRevs => (int)_maximumSpatialValue / 360;
 
-        public RotationalAdjustableService(List<IHandheldInteractionModule> handheldInteractions, RotationalAdjustableConfig config, VE2Serializable adjustableState, VE2Serializable grabbableState, string id,
+        public RotationalAdjustableService(List<IHandheldInteractionModule> handheldInteractions, RotationalAdjustableConfig config, AdjustableState adjustableState, VE2Serializable grabbableState, string id,
             IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer, IClientIDWrapper localClientIdWrapper)
         {
             _config = config;
@@ -95,7 +95,9 @@ namespace VE2.Core.VComponents.Internal
             _AdjustableStateModule.OnValueChangedInternal += (float value) => OnStateValueChanged(value);
 
             //set the initial value of the adjustable state module
-            SetValueOnStateModule(config.AdjustableStateConfig.StartingOutputValue);
+            if (!adjustableState.IsInitialised)
+                SetValueOnStateModule(config.AdjustableStateConfig.StartingOutputValue);
+            adjustableState.IsInitialised = true;
 
             //get the nth revolution of the starting value
             _numberOfRevolutions = Mathf.FloorToInt(ConvertToSpatialValue(config.AdjustableStateConfig.StartingOutputValue) / 360);
