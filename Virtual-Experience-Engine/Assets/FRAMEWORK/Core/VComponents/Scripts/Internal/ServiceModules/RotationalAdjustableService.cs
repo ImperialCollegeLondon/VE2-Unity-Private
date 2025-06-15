@@ -100,6 +100,8 @@ namespace VE2.Core.VComponents.Internal
             //get the nth revolution of the starting value
             _numberOfRevolutions = Mathf.FloorToInt(ConvertToSpatialValue(config.AdjustableStateConfig.StartingOutputValue) / 360);
             _oldRotationalValue = ConvertToSpatialValue(config.AdjustableStateConfig.StartingOutputValue) - (_numberOfRevolutions * 360);
+
+            Debug.Log($"Transform to adjust: " + ((TransformWrapper)_transformToAdjust).GameObject.name);
         }
 
         private void OnScrollUp()

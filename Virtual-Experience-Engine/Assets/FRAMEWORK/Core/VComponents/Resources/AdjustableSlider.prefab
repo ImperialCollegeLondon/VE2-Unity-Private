@@ -314,44 +314,21 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-    rangedAdjustableConfig:
+    RangedAdjustableInteractionConfig:
       InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 3513664107014113253}
-            m_TargetAssemblyTypeName: VE2.Common.Shared.V_LightTweener, VE2.Common.Shared
-            m_MethodName: GoToMax
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
+          m_Calls: []
       OnLocalHoverExit:
         m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 3513664107014113253}
-            m_TargetAssemblyTypeName: VE2.Common.Shared.V_LightTweener, VE2.Common.Shared
-            m_MethodName: GoToMin
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-      AttachPoint: {fileID: 1176139884462788468}
-      VrFailsafeGrab: 1
-      VRRaySnapRange: 0.15
+          m_Calls: []
+      _attachPoint: {fileID: 1176139884462788468}
+      VRRaySnap: 1
+      VRRaySnapRangeFrontOfHand: 0.15
       VRRaySnapRangeBackOfHand: 0.1
-      failsafeGrabMultiplier: 1.2
-      TransformToAdjust: {fileID: 1176139884462788468}
+      VRFailsafeGrab: 1
+      FailsafeGrabMultiplier: 1.2
+      _transformToAdjust: {fileID: 1176139884462788468}
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1

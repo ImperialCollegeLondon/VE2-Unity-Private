@@ -19,7 +19,7 @@ namespace VE2.Core.VComponents.Internal
         {
             get
             {
-                if (_transformToAdjustWrapper == null && _transformToAdjustWrapper != null)
+                if (_transformToAdjustWrapper == null && _transformToAdjust != null)
                     _transformToAdjustWrapper = new TransformWrapper(_transformToAdjust);
 
                 return _transformToAdjustWrapper;
