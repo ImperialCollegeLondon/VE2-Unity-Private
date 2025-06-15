@@ -27,7 +27,7 @@ namespace VE2.Core.VComponents.Internal
         //Constructor used for tests
         public RotationalAdjustableConfig(ITransformWrapper attachPointWrapper, ITransformWrapper transformToMove)
         {
-            RangedAdjustableInteractionConfig.AttachPoint = attachPointWrapper;
+            RangedAdjustableInteractionConfig.AttachPointWrapper = attachPointWrapper;
             RangedAdjustableInteractionConfig.TransformToAdjust = transformToMove;
         }
         public RotationalAdjustableConfig() {}
@@ -57,7 +57,7 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         private readonly RotationalAdjustableConfig _config;
-        private ITransformWrapper _attachPointTransform => _config.RangedAdjustableInteractionConfig.AttachPoint;
+        private ITransformWrapper _attachPointTransform => _config.RangedAdjustableInteractionConfig.AttachPointWrapper;
 
         //gets the vector from the object to the attach point, this will serve as the starting point for any angle created
         //needs to be the attach point at the start (0 not starting position) to get the correct angle

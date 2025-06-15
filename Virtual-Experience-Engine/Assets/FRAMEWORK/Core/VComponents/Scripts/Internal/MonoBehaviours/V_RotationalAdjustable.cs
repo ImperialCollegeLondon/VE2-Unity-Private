@@ -72,12 +72,12 @@ namespace VE2.Core.VComponents.Internal
         {
             get
             {
-                if (_config.RangedAdjustableInteractionConfig.AttachPoint == null)
-                    _config.RangedAdjustableInteractionConfig.AttachPoint = new TransformWrapper(transform);
-                return ((TransformWrapper)_config.RangedAdjustableInteractionConfig.AttachPoint).Transform.GetComponent<Collider>();
+                if (_config.RangedAdjustableInteractionConfig.AttachPointWrapper == null)
+                    _config.RangedAdjustableInteractionConfig.AttachPointWrapper = new TransformWrapper(transform);
+                return ((TransformWrapper)_config.RangedAdjustableInteractionConfig.AttachPointWrapper).Transform.GetComponent<Collider>();
             }
         }
-        internal string AttachPointGOName => ((TransformWrapper)_config.RangedAdjustableInteractionConfig.AttachPoint).GameObject.name;
+        internal string AttachPointGOName => ((TransformWrapper)_config.RangedAdjustableInteractionConfig.AttachPointWrapper).GameObject.name;
         #endregion
 
         private RotationalAdjustableService _service = null;
@@ -114,9 +114,9 @@ namespace VE2.Core.VComponents.Internal
                 Debug.LogWarning($"The adjustable on {gameObject.name} does not have an assigned TransformToAdjust, and so may not behave as intended");
             }
 
-            if (_config.RangedAdjustableInteractionConfig.AttachPoint == null || ((TransformWrapper)_config.RangedAdjustableInteractionConfig.AttachPoint).Transform == null)
+            if (_config.RangedAdjustableInteractionConfig.AttachPointWrapper == null || ((TransformWrapper)_config.RangedAdjustableInteractionConfig.AttachPointWrapper).Transform == null)
             {
-                _config.RangedAdjustableInteractionConfig.AttachPoint = new TransformWrapper(transform);
+                _config.RangedAdjustableInteractionConfig.AttachPointWrapper = new TransformWrapper(transform);
                 Debug.LogWarning($"The adjustable on {gameObject.name} does not have an assigned AttachPoint, and so may not behave as intended");
             }
 

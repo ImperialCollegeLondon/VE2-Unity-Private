@@ -41,7 +41,7 @@ namespace VE2.Core.VComponents.Internal
         //Constructor used for tests
         public LinearAdjustableConfig(ITransformWrapper attachPointWrapper, ITransformWrapper transformToMove)
         {
-            RangedAdjustableInteractionConfig.AttachPoint = attachPointWrapper;
+            RangedAdjustableInteractionConfig.AttachPointWrapper = attachPointWrapper;
             RangedAdjustableInteractionConfig.TransformToAdjust = transformToMove;
         }
         public LinearAdjustableConfig() {}

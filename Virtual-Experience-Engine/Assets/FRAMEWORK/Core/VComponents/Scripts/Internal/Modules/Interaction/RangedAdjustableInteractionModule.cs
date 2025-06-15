@@ -41,7 +41,7 @@ namespace VE2.Core.VComponents.Internal
             List<IHandheldInteractionModule> handheldModules, RangedGrabInteractionConfig rangedGrabInteractionConfig, GeneralInteractionConfig generalInteractionConfig)
                 : base(id, grabInteractablesContainer, handheldModules, rangedGrabInteractionConfig, generalInteractionConfig)
         {
-            Transform = rangedGrabInteractionConfig.AttachPoint;
+            Transform = rangedGrabInteractionConfig.AttachPointWrapper;
         }
 
         public void ScrollUp() => OnScrollUp?.Invoke();

@@ -95,8 +95,8 @@ namespace VE2.Core.VComponents.Internal
 
         private void Awake()
         {
-            if (_config.RangedFreeGrabInteractionConfig.AttachPoint == null)
-                _config.RangedFreeGrabInteractionConfig.AttachPoint = new TransformWrapper(transform);
+            if (_config.RangedFreeGrabInteractionConfig.AttachPointWrapper == null)
+                _config.RangedFreeGrabInteractionConfig.AttachPointWrapper = new TransformWrapper(transform);
 
             if (Application.isPlaying)
                 return;
@@ -115,9 +115,9 @@ namespace VE2.Core.VComponents.Internal
 
             string id = "FreeGrabbable-" + gameObject.name;
 
-            if (_config.RangedFreeGrabInteractionConfig.AttachPoint == null || ((TransformWrapper)_config.RangedFreeGrabInteractionConfig.AttachPoint).Transform == null)
+            if (_config.RangedFreeGrabInteractionConfig.AttachPointWrapper == null || ((TransformWrapper)_config.RangedFreeGrabInteractionConfig.AttachPointWrapper).Transform == null)
             {
-                _config.RangedFreeGrabInteractionConfig.AttachPoint = new TransformWrapper(transform);
+                _config.RangedFreeGrabInteractionConfig.AttachPointWrapper = new TransformWrapper(transform);
                 Debug.LogWarning($"The adjustable on {gameObject.name} does not have an assigned AttachPoint, and so may not behave as intended");
             }
 

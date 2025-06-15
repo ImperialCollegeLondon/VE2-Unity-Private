@@ -22,7 +22,7 @@ namespace VE2.Core.VComponents.Internal
 
         private bool MultiplayerSupportPresent => VE2API.HasMultiPlayerSupport;
 
-        public FreeGrabbableConfig(ITransformWrapper attachPointWrapper) { RangedFreeGrabInteractionConfig.AttachPoint = attachPointWrapper; }
+        public FreeGrabbableConfig(ITransformWrapper attachPointWrapper) { RangedFreeGrabInteractionConfig.AttachPointWrapper = attachPointWrapper; }
         public FreeGrabbableConfig() {}
     }
 
@@ -39,7 +39,7 @@ namespace VE2.Core.VComponents.Internal
 
         private readonly IRigidbodyWrapper _rigidbody;
         private readonly PhysicsConstants _physicsConstants;
-        private ITransformWrapper _transform => _config.RangedFreeGrabInteractionConfig.AttachPoint;
+        private ITransformWrapper _transform => _config.RangedFreeGrabInteractionConfig.AttachPointWrapper;
         private IGrabbableRigidbody _grabbableRigidbodyInterface;
 
         private Vector3 _positionOnGrab = new();

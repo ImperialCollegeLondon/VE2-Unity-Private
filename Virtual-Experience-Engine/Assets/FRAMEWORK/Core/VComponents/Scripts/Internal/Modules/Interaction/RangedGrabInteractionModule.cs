@@ -2,21 +2,21 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 using VE2.Core.VComponents.API;
-using UnityEngine.Events;
 using VE2.Common.API;
 using VE2.Common.Shared;
-using UnityEngine.UIElements;
 
 namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
     internal class RangedGrabInteractionConfig : RangedInteractionConfig
     {
-        [BeginGroup(Style = GroupStyle.Round)]
         [Title("Ranged Grab Interaction Settings", ApplyCondition = true)]
-        [SerializeField, PropertyOrder(-10)] private Transform _attachPoint = null;
+        [BeginGroup(Style = GroupStyle.Round)]
+
+        //Ideally this would be private, but the custom property drawer can't see the PropertyOrder value if it is. 
+        [SerializeField, PropertyOrder(-10)] public Transform _attachPoint = null; 
         private ITransformWrapper _attachPointWrapper;
-        internal ITransformWrapper AttachPoint
+        public ITransformWrapper AttachPointWrapper
         {
             get
             {
@@ -31,9 +31,9 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField, PropertyOrder(-9)] public bool VRRaySnap = true;
         [SerializeField, PropertyOrder(-8), ShowIf(nameof(VRFailsafeGrab), true)] public float VRRaySnapRangeFrontOfHand = 0.15f;
         [SerializeField, PropertyOrder(-7), ShowIf(nameof(VRFailsafeGrab), true)] public float VRRaySnapRangeBackOfHand = 0.1f;
-        [SerializeField, PropertyOrder(-9)] public bool VRFailsafeGrab = true;
+        [SerializeField, PropertyOrder(-6)] public bool VRFailsafeGrab = true;
         [EndGroup]
-        [SerializeField, PropertyOrder(-6), ShowIf(nameof(VRFailsafeGrab), true), Range(1f, 2f)] public float FailsafeGrabMultiplier = 1.2f;
+        [SerializeField, PropertyOrder(-5), ShowIf(nameof(VRFailsafeGrab), true), Range(1f, 2f)] public float FailsafeGrabMultiplier = 1.2f;
 
         //Constructor used for tests, since we can't use real transforms at edit time
         // internal RangedGrabInteractionConfig(ITransformWrapper attachPointWrapper)
@@ -58,7 +58,7 @@ namespace VE2.Core.VComponents.Internal
         public Vector3 DeltaPosition { get; private set; }
         public Quaternion DeltaRotation { get; private set; }
 
-        public ITransformWrapper AttachPoint => _rangedGrabInteractionConfig.AttachPoint;
+        public ITransformWrapper AttachPoint => _rangedGrabInteractionConfig.AttachPointWrapper;
         public bool VrRaySnap => _rangedGrabInteractionConfig.VRRaySnap;
         public float VRRaySnapRange => _rangedGrabInteractionConfig.VRRaySnapRangeFrontOfHand;
         public float VRRaySnapRangeBackOfHand => _rangedGrabInteractionConfig.VRRaySnapRangeBackOfHand;
