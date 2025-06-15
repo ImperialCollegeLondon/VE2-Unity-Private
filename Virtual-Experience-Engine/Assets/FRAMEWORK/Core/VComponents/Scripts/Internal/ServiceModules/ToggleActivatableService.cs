@@ -37,7 +37,7 @@ namespace VE2.Core.VComponents.Internal
         private readonly ColliderInteractionModule _ColliderInteractionModule;
         #endregion
 
-        public ToggleActivatableService(ToggleActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncableContainer worldStateSyncableContainer,
+        public ToggleActivatableService(ToggleActivatableConfig config, SingleInteractorActivatableState state, string id, IWorldStateSyncableContainer worldStateSyncableContainer,
             ActivatableGroupsContainer activatableGroupsContainer, IClientIDWrapper localClientIdWrapper)
         {
             _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, activatableGroupsContainer, localClientIdWrapper);
@@ -53,7 +53,10 @@ namespace VE2.Core.VComponents.Internal
             _RangedClickInteractionModule.OnClickDown += HandleInteract;
             _ColliderInteractionModule.OnCollideEnter += HandleInteract;
 
-            _StateModule.SetActivated(config.StateConfig.ActivateOnStart);
+            if (!state.IsInitialised && config.StateConfig.ActivateOnStart)
+                _StateModule.SetActivated(config.StateConfig.ActivateOnStart);
+
+            state.IsInitialised = true;
         }
 
         public void HandleFixedUpdate()
