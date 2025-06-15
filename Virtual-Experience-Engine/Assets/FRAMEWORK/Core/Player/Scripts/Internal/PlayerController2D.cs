@@ -39,8 +39,8 @@ namespace VE2.Core.Player.Internal
                     verticalOffset: _playerLocomotor2D.VerticalOffset,
                     headPosition: _playerLocomotor2D.HeadLocalPosition,
                     headRotation: _playerLocomotor2D.HeadLocalRotation,
-                    hand2DPosition: _interactor2D.GrabberTransform.localPosition, 
-                    hand2DRotation: _interactor2D.GrabberTransform.localRotation,
+                    hand2DPosition: _interactor2D.GrabberTransformWrapper.localPosition, 
+                    hand2DRotation: _interactor2D.GrabberTransformWrapper.localRotation,
                     activatableIDs2D: (List<string>)_interactor2D.HeldNetworkedActivatableIDs,
                     activatableIDsFeet: (List<string>)_feetInteractor2D.HeldNetworkedActivatableIDs
                 );
@@ -116,7 +116,7 @@ namespace VE2.Core.Player.Internal
             _playerLocomotor2D.HeadLocalRotation = initTransformData.HeadLocalRotation;
             _playerLocomotor2D.HandleOnEnable();
 
-            _interactor2D.GrabberTransform.SetLocalPositionAndRotation(initTransformData.Hand2DLocalPosition, initTransformData.Hand2DLocalRotation);
+            _interactor2D.GrabberTransformWrapper.SetLocalPositionAndRotation(initTransformData.Hand2DLocalPosition, initTransformData.Hand2DLocalRotation);
             _interactor2D.HandleOnEnable();
 
             _feetInteractor2D.HandleOnEnable();

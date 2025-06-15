@@ -93,7 +93,7 @@ namespace VE2.Core.VComponents.Internal
             _positionOnGrab = _rigidbody.position;
             _rotationOnGrab = _rigidbody.rotation;
 
-            Quaternion grabberRotation = _StateModule.CurrentGrabbingInteractor.GrabberTransform.rotation;
+            Quaternion grabberRotation = _StateModule.CurrentGrabbingInteractor.GrabberTransformWrapper.rotation;
             _initialGrabberToObjectRotation = Quaternion.Inverse(grabberRotation) * _rigidbody.rotation;
 
             OnGrabConfirmed?.Invoke(grabberClientID);
@@ -128,8 +128,8 @@ namespace VE2.Core.VComponents.Internal
             _StateModule.HandleFixedUpdate();
             if (_StateModule.IsGrabbed)
             {
-                TrackPosition(_StateModule.CurrentGrabbingInteractor.GrabberTransform.position);
-                TrackRotation(_StateModule.CurrentGrabbingInteractor.GrabberTransform.rotation);
+                TrackPosition(_StateModule.CurrentGrabbingInteractor.GrabberTransformWrapper.position);
+                TrackRotation(_StateModule.CurrentGrabbingInteractor.GrabberTransformWrapper.rotation);
             }
         }
 

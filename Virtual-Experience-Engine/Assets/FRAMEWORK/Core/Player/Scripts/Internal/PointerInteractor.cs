@@ -46,7 +46,7 @@ namespace VE2.Core.Player.Internal
 
     internal abstract class PointerInteractor : IInteractor
     {
-        public Transform GrabberTransform => _GrabberTransform;
+        public ITransformWrapper GrabberTransformWrapper { get; }
         public IReadOnlyList<string> HeldNetworkedActivatableIDs => _heldActivatableIDsAgainstNetworkFlags.Where(kvp => kvp.Value).Select(kvp => kvp.Key).ToList();
 
         protected bool IsCurrentlyGrabbing => _CurrentGrabbingGrabbable != null;
@@ -56,6 +56,8 @@ namespace VE2.Core.Player.Internal
         protected const float MAX_SPHERECAST_RADIUS = 10;
         protected IRangedInteractionModule _CurrentHoveringInteractable;
         protected IRangedClickInteractionModule _CurrentHoveringClickInteractable => _CurrentHoveringInteractable as IRangedClickInteractionModule;
+
+
         protected IRangedGrabInteractionModule _CurrentGrabbingGrabbable;
 
 
@@ -89,8 +91,9 @@ namespace VE2.Core.Player.Internal
         internal readonly FreeGrabbableWrapper GrabbableWrapper;
         private readonly HoveringOverScrollableIndicator _hoveringOverScrollableIndicator;
 
+        //TODO - should probably be injecting transform wrappers here rather than raw transforms
         internal PointerInteractor(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, InteractorInputContainer interactorInputContainer, PlayerInteractionConfig interactionConfig,
-            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, 
+            InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider,
             ILocalClientIDWrapper localClientIDWrapper, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator)
         {
             _interactorContainer = interactorContainer;
@@ -100,6 +103,7 @@ namespace VE2.Core.Player.Internal
 
             _interactorParentTransform = interactorReferences.InteractorParentTransform;
             _GrabberTransform = interactorReferences.GrabberTransform;
+            GrabberTransformWrapper = new TransformWrapper(_GrabberTransform);
             _GrabberVisualisation = interactorReferences.GrabberVisualisation;
             _GrabberVisualisationRayOrigin = interactorReferences.GrabberVisualisationRayOrigin;
             _grabbableLineVisLineRenderer = _GrabberVisualisation.GetComponent<LineRenderer>();

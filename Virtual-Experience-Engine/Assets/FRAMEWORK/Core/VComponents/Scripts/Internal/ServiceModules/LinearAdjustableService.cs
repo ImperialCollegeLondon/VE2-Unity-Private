@@ -181,7 +181,7 @@ namespace VE2.Core.VComponents.Internal
             _GrabbableStateModule.HandleFixedUpdate();
             if (_GrabbableStateModule.IsLocalGrabbed)
             {
-                TrackPosition(_GrabbableStateModule.CurrentGrabbingInteractor.GrabberTransform.position);
+                TrackPosition(_GrabbableStateModule.CurrentGrabbingInteractor.GrabberTransformWrapper.position);
             }
 
             _AdjustableStateModule.HandleFixedUpdate();

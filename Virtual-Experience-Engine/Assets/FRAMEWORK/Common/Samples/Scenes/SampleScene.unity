@@ -22533,7 +22533,7 @@ MonoBehaviour:
       VRFailsafeGrab: 1
       FailsafeGrabMultiplier: 1.2
       DropBehaviour: 0
-      AlignOrientationOnGrab: 0
+      AlignOrientationOnGrab: 1
       PreserveInspectModeOrientation: 0
       OnLocalInspectModeEnter:
         m_PersistentCalls:
@@ -27007,7 +27007,7 @@ MonoBehaviour:
       VRFailsafeGrab: 1
       FailsafeGrabMultiplier: 1.2
       DropBehaviour: 0
-      AlignOrientationOnGrab: 0
+      AlignOrientationOnGrab: 1
       PreserveInspectModeOrientation: 0
       OnLocalInspectModeEnter:
         m_PersistentCalls:

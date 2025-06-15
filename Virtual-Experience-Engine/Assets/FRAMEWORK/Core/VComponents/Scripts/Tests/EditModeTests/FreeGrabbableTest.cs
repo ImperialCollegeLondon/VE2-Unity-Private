@@ -21,6 +21,7 @@ namespace VE2.Core.VComponents.Tests
             InteractorID interactorID = new(localClientID, InteractorType.Mouse2D);
 
             IInteractor interactorStub = Substitute.For<IInteractor>();
+            interactorStub.GrabberTransformWrapper.Returns(Substitute.For<ITransformWrapper>());
             HandInteractorContainer interactorContainerStub = new();
             interactorContainerStub.RegisterInteractor(interactorID.ToString(), interactorStub);
 
