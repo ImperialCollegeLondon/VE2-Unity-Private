@@ -36,6 +36,9 @@ namespace VE2.NonCore.Platform.API
 
         public ServerConnectionSettings GetInternalWorldStoreFTPSettings();
 
+
+        public void MainThreadUpdate();
+
         public void TearDown();
     }
 }

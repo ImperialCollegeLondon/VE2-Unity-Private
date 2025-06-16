@@ -13,6 +13,7 @@ using static VE2.Core.Player.API.PlayerSerializables;
 using VE2.Core.UI.API;
 using VE2.Common.API;
 using VE2.Common.Shared;
+using UnityEngine.Events;
 
 namespace VE2.NonCore.Platform.Internal
 {
@@ -142,6 +143,41 @@ namespace VE2.NonCore.Platform.Internal
 
         public Dictionary<InstanceCode, PlatformInstanceInfo> InstanceInfos => GlobalInfo.InstanceInfos;
         public event Action<Dictionary<InstanceCode, PlatformInstanceInfo>> OnInstanceInfosChanged;
+
+        public UnityEvent OnBecomeAdmin => _config.OnBecomeAdmin;
+        public UnityEvent OnLoseAdmin => _config.OnLoseAdmin;
+
+        public bool IsLocalPlayerAdmin { get; private set; } = false; //TODO: this comes from client info
+
+        public void GrantLocalPlayerAdmin()
+        {
+            //TODO - send to server
+            //TODO - update admin indicator
+
+            try
+            {
+                OnBecomeAdmin?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Error when emitting OnBecomeAdmin: {ex.Message}, {ex.StackTrace}");
+            }
+
+        }
+        public void RevokeLocalPlayerAdmin()
+        {
+            //TODO - send to server
+            //TODO - update admin indicator
+
+            try
+            {
+                OnLoseAdmin?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Error when emitting OnLoseAdmin: {ex.Message}, {ex.StackTrace}");
+            }
+        }
         #endregion
 
         private readonly IPlatformCommsHandler _commsHandler;
@@ -149,7 +185,9 @@ namespace VE2.NonCore.Platform.Internal
         private readonly IPlayerServiceInternal _playerService;
         private readonly IPlatformSettingsHandler _platformSettingsHandler;
 
-        internal PlatformService(IPlatformCommsHandler commsHandler, PluginLoader pluginLoader, IPlayerServiceInternal playerService, 
+        private readonly PlatformServiceConfig _config;
+
+        internal PlatformService(IPlatformCommsHandler commsHandler, PluginLoader pluginLoader, IPlayerServiceInternal playerService,
             IPlatformSettingsHandler platformSettingsHandler, IPrimaryUIServiceInternal primaryUIService)
         {
             _commsHandler = commsHandler;
@@ -170,9 +208,9 @@ namespace VE2.NonCore.Platform.Internal
                 GameObject playerBrowserUIHolder = GameObject.Instantiate(Resources.Load<GameObject>("PlatformPlayerBrowserUIHolder"));
                 GameObject playerBrowserUI = playerBrowserUIHolder.transform.GetChild(0).gameObject;
                 playerBrowserUI.SetActive(false);
-            
+
                 primaryUIService.AddNewTab("Players", playerBrowserUI, Resources.Load<Sprite>("PlatformPlayerBrowserUIICon"), 1);
-                GameObject.Destroy(playerBrowserUIHolder);   
+                GameObject.Destroy(playerBrowserUIHolder);
 
                 //Quick panel=====
                 GameObject platformQuickPanelUIHolder = GameObject.Instantiate(Resources.Load<GameObject>("PlatformQuickUIPanelHolder"));
@@ -288,22 +326,9 @@ namespace VE2.NonCore.Platform.Internal
             }
         }
 
-        internal void MainThreadUpdate()
+        public void MainThreadUpdate()
         {
             _commsHandler.MainThreadUpdate();
-        }
-
-        internal void NetworkUpdate()
-        {
-            //if (ConnectedToServer)
-            //{
-
-            //}
-        }
-
-        private void ReceivePingFromHost()
-        {
-            //TODO calc buffer size
         }
 
         private void HandlePlayerPresentationConfigChanged(OverridableAvatarAppearance overridableAvatarAppearance)
@@ -320,11 +345,6 @@ namespace VE2.NonCore.Platform.Internal
             if (_playerService != null)
                 _playerService.OnOverridableAvatarAppearanceChanged -= HandlePlayerPresentationConfigChanged;
         }
-
-        // void IPlatformServiceInternal.RequestInstanceAllocation(string worldFolderName, string instanceSuffix, string versionNumber)
-        // {
-        //     RequestInstanceAllocation(worldFolderName, instanceSuffix, versionNumber);
-        // }
     }
 
     internal static class GlobalInfoExtensions

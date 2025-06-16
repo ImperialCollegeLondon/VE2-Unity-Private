@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine.Events;
 
 //Needs to be called by hub ui 
 //Maybe plugins need access to return to hub? 
@@ -15,7 +16,14 @@ namespace VE2.NonCore.Platform.API
         public event Action OnConnectedToServer;
         public string CurrentInstanceNumber { get; }
         public string CurrentWorldName { get; }
-        public event Action OnLeavingInstance;
+        public event Action OnLeavingInstance; //TODO - used internally, should move to IPlatformServiceInternal?
+        //TODO - above events may also want to be UnityEvents exposed via inspector?? Or mabe we don't even need to know if we're connected to platform or not, data will be pulled from the PDH anyway 
+
+        public void GrantLocalPlayerAdmin();
+        public void RevokeLocalPlayerAdmin();
+        public bool IsLocalPlayerAdmin { get; }
+        public UnityEvent OnBecomeAdmin { get; }
+        public UnityEvent OnLoseAdmin { get; }
     }
 
     /*
