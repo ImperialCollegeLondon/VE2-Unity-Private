@@ -305,7 +305,6 @@ namespace VE2.Core.Player.Internal
             else
                 _player2D.HandleUpdate();
 
-            //Debug.Log("Transform data update - " + PlayerTransformData.RootPosition.ToString()); 
         }
         
         public void TearDown() 

@@ -17,6 +17,12 @@ namespace VE2.Core.UI.Internal
     [ExecuteAlways]
     public class V_UIProvider : MonoBehaviour, IUIProvider
     {
+        [Help("If enabled, the secondary UI can be customised. If disabled, the secondary UI  This is always enabled for the primary UI.")]
+        [SerializeField, HideInInspector] private bool _lastUseSecondaryUI;
+        [SerializeField] private bool _useCustomSecondaryUI = true;
+
+        [SerializeField, IgnoreParent] private MenuUIConfig _menuUIConfig = new();
+
         //For now, we always want both. 
         private bool _enablePrimaryUI => true;
         private bool _enableSecondaryUI => true;
@@ -38,12 +44,6 @@ namespace VE2.Core.UI.Internal
             }
         }
         public bool IsEnabled => this != null && gameObject != null && enabled && gameObject.activeInHierarchy;
-
-        [Help("If enabled, the secondary UI can be customised. If disabled, the secondary UI  This is always enabled for the primary UI.")]
-        [SerializeField, HideInInspector] private bool _lastUseSecondaryUI;
-        [SerializeField] private bool _useCustomSecondaryUI = true;
-
-        [SerializeField] private MenuUIConfig _menuUIConfig = new MenuUIConfig();
 
         private PrimaryUIService _primaryUIService;
         private SecondaryUIService _secondaryUIService;

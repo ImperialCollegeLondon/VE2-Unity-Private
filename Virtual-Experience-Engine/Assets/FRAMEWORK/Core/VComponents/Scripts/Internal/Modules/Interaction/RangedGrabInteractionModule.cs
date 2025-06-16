@@ -35,14 +35,6 @@ namespace VE2.Core.VComponents.Internal
         [EndGroup]
         [SerializeField, PropertyOrder(-5), ShowIf(nameof(VRFailsafeGrab), true), Range(1f, 2f)] public float FailsafeGrabMultiplier = 1.2f;
 
-        //Constructor used for tests, since we can't use real transforms at edit time
-        // internal RangedGrabInteractionConfig(ITransformWrapper attachPointWrapper)
-        // {
-        //     _attachPointWrapper = attachPointWrapper;
-        // }
-
-        //internal RangedGrabInteractionConfig() {}
-
         //TODO - VR raysnap should be allowed even if failsafe grab is disabled
         //Maybe we want a separate toggle to define whether we also allow ray snapping?
         //But failsafe grab multiplier is a mult on the VR raySnapRangeFrontOfHand? Maybe it should just be a separate float range 

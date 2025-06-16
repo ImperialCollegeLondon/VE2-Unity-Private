@@ -26,10 +26,6 @@ namespace VE2.Core.VComponents.Internal
         [Space(5)]
         [EndGroup]
         [SerializeField, PropertyOrder(-96)] public UnityEvent OnLocalInspectModeExit;
-
-        //internal RangedFreeGrabInteractionConfig(ITransformWrapper attachPointWrapper) : base(attachPointWrapper) { }
-
-        //internal RangedFreeGrabInteractionConfig() { }
     }
     
     internal class RangedFreeGrabInteractionModule : RangedGrabInteractionModule, IRangedFreeGrabInteractionModule
