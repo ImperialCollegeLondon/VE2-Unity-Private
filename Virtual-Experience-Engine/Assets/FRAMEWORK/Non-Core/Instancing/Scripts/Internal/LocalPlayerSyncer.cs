@@ -19,7 +19,7 @@ namespace VE2.NonCore.Instancing.Internal
 
         private int _cycleNumber = 0;
 
-        public LocalPlayerSyncer(IPluginSyncCommsHandler commsHandler, InstanceInfoContainer instanceInfoContainer, ILocalPlayerSyncableContainer localPlayerSyncableContainer, ILocalAdminIndicatorWritable localAdminIndicatorWrapper)
+        public LocalPlayerSyncer(IPluginSyncCommsHandler commsHandler, InstanceInfoContainer instanceInfoContainer, ILocalPlayerSyncableContainer localPlayerSyncableContainer, ILocalAdminIndicator localAdminIndicatorWrapper)
         {
             _commsHandler = commsHandler;
             _instanceInfoContainer = instanceInfoContainer;

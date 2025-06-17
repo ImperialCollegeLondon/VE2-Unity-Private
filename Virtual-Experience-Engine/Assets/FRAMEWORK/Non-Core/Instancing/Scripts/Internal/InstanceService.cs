@@ -23,7 +23,7 @@ namespace VE2.NonCore.Instancing.Internal
             return new InstanceService(
                 commsHandler, 
                 VE2API.LocalClientIdWrapper as ILocalClientIDWrapperWritable, 
-                VE2API.LocalAdminIndicator as ILocalAdminIndicatorWritable,
+                VE2API.LocalAdminIndicator,
                 connectionStateDebugWrapper,
                 VE2API.InteractorContainer,
                 VE2API.Player as IPlayerServiceInternal,
@@ -99,7 +99,7 @@ namespace VE2.NonCore.Instancing.Internal
         internal PingSyncer _pingSyncer;
         internal InstantMessageRouter _instantMessageRouter;
 
-        public InstanceService(IPluginSyncCommsHandler commsHandler, ILocalClientIDWrapperWritable localClientIDWrapper, ILocalAdminIndicatorWritable localAdminIndicatorWrapper, ConnectionStateWrapper connectionStateDebugWrapper,
+        public InstanceService(IPluginSyncCommsHandler commsHandler, ILocalClientIDWrapperWritable localClientIDWrapper, ILocalAdminIndicator localAdminIndicatorWrapper, ConnectionStateWrapper connectionStateDebugWrapper,
             HandInteractorContainer interactorContainer, IPlayerServiceInternal playerServiceInternal, IPrimaryUIServiceInternal primaryUIService,
             bool connectAutomatically, ServerConnectionSettings serverSettings, InstanceCode instanceCode, InstanceCommsHandlerConfig config, 
             IWorldStateSyncableContainer worldStateSyncableContainer, ILocalPlayerSyncableContainer localPlayerSyncableContainer)
