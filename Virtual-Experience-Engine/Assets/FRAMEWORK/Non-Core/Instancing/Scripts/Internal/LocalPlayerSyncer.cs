@@ -15,7 +15,7 @@ namespace VE2.NonCore.Instancing.Internal
         private readonly IPluginSyncCommsHandler _commsHandler;
         private readonly InstanceInfoContainer _instanceInfoContainer;
         private readonly ILocalPlayerSyncableContainer _localPlayerSyncableContainer;
-        private readonly ILocalAdminIndicatorWritable _localAdminIndicatorWrapper;
+        private readonly ILocalAdminIndicator _localAdminIndicatorWrapper;
 
         private int _cycleNumber = 0;
 
