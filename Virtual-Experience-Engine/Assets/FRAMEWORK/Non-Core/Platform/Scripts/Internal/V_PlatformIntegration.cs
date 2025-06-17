@@ -72,7 +72,7 @@ namespace VE2.NonCore.Platform.Internal
             if (inHub || comeFromHub)
                 _platformService = PlatformServiceFactory.Create(platformPersistentDataHandler);
             else
-                _platformService = new DebugPlatformService(_config); //If we're in a plugin, and have come from hub, we don't have connection settings. So use the debug service.
+                _platformService = new DebugPlatformService(_config, VE2API.LocalAdminIndicator as ILocalAdminIndicatorWritable); //If we're in a plugin, and have come from hub, we don't have connection settings. So use the debug service.
 
             if (!inHub)
                 _platformService.ConnectToPlatform();
@@ -175,7 +175,7 @@ namespace VE2.NonCore.Platform.Internal
         public void GrantLocalPlayerAdmin()
         {
             Debug.Log("Debug platform service: Granting local player admin");
-            IsLocalPlayerAdmin = true;
+            _localAdminIndicatorWritable.SetLocalAdminStatus(true);
 
             try
             {
@@ -190,7 +190,7 @@ namespace VE2.NonCore.Platform.Internal
         public void RevokeLocalPlayerAdmin()
         {
             Debug.Log("Debug platform service: Revoking local player admin");
-            IsLocalPlayerAdmin = false;
+            _localAdminIndicatorWritable.SetLocalAdminStatus(false);
 
             try
             {
@@ -202,15 +202,17 @@ namespace VE2.NonCore.Platform.Internal
             }
         }
 
-        public bool IsLocalPlayerAdmin { get; private set; } = false; //In real service, this comes from client info
+        public bool IsLocalPlayerAdmin => _localAdminIndicatorWritable.IsLocalAdmin; //TODO: In real service, this comes from client info
         public UnityEvent OnBecomeAdmin => _config.OnBecomeAdmin;
         public UnityEvent OnLoseAdmin => _config.OnLoseAdmin;
 
         private readonly PlatformServiceConfig _config;
+        private readonly ILocalAdminIndicatorWritable _localAdminIndicatorWritable;
 
-        public DebugPlatformService(PlatformServiceConfig config)
+        public DebugPlatformService(PlatformServiceConfig config, ILocalAdminIndicatorWritable localAdminIndicatorWritable)
         {
             _config = config;
+            _localAdminIndicatorWritable = localAdminIndicatorWritable;
         }
     }
 }

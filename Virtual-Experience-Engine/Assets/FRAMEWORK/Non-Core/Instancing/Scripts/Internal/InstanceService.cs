@@ -23,6 +23,7 @@ namespace VE2.NonCore.Instancing.Internal
             return new InstanceService(
                 commsHandler, 
                 VE2API.LocalClientIdWrapper as ILocalClientIDWrapperWritable, 
+                VE2API.LocalAdminIndicator as ILocalAdminIndicatorWritable,
                 connectionStateDebugWrapper,
                 VE2API.InteractorContainer,
                 VE2API.Player as IPlayerServiceInternal,
@@ -98,7 +99,7 @@ namespace VE2.NonCore.Instancing.Internal
         internal PingSyncer _pingSyncer;
         internal InstantMessageRouter _instantMessageRouter;
 
-        public InstanceService(IPluginSyncCommsHandler commsHandler, ILocalClientIDWrapperWritable localClientIDWrapper, ConnectionStateWrapper connectionStateDebugWrapper,
+        public InstanceService(IPluginSyncCommsHandler commsHandler, ILocalClientIDWrapperWritable localClientIDWrapper, ILocalAdminIndicatorWritable localAdminIndicatorWrapper, ConnectionStateWrapper connectionStateDebugWrapper,
             HandInteractorContainer interactorContainer, IPlayerServiceInternal playerServiceInternal, IPrimaryUIServiceInternal primaryUIService,
             bool connectAutomatically, ServerConnectionSettings serverSettings, InstanceCode instanceCode, InstanceCommsHandlerConfig config, 
             IWorldStateSyncableContainer worldStateSyncableContainer, ILocalPlayerSyncableContainer localPlayerSyncableContainer)
@@ -121,7 +122,7 @@ namespace VE2.NonCore.Instancing.Internal
             _commsHandler.OnDisconnectedFromServer += HandleDisconnectFromServer;
 
             _worldStateSyncer = new(_commsHandler, _instanceInfoContainer, worldStateSyncableContainer); //receives and transmits
-            _localPlayerSyncer = new(_commsHandler, _instanceInfoContainer, localPlayerSyncableContainer); //only transmits
+            _localPlayerSyncer = new(_commsHandler, _instanceInfoContainer, localPlayerSyncableContainer, localAdminIndicatorWrapper); //only transmits
             _remotePlayerSyncer = new(_commsHandler, _instanceInfoContainer, _interactorContainer, _playerService); //only receives
             _pingSyncer = new(_commsHandler, _instanceInfoContainer); //receives and transmits
             _instantMessageRouter = new(_commsHandler);
