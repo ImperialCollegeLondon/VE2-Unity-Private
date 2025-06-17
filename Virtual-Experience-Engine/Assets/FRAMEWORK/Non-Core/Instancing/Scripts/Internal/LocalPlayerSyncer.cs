@@ -55,6 +55,8 @@ namespace VE2.NonCore.Instancing.Internal
 
         public void HandleLocalAdminStatusChanged(bool newIsAdmin)
         {
+            AdminUpdateNotice adminUpdateNotice = new(newIsAdmin);
+            _commsHandler.SendMessage(adminUpdateNotice.Bytes, InstanceNetworkingMessageCodes.AdminUpdateNotice, TransmissionProtocol.TCP);
             Debug.Log($"Local admin status changed to {newIsAdmin}");
         }
 

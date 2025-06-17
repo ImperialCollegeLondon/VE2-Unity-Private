@@ -14,7 +14,7 @@ namespace VE2.NonCore.Instancing.Internal
 {
     internal class InstanceSyncSerializables
     {
-        public static readonly int InstanceNetcodeVersion = 7;
+        public static readonly int InstanceNetcodeVersion = 8;
 
         public enum InstanceNetworkingMessageCodes
         {
@@ -25,6 +25,7 @@ namespace VE2.NonCore.Instancing.Internal
             WorldstateSyncableBundle,
             PlayerState,
             UpdateAvatarPresentation,
+            AdminUpdateNotice,
             PingMessage,
             InstantMessage
         }
@@ -371,6 +372,34 @@ namespace VE2.NonCore.Instancing.Internal
             }
         }
 
+        public class AdminUpdateNotice : VE2Serializable
+        {
+            public bool IsAdmin { get; private set; }
+
+            public AdminUpdateNotice(byte[] bytes) : base(bytes) { }
+
+            public AdminUpdateNotice(bool isAdmin)
+            {
+                IsAdmin = isAdmin;
+            }
+
+            protected override byte[] ConvertToBytes()
+            {
+                using MemoryStream stream = new();
+                using BinaryWriter writer = new(stream);
+
+                writer.Write(IsAdmin);
+                return stream.ToArray();
+            }
+
+            protected override void PopulateFromBytes(byte[] bytes)
+            {
+                using MemoryStream stream = new(bytes);
+                using BinaryReader reader = new(stream);
+
+                IsAdmin = reader.ReadBoolean();
+            }
+        }
 
         public class WorldStateSnapshot : VE2Serializable
         {
