@@ -1,3 +1,5 @@
+#if UNITY_EDITOR
+
 using UnityEditor;
 using UnityEngine;
 using Toolbox.Editor;
@@ -124,3 +126,4 @@ namespace VE2.Core.VComponents.Internal
     }
     #endregion
 }
+#endif

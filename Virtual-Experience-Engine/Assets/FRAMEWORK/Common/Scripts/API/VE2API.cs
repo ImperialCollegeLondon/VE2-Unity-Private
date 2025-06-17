@@ -289,6 +289,11 @@ namespace VE2.Common.API
 
         public void RegisterGrabInteractable(IRangedGrabInteractionModule grabInteractable, string id)
         {
+            if (GrabInteractables.ContainsKey(id))
+            {
+                Debug.LogError($"EERROR - GrabInteractable with ID {id} is already registered.");
+                return;
+            }
             GrabInteractables.Add(id, grabInteractable);
         }
 
