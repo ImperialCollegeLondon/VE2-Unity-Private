@@ -65,7 +65,7 @@ namespace VE2.Core.Player.Internal
 
         internal PlayerController2D(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, Player2DInputContainer player2DInputContainer, 
             IPlayerPersistentDataHandler playerPersistentDataHandler, Player2DControlConfig controlConfig, PlayerInteractionConfig interactionConfig, MovementModeConfig movementModeConfig, 
-            CameraConfig cameraConfig, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ILocalClientIDWrapper localClientIDWrapper, 
+            CameraConfig cameraConfig, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ILocalClientIDWrapper localClientIDWrapper, ILocalAdminIndicator localAdminIndicator,
             IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IPlayerServiceInternal playerService) 
         {
             GameObject player2DPrefab = Resources.Load("2dPlayer") as GameObject;
@@ -90,7 +90,7 @@ namespace VE2.Core.Player.Internal
 
             _interactor2D = new(
                 interactorContainer, grabInteractablesContainer, player2DInputContainer.InteractorInputContainer2D, interactionConfig,
-                player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, localClientIDWrapper, _inspectModeIndicator);
+                player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, localClientIDWrapper, localAdminIndicator, _inspectModeIndicator);
 
             _feetInteractor2D = new(collisionDetectorFactory, ColliderType.Feet2D, player2DReferences.Interactor2DReferences.FeetCollider, InteractorType.Feet, localClientIDWrapper, interactionConfig);
             _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences, movementModeConfig, _inspectModeIndicator);

@@ -19,6 +19,7 @@ namespace VE2.Core.Player.Internal
                 VE2API.InteractorContainer,
                 playerPersistentDataHandler,
                 VE2API.LocalClientIdWrapper,
+                VE2API.LocalAdminIndicator,
                 VE2API.LocalPlayerSyncableContainer,
                 VE2API.GrabInteractablesContainer,
                 VE2API.InputHandler.PlayerInputContainer,
@@ -143,13 +144,11 @@ namespace VE2.Core.Player.Internal
 
         private readonly PlayerInputContainer _playerInputContainer;
         private readonly IPlayerPersistentDataHandler _playerSettingsHandler;
-        private readonly ILocalClientIDWrapper _localClientIDWrapper;
         private readonly ILocalPlayerSyncableContainer _playerSyncContainer;
-
         private readonly IPrimaryUIServiceInternal _primaryUIService;
 
         internal PlayerService(PlayerTransformData transformData, PlayerConfig config, HandInteractorContainer interactorContainer, IPlayerPersistentDataHandler playerSettingsHandler, 
-            ILocalClientIDWrapper localClientIDWrapper, ILocalPlayerSyncableContainer playerSyncContainer, IGrabInteractablesContainer grabInteractablesContainer, 
+            ILocalClientIDWrapper localClientIDWrapper, ILocalAdminIndicator localAdminIndicator, ILocalPlayerSyncableContainer playerSyncContainer, IGrabInteractablesContainer grabInteractablesContainer, 
             PlayerInputContainer playerInputContainer, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, IXRManagerWrapper xrManagerWrapper, 
             IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IXRHapticsWrapper xRHapticsWrapperLeft, IXRHapticsWrapper xRHapticsWrapperRight)
         {
@@ -158,7 +157,7 @@ namespace VE2.Core.Player.Internal
 
             _playerInputContainer = playerInputContainer;
             _playerSettingsHandler = playerSettingsHandler;
-            _localClientIDWrapper = localClientIDWrapper;
+
             _playerSyncContainer = playerSyncContainer;
             _playerSyncContainer.RegisterLocalPlayer(this);
 
@@ -169,7 +168,7 @@ namespace VE2.Core.Player.Internal
                 _playerVR = new PlayerControllerVR(
                     interactorContainer, grabInteractablesContainer, _playerInputContainer.PlayerVRInputContainer,
                     playerSettingsHandler, new PlayerVRControlConfig(), _config.PlayerInteractionConfig, _config.MovementModeConfig, _config.CameraConfig,
-                    raycastProvider, collisionDetectorFactory, xrManagerWrapper, localClientIDWrapper, primaryUIService, secondaryUIService, xRHapticsWrapperLeft, xRHapticsWrapperRight);
+                    raycastProvider, collisionDetectorFactory, xrManagerWrapper, localClientIDWrapper, localAdminIndicator, primaryUIService, secondaryUIService, xRHapticsWrapperLeft, xRHapticsWrapperRight);
             }
 
             if (_config.PlayerModeConfig.Enable2D)
@@ -177,7 +176,7 @@ namespace VE2.Core.Player.Internal
                 _player2D = new PlayerController2D(
                     interactorContainer, grabInteractablesContainer, _playerInputContainer.Player2DInputContainer,
                     playerSettingsHandler, new Player2DControlConfig(), _config.PlayerInteractionConfig, _config.MovementModeConfig, _config.CameraConfig,
-                    raycastProvider, collisionDetectorFactory, localClientIDWrapper, primaryUIService, secondaryUIService, this);
+                    raycastProvider, collisionDetectorFactory, localClientIDWrapper, localAdminIndicator, primaryUIService, secondaryUIService, this);
             }
 
             _playerSettingsHandler.OnDebugSaveAppearance += HandlePlayerPresentationChanged;

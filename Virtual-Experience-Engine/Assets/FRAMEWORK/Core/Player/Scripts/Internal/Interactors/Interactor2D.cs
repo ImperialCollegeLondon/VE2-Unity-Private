@@ -28,9 +28,9 @@ namespace VE2.Core.Player.Internal
 
         internal Interactor2D(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, Interactor2DInputContainer interactor2DInputContainer,
             PlayerInteractionConfig interactionConfig, InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider,
-            ILocalClientIDWrapper localClientIDWrapper, InspectModeIndicator inspectModeIndicator) :
+            ILocalClientIDWrapper localClientIDWrapper, ILocalAdminIndicator localAdminIndicator, InspectModeIndicator inspectModeIndicator) :
             base(interactorContainer, grabInteractablesContainer, interactor2DInputContainer, interactionConfig,
-                interactorReferences, interactorType, raycastProvider, localClientIDWrapper, null, new HoveringOverScrollableIndicator())
+                interactorReferences, interactorType, raycastProvider, localClientIDWrapper, localAdminIndicator, null, new HoveringOverScrollableIndicator())
         {
             Interactor2DReferences interactor2DReferences = interactorReferences as Interactor2DReferences;
             _reticuleImage = interactor2DReferences.ReticuleImage;
