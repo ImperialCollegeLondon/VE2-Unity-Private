@@ -1,5 +1,6 @@
 using System;
 using VE2.Core.VComponents.API;
+using VE2.Core.VComponents.Shared;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -10,10 +11,10 @@ namespace VE2.Core.VComponents.Internal
 
         internal event Action<InteractorID> OnClickUp;
 
-        private readonly HoldActivatablePlayerSyncIndicator _syncConfig;
+        private readonly WorldStateSyncConfig _syncConfig;
 
         //TODO: activateAtRangeInVR should be wrapped in a config class
-        public RangedHoldClickInteractionModule(RangedInteractionConfig rangedConfig, GeneralInteractionConfig generalConfig, HoldActivatablePlayerSyncIndicator syncConfig,
+        public RangedHoldClickInteractionModule(RangedInteractionConfig rangedConfig, GeneralInteractionConfig generalConfig, WorldStateSyncConfig syncConfig,
             string id, bool activateAtRangeInVR) : base(rangedConfig, generalConfig, id, activateAtRangeInVR)
         {
             _syncConfig = syncConfig;

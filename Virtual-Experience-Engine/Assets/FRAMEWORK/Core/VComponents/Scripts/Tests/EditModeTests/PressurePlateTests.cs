@@ -16,6 +16,7 @@ namespace VE2.Core.VComponents.Tests
         public UnityEvent OnDeactivate => _StateModule.OnDeactivate;
 
         public bool IsActivated { get { return _StateModule.IsActivated; } }
+        public void ToggleAlwaysActivated(bool toggle) => _StateModule.ToggleAlwaysActivated(toggle);
         public IClientIDWrapper MostRecentInteractingClientID => _StateModule.MostRecentInteractingClientID;
         public List<IClientIDWrapper> CurrentlyInteractingClientIDs => _StateModule.CurrentlyInteractingClientIDs;
         #endregion

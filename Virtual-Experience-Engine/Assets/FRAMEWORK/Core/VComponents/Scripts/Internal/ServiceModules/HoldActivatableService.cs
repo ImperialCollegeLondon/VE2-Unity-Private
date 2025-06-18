@@ -4,6 +4,7 @@ using UnityEngine.Events;
 using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
+using VE2.Core.VComponents.Shared;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -17,7 +18,7 @@ namespace VE2.Core.VComponents.Internal
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
 
         [HideIf(nameof(MultiplayerSupportPresent), false)]
-        [SerializeField, IgnoreParent] internal HoldActivatablePlayerSyncIndicator SyncConfig = new();
+        [SerializeField, IgnoreParent] internal WorldStateSyncConfig SyncConfig = new();
 
         private bool MultiplayerSupportPresent => VE2API.HasMultiPlayerSupport;
     }
@@ -36,9 +37,9 @@ namespace VE2.Core.VComponents.Internal
         private readonly ColliderInteractionModule _ColliderInteractionModule;
         #endregion
 
-        public HoldActivatableService(HoldActivatableConfig config, MultiInteractorActivatableState state, string id, IClientIDWrapper localClientIdWrapper)
+        public HoldActivatableService(HoldActivatableConfig config, MultiInteractorActivatableSyncedState state, string id, IClientIDWrapper localClientIdWrapper, IWorldStateSyncableContainer worldStateSyncableContainer)
         {
-            _StateModule = new(state, config.StateConfig, id, localClientIdWrapper);
+            _StateModule = new(state, config.StateConfig, id, localClientIdWrapper, config.SyncConfig, worldStateSyncableContainer);
 
             _RangedHoldClickInteractionModule = new(config.ActivatableRangedInteractionConfig, config.GeneralInteractionConfig, config.SyncConfig, id, config.ActivatableRangedInteractionConfig.ClickAtRangeInVR);
             _ColliderInteractionModule = new(config.CollisionClickInteractionConfig, config.GeneralInteractionConfig, config.SyncConfig, id);

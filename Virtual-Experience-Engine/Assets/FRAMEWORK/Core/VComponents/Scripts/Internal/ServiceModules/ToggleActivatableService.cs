@@ -44,11 +44,10 @@ namespace VE2.Core.VComponents.Internal
 
             _RangedClickInteractionModule = new(config.RangedClickInteractionConfig, config.GeneralInteractionConfig, id, config.RangedClickInteractionConfig.ClickAtRangeInVR);
 
-            //Note - yes, this network indicator seems strange on first glance
-            //Toggle activatables will sync via the state module, this network indicator is used to indicate whether it should sync through the player or not
-            //This is required for hold activatables and pressure plates, but not for toggle activatables, so we just create a new flag with 'false' here
-            HoldActivatablePlayerSyncIndicator networkIndicator = new(false);
-            _ColliderInteractionModule = new(config.CollisionClickInteractionConfig, config.GeneralInteractionConfig, networkIndicator, id);
+            //Note - yes, this null seems strange on first glance
+            //Toggle activatables will sync only via the state module, for hold activatables, interactions are synced via the interactor
+            //Since this doesn't apply for toggle activatables, we just pass null here
+            _ColliderInteractionModule = new(config.CollisionClickInteractionConfig, config.GeneralInteractionConfig, null, id);
 
             _RangedClickInteractionModule.OnClickDown += HandleInteract;
             _ColliderInteractionModule.OnCollideEnter += HandleInteract;
