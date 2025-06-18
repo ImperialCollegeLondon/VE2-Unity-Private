@@ -409,6 +409,39 @@ namespace VE2.NonCore.Platform.API
 
             }
         }
+
+        [Serializable]
+        public class AdminUpdateNotice : VE2Serializable
+        {
+            public ushort ClientID { get; private set; }
+            public bool IsAdmin { get; private set; }
+
+            public AdminUpdateNotice(byte[] bytes) : base(bytes) { }
+
+            public AdminUpdateNotice(bool isAdmin)
+            {
+                IsAdmin = isAdmin;
+            }
+
+            protected override byte[] ConvertToBytes()
+            {
+                using MemoryStream stream = new();
+                using BinaryWriter writer = new(stream);
+
+                writer.Write(ClientID);
+                writer.Write(IsAdmin);
+                return stream.ToArray();
+            }
+
+            protected override void PopulateFromBytes(byte[] bytes)
+            {
+                using MemoryStream stream = new(bytes);
+                using BinaryReader reader = new(stream);
+
+                ClientID = reader.ReadUInt16();
+                IsAdmin = reader.ReadBoolean();
+            }
+        }
     }
 
 }

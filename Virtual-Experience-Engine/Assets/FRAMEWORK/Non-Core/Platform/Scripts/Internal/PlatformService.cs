@@ -338,6 +338,13 @@ namespace VE2.NonCore.Platform.Internal
                 _commsHandler.SendMessage(overridableAvatarAppearance.PresentationConfig.Bytes, PlatformNetworkingMessageCodes.UpdatePlayerPresentation, TransmissionProtocol.TCP);
         }
 
+        private void HandleAdminUpdateNotice(AdminUpdateNotice adminUpdateNotice)
+        {
+            Debug.Log($"<color=blue>Admin status changed: {LocalClientID}</color>");
+            if (IsConnectedToServer)
+                _commsHandler.SendMessage(adminUpdateNotice.Bytes, PlatformNetworkingMessageCodes.UpdatePlayerPresentation, TransmissionProtocol.TCP);
+        }
+
         public void TearDown()
         {
             _commsHandler?.DisconnectFromServer();
