@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 
@@ -17,15 +18,20 @@ namespace VE2.Core.Player.Internal
         public readonly ICollisionDetector _collisionDetector;
         private readonly InteractorType _InteractorType;
         private readonly ILocalClientIDWrapper _localClientIDWrapper;
+        private readonly ILocalAdminIndicator _localAdminIndicator;
 
         internal FeetInteractor(ICollisionDetectorFactory collisionDetectorFactory, ColliderType colliderType, Collider collider, InteractorType interactorType, 
-            ILocalClientIDWrapper localClientIDWrapper, PlayerInteractionConfig interactionConfig)
+            ILocalClientIDWrapper localClientIDWrapper, ILocalAdminIndicator localAdminIndicator, PlayerInteractionConfig interactionConfig)
         {
             _collisionDetector = collisionDetectorFactory.CreateCollisionDetector(collider, colliderType, interactionConfig.InteractableLayers);
             _InteractorType = interactorType;
             _localClientIDWrapper = localClientIDWrapper;
+            _localAdminIndicator = localAdminIndicator;
         }
-
+        protected bool IsInteractableAllowed(IGeneralInteractionModule interactable)
+        {
+            return interactable != null && (!interactable.AdminOnly || _localAdminIndicator.IsLocalAdmin);
+        }
         public virtual void HandleOnEnable()
         {
             _collisionDetector.OnCollideStart += HandleCollideStart;
@@ -56,7 +62,9 @@ namespace VE2.Core.Player.Internal
 
         private void HandleCollideStart(ICollideInteractionModule collideInteractionModule)
         {
-            if (_localClientIDWrapper.IsClientIDReady && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Feet)
+            if (_localClientIDWrapper.IsClientIDReady &&
+                IsInteractableAllowed(collideInteractionModule) &&
+                collideInteractionModule.CollideInteractionType == CollideInteractionType.Feet)
             {
                 collideInteractionModule.InvokeOnCollideEnter(_interactorID);
 
@@ -67,7 +75,9 @@ namespace VE2.Core.Player.Internal
 
         private void HandleCollideEnd(ICollideInteractionModule collideInteractionModule)
         {
-            if (_localClientIDWrapper.IsClientIDReady && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Feet)
+            if (_localClientIDWrapper.IsClientIDReady &&
+                IsInteractableAllowed(collideInteractionModule) &&
+                collideInteractionModule.CollideInteractionType == CollideInteractionType.Feet)
             {
                 collideInteractionModule.InvokeOnCollideExit(_interactorID);
 

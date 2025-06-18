@@ -77,7 +77,7 @@ namespace VE2.Core.Player.Internal
             _verticalOffsetTransform = playerVRReferences.VerticalOffsetTransform;
             _headTransform = playerVRReferences.HeadTransform;
             _primaryUIHolderRect = playerVRReferences.PrimaryUIHolderRect;
-            _feetInteractorVR = new FeetInteractor(collisionDetectorFactory, ColliderType.FeetVR, playerVRReferences.FeetCollider, InteractorType.Feet, localClientIDWrapper, interactionConfig);
+            _feetInteractorVR = new FeetInteractor(collisionDetectorFactory, ColliderType.FeetVR, playerVRReferences.FeetCollider, InteractorType.Feet, localClientIDWrapper, localAdminIndicator, interactionConfig);
             _resetViewUIHandler = playerVRReferences.ResetViewUIHandler;
             _neutralPositionOffsetTransform = playerVRReferences.NeutralPositionOffsetTransform;
             _movementModeConfig = movementModeConfig;

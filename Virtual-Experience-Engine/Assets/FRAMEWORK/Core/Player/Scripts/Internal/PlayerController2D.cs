@@ -92,7 +92,7 @@ namespace VE2.Core.Player.Internal
                 interactorContainer, grabInteractablesContainer, player2DInputContainer.InteractorInputContainer2D, interactionConfig,
                 player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, localClientIDWrapper, localAdminIndicator, _inspectModeIndicator);
 
-            _feetInteractor2D = new(collisionDetectorFactory, ColliderType.Feet2D, player2DReferences.Interactor2DReferences.FeetCollider, InteractorType.Feet, localClientIDWrapper, interactionConfig);
+            _feetInteractor2D = new(collisionDetectorFactory, ColliderType.Feet2D, player2DReferences.Interactor2DReferences.FeetCollider, InteractorType.Feet, localClientIDWrapper, localAdminIndicator, interactionConfig);
             _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences, movementModeConfig, _inspectModeIndicator);
             _rootTransform = player2DReferences.Locomotor2DReferences.Controller.transform;
 
