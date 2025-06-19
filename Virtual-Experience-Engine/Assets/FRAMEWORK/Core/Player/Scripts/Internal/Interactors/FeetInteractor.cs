@@ -99,7 +99,7 @@ namespace VE2.Core.Player.Internal
             bool canInteract = _localClientIDWrapper.IsClientIDReady && IsInteractableAllowed(collideInteractionModule);
 
             if (canInteract)
-            StopInteractingWithModule(collideInteractionModule);
+                StopInteractingWithModule(collideInteractionModule);
 
             _currentCollidingInteractionModules.Remove(collideInteractionModule);
         }
