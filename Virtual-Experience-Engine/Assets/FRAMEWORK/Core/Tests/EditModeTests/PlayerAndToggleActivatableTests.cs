@@ -7,6 +7,7 @@ using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Tests;
 using VE2.Core.Player.Internal;
 using VE2.Common.Shared;
+using VE2.Common.API;
 
 
 namespace VE2.Core.Tests
@@ -161,6 +162,34 @@ namespace VE2.Core.Tests
             Assert.AreEqual(_firstActivatablePluginInterface.MostRecentInteractingClientID.Value, localClientID);
             Assert.IsTrue(_firstActivatablePluginInterface.MostRecentInteractingClientID.IsLocal);
         }
+
+        [Test]
+        public void OnUserClick_WhenHoveringOverAdminActivatable_CustomerScriptOnlyReceivesOnActivateWhenUserIsAdmin([Random((ushort)0, ushort.MaxValue, 1)] ushort localClientID)
+        {
+            RayCastProviderSetup.StubRangedInteractionModuleForRaycast(_firstActivatableRaycastInterface.RangedToggleClickInteractionModule);
+            LocalClientIDWrapperSetup.LocalClientIDWrapper.Value.Returns(localClientID);
+
+            ILocalAdminIndicatorWritable localAdminIndicator = LocalAdminIndicatorSetup.LocalAdminIndicator as ILocalAdminIndicatorWritable;
+            localAdminIndicator.SetLocalAdminStatus(false);
+            _firstActivatablePluginInterface.AdminOnly = true;
+
+            // Simulate click when not admin
+            SimulateClick();
+            _customerScript.Received(0).HandleActivateReceived();
+
+            Assert.False(_firstActivatablePluginInterface.IsActivated, "Activatable should be activated");
+
+            localAdminIndicator.SetLocalAdminStatus(true);
+
+            // Simulate click when admin
+            SimulateClick();
+            _customerScript.Received(1).HandleActivateReceived();
+
+            Assert.IsTrue(_firstActivatablePluginInterface.IsActivated, "Activatable should be activated");
+            Assert.AreEqual(_firstActivatablePluginInterface.MostRecentInteractingClientID.Value, localClientID);
+            Assert.IsTrue(_firstActivatablePluginInterface.MostRecentInteractingClientID.IsLocal);
+        }
+
 
         #endregion
 

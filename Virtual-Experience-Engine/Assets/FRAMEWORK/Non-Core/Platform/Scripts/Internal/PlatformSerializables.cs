@@ -25,6 +25,7 @@ namespace VE2.NonCore.Platform.Internal
             GlobalInfo,
             InstanceAllocationRequest,
             UpdatePlayerPresentation,
+            AdminUpdateNotice
         }
 
 
@@ -335,6 +336,35 @@ namespace VE2.NonCore.Platform.Internal
                 using BinaryReader reader = new(stream);
 
                 InstanceCode = new InstanceCode(reader.ReadString());
+            }
+        }
+
+        public class AdminUpdateNotice : VE2Serializable
+        {
+            public bool IsAdmin { get; private set; }
+
+            public AdminUpdateNotice(byte[] bytes) : base(bytes) { }
+
+            public AdminUpdateNotice(bool isAdmin)
+            {
+                IsAdmin = isAdmin;
+            }
+
+            protected override byte[] ConvertToBytes()
+            {
+                using MemoryStream stream = new();
+                using BinaryWriter writer = new(stream);
+
+                writer.Write(IsAdmin);
+                return stream.ToArray();
+            }
+
+            protected override void PopulateFromBytes(byte[] bytes)
+            {
+                using MemoryStream stream = new(bytes);
+                using BinaryReader reader = new(stream);
+
+                IsAdmin = reader.ReadBoolean();
             }
         }
     }

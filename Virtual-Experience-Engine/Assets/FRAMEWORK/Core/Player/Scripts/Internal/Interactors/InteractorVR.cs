@@ -22,9 +22,9 @@ namespace VE2.Core.Player.Internal
 
         internal InteractorVR(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, InteractorInputContainer interactorInputContainer, PlayerInteractionConfig playerInteractionConfig,
             InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ColliderType colliderType,
-            ILocalClientIDWrapper localClientID, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator, IXRHapticsWrapper xRHapticsWrapper) :
+            ILocalClientIDWrapper localClientID, ILocalAdminIndicator localAdminIndicator, FreeGrabbableWrapper grabbableWrapper, HoveringOverScrollableIndicator hoveringOverScrollableIndicator, IXRHapticsWrapper xRHapticsWrapper) :
             base(interactorContainer, grabInteractablesContainer, interactorInputContainer, playerInteractionConfig,
-                interactorReferences, interactorType, raycastProvider, localClientID, grabbableWrapper, hoveringOverScrollableIndicator)
+                interactorReferences, interactorType, raycastProvider, localClientID, localAdminIndicator, grabbableWrapper, hoveringOverScrollableIndicator)
 
         {
             InteractorVRReferences interactorVRReferences = interactorReferences as InteractorVRReferences;
