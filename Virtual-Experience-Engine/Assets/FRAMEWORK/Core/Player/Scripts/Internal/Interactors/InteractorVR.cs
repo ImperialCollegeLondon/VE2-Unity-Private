@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using VE2.Common.API;
 using VE2.Common.Shared;
@@ -9,6 +11,14 @@ namespace VE2.Core.Player.Internal
     internal class InteractorVR : PointerInteractor
     {
         private Vector3 _grabberTransformOffset;
+
+        /// <summary>
+        /// key is the interaction module, value is whether we are actually interacting with it 
+        /// Used to handle changes to admin rights. If we're colliding but not interacting, and we find ourselves to be admin, we should start interacting 
+        /// If we're colliding and we ARE interacting, but we find ourselves to be non-admin, we should stop interacting.
+        /// This also applies to the case of gaining our local client ID after the collision starts
+        /// </summary>
+        private Dictionary<ICollideInteractionModule, bool> _currentCollidingInteractionModules = new();
 
         private readonly ICollisionDetector _collisionDetector;
         private readonly GameObject _handVisualGO;
@@ -64,23 +74,70 @@ namespace VE2.Core.Player.Internal
 
         private void HandleCollideStart(ICollideInteractionModule collideInteractionModule)
         {
-            if (_LocalClientIDWrapper.IsClientIDReady && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Hand)
-            {
-                collideInteractionModule.InvokeOnCollideEnter(_InteractorID);
+            if (collideInteractionModule.CollideInteractionType != CollideInteractionType.Hand)
+                return;
+            bool canInteract = _LocalClientIDWrapper.IsClientIDReady && IsInteractableAllowed(collideInteractionModule);
+
+            if (canInteract)
+                StartInteractingWithModule(collideInteractionModule);
+
+            _currentCollidingInteractionModules.Add(collideInteractionModule, canInteract);
+        }
+
+        private void StartInteractingWithModule(ICollideInteractionModule collideInteractionModule)
+        {
+            collideInteractionModule.InvokeOnCollideEnter(_InteractorID);
+
+            if (collideInteractionModule.IsNetworked)
                 _heldActivatableIDsAgainstNetworkFlags.Add(collideInteractionModule.ID, collideInteractionModule.IsNetworked);
 
-                Vibrate(HIGH_HAPTICS_AMPLITUDE, HIGH_HAPTICS_DURATION);
-            }
+            Vibrate(HIGH_HAPTICS_AMPLITUDE, HIGH_HAPTICS_DURATION);
         }
 
         private void HandleCollideEnd(ICollideInteractionModule collideInteractionModule)
         {
-            if (_LocalClientIDWrapper.IsClientIDReady && !collideInteractionModule.AdminOnly && collideInteractionModule.CollideInteractionType == CollideInteractionType.Hand)
-            {
-                collideInteractionModule.InvokeOnCollideExit(_InteractorID);
+            if (collideInteractionModule.CollideInteractionType != CollideInteractionType.Feet)
+                return;
+
+            bool canInteract = _LocalClientIDWrapper.IsClientIDReady && IsInteractableAllowed(collideInteractionModule);
+
+            if (canInteract)
+                StopInteractingWithModule(collideInteractionModule);
+
+            _currentCollidingInteractionModules.Remove(collideInteractionModule);
+        }
+
+        private void StopInteractingWithModule(ICollideInteractionModule collideInteractionModule)
+        {
+            collideInteractionModule.InvokeOnCollideExit(_InteractorID);
+
+            if (collideInteractionModule.IsNetworked)
                 _heldActivatableIDsAgainstNetworkFlags.Remove(collideInteractionModule.ID);
 
-                Vibrate(HIGH_HAPTICS_AMPLITUDE, HIGH_HAPTICS_DURATION);
+            Vibrate(HIGH_HAPTICS_AMPLITUDE, HIGH_HAPTICS_DURATION);
+        }
+
+        public override void HandleUpdate()
+        {
+            base.HandleUpdate();
+
+            foreach (var kvp in _currentCollidingInteractionModules.ToList())
+            {
+                ICollideInteractionModule interactionModule = kvp.Key;
+                bool isCurrentlyInteracting = kvp.Value;
+
+                //If we are colliding with the interaction module, but not interacting with it, and we are admin, we should start interacting
+                if (!isCurrentlyInteracting && IsInteractableAllowed(interactionModule) && _localAdminIndicator.IsLocalAdmin)
+                {
+                    StartInteractingWithModule(interactionModule);
+                    _currentCollidingInteractionModules[interactionModule] = true;
+                }
+                //If we are colliding with the interaction module, and we are interacting with it, but we are not admin, we should stop interacting
+                else if (isCurrentlyInteracting && !IsInteractableAllowed(interactionModule))
+                {
+                    StopInteractingWithModule(interactionModule);
+                    _currentCollidingInteractionModules[interactionModule] = false;
+                }
             }
         }
 
