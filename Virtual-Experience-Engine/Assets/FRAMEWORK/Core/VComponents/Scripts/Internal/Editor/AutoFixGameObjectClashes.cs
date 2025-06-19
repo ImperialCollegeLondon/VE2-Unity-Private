@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using VE2.Core.VComponents.Integration;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -20,7 +21,9 @@ namespace VE2.Core.VComponents.Internal
                 typeof(V_PressurePlate),
                 typeof(V_RotationalAdjustable),
                 typeof(V_LinearAdjustable),
-                typeof(V_HandheldAdjustable)
+                typeof(V_HandheldAdjustable),
+                typeof(V_CustomInfoPoint),
+                typeof(InfoPointTriggerAnimationHandler),
         };
 
         // Regex to match Unity's duplicate naming: "Name", "Name (1)", "Name (2)", etc.
