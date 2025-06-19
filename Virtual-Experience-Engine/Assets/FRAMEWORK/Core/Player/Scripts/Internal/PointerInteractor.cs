@@ -230,7 +230,7 @@ namespace VE2.Core.Player.Internal
                 {
                     if (raycastResultWrapper.HitInteractable)
                     {
-                        isAllowedToInteract = !raycastResultWrapper.RangedInteractable.AdminOnly;
+                        isAllowedToInteract = IsInteractableAllowed(raycastResultWrapper.RangedInteractable);
                         if (raycastResultWrapper.RangedInteractable is IRangedClickInteractionModule rangedClickInteraction && this is InteractorVR)
                             isAllowedToInteract &= rangedClickInteraction.ActivateAtRangeInVR;
 
