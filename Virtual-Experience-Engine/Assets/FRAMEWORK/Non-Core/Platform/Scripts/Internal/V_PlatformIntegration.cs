@@ -5,6 +5,7 @@ using System.Net;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using VE2.Common.API;
 using VE2.NonCore.Platform.API;
@@ -64,13 +65,11 @@ namespace VE2.NonCore.Platform.Internal
             if (platformPersistentDataHandler == null)
                 platformPersistentDataHandler = new GameObject("PlatformSettingsHandler").AddComponent<PlatformPersistentDataHandler>();
 
-            _platformService = PlatformServiceFactory.Create(platformPersistentDataHandler);
-
             bool inHub = SceneManager.GetActiveScene().name == "Hub";
             bool comeFromHub = platformPersistentDataHandler.PlatformServerConnectionSettings != null;
 
             if (inHub || comeFromHub)
-                _platformService = PlatformServiceFactory.Create(platformPersistentDataHandler);
+                _platformService = PlatformServiceFactory.Create(_config, platformPersistentDataHandler);
             else
                 _platformService = new DebugPlatformService(_config, VE2API.LocalAdminIndicator as ILocalAdminIndicatorWritable); //If we're in a plugin, and have come from hub, we don't have connection settings. So use the debug service.
 
@@ -185,7 +184,6 @@ namespace VE2.NonCore.Platform.Internal
             {
                 Debug.LogError($"Error when emitting OnBecomeAdmin: {ex.Message}, {ex.StackTrace}");
             }
-
         }
         public void RevokeLocalPlayerAdmin()
         {
