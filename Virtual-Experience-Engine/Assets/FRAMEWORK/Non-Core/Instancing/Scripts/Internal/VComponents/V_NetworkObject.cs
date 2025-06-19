@@ -20,7 +20,7 @@ namespace VE2.NonCore.Instancing.Internal
 
     internal partial class V_NetworkObject : MonoBehaviour
     {
-        [SerializeField, HideLabel, IgnoreParent] private NetworkObjectStateConfig _config = new();
+        [SerializeField, HideLabel, IndentArea(-1)] private NetworkObjectStateConfig _config = new();
         [SerializeField, HideInInspector] private NetworkObjectState _state = new();
 
         private NetworkObjectService _service = null;

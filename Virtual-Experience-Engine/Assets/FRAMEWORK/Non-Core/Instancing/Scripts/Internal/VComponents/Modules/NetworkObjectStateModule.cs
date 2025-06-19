@@ -13,7 +13,7 @@ namespace VE2.NonCore.Instancing.Internal
     [Serializable]
     internal class NetworkObjectStateConfig : WorldStateSyncConfig
     {
-        [SerializeField] public UnityEvent<object> OnStateChange = new();
+        [SerializeField, PropertyOrder(-10)] public UnityEvent<object> OnStateChange = new();
     }
 
     internal class NetworkObjectStateModule : BaseWorldStateModule, INetworkObjectStateModule
