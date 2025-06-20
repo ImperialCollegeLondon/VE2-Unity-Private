@@ -184,9 +184,14 @@ namespace VE2.Core.VComponents.Internal
 
             if (interactor is ILocalInteractor interactorLocal)
             {
-                // Either we're not grabbing, so should grab, or we're grabbing, should force drop, and this object is not already grabbed by the interactor
-                // Using != as conditional XOR
-                if (!interactorLocal.IsCurrentlyGrabbing || (forceDrop && !(_state.IsGrabbed && _state.MostRecentInteractingInteractorID == interactorID)))
+                // If we're currently grabbing this object, should return true
+                if (interactorLocal.IsCurrentlyGrabbing && _state.IsGrabbed && _state.MostRecentInteractingInteractorID.Equals(interactorID))
+                {
+                    return true;
+                }
+
+                // If we are either not grabbing, so should grab, or we're grabbing something else and should force drop
+                if (!interactorLocal.IsCurrentlyGrabbing || forceDrop)
                 {
                     if (interactorLocal.TryLocalDrop())
                     {

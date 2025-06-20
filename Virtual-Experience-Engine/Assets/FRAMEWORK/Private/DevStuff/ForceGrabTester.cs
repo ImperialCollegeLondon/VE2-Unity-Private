@@ -20,7 +20,9 @@ public class ForceGrabTester : MonoBehaviour
     void Update()
     {
         if (Keyboard.current.digit1Key.wasPressedThisFrame)
+        {
             Debug.Log($"Try local grab locked: {_grabbable1.TryLocalGrab(true)}");
+        }
         if (Keyboard.current.digit2Key.wasPressedThisFrame)
             Debug.Log($"Try local grab unlocked: {_grabbable1.TryLocalGrab(false)}");
         if (Keyboard.current.digit3Key.wasPressedThisFrame)
@@ -38,14 +40,14 @@ public class ForceGrabTester : MonoBehaviour
         if (Keyboard.current.digit6Key.wasPressedThisFrame)
             _grabbable1.UnlockLocalGrab();
 
+        if (Keyboard.current.digit7Key.wasPressedThisFrame)
+        {
+            _grabbable2.ForceLocalGrab(false, VRHandInteractorType.LeftHandVR);
+        }
         if (Keyboard.current.digit8Key.wasPressedThisFrame)
         {
-            _grabbable2.ForceLocalDrop();
-        }
-        if (Keyboard.current.digit9Key.wasPressedThisFrame)
-        {
             Debug.Log($"Force local grab locked grabbable 2:");
-            _grabbable2.ForceLocalGrab(true);
+            _grabbable2.ForceLocalGrab(false, VRHandInteractorType.RightHandVR);
         }
 
     }
