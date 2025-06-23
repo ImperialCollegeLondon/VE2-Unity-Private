@@ -12,7 +12,6 @@ namespace VE2.Core.VComponents.Internal
 {
     internal class AutoFixGameObjectClashes
     {
-        // Add your VComponent types here  
         private static readonly Type[] VComponentTypes = new Type[]
         {
                 typeof(V_ToggleActivatable),
@@ -24,10 +23,11 @@ namespace VE2.Core.VComponents.Internal
                 typeof(V_HandheldAdjustable),
                 typeof(V_CustomInfoPoint),
                 typeof(InfoPointTriggerAnimationHandler),
+                typeof(V_HandheldActivatable),
         };
 
-        // Regex to match Unity's duplicate naming: "Name", "Name (1)", "Name (2)", etc.
-        private static readonly Regex duplicateRegex = new Regex(@"^(.*?)( \(\d+\))?$", RegexOptions.Compiled);
+        // Matches "Name" or "Name2", "Name3", etc.
+        private static readonly Regex numberedSuffixRegex = new Regex(@"^(.*?)(\d+)?$", RegexOptions.Compiled);
 
         [MenuItem("VE2/Fix GameObject Name Clashes")]
         private static void FixGameObjectNameClashes()
@@ -35,41 +35,66 @@ namespace VE2.Core.VComponents.Internal
             int totalRenamed = 0;
             foreach (var type in VComponentTypes)
             {
-                var components = GameObject.FindObjectsOfType(type, true);
+                var components = GameObject.FindObjectsOfType(type, true).Cast<Component>().ToList();
 
-                // Build a set of all names already used for this type
-                HashSet<string> usedNames = new HashSet<string>(components.Cast<Component>().Select(c => c.gameObject.name));
+                // Group by base name (without numeric suffix)
+                var baseNameGroups = components
+                    .GroupBy(c => GetBaseNameAndNumber(c.gameObject.name).baseName);
 
-                // Group by normalized name (removing Unity's " (n)" suffix)
-                var nameGroups = components.Cast<Component>()
-                    .GroupBy(c => GetBaseName(c.gameObject.name))
-                    .Where(g => g.Count() > 1);
-
-                foreach (var group in nameGroups)
+                foreach (var group in baseNameGroups)
                 {
-                    string baseName = group.Key;
-                    int nextSuffix = 1;
+                    // Build a map of used numbers for this base name
+                    var usedNumbers = new HashSet<int>();
+                    var nameToComponent = new Dictionary<string, Component>();
                     foreach (var comp in group)
                     {
-                        string newName = baseName;
-                        // Find the next available unique name
-                        while (usedNames.Contains(newName))
+                        var (baseName, number) = GetBaseNameAndNumber(comp.gameObject.name);
+                        usedNumbers.Add(number);
+                        nameToComponent[comp.gameObject.name] = comp;
+                    }
+
+                    // If all names are unique, skip
+                    if (group.Count() == usedNumbers.Count)
+                        continue;
+
+                    // Sort by (number, then name) for deterministic renaming
+                    var sorted = group
+                        .Select(c => new { comp = c, info = GetBaseNameAndNumber(c.gameObject.name) })
+                        .OrderBy(x => x.info.number)
+                        .ThenBy(x => x.comp.gameObject.name)
+                        .ToList();
+
+                    // Assign names: keep unique ones, only rename duplicates
+                    var assignedNames = new HashSet<string>();
+                    foreach (var entry in sorted)
+                    {
+                        string desiredName;
+                        var (baseName, number) = entry.info;
+
+                        // Try to keep the current name if it's unique and not already assigned
+                        if (!assignedNames.Contains(entry.comp.gameObject.name) &&
+                            !assignedNames.Contains(baseName + (number > 0 ? number.ToString() : "")))
                         {
-                            nextSuffix++;
-                            newName = baseName + nextSuffix;
-                        }
-                        if (comp.gameObject.name != newName)
-                        {
-                            Undo.RecordObject(comp.gameObject, "Rename GameObject to avoid clash");
-                            comp.gameObject.name = newName;
-                            totalRenamed++;
-                            usedNames.Add(newName);
+                            desiredName = entry.comp.gameObject.name;
                         }
                         else
                         {
-                            // Ensure the current name is marked as used
-                            usedNames.Add(newName);
+                            // Find the next available number >= 2
+                            int candidate = 1;
+                            do
+                            {
+                                candidate++;
+                                desiredName = baseName + (candidate == 1 ? "" : candidate.ToString());
+                            } while (assignedNames.Contains(desiredName) || nameToComponent.ContainsKey(desiredName));
                         }
+
+                        if (entry.comp.gameObject.name != desiredName)
+                        {
+                            Undo.RecordObject(entry.comp.gameObject, "Rename GameObject to avoid clash");
+                            entry.comp.gameObject.name = desiredName;
+                            totalRenamed++;
+                        }
+                        assignedNames.Add(desiredName);
                     }
                 }
             }
@@ -84,11 +109,20 @@ namespace VE2.Core.VComponents.Internal
             }
         }
 
-        // Removes Unity's " (n)" suffix from names
-        private static string GetBaseName(string name)
+        // Returns (baseName, number). "PushButtonToggle" => ("PushButtonToggle", 0), "PushButtonToggle2" => ("PushButtonToggle", 2)
+        private static (string baseName, int number) GetBaseNameAndNumber(string name)
         {
-            var match = duplicateRegex.Match(name);
-            return match.Success ? match.Groups[1].Value : name;
+            var match = numberedSuffixRegex.Match(name);
+            if (match.Success)
+            {
+                string baseName = match.Groups[1].Value;
+                string numberStr = match.Groups[2].Value;
+                int number = 0;
+                if (!string.IsNullOrEmpty(numberStr) && int.TryParse(numberStr, out int parsed))
+                    number = parsed;
+                return (baseName, number);
+            }
+            return (name, 0);
         }
     }
 }
