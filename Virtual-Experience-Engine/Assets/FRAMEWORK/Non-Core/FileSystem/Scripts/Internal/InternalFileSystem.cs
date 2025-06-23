@@ -13,7 +13,7 @@ namespace VE2.NonCore.FileSystem.Internal
 {
     internal class InternalFileSystem : FileSystemIntegrationBase, IFileSystemInternal
     {
-        public override string LocalWorkingPath{ get {
+        public override string RemoteWorkingPath{ get {
                string platformName = Application.platform == RuntimePlatform.Android ? "Android" : "Windows";
 
                return $"VE2/Worlds/{platformName}";

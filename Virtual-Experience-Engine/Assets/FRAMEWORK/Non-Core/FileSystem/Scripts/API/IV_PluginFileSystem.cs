@@ -4,12 +4,12 @@ using UnityEngine;
 
 namespace VE2.NonCore.FileSystem.API
 {
-    public interface IFileSystem
+    public interface IV_FileSystem
     {
         public bool IsFileSystemReady { get; }
         public event Action OnFileSystemReady;
 
-        public string LocalWorkingPath { get; }
+        public string LocalAbsoluteWorkingPath { get; }
 
         public Dictionary<string, LocalFileDetails> GetLocalFilesAtPath(string path);
 

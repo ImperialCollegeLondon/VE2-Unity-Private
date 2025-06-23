@@ -11,11 +11,8 @@ namespace VE2.NonCore.FileSystem.Internal
 {
     internal static class FileSystemServiceFactory
     {
-        internal static FileSystemService CreateFileStorageService(ServerConnectionSettings ftpNetworkSettings, string workingPath)
+        internal static FileSystemService CreateFileStorageService(ServerConnectionSettings ftpNetworkSettings, string remoteWorkingPath, string localWorkingPath)
         {
-            string localWorkingPath = Application.persistentDataPath + "/files/" + workingPath; 
-            string remoteWorkingPath = workingPath;
-
             SftpClient sftpClient = new(ftpNetworkSettings.ServerAddress, (int)ftpNetworkSettings.ServerPort, ftpNetworkSettings.Username, ftpNetworkSettings.Password);
             FTPCommsHandler commsHandler = new(sftpClient);
             FTPService ftpService = new(commsHandler, remoteWorkingPath, localWorkingPath);
@@ -30,7 +27,7 @@ namespace VE2.NonCore.FileSystem.Internal
         #region Interfaces 
         public bool IsFileSystemReady { get; private set; } = false;
         public event Action OnFileSystemReady;
-        public string LocalWorkingPath {get; private set; }
+        public string LocalAbsoluteWorkingPath {get; private set; }
 
 
         public Dictionary<string, LocalFileDetails> GetLocalFilesAtPath(string path)
@@ -38,7 +35,7 @@ namespace VE2.NonCore.FileSystem.Internal
             Dictionary<string, LocalFileDetails> localFiles = new();
 
             string correctedPath = path.StartsWith("/") ? path.Substring(1) : path;
-            string localAbsolutePath = $"{LocalWorkingPath}/{correctedPath}";
+            string localAbsolutePath = $"{LocalAbsoluteWorkingPath}/{correctedPath}";
 
             if (string.IsNullOrWhiteSpace(localAbsolutePath))
                 throw new ArgumentException("Path cannot be null or empty.", nameof(localAbsolutePath));
@@ -54,7 +51,7 @@ namespace VE2.NonCore.FileSystem.Internal
                 {
                     FileInfo fileInfo = new(file);
                     string correctedFileFullName = fileInfo.FullName.Replace("\\", "/"); //System.IO gives us paths with back slashes
-                    string workingFileNameAndPath = correctedFileFullName.Replace($"{LocalWorkingPath}/", "").TrimStart('/');
+                    string workingFileNameAndPath = correctedFileFullName.Replace($"{LocalAbsoluteWorkingPath}/", "").TrimStart('/');
                     localFiles.Add(workingFileNameAndPath, new LocalFileDetails(workingFileNameAndPath, (ulong)fileInfo.Length, correctedFileFullName));
                 }
             }
@@ -76,7 +73,7 @@ namespace VE2.NonCore.FileSystem.Internal
         {
             List<string> localFolders = new();
             string correctedPath = path.StartsWith("/") ? path.Substring(1) : path;
-            string localPath = $"{LocalWorkingPath}/{correctedPath}";
+            string localPath = $"{LocalAbsoluteWorkingPath}/{correctedPath}";
 
             //Debug.Log("Get local folders at " + localPath);
 
@@ -183,7 +180,7 @@ namespace VE2.NonCore.FileSystem.Internal
         public bool DeleteLocalFile(string workingFileNameAndPath)
         {
             Debug.Log($"Deleting local file: {workingFileNameAndPath}");
-            string localPath = $"{LocalWorkingPath}/{workingFileNameAndPath}";
+            string localPath = $"{LocalAbsoluteWorkingPath}/{workingFileNameAndPath}";
 
             if (File.Exists(localPath))
             {
@@ -227,7 +224,7 @@ namespace VE2.NonCore.FileSystem.Internal
             _ftpService = ftpService;
 
             RemoteWorkingPath = remoteWorkingPath;
-            LocalWorkingPath = localWorkingPath;
+            LocalAbsoluteWorkingPath = localWorkingPath;
 
             IsFileSystemReady = true;
 
