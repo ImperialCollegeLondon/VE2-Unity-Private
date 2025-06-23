@@ -18,18 +18,18 @@ namespace VE2.NonCore.Instancing.Internal
         {
             _instanceService = VE2API.InstanceService;
 
-            _instanceService.OnConnectedToInstance += HandleConnectToServer;
-            _instanceService.OnDisconnectedFromInstance += HandleDisconnectFromServer;
-            _instanceService.OnLoseHost += HandleLoseHost;
-            _instanceService.OnBecomeHost += HandleBecomeHost;
+            _instanceService.OnConnectedToInstance.AddListener(HandleConnectToServer);
+            _instanceService.OnDisconnectedFromInstance.AddListener(HandleDisconnectFromServer);
+            _instanceService.OnBecomeNonHost.AddListener(HandleLoseHost);
+            _instanceService.OnBecomeHost.AddListener(HandleBecomeHost);
 
             if (_instanceService.IsConnectedToServer)
-                HandleConnectToServer();
+                HandleConnectToServer(_instanceService.LocalClientID);
             else
-                HandleDisconnectFromServer();
+                HandleDisconnectFromServer(_instanceService.LocalClientID);
         }
 
-        private void HandleConnectToServer()
+        private void HandleConnectToServer(ushort localID)
         {
             if (_instanceService.IsHost)
                 HandleBecomeHost();
@@ -37,7 +37,7 @@ namespace VE2.NonCore.Instancing.Internal
                 HandleLoseHost();
         }
 
-        private void HandleDisconnectFromServer()
+        private void HandleDisconnectFromServer(ushort localID)
         {
             //Debug.Log("handle Disconnect from Server DEBUG UI");
             hostIndicatorText.text = "Not Connected";
@@ -60,10 +60,10 @@ namespace VE2.NonCore.Instancing.Internal
 
         private void OnDisable()
         {
-            _instanceService.OnConnectedToInstance -= HandleConnectToServer;
-            _instanceService.OnDisconnectedFromInstance -= HandleDisconnectFromServer;
-            _instanceService.OnLoseHost -= HandleLoseHost;
-            _instanceService.OnBecomeHost -= HandleBecomeHost;
+            _instanceService.OnConnectedToInstance.RemoveListener(HandleConnectToServer);
+            _instanceService.OnDisconnectedFromInstance.RemoveListener(HandleDisconnectFromServer);
+            _instanceService.OnBecomeNonHost.RemoveListener(HandleLoseHost);
+            _instanceService.OnBecomeHost.RemoveListener(HandleBecomeHost);
         }
     }
 }

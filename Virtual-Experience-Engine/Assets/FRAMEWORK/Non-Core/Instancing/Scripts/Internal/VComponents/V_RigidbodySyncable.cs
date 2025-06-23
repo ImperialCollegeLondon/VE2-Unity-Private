@@ -47,7 +47,7 @@ namespace VE2.NonCore.Instancing.Internal
                 return;
             }
 
-            _service = new RigidbodySyncableService(_config, _state, id, VE2API.WorldStateSyncableContainer, VE2API.InstanceService, rigidbodyWrapper, grabbableRigidbody);
+            _service = new RigidbodySyncableService(_config, _state, id, VE2API.WorldStateSyncableContainer, VE2API.InstanceService as IInstanceServiceInternal, rigidbodyWrapper, grabbableRigidbody);
         }
 
 

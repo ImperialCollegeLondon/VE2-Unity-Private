@@ -11,6 +11,11 @@ namespace VE2.NonCore.Instancing.Internal
     internal class InstantMessageHandlerConfig
     {
         [SerializeField] public UnityEvent<object> OnMessageReceived = new();
+
+        /// <summary>
+        /// If ticked, OnMessageReceived will not be invoked locally when sending a message.
+        /// </summary>
+        [SerializeField] public bool NoLocalCallback = false;
     }
 
     internal class InstantMessageHandlerService : IInstantMessageHandlerInternal
@@ -31,8 +36,10 @@ namespace VE2.NonCore.Instancing.Internal
         public void SendInstantMessage(object messageObject)
         {
             _instanceServiceInternal.SendInstantMessage(_id, messageObject);
+
             // Instance server won't send IM back to sender, but it can still useful to trigger this event locally
-            _config.OnMessageReceived?.Invoke(messageObject);
+            if (!_config.NoLocalCallback)
+                _config.OnMessageReceived?.Invoke(messageObject);
         }
 
         public void ReceiveInstantMessage(MemoryStream serializedMessageObject)

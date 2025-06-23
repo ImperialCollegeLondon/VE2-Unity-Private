@@ -27,10 +27,10 @@ namespace VE2.NonCore.Platform.Internal
 
             if (_instanceService != null)
             {
-                _instanceService.OnConnectedToInstance += HandlePlatformConnected;
-                _instanceService.OnDisconnectedFromInstance += HandlePlatformDisconnected;
-                _instanceService.OnBecomeHost += HandleBecomeHost;
-                _instanceService.OnLoseHost += HandleBecomeNonHost;
+                _instanceService.OnConnectedToInstance.AddListener(HandlePlatformConnected);
+                _instanceService.OnDisconnectedFromInstance.AddListener(HandlePlatformDisconnected);
+                _instanceService.OnBecomeHost.AddListener(HandleBecomeHost);
+                _instanceService.OnBecomeNonHost.AddListener(HandleBecomeNonHost);
 
                 _quickUIView.SetConnectedText(_instanceService.IsConnectedToServer);
 
@@ -65,8 +65,8 @@ namespace VE2.NonCore.Platform.Internal
                 _quickUIView.SetPingTextNA();
         }
 
-        private void HandlePlatformConnected() => _quickUIView.SetConnectedText(true);
-        private void HandlePlatformDisconnected() 
+        private void HandlePlatformConnected(ushort localID) => _quickUIView.SetConnectedText(true);
+        private void HandlePlatformDisconnected(ushort localID) 
         {
             _quickUIView.SetConnectedText(false);
             _quickUIView.SetHostNA();
