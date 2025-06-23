@@ -38,7 +38,7 @@ namespace VE2.Core.VComponents.Internal
         // Matches "Name" or "Name2", "Name3", etc.
         private static readonly Regex numberedSuffixRegex = new Regex(@"^(.*?)(\d+)?$", RegexOptions.Compiled);
 
-        [MenuItem("VE2/Fix GameObject Name Clashes")]
+        [MenuItem("VE2/Fix GameObject Name Clashes", priority = 2)]
         private static void FixGameObjectNameClashes()
         {
             int totalRenamed = 0;
