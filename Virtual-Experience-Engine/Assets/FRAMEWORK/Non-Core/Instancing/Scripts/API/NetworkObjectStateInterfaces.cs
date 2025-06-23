@@ -9,6 +9,8 @@ namespace VE2.NonCore.Instancing.API
     {
         public UnityEvent<object> OnStateChange { get; }
 
-        public object NetworkObject { get; set; }
+        public object NetworkObject { get; }
+
+        public void UpdateDataFromPlugin(object networkObject);
     }
 }
