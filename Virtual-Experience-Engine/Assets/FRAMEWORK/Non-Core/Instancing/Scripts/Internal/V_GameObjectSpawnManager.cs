@@ -7,11 +7,11 @@ using VE2.NonCore.Instancing.API;
 
 namespace VE2.NonCore.Instancing.Internal
 {
-    public class V_GameObjectSpawnManager : MonoBehaviour
+    public class V_GameObjectSpawnManager : MonoBehaviour, IV_GameObjectSpawnManager
     {
         [SerializeField] private V_NetworkObject _networkObject;
-        [SerializeField] private GameObject gameobjectToSpawn;
-        [SerializeField] private Transform spawnPosition;
+        [SerializeField] private GameObject _gameobjectToSpawn;
+        [SerializeField] private Transform _spawnPosition;
 
         private Dictionary<string, GameObject> gameobjectsAgainstIDs = new();
         private int numberOfSpawnedgameobjects = 0;
@@ -22,6 +22,9 @@ namespace VE2.NonCore.Instancing.Internal
 
         [SerializeField] private GameObject tooManyObjectsMessage = null;
 
+        public GameObject ObjectToSpawn { get => _gameobjectToSpawn; set => _gameobjectToSpawn = value; }
+        public Transform SpawnPosition { get => _spawnPosition; set => _spawnPosition = value; }
+
         private void Awake()
         {
             tooManyObjectsMessage?.SetActive(false);
@@ -31,6 +34,7 @@ namespace VE2.NonCore.Instancing.Internal
         {
             SpawnAndReturnGameObject();
         }
+
 
         //Invoke this to spawn the GameObject
         public GameObject SpawnAndReturnGameObject()
@@ -100,7 +104,7 @@ namespace VE2.NonCore.Instancing.Internal
             if (goName.Equals("none"))
                 goName = "spawnedGameobject" + numberOfSpawnedgameobjects;
 
-            GameObject newGO = Instantiate(gameobjectToSpawn, spawnPosition.position, spawnPosition.rotation);
+            GameObject newGO = Instantiate(_gameobjectToSpawn, _spawnPosition.position, _spawnPosition.rotation);
             newGO.SetActive(false);
             newGO.name = goName;
             newGO.SetActive(true);

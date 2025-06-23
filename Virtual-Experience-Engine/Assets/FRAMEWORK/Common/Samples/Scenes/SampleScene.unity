@@ -16179,9 +16179,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _networkObject: {fileID: 1368132674}
-  gameobjectToSpawn: {fileID: 4633554787549443743, guid: ab9b34fe25f0d784cb323dafeca7916b,
+  _gameobjectToSpawn: {fileID: 4633554787549443743, guid: ab9b34fe25f0d784cb323dafeca7916b,
     type: 3}
-  spawnPosition: {fileID: 1368132676}
+  _spawnPosition: {fileID: 1368132676}
   restrictNumberOfObjects: 1
   maxNumberOfObjects: 15
   tooManyObjectsMessage: {fileID: 365487113}
