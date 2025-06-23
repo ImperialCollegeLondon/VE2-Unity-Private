@@ -12,6 +12,8 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class RotationalAdjustableConfig
     {
+        public void OpenDocs() => Application.OpenURL("https://www.notion.so/V_RotationalAdjustable-2170e4d8ed4d800abacafa5b3f72dad7?source=copy_link");
+        [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above)]
         [SerializeField, IgnoreParent] public AdjustableStateConfig AdjustableStateConfig = new();
         [SerializeField, IgnoreParent] public SpatialAdjustableServiceConfig RotationalAdjustableServiceConfig = new();
         [SerializeField, IgnoreParent] public GrabbableStateConfig GrabbableStateConfig = new();

@@ -28,6 +28,9 @@ namespace VE2.Core.Player.Internal
     [Serializable]
     internal class PlayerConfig
     {
+        public void OpenDocs() => Application.OpenURL("https://www.notion.so/The-VE2-Player-Rig-2140e4d8ed4d809dbd6cd0e97073998f?source=copy_link");
+        [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above)]
+
         [Title("Player Mode Config")]
         [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public PlayerModeConfig PlayerModeConfig = new();
 

@@ -11,16 +11,19 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class ToggleActivatableConfig
     {
+        public void OpenDocs() => Application.OpenURL("https://www.notion.so/V_ToggleActivatable-2130e4d8ed4d80fcb471cc08f80acc56?source=copy_link");
+        [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above)]
         [SerializeField, IgnoreParent] public ToggleActivatableStateConfig StateConfig = new();
-        
+
         [SerializeField, IgnoreParent] public CollisionClickInteractionConfig CollisionClickInteractionConfig = new();
         [SerializeField, IndentArea(-1)] public RangedClickInteractionConfig RangedClickInteractionConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
-        
+
         [HideIf(nameof(MultiplayerSupportPresent), false)]
         [SerializeField, IgnoreParent] public WorldStateSyncConfig SyncConfig = new();
 
         private bool MultiplayerSupportPresent => VE2API.HasMultiPlayerSupport;
+
     }
 
     internal class ToggleActivatableService

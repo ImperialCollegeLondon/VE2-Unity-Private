@@ -10,6 +10,8 @@ namespace VE2.NonCore.Instancing.Internal
     [Serializable]
     internal class InstantMessageHandlerConfig
     {
+        public void OpenDocs() => Application.OpenURL("https://www.notion.so/InstantMessageHandlers-20f0e4d8ed4d81198659d199062b0181?source=copy_link");
+        [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above)]
         [SerializeField] public UnityEvent<object> OnMessageReceived = new();
 
         /// <summary>

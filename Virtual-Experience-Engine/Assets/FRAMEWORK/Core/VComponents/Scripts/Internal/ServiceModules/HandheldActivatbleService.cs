@@ -12,6 +12,8 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class HandheldActivatableConfig
     {
+        public void OpenDocs() => Application.OpenURL("https://www.notion.so/V_HandHeldActivatable-20f0e4d8ed4d815fadabedf507722d44?source=copy_link");
+        [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above)]
         [SerializeField, IgnoreParent] public ToggleActivatableStateConfig StateConfig = new();
 
         [SerializeField, IgnoreParent] public HandHeldClickInteractionConfig HandheldClickInteractionConfig = new();

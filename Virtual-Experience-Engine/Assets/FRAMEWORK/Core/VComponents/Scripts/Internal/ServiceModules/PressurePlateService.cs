@@ -9,6 +9,8 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class PressurePlateConfig
     {
+        public void OpenDocs() => Application.OpenURL("https://www.notion.so/V_PressurePlate-2150e4d8ed4d80a58decf17b24427a78?source=copy_link");
+        [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above)]
         [SerializeField, IgnoreParent] public HoldActivatableStateConfig StateConfig = new();
 
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();

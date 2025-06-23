@@ -11,6 +11,8 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class HoldActivatableConfig
     {
+        public void OpenDocs() => Application.OpenURL("https://www.notion.so/V_HoldActivatable-20f0e4d8ed4d816db96ee5435ddf9f77?source=copy_link");
+        [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above)]
         [SerializeField, IgnoreParent] public HoldActivatableStateConfig StateConfig = new();
 
         [SerializeField, IgnoreParent] public CollisionClickInteractionConfig CollisionClickInteractionConfig = new();

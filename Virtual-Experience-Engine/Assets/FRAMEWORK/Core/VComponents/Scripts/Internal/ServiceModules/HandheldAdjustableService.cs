@@ -11,6 +11,8 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class HandheldAdjustableConfig
     {
+        public void OpenDocs() => Application.OpenURL("https://www.notion.so/V_HandHeldAdjustable-20f0e4d8ed4d81fb987efeb3ca70dd9e?source=copy_link");
+        [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above)]
         [SerializeField, IgnoreParent] public AdjustableStateConfig StateConfig = new();
         [SerializeField, IgnoreParent] public HandheldAdjustableServiceConfig HandheldAdjustableServiceConfig = new();
 
