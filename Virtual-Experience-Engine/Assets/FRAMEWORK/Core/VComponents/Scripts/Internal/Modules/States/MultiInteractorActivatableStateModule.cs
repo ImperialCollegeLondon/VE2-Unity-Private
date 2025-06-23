@@ -64,6 +64,7 @@ namespace VE2.Core.VComponents.Internal
         {
             bool wasActivated = IsActivated;
 
+            _sycnedState.StateChangeNumber++;
             _sycnedState.IsProgrammaticallyActivated = toggle;
 
             if (IsActivated && ! wasActivated)
@@ -203,6 +204,7 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class MultiInteractorActivatableSyncedState : VE2Serializable
     {
+        public ushort StateChangeNumber { get; set; } = 0;
         public bool IsProgrammaticallyActivated { get; set; } = false;
 
         public MultiInteractorActivatableSyncedState() {}
@@ -217,6 +219,7 @@ namespace VE2.Core.VComponents.Internal
             using MemoryStream stream = new();
             using BinaryWriter writer = new(stream);
 
+            writer.Write(StateChangeNumber);
             writer.Write(IsProgrammaticallyActivated);
 
             return stream.ToArray();
@@ -227,6 +230,7 @@ namespace VE2.Core.VComponents.Internal
             using MemoryStream stream = new(bytes);
             using BinaryReader reader = new(stream);
 
+            StateChangeNumber = reader.ReadUInt16();
             IsProgrammaticallyActivated = reader.ReadBoolean();
         }
     }
