@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using VE2.Common.API;
 using VE2.Common.Shared;
+using VE2.Core.VComponents.API;
 using VE2.NonCore.Instancing.API;
 
 namespace VE2.NonCore.Instancing.Internal
@@ -28,15 +29,15 @@ namespace VE2.NonCore.Instancing.Internal
 
         public void SpawnGameObject()
         {
-            SpawnAndReturnGameObject(VE2API.InstanceService.LocalClientID.ToString());
+            SpawnAndReturnGameObject();
         }
 
         //Invoke this to spawn the GameObject
-        public GameObject SpawnAndReturnGameObject(string clientID)
+        public GameObject SpawnAndReturnGameObject()
         {
             //Since this function is called by an activatable, we know it'll be called on the host client
             //Since it's being called on the host client, we don't need it to be called on nonhosts too!
-            if (VE2API.InstanceService.IsHost)
+            if (!VE2API.InstanceService.IsHost)
                 return null;
 
             if (restrictNumberOfObjects && gameobjectsAgainstIDs.Count >= maxNumberOfObjects)
@@ -58,7 +59,7 @@ namespace VE2.NonCore.Instancing.Internal
         public void OnDespawnTriggered(GameObject gameobjectToDespawn)
         {
             //The collision will happen on the host machine, so no need to call this on the non-hosts!
-            if (VE2API.InstanceService.IsHost)
+            if (!VE2API.InstanceService.IsHost)
                 return;
 
             DespawnGameobject(gameobjectToDespawn);
@@ -100,7 +101,9 @@ namespace VE2.NonCore.Instancing.Internal
                 goName = "spawnedGameobject" + numberOfSpawnedgameobjects;
 
             GameObject newGO = Instantiate(gameobjectToSpawn, spawnPosition.position, spawnPosition.rotation);
+            newGO.SetActive(false);
             newGO.name = goName;
+            newGO.SetActive(true);
             gameobjectsAgainstIDs.Add(goName, newGO);
 
             if (restrictNumberOfObjects && gameobjectsAgainstIDs.Count >= maxNumberOfObjects)
