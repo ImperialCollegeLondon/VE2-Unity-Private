@@ -17,7 +17,7 @@ namespace VE2.NonCore.Platform.Internal
 {
     public class PluginUploader
     {
-        [MenuItem("VE2/Upload built world...", priority = 2)]
+        [MenuItem("VE2/Upload built world...", priority = 3)]
         internal static void ShowWindow()
         {
             var window = ScriptableObject.CreateInstance<PluginUploaderWindow>();
