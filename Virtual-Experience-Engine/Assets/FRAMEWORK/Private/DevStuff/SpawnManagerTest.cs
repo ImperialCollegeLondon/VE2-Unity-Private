@@ -32,7 +32,7 @@ public class SpawnManagerTest : MonoBehaviour
         }
         if (Keyboard.current.lKey.wasPressedThisFrame)
         {
-            spawnManagerReference.Interface.OnDespawnTriggered(lastGameObjectSpawnedToReturn);
+            spawnManagerReference.Interface.DespawnGameObject(lastGameObjectSpawnedToReturn);
         }
     }
 }

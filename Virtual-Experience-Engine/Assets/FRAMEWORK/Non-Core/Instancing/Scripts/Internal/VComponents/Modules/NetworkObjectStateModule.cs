@@ -38,7 +38,7 @@ namespace VE2.NonCore.Instancing.Internal
             }
             catch (Exception e)
             {
-                Debug.Log($"Error encountered when trying to serialize NetworkObject with ID {ID} \n{e.Message}\n{e.StackTrace}");
+                Debug.Log($"Error encountered when trying to serialize NetworkObject with ID {GameObjectIDWrapper} \n{e.Message}\n{e.StackTrace}");
                 return;
             }
 
@@ -61,7 +61,7 @@ namespace VE2.NonCore.Instancing.Internal
             }
             catch (Exception e)
             {
-                Debug.Log($"Error when emitting OnStateChange from NetworkObject with ID {ID} \n{e.Message}\n{e.StackTrace}");
+                Debug.Log($"Error when emitting OnStateChange from NetworkObject with ID {GameObjectIDWrapper} \n{e.Message}\n{e.StackTrace}");
             }
         }
 

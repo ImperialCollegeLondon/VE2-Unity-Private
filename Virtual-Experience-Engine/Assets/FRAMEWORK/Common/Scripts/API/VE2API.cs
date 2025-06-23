@@ -298,6 +298,8 @@ namespace VE2.Common.API
                 return;
             }
             GrabInteractables.Add(id, grabInteractable);
+
+            //TODO - show more descritive error if this happens - see WorldStateSyncableContainer
         }
 
         public void DeregisterGrabInteractable(string id)

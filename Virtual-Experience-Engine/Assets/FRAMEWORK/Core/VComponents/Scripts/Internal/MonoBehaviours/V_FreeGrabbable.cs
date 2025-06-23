@@ -28,14 +28,14 @@ namespace VE2.Core.VComponents.Internal
 
         #region General Interaction Module Interface
         //We have two General Interaction Modules here, it doesn't matter which one we point to, both share the same General Interaction Config object!
-        public bool AdminOnly {get => _RangedGrabModule.AdminOnly; set => _RangedGrabModule.AdminOnly = value; }
+        public bool AdminOnly { get => _RangedGrabModule.AdminOnly; set => _RangedGrabModule.AdminOnly = value; }
         public bool EnableControllerVibrations { get => _RangedGrabModule.EnableControllerVibrations; set => _RangedGrabModule.EnableControllerVibrations = value; }
         public bool ShowTooltipsAndHighlight { get => _RangedGrabModule.ShowTooltipsAndHighlight; set => _RangedGrabModule.ShowTooltipsAndHighlight = value; }
         #endregion
     }
 
     [ExecuteAlways]
-    internal partial class V_FreeGrabbable : MonoBehaviour, IRangedGrabInteractionModuleProvider, IGrabbableRigidbody
+    internal partial class V_FreeGrabbable : BaseSyncableVComponent, IRangedGrabInteractionModuleProvider, IGrabbableRigidbody
     {
         [SerializeField, IgnoreParent] private FreeGrabbableConfig _config = new();
         [SerializeField, HideInInspector] private GrabbableState _state = new();
@@ -45,9 +45,9 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         #region Inspector Utils
-        internal Collider Collider 
+        internal Collider Collider
         {
-            get 
+            get
             {
                 if (_collider == null)
                     _collider = GetComponent<Collider>();
@@ -85,7 +85,7 @@ namespace VE2.Core.VComponents.Internal
         event Action<ushort> IGrabbableRigidbody.InternalOnGrab
         {
             add { _internalOnGrab += value; }
-            remove {  _internalOnGrab -= value; }
+            remove { _internalOnGrab -= value; }
         }
 
         public event Action<ushort> InternalOnDrop;
@@ -113,7 +113,8 @@ namespace VE2.Core.VComponents.Internal
             if (!Application.isPlaying || _service != null)
                 return;
 
-            string id = "FreeGrabbable-" + gameObject.name;
+            //string id = "FreeGrabbable-" + gameObject.name;
+            GameObjectIDWrapper idWrapper = new();
 
             if (_config.RangedFreeGrabInteractionConfig.AttachPointWrapper == null || ((TransformWrapper)_config.RangedFreeGrabInteractionConfig.AttachPointWrapper).Transform == null)
             {
@@ -123,7 +124,7 @@ namespace VE2.Core.VComponents.Internal
 
             List<IHandheldInteractionModule> handheldInteractions = new();
 
-            if(TryGetComponent(out V_HandheldActivatable handheldActivatable))
+            if (TryGetComponent(out V_HandheldActivatable handheldActivatable))
                 handheldInteractions.Add(handheldActivatable.HandheldClickInteractionModule);
             if (TryGetComponent(out V_HandheldAdjustable handheldAdjustable))
                 handheldInteractions.Add(handheldAdjustable.HandheldScrollInteractionModule);
@@ -132,9 +133,9 @@ namespace VE2.Core.VComponents.Internal
 
             _service = new FreeGrabbableService(
                 handheldInteractions,
-                _config, 
-                _state, 
-                id,
+                _config,
+                _state,
+                idWrapper,
                 VE2API.WorldStateSyncableContainer,
                 VE2API.GrabInteractablesContainer,
                 VE2API.InteractorContainer,
@@ -147,9 +148,10 @@ namespace VE2.Core.VComponents.Internal
             _service.OnDropConfirmed += HandleDropConfirmed;
         }
 
-        private void FixedUpdate()
+        protected override void FixedUpdate()
         {
-            _service?.HandleFixedUpdate();            
+            base.FixedUpdate();
+            _service?.HandleFixedUpdate();
         }
 
         private void OnDisable()

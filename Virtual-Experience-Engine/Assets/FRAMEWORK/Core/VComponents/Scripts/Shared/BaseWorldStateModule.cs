@@ -36,15 +36,16 @@ namespace VE2.Core.VComponents.Shared
         public TransmissionProtocol TransmissionProtocol => _SyncConfig.TransmissionType;
         public float TransmissionFrequency => _SyncConfig.TransmissionFrequency;
 
-        public string ID { get; private set; }
+        public string ID => GameObjectIDWrapper.ID;
+        public IGameObjectIDWrapper GameObjectIDWrapper { get; private set; }
         public byte[] StateAsBytes { get => State.Bytes; set => UpdateBytes(value); }
         protected abstract void UpdateBytes(byte[] newBytes);
 
         public void SetNetworked(bool isNetworked) => _SyncConfig.IsNetworked = isNetworked;
 
-        public BaseWorldStateModule(VE2Serializable state, WorldStateSyncConfig config, string id, IWorldStateSyncableContainer worldStateModulesContainer)
+        public BaseWorldStateModule(VE2Serializable state, WorldStateSyncConfig config, IGameObjectIDWrapper id, IWorldStateSyncableContainer worldStateModulesContainer)
         {
-            ID = id;
+            GameObjectIDWrapper = id;
             State = state;
             _SyncConfig = config;
 
@@ -57,6 +58,13 @@ namespace VE2.Core.VComponents.Shared
 
         public virtual void HandleFixedUpdate()
         {
+            //Can't register before we have an ID to register with
+            if (!GameObjectIDWrapper.HasBeenSetup)
+            {
+                Debug.LogWarning($"[{GetType().Name}] ID has not been set up yet, cannot register with world state modules container.");
+                return;
+            }
+
             if (IsNetworked && !_wasNetworkedLastFrame)
                 _worldStateModulesContainer.RegisterWorldStateSyncable(this);
             else if (!IsNetworked && _wasNetworkedLastFrame)

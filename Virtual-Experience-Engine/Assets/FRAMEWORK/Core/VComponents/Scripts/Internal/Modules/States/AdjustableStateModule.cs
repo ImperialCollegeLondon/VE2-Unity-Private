@@ -110,7 +110,7 @@ namespace VE2.Core.VComponents.Internal
             }
             catch (Exception e)
             {
-                Debug.Log($"Error when emitting OnValueAdjusted from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
+                Debug.Log($"Error when emitting OnValueAdjusted from activatable with ID {GameObjectIDWrapper} \n{e.Message}\n{e.StackTrace}");
             }
         }
 

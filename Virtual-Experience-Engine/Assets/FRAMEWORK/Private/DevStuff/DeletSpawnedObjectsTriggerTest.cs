@@ -17,7 +17,7 @@ public class DeletSpawnedObjectsTrigger : MonoBehaviour
     {
         if (other.GetComponent<IV_FreeGrabbable>() != null)
         {
-            spawnManagerTest.spawnManagerReference.Interface.OnDespawnTriggered(other.gameObject);
+            spawnManagerTest.spawnManagerReference.Interface.DespawnGameObject(other.gameObject);
         }
     }
 }

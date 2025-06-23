@@ -56,13 +56,15 @@ namespace VE2.Core.VComponents.Internal
         public float VRRaySnapRangeBackOfHand => _rangedGrabInteractionConfig.VRRaySnapRangeBackOfHand;
         public float FailsafeGrabMultiplier => _rangedGrabInteractionConfig.FailsafeGrabMultiplier;
 
+        private bool _hasRegisteredWitGrabInteractablesContainer = false;
+
         private readonly string _id;
         private readonly IGrabInteractablesContainer _grabInteractablesContainer;
         private readonly RangedGrabInteractionConfig _rangedGrabInteractionConfig;
 
         //TODO: Figure out the attach point, don't really want to inject it as a separate param if it's already in the config...
 
-        public RangedGrabInteractionModule(string id, IGrabInteractablesContainer grabInteractablesContainer, List<IHandheldInteractionModule> handheldInteractions,
+        public RangedGrabInteractionModule(IGameObjectIDWrapper id, IGrabInteractablesContainer grabInteractablesContainer, List<IHandheldInteractionModule> handheldInteractions,
             RangedGrabInteractionConfig grabInteractionConfig, GeneralInteractionConfig generalInteractionConfig) : base(grabInteractionConfig, generalInteractionConfig)
         {
             _id = id;
@@ -71,6 +73,20 @@ namespace VE2.Core.VComponents.Internal
             _grabInteractablesContainer.RegisterGrabInteractable(this, id);
             _rangedGrabInteractionConfig = grabInteractionConfig;
         }
+
+        /// TODO- will need a HandleFixedUpdate, will need to register itself with the container in HandleFixedUpdate
+        /// Will need a private boolean flag inside this class to track whether its already registered, so we don't do it twice
+        /// /*
+        ///             
+        /// //Can't register before we have an ID to register with
+        ///    if (!ID.HasBeenSetup)
+        ///    {
+        ///        Debug.LogWarning($"[{GetType().Name}] ID has not been set up yet, cannot register with world state modules container.");
+        ///        return;
+        ///    }
+        ///    if (!_hasRegisteredWitGrabInteractablesContainer && ID.HasBeenSetup)
+        ///    
+        /// */
 
         public void RequestLocalGrab(InteractorID interactorID)
         {

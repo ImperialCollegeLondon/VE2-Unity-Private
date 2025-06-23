@@ -61,7 +61,7 @@ namespace VE2.Core.VComponents.Internal
             if (newIsActivated != _state.IsActivated)
                 SetNewState(ushort.MaxValue);
             else
-                Debug.LogWarning($"Tried to set activated state on {ID} to {newIsActivated} but state is already {_state.IsActivated}");
+                Debug.LogWarning($"Tried to set activated state on {GameObjectIDWrapper} to {newIsActivated} but state is already {_state.IsActivated}");
         }
 
         private string _activationGroupID = "None";
@@ -139,7 +139,7 @@ namespace VE2.Core.VComponents.Internal
             }
             catch (Exception e)
             {
-                Debug.Log($"Error when emitting OnActivate from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
+                Debug.Log($"Error when emitting OnActivate from activatable with ID {GameObjectIDWrapper} \n{e.Message}\n{e.StackTrace}");
             }
         }
 
@@ -151,7 +151,7 @@ namespace VE2.Core.VComponents.Internal
             }
             catch (Exception e)
             {
-                Debug.Log($"Error when emitting OnDeactivate from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
+                Debug.Log($"Error when emitting OnDeactivate from activatable with ID {GameObjectIDWrapper} \n{e.Message}\n{e.StackTrace}");
             }
         }
 

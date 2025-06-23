@@ -51,7 +51,7 @@ namespace VE2.Core.VComponents.Internal
         internal event Action<ushort> OnGrabConfirmed;
         internal event Action<ushort> OnDropConfirmed;
 
-        public GrabbableStateModule(VE2Serializable state, GrabbableStateConfig grabbableStateConfig, WorldStateSyncConfig syncConfig, string id, IWorldStateSyncableContainer worldStateSyncableContainer, 
+        public GrabbableStateModule(VE2Serializable state, GrabbableStateConfig grabbableStateConfig, WorldStateSyncConfig syncConfig, GameObjectIDWrapper id, IWorldStateSyncableContainer worldStateSyncableContainer, 
             HandInteractorContainer interactorContainer, IClientIDWrapper localClientIdWrapper) :
             base(state, syncConfig, id, worldStateSyncableContainer)
         {
@@ -75,7 +75,7 @@ namespace VE2.Core.VComponents.Internal
                     CurrentGrabbingInteractor = interactor;
                     _state.MostRecentInteractingInteractorID = interactorID;
                     _state.StateChangeNumber++;
-                    interactor.ConfirmGrab(ID);
+                    interactor.ConfirmGrab(GameObjectIDWrapper);
                 }
                 else
                 {
@@ -94,7 +94,7 @@ namespace VE2.Core.VComponents.Internal
                     _grabbableStateConfig.InspectorDebug.IsGrabbed = true;
                     _grabbableStateConfig.InspectorDebug.ClientID = interactorID.ClientID;
 
-                    interactor.ConfirmGrab(ID);
+                    interactor.ConfirmGrab(GameObjectIDWrapper);
                     OnGrabConfirmed?.Invoke(interactorID.ClientID);
 
                     try
@@ -103,7 +103,7 @@ namespace VE2.Core.VComponents.Internal
                     }
                     catch (Exception e)
                     {
-                        Debug.Log($"Error when emitting OnLocalInteractorGrab from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
+                        Debug.Log($"Error when emitting OnLocalInteractorGrab from activatable with ID {GameObjectIDWrapper} \n{e.Message}\n{e.StackTrace}");
                     }
                 }
                 else
@@ -137,7 +137,7 @@ namespace VE2.Core.VComponents.Internal
             }
             catch (Exception e)
             {
-                Debug.Log($"Error when emitting OnLocalInteractorDrop from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
+                Debug.Log($"Error when emitting OnLocalInteractorDrop from activatable with ID {GameObjectIDWrapper} \n{e.Message}\n{e.StackTrace}");
             }
         }
 
