@@ -110,8 +110,7 @@ namespace VE2.Core.VComponents.Internal
                     _rigidbody.angularVelocity = Vector3.zero;
                     break;
                 case DropBehaviour.ReturnToPositionBeforeGrab:
-                    _rigidbody.position = _positionOnGrab;
-                    _rigidbody.rotation = _rotationOnGrab;
+                    _rigidbody.SetPositionAndRotationOnRBAndGO(_positionOnGrab, _rotationOnGrab);
                     _rigidbody.linearVelocity = Vector3.zero;
                     _rigidbody.angularVelocity = Vector3.zero;
                     break;
