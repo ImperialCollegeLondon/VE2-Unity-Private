@@ -25,6 +25,8 @@ namespace VE2.NonCore.Platform.Internal
             _quickUIView.SetPlayerNameText(_platformService.PlayerDisplayName);
             _quickUIView.SetPingTextMS(0);
 
+            _quickUIView.OnBackToHubClicked += HandleBackToHubButtonClicked;
+
             if (_instanceService != null)
             {
                 _instanceService.OnConnectedToInstance.AddListener(HandlePlatformConnected);
@@ -39,7 +41,7 @@ namespace VE2.NonCore.Platform.Internal
                 else
                     _quickUIView.SetNonHost();
             }
-            else 
+            else
             {
                 _quickUIView.SetHostNA();
                 _quickUIView.SetConnectionNA();
@@ -70,6 +72,11 @@ namespace VE2.NonCore.Platform.Internal
         {
             _quickUIView.SetConnectedText(false);
             _quickUIView.SetHostNA();
+        }
+
+        private void HandleBackToHubButtonClicked()
+        {
+            _platformService?.ReturnToHub();
         }
 
         private void HandleBecomeHost() => _quickUIView.SetHost();
