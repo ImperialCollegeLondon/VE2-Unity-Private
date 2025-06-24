@@ -46,7 +46,8 @@ namespace VE2.Common.Shared
                             "VE2 Syncable Registration Error",
                             $"Multiple networked VE2 components have the same gameobject name, this is not allowed\n\n" +
                             $"Clashing IDs: \n -{string.Join("\n -", _clashedIDs)}\n\n" +
-                            "Please ensure that all WorldStateSyncables have unique IDs.",
+                            "Please ensure that all WorldStateSyncables have unique IDs.\n\n\n" +
+                            "To easily fix this, find 'VE2' in the Unity top bar, and click 'Fix GameObject Name Clashes'",
                             "Don't show again",
                             "Keep reminding me");
 
