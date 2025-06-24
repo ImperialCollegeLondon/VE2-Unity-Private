@@ -226,10 +226,15 @@ namespace VE2.NonCore.Platform.Internal
             else
             {
                 string assemblyDiagnostics = "";
+                bool noAssemblies = false;
+
                 if (locatedAssemblies != null && locatedAssemblies.Length > 0)
                     assemblyDiagnostics = $"{locatedAssemblies.Length} code assemblies will be included in the build : {string.Join("\r\n,", locatedAssemblies.Select(ExtractFileName))}";
                 else
+                {
                     assemblyDiagnostics = $"No code assemblies will be included in the build.";
+                    noAssemblies = true;
+                }
 
                 if (assemblyDiagnostics.Contains("YourPluginNameHere"))
                 {
@@ -237,7 +242,7 @@ namespace VE2.NonCore.Platform.Internal
                     return;
                 }
 
-                EditorGUILayout.HelpBox(assemblyDiagnostics, (UnityEditor.MessageType)MessageType.Info);
+                EditorGUILayout.HelpBox(assemblyDiagnostics, noAssemblies? MessageType.Error : MessageType.Info);
             }
 
             EditorGUI.BeginDisabledGroup(!assembliesValid);
@@ -652,10 +657,24 @@ namespace VE2.NonCore.Platform.Internal
         {
             foreach (var component in go.GetComponents<MonoBehaviour>())
             {
-                if (component == null || component.GetType() == null || component.GetType().Assembly == null)
+                bool isValid = true;
+
+                try
                 {
-                    Debug.LogWarning("Missing assemblies encountered on Gameobject: " + go.name);
+                    if (component == null || ReferenceEquals(component, null) || component.GetType() == null || component.GetType().Assembly == null)
+                    {
+                        isValid = false;
+                        Debug.LogWarning("Missing assemblies encountered on Gameobject: " + go.name);
+                    }
                 }
+                catch
+                {
+                    Debug.LogWarning("Error while checking assemblies on Gameobject: " + go.name);
+                    isValid = false;
+                }
+
+                if (!isValid)
+                    continue;   
 
                 yield return component.GetType().Assembly;
             }
