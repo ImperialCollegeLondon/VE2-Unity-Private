@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using VE2.Common.Shared;
 
-namespace VE2.Core.UI.Internal
+namespace VE2.Common.Shared
 {
 
     [ExecuteInEditMode]
@@ -29,7 +29,10 @@ namespace VE2.Core.UI.Internal
         }
 
         [SerializeField, HideIf(nameof(_hasButton), true)] private ColorType _colorType;
+        [SerializeField] private float _colorAlpha = 1f;
         [SerializeField, HideIf(nameof(_hasButton), false)] private ButtonType _buttonType;
+        //[SerializeField, ]
+
 
         private bool _hasButton => _button != null; 
 
@@ -68,7 +71,7 @@ namespace VE2.Core.UI.Internal
             _text = GetComponent<TMP_Text>();
 
             _subImage = GetComponentsInChildren<Image>(true)
-                .FirstOrDefault(img => img.gameObject != gameObject);
+                .FirstOrDefault(img => img.gameObject != gameObject && !img.gameObject.name.ToUpper().Contains("NOCOLORUIHANDLER"));
 
             _subText = GetComponentInChildren<TMP_Text>();
 
@@ -110,45 +113,47 @@ namespace VE2.Core.UI.Internal
                 UpdateColor();
         }
 
-        private void UpdateColor() 
+        Color ApplyAlpha(Color color) => new Color(color.r, color.g, color.b, _colorAlpha);
+
+        private void UpdateColor()
         {
             switch (_colorType)
             {
                 case ColorType.Primary:
                     if (_image != null && !_hasButton)
-                        _image.color = _colorConfiguration.PrimaryColor;
+                        _image.color = ApplyAlpha(_colorConfiguration.PrimaryColor);
                     if (_text != null)
-                        _text.color = _colorConfiguration.PrimaryColor;
+                        _text.color = ApplyAlpha(_colorConfiguration.PrimaryColor);
                     break;
                 case ColorType.Secondary:
                     if (_image != null && !_hasButton)
-                        _image.color = _colorConfiguration.SecondaryColor;
+                        _image.color = ApplyAlpha(_colorConfiguration.SecondaryColor);
                     if (_text != null)
-                        _text.color = _colorConfiguration.SecondaryColor;
+                        _text.color = ApplyAlpha(_colorConfiguration.SecondaryColor);
                     break;
                 case ColorType.Tertiary:
                     if (_image != null && !_hasButton)
-                        _image.color = _colorConfiguration.TertiaryColor;
+                        _image.color = ApplyAlpha(_colorConfiguration.TertiaryColor);
                     if (_text != null)
-                        _text.color = _colorConfiguration.TertiaryColor;
+                        _text.color = ApplyAlpha(_colorConfiguration.TertiaryColor);
                     break;
                 case ColorType.Quaternary:
                     if (_image != null && !_hasButton)
-                        _image.color = _colorConfiguration.QuaternaryColor;
+                        _image.color = ApplyAlpha(_colorConfiguration.QuaternaryColor);
                     if (_text != null)
-                        _text.color = _colorConfiguration.QuaternaryColor;
+                        _text.color = ApplyAlpha(_colorConfiguration.QuaternaryColor);
                     break;
                 case ColorType.AccentPrimary:
                     if (_image != null && !_hasButton)
-                        _image.color = _colorConfiguration.AccentPrimaryColor;
+                        _image.color = ApplyAlpha(_colorConfiguration.AccentPrimaryColor);
                     if (_text != null)
-                        _text.color = _colorConfiguration.AccentPrimaryColor;
+                        _text.color = ApplyAlpha(_colorConfiguration.AccentPrimaryColor);
                     break;
                 case ColorType.AccentSecondary:
                     if (_image != null && !_hasButton)
-                        _image.color = _colorConfiguration.AccentSecondaryColor;
+                        _image.color = ApplyAlpha(_colorConfiguration.AccentSecondaryColor);
                     if (_text != null)
-                        _text.color = _colorConfiguration.AccentSecondaryColor;
+                        _text.color = ApplyAlpha(_colorConfiguration.AccentSecondaryColor);
                     break;
             }
 
@@ -189,11 +194,11 @@ namespace VE2.Core.UI.Internal
         private void SetToSelectedColors()
         {
             _button.colors = new ColorBlock {
-                normalColor = _buttonNonSelectedColors.selectedColor,
-                highlightedColor = _buttonNonSelectedColors.highlightedColor,
-                pressedColor = _buttonNonSelectedColors.pressedColor,
-                selectedColor = _buttonNonSelectedColors.selectedColor,
-                disabledColor = _buttonNonSelectedColors.disabledColor,
+                normalColor = ApplyAlpha(_buttonNonSelectedColors.selectedColor),
+                highlightedColor = ApplyAlpha(_buttonNonSelectedColors.highlightedColor),
+                pressedColor = ApplyAlpha(_buttonNonSelectedColors.pressedColor),
+                selectedColor = ApplyAlpha(_buttonNonSelectedColors.selectedColor),
+                disabledColor = ApplyAlpha(_buttonNonSelectedColors.disabledColor),
                 colorMultiplier = 1,
                 fadeDuration = 0.1f,
             };
@@ -230,11 +235,11 @@ namespace VE2.Core.UI.Internal
                 {
                     _buttonNonSelectedColors = new ColorBlock
                     {
-                        normalColor = _colorConfiguration.SecondaryColor,
-                        highlightedColor = _colorConfiguration.AccentSecondaryColor,
-                        pressedColor = _colorConfiguration.AccentSecondaryColor * 0.8f,
-                        selectedColor = _colorConfiguration.AccentPrimaryColor,
-                        disabledColor = _colorConfiguration.ButtonDisabledColor,
+                        normalColor = ApplyAlpha(_colorConfiguration.SecondaryColor),
+                        highlightedColor = ApplyAlpha(_colorConfiguration.AccentSecondaryColor),
+                        pressedColor = ApplyAlpha(_colorConfiguration.AccentSecondaryColor * 0.8f),
+                        selectedColor = ApplyAlpha(_colorConfiguration.AccentPrimaryColor),
+                        disabledColor = ApplyAlpha(_colorConfiguration.ButtonDisabledColor),
                         colorMultiplier = 1,
                         fadeDuration = 0.1f
                     };
@@ -247,8 +252,17 @@ namespace VE2.Core.UI.Internal
                 {
                     _buttonNonSelectedColors = new ColorBlock
                     {
-                        
+                        normalColor = ApplyAlpha(_colorConfiguration.TertiaryColor),
+                        highlightedColor = ApplyAlpha(_colorConfiguration.AccentSecondaryColor),
+                        pressedColor = ApplyAlpha(_colorConfiguration.AccentSecondaryColor * 0.8f),
+                        selectedColor = ApplyAlpha(_colorConfiguration.AccentPrimaryColor),
+                        disabledColor = ApplyAlpha(_colorConfiguration.ButtonDisabledColor),
+                        colorMultiplier = 1,
+                        fadeDuration = 0.1f
                     };
+                    _buttonSubElementsNonSelectedColor = ApplyAlpha(_colorConfiguration.TertiaryColor);
+                    _buttonSubElementsSelectedColor = ApplyAlpha(_colorConfiguration.QuaternaryColor);
+                    _buttonSubElementsHighlightedColor = ApplyAlpha(_colorConfiguration.TertiaryColor);
                     break;
                 }
         
@@ -256,11 +270,11 @@ namespace VE2.Core.UI.Internal
                 {
                     _buttonNonSelectedColors = new ColorBlock
                     {
-                        normalColor = _colorConfiguration.TertiaryColor,
+                        normalColor = ApplyAlpha(_colorConfiguration.TertiaryColor),
                         highlightedColor = Color.red,
                         pressedColor = Color.red  * 0.8f,
-                        selectedColor = _colorConfiguration.TertiaryColor,
-                        disabledColor = _colorConfiguration.ButtonDisabledColor,
+                        selectedColor = ApplyAlpha(_colorConfiguration.TertiaryColor),
+                        disabledColor = ApplyAlpha(_colorConfiguration.ButtonDisabledColor),
                         colorMultiplier = 1,
                         fadeDuration = 0.1f
                     };

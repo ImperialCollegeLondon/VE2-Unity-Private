@@ -1,4 +1,5 @@
 using UnityEngine;
+using VE2.Common.API;
 using VE2.NonCore.Platform.API;
 using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 
@@ -22,13 +23,13 @@ namespace VE2.Private.Hub
         Every time we start in the hub, we should request allocation to the hub 
 
     */
-    public class HubController : MonoBehaviour
+    public class HubControllerOLD : MonoBehaviour
     {
         private void OnEnable()
         {
             Debug.Log("Connecting to hub instance");
-            IPlatformServiceInternal platformService = (IPlatformServiceInternal)PlatformAPI.PlatformService;
-            platformService.UpdateSettings(_platformServerConnectionSettings, "Internal-Hub-Solo-NoVersion");
+            IPlatformServiceInternal platformService = (IPlatformServiceInternal)VE2API.PlatformService;
+            platformService.UpdateSettings(_platformServerConnectionSettings, new InstanceCode("Hub", "Solo", 0));
             platformService.ConnectToPlatform();
 
             Application.focusChanged += OnFocusChanged;
@@ -43,7 +44,7 @@ namespace VE2.Private.Hub
             if (Application.platform == RuntimePlatform.Android)
             {
                 Debug.Log("Disconnecting from hub instance");
-                IPlatformServiceInternal platformService = (IPlatformServiceInternal)PlatformAPI.PlatformService;
+                IPlatformServiceInternal platformService = (IPlatformServiceInternal)VE2API.PlatformService;
                 platformService.TearDown();
             }
         }

@@ -5,7 +5,7 @@ using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.Core.Player.API
 {
-    public interface IPlayerService //TODO - need to wire into the config
+    public interface IPlayerService 
     {
         public bool IsVRMode { get; }
         public UnityEvent OnChangeToVRMode { get; }
@@ -27,6 +27,9 @@ namespace VE2.Core.Player.API
         public UnityEvent OnCrouch2D { get; }
         public UnityEvent OnResetViewVR { get; }
 
-        public Vector3 PlayerPosition { get; set; }
+        public Vector3 PlayerPosition { get; }
+        public void SetPlayerPosition(Vector3 position);
+        public Quaternion PlayerRotation { get; }
+        public void SetPlayerRotation(Quaternion rotation);
     }
 }

@@ -233,6 +233,6 @@ public class HubFileUIObjectExample : MonoBehaviour
         //Request allocation to that world, stripping out the category prefix
         
         string worldFolderName = $"{_categoryText.text}-{_fileNameText.text}";
-        _platformService.RequestInstanceAllocation(worldFolderName, "00", _activeRemoteVersion.ToString());
+        _platformService.RequestInstanceAllocation(new PlatformPublicSerializables.InstanceCode(worldFolderName, "00", (ushort)_activeRemoteVersion));
     }
 }

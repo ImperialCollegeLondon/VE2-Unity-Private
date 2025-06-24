@@ -241,6 +241,12 @@ namespace VE2.NonCore.Instancing.Internal
             _worldStateSyncableContainer.OnWorldStateSyncableDeregistered -= HandleWorldStateSyncableDeregistered;
 
             _numOfSyncablesPerSyncOffsets.Clear();
+
+            foreach (KeyValuePair<string, SyncInfo> pair in _syncInfosAgainstIDs)
+            {
+                SyncInfo syncInfo = pair.Value;
+                syncInfo.HistoryQueue.Dispose();
+            }
             _syncInfosAgainstIDs.Clear();
         }
     }

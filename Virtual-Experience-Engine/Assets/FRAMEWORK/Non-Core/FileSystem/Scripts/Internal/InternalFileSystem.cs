@@ -1,4 +1,5 @@
 using UnityEngine;
+using VE2.Common.API;
 using VE2.NonCore.FileSystem.API;
 using VE2.NonCore.Platform.API;
 using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
@@ -12,7 +13,7 @@ namespace VE2.NonCore.FileSystem.Internal
 {
     internal class InternalFileSystem : FileSystemIntegrationBase, IFileSystemInternal
     {
-        public override string LocalWorkingPath{ get {
+        public override string RemoteWorkingPath{ get {
                string platformName = Application.platform == RuntimePlatform.Android ? "Android" : "Windows";
 
                return $"VE2/Worlds/{platformName}";
@@ -21,21 +22,21 @@ namespace VE2.NonCore.FileSystem.Internal
 
         private void OnEnable()
         {
-            if (PlatformAPI.PlatformService == null)
+            if (VE2API.PlatformService == null)
             {
                 Debug.LogError("Can't boot file system, no platform service found.");
                 return;
             }
 
-            if (PlatformAPI.PlatformService.IsConnectedToServer)
+            if (VE2API.PlatformService.IsConnectedToServer)
                 HandlePlatformReady();
             else
-                PlatformAPI.PlatformService.OnConnectedToServer += HandlePlatformReady;
+                VE2API.PlatformService.OnConnectedToServer += HandlePlatformReady;
         }
 
         private void HandlePlatformReady()
         {
-            ServerConnectionSettings serverSettings = ((IPlatformServiceInternal)PlatformAPI.PlatformService).GetInternalWorldStoreFTPSettings();
+            ServerConnectionSettings serverSettings = ((IPlatformServiceInternal)VE2API.PlatformService).GetInternalWorldStoreFTPSettings();
 
             if (serverSettings == null)
             {

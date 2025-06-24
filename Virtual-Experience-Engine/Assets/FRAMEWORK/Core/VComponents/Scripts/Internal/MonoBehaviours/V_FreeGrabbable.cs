@@ -93,10 +93,33 @@ namespace VE2.Core.VComponents.Internal
         private bool _freeGrabbableHandlesKinematics = true;
         public bool FreeGrabbableHandlesKinematics { get => _freeGrabbableHandlesKinematics; set => _freeGrabbableHandlesKinematics = value; }
 
+        //Bit of a bodge to allow FreeGrabbables to add RigidBodySyncables without tying the 
+        private const string RigidBodySyncableFullName = "VE2.NonCore.Instancing.Internal.V_RigidbodySyncable"; 
+        private const string RigidBodySyncableAssemblyName = "VE2.NonCore.Instancing.Internal"; 
+
+        void Reset()
+        {
+            TryAddRigidBodySyncable();
+        }
+
+        private void TryAddRigidBodySyncable()
+        {
+            Type syncableType = Type.GetType($"{RigidBodySyncableFullName}, {RigidBodySyncableAssemblyName}");
+
+            if (syncableType == null)
+            {
+                Debug.LogWarning($"Could not automatically add {RigidBodySyncableFullName} to {gameObject.name}. If you want this gameobject's rigidbody to be synced, please add a {RigidBodySyncableFullName} component manually.");
+                return;
+            }
+
+            if (GetComponent(syncableType) == null)
+                gameObject.AddComponent(syncableType);
+        }
+
         private void Awake()
         {
-            if (_config.RangedFreeGrabInteractionConfig.AttachPoint == null)
-                _config.RangedFreeGrabInteractionConfig.AttachPoint = transform;
+            if (_config.RangedFreeGrabInteractionConfig.AttachPointWrapper == null)
+                _config.RangedFreeGrabInteractionConfig.AttachPointWrapper = new TransformWrapper(transform);
 
             if (Application.isPlaying)
                 return;
@@ -114,6 +137,12 @@ namespace VE2.Core.VComponents.Internal
                 return;
 
             string id = "FreeGrabbable-" + gameObject.name;
+
+            if (_config.RangedFreeGrabInteractionConfig.AttachPointWrapper == null || ((TransformWrapper)_config.RangedFreeGrabInteractionConfig.AttachPointWrapper).Transform == null)
+            {
+                _config.RangedFreeGrabInteractionConfig.AttachPointWrapper = new TransformWrapper(transform);
+                Debug.LogWarning($"The adjustable on {gameObject.name} does not have an assigned AttachPoint, and so may not behave as intended");
+            }
 
             List<IHandheldInteractionModule> handheldInteractions = new();
 

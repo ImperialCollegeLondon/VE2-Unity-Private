@@ -78,7 +78,7 @@ public class TestAPI : MonoBehaviour
 
     public void SetPlayerPosition(Vector3 position)
     {
-        VE2API.Player.PlayerPosition = position;
+        VE2API.Player.SetPlayerPosition(position);
         Debug.Log($"Set player position to: {position}");
     }
 

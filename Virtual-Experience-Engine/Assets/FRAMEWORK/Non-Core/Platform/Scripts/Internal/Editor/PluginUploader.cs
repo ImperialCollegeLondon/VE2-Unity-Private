@@ -17,7 +17,7 @@ namespace VE2.NonCore.Platform.Internal
 {
     public class PluginUploader
     {
-        [MenuItem("VE2/Upload built world...", priority = 2)]
+        [MenuItem("VE2/Upload built world...", priority = 3)]
         internal static void ShowWindow()
         {
             var window = ScriptableObject.CreateInstance<PluginUploaderWindow>();
@@ -49,14 +49,11 @@ namespace VE2.NonCore.Platform.Internal
 
         private List<string> exportFiles;
 
-        private WorldCategory _lastWorldCategory = WorldCategory.Undefined;
-        private WorldCategory _worldCategory = WorldCategory.Undefined;
-
         private EnvironmentType _environmentType = EnvironmentType.Undefined;
         private EnvironmentType _lastEnvironmentType = EnvironmentType.Undefined;
 
         private Scene _sceneToExport;
-        private string _worldFolderName => $"{_worldCategory}-{_sceneToExport.name}";
+        private string _worldFolderName => $"{_sceneToExport.name}";
 
         private IFileSystemInternal _fileSystem;
 
@@ -74,7 +71,9 @@ namespace VE2.NonCore.Platform.Internal
             ServerConnectionSettings ftpNetworkSettings = new("ViRSE", "fwf3f3j21r3ed", "13.87.84.200", 22); //TODO: Load in from SO
 
             //TODO: maybe just the factory can move to the internal interface asmdef?
-            _fileSystem = FileSystemServiceFactory.CreateFileStorageService(ftpNetworkSettings, $"VE2/Worlds/{_environmentType}");
+            string remotePath = $"VE2/Worlds/{_environmentType}";
+            string localPath = Application.persistentDataPath + "/files/" + remotePath;
+            _fileSystem = FileSystemServiceFactory.CreateFileStorageService(ftpNetworkSettings, remotePath, localPath);
 
             List<string> localWorldVersions = _fileSystem.GetLocalFoldersAtPath(_worldFolderName);
             Debug.Log("Searched for local folders, found " + localWorldVersions.Count);
@@ -219,20 +218,6 @@ namespace VE2.NonCore.Platform.Internal
 
             //WORLD VERSION ##################################################################
             //################################################################################
-
-            _worldCategory = (WorldCategory)EditorGUILayout.EnumPopup("World Category", _worldCategory);
-
-            if (_worldCategory != _lastWorldCategory)
-                _highestRemoteVersionFound = -1;
-
-            _lastWorldCategory = _worldCategory;
-
-            if (_worldCategory == WorldCategory.Undefined)
-            {
-                EditorGUILayout.HelpBox("Please enter a world category", (UnityEditor.MessageType)MessageType.Info);
-                EditorGUI.EndDisabledGroup();
-                return;
-            }
 
             if (!_searchingForVersion && _highestRemoteVersionFound == -1)
             {

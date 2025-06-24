@@ -4,14 +4,27 @@ using System.Collections.Generic;
 using System.Net;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using VE2.Common.API;
 using VE2.NonCore.Platform.API;
 
 namespace VE2.NonCore.Platform.Internal
 {
+    [Serializable]
+    internal class PlatformServiceConfig
+    {
+        [Title("Platform Settings")]
+        [SerializeField, BeginGroup] public UnityEvent OnBecomeAdmin;
+        [SerializeField, EndGroup] public UnityEvent OnLoseAdmin;
+    }
+
     [ExecuteInEditMode]
     internal class V_PlatformIntegration : MonoBehaviour, IPlatformProvider 
     {
+        [SerializeField, IgnoreParent] private PlatformServiceConfig _config = new();
+
         // #region Debug settings
         // [Help("If starting in this scene rather than the Hub (e.g, when testing in the editor), these settings will be used.")]
         // [BeginGroup("Debug settings"), SerializeField] private bool OfflineMode = false;
@@ -27,7 +40,7 @@ namespace VE2.NonCore.Platform.Internal
 
 
         #region Provider Interfaces
-        private PlatformService _platformService;
+        private IPlatformServiceInternal _platformService;
         IPlatformService IPlatformProvider.PlatformService { 
             get 
             {
@@ -43,20 +56,26 @@ namespace VE2.NonCore.Platform.Internal
 
         private void OnEnable() //TODO - handle reconnect
         {
-            PlatformAPI.PlatformProvider = this;
+            VE2API.PlatformProvider = this;
 
             if (!Application.isPlaying || _platformService != null)
                 return;
 
             PlatformPersistentDataHandler platformPersistentDataHandler = FindFirstObjectByType<PlatformPersistentDataHandler>();
-            if (platformPersistentDataHandler == null) 
+            if (platformPersistentDataHandler == null)
                 platformPersistentDataHandler = new GameObject("PlatformSettingsHandler").AddComponent<PlatformPersistentDataHandler>();
-            
-            _platformService = PlatformServiceFactory.Create(platformPersistentDataHandler);
 
-            if (SceneManager.GetActiveScene().name != "Hub" && platformPersistentDataHandler.PlatformServerConnectionSettings != null) //If we're in a plugin, and have come from hub
+            bool inHub = SceneManager.GetActiveScene().name == "Hub";
+            bool comeFromHub = platformPersistentDataHandler.PlatformServerConnectionSettings != null;
+
+            if (inHub || comeFromHub)
+                _platformService = PlatformServiceFactory.Create(_config, platformPersistentDataHandler);
+            else
+                _platformService = new DebugPlatformService(_config, VE2API.LocalAdminIndicator as ILocalAdminIndicatorWritable); //If we're in a plugin, and have come from hub, we don't have connection settings. So use the debug service.
+
+            if (!inHub)
                 _platformService.ConnectToPlatform();
-            //If we're in hub, or started in plugin. Don't connect. The hub will give us connection settings and fire off the connection.... unless those connection settings instead come from an "Intro" scene.
+            //If we're in hub, don't connect. The hub will give us connection settings and fire off the connection.... unless those connection settings instead come from an "Intro" scene.
         }
 
         private void FixedUpdate()
@@ -73,61 +92,126 @@ namespace VE2.NonCore.Platform.Internal
         }
     }
 
-    // public class DebugPlatformService : IPlatformService
-    // {
-    //     public bool IsConnectedToServer => true;
+    internal class DebugPlatformService : IPlatformServiceInternal
+    {
+        public string PlayerDisplayName => "debugPlayerName";
 
-    //     //TODO, when the user changes their settings, save to player prefs, also, LOAD from player prefs!
-    //     public InstanceNetworkSettings InstanceNetworkSettings { get; }
-    //     public UserSettingsPersistable UserSettings { get; }
+        public ushort LocalClientID => 1;
 
-    //     public FTPNetworkSettings FTPNetworkSettings { get; }
+        public bool IsAuthFailed => false;
 
-    //     //private IPlayerSettingsProvider _playerSettingsProvider;
+        public List<(string, int)> ActiveWorldsNamesAndVersions => new();
 
-    //     private readonly bool _exchangeDebugUserSettingsWithPlayerPrefs;
+        public bool IsConnectedToServer { get; private set; } = false;
 
-    //     public event Action OnConnectedToServer;
+        public string CurrentInstanceNumber => "debugInstanceNumber";
 
-    //     public DebugPlatformService(InstanceNetworkSettings instanceNetworkSettingsDebug, FTPNetworkSettings ftpNetworkSetingsDebug, UserSettingsPersistable userSettingsDebug, bool exchangeDebugUserSettingsWithPlayerPrefs)
-    //     {
-    //         Debug.LogWarning($"No platform service provider found, using debug platform service. ");
-    //         InstanceNetworkSettings = instanceNetworkSettingsDebug;
-    //         FTPNetworkSettings = ftpNetworkSetingsDebug;
-    //         UserSettings = userSettingsDebug;
-    //         _exchangeDebugUserSettingsWithPlayerPrefs = exchangeDebugUserSettingsWithPlayerPrefs;
-    //     }
+        public string CurrentWorldName => "DebugWorldName";
 
-    //     public void RequestInstanceAllocation(string worldName, string instanceSuffix)
-    //     {
-    //         Debug.Log($"Request instance allocation to {worldName}-{instanceSuffix} from debug platform service");
-    //     }
+        PlatformPublicSerializables.InstanceCode IPlatformServiceInternal.CurrentInstanceCode => new PlatformPublicSerializables.InstanceCode(CurrentWorldName, CurrentInstanceNumber, 1);
 
-    //     public void TearDown()
-    //     {
-    //         Debug.Log("Tear down debug platform service");
-    //     }
+        Dictionary<PlatformPublicSerializables.InstanceCode, PlatformPublicSerializables.PlatformInstanceInfo> IPlatformServiceInternal.InstanceInfos => new();
 
-    //     // public void SetupForNewInstance(IPlayerSettingsProvider playerSettingsProvider)
-    //     // {
-    //     //     if (_playerSettingsProvider != null)
-    //     //         _playerSettingsProvider.OnLocalChangeToPlayerSettings -= HandleUserSettingsChanged;
+        public event Action OnAuthFailed;
+        public event Action OnConnectedToServer;
+        public event Action OnLeavingInstance;
 
-    //     //     _playerSettingsProvider = playerSettingsProvider;
-    //     //     _playerSettingsProvider.OnLocalChangeToPlayerSettings += HandleUserSettingsChanged;
-    //     // }
+        event Action<Dictionary<PlatformPublicSerializables.InstanceCode, PlatformPublicSerializables.PlatformInstanceInfo>> IPlatformServiceInternal.OnInstanceInfosChanged
+        {
+            add
+            {
+                //throw new NotImplementedException();
+            }
 
-    //     public void HandleUserSettingsChanged()
-    //     {
-    //         Debug.Log("Debug PlatformService detected change to user settings");
-    //         if (_exchangeDebugUserSettingsWithPlayerPrefs)
-    //         {
-    //             //TODO, save to player prefs
-    //         }
-    //     }
-    // }
+            remove
+            {
+                //throw new NotImplementedException();
+            }
+        }
+
+        public void ConnectToPlatform()
+        {
+            IsConnectedToServer = true;
+            Debug.Log("Connected to debug platform service");
+
+            try
+            {
+                OnConnectedToServer?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Error when emitting OnConnectedToServer: {ex.Message}, {ex.StackTrace}");
+            }
+        }
+
+        public void ReturnToHub()
+        {
+            Debug.Log("Return to hub clicked");
+        }
+
+        public void TearDown() { }
+
+        PlatformPublicSerializables.ServerConnectionSettings IPlatformServiceInternal.GetInstanceServerSettingsForCurrentWorld() => null;
+
+        PlatformPublicSerializables.ServerConnectionSettings IPlatformServiceInternal.GetInstanceServerSettingsForWorld(string worldName) => null;
+
+        PlatformPublicSerializables.ServerConnectionSettings IPlatformServiceInternal.GetInternalWorldStoreFTPSettings() => null;
+
+        PlatformPublicSerializables.ServerConnectionSettings IPlatformServiceInternal.GetWorldSubStoreFTPSettingsForCurrentWorld() => null;
+
+        void IPlatformServiceInternal.RequestInstanceAllocation(PlatformPublicSerializables.InstanceCode instanceCode)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IPlatformServiceInternal.UpdateSettings(PlatformPublicSerializables.ServerConnectionSettings serverConnectionSettings, PlatformPublicSerializables.InstanceCode instanceCode)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void MainThreadUpdate() {}
+
+        public void GrantLocalPlayerAdmin()
+        {
+            Debug.Log("Debug platform service: Granting local player admin");
+            _localAdminIndicatorWritable.SetLocalAdminStatus(true);
+
+            try
+            {
+                OnBecomeAdmin?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Error when emitting OnBecomeAdmin: {ex.Message}, {ex.StackTrace}");
+            }
+        }
+        public void RevokeLocalPlayerAdmin()
+        {
+            Debug.Log("Debug platform service: Revoking local player admin");
+            _localAdminIndicatorWritable.SetLocalAdminStatus(false);
+
+            try
+            {
+                OnLoseAdmin?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Error when emitting OnLoseAdmin: {ex.Message}, {ex.StackTrace}");
+            }
+        }
+
+        public bool IsLocalPlayerAdmin => _localAdminIndicatorWritable.IsLocalAdmin; //TODO: In real service, this comes from client info
+        public UnityEvent OnBecomeAdmin => _config.OnBecomeAdmin;
+        public UnityEvent OnLoseAdmin => _config.OnLoseAdmin;
+
+        private readonly PlatformServiceConfig _config;
+        private readonly ILocalAdminIndicatorWritable _localAdminIndicatorWritable;
+
+        public DebugPlatformService(PlatformServiceConfig config, ILocalAdminIndicatorWritable localAdminIndicatorWritable)
+        {
+            _config = config;
+            _localAdminIndicatorWritable = localAdminIndicatorWritable;
+        }
+    }
 }
 
-/*
-    PlayerService creates the 
-*/

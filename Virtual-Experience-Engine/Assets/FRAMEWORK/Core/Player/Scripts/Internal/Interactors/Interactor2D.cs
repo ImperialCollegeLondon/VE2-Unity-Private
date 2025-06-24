@@ -28,9 +28,9 @@ namespace VE2.Core.Player.Internal
 
         internal Interactor2D(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, Interactor2DInputContainer interactor2DInputContainer,
             PlayerInteractionConfig interactionConfig, InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider,
-            ILocalClientIDWrapper localClientIDWrapper, InspectModeIndicator inspectModeIndicator) :
+            ILocalClientIDWrapper localClientIDWrapper, ILocalAdminIndicator localAdminIndicator, InspectModeIndicator inspectModeIndicator) :
             base(interactorContainer, grabInteractablesContainer, interactor2DInputContainer, interactionConfig,
-                interactorReferences, interactorType, raycastProvider, localClientIDWrapper, null, new HoveringOverScrollableIndicator())
+                interactorReferences, interactorType, raycastProvider, localClientIDWrapper, localAdminIndicator, null, new HoveringOverScrollableIndicator())
         {
             Interactor2DReferences interactor2DReferences = interactorReferences as Interactor2DReferences;
             _reticuleImage = interactor2DReferences.ReticuleImage;
@@ -44,7 +44,6 @@ namespace VE2.Core.Player.Internal
         protected override void SetInteractorState(InteractorState newState)
         {
             _reticuleImage.enabled = newState != InteractorState.Grabbing;
-
             switch (newState)
             {
                 case InteractorState.Idle:
@@ -86,8 +85,8 @@ namespace VE2.Core.Player.Internal
                 Vector2 mouseInput = _interactor2DInputContainer.MouseInput.Value * INSPECT_ROTATE_SPEED;
 
                 //Rotate relative to the inspect guide transform's local axes
-                GrabberTransform.Rotate(_grabberInspectGuideTransform.right, mouseInput.y, Space.World);
-                GrabberTransform.Rotate(_grabberInspectGuideTransform.up, -mouseInput.x, Space.World);
+                _GrabberTransform.Rotate(_grabberInspectGuideTransform.right, mouseInput.y, Space.World);
+                _GrabberTransform.Rotate(_grabberInspectGuideTransform.up, -mouseInput.x, Space.World);
             }
         }
 
@@ -95,15 +94,15 @@ namespace VE2.Core.Player.Internal
         {
             //Unlike VR, we should just apply a one-time offset on grab, and have the grabber behave like its on the end of a stick
             //I.E, it's position is affected by the rotation of its parent 
-            Vector3 directionToGrabber = rangedAdjustableInteraction.Transform.position - GrabberTransform.position;
-            GrabberTransform.position += directionToGrabber;
+            Vector3 directionToGrabber = rangedAdjustableInteraction.Transform.position - _GrabberTransform.position;
+            _GrabberTransform.position += directionToGrabber;
         }
 
         protected override void HandleUpdateGrabbingAdjustable() { } //Nothing needed here
 
         protected override void HandleStopGrabbingAdjustable()
         {
-            GrabberTransform.localPosition = Vector3.zero;
+            _GrabberTransform.localPosition = Vector3.zero;
         }
 
         protected override void HandleLocalClientIDReady(ushort clientID)
@@ -151,7 +150,7 @@ namespace VE2.Core.Player.Internal
         {
             try
             {
-                _inspectModeTween = GrabberTransform.DOMove(_grabberInspectGuideTransform.position, 0.3f).SetEase(Ease.InOutExpo);
+                _inspectModeTween = _GrabberTransform.DOMove(_grabberInspectGuideTransform.position, 0.3f).SetEase(Ease.InOutExpo);
                 _rangedFreeGrabbingGrabbable.NotifyInspectModeEnter();
                 _inspectModeIndicator.IsInspectModeActive = true;
             }
@@ -165,7 +164,7 @@ namespace VE2.Core.Player.Internal
         {
             try
             {
-                _inspectModeTween = GrabberTransform.DOLocalMove(Vector3.zero, 0.3f).SetEase(Ease.InOutExpo);
+                _inspectModeTween = _GrabberTransform.DOLocalMove(Vector3.zero, 0.3f).SetEase(Ease.InOutExpo);
                 _rangedFreeGrabbingGrabbable.SetInspectModeExit();
                 _inspectModeIndicator.IsInspectModeActive = false;
                 if (_CurrentGrabbingGrabbable == null)
@@ -174,7 +173,7 @@ namespace VE2.Core.Player.Internal
                     return;
                 }
                 if (!_rangedFreeGrabbingGrabbable.PreserveInspectModeOrientation)
-                    GrabberTransform.localRotation = Quaternion.identity;
+                    _GrabberTransform.localRotation = Quaternion.identity;
             }
             catch (Exception e)
             {
@@ -184,9 +183,9 @@ namespace VE2.Core.Player.Internal
 
         private void AdjustZoom(bool zoomIn)
         {
-            Vector3 targetPosition = GrabberTransform.localPosition;
+            Vector3 targetPosition = _GrabberTransform.localPosition;
             targetPosition.z = Mathf.Clamp(targetPosition.z + (zoomIn ? -INSPECT_ZOOM_SPEED : INSPECT_ZOOM_SPEED), INSPECT_MIN_ZOOM, INSPECT_MAX_ZOOM);
-            GrabberTransform.DOLocalMove(targetPosition, 0.1f);
+            _GrabberTransform.DOLocalMove(targetPosition, 0.1f);
         }
 
         protected override void Vibrate(float amplitude, float duration)

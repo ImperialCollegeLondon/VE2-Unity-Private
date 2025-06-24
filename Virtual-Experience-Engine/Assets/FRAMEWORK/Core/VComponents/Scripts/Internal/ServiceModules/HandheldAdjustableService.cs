@@ -11,6 +11,8 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class HandheldAdjustableConfig
     {
+        public void OpenDocs() => Application.OpenURL("https://www.notion.so/V_HandHeldAdjustable-20f0e4d8ed4d81fb987efeb3ca70dd9e?source=copy_link");
+        [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above)]
         [SerializeField, IgnoreParent] public AdjustableStateConfig StateConfig = new();
         [SerializeField, IgnoreParent] public HandheldAdjustableServiceConfig HandheldAdjustableServiceConfig = new();
 
@@ -26,7 +28,7 @@ namespace VE2.Core.VComponents.Internal
     internal class HandheldAdjustableServiceConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
-        [Title("Scroll Settings")]
+        [Title("Handheld Adjustable Interaction Settings")]
         [EndGroup, SerializeField] public bool LoopValues = false;
 
         // [SerializeField] public bool SinglePressScroll = false;
@@ -48,12 +50,14 @@ namespace VE2.Core.VComponents.Internal
         private readonly HandheldAdjustableServiceConfig  _handheldAdjustableServiceConfig;
         private readonly AdjustableStateConfig  _adjustableStateConfig;
 
-        public HandheldAdjustableService(HandheldAdjustableConfig config, VE2Serializable state, string id, IWorldStateSyncableContainer worldStateSyncableContainer, IClientIDWrapper localClientIdWrapper)
+        public HandheldAdjustableService(HandheldAdjustableConfig config, AdjustableState state, string id, IWorldStateSyncableContainer worldStateSyncableContainer, IClientIDWrapper localClientIdWrapper)
         {
             _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, localClientIdWrapper);
             _HandheldScrollInteractionModule = new(config.GeneralInteractionConfig);
 
-            _StateModule.SetValue(config.StateConfig.StartingOutputValue, ushort.MaxValue);
+            if (!state.IsInitialised)
+                _StateModule.SetValue(config.StateConfig.StartingOutputValue, ushort.MaxValue);
+            state.IsInitialised = true;
 
             _handheldAdjustableServiceConfig = config.HandheldAdjustableServiceConfig;
             _adjustableStateConfig = config.StateConfig;
@@ -70,28 +74,27 @@ namespace VE2.Core.VComponents.Internal
         {
             float targetValue = _StateModule.OutputValue + _adjustableStateConfig.IncrementPerScrollTick;
 
-            if (_StateModule.IsAtMaximumValue)
+            if (targetValue > _StateModule.MaximumOutputValue)
             {
                 if (_handheldAdjustableServiceConfig.LoopValues)
-                {
                     targetValue -= _StateModule.Range;
-                }
+                else
+                    targetValue = Mathf.Clamp(targetValue, _StateModule.MinimumOutputValue, _StateModule.MaximumOutputValue);
             }
 
             _StateModule.SetValue(targetValue, clientID);
-            
         }
 
         private void HandleScrollDown(ushort clientID)
         {
             float targetValue = _StateModule.OutputValue - _adjustableStateConfig.IncrementPerScrollTick;
 
-            if (_StateModule.IsAtMinimumValue)
+            if (targetValue < _StateModule.MinimumOutputValue)
             {
                 if (_handheldAdjustableServiceConfig.LoopValues)
-                {
                     targetValue += _StateModule.Range;
-                }
+                else
+                    targetValue = Mathf.Clamp(targetValue, _StateModule.MinimumOutputValue, _StateModule.MaximumOutputValue);
             }
 
             _StateModule.SetValue(targetValue, clientID);

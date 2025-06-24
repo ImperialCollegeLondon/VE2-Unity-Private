@@ -9,7 +9,7 @@ namespace VE2.Core.Player.Internal
     internal class ResetViewUIHandler : MonoBehaviour
     {
         [SerializeField] private CanvasGroup _canvasGroup;
-        [SerializeField] private V_RadialProgressBar _radialProgressBar;
+        [SerializeField] private RadialProgressBar _radialProgressBar;
         [SerializeField] private Image _centerImage;
 
         private static readonly Color _defaultColor = new Color(1f, 1f, 1f, 1f);    
@@ -26,7 +26,7 @@ namespace VE2.Core.Player.Internal
 
         internal void StartShowing()
         {
-            _radialProgressBar.ChangeValue(0);
+            _radialProgressBar.SetValue(0);
             _centerImage.color = _defaultColor;
             _radialProgressBar._loadingBar.color = _defaultColor;
 
@@ -42,13 +42,13 @@ namespace VE2.Core.Player.Internal
 
         internal void SetProgress(float progress)
         {
-            _radialProgressBar.ChangeValue(progress * 100f);
+            _radialProgressBar.SetValue(progress * 100f);
         }
 
         internal void SetResetViewPrimed()
         {
             //Set to orange
-            _radialProgressBar.ChangeValue(100f);
+            _radialProgressBar.SetValue(100f);
             _centerImage.color = _highlightColor;
             _radialProgressBar._loadingBar.color = _highlightColor;
         }

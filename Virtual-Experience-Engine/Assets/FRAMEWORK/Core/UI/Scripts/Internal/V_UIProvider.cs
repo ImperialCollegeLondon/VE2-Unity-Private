@@ -17,6 +17,12 @@ namespace VE2.Core.UI.Internal
     [ExecuteAlways]
     public class V_UIProvider : MonoBehaviour, IUIProvider
     {
+        [Help("If enabled, the secondary UI can be customised. If disabled, the secondary UI  This is always enabled for the primary UI.")]
+        [SerializeField, HideInInspector] private bool _lastUseSecondaryUI;
+        [SerializeField] private bool _useCustomSecondaryUI = true;
+
+        [SerializeField, IgnoreParent] private MenuUIConfig _menuUIConfig = new();
+
         //For now, we always want both. 
         private bool _enablePrimaryUI => true;
         private bool _enableSecondaryUI => true;
@@ -39,17 +45,12 @@ namespace VE2.Core.UI.Internal
         }
         public bool IsEnabled => this != null && gameObject != null && enabled && gameObject.activeInHierarchy;
 
-        [Help("If enabled, the secondary UI can be customised. If disabled, the secondary UI  This is always enabled for the primary UI.")]
-        [SerializeField, HideInInspector] private bool _lastUseSecondaryUI;
-        [SerializeField] private bool _useCustomSecondaryUI = true;
-
-        [SerializeField] private MenuUIConfig _menuUIConfig = new MenuUIConfig();
-
         private PrimaryUIService _primaryUIService;
         private SecondaryUIService _secondaryUIService;
 
         private GameObject _pluginPrimaryUIHolder => FindFirstObjectByType<PluginPrimaryHolderUITag>(FindObjectsInactive.Include)?.gameObject;
         private GameObject _pluginSecondaryUIHolder => FindFirstObjectByType<PluginSecondaryUIHolderTag>(FindObjectsInactive.Include)?.gameObject;
+        [SerializeField, HideInInspector] private bool _uiPanelsSetup = false;
         private string _primaryUIPluginTabName => "World Info";
 
 
@@ -90,17 +91,20 @@ namespace VE2.Core.UI.Internal
 
                 _primaryUIService = new PrimaryUIService(VE2API.InputHandler.TogglePrimaryUI, inputSystemUIInputModule, _menuUIConfig);
 
-                //Move plugin primary UI to primary UI==========
-                GameObject pluginPrimaryUI = _pluginPrimaryUIHolder.transform.GetChild(0).gameObject;
-                Sprite icon = Resources.Load<Sprite>("PluginPrimaryUIIcon");
+                //Move plugin primary UI to primary UI if we haven't already ==========
+                if (!_uiPanelsSetup)
+                {
+                    GameObject pluginPrimaryUI = _pluginPrimaryUIHolder.transform.GetChild(0).gameObject;
+                    Sprite icon = Resources.Load<Sprite>("PluginPrimaryUIIcon");
 
-                VE2API.PrimaryUIService.AddNewTab(
-                    _primaryUIPluginTabName, 
-                    pluginPrimaryUI, 
-                    icon,
-                    0);
+                    VE2API.PrimaryUIService.AddNewTab(
+                        _primaryUIPluginTabName, 
+                        pluginPrimaryUI, 
+                        icon,
+                        0);
 
-                VE2API.PrimaryUIService.ShowTab(_primaryUIPluginTabName);   
+                    VE2API.PrimaryUIService.ShowTab(_primaryUIPluginTabName);   
+                }
             };
 
             if (_secondaryUIService == null && _enableSecondaryUI)
@@ -108,8 +112,8 @@ namespace VE2.Core.UI.Internal
                 //Create Secondary UI Service==========
                 _secondaryUIService = new SecondaryUIService(VE2API.InputHandler.ToggleSecondaryUI);
 
-                //Move plugin secondary UI to secondary UI==========
-                if (_useCustomSecondaryUI)
+                //Move plugin secondary UI to secondary UI if we haven't already ==========
+                if (_useCustomSecondaryUI && !_uiPanelsSetup)
                 {
                     GameObject pluginSecondaryUI = _pluginSecondaryUIHolder.transform.GetChild(0).gameObject;
                     ISecondaryUIServiceInternal secondaryUIService = VE2API.SecondaryUIService as ISecondaryUIServiceInternal;
@@ -122,6 +126,8 @@ namespace VE2.Core.UI.Internal
 
             if (_pluginSecondaryUIHolder != null)
                 Destroy(_pluginSecondaryUIHolder);
+
+            _uiPanelsSetup = true;
         }
 
         private void OnDisable()

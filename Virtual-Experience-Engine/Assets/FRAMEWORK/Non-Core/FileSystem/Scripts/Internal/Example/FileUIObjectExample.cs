@@ -31,10 +31,10 @@ namespace VE2.NonCore.FileSystem.Internal
         private bool _isAvailableLocally;
         private bool _isAvailableRemotely;
 
-        private IFileSystem _pluginFileSystem;
+        private IV_FileSystem _pluginFileSystem;
         private API.FileDetails _fileDetails;
 
-        public void Setup(IFileSystem pluginFileSystem, API.FileDetails fileDetails, bool isAvailableLocally, bool isAvailableRemotely)
+        public void Setup(IV_FileSystem pluginFileSystem, API.FileDetails fileDetails, bool isAvailableLocally, bool isAvailableRemotely)
         {
             _pluginFileSystem = pluginFileSystem;
 
@@ -86,8 +86,10 @@ namespace VE2.NonCore.FileSystem.Internal
 
             if (task.Status == RemoteFileTaskStatus.Succeeded)
             {
+                _isAvailableRemotely = true;
                 _availableRemoteText.text = "Available";
                 _availableRemoteText.color = Color.green;
+                
                 _uploadLocalButton.interactable = false;
                 _deleteRemoteButton.interactable = true;
             }
@@ -113,6 +115,7 @@ namespace VE2.NonCore.FileSystem.Internal
                 _isAvailableLocally = false;
                 _deleteLocalButton.interactable = false;
                 _downloadRemoteButton.interactable = _isAvailableRemotely;
+                Debug.Log($"Local file deleted successfully - available remotely: {_isAvailableRemotely} interactable? {_downloadRemoteButton.interactable}");
             }
         }
 

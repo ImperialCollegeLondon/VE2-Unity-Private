@@ -104,3 +104,5 @@ MonoBehaviour:
       VE2.Core.VComponents.Internal
   - typeReference: VE2.Core.VComponents.Internal.RangedClickInteractionConfigDrawer,
       VE2.Core.VComponents.Internal
+  - typeReference: VE2.Core.VComponents.Internal.NetworkObjectStateConfigDrawer,
+      VE2.NonCore.Instancing.Internal

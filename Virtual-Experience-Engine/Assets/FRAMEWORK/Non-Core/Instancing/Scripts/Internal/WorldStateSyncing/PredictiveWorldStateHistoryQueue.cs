@@ -32,7 +32,7 @@ namespace VE2.NonCore.Instancing.Internal
 
             limit = queueSize;
             flatBuffer = new NativeList<byte>(Allocator.Persistent);
-            stateOffsets = new NativeList<int>(limit, Allocator.Persistent);
+            stateOffsets = new NativeList<int>(limit, Allocator.Persistent); //Mem leak here
             stateLengths = new NativeList<int>(limit, Allocator.Persistent);
         }
 

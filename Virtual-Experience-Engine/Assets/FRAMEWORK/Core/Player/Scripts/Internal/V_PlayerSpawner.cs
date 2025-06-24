@@ -28,6 +28,9 @@ namespace VE2.Core.Player.Internal
     [Serializable]
     internal class PlayerConfig
     {
+        public void OpenDocs() => Application.OpenURL("https://www.notion.so/The-VE2-Player-Rig-2140e4d8ed4d809dbd6cd0e97073998f?source=copy_link");
+        [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above)]
+
         [Title("Player Mode Config")]
         [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public PlayerModeConfig PlayerModeConfig = new();
 
@@ -38,7 +41,7 @@ namespace VE2.Core.Player.Internal
         [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public MovementModeConfig MovementModeConfig = new();
 
         [Title("Camera Config")]
-        [BeginGroup(Style = GroupStyle.Round), SerializeField, EndGroup] public CameraConfig CameraConfig = new();
+        [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public CameraConfig CameraConfig = new();
 
         [Title("Avatar Appearance Overrides")]
         [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public AvatarAppearanceOverrideConfig AvatarAppearanceOverrideConfig = new();
@@ -139,7 +142,7 @@ namespace VE2.Core.Player.Internal
         [SerializeField, IgnoreParent] internal PlayerConfig _playerConfig = new();
 
         [SpaceArea(spaceBefore: 10), Help("If running standalone, this presentation config will be used, if integrated with the VE2 platform, the platform will provide the presentation config.")]
-        [BeginGroup("Debug settings"), SerializeField, DisableInPlayMode, EndGroup]  private PlayerPresentationConfig _defaultPlayerPresentationConfig = new();
+        [BeginGroup("Debug settings"), SerializeField, DisableInPlayMode, IgnoreParent, EndGroup]  private PlayerPresentationConfig _defaultPlayerPresentationConfig = new();
 
         #region Provider Interfaces
         private PlayerService _playerService;
@@ -241,12 +244,16 @@ namespace VE2.Core.Player.Internal
                 xRHapticsWrapperRight);
         }
 
-        private void FixedUpdate() 
+        private void FixedUpdate()
         {
             if (!Application.isPlaying)
                 return;
 
             _playerService?.HandleFixedUpdate();
+
+            //Note - unlike VCs, player service creates new instances of the state each frame. 
+            //This means we have to assign it into our serialized field manually, rather than relying on the reference to persist between the MB and the service
+            _playerTransformData = _playerService.PlayerTransformData;
         }
 
         private void Update() 

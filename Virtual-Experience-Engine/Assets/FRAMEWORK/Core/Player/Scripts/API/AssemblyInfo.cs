@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("VE2.Core.UI.Internal")]
 [assembly: InternalsVisibleTo("VE2.NonCore.Platform.Internal")]
 [assembly: InternalsVisibleTo("VE2.NonCore.Instancing.Internal")] 
-[assembly: InternalsVisibleTo("VE2.Private.Hub")] 
+[assembly: InternalsVisibleTo("VE2.Private.Hub")]
 [assembly: InternalsVisibleTo("VE2.Core.Tests")]
+[assembly: InternalsVisibleTo("VE2.NonCore.Platform.API")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")] //For NSubstitute substitutes

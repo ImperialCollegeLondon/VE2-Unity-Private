@@ -12,6 +12,8 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class HandheldActivatableConfig
     {
+        public void OpenDocs() => Application.OpenURL("https://www.notion.so/V_HandHeldActivatable-20f0e4d8ed4d815fadabedf507722d44?source=copy_link");
+        [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above)]
         [SerializeField, IgnoreParent] public ToggleActivatableStateConfig StateConfig = new();
 
         [SerializeField, IgnoreParent] public HandHeldClickInteractionConfig HandheldClickInteractionConfig = new();
@@ -35,7 +37,7 @@ namespace VE2.Core.VComponents.Internal
         private readonly HandheldClickInteractionModule _HandheldClickInteractionModule;
         #endregion
 
-        public HandheldActivatableService(IV_FreeGrabbable grabbable, HandheldActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncableContainer worldStateSyncableContainer, 
+        public HandheldActivatableService(IV_FreeGrabbable grabbable, HandheldActivatableConfig config, SingleInteractorActivatableState state, string id, IWorldStateSyncableContainer worldStateSyncableContainer,
             ActivatableGroupsContainer activatableGroupsContainer, IClientIDWrapper localClientIdWrapper)
         {
             _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, activatableGroupsContainer, localClientIdWrapper);
@@ -44,6 +46,11 @@ namespace VE2.Core.VComponents.Internal
 
             _HandheldClickInteractionModule.OnClickDown += HandleClickDown;
             _HandheldClickInteractionModule.OnClickUp += HandleClickUp;
+            
+            //set the initial value of the adjustable state module
+            if (!state.IsInitialised && config.StateConfig.ActivateOnStart)
+                _StateModule.SetActivated(config.StateConfig.ActivateOnStart);
+            state.IsInitialised = true;
         }
 
         public void HandleFixedUpdate()

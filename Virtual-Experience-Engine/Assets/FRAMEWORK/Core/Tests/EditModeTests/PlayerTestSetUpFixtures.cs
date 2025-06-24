@@ -95,14 +95,14 @@ namespace VE2.Core.Tests
         {
             RaycastProviderStub
                 .Raycast(default, default, default, default)
-                .ReturnsForAnyArgs(new RaycastResultWrapper(rangedInteractionModule, null, 0, true));
+                .ReturnsForAnyArgs(new RaycastResultWrapper(rangedInteractionModule, null, null, 0, true));
         }
 
         public static void StubRangedInteractionModuleForSpherecastAll(IRangedInteractionModule rangedInteractionModule)
         {
             RaycastProviderStub
                 .SphereCastAll(default, default, default, default, default)
-                .ReturnsForAnyArgs(new RaycastResultWrapper(rangedInteractionModule, null, 0, true));
+                .ReturnsForAnyArgs(new RaycastResultWrapper(rangedInteractionModule, null, null, 0, true));
         }
     }
 
@@ -231,6 +231,15 @@ namespace VE2.Core.Tests
         }
     }
 
+    internal class LocalAdminIndicatorSetup
+    {
+        public static ILocalAdminIndicator LocalAdminIndicator { get; set; }
+
+        public static void LocalAdminIndicatorStubSetupOnce()
+        {
+            LocalAdminIndicator = new LocalAdminIndicator();
+        }
+    }
     //We want to repeat this setup for every test
     //Otherwise, we may find that the player's state carries over between tests!
     [SetUpFixture]
@@ -251,6 +260,7 @@ namespace VE2.Core.Tests
             PlayerInputContainerSetup.SetupPlayerInputContainerStubWrapper();
             LocalPlayerSyncableContainerSetup.LocalPlayerSyncableContainerStubSetupOnce();
             GrabInteractableContainerSetup.GrabInteractableContainerStubSetupOnce();
+            LocalAdminIndicatorSetup.LocalAdminIndicatorStubSetupOnce();
         }
 
         [SetUp]
@@ -262,6 +272,7 @@ namespace VE2.Core.Tests
                 InteractorContainerSetup.InteractorContainer,
                 PlayerPersistentDataHandlerSetup.PlayerPersistentDataHandlerStub,
                 LocalClientIDWrapperSetup.LocalClientIDWrapper,
+                LocalAdminIndicatorSetup.LocalAdminIndicator,
                 LocalPlayerSyncableContainerSetup.LocalPlayerSyncableContainerStub,
                 GrabInteractableContainerSetup.GrabInteractableContainer,
                 PlayerInputContainerSetup.PlayerInputContainerStub,
@@ -270,7 +281,7 @@ namespace VE2.Core.Tests
                 Substitute.For<IXRManagerWrapper>(),
                 Substitute.For<IPrimaryUIServiceInternal>(),
                 Substitute.For<ISecondaryUIServiceInternal>(),
-                Substitute.For<XRHapticsWrapper>(),
+                Substitute.For<IXRHapticsWrapper>(),
                 Substitute.For<IXRHapticsWrapper>()
             );
         }

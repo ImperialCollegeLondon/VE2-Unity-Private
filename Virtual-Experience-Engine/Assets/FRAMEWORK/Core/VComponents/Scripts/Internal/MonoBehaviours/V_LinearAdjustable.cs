@@ -72,12 +72,12 @@ namespace VE2.Core.VComponents.Internal
         {
             get
             {
-                if (_config.rangedAdjustableConfig.AttachPoint == null)
-                    _config.rangedAdjustableConfig.AttachPoint = transform;
-                return _config.rangedAdjustableConfig.AttachPoint.GetComponent<Collider>();
+                if (_config.RangedAdjustableInteractionConfig.AttachPointWrapper == null)
+                    _config.RangedAdjustableInteractionConfig.AttachPointWrapper = new TransformWrapper(transform);
+                return ((TransformWrapper)_config.RangedAdjustableInteractionConfig.AttachPointWrapper).Transform.GetComponent<Collider>();
             }
         }
-        internal string AttachPointGOName => _config.rangedAdjustableConfig.AttachPoint.name;
+        internal string AttachPointGOName => ((TransformWrapper)_config.RangedAdjustableInteractionConfig.AttachPointWrapper).GameObject.name;
         #endregion
 
         private LinearAdjustableService _service = null;
@@ -108,6 +108,18 @@ namespace VE2.Core.VComponents.Internal
 
             string id = "LinearAdjustable-" + gameObject.name;
 
+            if (_config.RangedAdjustableInteractionConfig.TransformToAdjust == null || ((TransformWrapper)_config.RangedAdjustableInteractionConfig.TransformToAdjust).Transform == null)
+            {
+                _config.RangedAdjustableInteractionConfig.TransformToAdjust = new TransformWrapper(transform);
+                Debug.LogWarning($"The adjustable on {gameObject.name} does not have an assigned TransformToAdjust, and so may not behave as intended");
+            }
+
+            if (_config.RangedAdjustableInteractionConfig.AttachPointWrapper == null || ((TransformWrapper)_config.RangedAdjustableInteractionConfig.AttachPointWrapper).Transform == null)
+            {
+                _config.RangedAdjustableInteractionConfig.AttachPointWrapper = new TransformWrapper(transform);
+                Debug.LogWarning($"The adjustable on {gameObject.name} does not have an assigned AttachPoint, and so may not behave as intended");
+            }
+
             if (_adjustableState == null)
                 _adjustableState = new AdjustableState(_config.AdjustableStateConfig.StartingOutputValue);
 
@@ -120,7 +132,6 @@ namespace VE2.Core.VComponents.Internal
             //     handheldInteractions.Add(handheldAdjustable.HandheldScrollInteractionModule);
 
             _service = new LinearAdjustableService(
-                new TransformWrapper(GetComponent<Transform>()),
                 handheldInteractions,
                 _config,
                 _adjustableState,

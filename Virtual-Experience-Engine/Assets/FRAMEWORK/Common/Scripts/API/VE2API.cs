@@ -7,6 +7,7 @@ using VE2.Core.Player.API;
 using VE2.NonCore.Instancing.API;
 using VE2.Common.Shared;
 using VE2.Core.UI.API;
+using VE2.NonCore.Platform.API;
 
 namespace VE2.Common.API
 {
@@ -15,11 +16,11 @@ namespace VE2.Common.API
     /// <summary>
     /// Central service locator for VE2 APIs, such as the player, the UI, and the instancing system.
     /// </summary>
-    public class VE2API : MonoBehaviour 
+    public class VE2API : MonoBehaviour
     {
         private static VE2API _instance;
         private static VE2API Instance //Reload-proof singleton
-        { 
+        {
             get
             {
                 //if we've moved to a different scene, this will be null, so we can find the locator for the new scene
@@ -47,7 +48,7 @@ namespace VE2.Common.API
                 gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
                 //gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
             }
-            else 
+            else
             {
                 if (Instance._instancingServiceProvider == null || !Instance._instancingServiceProvider.IsEnabled)
                     _instance._localClientIdWrapper.SetValue(0);
@@ -80,7 +81,7 @@ namespace VE2.Common.API
                 if (Instance._playerServiceProvder == null)
                     return null;
 
-                return Instance._playerServiceProvder.IsEnabled? Instance._playerServiceProvder : null;
+                return Instance._playerServiceProvder.IsEnabled ? Instance._playerServiceProvder : null;
             }
             set => Instance._playerServiceProvder = value;
         }
@@ -121,7 +122,7 @@ namespace VE2.Common.API
                 if (Instance._uiProvider == null)
                     return null;
 
-                return Instance._uiProvider.IsEnabled? Instance._uiProvider : null;
+                return Instance._uiProvider.IsEnabled ? Instance._uiProvider : null;
 
             }
             set //Will need to be called externally
@@ -146,7 +147,7 @@ namespace VE2.Common.API
                     Debug.LogError("InputHandler is only available at runtime");
                     return null;
                 }
-                    
+
                 Instance._inputHandler ??= FindFirstObjectByType<InputHandler>();
                 Instance._inputHandler ??= new GameObject("V_InputHandler").AddComponent<InputHandler>();
                 return Instance._inputHandler;
@@ -181,7 +182,7 @@ namespace VE2.Common.API
                 if (Instance._instancingServiceProvider == null)
                     return null;
 
-                return Instance._instancingServiceProvider.IsEnabled? Instance._instancingServiceProvider : null;
+                return Instance._instancingServiceProvider.IsEnabled ? Instance._instancingServiceProvider : null;
             }
             set => Instance._instancingServiceProvider = value;
         }
@@ -190,7 +191,44 @@ namespace VE2.Common.API
 
         #endregion
         //########################################################################################################
-        
+
+        //########################################################################################################
+        #region PlatformAPI
+        public static IPlatformService PlatformService => PlatformProvider?.PlatformService;
+
+        [SerializeField, HideInInspector] public string platformProviderGOName;
+        private IPlatformProvider _platformProvider;
+        internal static IPlatformProvider PlatformProvider
+        {
+            private get
+            {
+                if (Instance._platformProvider == null && !string.IsNullOrEmpty(Instance.platformProviderGOName))
+                    Instance._platformProvider = GameObject.Find(Instance.platformProviderGOName)?.GetComponent<IPlatformProvider>();
+
+                if (Instance._platformProvider == null)
+                {
+                    //Debug.LogError("PlatformProvider is not available");
+                    return null;
+                }
+
+                return Instance._platformProvider;
+
+            }
+            set //Will need to be called externally
+            {
+                Instance._platformProvider = value;
+
+                if (value != null)
+                    Instance.platformProviderGOName = value.GameObjectName;
+            }
+        }
+
+        [SerializeField, HideInInspector] private LocalAdminIndicator _localAdminWrapper = new();
+        internal static ILocalAdminIndicator LocalAdminIndicator => Instance._localAdminWrapper;
+
+        #endregion
+        //########################################################################################################
+
         //########################################################################################################
         #region Internal Containers and Wrappers
         //Note - these don't need to be serialized, registrations will repeat on reload
@@ -206,11 +244,11 @@ namespace VE2.Common.API
         /// </summary>
         internal static ILocalPlayerSyncableContainer LocalPlayerSyncableContainer => Instance._localPlayerSyncableContainer;
         private LocalPlayerSyncableContainer _localPlayerSyncableContainer = new();
-        
+
         /// <summary>
         /// Contains all interactors (local or otherwise) in the scene, allows grabbables to perform validation on grab
         /// </summary>
-        internal static HandInteractorContainer InteractorContainer => Instance._interactorContainer; 
+        internal static HandInteractorContainer InteractorContainer => Instance._interactorContainer;
         private HandInteractorContainer _interactorContainer = new();
 
         /// <summary>
@@ -254,6 +292,11 @@ namespace VE2.Common.API
 
         public void RegisterGrabInteractable(IRangedGrabInteractionModule grabInteractable, string id)
         {
+            if (GrabInteractables.ContainsKey(id))
+            {
+                Debug.LogError($"EERROR - GrabInteractable with ID {id} is already registered.");
+                return;
+            }
             GrabInteractables.Add(id, grabInteractable);
         }
 
@@ -272,9 +315,9 @@ namespace VE2.Common.API
         void DeregisterLocalPlayer();
     }
 
-    internal class LocalPlayerSyncableContainer : ILocalPlayerSyncableContainer 
+    internal class LocalPlayerSyncableContainer : ILocalPlayerSyncableContainer
     {
-        public IPlayerServiceInternal LocalPlayerSyncable { get; private set;}
+        public IPlayerServiceInternal LocalPlayerSyncable { get; private set; }
         public event Action<IPlayerServiceInternal> OnPlayerRegistered;
         public event Action<IPlayerServiceInternal> OnPlayerDeregistered;
 
@@ -289,5 +332,29 @@ namespace VE2.Common.API
             LocalPlayerSyncable = null;
             OnPlayerDeregistered?.Invoke(null);
         }
+    }
+
+    internal class LocalAdminIndicator: ILocalAdminIndicatorWritable
+    {
+        public bool IsLocalAdmin { get; private set; } //This is set by the platform system, so it can be used by other systems
+        public event Action<bool> OnLocalAdminStatusChanged;
+        public void SetLocalAdminStatus(bool isAdmin)
+        {
+            if (IsLocalAdmin == isAdmin)
+                return;
+
+            IsLocalAdmin = isAdmin;
+            OnLocalAdminStatusChanged?.Invoke(isAdmin);
+        }
+    }
+
+    internal interface ILocalAdminIndicator
+    {
+        public bool IsLocalAdmin { get; }
+        public event Action<bool> OnLocalAdminStatusChanged;
+    }
+    internal interface ILocalAdminIndicatorWritable : ILocalAdminIndicator
+    {
+        public void SetLocalAdminStatus(bool isAdmin);
     }
 }

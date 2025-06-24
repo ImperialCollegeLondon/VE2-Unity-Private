@@ -3,7 +3,7 @@ using VE2.Common.Shared;
 
 namespace VE2.Core.VComponents.API
 {
-    public interface IV_HandheldActivatable 
+    public interface IV_HandheldActivatable : IV_GeneralInteractable
     {
         #region State Module Interface
 
@@ -15,14 +15,6 @@ namespace VE2.Core.VComponents.API
         public void Deactivate();
         public void SetActivated(bool isActivated);
         public IClientIDWrapper MostRecentInteractingClientID { get; }
-
-        #endregion
-
-        #region General Interaction Module Interface
-
-        public bool AdminOnly { get; set; }
-        public bool EnableControllerVibrations { get; set; }
-        public bool ShowTooltipsAndHighlight { get; set; }
 
         #endregion
     }

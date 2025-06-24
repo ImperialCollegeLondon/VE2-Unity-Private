@@ -8,8 +8,6 @@ namespace VE2.Core.Player.Internal
 {
     internal class HandController 
     {
-        public Transform GrabberTransform => _interactor.GrabberTransform;
-
         internal Transform Transform => _handGO.transform;
         internal IReadOnlyList<string> HeldActivatableIDs => _interactor.HeldNetworkedActivatableIDs;
 

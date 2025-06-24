@@ -23,6 +23,7 @@ namespace VE2.NonCore.Instancing.Internal
         [SerializeField] private GameObject _interactorVRRightGameObject;
         [SerializeField] private GameObject _interactorFeetGameObject;
         [SerializeField] private AvatarVisHandler _avatarHandler;
+        [SerializeField] private bool _isAdmin;
 
         /// <summary>
         /// Note, this WON'T set the initial appearance, HandleReceiveAvatarAppearance should be called after initialization
@@ -98,7 +99,18 @@ namespace VE2.NonCore.Instancing.Internal
             _avatarHandler.HandleReceiveAvatarAppearance(newAvatarAppearance);
         }
 
+        internal void HandleReceiveAdminUpdateNotice(bool isNewAdmin)
+        {
+            if (_isAdmin == isNewAdmin)
+                return;
 
+            _isAdmin = isNewAdmin;
+
+            if (_isAdmin)
+                _playerNameText.color = Color.cyan;
+            else
+                _playerNameText.color = Color.white;
+        }
         private void Update()
         {
             if (Camera.main == null)

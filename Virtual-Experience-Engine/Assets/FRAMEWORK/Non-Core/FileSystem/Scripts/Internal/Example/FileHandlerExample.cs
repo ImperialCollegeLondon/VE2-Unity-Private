@@ -19,7 +19,7 @@ namespace VE2.NonCore.FileSystem.Internal
         [SerializeField] private GameObject _fileUIObjectPrefab;
 
         [SerializeField] private GameObject _fileSystemGameObject;
-        private IFileSystem _pluginFileSystem => _fileSystemGameObject.GetComponent<IFileSystem>();
+        private IV_FileSystem _pluginFileSystem => _fileSystemGameObject.GetComponent<IV_FileSystem>();
 
         // private List<VerticalLayoutGroup> _fileUIObjectVerticalGroups = new List<VerticalLayoutGroup>();
         // private List<FileUIObjectExample> _fileUIObjects = new List<FileUIObjectExample>();

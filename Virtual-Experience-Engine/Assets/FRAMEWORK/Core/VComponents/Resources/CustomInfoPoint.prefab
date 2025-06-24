@@ -362,6 +362,16 @@ PrefabInstance:
       propertyPath: m_Name
       value: CustomInfoPoint_Canvas
       objectReference: {fileID: 0}
+    - target: {fileID: 8362543176063391860, guid: 59219888ded430942a523e9b76f69e4a,
+        type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8362543176063391860, guid: 59219888ded430942a523e9b76f69e4a,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

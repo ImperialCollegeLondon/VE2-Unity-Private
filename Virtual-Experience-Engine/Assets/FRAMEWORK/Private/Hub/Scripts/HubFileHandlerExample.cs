@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using VE2.Common.API;
 using VE2.NonCore.FileSystem.API;
 using VE2.NonCore.Platform.API;
 
@@ -46,7 +47,7 @@ public class HubFileHandlerExample : MonoBehaviour
     {
         //Debug.Log("Got remote folders! " + search.CompletionCode + " - " + search.FoldersFound.Count);
 
-        IPlatformServiceInternal platformService = PlatformAPI.PlatformService as IPlatformServiceInternal;
+        IPlatformServiceInternal platformService = VE2API.PlatformService as IPlatformServiceInternal;
         //Debug.Log("Platform service null: " + (platformService == null));
 
         /*

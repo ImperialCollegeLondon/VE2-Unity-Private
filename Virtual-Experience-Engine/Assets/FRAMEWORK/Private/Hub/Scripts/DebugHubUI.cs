@@ -1,11 +1,12 @@
 using TMPro;
 using UnityEngine;
+using VE2.Common.API;
 using VE2.NonCore.Platform.API;
 
 public class DebugHubUI : MonoBehaviour
 {
     [SerializeField] private TMP_Text instancesListText;
-    private IPlatformServiceInternal _platformService => (IPlatformServiceInternal)PlatformAPI.PlatformService;
+    private IPlatformServiceInternal _platformService => (IPlatformServiceInternal)VE2API.PlatformService;
 
     void OnEnable()
     {
@@ -39,7 +40,7 @@ public class DebugHubUI : MonoBehaviour
             return;
         }
 
-        _platformService.RequestInstanceAllocation("Misc-Dev", "test", "NoVersion");
+        _platformService.RequestInstanceAllocation(new PlatformPublicSerializables.InstanceCode("Dev", "test", 0));
     }
 
     public void OnGoToDev2ButtonPressed()
@@ -50,7 +51,7 @@ public class DebugHubUI : MonoBehaviour
             return;
         }
 
-        _platformService.RequestInstanceAllocation("Misc-Dev", "dev2", "NoVersion");
+        _platformService.RequestInstanceAllocation(new PlatformPublicSerializables.InstanceCode("Dev", "test2", 0));
     }
 
     private void OnDisable()

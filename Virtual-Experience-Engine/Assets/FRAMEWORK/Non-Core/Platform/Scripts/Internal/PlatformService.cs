@@ -13,31 +13,35 @@ using static VE2.Core.Player.API.PlayerSerializables;
 using VE2.Core.UI.API;
 using VE2.Common.API;
 using VE2.Common.Shared;
+using UnityEngine.Events;
 
 namespace VE2.NonCore.Platform.Internal
 {
     internal static class PlatformServiceFactory
     {
-        internal static PlatformService Create(IPlatformSettingsHandler platformSettingsHandler)
+        internal static PlatformService Create(PlatformServiceConfig config, IPlatformSettingsHandler platformSettingsHandler)
         {
             PlatformCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
             IPlayerServiceInternal playerService = VE2API.Player as IPlayerServiceInternal; //TODO: Think about this - pretty sure the platform can just take the container, rather than initing the player directly 
             PluginLoader pluginLoader = new PluginLoader(platformSettingsHandler, playerService);
             return new PlatformService(
+                config,
                 commsHandler, 
                 pluginLoader, 
                 playerService, 
                 platformSettingsHandler, 
-                VE2API.PrimaryUIService as IPrimaryUIServiceInternal);
+                VE2API.PrimaryUIService as IPrimaryUIServiceInternal,
+                VE2API.LocalAdminIndicator as ILocalAdminIndicatorWritable);
         }
     }
 
     internal class PlatformService: IPlatformServiceInternal
     {
-        #region Interfaces
+        #region Interfaces //TODO - separate this between public and internal interfaces
         public ushort LocalClientID { get => _platformSettingsHandler.PlatformClientID; private set => _platformSettingsHandler.PlatformClientID = value; }
         public Dictionary<string, WorldDetails> ActiveWorlds { get => _platformSettingsHandler.ActiveWorlds; private set => _platformSettingsHandler.ActiveWorlds = value; }
-        public string CurrentInstanceCode { get => _platformSettingsHandler.InstanceCode; private set => _platformSettingsHandler.InstanceCode = value; }
+        public string CurrentInstanceNumber => _platformSettingsHandler.InstanceCode.InstanceSuffix;
+        public string CurrentWorldName => _platformSettingsHandler.InstanceCode.WorldName;
 
         public bool IsConnectedToServer { get; private set; }
         public event Action OnConnectedToServer;
@@ -58,13 +62,14 @@ namespace VE2.NonCore.Platform.Internal
         }
 
         public event Action<GlobalInfo> OnGlobalInfoChanged;
+        public event Action OnLeavingInstance;
 
-        public void RequestInstanceAllocation(string worldFolderName, string instanceSuffix, string versionNumber)
+        public void RequestInstanceAllocation(InstanceCode instanceCode)
         {
             if (IsConnectedToServer)
             {
-                Debug.Log($"Requesting instance allocation to {worldFolderName}-{instanceSuffix}-{versionNumber}");
-                InstanceAllocationRequest instanceAllocationRequest = new(worldFolderName, instanceSuffix, versionNumber);
+                Debug.Log($"Requesting instance allocation to {instanceCode}");
+                InstanceAllocationRequest instanceAllocationRequest = new(instanceCode);
                 _commsHandler.SendMessage(instanceAllocationRequest.Bytes, PlatformNetworkingMessageCodes.InstanceAllocationRequest, TransmissionProtocol.TCP);
             }
             else
@@ -78,7 +83,7 @@ namespace VE2.NonCore.Platform.Internal
         /// </summary>
         public void RequestHubAllocation()
         {
-            RequestInstanceAllocation("Hub", "Solo", "NoVersion");
+            RequestInstanceAllocation(new InstanceCode("Hub", "Solo", 0));
         }
 
         public void ReturnToHub()
@@ -109,7 +114,7 @@ namespace VE2.NonCore.Platform.Internal
         public ServerConnectionSettings GetInternalWorldStoreFTPSettings() => _platformSettingsHandler.WorldBuildsFTPServerSettings;
 
         //Called by hub
-        public void UpdateSettings(ServerConnectionSettings serverConnectionSettings, string instanceCode)
+        public void UpdateSettings(ServerConnectionSettings serverConnectionSettings, InstanceCode instanceCode)
         {
             Debug.Log("Update settings handler - " + serverConnectionSettings.ServerAddress + " - " + serverConnectionSettings.ServerPort + " - " + instanceCode);
             _platformSettingsHandler.PlatformServerConnectionSettings = serverConnectionSettings;
@@ -120,12 +125,12 @@ namespace VE2.NonCore.Platform.Internal
         public void ConnectToPlatform()
         {
             Debug.Log("Connecting to platform with settings -" + _platformSettingsHandler.PlatformServerConnectionSettings.ServerAddress + "-:-" + _platformSettingsHandler.PlatformServerConnectionSettings.ServerPort + "-:-" + _platformSettingsHandler.InstanceCode);
-            CurrentInstanceCode = _platformSettingsHandler.InstanceCode;
+            //CurrentInstanceCode = _platformSettingsHandler.InstanceCode;
             //IPAddress.Parse("PlatformIP"), PlatformPort, instanceCode
-            _commsHandler.ConnectToServer(IPAddress.Parse(_platformSettingsHandler.PlatformServerConnectionSettings.ServerAddress), _platformSettingsHandler.PlatformServerConnectionSettings.ServerPort);
+            _commsHandler.ConnectToServerAsync(IPAddress.Parse(_platformSettingsHandler.PlatformServerConnectionSettings.ServerAddress), _platformSettingsHandler.PlatformServerConnectionSettings.ServerPort);
         }
 
-        internal event Action<string> OnInstanceCodeChange;
+        internal event Action<InstanceCode> OnInstanceCodeChange;
 
         /*
                 We should probably just be hiding UserSettingsDebug when there IS a platform service?
@@ -135,20 +140,80 @@ namespace VE2.NonCore.Platform.Internal
                 Yeah ok so the instance service should find the primary UI service 
         */
         public string PlayerDisplayName => _playerService.OverridableAvatarAppearance.PresentationConfig.PlayerName;
+
+        public InstanceCode CurrentInstanceCode { get => _platformSettingsHandler.InstanceCode; private set => _platformSettingsHandler.InstanceCode = value; }
+
+        public Dictionary<InstanceCode, PlatformInstanceInfo> InstanceInfos => GlobalInfo.InstanceInfos;
+        public event Action<Dictionary<InstanceCode, PlatformInstanceInfo>> OnInstanceInfosChanged;
+
+        public UnityEvent OnBecomeAdmin => _config.OnBecomeAdmin;
+        public UnityEvent OnLoseAdmin => _config.OnLoseAdmin;
+
+        public bool IsLocalPlayerAdmin { get; private set; } = false; //TODO: this comes from client info
+
+        public void GrantLocalPlayerAdmin()
+        {
+            if (!IsConnectedToServer)
+            {
+                Debug.LogError("Can't raise to admin, not connected to server. Wait for connection before changing admin status");
+                return;
+            }
+
+            _localAdminIndicatorWrapper.SetLocalAdminStatus(true);
+
+            AdminUpdateNotice adminUpdateNotice = new(true);
+            _commsHandler.SendMessage(adminUpdateNotice.Bytes, PlatformNetworkingMessageCodes.AdminUpdateNotice, TransmissionProtocol.TCP);
+
+            try
+            {
+                OnBecomeAdmin?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Error when emitting OnBecomeAdmin: {ex.Message}, {ex.StackTrace}");
+            }
+
+        }
+        public void RevokeLocalPlayerAdmin()
+        {
+            if (!IsConnectedToServer)
+            {
+                Debug.LogError("Can't raise to admin, not connected to server. Wait for connection before changing admin status");
+                return;
+            }
+
+            _localAdminIndicatorWrapper.SetLocalAdminStatus(false);
+
+            AdminUpdateNotice adminUpdateNotice = new(false);
+            _commsHandler.SendMessage(adminUpdateNotice.Bytes, PlatformNetworkingMessageCodes.AdminUpdateNotice, TransmissionProtocol.TCP);
+
+            try
+            {
+                OnLoseAdmin?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Error when emitting OnLoseAdmin: {ex.Message}, {ex.StackTrace}");
+            }
+        }
         #endregion
 
         private readonly IPlatformCommsHandler _commsHandler;
         private readonly PluginLoader _pluginLoader;
         private readonly IPlayerServiceInternal _playerService;
         private readonly IPlatformSettingsHandler _platformSettingsHandler;
+        private readonly ILocalAdminIndicatorWritable _localAdminIndicatorWrapper;
+        private readonly PlatformServiceConfig _config;
 
-        internal PlatformService(IPlatformCommsHandler commsHandler, PluginLoader pluginLoader, IPlayerServiceInternal playerService, 
-            IPlatformSettingsHandler platformSettingsHandler, IPrimaryUIServiceInternal primaryUIService)
+        internal PlatformService(PlatformServiceConfig config, IPlatformCommsHandler commsHandler, PluginLoader pluginLoader, IPlayerServiceInternal playerService,
+            IPlatformSettingsHandler platformSettingsHandler, IPrimaryUIServiceInternal primaryUIService, ILocalAdminIndicatorWritable localAdminIndicatorWrapper)
         {
+            _config = config;
             _commsHandler = commsHandler;
             _pluginLoader = pluginLoader;
             _playerService = playerService;
             _platformSettingsHandler = platformSettingsHandler;
+            _localAdminIndicatorWrapper = localAdminIndicatorWrapper;
 
             if (_playerService != null)
                 _playerService.OnOverridableAvatarAppearanceChanged += HandlePlayerPresentationConfigChanged;
@@ -163,9 +228,9 @@ namespace VE2.NonCore.Platform.Internal
                 GameObject playerBrowserUIHolder = GameObject.Instantiate(Resources.Load<GameObject>("PlatformPlayerBrowserUIHolder"));
                 GameObject playerBrowserUI = playerBrowserUIHolder.transform.GetChild(0).gameObject;
                 playerBrowserUI.SetActive(false);
-            
+
                 primaryUIService.AddNewTab("Players", playerBrowserUI, Resources.Load<Sprite>("PlatformPlayerBrowserUIICon"), 1);
-                GameObject.Destroy(playerBrowserUIHolder);   
+                GameObject.Destroy(playerBrowserUIHolder);
 
                 //Quick panel=====
                 GameObject platformQuickPanelUIHolder = GameObject.Instantiate(Resources.Load<GameObject>("PlatformQuickUIPanelHolder"));
@@ -190,7 +255,7 @@ namespace VE2.NonCore.Platform.Internal
                 //Otherwise, send reg request to platform
                 string customerID = "test", customerKey = "test"; //TODO - figure out these too!
 
-                Debug.Log("Rec netcode - requesting reg into " + CurrentInstanceCode);
+                Debug.Log("Rec netcode - requesting reg into " + CurrentInstanceCode.ToString());
                 ServerRegistrationRequest serverRegistrationRequest = new(customerID, customerKey, CurrentInstanceCode, _playerService.OverridableAvatarAppearance.PresentationConfig);
                 _commsHandler.SendMessage(serverRegistrationRequest.Bytes, PlatformNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
             }
@@ -233,48 +298,57 @@ namespace VE2.NonCore.Platform.Internal
             //Are we then worried about missing the message?
             PlatformInstanceInfo newLocalInstanceInfo = newGlobalInfo.InstanceInfoForClient(LocalClientID);
 
-            if (newLocalInstanceInfo.FullInstanceCode != CurrentInstanceCode)
+            if (newLocalInstanceInfo == null)
             {
+                Debug.LogError($"No instance info found for local client (#{LocalClientID}) in global info update. Printing all instance infos:");
+                foreach (var instanceInfo in newGlobalInfo.InstanceInfos)
+                {
+                    Debug.Log($"Instance Code: {instanceInfo.Key} ===========");
+                    foreach (var clientInfo in instanceInfo.Value.ClientInfos)
+                    {
+                        Debug.Log($"  Client ID: {clientInfo.Key}");
+                    }
+                }
+                return;
+            }
+
+            if (CurrentInstanceCode == null || !newLocalInstanceInfo.InstanceCode.Equals(CurrentInstanceCode))
+            {
+                Debug.Log($"INSTANCE ALLOC, CURRENT CODE NULL? {CurrentInstanceCode == null}, new code {newLocalInstanceInfo.InstanceCode}");
+                Debug.Log($"old code {CurrentInstanceCode}");
                 HandleInstanceAllocation(newLocalInstanceInfo);
             }
 
             GlobalInfo = newGlobalInfo;
+
+            //TODO - tidy these up, both doing the same thing!
             OnGlobalInfoChanged?.Invoke(GlobalInfo);
+            OnInstanceInfosChanged?.Invoke(GlobalInfo.InstanceInfos);
         }
 
         private void HandleInstanceAllocation(PlatformInstanceInfo newInstanceInfo)
         {
-            Debug.Log($"<color=green>Detected allocation to new instance, going to {newInstanceInfo.FullInstanceCode}</color>");
+            Debug.Log($"<color=green>Detected allocation to new instance, going to {newInstanceInfo.InstanceCode.ToString()}</color>");
 
-            CurrentInstanceCode = newInstanceInfo.FullInstanceCode;
-            OnInstanceCodeChange?.Invoke(newInstanceInfo.FullInstanceCode);
+            CurrentInstanceCode = newInstanceInfo.InstanceCode;
 
-            if (newInstanceInfo.FullInstanceCode.StartsWith("Hub"))
+            //TODO - these two are a bit redundant, rework!
+            OnLeavingInstance?.Invoke();
+            OnInstanceCodeChange?.Invoke(CurrentInstanceCode);
+
+            if (newInstanceInfo.InstanceCode.WorldName.ToUpper().Equals("HUB"))
             {
                 SceneManager.LoadScene("Hub");
             }
             else
             {
-                _pluginLoader.LoadPlugin(newInstanceInfo.WorldFolderName, int.Parse(newInstanceInfo.VersionNumber));
+                _pluginLoader.LoadPlugin(newInstanceInfo.InstanceCode.WorldName, newInstanceInfo.InstanceCode.VersionNumber);
             }
         }
 
-        internal void MainThreadUpdate()
+        public void MainThreadUpdate()
         {
             _commsHandler.MainThreadUpdate();
-        }
-
-        internal void NetworkUpdate()
-        {
-            //if (ConnectedToServer)
-            //{
-
-            //}
-        }
-
-        private void ReceivePingFromHost()
-        {
-            //TODO calc buffer size
         }
 
         private void HandlePlayerPresentationConfigChanged(OverridableAvatarAppearance overridableAvatarAppearance)
@@ -290,11 +364,6 @@ namespace VE2.NonCore.Platform.Internal
 
             if (_playerService != null)
                 _playerService.OnOverridableAvatarAppearanceChanged -= HandlePlayerPresentationConfigChanged;
-        }
-
-        void IPlatformServiceInternal.RequestInstanceAllocation(string worldFolderName, string instanceSuffix, string versionNumber)
-        {
-            RequestInstanceAllocation(worldFolderName, instanceSuffix, versionNumber);
         }
     }
 

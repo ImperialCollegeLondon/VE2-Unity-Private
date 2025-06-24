@@ -24,9 +24,8 @@ namespace VE2.Core.Tests
         {
             //create the handheld adjustable
             LinearAdjustableService linearAdjustable = new(
-                Substitute.For<ITransformWrapper>(),
                 new List<IHandheldInteractionModule>(),
-                new LinearAdjustableConfig(),
+                new LinearAdjustableConfig(Substitute.For<ITransformWrapper>(), Substitute.For<ITransformWrapper>()),
                 new AdjustableState(),
                 new GrabbableState(),
                 "debug",

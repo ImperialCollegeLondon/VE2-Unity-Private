@@ -178,9 +178,9 @@ MonoBehaviour:
       EmitValueOnStart: 1
       IncrementPerScrollTick: 0.1
     RotationalAdjustableServiceConfig:
-      AdjustmentType: 2
-      AdjustmentProperty: 1
-      NumberOfValues: 15
+      AdjustmentAxis: 2
+      AdjustmentType: 1
+      NumberOfDiscreteValues: 1
       MinimumSpatialValue: 0
       MaximumSpatialValue: 360
     GrabbableStateConfig:
@@ -217,7 +217,7 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-    rangedAdjustableInteractionConfig:
+    RangedAdjustableInteractionConfig:
       InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
@@ -249,12 +249,13 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-      AttachPoint: {fileID: 347726672164685230}
-      VrFailsafeGrab: 1
-      VRRaySnapRange: 0.15
+      _attachPoint: {fileID: 347726672164685230}
+      VRRaySnap: 1
+      VRRaySnapRangeFrontOfHand: 0.15
       VRRaySnapRangeBackOfHand: 0.1
-      failsafeGrabMultiplier: 1.2
-      TransformToAdjust: {fileID: 1451031503474687077}
+      VRFailsafeGrab: 1
+      FailsafeGrabMultiplier: 1.2
+      _transformToAdjust: {fileID: 1451031503474687077}
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
@@ -263,6 +264,8 @@ MonoBehaviour:
       IsNetworked: 1
       TransmissionFrequency: 1
       TransmissionType: 0
+  _adjustableState:
+    IsInitialised: 0
 --- !u!1 &6153300702953961962
 GameObject:
   m_ObjectHideFlags: 0

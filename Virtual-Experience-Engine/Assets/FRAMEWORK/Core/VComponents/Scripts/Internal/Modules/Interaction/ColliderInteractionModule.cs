@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using VE2.Core.VComponents.API;
+using VE2.Core.VComponents.Shared;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -14,7 +15,7 @@ namespace VE2.Core.VComponents.Internal
 
     internal class ColliderInteractionModule : GeneralInteractionModule, ICollideInteractionModule
     {
-        public bool IsNetworked => _syncConfig.IsNetworked;
+        public bool IsNetworked => _syncConfig != null && _syncConfig.IsNetworked;
 
         public event Action<InteractorID> OnCollideEnter;
         public event Action<InteractorID> OnCollideExit;
@@ -25,9 +26,9 @@ namespace VE2.Core.VComponents.Internal
 
         public string ID { get; }
         private CollideInteractionType _collideInteractionType;
-        private readonly HoldActivatablePlayerSyncIndicator _syncConfig;
+        private readonly WorldStateSyncConfig _syncConfig;
 
-        public ColliderInteractionModule(CollisionClickInteractionConfig collClickConfig, GeneralInteractionConfig generalConfig, HoldActivatablePlayerSyncIndicator syncConfig, string id) : base(generalConfig)
+        public ColliderInteractionModule(CollisionClickInteractionConfig collClickConfig, GeneralInteractionConfig generalConfig, WorldStateSyncConfig syncConfig, string id) : base(generalConfig)
         {
             ID = id;
             _collideInteractionType = collClickConfig.ClickWithCollisionInVR
@@ -36,7 +37,7 @@ namespace VE2.Core.VComponents.Internal
             _syncConfig = syncConfig;
         }
 
-        public ColliderInteractionModule(CollideInteractionType collideInteractionType, GeneralInteractionConfig generalConfig, HoldActivatablePlayerSyncIndicator syncConfig, string id) : base(generalConfig)
+        public ColliderInteractionModule(CollideInteractionType collideInteractionType, GeneralInteractionConfig generalConfig, WorldStateSyncConfig syncConfig, string id) : base(generalConfig)
         {
             ID = id;
             _collideInteractionType = collideInteractionType;
