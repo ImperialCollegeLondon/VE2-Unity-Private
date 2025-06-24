@@ -26,7 +26,7 @@ namespace VE2.Core.Player.Internal
                 //ProcessUIHover(raycastHit.collider.gameObject);
                 Button button = GetUIButton(raycastHit);
                 IScrollableUI scrollableUI = GetScrollableUI(raycastHit);
-                
+
                 if (button != null)
                 {
                     result = new(null, button, null, raycastHit.distance, true, raycastHit.point);
@@ -121,7 +121,7 @@ namespace VE2.Core.Player.Internal
 
                 if (closestRangedGrabInteractionProvider != null)
                 {
-                    result = new(closestRangedGrabInteractionProvider.RangedInteractionModule, null, null ,closestDistance, true, closestHitPoint);
+                    result = new(closestRangedGrabInteractionProvider.RangedInteractionModule, null, null, closestDistance, true, closestHitPoint);
                 }
                 else
                 {
@@ -156,7 +156,7 @@ namespace VE2.Core.Player.Internal
 
             return null;
         }
-        
+
         private IScrollableUI GetScrollableUI(RaycastHit hit)
         {
             PointerEventData pointerData = new PointerEventData(EventSystem.current);
@@ -172,7 +172,23 @@ namespace VE2.Core.Player.Internal
             foreach (var result in results)
             {
                 if (result.gameObject.TryGetComponent(out IScrollableUI scrollableUI))
+                {
+                    scrollableUI.isHoveringOverScrollbar = false; // Reset the flag for the new hover
                     return scrollableUI;
+                }
+                else if (result.gameObject.TryGetComponent(out Scrollbar scrollbar))
+                {
+                    while (scrollbar.transform.parent != null)
+                    {
+                        if (scrollbar.transform.parent.TryGetComponent(out IScrollableUI parentScrollableUI))
+                        {
+                            parentScrollableUI.isHoveringOverScrollbar = true; // Set the flag to indicate hovering over scrollbar
+                            return parentScrollableUI;
+                        }
+
+                        scrollbar = scrollbar.transform.parent.GetComponent<Scrollbar>();
+                    }
+                }
             }
 
             return null;

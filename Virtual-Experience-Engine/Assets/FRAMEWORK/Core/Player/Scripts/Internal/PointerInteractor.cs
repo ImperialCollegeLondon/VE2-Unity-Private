@@ -7,6 +7,7 @@ using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.Player.API;
 using VE2.Core.UI.API;
+using VE2.Core.UI.Internal;
 using VE2.Core.VComponents.API;
 
 namespace VE2.Core.Player.Internal
@@ -55,6 +56,7 @@ namespace VE2.Core.Player.Internal
         protected const float MAX_RAYCAST_DISTANCE = 30;
         protected const float MAX_SPHERECAST_RADIUS = 10;
         protected IRangedInteractionModule _CurrentHoveringInteractable;
+        protected IScrollableUI _CurrentlySelectedScrollableUI;
         protected IRangedClickInteractionModule _CurrentHoveringClickInteractable => _CurrentHoveringInteractable as IRangedClickInteractionModule;
         protected IRangedGrabInteractionModule _CurrentGrabbingGrabbable;
 
@@ -157,6 +159,7 @@ namespace VE2.Core.Player.Internal
             RaycastResultWrapper sphereCastResultWrapper = GetSphereCastResult(); // for 2D interactor, this will be null
 
             IRangedInteractionModule previousHoveringInteractable = _CurrentHoveringInteractable;
+            IScrollableUI previousScrollableUI = _CurrentlySelectedScrollableUI;
 
             //Update the current hovering interactable, as long as we're not waiting for id, and it's not a grabbable that we were previously hovering over
             if (_LocalClientIDWrapper.IsClientIDReady && !(previousHoveringInteractable is IRangedGrabInteractionModule previousRangedGrabInteractable && _CurrentGrabbingGrabbable == previousRangedGrabInteractable))
@@ -179,6 +182,13 @@ namespace VE2.Core.Player.Internal
                     previousHoldClickInteractable.ClickUp(_InteractorID);
                     _heldActivatableIDsAgainstNetworkFlags.Remove(previousHoldClickInteractable.ID);
                 }
+            }
+
+            if ((_CurrentlySelectedScrollableUI != null && _CurrentlySelectedScrollableUI != raycastResultWrapper.ScrollableUI) ||
+               (_CurrentlySelectedScrollableUI != null && !raycastResultWrapper.HitScrollableUI))
+            {
+                _CurrentlySelectedScrollableUI.OnScrollbarEndDrag();
+                _CurrentlySelectedScrollableUI = null;
             }
 
             //If we've started hovering over something, call enter hover
@@ -234,6 +244,11 @@ namespace VE2.Core.Player.Internal
                         _raycastHitDebug.Value = raycastResultWrapper.ScrollableUI.GameObject.name;
 
                         HandleHoverOverUIGameObject(raycastResultWrapper.ScrollableUI.GameObject);
+
+                        if (_CurrentlySelectedScrollableUI != null && _CurrentlySelectedScrollableUI == raycastResultWrapper.ScrollableUI)
+                        {
+                            _CurrentlySelectedScrollableUI.OnScrollbarDrag(raycastResultWrapper.HitPosition);
+                        }
                     }
 
                     SetInteractorState(isAllowedToInteract ? InteractorState.InteractionAvailable : InteractorState.InteractionLocked);
@@ -389,6 +404,11 @@ namespace VE2.Core.Player.Internal
             {
                 raycastResultWrapper.UIButton.onClick.Invoke();
             }
+            else if (raycastResultWrapper.HitScrollableUI && raycastResultWrapper.ScrollableUI.isHoveringOverScrollbar)
+            {
+                _CurrentlySelectedScrollableUI = raycastResultWrapper.ScrollableUI;
+                _CurrentlySelectedScrollableUI.OnScrollbarBeginDrag(raycastResultWrapper.HitPosition);
+            }
         }
 
         private void HandleRangedClickReleased()
@@ -400,6 +420,12 @@ namespace VE2.Core.Player.Internal
             {
                 _CurrentHoveringHoldClickInteractable.ClickUp(_InteractorID);
                 _heldActivatableIDsAgainstNetworkFlags.Remove(_CurrentHoveringHoldClickInteractable.ID);
+            }
+
+            if (_CurrentlySelectedScrollableUI != null)
+            {
+                _CurrentlySelectedScrollableUI.OnScrollbarEndDrag();
+                _CurrentlySelectedScrollableUI = null;
             }
         }
 
