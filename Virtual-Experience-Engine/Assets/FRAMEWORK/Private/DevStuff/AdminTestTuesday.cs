@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using VE2.Common.API;
@@ -6,22 +7,6 @@ using VE2.Core.VComponents.API;
 
 public class AdminTestTuesday : MonoBehaviour
 {
-    [SerializeField] private InterfaceReference<IV_LinearAdjustable> _linearAdjustable;
-
-    private void Example()
-    {
-        //Wiring up a listener programmatically
-        //_linearAdjustable.Interface.OnValueAdjusted.AddListener(HandleActivate);
-
-        //To activate the activatable programmatically
-        _linearAdjustable.Interface.SetValue(1f);
-    }
-
-    private void HandleActivate()
-    {
-        Debug.Log("Activatable was activated!");
-    }
-
     // Update is called once per frame
     void Update()
     {
@@ -40,6 +25,17 @@ public class AdminTestTuesday : MonoBehaviour
         else if (Keyboard.current.nKey.wasPressedThisFrame)
         {
             _pressurePlate.Interface.ToggleAlwaysActivated(false);
+        }
+
+        if (Keyboard.current.lKey.wasPressedThisFrame)
+        {
+            foreach (var generalInteractable in _generalInteractables)
+            {
+                if (generalInteractable.Interface is IV_GeneralInteractable interactable)
+                {
+                    interactable.AdminOnly = !interactable.AdminOnly;
+                }
+            }
         }
     }
 
@@ -98,5 +94,7 @@ public class AdminTestTuesday : MonoBehaviour
             Debug.Log("Client ID in instance: " + id);
         }
     }
-    
+
+    [SerializeField] private List<InterfaceReference<IV_GeneralInteractable>> _generalInteractables;
+    [SerializeField] private List<InterfaceReference<IV_ToggleActivatable>> _toggleActivatables;
 }
