@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using VE2.Core.UI.API;
 using VE2.Core.VComponents.API;
 
 namespace VE2.Core.Player.Internal
@@ -24,10 +25,15 @@ namespace VE2.Core.Player.Internal
             {
                 //ProcessUIHover(raycastHit.collider.gameObject);
                 Button button = GetUIButton(raycastHit);
+                IScrollableUI scrollableUI = GetScrollableUI(raycastHit);
 
                 if (button != null)
                 {
-                    result = new(null, button, raycastHit.distance, true, raycastHit.point);
+                    result = new(null, button, null, raycastHit.distance, true, raycastHit.point);
+                }
+                else if (scrollableUI != null)
+                {
+                    result = new(null, null, scrollableUI, raycastHit.distance, true, raycastHit.point);
                 }
                 else //Search up through the heirarchy looking for 
                 {
@@ -44,17 +50,17 @@ namespace VE2.Core.Player.Internal
 
                     if (rangedInteractionModuleProvider != null)
                     {
-                        result = new(rangedInteractionModuleProvider.RangedInteractionModule, null, raycastHit.distance, true, raycastHit.point);
+                        result = new(rangedInteractionModuleProvider.RangedInteractionModule, null, null, raycastHit.distance, true, raycastHit.point);
                     }
                     else
                     {
-                        result = new(null, null, raycastHit.distance, true, raycastHit.point);
+                        result = new(null, null, null, raycastHit.distance, true, raycastHit.point);
                     }
                 }
             }
             else
             {
-                result = new(null, null, maxRaycastDistance, false);
+                result = new(null, null, null, maxRaycastDistance, false);
             }
 
             return result;
@@ -87,9 +93,9 @@ namespace VE2.Core.Player.Internal
 
                     if (rangedGrabInteractionModuleProvider != null)
                     {
-                        if(!rangedGrabInteractionModuleProvider.RangedGrabInteractionModule.VrRaySnap)
+                        if (!rangedGrabInteractionModuleProvider.RangedGrabInteractionModule.VrRaySnap)
                             continue;
-                    
+
                         float VRRaySnapRange = rangedGrabInteractionModuleProvider.RangedGrabInteractionModule.VRRaySnapRange;
                         float VRRaySnapRangeBackOfHand = rangedGrabInteractionModuleProvider.RangedGrabInteractionModule.VRRaySnapRangeBackOfHand;
                         float GrabMultiplier = failsafeGrab ? rangedGrabInteractionModuleProvider.RangedGrabInteractionModule.FailsafeGrabMultiplier : 1f;
@@ -98,7 +104,7 @@ namespace VE2.Core.Player.Internal
                         float distanceFromGrabbable = Vector3.Distance(rayOrigin, grabbablePosition);
                         bool isOnPalm = Vector3.Angle(grabbablePosition - rayOrigin, palmDir) < 90f;
 
-                        if(distanceFromGrabbable > VRRaySnapRangeBackOfHand * GrabMultiplier && !isOnPalm)
+                        if (distanceFromGrabbable > VRRaySnapRangeBackOfHand * GrabMultiplier && !isOnPalm)
                             continue;
 
                         //check if facing the palm, the grabbable is within the failsafe range
@@ -115,16 +121,16 @@ namespace VE2.Core.Player.Internal
 
                 if (closestRangedGrabInteractionProvider != null)
                 {
-                    result = new(closestRangedGrabInteractionProvider.RangedInteractionModule, null, closestDistance, true, closestHitPoint);
+                    result = new(closestRangedGrabInteractionProvider.RangedInteractionModule, null, null, closestDistance, true, closestHitPoint);
                 }
                 else
                 {
-                    result = new(null, null, maxRaycastDistance, true, closestHitPoint);
+                    result = new(null, null, null, maxRaycastDistance, true, closestHitPoint);
                 }
             }
             else
             {
-                result = new(null, null, maxRaycastDistance, false);
+                result = new(null, null, null, maxRaycastDistance, false);
             }
 
             return result;
@@ -150,6 +156,27 @@ namespace VE2.Core.Player.Internal
 
             return null;
         }
+
+        private IScrollableUI GetScrollableUI(RaycastHit hit)
+        {
+            PointerEventData pointerData = new PointerEventData(EventSystem.current);
+
+            // Convert the hit point to screen space
+            Camera camera = Camera.main; // Or assign your specific camera
+            pointerData.position = camera.WorldToScreenPoint(hit.point); // Convert to screen space
+
+            // Perform the raycast against the UI
+            List<RaycastResult> results = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(pointerData, results);
+
+            foreach (var result in results)
+            {
+                if (result.gameObject.TryGetComponent(out IScrollableUI scrollableUI))
+                    return scrollableUI;
+            }
+
+            return null;
+        }
     }
 
     internal class RaycastResultWrapper
@@ -157,6 +184,7 @@ namespace VE2.Core.Player.Internal
         public IRangedInteractionModule RangedInteractable { get; private set; }
         public IRangedInteractionModule RangedInteractableInRange => HitInteractableInRange ? RangedInteractable : null;
         public Button UIButton;
+        public IScrollableUI ScrollableUI;
         public float HitDistance { get; private set; }
         public Vector3 HitPosition { get; private set; }
         public bool HitAnything { get; private set; }
@@ -165,15 +193,16 @@ namespace VE2.Core.Player.Internal
         public bool HitInteractableInRange => HitInteractable && RangedInteractableIsInRange;
         public bool HitUIButton => UIButton != null;
         public bool RangedInteractableIsInRange => RangedInteractable != null && HitDistance <= RangedInteractable.InteractRange;
-        public bool HitScrollableInteractableInRange => HitInteractableInRange && RangedInteractable is IRangedAdjustableInteractionModule;
-        public bool HitScrollableUI => HitUIButton && false /*TODO: replace w/ && UIButton is IScrollableUI*/;
+        public bool HitScrollableAdjustableInteractableInRange => HitInteractableInRange && RangedInteractable is IRangedAdjustableInteractionModule;
+        public bool HitScrollableUI => ScrollableUI != null;
 
-        public RaycastResultWrapper(IRangedInteractionModule rangedInteractable, Button uiButton, float distance, bool hitAnything, Vector3 hitPosition = default)
+        public RaycastResultWrapper(IRangedInteractionModule rangedInteractable, Button uiButton, IScrollableUI scrollableUI, float distance, bool hitAnything, Vector3 hitPosition = default)
         {
             HitPosition = hitPosition;
             RangedInteractable = rangedInteractable;
             HitAnything = hitAnything;
             UIButton = uiButton;
+            ScrollableUI = scrollableUI;
             HitDistance = distance;
         }
     }

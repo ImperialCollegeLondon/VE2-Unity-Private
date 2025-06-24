@@ -713,6 +713,8 @@ MonoBehaviour:
       ShowTooltipsAndHighlight: 1
     SyncConfig:
       IsNetworked: 1
+      TransmissionFrequency: 1
+      TransmissionType: 0
 --- !u!82 &156166586812148999
 AudioSource:
   m_ObjectHideFlags: 0
@@ -3228,10 +3230,34 @@ MonoBehaviour:
       InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
-          m_Calls: []
+          m_Calls:
+          - m_Target: {fileID: 3417474296662324287}
+            m_TargetAssemblyTypeName: VE2.Common.Shared.V_LightTweener, VE2.Common.Shared
+            m_MethodName: GoToMax
+            m_Mode: 1
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
       OnLocalHoverExit:
         m_PersistentCalls:
-          m_Calls: []
+          m_Calls:
+          - m_Target: {fileID: 3417474296662324287}
+            m_TargetAssemblyTypeName: VE2.Common.Shared.V_LightTweener, VE2.Common.Shared
+            m_MethodName: GoToMin
+            m_Mode: 1
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
       _attachPoint: {fileID: 6670659566879035872}
       VRRaySnap: 1
       VRRaySnapRangeFrontOfHand: 0.15
@@ -3247,6 +3273,8 @@ MonoBehaviour:
       IsNetworked: 1
       TransmissionFrequency: 1
       TransmissionType: 0
+  _adjustableState:
+    IsInitialised: 0
 --- !u!1 &2215519737069941479
 GameObject:
   m_ObjectHideFlags: 0
@@ -3755,10 +3783,34 @@ MonoBehaviour:
       InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
-          m_Calls: []
+          m_Calls:
+          - m_Target: {fileID: 1143210139521439469}
+            m_TargetAssemblyTypeName: VE2.Common.Shared.V_LightTweener, VE2.Common.Shared
+            m_MethodName: GoToMax
+            m_Mode: 1
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
       OnLocalHoverExit:
         m_PersistentCalls:
-          m_Calls: []
+          m_Calls:
+          - m_Target: {fileID: 1143210139521439469}
+            m_TargetAssemblyTypeName: VE2.Common.Shared.V_LightTweener, VE2.Common.Shared
+            m_MethodName: GoToMin
+            m_Mode: 1
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
       _attachPoint: {fileID: 2724171156427777589}
       VRRaySnap: 1
       VRRaySnapRangeFrontOfHand: 0.15
@@ -3774,6 +3826,8 @@ MonoBehaviour:
       IsNetworked: 1
       TransmissionFrequency: 1
       TransmissionType: 0
+  _adjustableState:
+    IsInitialised: 0
 --- !u!1 &2495110589791976000
 GameObject:
   m_ObjectHideFlags: 0
@@ -4712,10 +4766,34 @@ MonoBehaviour:
       InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
-          m_Calls: []
+          m_Calls:
+          - m_Target: {fileID: 1030882439604534377}
+            m_TargetAssemblyTypeName: VE2.Common.Shared.V_LightTweener, VE2.Common.Shared
+            m_MethodName: GoToMax
+            m_Mode: 1
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
       OnLocalHoverExit:
         m_PersistentCalls:
-          m_Calls: []
+          m_Calls:
+          - m_Target: {fileID: 1030882439604534377}
+            m_TargetAssemblyTypeName: VE2.Common.Shared.V_LightTweener, VE2.Common.Shared
+            m_MethodName: GoToMin
+            m_Mode: 1
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
       _attachPoint: {fileID: 4451285031249582549}
       VRRaySnap: 1
       VRRaySnapRangeFrontOfHand: 0.15
@@ -4731,6 +4809,8 @@ MonoBehaviour:
       IsNetworked: 1
       TransmissionFrequency: 1
       TransmissionType: 0
+  _adjustableState:
+    IsInitialised: 0
 --- !u!1 &3240915991300950720
 GameObject:
   m_ObjectHideFlags: 0
@@ -6105,6 +6185,7 @@ MonoBehaviour:
     OnDeactivateMainMenu:
       m_PersistentCalls:
         m_Calls: []
+  _uiPanelsSetup: 0
 --- !u!1 &4647801973896393088
 GameObject:
   m_ObjectHideFlags: 0
@@ -6852,6 +6933,8 @@ MonoBehaviour:
       ShowTooltipsAndHighlight: 1
     SyncConfig:
       IsNetworked: 1
+      TransmissionFrequency: 1
+      TransmissionType: 0
   _collider: {fileID: 1963660859355256685}
 --- !u!65 &1963660859355256685
 BoxCollider:
@@ -8756,6 +8839,8 @@ MonoBehaviour:
       IsNetworked: 1
       TransmissionFrequency: 1
       TransmissionType: 0
+  _state:
+    IsInitialised: 0
   _collider: {fileID: 5871888969178367326}
 --- !u!65 &5871888969178367326
 BoxCollider:
@@ -10068,6 +10153,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4832776686e2e1f40b2d0ae7e7ddcc58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _config:
+    OnBecomeAdmin:
+      m_PersistentCalls:
+        m_Calls: []
+    OnLoseAdmin:
+      m_PersistentCalls:
+        m_Calls: []
 --- !u!114 &8412300393486540128
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10083,12 +10175,32 @@ MonoBehaviour:
   _connectOnStart: 1
   _connectionStateDebug:
     ConnectionState: 0
-  _debugServerSettings:
-    IpAddress: 127.0.0.1
-    Port: 4297
-    InstanceNumber: 00
-  _config:
-    _artificialAddedPingMs: 0
+  _instancingConfig:
+    InstanceServiceConfig:
+      OnConnectedToInstance:
+        m_PersistentCalls:
+          m_Calls: []
+      OnDisconnectedFromInstance:
+        m_PersistentCalls:
+          m_Calls: []
+      OnRemoteClientJoinedInstance:
+        m_PersistentCalls:
+          m_Calls: []
+      OnRemoteClientLeftInstance:
+        m_PersistentCalls:
+          m_Calls: []
+      OnBecomeHost:
+        m_PersistentCalls:
+          m_Calls: []
+      OnBecomeNonHost:
+        m_PersistentCalls:
+          m_Calls: []
+    DebugInstancingSettings:
+      IpAddress: 127.0.0.1
+      Port: 4297
+      InstanceNumber: 00
+      ArtificialLatencySettings:
+        ArtificialAddedPing: 0
 --- !u!1 &7482041528362074806
 GameObject:
   m_ObjectHideFlags: 0
