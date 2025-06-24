@@ -7,6 +7,9 @@ namespace VE2.Core.UI.Internal
     public class V_ScrollRect : ScrollRect, IScrollableUI
     {
         private Vector3 _initialDragPosition;
+
+        [SerializeField] private float _dragSensitivity = 2.5f; //Sensitivity for drag scrolling
+
         public void OnScrollUp()
         {
             if (vertical && verticalScrollbar != null)
@@ -58,11 +61,11 @@ namespace VE2.Core.UI.Internal
 
                 if (vertical && verticalScrollbar != null)
                 {
-                    verticalScrollbar.value += dragDelta.y * scrollSensitivity * 2.5f;
+                    verticalScrollbar.value += dragDelta.y * _dragSensitivity;
                 }
                 if (horizontal && horizontalScrollbar != null)
                 {
-                    horizontalScrollbar.value += dragDelta.x * scrollSensitivity * 2.5f;
+                    horizontalScrollbar.value += dragDelta.x * _dragSensitivity;
                 }
             }
         }
