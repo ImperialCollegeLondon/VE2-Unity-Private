@@ -7,8 +7,6 @@ namespace VE2.Core.UI.Internal
     public class V_ScrollRect : ScrollRect, IScrollableUI
     {
         private Vector3 _initialDragPosition;
-        public bool isHoveringOverScrollbar { get; set; } = false;
-
         public void OnScrollUp()
         {
             if (vertical && verticalScrollbar != null)
@@ -60,11 +58,11 @@ namespace VE2.Core.UI.Internal
 
                 if (vertical && verticalScrollbar != null)
                 {
-                    verticalScrollbar.value += dragDelta.y * scrollSensitivity * 2f;
+                    verticalScrollbar.value += dragDelta.y * scrollSensitivity * 2.5f;
                 }
                 if (horizontal && horizontalScrollbar != null)
                 {
-                    horizontalScrollbar.value += dragDelta.x * scrollSensitivity * 2f;
+                    horizontalScrollbar.value += dragDelta.x * scrollSensitivity * 2.5f;
                 }
             }
         }
@@ -73,7 +71,6 @@ namespace VE2.Core.UI.Internal
     public interface IScrollableUI
     {
         public GameObject GameObject => ((Component)this).gameObject;
-        public bool isHoveringOverScrollbar { get; set; }
         public void OnScrollUp();
         public void OnScrollDown();
         public void OnScrollLeft();

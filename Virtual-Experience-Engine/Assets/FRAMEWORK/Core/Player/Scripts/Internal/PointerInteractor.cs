@@ -217,7 +217,7 @@ namespace VE2.Core.Player.Internal
                 //If hovering over an interactable, handle interactor and hover=========
                 if (_LocalClientIDWrapper.IsClientIDReady && (raycastResultWrapper.HitScrollableUI || raycastResultWrapper.HitUIButton || raycastResultWrapper.HitInteractableInRange))
                 {
-                    if (raycastResultWrapper.HitInteractable)
+                    if (raycastResultWrapper.HitInteractable && _CurrentlySelectedScrollableUI == null)
                     {
                         isAllowedToInteract = !raycastResultWrapper.RangedInteractable.AdminOnly;
                         if (raycastResultWrapper.RangedInteractable is IRangedClickInteractionModule rangedClickInteraction && this is InteractorVR)
@@ -226,7 +226,7 @@ namespace VE2.Core.Player.Internal
                         _hoveringOverScrollableIndicator.IsHoveringOverScrollableObject = raycastResultWrapper.HitScrollableAdjustableInteractableInRange;
                         _raycastHitDebug.Value = raycastResultWrapper.RangedInteractable.ToString();
                     }
-                    else if (raycastResultWrapper.HitUIButton)
+                    else if (raycastResultWrapper.HitUIButton && _CurrentlySelectedScrollableUI == null)
                     {
                         isAllowedToInteract = raycastResultWrapper.UIButton.interactable;
                         _hoveringOverScrollableIndicator.IsHoveringOverScrollableObject = raycastResultWrapper.HitScrollableUI;
@@ -404,7 +404,7 @@ namespace VE2.Core.Player.Internal
             {
                 raycastResultWrapper.UIButton.onClick.Invoke();
             }
-            else if (raycastResultWrapper.HitScrollableUI && raycastResultWrapper.ScrollableUI.isHoveringOverScrollbar)
+            else if (raycastResultWrapper.HitScrollableUI)
             {
                 _CurrentlySelectedScrollableUI = raycastResultWrapper.ScrollableUI;
                 _CurrentlySelectedScrollableUI.OnScrollbarBeginDrag(raycastResultWrapper.HitPosition);

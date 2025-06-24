@@ -172,23 +172,7 @@ namespace VE2.Core.Player.Internal
             foreach (var result in results)
             {
                 if (result.gameObject.TryGetComponent(out IScrollableUI scrollableUI))
-                {
-                    scrollableUI.isHoveringOverScrollbar = false; // Reset the flag for the new hover
                     return scrollableUI;
-                }
-                else if (result.gameObject.TryGetComponent(out Scrollbar scrollbar))
-                {
-                    while (scrollbar.transform.parent != null)
-                    {
-                        if (scrollbar.transform.parent.TryGetComponent(out IScrollableUI parentScrollableUI))
-                        {
-                            parentScrollableUI.isHoveringOverScrollbar = true; // Set the flag to indicate hovering over scrollbar
-                            return parentScrollableUI;
-                        }
-
-                        scrollbar = scrollbar.transform.parent.GetComponent<Scrollbar>();
-                    }
-                }
             }
 
             return null;
