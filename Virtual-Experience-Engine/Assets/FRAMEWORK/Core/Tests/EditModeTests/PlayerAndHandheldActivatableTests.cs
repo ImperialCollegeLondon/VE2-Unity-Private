@@ -2,6 +2,7 @@ using NSubstitute;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.Player.Internal;
 using VE2.Core.VComponents.API;
