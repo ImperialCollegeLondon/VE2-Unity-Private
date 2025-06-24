@@ -61,7 +61,7 @@ namespace VE2.Core.VComponents.Internal
 
         //gets the vector from the object to the attach point, this will serve as the starting point for any angle created
         //needs to be the attach point at the start (0 not starting position) to get the correct angle
-        private Vector3 _initialVectorToHandle;
+        private Vector3 _initialVectorToHandle = Vector3.zero;
 
         private float _signedAngle = 0;
         private float _oldRotationalValue = 0;
@@ -74,6 +74,7 @@ namespace VE2.Core.VComponents.Internal
         {
             _config = config;
 
+            //needs the vector to the attachpoint at 0,0,0
             _initialVectorToHandle = _attachPointTransform.position - _transformToAdjust.position;
 
             _RangedAdjustableInteractionModule = new(id, grabInteractablesContainer, handheldInteractions, config.RangedAdjustableInteractionConfig, config.GeneralInteractionConfig);

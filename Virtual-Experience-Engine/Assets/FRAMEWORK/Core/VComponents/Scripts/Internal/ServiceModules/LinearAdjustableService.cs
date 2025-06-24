@@ -157,8 +157,8 @@ namespace VE2.Core.VComponents.Internal
             //convert the output value to spatial value
             float newSpatialValue = ConvertToSpatialValue(value);
 
-            if (newSpatialValue == _spatialValue)
-                return;
+            // if (newSpatialValue == _spatialValue)
+            //     return;
 
             _spatialValue = newSpatialValue;
 
