@@ -16,7 +16,7 @@ namespace VE2.Common.Shared
         private float timeOfLastAutosave;
         private bool isSubscribed = false;
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         private void OnEnable()
         {
             if (Application.isPlaying || isSubscribed)
@@ -41,17 +41,21 @@ namespace VE2.Common.Shared
             if (Application.isPlaying || EditorApplication.isPlayingOrWillChangePlaymode || !EditorApplication.isFocused)
                 return;
 
-            if (EditorApplication.timeSinceStartup - timeOfLastAutosave > (minutesBetweenAutosave * 60))
+            if (SceneManager.GetActiveScene().isDirty)
             {
-                if (SceneManager.GetActiveScene().isDirty)
+                if (EditorApplication.timeSinceStartup - timeOfLastAutosave > (minutesBetweenAutosave * 60))
                 {
                     Debug.Log($"[VE2 AutoSave] Saving scene: {SceneManager.GetActiveScene().name}");
                     timeOfLastAutosave = (float)EditorApplication.timeSinceStartup;
                     EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
                 }
             }
-        }
+            else
+            {
+                timeOfLastAutosave = (float)EditorApplication.timeSinceStartup;
+            }
 
-        #endif
+#endif
+        }
     }
 }
