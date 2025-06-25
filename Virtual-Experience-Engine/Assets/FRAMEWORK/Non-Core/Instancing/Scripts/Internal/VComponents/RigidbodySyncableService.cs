@@ -105,12 +105,13 @@ namespace VE2.NonCore.Instancing.Internal
         private void HandleOnDrop(ushort grabberClientID)
         {
             _currentGrabberID = null;
+            _rigidbody.isKinematic = _isKinematicOnStart;
+
 
             if (_isHost && _instanceService.LocalClientID == grabberClientID)
             {
-                // Host who dropped immediately starts sending messages again
-                HandleHostSideLagCompensation(_timeBehind/1000f);
-                //_hostNotSendingStates = false;
+                // Host who dropped does lag compensation process
+                HandleHostSideLagCompensation(_timeBehind / 1000f);
             }
             else if (_instanceService.LocalClientID == grabberClientID)
             {
@@ -195,6 +196,7 @@ namespace VE2.NonCore.Instancing.Internal
                 // Then do host smoothing
                 // Figure out which store states to interpolate between, and where in between those states
                 float interpolationValueAlongStoredStates = _storedHostLagCompensationStates.Count * (1 - (float)_hostSmoothingFramesLeft / LAG_COMP_SMOOTHING_FRAMES);
+
                 int indexOfStateToInterpolateFrom = (int)(interpolationValueAlongStoredStates);
 
                 float interpValueBetweenStates = interpolationValueAlongStoredStates - (float)indexOfStateToInterpolateFrom;

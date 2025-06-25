@@ -113,7 +113,7 @@ namespace VE2.Core.VComponents.Internal
                 _rigidbody.linearVelocity = Vector3.zero;
                 _rigidbody.angularVelocity = Vector3.zero;
             }
-
+            
             OnDropConfirmed?.Invoke(dropperClientID);
 
             if (_grabbableRigidbodyInterface.FreeGrabbableHandlesKinematics)
