@@ -268,7 +268,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4143099705724531768}
-  m_Mesh: {fileID: 8374443667465106047, guid: 26dd2801b508a1b46bde3ceb472fcc7c, type: 3}
+  m_Mesh: {fileID: -913831071814562905, guid: 26dd2801b508a1b46bde3ceb472fcc7c, type: 3}
 --- !u!23 &2060559120615284128
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -386,11 +386,8 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-      IsNetworked: 1
-    GeneralInteractionConfig:
-      AdminOnly: 0
-      EnableControllerVibrations: 1
-      ShowTooltipsAndHighlight: 1
+    CollisionClickInteractionConfig:
+      ClickWithCollisionInVR: 1
     ActivatableRangedInteractionConfig:
       InteractionRange: 5
       OnLocalHoverEnter:
@@ -447,7 +444,15 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-      ActivateAtRangeInVR: 1
+      ClickAtRangeInVR: 1
+    GeneralInteractionConfig:
+      AdminOnly: 0
+      EnableControllerVibrations: 1
+      ShowTooltipsAndHighlight: 1
+    SyncConfig:
+      IsNetworked: 1
+      TransmissionFrequency: 1
+      TransmissionType: 0
   _collider: {fileID: 903195033027267892}
 --- !u!65 &903195033027267892
 BoxCollider:
