@@ -466,7 +466,7 @@ namespace VE2.Core.Player.Internal
 
         protected virtual void CheckForExitInspectMode() { } //Do nothing, unless overridden by 2d interactor
 
-        // Try to do a local drop - doesn't override locked grab
+        // Try to do a local drop - notably doesn't override **locked** grab
         // Returns true if interactor is not grabbing (which may be the case if it wasn't grabbing in the first place)
         public bool TryLocalDrop()
         {

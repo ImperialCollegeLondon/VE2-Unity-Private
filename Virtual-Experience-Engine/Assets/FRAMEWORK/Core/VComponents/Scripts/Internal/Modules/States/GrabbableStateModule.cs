@@ -184,7 +184,7 @@ namespace VE2.Core.VComponents.Internal
 
             if (interactor is ILocalInteractor interactorLocal)
             {
-                // If we're currently grabbing this object, should return true
+                // If we're currently grabbing this object with the requested interactor, should return true = "this object is now grabbed"
                 if (interactorLocal.IsCurrentlyGrabbing && _state.IsGrabbed && _state.MostRecentInteractingInteractorID.Equals(interactorID))
                 {
                     return true;
