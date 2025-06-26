@@ -241,7 +241,7 @@ namespace VE2.Core.Player.Internal
                 {
                     if (raycastResultWrapper.HitInteractable && _CurrentlySelectedScrollableUI == null)
                     {
-                        isAllowedToInteract = IsInteractableAllowed(raycastResultWrapper.RangedInteractable);
+                        isAllowedToInteract = IsInteractableAllowed(raycastResultWrapper.RangedInteractable) && raycastResultWrapper.RangedInteractable.IsInteractable;
                         if (raycastResultWrapper.RangedInteractable is IRangedClickInteractionModule rangedClickInteraction && this is InteractorVR)
                             isAllowedToInteract &= rangedClickInteraction.ActivateAtRangeInVR;
 
