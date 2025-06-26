@@ -20,10 +20,13 @@ namespace VE2.Core.Tests
         [SetUp]
         public void SetUpBeforeEveryTest()
         {
+            GameObjectIDWrapper idWrapper = new();
+            idWrapper.ID = "debug";
+
             PressurePlateService pressurePlateService = new(
                 new PressurePlateConfig(),
                 new MultiInteractorActivatableState(),
-                "debug",
+                idWrapper,
                 LocalClientIDWrapperSetup.LocalClientIDWrapper);
 
             _v_pressurePlateProviderStub = new(pressurePlateService);

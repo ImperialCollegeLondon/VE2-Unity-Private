@@ -18,7 +18,7 @@ namespace VE2.NonCore.Instancing.Internal
         #endregion
     }
 
-    internal partial class V_NetworkObject : MonoBehaviour
+    internal partial class V_NetworkObject : BaseSyncableVComponent
     {
         [SerializeField, HideLabel, IgnoreParent] private NetworkObjectStateConfig _config = new();
         [SerializeField, HideInInspector] private NetworkObjectState _state = new();
@@ -39,7 +39,9 @@ namespace VE2.NonCore.Instancing.Internal
             if (!Application.isPlaying || _service != null)
                 return;
 
-            string id = "NetObj-" + gameObject.name;
+            //string id = "NetObj-" + gameObject.name;
+            _idWrapper = new();
+            _vComponentID = "NetObj-";
 
             if (VE2API.InstanceService == null)
             {
@@ -47,11 +49,12 @@ namespace VE2.NonCore.Instancing.Internal
                 return;
             }
 
-            _service = new NetworkObjectService(_config, _state, id, VE2API.WorldStateSyncableContainer);
+            _service = new NetworkObjectService(_config, _state, _idWrapper, VE2API.WorldStateSyncableContainer);
         }
 
-        private void FixedUpdate()
+        protected override void FixedUpdate()
         {
+            base.FixedUpdate();
             _service?.HandleFixedUpdate();
         }
 

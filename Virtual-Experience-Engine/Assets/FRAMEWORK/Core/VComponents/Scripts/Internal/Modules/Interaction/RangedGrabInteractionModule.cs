@@ -57,20 +57,20 @@ namespace VE2.Core.VComponents.Internal
         public float FailsafeGrabMultiplier => _rangedGrabInteractionConfig.FailsafeGrabMultiplier;
 
         private bool _hasRegisteredWitGrabInteractablesContainer = false;
+        private string _id;
 
-        private readonly string _id;
         private readonly IGrabInteractablesContainer _grabInteractablesContainer;
         private readonly RangedGrabInteractionConfig _rangedGrabInteractionConfig;
+        private readonly IGameObjectIDWrapper _idWrapper;
 
         //TODO: Figure out the attach point, don't really want to inject it as a separate param if it's already in the config...
 
         public RangedGrabInteractionModule(IGameObjectIDWrapper id, IGrabInteractablesContainer grabInteractablesContainer, List<IHandheldInteractionModule> handheldInteractions,
             RangedGrabInteractionConfig grabInteractionConfig, GeneralInteractionConfig generalInteractionConfig) : base(grabInteractionConfig, generalInteractionConfig)
         {
-            _id = id;
+            _idWrapper = id;
             HandheldInteractions = handheldInteractions;
             _grabInteractablesContainer = grabInteractablesContainer;
-            _grabInteractablesContainer.RegisterGrabInteractable(this, id);
             _rangedGrabInteractionConfig = grabInteractionConfig;
         }
 
@@ -87,7 +87,24 @@ namespace VE2.Core.VComponents.Internal
         ///    if (!_hasRegisteredWitGrabInteractablesContainer && ID.HasBeenSetup)
         ///    
         /// */
+        public void HandleFixedUpdate()
+        {
+            // Ensure the ID has been set up before attempting registration  
+            if (!_idWrapper.HasBeenSetup)
+            {
+                Debug.LogWarning($"[{GetType().Name}] ID NEVER SETUP OOOOOOOO.");
+                return;
+            }
 
+            // Register with the container if not already registered  
+            if (!_hasRegisteredWitGrabInteractablesContainer)
+            {
+                _id = _idWrapper.ID;
+                Debug.Log($"[{GetType().Name}] Registering with ID: {_id} in GrabInteractablesContainer.");
+                _grabInteractablesContainer.RegisterGrabInteractable(this, _id);
+                _hasRegisteredWitGrabInteractablesContainer = true;
+            }
+        }
         public void RequestLocalGrab(InteractorID interactorID)
         {
             //Debug.Log("RequestLocalGrab - " + interactorID.InteractorType);
@@ -101,7 +118,7 @@ namespace VE2.Core.VComponents.Internal
 
         public void TearDown()
         {
-            _grabInteractablesContainer.DeregisterGrabInteractable(_id);
+            _grabInteractablesContainer.DeregisterGrabInteractable(_idWrapper);
         }
     }
 }

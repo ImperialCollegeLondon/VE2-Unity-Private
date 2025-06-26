@@ -26,4 +26,5 @@ using UnityEngine;
     {
         [SerializeField] public bool HasBeenSetup { get; set; } = false;
         [SerializeField] public string ID { get; set; } = null;
-    }
+        public GameObjectIDWrapper() { }
+}

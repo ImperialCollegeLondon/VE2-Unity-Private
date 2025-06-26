@@ -9,6 +9,7 @@ namespace VE2.Core.VComponents.API
     {
         public void RequestLocalGrab(InteractorID interactorID);
         public void RequestLocalDrop(InteractorID interactorID);
+        public void HandleFixedUpdate();
         public List<IHandheldInteractionModule> HandheldInteractions { get; }
         public ITransformWrapper AttachPoint { get; }
         public bool VrRaySnap { get; }

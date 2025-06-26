@@ -29,7 +29,7 @@ namespace VE2.Core.VComponents.Internal
         #endregion
     }
 
-    internal partial class V_PressurePlate : MonoBehaviour, IV_PressurePlate, ICollideInteractionModuleProvider
+    internal partial class V_PressurePlate : BaseSyncableVComponent, IV_PressurePlate, ICollideInteractionModuleProvider
     {
         [SerializeField, IgnoreParent] private PressurePlateConfig _config = new();
         [SerializeField, HideInInspector] private MultiInteractorActivatableState _state = new();
@@ -54,12 +54,16 @@ namespace VE2.Core.VComponents.Internal
             if (!Application.isPlaying || _service != null)
                 return;
 
-            string id = "PressurePlate-" + gameObject.name;
-            _service = new PressurePlateService(_config, _state, id, VE2API.LocalClientIdWrapper);
+            //string id = "PressurePlate-" + gameObject.name;
+            _idWrapper = new();
+            _vComponentID = "PressurePlate-";
+
+            _service = new PressurePlateService(_config, _state, _idWrapper, VE2API.LocalClientIdWrapper);
         }
 
-        private void FixedUpdate()
+        protected override void FixedUpdate()
         {
+            base.FixedUpdate();
             _service.HandleFixedUpdate();
         }
 

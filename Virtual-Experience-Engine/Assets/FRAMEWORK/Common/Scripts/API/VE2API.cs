@@ -283,7 +283,7 @@ namespace VE2.Common.API
     {
         Dictionary<string, IRangedGrabInteractionModule> GrabInteractables { get; }
         void RegisterGrabInteractable(IRangedGrabInteractionModule grabInteractable, string id);
-        void DeregisterGrabInteractable(string id);
+        void DeregisterGrabInteractable(IGameObjectIDWrapper id);
     }
 
     internal class GrabInteractablesContainer : IGrabInteractablesContainer
@@ -302,9 +302,9 @@ namespace VE2.Common.API
             //TODO - show more descritive error if this happens - see WorldStateSyncableContainer
         }
 
-        public void DeregisterGrabInteractable(string id)
+        public void DeregisterGrabInteractable(IGameObjectIDWrapper id)
         {
-            GrabInteractables.Remove(id);
+            GrabInteractables.Remove(id.ID);
         }
     }
 

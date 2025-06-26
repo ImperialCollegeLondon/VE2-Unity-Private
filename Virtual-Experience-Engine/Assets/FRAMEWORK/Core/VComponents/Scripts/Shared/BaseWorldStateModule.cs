@@ -48,7 +48,6 @@ namespace VE2.Core.VComponents.Shared
             GameObjectIDWrapper = id;
             State = state;
             _SyncConfig = config;
-
             _worldStateModulesContainer =  worldStateModulesContainer;
 
             //If we're networked, wait until FixedUpdate to register 

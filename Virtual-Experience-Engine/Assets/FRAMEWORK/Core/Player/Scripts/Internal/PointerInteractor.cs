@@ -478,12 +478,12 @@ namespace VE2.Core.Player.Internal
 
         protected virtual void CheckForExitInspectMode() { } //Do nothing, unless overridden by 2d interactor
 
-        public void ConfirmGrab(string id)
-
+        public void ConfirmGrab(IGameObjectIDWrapper id)
         {
-            if (!_grabInteractablesContainer.GrabInteractables.TryGetValue(id, out IRangedGrabInteractionModule rangedGrabInteractable))
+
+            if (!_grabInteractablesContainer.GrabInteractables.TryGetValue(id.ID, out IRangedGrabInteractionModule rangedGrabInteractable))
             {
-                Debug.LogError($"Failed to confirm grab, could not find grabbable with id {id}");
+                Debug.LogError($"Failed to confirm grab, could not find grabbable with id {id.ID}");
                 return;
             }
 

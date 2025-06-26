@@ -1,3 +1,4 @@
+using Org.BouncyCastle.Crypto;
 using System;
 using System.IO;
 using UnityEngine;
@@ -57,11 +58,12 @@ namespace VE2.Core.VComponents.Internal
         internal float Range => (MaximumOutputValue - MinimumOutputValue) + 1; //TODO - why +1 here?
 
         internal event Action<float> OnValueChangedInternal;
+        private IGameObjectIDWrapper _idWrapper;
 
         private readonly AdjustableStateConfig _adjustableStateConfig;
         private readonly IClientIDWrapper _localClientIdWrapper;
 
-        public AdjustableStateModule(VE2Serializable state, AdjustableStateConfig adjustableStateConfig, WorldStateSyncConfig syncConfig, string id, IWorldStateSyncableContainer worldStateSyncableContainer, IClientIDWrapper localClientIdWrapper) 
+        public AdjustableStateModule(VE2Serializable state, AdjustableStateConfig adjustableStateConfig, WorldStateSyncConfig syncConfig, IGameObjectIDWrapper id, IWorldStateSyncableContainer worldStateSyncableContainer, IClientIDWrapper localClientIdWrapper) 
             : base(state, syncConfig, id, worldStateSyncableContainer)
         {
             _adjustableStateConfig = adjustableStateConfig;
@@ -69,6 +71,7 @@ namespace VE2.Core.VComponents.Internal
             if (_adjustableStateConfig.EmitValueOnStart)
                 InvokeOnValueAdjustedEvents(_state.Value);
 
+            _idWrapper = id;
             _adjustableStateConfig.InspectorDebug.OnDebugUpdateStatePressed += SetOutputValue;
             _adjustableStateConfig.InspectorDebug.Value = _state.Value;
             _adjustableStateConfig.InspectorDebug.ClientID = _state.MostRecentInteractingClientID;

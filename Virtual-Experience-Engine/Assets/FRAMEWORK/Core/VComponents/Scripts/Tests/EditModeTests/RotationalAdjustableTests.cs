@@ -23,12 +23,18 @@ namespace VE2.Core.VComponents.Tests
         public void SetUpBeforeEveryTest()
         {
             //create the handheld adjustable
+            GameObjectIDWrapper idWrapper = new();
+            idWrapper.ID = "debug";
+
+            GameObjectIDWrapper idWrapperAdjustable = new();
+            idWrapper.ID = "debug";
             RotationalAdjustableService rotationalAdjustable = new(
                 new List<IHandheldInteractionModule>(),
                 new RotationalAdjustableConfig(Substitute.For<ITransformWrapper>(), Substitute.For<ITransformWrapper>()),
                 new AdjustableState(),
                 new GrabbableState(),
-                "debug",
+                idWrapper,
+                idWrapperAdjustable,
                 Substitute.For<IWorldStateSyncableContainer>(),
                 Substitute.For<IGrabInteractablesContainer>(),
                 new HandInteractorContainer(),

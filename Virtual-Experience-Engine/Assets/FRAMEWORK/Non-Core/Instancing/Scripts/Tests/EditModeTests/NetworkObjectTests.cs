@@ -21,7 +21,9 @@ namespace VE2.NonCore.Instancing.VComponents.Tests
         {
             //Arrange=========
             //  Create the NetworkObjectService, injecting default configs 
-            NetworkObjectService networkObjectService = new( new NetworkObjectStateConfig(), new NetworkObjectState(), "test", Substitute.For<IWorldStateSyncableContainer>());
+            GameObjectIDWrapper idWrapper = new();
+            idWrapper.ID = "test";
+            NetworkObjectService networkObjectService = new( new NetworkObjectStateConfig(), new NetworkObjectState(), idWrapper, Substitute.For<IWorldStateSyncableContainer>());
             //  Create a stub for the VC
             V_NetworkObjectStub v_networkObjectStub = new(networkObjectService);
             //  Get the plugin-facing interface out of the VC 

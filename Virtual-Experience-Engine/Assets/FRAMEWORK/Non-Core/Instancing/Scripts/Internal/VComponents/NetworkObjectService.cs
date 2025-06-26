@@ -14,7 +14,7 @@ namespace VE2.NonCore.Instancing.Internal
         private readonly NetworkObjectStateModule _StateModule;
         #endregion
 
-        public NetworkObjectService(NetworkObjectStateConfig config, VE2Serializable state, string id, IWorldStateSyncableContainer worldStateSyncableContainer)
+        public NetworkObjectService(NetworkObjectStateConfig config, VE2Serializable state, IGameObjectIDWrapper id, IWorldStateSyncableContainer worldStateSyncableContainer)
         {
             _StateModule = new(state, config, id, worldStateSyncableContainer);
         }

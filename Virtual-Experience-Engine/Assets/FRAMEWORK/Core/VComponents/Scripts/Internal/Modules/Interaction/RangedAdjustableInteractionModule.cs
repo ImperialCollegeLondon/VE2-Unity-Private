@@ -37,7 +37,7 @@ namespace VE2.Core.VComponents.Internal
         //TODO - parent class exposes this, likely don't need this here
         public ITransformWrapper Transform { get; }
 
-        public RangedAdjustableInteractionModule(string id, IGrabInteractablesContainer grabInteractablesContainer,
+        public RangedAdjustableInteractionModule(IGameObjectIDWrapper id, IGrabInteractablesContainer grabInteractablesContainer,
             List<IHandheldInteractionModule> handheldModules, RangedGrabInteractionConfig rangedGrabInteractionConfig, GeneralInteractionConfig generalInteractionConfig)
                 : base(id, grabInteractablesContainer, handheldModules, rangedGrabInteractionConfig, generalInteractionConfig)
         {

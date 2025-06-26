@@ -55,7 +55,7 @@ namespace VE2.NonCore.Instancing.Internal
         private uint _grabCounter = 0;
         #endregion
 
-        public RigidbodySyncableService(RigidbodySyncableStateConfig config, VE2Serializable state, string id, IWorldStateSyncableContainer worldStateSyncableContainer, 
+        public RigidbodySyncableService(RigidbodySyncableStateConfig config, VE2Serializable state, IGameObjectIDWrapper id, IWorldStateSyncableContainer worldStateSyncableContainer, 
             IInstanceService instanceService, IRigidbodyWrapper rigidbodyWrapper, IGrabbableRigidbody grabbableRigidbody)
         {
             _config = config;
@@ -65,7 +65,7 @@ namespace VE2.NonCore.Instancing.Internal
             _isKinematicOnStart = _rigidbody.isKinematic;
 
             if (grabbableRigidbody != null)
-            {
+            {   
                 _grabbableRigidbody = grabbableRigidbody;
                 _grabbableRigidbody.InternalOnGrab += HandleOnGrab;
                 _grabbableRigidbody.InternalOnDrop += HandleOnDrop;

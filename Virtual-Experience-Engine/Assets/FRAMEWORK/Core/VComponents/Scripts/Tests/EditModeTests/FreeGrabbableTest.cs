@@ -25,11 +25,14 @@ namespace VE2.Core.VComponents.Tests
             HandInteractorContainer interactorContainerStub = new();
             interactorContainerStub.RegisterInteractor(interactorID.ToString(), interactorStub);
 
+            GameObjectIDWrapper idWrapper = new();
+            idWrapper.ID = "debug";
+
             FreeGrabbableService freeGrabbable = new( 
                 new List<IHandheldInteractionModule>() {},
                 new FreeGrabbableConfig(Substitute.For<ITransformWrapper>()),
-                new GrabbableState(), 
-                "debug",
+                new GrabbableState(),
+                idWrapper,
                 Substitute.For<IWorldStateSyncableContainer>(),
                 Substitute.For<IGrabInteractablesContainer>(),
                 interactorContainerStub,

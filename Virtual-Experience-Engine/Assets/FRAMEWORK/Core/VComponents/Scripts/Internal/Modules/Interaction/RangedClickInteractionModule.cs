@@ -20,15 +20,15 @@ namespace VE2.Core.VComponents.Internal
             //only happens if is valid click
             OnClickDown?.Invoke(interactorID);
         }
-        public string ID { get; }
-
+        public string ID => IDWrapper.ID;
+        public IGameObjectIDWrapper IDWrapper;
         public bool ActivateAtRangeInVR { get; }
 
         public event Action<InteractorID> OnClickDown;
 
-        public RangedToggleClickInteractionModule(RangedInteractionConfig rangedConfig, GeneralInteractionConfig generalConfig, string id, bool activateAtRangeInVR) : base(rangedConfig, generalConfig)
+        public RangedToggleClickInteractionModule(RangedInteractionConfig rangedConfig, GeneralInteractionConfig generalConfig, IGameObjectIDWrapper id, bool activateAtRangeInVR) : base(rangedConfig, generalConfig)
         {
-            ID = id;
+            IDWrapper = id;
             ActivateAtRangeInVR = activateAtRangeInVR;
         }
     }

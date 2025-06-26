@@ -71,17 +71,18 @@ namespace VE2.Core.VComponents.Internal
 
         private MultiInteractorActivatableState _state = null;
         private HoldActivatableStateConfig _config = null;
-        private string _id = null;
+        private string _id => _idWrapper.ID;
+        private IGameObjectIDWrapper _idWrapper;
 
         private InteractorID _mostRecentInteractingInteractorID = new(ushort.MaxValue, InteractorType.None);
 
         private readonly IClientIDWrapper _localClientIdWrapper;
 
-        public MultiInteractorActivatableStateModule(MultiInteractorActivatableState state, HoldActivatableStateConfig config, string id, IClientIDWrapper localClientIdWrapper)
+        public MultiInteractorActivatableStateModule(MultiInteractorActivatableState state, HoldActivatableStateConfig config, IGameObjectIDWrapper id, IClientIDWrapper localClientIdWrapper)
         {
             _state = state;
             _config = config;
-            _id = id;
+            _idWrapper = id;
             _localClientIdWrapper = localClientIdWrapper;
         }
 

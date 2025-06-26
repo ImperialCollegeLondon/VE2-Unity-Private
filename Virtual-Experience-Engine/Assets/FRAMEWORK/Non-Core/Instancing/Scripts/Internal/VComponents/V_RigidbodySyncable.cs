@@ -12,7 +12,7 @@ namespace VE2.NonCore.Instancing.Internal
         //No plugin-facing interfaces here (yet)
     }
 
-    internal partial class V_RigidbodySyncable : MonoBehaviour
+    internal partial class V_RigidbodySyncable : BaseSyncableVComponent
     {
         [SerializeField, HideLabel, IgnoreParent] private RigidbodySyncableStateConfig _config = new();
         [SerializeField, HideInInspector] private RigidbodySyncableState _state = new();
@@ -37,7 +37,10 @@ namespace VE2.NonCore.Instancing.Internal
             if (!Application.isPlaying || _service != null)
                 return;
 
-            string id = "RBS-" + gameObject.name;
+            //string id = "RBS-" + gameObject.name;
+            _idWrapper = new();
+            _vComponentID = "RBS-";
+
             IRigidbodyWrapper rigidbodyWrapper = new RigidbodyWrapper(GetComponent<Rigidbody>());
             IGrabbableRigidbody grabbableRigidbody = GetComponent<IGrabbableRigidbody>();
 
@@ -47,12 +50,13 @@ namespace VE2.NonCore.Instancing.Internal
                 return;
             }
 
-            _service = new RigidbodySyncableService(_config, _state, id, VE2API.WorldStateSyncableContainer, VE2API.InstanceService, rigidbodyWrapper, grabbableRigidbody);
+            _service = new RigidbodySyncableService(_config, _state, _idWrapper, VE2API.WorldStateSyncableContainer, VE2API.InstanceService, rigidbodyWrapper, grabbableRigidbody);
         }
 
 
-        private void FixedUpdate()
+        protected override void FixedUpdate()
         {
+            base.FixedUpdate();
             _service?.HandleFixedUpdate();
         }
 

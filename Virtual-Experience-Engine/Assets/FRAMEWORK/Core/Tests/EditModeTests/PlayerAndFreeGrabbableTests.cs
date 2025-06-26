@@ -20,15 +20,18 @@ namespace VE2.Core.Tests
         private IRangedGrabInteractionModuleProvider _grabbableRaycastInterface => _v_freeGrabbableProviderStub;
         private V_FreeGrabbableProviderStub _v_freeGrabbableProviderStub;
         private PluginGrabbableScript _customerScript;
+        private GameObjectIDWrapper idWrapper = new();
 
         [SetUp]
         public void SetUpBeforeEveryTest()
-        {           
+        {            
+            idWrapper.ID = "debug";
+
             FreeGrabbableService freeGrabbable = new( 
                 new List<IHandheldInteractionModule>() {},
                 new FreeGrabbableConfig(),
                 new GrabbableState(), 
-                "debug",
+                idWrapper,
                 Substitute.For<IWorldStateSyncableContainer>(),
                 GrabInteractableContainerSetup.GrabInteractableContainer,
                 InteractorContainerSetup.InteractorContainer,
@@ -52,6 +55,8 @@ namespace VE2.Core.Tests
             //Stub out the raycast provider to hit the activatable GO with 0 range
             RayCastProviderSetup.StubRangedInteractionModuleForRaycast(_grabbableRaycastInterface.RangedGrabInteractionModule);
 
+            //Manually Register GrabInteractable as this is handled in fixed update
+            GrabInteractableContainerSetup.GrabInteractableContainer.RegisterGrabInteractable(_grabbableRaycastInterface.RangedGrabInteractionModule, idWrapper.ID);
             //Invoke grab, check customer received the grab, and that the interactorID is set
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
             _customerScript.Received(1).HandleGrabReceived();
@@ -71,6 +76,9 @@ namespace VE2.Core.Tests
         public void OnUser_WhenNotHoveringOverGrabbable_GrabsFailsafeGrabbable()
         {
             RayCastProviderSetup.StubRangedInteractionModuleForSpherecastAll(_grabbableRaycastInterface.RangedGrabInteractionModule);
+
+            //Manually Register GrabInteractable as this is handled in fixed update
+            GrabInteractableContainerSetup.GrabInteractableContainer.RegisterGrabInteractable(_grabbableRaycastInterface.RangedGrabInteractionModule, idWrapper.ID);
 
             PlayerInputContainerSetup.PlayerInputContainerStub.ChangeMode.OnPressed += Raise.Event<Action>();
             Assert.IsTrue(PlayerService.IsVRMode, "Player should be in VR mode");

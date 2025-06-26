@@ -73,7 +73,7 @@ namespace VE2.Core.VComponents.Internal
         private readonly ActivatableGroupsContainer _activatableGroupsContainer;
         private readonly IClientIDWrapper _localClientIdWrapper;
 
-        public SingleInteractorActivatableStateModule(VE2Serializable state, ToggleActivatableStateConfig toggleActivatableStateConfig, WorldStateSyncConfig syncConfig, string id, IWorldStateSyncableContainer worldStateSyncableContainer, 
+        public SingleInteractorActivatableStateModule(VE2Serializable state, ToggleActivatableStateConfig toggleActivatableStateConfig, WorldStateSyncConfig syncConfig, IGameObjectIDWrapper id, IWorldStateSyncableContainer worldStateSyncableContainer, 
             ActivatableGroupsContainer activatableGroupsContainer, IClientIDWrapper localClientIdWrapper) : base(state, syncConfig, id, worldStateSyncableContainer)
         {
             _toggleActivatableStateConfig = toggleActivatableStateConfig;

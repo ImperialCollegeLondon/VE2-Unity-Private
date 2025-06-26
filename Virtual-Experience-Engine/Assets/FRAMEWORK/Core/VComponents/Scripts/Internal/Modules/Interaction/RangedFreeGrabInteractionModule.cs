@@ -51,7 +51,7 @@ namespace VE2.Core.VComponents.Internal
             OnInspectModeExit?.Invoke();
         }
 
-        public RangedFreeGrabInteractionModule(string id, IGrabInteractablesContainer grabInteractablesContainer, List<IHandheldInteractionModule> handheldInteractions,
+        public RangedFreeGrabInteractionModule(IGameObjectIDWrapper id, IGrabInteractablesContainer grabInteractablesContainer, List<IHandheldInteractionModule> handheldInteractions,
             RangedFreeGrabInteractionConfig rangedFreeGrabInteractionConfig, GeneralInteractionConfig generalInteractionConfig)
             : base(id, grabInteractablesContainer, handheldInteractions, rangedFreeGrabInteractionConfig, generalInteractionConfig)
         {

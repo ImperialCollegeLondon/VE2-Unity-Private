@@ -87,7 +87,7 @@ namespace VE2.Core.VComponents.Internal
 
         private readonly LinearAdjustableConfig _config;
 
-        public LinearAdjustableService(List<IHandheldInteractionModule> handheldInteractions, LinearAdjustableConfig config, AdjustableState adjustableState, VE2Serializable grabbableState, string id,
+        public LinearAdjustableService(List<IHandheldInteractionModule> handheldInteractions, LinearAdjustableConfig config, AdjustableState adjustableState, VE2Serializable grabbableState, IGameObjectIDWrapper id, IGameObjectIDWrapper adjustableStateIDWrapper,
             IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer, IClientIDWrapper localClientIdWrapper)
         {
             _config = config;
@@ -95,9 +95,9 @@ namespace VE2.Core.VComponents.Internal
             _RangedAdjustableInteractionModule = new(id, grabInteractablesContainer, handheldInteractions, config.RangedAdjustableInteractionConfig, config.GeneralInteractionConfig);
 
             //seperate modules for adjustable state and free grabbable state. Give the adjustable state module a different ID so it doesn't clash in the syncer with the grabbable state module
-            //The Grabbable state module needs the same ID that is passed to the ranged adjustable interaction module, so the interactor can pull the module from the grab interactable container
-            _AdjustableStateModule = new(adjustableState, config.AdjustableStateConfig, config.SyncConfig, $"ADJ-{id}", worldStateSyncableContainer, localClientIdWrapper);
-            _GrabbableStateModule = new(grabbableState, config.GrabbableStateConfig, config.SyncConfig, $"{id}", worldStateSyncableContainer, interactorContainer, localClientIdWrapper);
+            //The Grabbable state module needs the same ID that is passed to the ranged adjustable interaction module, so the interactor can pull the module from the grab interactable containe
+            _AdjustableStateModule = new(adjustableState, config.AdjustableStateConfig, config.SyncConfig, adjustableStateIDWrapper, worldStateSyncableContainer, localClientIdWrapper);
+            _GrabbableStateModule = new(grabbableState, config.GrabbableStateConfig, config.SyncConfig, id, worldStateSyncableContainer, interactorContainer, localClientIdWrapper);
 
             _RangedAdjustableInteractionModule.OnLocalInteractorRequestGrab += (InteractorID interactorID) => _GrabbableStateModule.SetGrabbed(interactorID);
             _RangedAdjustableInteractionModule.OnLocalInteractorRequestDrop += (InteractorID interactorID) => _GrabbableStateModule.SetDropped(interactorID);

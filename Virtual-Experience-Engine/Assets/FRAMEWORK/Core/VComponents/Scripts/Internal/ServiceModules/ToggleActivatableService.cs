@@ -37,7 +37,7 @@ namespace VE2.Core.VComponents.Internal
         private readonly ColliderInteractionModule _ColliderInteractionModule;
         #endregion
 
-        public ToggleActivatableService(ToggleActivatableConfig config, SingleInteractorActivatableState state, string id, IWorldStateSyncableContainer worldStateSyncableContainer,
+        public ToggleActivatableService(ToggleActivatableConfig config, SingleInteractorActivatableState state, IGameObjectIDWrapper id, IWorldStateSyncableContainer worldStateSyncableContainer,
             ActivatableGroupsContainer activatableGroupsContainer, IClientIDWrapper localClientIdWrapper)
         {
             _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, activatableGroupsContainer, localClientIdWrapper);

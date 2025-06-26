@@ -23,10 +23,13 @@ namespace VE2.Core.VComponents.Tests
         public void SetUpBeforeEveryTest()
         {
             //create the handheld adjustable
+            GameObjectIDWrapper idWrapper = new();
+            idWrapper.ID = "debug";
+
             HandheldAdjustableService handheldAdjustable = new(
                 new HandheldAdjustableConfig(), 
-                new AdjustableState(), 
-                "debug", 
+                new AdjustableState(),
+                idWrapper, 
                 Substitute.For<IWorldStateSyncableContainer>(),
                 Substitute.For<IClientIDWrapper>());
 

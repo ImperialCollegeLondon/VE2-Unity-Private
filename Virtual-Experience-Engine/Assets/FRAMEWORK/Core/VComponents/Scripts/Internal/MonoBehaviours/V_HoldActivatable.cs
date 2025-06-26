@@ -7,7 +7,7 @@ using VE2.Core.VComponents.API;
 
 namespace VE2.Core.VComponents.Internal
 {
-    internal partial class V_HoldActivatable : MonoBehaviour, IV_HoldActivatable
+    internal partial class V_HoldActivatable : BaseSyncableVComponent, IV_HoldActivatable
     {
         #region State Module Interface
         internal IMultiInteractorActivatableStateModule _StateModule => _Service.StateModule;
@@ -33,7 +33,7 @@ namespace VE2.Core.VComponents.Internal
         #endregion
     }
 
-    internal partial class V_HoldActivatable : MonoBehaviour, IRangedInteractionModuleProvider, ICollideInteractionModuleProvider
+    internal partial class V_HoldActivatable : BaseSyncableVComponent, IRangedInteractionModuleProvider, ICollideInteractionModuleProvider
     {
         [SerializeField, IgnoreParent] private HoldActivatableConfig _config = new();
         [SerializeField, HideInInspector] private MultiInteractorActivatableState _state = new();
@@ -72,12 +72,16 @@ namespace VE2.Core.VComponents.Internal
             if (!Application.isPlaying || _service != null)
                 return;
 
-            string id = "HoldActivatable-" + gameObject.name;
-            _service = new HoldActivatableService(_config, _state, id, VE2API.LocalClientIdWrapper);
+            //string id = "HoldActivatable-" + gameObject.name;
+            _idWrapper = new();
+            _vComponentID = "HoldActivatable-";
+
+            _service = new HoldActivatableService(_config, _state, _idWrapper, VE2API.LocalClientIdWrapper);
         }
 
-        private void FixedUpdate()
+        protected override void FixedUpdate()
         {
+            base.FixedUpdate();
             _service.HandleFixedUpdate();
         }
 

@@ -26,6 +26,9 @@ namespace VE2.Core.VComponents.Tests
         {
             _activatableGroupsContainer.Reset();
 
+            GameObjectIDWrapper idWrapper = new();
+            idWrapper.ID = "debug";
+
             // Create the activatable with an activation group
             ToggleActivatableStateConfig stateConfig = new();
             stateConfig.ActivationGroupID = "testGroup";
@@ -39,7 +42,7 @@ namespace VE2.Core.VComponents.Tests
             ToggleActivatableService toggleActivatable = new(
                 config,
                 new SingleInteractorActivatableState(),
-                "debug",
+                idWrapper,
                 Substitute.For<IWorldStateSyncableContainer>(),
                 _activatableGroupsContainer,
                 Substitute.For<IClientIDWrapper>());
@@ -90,6 +93,9 @@ namespace VE2.Core.VComponents.Tests
         [Test]
         public void PushActivatableInActivationGroup_WhenActivated_DeactivatesOthersInGroup()
         {
+            GameObjectIDWrapper idWrapper = new();
+            idWrapper.ID = "debug2";
+
             // Setup a second ToggleActivatableService with the same activation group
             ToggleActivatableStateConfig stateConfig = new();
             stateConfig.ActivationGroupID = "testGroup";
@@ -103,7 +109,7 @@ namespace VE2.Core.VComponents.Tests
             ToggleActivatableService toggleActivatable2 = new(
                 config,
                 new SingleInteractorActivatableState(),
-                "debug2",
+                idWrapper,
                 Substitute.For<IWorldStateSyncableContainer>(),
                 _activatableGroupsContainer,
                 Substitute.For<IClientIDWrapper>());

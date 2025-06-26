@@ -114,12 +114,13 @@ namespace VE2.Core.VComponents.Internal
                 return;
 
             //string id = "FreeGrabbable-" + gameObject.name;
-            GameObjectIDWrapper idWrapper = new();
+            _idWrapper = new();
+            _vComponentID = "FreeGrabbable-";
 
             if (_config.RangedFreeGrabInteractionConfig.AttachPointWrapper == null || ((TransformWrapper)_config.RangedFreeGrabInteractionConfig.AttachPointWrapper).Transform == null)
             {
                 _config.RangedFreeGrabInteractionConfig.AttachPointWrapper = new TransformWrapper(transform);
-                Debug.LogWarning($"The adjustable on {gameObject.name} does not have an assigned AttachPoint, and so may not behave as intended");
+                Debug.LogWarning($"The grabbable on {gameObject.name} does not have an assigned AttachPoint, and so may not behave as intended");
             }
 
             List<IHandheldInteractionModule> handheldInteractions = new();
@@ -135,7 +136,7 @@ namespace VE2.Core.VComponents.Internal
                 handheldInteractions,
                 _config,
                 _state,
-                idWrapper,
+                _idWrapper,
                 VE2API.WorldStateSyncableContainer,
                 VE2API.GrabInteractablesContainer,
                 VE2API.InteractorContainer,
@@ -151,6 +152,7 @@ namespace VE2.Core.VComponents.Internal
         protected override void FixedUpdate()
         {
             base.FixedUpdate();
+            _service?.RangedGrabInteractionModule.HandleFixedUpdate();
             _service?.HandleFixedUpdate();
         }
 

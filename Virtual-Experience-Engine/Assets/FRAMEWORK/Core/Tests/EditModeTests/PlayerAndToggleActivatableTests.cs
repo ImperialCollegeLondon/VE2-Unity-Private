@@ -33,7 +33,7 @@ namespace VE2.Core.Tests
 
         #region Setup & Helper Methods
 
-        private (V_ToggleActivatableProviderStub provider, PluginActivatableScript script) CreateActivatable(string debugLabel)
+        private (V_ToggleActivatableProviderStub provider, PluginActivatableScript script) CreateActivatable(IGameObjectIDWrapper debugLabel)
         {
             var config = new ToggleActivatableConfig
             {
@@ -74,13 +74,19 @@ namespace VE2.Core.Tests
         {
             _activatableGroupsContainer = new ActivatableGroupsContainer();
 
+            GameObjectIDWrapper idWrapper = new();
+            idWrapper.ID = "debug";
+
+            GameObjectIDWrapper idWrapper2 = new();
+            idWrapper.ID = "debug2";
+
             // Initialize first activatable
-            var first = CreateActivatable("debug");
+            var first = CreateActivatable(idWrapper);
             _v_activatableProviderStub = first.provider;
             _customerScript = first.script;
 
             // Initialize second activatable
-            var second = CreateActivatable("debug2");
+            var second = CreateActivatable(idWrapper2);
             _v_activatableProviderStub2 = second.provider;
             _customerScript2 = second.script;
         }

@@ -6,7 +6,7 @@ namespace VE2.Common.Shared
     internal interface IInteractor
     {
         public ITransformWrapper GrabberTransformWrapper { get; }
-        public void ConfirmGrab(string id);
+        public void ConfirmGrab(IGameObjectIDWrapper id);
         public void ConfirmDrop();
     }
 }

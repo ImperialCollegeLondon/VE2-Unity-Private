@@ -31,7 +31,7 @@ namespace VE2.Core.VComponents.Internal
     }
 
     [RequireComponent(typeof(V_FreeGrabbable))]
-    internal partial class V_HandheldAdjustable : MonoBehaviour
+    internal partial class V_HandheldAdjustable : BaseSyncableVComponent
     {
         [SerializeField, HideLabel, IgnoreParent] private HandheldAdjustableConfig _config = new();
         [SerializeField, HideInInspector] private AdjustableState _state = null;
@@ -56,15 +56,19 @@ namespace VE2.Core.VComponents.Internal
             if (!Application.isPlaying || _service != null)
                 return;
 
-            string id = "HHAdjustable-" + gameObject.name;
+            //string id = "HHAdjustable-" + gameObject.name;
+            _idWrapper = new();
+            _vComponentID = "HHAdjustable-";
+
             if (_state == null)
                 _state = new AdjustableState(float.MaxValue);
 
-            _service = new(_config, _state, id, VE2API.WorldStateSyncableContainer, VE2API.LocalClientIdWrapper);
+            _service = new(_config, _state, _idWrapper, VE2API.WorldStateSyncableContainer, VE2API.LocalClientIdWrapper);
         }
 
-        private void FixedUpdate()
+        protected override void FixedUpdate()
         {
+            base.FixedUpdate();
             _service.HandleFixedUpdate();
         }
 

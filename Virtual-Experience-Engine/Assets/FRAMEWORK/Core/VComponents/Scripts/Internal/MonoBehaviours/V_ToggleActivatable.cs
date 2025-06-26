@@ -38,7 +38,7 @@ namespace VE2.Core.VComponents.Internal
     }
 
     [ExecuteAlways]
-    internal partial class V_ToggleActivatable : MonoBehaviour, IRangedInteractionModuleProvider, ICollideInteractionModuleProvider
+    internal partial class V_ToggleActivatable : BaseSyncableVComponent, IRangedInteractionModuleProvider, ICollideInteractionModuleProvider
     {
         internal ToggleActivatableConfig Config { get => _config; set { _config = value; }}
         [SerializeField, IgnoreParent] private ToggleActivatableConfig _config = new();
@@ -87,12 +87,16 @@ namespace VE2.Core.VComponents.Internal
             if (!Application.isPlaying || _service != null)
                 return;
 
-            string id = "Activatable-" + gameObject.name;
-            _service = new ToggleActivatableService(_config, _state, id, VE2API.WorldStateSyncableContainer, VComponentsAPI.ActivatableGroupsContainer, VE2API.LocalClientIdWrapper);
+            //string id = "Activatable-" + gameObject.name;
+            _idWrapper = new();
+            _vComponentID = "Activatable-";
+
+            _service = new ToggleActivatableService(_config, _state, _idWrapper, VE2API.WorldStateSyncableContainer, VComponentsAPI.ActivatableGroupsContainer, VE2API.LocalClientIdWrapper);
         }
 
-        private void FixedUpdate()
+        protected override void FixedUpdate()
         {
+            base.FixedUpdate();
             _service?.HandleFixedUpdate();
         }
 

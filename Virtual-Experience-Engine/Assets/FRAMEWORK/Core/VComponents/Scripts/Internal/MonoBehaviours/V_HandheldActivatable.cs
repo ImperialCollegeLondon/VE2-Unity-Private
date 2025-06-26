@@ -34,7 +34,7 @@ namespace VE2.Core.VComponents.Internal
     }
 
     [RequireComponent(typeof(V_FreeGrabbable))]
-    internal partial class V_HandheldActivatable : MonoBehaviour
+    internal partial class V_HandheldActivatable : BaseSyncableVComponent
     {
         [SerializeField, HideLabel, IgnoreParent] private HandheldActivatableConfig _config = new();
         [SerializeField, HideInInspector] private SingleInteractorActivatableState _state = new();
@@ -58,18 +58,21 @@ namespace VE2.Core.VComponents.Internal
         {
             if (!Application.isPlaying || _service != null)
                 return;
+            _idWrapper = new();
+            _vComponentID = "HHActivatable-";
 
             IV_FreeGrabbable grabbable = null;
 
             if (TryGetComponent(out V_FreeGrabbable freeGrabbable))
                 grabbable = freeGrabbable;
 
-            string id = "HHActivatable-" + gameObject.name;
-            _service = new(grabbable, _config, _state, id, VE2API.WorldStateSyncableContainer, VComponentsAPI.ActivatableGroupsContainer, VE2API.LocalClientIdWrapper);
+            //string id = "HHActivatable-" + gameObject.name;
+            _service = new(grabbable, _config, _state, _idWrapper, VE2API.WorldStateSyncableContainer, VComponentsAPI.ActivatableGroupsContainer, VE2API.LocalClientIdWrapper);
         }
 
-        private void FixedUpdate()
+        protected override void FixedUpdate()
         {
+            base.FixedUpdate();
             _service?.HandleFixedUpdate();
         }
 

@@ -25,7 +25,7 @@ namespace VE2.NonCore.Instancing.Internal
         private NetworkObjectState _state => (NetworkObjectState)State;
         private NetworkObjectStateConfig _config => (NetworkObjectStateConfig)_SyncConfig;
 
-        public NetworkObjectStateModule(VE2Serializable state, WorldStateSyncConfig config, string id, IWorldStateSyncableContainer worldStateSyncableContainer) 
+        public NetworkObjectStateModule(VE2Serializable state, WorldStateSyncConfig config, IGameObjectIDWrapper id, IWorldStateSyncableContainer worldStateSyncableContainer) 
             : base(state, config, id, worldStateSyncableContainer) {}
 
         private void SerializeNetworkObject(object unserializedNetworkObject)

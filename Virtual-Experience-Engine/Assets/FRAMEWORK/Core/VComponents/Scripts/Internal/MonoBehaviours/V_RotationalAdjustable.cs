@@ -57,11 +57,13 @@ namespace VE2.Core.VComponents.Internal
         #endregion
     }
 
-    internal partial class V_RotationalAdjustable : MonoBehaviour, IRangedGrabInteractionModuleProvider
+    internal partial class V_RotationalAdjustable : BaseSyncableVComponent, IRangedGrabInteractionModuleProvider
     {
         [SerializeField, IgnoreParent] private RotationalAdjustableConfig _config = new();
         [SerializeField, HideInInspector] private AdjustableState _adjustableState = null;
         [SerializeField, HideInInspector] private GrabbableState _freeGrabbableState = new();
+
+        private GameObjectIDWrapper _adjustableIdWrapper = new();
 
         #region Player Interfaces
         IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _Service.RangedAdjustableInteractionModule;
@@ -106,7 +108,11 @@ namespace VE2.Core.VComponents.Internal
             if (!Application.isPlaying || _service != null)
                 return;
 
-            string id = "RotationalAdjustable-" + gameObject.name;
+            //string id = "RotationalAdjustable-" + gameObject.name;
+            _idWrapper = new();
+            _vComponentID = "RotationalAdjustable-";
+
+            _adjustableIdWrapper = new();
 
             if (_config.RangedAdjustableInteractionConfig.TransformToAdjust == null || ((TransformWrapper)_config.RangedAdjustableInteractionConfig.TransformToAdjust).Transform == null)
             {
@@ -136,15 +142,22 @@ namespace VE2.Core.VComponents.Internal
                 _config,
                 _adjustableState,
                 _freeGrabbableState,
-                id,
+                _idWrapper,
+                _adjustableIdWrapper,
                 VE2API.WorldStateSyncableContainer,
                 VE2API.GrabInteractablesContainer,
                 VE2API.InteractorContainer,
                 VE2API.LocalClientIdWrapper);
         }
 
-        private void FixedUpdate()
+        protected override void FixedUpdate()
         {
+            base.FixedUpdate();
+            if (!_adjustableIdWrapper.HasBeenSetup)
+            {
+                _adjustableIdWrapper.ID = $"ADJ-{_vComponentID} + {gameObject.name}";
+                _adjustableIdWrapper.HasBeenSetup = true;
+            }
             _service.HandleFixedUpdate();
         }
 

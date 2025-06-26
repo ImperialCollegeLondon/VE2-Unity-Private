@@ -88,7 +88,7 @@ namespace VE2.NonCore.Instancing.Internal
             _interactorContainer.DeregisterInteractor(_interactorID.ToString());
         }
 
-        public void ConfirmGrab(string id)
+        public void ConfirmGrab(IGameObjectIDWrapper id)
         {
             //TODO: hide
         }

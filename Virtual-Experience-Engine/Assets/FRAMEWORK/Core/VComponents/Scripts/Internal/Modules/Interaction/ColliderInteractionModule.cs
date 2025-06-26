@@ -23,22 +23,24 @@ namespace VE2.Core.VComponents.Internal
         public void InvokeOnCollideEnter(InteractorID id) => OnCollideEnter?.Invoke(id);
         public void InvokeOnCollideExit(InteractorID id) => OnCollideExit?.Invoke(id);
 
-        public string ID { get; }
+        public string ID => IDWrapper.ID;
+        public IGameObjectIDWrapper IDWrapper;
+
         private CollideInteractionType _collideInteractionType;
         private readonly HoldActivatablePlayerSyncIndicator _syncConfig;
 
-        public ColliderInteractionModule(CollisionClickInteractionConfig collClickConfig, GeneralInteractionConfig generalConfig, HoldActivatablePlayerSyncIndicator syncConfig, string id) : base(generalConfig)
+        public ColliderInteractionModule(CollisionClickInteractionConfig collClickConfig, GeneralInteractionConfig generalConfig, HoldActivatablePlayerSyncIndicator syncConfig, IGameObjectIDWrapper id) : base(generalConfig)
         {
-            ID = id;
+            IDWrapper = id;
             _collideInteractionType = collClickConfig.ClickWithCollisionInVR
                  ? CollideInteractionType.Hand
                  : CollideInteractionType.None;
             _syncConfig = syncConfig;
         }
 
-        public ColliderInteractionModule(CollideInteractionType collideInteractionType, GeneralInteractionConfig generalConfig, HoldActivatablePlayerSyncIndicator syncConfig, string id) : base(generalConfig)
+        public ColliderInteractionModule(CollideInteractionType collideInteractionType, GeneralInteractionConfig generalConfig, HoldActivatablePlayerSyncIndicator syncConfig, IGameObjectIDWrapper id) : base(generalConfig)
         {
-            ID = id;
+            IDWrapper = id;
             _collideInteractionType = collideInteractionType;
             _syncConfig = syncConfig;
         }

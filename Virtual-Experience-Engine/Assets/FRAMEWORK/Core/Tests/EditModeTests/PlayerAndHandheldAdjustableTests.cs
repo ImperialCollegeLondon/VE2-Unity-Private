@@ -25,14 +25,17 @@ namespace VE2.Core.Tests
         private V_FreeGrabbableProviderStub _v_freeGrabbableStub;
 
         private PluginAdjustableScript _customerScript;
-
+        private GameObjectIDWrapper idWrapperHandHeldAdjustable = new();
+        private GameObjectIDWrapper idWrapperFreeGrabbable = new();
         [SetUp]
         public void SetUpBeforeEveryTest()
         {
             _handheldAdjustableConfig = new();
 
+            idWrapperHandHeldAdjustable.ID = "debug";
+
             //Create the activatable with above random values
-            HandheldAdjustableService handheldAdjustable = new(_handheldAdjustableConfig, new AdjustableState(), "debug", Substitute.For<IWorldStateSyncableContainer>(), LocalClientIDWrapperSetup.LocalClientIDWrapper);
+            HandheldAdjustableService handheldAdjustable = new(_handheldAdjustableConfig, new AdjustableState(), idWrapperHandHeldAdjustable, Substitute.For<IWorldStateSyncableContainer>(), LocalClientIDWrapperSetup.LocalClientIDWrapper);
 
             //Stub out the VC (provider layer) with the activatable
             _v_handheldAdjustableStub = new(handheldAdjustable);
@@ -41,12 +44,14 @@ namespace VE2.Core.Tests
             _customerScript = Substitute.For<PluginAdjustableScript>();
             _handheldAdjustablePluginInterface.OnValueAdjusted.AddListener((value) => _customerScript.HandleValueAdjusted(value));
 
+            idWrapperFreeGrabbable.ID = "debug";
+
             //Create the grabbable, with a link to the adjustable
             FreeGrabbableService freeGrabbable = new(
                 new List<IHandheldInteractionModule>() { _handheldAdjustablePlayerInterface },
                 new FreeGrabbableConfig(),
                 new GrabbableState(),
-                "debug",
+                idWrapperFreeGrabbable,
                 Substitute.For<IWorldStateSyncableContainer>(),
                 GrabInteractableContainerSetup.GrabInteractableContainer,
                 InteractorContainerSetup.InteractorContainer,
@@ -73,6 +78,9 @@ namespace VE2.Core.Tests
 
             //stub out the raycast result to return the grabbable's interaction module
             RayCastProviderSetup.StubRangedInteractionModuleForRaycast(_grabbableRaycastInterface.RangedGrabInteractionModule);
+
+            //Manually Register GrabInteractable as this is handled in fixed update
+            GrabInteractableContainerSetup.GrabInteractableContainer.RegisterGrabInteractable(_grabbableRaycastInterface.RangedGrabInteractionModule, idWrapperFreeGrabbable.ID);
 
             //Invoke grab, check customer received the grab, and that the interactorID is set
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();

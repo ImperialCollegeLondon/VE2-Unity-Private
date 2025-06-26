@@ -48,7 +48,7 @@ namespace VE2.Core.VComponents.Internal
         private readonly HandheldAdjustableServiceConfig  _handheldAdjustableServiceConfig;
         private readonly AdjustableStateConfig  _adjustableStateConfig;
 
-        public HandheldAdjustableService(HandheldAdjustableConfig config, AdjustableState state, string id, IWorldStateSyncableContainer worldStateSyncableContainer, IClientIDWrapper localClientIdWrapper)
+        public HandheldAdjustableService(HandheldAdjustableConfig config, AdjustableState state, IGameObjectIDWrapper id, IWorldStateSyncableContainer worldStateSyncableContainer, IClientIDWrapper localClientIdWrapper)
         {
             _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, localClientIdWrapper);
             _HandheldScrollInteractionModule = new(config.GeneralInteractionConfig);

@@ -30,7 +30,7 @@ namespace VE2.Core.VComponents.Internal
         private readonly ColliderInteractionModule _ColliderInteractionModule;
         #endregion
 
-        public PressurePlateService(PressurePlateConfig config, MultiInteractorActivatableState state, string id, IClientIDWrapper localClientIdWrapper)
+        public PressurePlateService(PressurePlateConfig config, MultiInteractorActivatableState state, IGameObjectIDWrapper id, IClientIDWrapper localClientIdWrapper)
         {
             _StateModule = new(state, config.StateConfig, id, localClientIdWrapper);
             _ColliderInteractionModule = new(CollideInteractionType.Feet, config.GeneralInteractionConfig, config.SyncConfig, id);

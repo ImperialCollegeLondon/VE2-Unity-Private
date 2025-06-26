@@ -26,7 +26,7 @@ namespace VE2.NonCore.Instancing.Internal
         private RigidbodySyncableState _state => (RigidbodySyncableState)State;
         private RigidbodySyncableStateConfig _config => (RigidbodySyncableStateConfig)_SyncConfig;
 
-        public RigidbodySyncableStateModule(VE2Serializable state, WorldStateSyncConfig config, string id, IWorldStateSyncableContainer worldStateSyncableContainer) :
+        public RigidbodySyncableStateModule(VE2Serializable state, WorldStateSyncConfig config, IGameObjectIDWrapper id, IWorldStateSyncableContainer worldStateSyncableContainer) :
             base(state, config, id, worldStateSyncableContainer)  { }
 
         protected override void UpdateBytes(byte[] newBytes)

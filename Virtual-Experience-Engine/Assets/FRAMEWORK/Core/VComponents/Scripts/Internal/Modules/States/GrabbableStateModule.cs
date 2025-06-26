@@ -51,7 +51,7 @@ namespace VE2.Core.VComponents.Internal
         internal event Action<ushort> OnGrabConfirmed;
         internal event Action<ushort> OnDropConfirmed;
 
-        public GrabbableStateModule(VE2Serializable state, GrabbableStateConfig grabbableStateConfig, WorldStateSyncConfig syncConfig, GameObjectIDWrapper id, IWorldStateSyncableContainer worldStateSyncableContainer, 
+        public GrabbableStateModule(VE2Serializable state, GrabbableStateConfig grabbableStateConfig, WorldStateSyncConfig syncConfig, IGameObjectIDWrapper id, IWorldStateSyncableContainer worldStateSyncableContainer, 
             HandInteractorContainer interactorContainer, IClientIDWrapper localClientIdWrapper) :
             base(state, syncConfig, id, worldStateSyncableContainer)
         {

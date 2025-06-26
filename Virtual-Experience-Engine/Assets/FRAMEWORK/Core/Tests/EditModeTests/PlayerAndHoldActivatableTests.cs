@@ -23,10 +23,13 @@ namespace VE2.Core.Tests
         [SetUp]
         public void SetUpBeforeEveryTest()
         {
+            GameObjectIDWrapper idWrapper = new();
+            idWrapper.ID = "debug";
+
             HoldActivatableService holdActivatableService = new(
                 new HoldActivatableConfig(),
                 new MultiInteractorActivatableState(),
-                "debug",
+                idWrapper,
                 LocalClientIDWrapperSetup.LocalClientIDWrapper);
 
             _v_holdActivatableProviderStub = new(holdActivatableService);

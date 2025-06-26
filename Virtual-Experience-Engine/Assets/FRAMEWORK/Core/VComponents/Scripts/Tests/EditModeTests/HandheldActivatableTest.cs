@@ -24,12 +24,15 @@ namespace VE2.Core.VComponents.Tests
         [OneTimeSetUp]
         public void SetUpOnce()
         {
+            GameObjectIDWrapper idWrapper = new();
+            idWrapper.ID = "debug";
+
             //Create the activatable
             HandheldActivatableService handheldActivatable = new(
                 Substitute.For<IV_FreeGrabbable>(),
                 new HandheldActivatableConfig(), 
                 new SingleInteractorActivatableState(), 
-                "debug", 
+                idWrapper, 
                 Substitute.For<IWorldStateSyncableContainer>(),
                 new ActivatableGroupsContainer(),
                 Substitute.For<IClientIDWrapper>());
@@ -48,11 +51,14 @@ namespace VE2.Core.VComponents.Tests
                 GeneralInteractionConfig = new GeneralInteractionConfig()
             };
 
+            GameObjectIDWrapper idWrapperHold = new();
+            idWrapper.ID = "debug";
+
             HandheldActivatableService handheldActivatableHold = new(
                 Substitute.For<IV_FreeGrabbable>(),
                 handheldActivatableConfig,
                 new SingleInteractorActivatableState(),
-                "debug",
+                idWrapperHold,
                 Substitute.For<IWorldStateSyncableContainer>(),
                 new ActivatableGroupsContainer(),
                 Substitute.For<IClientIDWrapper>());

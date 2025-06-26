@@ -37,6 +37,10 @@ namespace VE2.Core.Tests
 
         private PluginActivatableScript _customerScript2;
 
+       private GameObjectIDWrapper idWrapperTestHandHeldActivatable = new();
+       private GameObjectIDWrapper idWrapperTestGrabbable = new();
+       private GameObjectIDWrapper idWrapperTestHoldActivatable = new();
+       private GameObjectIDWrapper idWrapperTestGrabbable2 = new();
         [SetUp]
         public void SetUpBeforeEveryTest()
         {
@@ -46,13 +50,19 @@ namespace VE2.Core.Tests
             //Stub out provider layer
             _v_freeGrabbableProviderStub = new();
 
+            
+            idWrapperTestHandHeldActivatable.ID ="testHandHeldActivatable";
+            idWrapperTestGrabbable.ID = "testGrabbable";
+            idWrapperTestHoldActivatable.ID = "testHoldActivatable";
+            idWrapperTestGrabbable2.ID = "testGrabbable2";
+
 
             //Create the activatable with default values
             HandheldActivatableService handheldActivatable = new(
                 _v_freeGrabbableProviderStub,
                 new HandheldActivatableConfig(), 
-                new SingleInteractorActivatableState(), 
-                "testHandHeldActivatable", 
+                new SingleInteractorActivatableState(),
+                idWrapperTestHandHeldActivatable, 
                 Substitute.For<IWorldStateSyncableContainer>(),
                 new ActivatableGroupsContainer(),
                 LocalClientIDWrapperSetup.LocalClientIDWrapper);
@@ -64,7 +74,7 @@ namespace VE2.Core.Tests
                 new List<IHandheldInteractionModule>() { _handheldActivatablePlayerInterface },
                 new FreeGrabbableConfig(),
                 new GrabbableState(),
-                "testGrabbable",
+                idWrapperTestGrabbable,
                 Substitute.For<IWorldStateSyncableContainer>(),
                 GrabInteractableContainerSetup.GrabInteractableContainer,
                 InteractorContainerSetup.InteractorContainer,
@@ -97,7 +107,7 @@ namespace VE2.Core.Tests
                 _v_freeGrabbable2ProviderStub,
                 handheldActivatableConfig,
                 new SingleInteractorActivatableState(),
-                "testHoldActivatable",
+                idWrapperTestHoldActivatable,
                 Substitute.For<IWorldStateSyncableContainer>(),
                 new ActivatableGroupsContainer(),
                 LocalClientIDWrapperSetup.LocalClientIDWrapper);
@@ -108,7 +118,7 @@ namespace VE2.Core.Tests
                 new List<IHandheldInteractionModule>() { _handheldHoldActivatablePlayerInterface },
                 new FreeGrabbableConfig(),
                 new GrabbableState(),
-                "testGrabbable2",
+                idWrapperTestGrabbable2,
                 Substitute.For<IWorldStateSyncableContainer>(),
                 GrabInteractableContainerSetup.GrabInteractableContainer,
                 InteractorContainerSetup.InteractorContainer,
@@ -143,6 +153,9 @@ namespace VE2.Core.Tests
             _handheldActivatablePluginInterface.OnActivate.AddListener(pluginScriptMock.HandleActivateReceived);
             _handheldActivatablePluginInterface.OnDeactivate.AddListener(pluginScriptMock.HandleDeactivateReceived);
 
+            //Manually Register GrabInteractable as this is handled in fixed update
+            GrabInteractableContainerSetup.GrabInteractableContainer.RegisterGrabInteractable(_grabbableRaycastInterface.RangedGrabInteractionModule, idWrapperTestGrabbable.ID);
+
             //Invoke grab, check customer received the grab, and that the interactorID is set
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
             Assert.IsTrue(_grabbablePluginInterface.IsGrabbed);
@@ -176,6 +189,9 @@ namespace VE2.Core.Tests
             PluginActivatableScript pluginScriptMock = Substitute.For<PluginActivatableScript>();
             _handheldHoldActivatablePluginInterface.OnActivate.AddListener(pluginScriptMock.HandleActivateReceived);
             _handheldHoldActivatablePluginInterface.OnDeactivate.AddListener(pluginScriptMock.HandleDeactivateReceived);
+
+            //Manually Register GrabInteractable as this is handled in fixed update
+            GrabInteractableContainerSetup.GrabInteractableContainer.RegisterGrabInteractable(_grabbable2RaycastInterface.RangedGrabInteractionModule, idWrapperTestGrabbable2.ID);
 
             // Simulate the grab input event.
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();

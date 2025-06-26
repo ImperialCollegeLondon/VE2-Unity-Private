@@ -105,9 +105,7 @@ namespace VE2.NonCore.Instancing.Internal
                 goName = "spawnedGameobject" + numberOfSpawnedgameobjects;
 
             GameObject newGO = Instantiate(_gameobjectToSpawn, _spawnPosition.position, _spawnPosition.rotation);
-            newGO.SetActive(false);
             newGO.name = goName;
-            newGO.SetActive(true);
             gameobjectsAgainstIDs.Add(goName, newGO);
 
             if (restrictNumberOfObjects && gameobjectsAgainstIDs.Count >= maxNumberOfObjects)

@@ -14,7 +14,7 @@ namespace VE2.Core.VComponents.Internal
 
         //TODO: activateAtRangeInVR should be wrapped in a config class
         public RangedHoldClickInteractionModule(RangedInteractionConfig rangedConfig, GeneralInteractionConfig generalConfig, HoldActivatablePlayerSyncIndicator syncConfig,
-            string id, bool activateAtRangeInVR) : base(rangedConfig, generalConfig, id, activateAtRangeInVR)
+            IGameObjectIDWrapper id, bool activateAtRangeInVR) : base(rangedConfig, generalConfig, id, activateAtRangeInVR)
         {
             _syncConfig = syncConfig;
         }
