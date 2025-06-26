@@ -15,8 +15,6 @@ namespace VE2.Core.Common
             string asmdefName = "PluginAssemblyYOUR_PLUGIN_NAME";
             string folderPath = "Assets/YOUR_PLUGIN_HERE";
 
-            Debug.Log(folderPath);
-
             if (!Directory.Exists(folderPath))
                 Directory.CreateDirectory(folderPath);
 
