@@ -125,7 +125,9 @@ namespace VE2.Core.VComponents.Internal
 
         public void HandleFixedUpdate()
         {
+            RangedGrabInteractionModule.HandleFixedUpdate();
             _StateModule.HandleFixedUpdate();
+
             if (_StateModule.IsGrabbed)
             {
                 TrackPosition(_StateModule.CurrentGrabbingInteractor.GrabberTransformWrapper.position);

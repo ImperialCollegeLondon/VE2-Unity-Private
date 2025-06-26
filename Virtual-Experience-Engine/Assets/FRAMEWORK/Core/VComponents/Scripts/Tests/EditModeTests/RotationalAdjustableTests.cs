@@ -27,7 +27,7 @@ namespace VE2.Core.VComponents.Tests
             idWrapper.ID = "debug";
 
             GameObjectIDWrapper idWrapperAdjustable = new();
-            idWrapper.ID = "debug";
+            idWrapperAdjustable.ID = "debugAdjustable";
             RotationalAdjustableService rotationalAdjustable = new(
                 new List<IHandheldInteractionModule>(),
                 new RotationalAdjustableConfig(Substitute.For<ITransformWrapper>(), Substitute.For<ITransformWrapper>()),

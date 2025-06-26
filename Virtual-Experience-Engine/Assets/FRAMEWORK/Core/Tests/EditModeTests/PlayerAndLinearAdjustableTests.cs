@@ -20,14 +20,16 @@ namespace VE2.Core.Tests
         private PluginGrabbableScript _customerScript;
         private GameObjectIDWrapper idWrapper = new();
         private GameObjectIDWrapper idWrapperAdjustable = new();
+        private LinearAdjustableService linearAdjustable;
+
         [SetUp]
         public void SetUpBeforeEveryTest()
         {
             idWrapper.ID = "debug";
-            idWrapperAdjustable.ID = "debug";
+            idWrapperAdjustable.ID = "debugAdjustable";
 
             //create the handheld adjustable
-            LinearAdjustableService linearAdjustable = new(
+            linearAdjustable = new(
                 new List<IHandheldInteractionModule>(),
                 new LinearAdjustableConfig(Substitute.For<ITransformWrapper>(), Substitute.For<ITransformWrapper>()),
                 new AdjustableState(),
@@ -54,6 +56,7 @@ namespace VE2.Core.Tests
 
             //Manually Register GrabInteractable as this is handled in fixed update
             GrabInteractableContainerSetup.GrabInteractableContainer.RegisterGrabInteractable(_linearAdjustableRaycastInterface.RangedGrabInteractionModule, idWrapper.ID);
+            linearAdjustable.HandleFixedUpdate();
 
             //Invoke grab, check customer received the grab, and that the interactorID is set
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();

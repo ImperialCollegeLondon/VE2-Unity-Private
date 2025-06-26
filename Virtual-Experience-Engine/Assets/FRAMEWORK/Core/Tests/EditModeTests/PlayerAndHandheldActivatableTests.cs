@@ -41,6 +41,10 @@ namespace VE2.Core.Tests
        private GameObjectIDWrapper idWrapperTestGrabbable = new();
        private GameObjectIDWrapper idWrapperTestHoldActivatable = new();
        private GameObjectIDWrapper idWrapperTestGrabbable2 = new();
+
+        private FreeGrabbableService freeGrabbable;
+        private FreeGrabbableService freeGrabbable2;
+
         [SetUp]
         public void SetUpBeforeEveryTest()
         {
@@ -52,9 +56,13 @@ namespace VE2.Core.Tests
 
             
             idWrapperTestHandHeldActivatable.ID ="testHandHeldActivatable";
+            idWrapperTestHandHeldActivatable.HasBeenSetup = true;
             idWrapperTestGrabbable.ID = "testGrabbable";
+            idWrapperTestGrabbable.HasBeenSetup = true;
             idWrapperTestHoldActivatable.ID = "testHoldActivatable";
+            idWrapperTestHoldActivatable.HasBeenSetup = true;
             idWrapperTestGrabbable2.ID = "testGrabbable2";
+            idWrapperTestGrabbable2.HasBeenSetup = true;
 
 
             //Create the activatable with default values
@@ -70,7 +78,7 @@ namespace VE2.Core.Tests
             //Set the HandheldActivatableService to the provider stub NOTE: This is a bit of a hack because MonoBehaviours are used to initialise both the FreeGrabbable and HandheldActivatable services.
             _v_handheldActivatableProviderStub.Service = handheldActivatable;
 
-            FreeGrabbableService freeGrabbable = new(
+            freeGrabbable = new(
                 new List<IHandheldInteractionModule>() { _handheldActivatablePlayerInterface },
                 new FreeGrabbableConfig(),
                 new GrabbableState(),
@@ -114,7 +122,7 @@ namespace VE2.Core.Tests
 
             _v_handheldHoldActivatableProviderStub.Service = handheldActivatableHold;
 
-            FreeGrabbableService freeGrabbable2 = new(
+            freeGrabbable2 = new(
                 new List<IHandheldInteractionModule>() { _handheldHoldActivatablePlayerInterface },
                 new FreeGrabbableConfig(),
                 new GrabbableState(),
@@ -154,7 +162,8 @@ namespace VE2.Core.Tests
             _handheldActivatablePluginInterface.OnDeactivate.AddListener(pluginScriptMock.HandleDeactivateReceived);
 
             //Manually Register GrabInteractable as this is handled in fixed update
-            GrabInteractableContainerSetup.GrabInteractableContainer.RegisterGrabInteractable(_grabbableRaycastInterface.RangedGrabInteractionModule, idWrapperTestGrabbable.ID);
+            //GrabInteractableContainerSetup.GrabInteractableContainer.RegisterGrabInteractable(_grabbableRaycastInterface.RangedGrabInteractionModule, idWrapperTestGrabbable.ID);
+            freeGrabbable.HandleFixedUpdate();
 
             //Invoke grab, check customer received the grab, and that the interactorID is set
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
@@ -191,7 +200,8 @@ namespace VE2.Core.Tests
             _handheldHoldActivatablePluginInterface.OnDeactivate.AddListener(pluginScriptMock.HandleDeactivateReceived);
 
             //Manually Register GrabInteractable as this is handled in fixed update
-            GrabInteractableContainerSetup.GrabInteractableContainer.RegisterGrabInteractable(_grabbable2RaycastInterface.RangedGrabInteractionModule, idWrapperTestGrabbable2.ID);
+            //GrabInteractableContainerSetup.GrabInteractableContainer.RegisterGrabInteractable(_grabbable2RaycastInterface.RangedGrabInteractionModule, idWrapperTestGrabbable2.ID);
+            freeGrabbable2.HandleFixedUpdate();
 
             // Simulate the grab input event.
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();

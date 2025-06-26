@@ -8,6 +8,7 @@ using VE2.Core.Player.Internal;
 using System.Collections.Generic;
 using VE2.Common.Shared;
 using VE2.Common.API;
+using UnityEngine;
 
 
 namespace VE2.Core.Tests
@@ -21,13 +22,15 @@ namespace VE2.Core.Tests
         private V_FreeGrabbableProviderStub _v_freeGrabbableProviderStub;
         private PluginGrabbableScript _customerScript;
         private GameObjectIDWrapper idWrapper = new();
+        private FreeGrabbableService freeGrabbable;
 
         [SetUp]
         public void SetUpBeforeEveryTest()
         {            
             idWrapper.ID = "debug";
+            idWrapper.HasBeenSetup = true;
 
-            FreeGrabbableService freeGrabbable = new( 
+            freeGrabbable = new( 
                 new List<IHandheldInteractionModule>() {},
                 new FreeGrabbableConfig(),
                 new GrabbableState(), 
@@ -56,7 +59,8 @@ namespace VE2.Core.Tests
             RayCastProviderSetup.StubRangedInteractionModuleForRaycast(_grabbableRaycastInterface.RangedGrabInteractionModule);
 
             //Manually Register GrabInteractable as this is handled in fixed update
-            GrabInteractableContainerSetup.GrabInteractableContainer.RegisterGrabInteractable(_grabbableRaycastInterface.RangedGrabInteractionModule, idWrapper.ID);
+            freeGrabbable.HandleFixedUpdate();
+
             //Invoke grab, check customer received the grab, and that the interactorID is set
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
             _customerScript.Received(1).HandleGrabReceived();
@@ -66,7 +70,7 @@ namespace VE2.Core.Tests
 
             //Invoke drop, Check customer received the drop, and that the interactorID is set
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
-            _customerScript.Received(1).HandleDropReceived();
+            _customerScript.Received(1).HandleDropReceived();   
             Assert.IsFalse(_grabbablePluginInterface.IsGrabbed);
             Assert.AreEqual(_grabbablePluginInterface.MostRecentInteractingClientID.Value, LocalClientIDWrapperSetup.LocalClientID);
             Assert.IsTrue(_grabbablePluginInterface.MostRecentInteractingClientID.IsLocal);
@@ -78,7 +82,7 @@ namespace VE2.Core.Tests
             RayCastProviderSetup.StubRangedInteractionModuleForSpherecastAll(_grabbableRaycastInterface.RangedGrabInteractionModule);
 
             //Manually Register GrabInteractable as this is handled in fixed update
-            GrabInteractableContainerSetup.GrabInteractableContainer.RegisterGrabInteractable(_grabbableRaycastInterface.RangedGrabInteractionModule, idWrapper.ID);
+            freeGrabbable.HandleFixedUpdate();
 
             PlayerInputContainerSetup.PlayerInputContainerStub.ChangeMode.OnPressed += Raise.Event<Action>();
             Assert.IsTrue(PlayerService.IsVRMode, "Player should be in VR mode");

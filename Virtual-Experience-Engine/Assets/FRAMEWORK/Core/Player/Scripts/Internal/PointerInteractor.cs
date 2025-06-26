@@ -483,7 +483,7 @@ namespace VE2.Core.Player.Internal
 
             if (!_grabInteractablesContainer.GrabInteractables.TryGetValue(id.ID, out IRangedGrabInteractionModule rangedGrabInteractable))
             {
-                Debug.LogError($"Failed to confirm grab, could not find grabbable with id {id.ID}");
+                Debug.LogError($"Failed to confirm grab, could not find grabbable with id {id.ID}");    
                 return;
             }
 

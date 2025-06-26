@@ -152,7 +152,6 @@ namespace VE2.Core.VComponents.Internal
         protected override void FixedUpdate()
         {
             base.FixedUpdate();
-            _service?.RangedGrabInteractionModule.HandleFixedUpdate();
             _service?.HandleFixedUpdate();
         }
 

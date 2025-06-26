@@ -19,15 +19,19 @@ namespace VE2.Core.Tests
 
         private PluginGrabbableScript _customerScript;
         private GameObjectIDWrapper idWrapper = new();
-        GameObjectIDWrapper idWrapperAdjustable = new();
+        private GameObjectIDWrapper idWrapperAdjustable = new();
+        private RotationalAdjustableService rotationalAdjustable;
+
         [SetUp]
         public void SetUpBeforeEveryTest()
         {
             idWrapper.ID = "debug";
-            idWrapperAdjustable.ID = "debug";
+            idWrapper.HasBeenSetup = true;
+            idWrapperAdjustable.ID = "debugAdjustable";
+            idWrapperAdjustable.HasBeenSetup = true;
 
-            //create the handheld adjustable
-            RotationalAdjustableService rotationalAdjustable = new(
+            //create the rotational adjustable
+            rotationalAdjustable = new(
                 new List<IHandheldInteractionModule>(),
                 new RotationalAdjustableConfig(Substitute.For<ITransformWrapper>(), Substitute.For<ITransformWrapper>()),
                 new AdjustableState(),
@@ -54,6 +58,7 @@ namespace VE2.Core.Tests
 
             //Manually Register GrabInteractable as this is handled in fixed update
             GrabInteractableContainerSetup.GrabInteractableContainer.RegisterGrabInteractable(_rotationalAdjustableRaycastInterface.RangedGrabInteractionModule, idWrapper.ID);
+            rotationalAdjustable.HandleFixedUpdate();
 
             //Invoke grab, check customer received the grab, and that the interactorID is set
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
