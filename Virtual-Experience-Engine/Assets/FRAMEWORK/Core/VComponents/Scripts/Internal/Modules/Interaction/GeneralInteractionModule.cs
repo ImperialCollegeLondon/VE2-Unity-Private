@@ -15,7 +15,7 @@ namespace VE2.Core.VComponents.Internal
 
         [SerializeField] public bool ShowTooltipsAndHighlight = true;
 
-        [EndGroup, SerializeField] public bool IsInteractable = true; // If false, the object will not respond to any interaction events.
+        [EndGroup, SerializeField] public bool IsInteractable = true;
     }
 
     internal abstract class GeneralInteractionModule : IGeneralInteractionModule
