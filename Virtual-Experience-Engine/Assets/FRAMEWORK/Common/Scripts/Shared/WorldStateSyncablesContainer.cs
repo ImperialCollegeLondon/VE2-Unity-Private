@@ -46,7 +46,7 @@ namespace VE2.Common.Shared
                             "VE2 Syncable Registration Error",
                             $"Multiple networked VE2 components have the same gameobject name, this is not allowed\n\n" +
                             $"Clashing IDs: \n -{string.Join("\n -", _clashedIDs)}\n\n" +
-                            "Please ensure that all synced gameobjects have unique IDs. (Note: GameObjects names will be converted to network IDs after the first FixedUpdate cycle of that GameObject, meaininmg GameObject names can be changed immediately after instantiation at runtime, but no later.)",
+                            "Please ensure that all synced gameobjects have unique IDs. (Note: GameObjects names will be converted to network IDs after the first FixedUpdate cycle of that GameObject, meaning GameObject names can be changed immediately after instantiation at runtime, but no later.)",
                             "Don't show again",
                             "Keep reminding me");
 

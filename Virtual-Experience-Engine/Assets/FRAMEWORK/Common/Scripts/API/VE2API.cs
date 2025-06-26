@@ -8,6 +8,7 @@ using VE2.NonCore.Instancing.API;
 using VE2.Common.Shared;
 using VE2.Core.UI.API;
 using VE2.NonCore.Platform.API;
+using DG.Tweening;
 
 namespace VE2.Common.API
 {
@@ -290,16 +291,41 @@ namespace VE2.Common.API
     {
         public Dictionary<string, IRangedGrabInteractionModule> GrabInteractables { get; } = new();
 
+        private bool _dontShowRegErrors = false;
+        private List<string> _clashedIDs = new();
+        private bool _waitingToShowErrors = false;
         public void RegisterGrabInteractable(IRangedGrabInteractionModule grabInteractable, string id)
         {
             if (GrabInteractables.ContainsKey(id))
             {
                 Debug.LogError($"EERROR - GrabInteractable with ID {id} is already registered.");
+                _clashedIDs.Add(id);
+#if UNITY_EDITOR
+                if (!_dontShowRegErrors && !_waitingToShowErrors)
+                {
+                    _waitingToShowErrors = true;
+
+                    //Delay so we have time to catch all syncables trying to register
+                    DOVirtual.DelayedCall(0.5f, () =>
+                    {
+                        _waitingToShowErrors = false;
+
+                        // Display the dialog and capture the button pressed
+                        _dontShowRegErrors = UnityEditor.EditorUtility.DisplayDialog(
+                            "VE2 GrabInteractable Registration Error",
+                            $"These GrabInteractables are already registered, this is not allowed\n\n" +
+                            $"Clashing IDs: \n -{string.Join("\n -", _clashedIDs)}\n\n" +
+                            "Please ensure that all Grab Interactables have unique IDs. (Note: GameObjects names will be converted to network IDs after the first FixedUpdate cycle of that GameObject, meaning GameObject names can be changed immediately after instantiation at runtime, but no later.)",
+                            "Don't show again",
+                            "Keep reminding me");
+
+                        _clashedIDs.Clear();
+                    });
+                }
+#endif
                 return;
             }
             GrabInteractables.Add(id, grabInteractable);
-
-            //TODO - show more descritive error if this happens - see WorldStateSyncableContainer
         }
 
         public void DeregisterGrabInteractable(IGameObjectIDWrapper id)
