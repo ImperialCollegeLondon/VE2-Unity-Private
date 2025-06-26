@@ -25,8 +25,7 @@ namespace VE2.Common.Shared.Editor
             {
                 GUIStyle warningLabel = new GUIStyle(EditorStyles.boldLabel);
                 warningLabel.normal.textColor = Color.yellow;
-                warningLabel.fontSize = EditorStyles.label.fontSize - 1;
-                GUILayout.Label($"This is a clone of {projectName}. Don't save changes here!", warningLabel);
+                GUILayout.Label($"This is a clone instance, Don't save changes here!", warningLabel);
             }
         }
     }
