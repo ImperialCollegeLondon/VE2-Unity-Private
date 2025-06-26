@@ -27,6 +27,7 @@ namespace VE2.Core.VComponents.Internal
         public bool AdminOnly { get => _ColliderModule.AdminOnly; set => _ColliderModule.AdminOnly = value; }
         public bool EnableControllerVibrations { get => _ColliderModule.EnableControllerVibrations; set => _ColliderModule.EnableControllerVibrations = value; }
         public bool ShowTooltipsAndHighlight { get => _ColliderModule.ShowTooltipsAndHighlight; set => _ColliderModule.ShowTooltipsAndHighlight = value; }
+        public bool IsInteractable { get => _ColliderModule.IsInteractable; set => _ColliderModule.IsInteractable = value; }
 
         #endregion
     }

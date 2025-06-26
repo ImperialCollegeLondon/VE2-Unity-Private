@@ -7,5 +7,6 @@ public interface IV_GeneralInteractable
     public bool AdminOnly { get; set; }
     public bool EnableControllerVibrations { get; set; }
     public bool ShowTooltipsAndHighlight { get; set; }
+    public bool IsInteractable { get; set; }
     #endregion
 }
