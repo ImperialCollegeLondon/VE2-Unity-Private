@@ -1,8 +1,14 @@
 using System;
 using UnityEngine;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.NonCore.Instancing.API;
+using Toolbox.Editor;
 
 namespace VE2.NonCore.Instancing.Internal
 {
@@ -58,4 +64,23 @@ namespace VE2.NonCore.Instancing.Internal
             _service = null;
         }
     }
+
+#if UNITY_EDITOR
+    [CustomEditor(typeof(V_TransformSyncable), true)]
+    internal class V_TransformSyncableEditor : ToolboxEditor
+    {
+        public override void DrawCustomInspector()
+        {
+            V_TransformSyncable script = (V_TransformSyncable)target;
+
+            if (script.GetComponent<Rigidbody>() != null)
+            {
+                // Only show the help box if there is a Rigidbody component
+                EditorGUILayout.HelpBox("This GameObject has a Rigidbody component. Consider using V_RigidbodySyncable instead for better performance and functionality.", MessageType.Warning);
+            }
+
+            base.DrawCustomInspector();
+        }
+    }
+#endif
 }
