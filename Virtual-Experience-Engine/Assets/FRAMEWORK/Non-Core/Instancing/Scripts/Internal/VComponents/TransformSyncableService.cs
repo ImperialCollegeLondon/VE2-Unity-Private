@@ -36,7 +36,6 @@ namespace VE2.NonCore.Instancing.Internal
 
             if (_instanceService.IsConnectedToServer && _isHost)
             {
-                Debug.Log("Sending transform state from host: ");
                 _stateModule.SetStateFromHost(_transformWrapper);
             }
         }
@@ -44,14 +43,9 @@ namespace VE2.NonCore.Instancing.Internal
         internal void HandleRecieveState(ITransformWrapper transformWrapper)
         {
             if (_isHost)
-            {
-                Debug.Log("Received transform state on host, but we are the host, so not updating our own transform.");
-                // If we are the host, we don't need to update our own transform
                 return;
-            }
 
             // Update the transform with the received state
-            Debug.Log("Received transform state from non-host, updating our transform.");
             _transformWrapper.SetLocalPositionAndRotation(transformWrapper.localPosition, transformWrapper.localRotation);
             _transformWrapper.scale = transformWrapper.scale;
         }

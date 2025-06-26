@@ -18,16 +18,13 @@ namespace VE2.NonCore.Instancing.Internal
         private TransformSyncableState _state => (TransformSyncableState)State;
 
         public TransformSyncableStateModule(ITransformWrapper transformWrapper, WorldStateSyncConfig config, string id, IWorldStateSyncableContainer worldStateModulesContainer) :
-            base(new TransformSyncableState(transformWrapper), config, id, worldStateModulesContainer)
-        { }
-
+            base(new TransformSyncableState(transformWrapper), config, id, worldStateModulesContainer) { }
         protected override void UpdateBytes(byte[] newBytes)
         {
             _state.Bytes = newBytes;
 
             try
             {
-                Debug.Log($"Emitting OnReceiveState from TransformSyncable with ID {ID}");
                 OnReceiveState?.Invoke(_state.TransformWrapper);
             }
             catch (Exception e)
@@ -38,8 +35,6 @@ namespace VE2.NonCore.Instancing.Internal
         
         public void SetStateFromHost(ITransformWrapper transformWrapper)
         {
-            Debug.Log($"Setting state from host for TransformSyncable with ID {ID}");
-
             _state.TransformWrapper.position = transformWrapper.position;
             _state.TransformWrapper.rotation = transformWrapper.rotation;
             _state.TransformWrapper.scale = transformWrapper.scale;
