@@ -24,7 +24,7 @@ namespace VE2.Common.Shared.Editor
             if (!string.IsNullOrEmpty(folderName) && System.Text.RegularExpressions.Regex.IsMatch(folderName, @"_clone_\d+$"))
             {
                 GUIStyle warningLabel = new GUIStyle(EditorStyles.boldLabel);
-                warningLabel.normal.textColor = Color.red;
+                warningLabel.normal.textColor = Color.yellow;
                 warningLabel.fontSize = EditorStyles.label.fontSize - 1;
                 GUILayout.Label($"This is a clone of {projectName}. Don't save changes here!", warningLabel);
             }
