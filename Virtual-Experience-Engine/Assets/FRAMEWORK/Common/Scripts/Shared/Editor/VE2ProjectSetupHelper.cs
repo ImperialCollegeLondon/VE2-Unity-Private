@@ -9,11 +9,11 @@ namespace VE2.Core.Common
 {
     internal class VE2ProjectSetupHelper
     {
-        [MenuItem("VE2/Create Plugin Assembly Definition")]
+        [MenuItem("VE2/Create Plugin Assembly Definition", priority = -1)]
         public static void CreateAsmdef()
         {
             string asmdefName = "PluginAssemblyYOUR_PLUGIN_NAME";
-            string folderPath = "Assets/YOUR_PLUGIN_HERE";
+            string folderPath = "Assets/Scripts";
 
             if (!Directory.Exists(folderPath))
                 Directory.CreateDirectory(folderPath);
