@@ -91,16 +91,12 @@ namespace VE2.Core.VComponents.Internal
         {
             // Ensure the ID has been set up before attempting registration  
             if (!_idWrapper.HasBeenSetup)
-            {
-                Debug.LogWarning($"[{GetType().Name}] ID NEVER SETUP OOOOOOOO.");
                 return;
-            }
 
             // Register with the container if not already registered  
             if (!_hasRegisteredWitGrabInteractablesContainer)
             {
                 _id = _idWrapper.ID;
-                Debug.Log($"[{GetType().Name}] Registering with ID: {_id} in GrabInteractablesContainer.");
                 _grabInteractablesContainer.RegisterGrabInteractable(this, _id);
                 _hasRegisteredWitGrabInteractablesContainer = true;
             }
