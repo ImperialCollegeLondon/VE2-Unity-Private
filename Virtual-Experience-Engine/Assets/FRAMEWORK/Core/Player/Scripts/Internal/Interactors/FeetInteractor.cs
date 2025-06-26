@@ -75,7 +75,7 @@ namespace VE2.Core.Player.Internal
             if (collideInteractionModule.CollideInteractionType != CollideInteractionType.Feet)
                 return;
 
-            bool canInteract = _localClientIDWrapper.IsClientIDReady && IsInteractableAllowed(collideInteractionModule);
+            bool canInteract = _localClientIDWrapper.IsClientIDReady && IsInteractableAllowed(collideInteractionModule) && collideInteractionModule.IsInteractable;
 
             if (canInteract)
                 StartInteractingWithModule(collideInteractionModule);
@@ -120,7 +120,8 @@ namespace VE2.Core.Player.Internal
                 bool isCurrentlyInteracting = kvp.Value;
 
                 //If we are colliding with the interaction module, but not interacting with it, and we are admin, we should start interacting
-                if (!isCurrentlyInteracting && IsInteractableAllowed(interactionModule) && _localAdminIndicator.IsLocalAdmin)
+                if (!isCurrentlyInteracting && IsInteractableAllowed(interactionModule) && 
+                    _localAdminIndicator.IsLocalAdmin && interactionModule.IsInteractable)
                 {
                     StartInteractingWithModule(interactionModule);
                     _currentCollidingInteractionModules[interactionModule] = true;
