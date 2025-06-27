@@ -24,7 +24,7 @@ namespace VE2.Core.VComponents.Internal
     }
 
     [Serializable]
-    internal class LinearAdjustableConfig
+    internal class SlidingAdjustableConfig
     {
         public void OpenDocs() => Application.OpenURL("https://www.notion.so/V_LinearAdjustable-20f0e4d8ed4d8125b125ea8d031e8aeb?source=copy_link");
         [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above)]
@@ -41,12 +41,12 @@ namespace VE2.Core.VComponents.Internal
         private bool MultiplayerSupportPresent => VE2API.HasMultiPlayerSupport;
 
         //Constructor used for tests
-        public LinearAdjustableConfig(ITransformWrapper attachPointWrapper, ITransformWrapper transformToMove)
+        public SlidingAdjustableConfig(ITransformWrapper attachPointWrapper, ITransformWrapper transformToMove)
         {
             RangedAdjustableInteractionConfig.AttachPointWrapper = attachPointWrapper;
             RangedAdjustableInteractionConfig.TransformToAdjust = transformToMove;
         }
-        public LinearAdjustableConfig() { }
+        public SlidingAdjustableConfig() { }
     }
 
     [Serializable]
@@ -87,9 +87,9 @@ namespace VE2.Core.VComponents.Internal
         private readonly RangedAdjustableInteractionModule _RangedAdjustableInteractionModule;
         #endregion
 
-        private readonly LinearAdjustableConfig _config;
+        private readonly SlidingAdjustableConfig _config;
 
-        public SlidingAdjustableService(List<IHandheldInteractionModule> handheldInteractions, LinearAdjustableConfig config, AdjustableState adjustableState, VE2Serializable grabbableState, string id,
+        public SlidingAdjustableService(List<IHandheldInteractionModule> handheldInteractions, SlidingAdjustableConfig config, AdjustableState adjustableState, VE2Serializable grabbableState, string id,
             IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer, IClientIDWrapper localClientIdWrapper)
         {
             _config = config;

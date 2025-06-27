@@ -10,7 +10,7 @@ using static VE2.Common.Shared.CommonSerializables;
 namespace VE2.Core.VComponents.Internal
 {
     [Serializable]
-    internal class RotationalAdjustableConfig
+    internal class RotatingAdjustableConfig
     {
         public void OpenDocs() => Application.OpenURL("https://www.notion.so/V_RotationalAdjustable-2170e4d8ed4d800abacafa5b3f72dad7?source=copy_link");
         [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above)]
@@ -27,12 +27,12 @@ namespace VE2.Core.VComponents.Internal
         private bool MultiplayerSupportPresent => VE2API.HasMultiPlayerSupport;
 
         //Constructor used for tests
-        public RotationalAdjustableConfig(ITransformWrapper attachPointWrapper, ITransformWrapper transformToMove)
+        public RotatingAdjustableConfig(ITransformWrapper attachPointWrapper, ITransformWrapper transformToMove)
         {
             RangedAdjustableInteractionConfig.AttachPointWrapper = attachPointWrapper;
             RangedAdjustableInteractionConfig.TransformToAdjust = transformToMove;
         }
-        public RotationalAdjustableConfig() {}
+        public RotatingAdjustableConfig() {}
     }
 
     internal class RotatingAdjustableService
@@ -59,7 +59,7 @@ namespace VE2.Core.VComponents.Internal
         private readonly RangedAdjustableInteractionModule _RangedAdjustableInteractionModule;
         #endregion
 
-        private readonly RotationalAdjustableConfig _config;
+        private readonly RotatingAdjustableConfig _config;
 
         //gets the vector from the object to the attach point, this will serve as the starting point for any angle created
         //needs to be the attach point at the start (0 not starting position) to get the correct angle
@@ -71,7 +71,7 @@ namespace VE2.Core.VComponents.Internal
         private int _minRevs => (int)MinimumSpatialValue / 360;
         private int _maxRevs => (int)MaximumSpatialValue / 360;
 
-        public RotatingAdjustableService(List<IHandheldInteractionModule> handheldInteractions, RotationalAdjustableConfig config, AdjustableState adjustableState, VE2Serializable grabbableState, string id,
+        public RotatingAdjustableService(List<IHandheldInteractionModule> handheldInteractions, RotatingAdjustableConfig config, AdjustableState adjustableState, VE2Serializable grabbableState, string id,
             IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer, IClientIDWrapper localClientIdWrapper)
         {
             _config = config;

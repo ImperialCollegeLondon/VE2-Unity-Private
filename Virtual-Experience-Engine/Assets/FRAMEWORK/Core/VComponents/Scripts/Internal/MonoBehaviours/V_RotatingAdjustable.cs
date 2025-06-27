@@ -59,7 +59,7 @@ namespace VE2.Core.VComponents.Internal
 
     internal partial class V_RotatingAdjustable : MonoBehaviour, IRangedGrabInteractionModuleProvider
     {
-        [SerializeField, IgnoreParent] private RotationalAdjustableConfig _config = new();
+        [SerializeField, IgnoreParent] private RotatingAdjustableConfig _config = new();
         [SerializeField, HideInInspector] private AdjustableState _adjustableState = null;
         [SerializeField, HideInInspector] private GrabbableState _freeGrabbableState = new();
 

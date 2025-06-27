@@ -25,7 +25,7 @@ namespace VE2.Core.VComponents.Tests
             //create the handheld adjustable
             SlidingAdjustableService slidingAdjustable = new(
                 new List<IHandheldInteractionModule>(),
-                new LinearAdjustableConfig(Substitute.For<ITransformWrapper>(), Substitute.For<ITransformWrapper>()),
+                new SlidingAdjustableConfig(Substitute.For<ITransformWrapper>(), Substitute.For<ITransformWrapper>()),
                 new AdjustableState(),
                 new GrabbableState(),
                 "debug",

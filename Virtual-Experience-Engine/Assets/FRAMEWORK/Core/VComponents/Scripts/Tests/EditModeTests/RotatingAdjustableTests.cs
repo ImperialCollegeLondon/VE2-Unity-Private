@@ -25,7 +25,7 @@ namespace VE2.Core.VComponents.Tests
             //create the handheld adjustable
             RotatingAdjustableService rotatingAdjustable = new(
                 new List<IHandheldInteractionModule>(),
-                new RotationalAdjustableConfig(Substitute.For<ITransformWrapper>(), Substitute.For<ITransformWrapper>()),
+                new RotatingAdjustableConfig(Substitute.For<ITransformWrapper>(), Substitute.For<ITransformWrapper>()),
                 new AdjustableState(),
                 new GrabbableState(),
                 "debug",
