@@ -31,6 +31,7 @@ namespace VE2.Core.VComponents.Internal
         private static readonly string[] VComponentTypeNames = new string[]
         {
                 "V_RigidbodySyncable",
+                "V_TransformSyncable",
                 "V_NetworkObject",
                 "V_InstantMessageHandler"
         };
