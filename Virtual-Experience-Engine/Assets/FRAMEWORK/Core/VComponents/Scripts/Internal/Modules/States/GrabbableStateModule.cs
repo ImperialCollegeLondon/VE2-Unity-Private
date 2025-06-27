@@ -5,7 +5,6 @@ using UnityEngine.Events;
 using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
-using VE2.Core.Player.API;
 using VE2.Core.VComponents.Shared;
 using static VE2.Common.Shared.CommonSerializables;
 using System.Collections.Generic;
@@ -212,6 +211,13 @@ namespace VE2.Core.VComponents.Internal
             return false;
         }
 
+        // Use this as a proxy for whether we are in VR mode or not to avoid dependency on VE2API.Player
+        private bool VRInteractorsAvailable()
+        {
+            return _interactorContainer.Interactors.ContainsKey(new InteractorID(_localClientIdWrapper.Value, InteractorType.RightHandVR).ToString()) ||
+                   _interactorContainer.Interactors.ContainsKey(new InteractorID(_localClientIdWrapper.Value, InteractorType.LeftHandVR).ToString());
+        }
+
         /// <summary>
         /// Attempts to grab with given VR Hand Interactor (or 2D grabber)
         /// </summary>
@@ -220,7 +226,7 @@ namespace VE2.Core.VComponents.Internal
         public void ForceLocalGrab(bool lockGrab, VRHandInteractorType handToGrabWith)
         {
             bool forceDrop = true;
-            InteractorType interactorType = VE2API.Player.IsVRMode ? (InteractorType)handToGrabWith : InteractorType.Mouse2D;
+            InteractorType interactorType = VRInteractorsAvailable() ? (InteractorType)handToGrabWith : InteractorType.Mouse2D;
             DoLocalGrab(lockGrab, interactorType, forceDrop);
         }
 
@@ -234,7 +240,7 @@ namespace VE2.Core.VComponents.Internal
         public bool TryLocalGrab(bool lockGrab, VRHandInteractorType priorityHandToGrabWith = VRHandInteractorType.RightHandVR)
         {
             InteractorType[] interactorsToTry;
-            if (VE2API.Player.IsVRMode)
+            if (VRInteractorsAvailable())
             {
                 interactorsToTry = priorityHandToGrabWith == VRHandInteractorType.RightHandVR
                     ? new[] { InteractorType.RightHandVR, InteractorType.LeftHandVR }
