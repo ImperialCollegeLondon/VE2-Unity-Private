@@ -6,8 +6,8 @@ public class AdjustableGrabStatus : MonoBehaviour
 {
     private TMP_Text _text => GetComponent<TMP_Text>();
     [SerializeField] private GameObject Adjustable;
-    private IV_LinearAdjustable _linearAdjustable => Adjustable.GetComponent<IV_LinearAdjustable>();
-    private IV_RotationalAdjustable _rotationalAdjustable => Adjustable.GetComponent<IV_RotationalAdjustable>();
+    private IV_SlidingAdjustable _linearAdjustable => Adjustable.GetComponent<IV_SlidingAdjustable>();
+    private IV_RotatingAdjustable _rotationalAdjustable => Adjustable.GetComponent<IV_RotatingAdjustable>();
 
     void Update()
     {

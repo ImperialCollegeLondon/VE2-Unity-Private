@@ -7,7 +7,7 @@ using UnityEngine.Events;
 
 namespace VE2.Core.VComponents.Internal
 {
-    internal partial class V_LinearAdjustable : IV_LinearAdjustable
+    internal partial class V_SlidingAdjustable : IV_SlidingAdjustable
     {
         #region State Module Interface
         internal IAdjustableStateModule _AdjustableStateModule => _Service.AdjustableStateModule;
@@ -57,7 +57,7 @@ namespace VE2.Core.VComponents.Internal
         #endregion
     }
     
-    internal partial class V_LinearAdjustable : MonoBehaviour, IRangedGrabInteractionModuleProvider
+    internal partial class V_SlidingAdjustable : MonoBehaviour, IRangedGrabInteractionModuleProvider
     {
         [SerializeField, IgnoreParent] private LinearAdjustableConfig _config = new();
         [SerializeField, HideInInspector] private AdjustableState _adjustableState = null;
@@ -80,8 +80,8 @@ namespace VE2.Core.VComponents.Internal
         internal string AttachPointGOName => ((TransformWrapper)_config.RangedAdjustableInteractionConfig.AttachPointWrapper).GameObject.name;
         #endregion
 
-        private LinearAdjustableService _service = null;
-        private LinearAdjustableService _Service
+        private SlidingAdjustableService _service = null;
+        private SlidingAdjustableService _Service
         {
             get
             {
@@ -131,7 +131,7 @@ namespace VE2.Core.VComponents.Internal
             // if (TryGetComponent(out V_HandheldAdjustable handheldAdjustable))
             //     handheldInteractions.Add(handheldAdjustable.HandheldScrollInteractionModule);
 
-            _service = new LinearAdjustableService(
+            _service = new SlidingAdjustableService(
                 handheldInteractions,
                 _config,
                 _adjustableState,

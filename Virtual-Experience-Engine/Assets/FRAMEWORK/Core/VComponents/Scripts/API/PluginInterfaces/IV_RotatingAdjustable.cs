@@ -4,7 +4,7 @@ using VE2.Common.Shared;
 
 namespace VE2.Core.VComponents.API
 {   
-    public interface IV_RotationalAdjustable : IV_GeneralInteractable
+    public interface IV_RotatingAdjustable : IV_GeneralInteractable
     {
         #region State Module Interface
         public UnityEvent<float> OnValueAdjusted { get; }

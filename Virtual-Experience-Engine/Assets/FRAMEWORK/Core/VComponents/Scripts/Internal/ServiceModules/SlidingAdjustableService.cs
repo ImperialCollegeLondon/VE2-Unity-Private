@@ -65,7 +65,7 @@ namespace VE2.Core.VComponents.Internal
         // [EndGroup, SerializeField] public float IncrementPerSecondVRStickHeld = 4;
     }
 
-    internal class LinearAdjustableService
+    internal class SlidingAdjustableService
     {
         private ITransformWrapper _transformToAdjust => _config.RangedAdjustableInteractionConfig.TransformToAdjust;
         private float _spatialValue;
@@ -89,7 +89,7 @@ namespace VE2.Core.VComponents.Internal
 
         private readonly LinearAdjustableConfig _config;
 
-        public LinearAdjustableService(List<IHandheldInteractionModule> handheldInteractions, LinearAdjustableConfig config, AdjustableState adjustableState, VE2Serializable grabbableState, string id,
+        public SlidingAdjustableService(List<IHandheldInteractionModule> handheldInteractions, LinearAdjustableConfig config, AdjustableState adjustableState, VE2Serializable grabbableState, string id,
             IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer, IClientIDWrapper localClientIdWrapper)
         {
             _config = config;

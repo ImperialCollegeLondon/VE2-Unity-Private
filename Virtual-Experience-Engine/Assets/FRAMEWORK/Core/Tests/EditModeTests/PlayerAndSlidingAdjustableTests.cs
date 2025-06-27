@@ -10,12 +10,12 @@ using VE2.Core.VComponents.Tests;
 namespace VE2.Core.Tests
 {
     [TestFixture]
-    [Category("Player and Linear Adjustable Tests")]
+    [Category("Player and Sliding Adjustable Tests")]
     internal class PlayerAndLinearAdjustableTests : PlayerServiceSetupFixture
     {
-        private IV_LinearAdjustable _linearAdjustablePluginInterface => _v_linearAdjustableProviderStub;
-        private IRangedGrabInteractionModuleProvider _linearAdjustableRaycastInterface => _v_linearAdjustableProviderStub;
-        private V_LinearAdjustableProviderStub _v_linearAdjustableProviderStub;
+        private IV_SlidingAdjustable _slidingAdjustablePluginInterface => _v_slidingAdjustableProviderStub;
+        private IRangedGrabInteractionModuleProvider _slidingAdjustableRaycastInterface => _v_slidingAdjustableProviderStub;
+        private V_SlidingAdjustableProviderStub _v_slidingAdjustableProviderStub;
 
         private PluginGrabbableScript _customerScript;
 
@@ -23,7 +23,7 @@ namespace VE2.Core.Tests
         public void SetUpBeforeEveryTest()
         {
             //create the handheld adjustable
-            LinearAdjustableService linearAdjustable = new(
+            SlidingAdjustableService slidingAdjustable = new(
                 new List<IHandheldInteractionModule>(),
                 new LinearAdjustableConfig(Substitute.For<ITransformWrapper>(), Substitute.For<ITransformWrapper>()),
                 new AdjustableState(),
@@ -34,32 +34,32 @@ namespace VE2.Core.Tests
                 InteractorContainerSetup.InteractorContainer,
                 LocalClientIDWrapperSetup.LocalClientIDWrapper);
 
-            _v_linearAdjustableProviderStub = new(linearAdjustable);
+            _v_slidingAdjustableProviderStub = new(slidingAdjustable);
 
             //wire up the customer script to receive the events
             _customerScript = Substitute.For<PluginGrabbableScript>();
-            _linearAdjustablePluginInterface.OnGrab.AddListener(_customerScript.HandleGrabReceived);
-            _linearAdjustablePluginInterface.OnDrop.AddListener(_customerScript.HandleDropReceived);
+            _slidingAdjustablePluginInterface.OnGrab.AddListener(_customerScript.HandleGrabReceived);
+            _slidingAdjustablePluginInterface.OnDrop.AddListener(_customerScript.HandleDropReceived);
         }
 
         [Test]
-        public void WithHoveringLinearAdjustable_OnUserGrab_CustomerScriptReceivesGrab()
+        public void WithHoveringSlidingAdjustable_OnUserGrab_CustomerScriptReceivesGrab()
         {
-            RayCastProviderSetup.StubRangedInteractionModuleForRaycast(_linearAdjustableRaycastInterface.RangedGrabInteractionModule);
+            RayCastProviderSetup.StubRangedInteractionModuleForRaycast(_slidingAdjustableRaycastInterface.RangedGrabInteractionModule);
 
             //Invoke grab, check customer received the grab, and that the interactorID is set
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
             _customerScript.Received(1).HandleGrabReceived();
-            Assert.IsTrue(_linearAdjustablePluginInterface.IsGrabbed);
-            Assert.AreEqual(_linearAdjustablePluginInterface.MostRecentInteractingClientID.Value, LocalClientIDWrapperSetup.LocalClientID);
-            Assert.IsTrue(_linearAdjustablePluginInterface.MostRecentInteractingClientID.IsLocal);
+            Assert.IsTrue(_slidingAdjustablePluginInterface.IsGrabbed);
+            Assert.AreEqual(_slidingAdjustablePluginInterface.MostRecentInteractingClientID.Value, LocalClientIDWrapperSetup.LocalClientID);
+            Assert.IsTrue(_slidingAdjustablePluginInterface.MostRecentInteractingClientID.IsLocal);
 
             //Invoke drop, Check customer received the drop, and that the interactorID is set
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
             _customerScript.Received(1).HandleDropReceived();
-            Assert.IsFalse(_linearAdjustablePluginInterface.IsGrabbed);
-            Assert.AreEqual(_linearAdjustablePluginInterface.MostRecentInteractingClientID.Value, LocalClientIDWrapperSetup.LocalClientID);
-            Assert.IsTrue(_linearAdjustablePluginInterface.MostRecentInteractingClientID.IsLocal);
+            Assert.IsFalse(_slidingAdjustablePluginInterface.IsGrabbed);
+            Assert.AreEqual(_slidingAdjustablePluginInterface.MostRecentInteractingClientID.Value, LocalClientIDWrapperSetup.LocalClientID);
+            Assert.IsTrue(_slidingAdjustablePluginInterface.MostRecentInteractingClientID.IsLocal);
         }
 
         [TearDown]
@@ -67,10 +67,10 @@ namespace VE2.Core.Tests
         {
             _customerScript.ClearReceivedCalls();
 
-            _linearAdjustablePluginInterface.OnGrab.RemoveAllListeners();
-            _linearAdjustablePluginInterface.OnDrop.RemoveAllListeners();
+            _slidingAdjustablePluginInterface.OnGrab.RemoveAllListeners();
+            _slidingAdjustablePluginInterface.OnDrop.RemoveAllListeners();
 
-            _v_linearAdjustableProviderStub.TearDown();
+            _v_slidingAdjustableProviderStub.TearDown();
         }
 
         [OneTimeTearDown]

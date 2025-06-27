@@ -4,7 +4,7 @@ using VE2.Core.VComponents.API;
 
 public class DevOrangeTest : MonoBehaviour
 {
-    [SerializeField] private InterfaceReference<IV_LinearAdjustable> _linearAdjustable;
+    [SerializeField] private InterfaceReference<IV_SlidingAdjustable> _linearAdjustable;
 
     void OnEnable()
     {

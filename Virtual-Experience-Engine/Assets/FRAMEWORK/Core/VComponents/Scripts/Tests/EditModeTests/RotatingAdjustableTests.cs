@@ -2,20 +2,20 @@ using UnityEngine;
 using NSubstitute;
 using NUnit.Framework;
 using VE2.Core.VComponents.Internal;
+using VE2.Common.Shared;
 using System.Collections.Generic;
 using VE2.Core.VComponents.API;
-using VE2.Common.Shared;
 using VE2.Common.API;
 using UnityEngine.Events;
 
 namespace VE2.Core.VComponents.Tests
 {
     [TestFixture]
-    [Category("Linear Adjustable Tests")]
-    internal class LinearAdjustableTests
+    [Category("Rotating Adjustable Tests")]
+    internal class RotatingAdjustableTests
     {
-        private IV_LinearAdjustable _linearAdjustablePluginInterface => _v_linearAdjustableProviderStub;
-        private V_LinearAdjustableProviderStub _v_linearAdjustableProviderStub;
+        private IV_RotatingAdjustable _rotatingAdjustmentPluginInterface => _v_rotatingAdjustableProviderStub;
+        private V_RotatingAdjustableProviderStub _v_rotatingAdjustableProviderStub;
 
         private PluginAdjustableScript _customerScript;
 
@@ -23,9 +23,9 @@ namespace VE2.Core.VComponents.Tests
         public void SetUpBeforeEveryTest()
         {
             //create the handheld adjustable
-            LinearAdjustableService linearAdjustable = new(
+            RotatingAdjustableService rotatingAdjustable = new(
                 new List<IHandheldInteractionModule>(),
-                new LinearAdjustableConfig(Substitute.For<ITransformWrapper>(), Substitute.For<ITransformWrapper>()),
+                new RotationalAdjustableConfig(Substitute.For<ITransformWrapper>(), Substitute.For<ITransformWrapper>()),
                 new AdjustableState(),
                 new GrabbableState(),
                 "debug",
@@ -33,42 +33,41 @@ namespace VE2.Core.VComponents.Tests
                 Substitute.For<IGrabInteractablesContainer>(),
                 new HandInteractorContainer(),
                 Substitute.For<IClientIDWrapper>());
+            _v_rotatingAdjustableProviderStub = new(rotatingAdjustable);
 
-            _v_linearAdjustableProviderStub = new(linearAdjustable);
-
-            //wire up the customer script to receive the events     
+            //wire up the customer script to receive the events       
             _customerScript = Substitute.For<PluginAdjustableScript>();
-            _linearAdjustablePluginInterface.OnValueAdjusted.AddListener(_customerScript.HandleValueAdjusted);
+            _rotatingAdjustmentPluginInterface.OnValueAdjusted.AddListener(_customerScript.HandleValueAdjusted);
         }
 
         [Test]
-        public void LinearAdjustable_WhenAdjustedByPlugin_EmitsToPlugin([Random(0f, 1f, 1)] float randomValue)
+        public void RotatingAdjustable_WhenAdjustedByPlugin_EmitsToPlugin([Random(0f, 1f, 1)] float randomValue)
         {
             //set the adjustable value, Check customer received the value adjusted, and that the interactorID reflects programmatic activation (ie, null!)
-            _linearAdjustablePluginInterface.SpatialValue = randomValue;
+            _rotatingAdjustmentPluginInterface.SpatialValue = randomValue;
             _customerScript.Received(1).HandleValueAdjusted(randomValue);
-            Assert.IsTrue(_linearAdjustablePluginInterface.Value == randomValue);
-            Assert.AreEqual(_linearAdjustablePluginInterface.MostRecentInteractingClientID, null);
+            Assert.IsTrue(_rotatingAdjustmentPluginInterface.Value == randomValue);
+            Assert.AreEqual(_rotatingAdjustmentPluginInterface.MostRecentInteractingClientID, null);
         }
 
         [TearDown]
         public void TearDownAfterEveryTest()
         {
             _customerScript.ClearReceivedCalls();
-            _linearAdjustablePluginInterface.OnValueAdjusted.RemoveAllListeners();
+            _rotatingAdjustmentPluginInterface.OnValueAdjusted.RemoveAllListeners();
 
-            _v_linearAdjustableProviderStub.TearDown();
+            _v_rotatingAdjustableProviderStub.TearDown();
         }
 
         [OneTimeTearDown]
         public void TearDownOnce() { }
     }
 
-    internal partial class V_LinearAdjustableProviderStub : IV_LinearAdjustable
+    internal partial class V_RotatingAdjustableProviderStub : IV_RotatingAdjustable
     {
         #region State Module Interface
         internal IAdjustableStateModule _AdjustableStateModule => _Service.AdjustableStateModule;
-        internal IGrabbableStateModule _GrabbableStateModule => _Service.FreeGrabbableStateModule;
+        internal IGrabbableStateModule _GrabbableStateModule => _Service.GrabbableStateModule;
 
         public UnityEvent<float> OnValueAdjusted => _AdjustableStateModule.OnValueAdjusted;
         public UnityEvent OnGrab => _GrabbableStateModule.OnGrab;
@@ -97,7 +96,7 @@ namespace VE2.Core.VComponents.Tests
             MinimumOutputValue = min;
             MaximumOutputValue = max;
         }
-
+        
         public IClientIDWrapper MostRecentInteractingClientID => _GrabbableStateModule.MostRecentInteractingClientID;
         #endregion
 
@@ -114,17 +113,17 @@ namespace VE2.Core.VComponents.Tests
         #endregion
     }
 
-    internal partial class V_LinearAdjustableProviderStub : IRangedGrabInteractionModuleProvider
+    internal partial class V_RotatingAdjustableProviderStub : IRangedGrabInteractionModuleProvider
     {
         #region Player Interfaces
         IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _Service.RangedAdjustableInteractionModule;
         #endregion
 
-        protected LinearAdjustableService _Service = null;
+        protected RotatingAdjustableService _Service = null;
 
-        public V_LinearAdjustableProviderStub(LinearAdjustableService linearAdjustable)
+        public V_RotatingAdjustableProviderStub(RotatingAdjustableService service)
         {
-            _Service = linearAdjustable;
+            _Service = service;
         }
 
         public void TearDown()

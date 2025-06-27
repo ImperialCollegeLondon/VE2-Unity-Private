@@ -35,7 +35,7 @@ namespace VE2.Core.VComponents.Internal
         public RotationalAdjustableConfig() {}
     }
 
-    internal class RotationalAdjustableService
+    internal class RotatingAdjustableService
     {
         private ITransformWrapper _attachPointTransform => _config.RangedAdjustableInteractionConfig.AttachPointWrapper;
 
@@ -71,7 +71,7 @@ namespace VE2.Core.VComponents.Internal
         private int _minRevs => (int)MinimumSpatialValue / 360;
         private int _maxRevs => (int)MaximumSpatialValue / 360;
 
-        public RotationalAdjustableService(List<IHandheldInteractionModule> handheldInteractions, RotationalAdjustableConfig config, AdjustableState adjustableState, VE2Serializable grabbableState, string id,
+        public RotatingAdjustableService(List<IHandheldInteractionModule> handheldInteractions, RotationalAdjustableConfig config, AdjustableState adjustableState, VE2Serializable grabbableState, string id,
             IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer, IClientIDWrapper localClientIdWrapper)
         {
             _config = config;

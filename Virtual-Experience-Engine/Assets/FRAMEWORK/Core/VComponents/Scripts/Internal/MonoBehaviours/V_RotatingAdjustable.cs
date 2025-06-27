@@ -7,7 +7,7 @@ using UnityEngine.Events;
 
 namespace VE2.Core.VComponents.Internal
 {
-    internal partial class V_RotationalAdjustable : IV_RotationalAdjustable
+    internal partial class V_RotatingAdjustable : IV_RotatingAdjustable
     {
         #region State Module Interface
         internal IAdjustableStateModule _AdjustableStateModule => _Service.AdjustableStateModule;
@@ -57,7 +57,7 @@ namespace VE2.Core.VComponents.Internal
         #endregion
     }
 
-    internal partial class V_RotationalAdjustable : MonoBehaviour, IRangedGrabInteractionModuleProvider
+    internal partial class V_RotatingAdjustable : MonoBehaviour, IRangedGrabInteractionModuleProvider
     {
         [SerializeField, IgnoreParent] private RotationalAdjustableConfig _config = new();
         [SerializeField, HideInInspector] private AdjustableState _adjustableState = null;
@@ -80,8 +80,8 @@ namespace VE2.Core.VComponents.Internal
         internal string AttachPointGOName => ((TransformWrapper)_config.RangedAdjustableInteractionConfig.AttachPointWrapper).GameObject.name;
         #endregion
 
-        private RotationalAdjustableService _service = null;
-        private RotationalAdjustableService _Service
+        private RotatingAdjustableService _service = null;
+        private RotatingAdjustableService _Service
         {
             get
             {
@@ -131,7 +131,7 @@ namespace VE2.Core.VComponents.Internal
             // if (TryGetComponent(out V_HandheldAdjustable handheldAdjustable))
             //     handheldInteractions.Add(handheldAdjustable.HandheldScrollInteractionModule);
 
-            _service = new RotationalAdjustableService(
+            _service = new RotatingAdjustableService(
                 handheldInteractions,
                 _config,
                 _adjustableState,
