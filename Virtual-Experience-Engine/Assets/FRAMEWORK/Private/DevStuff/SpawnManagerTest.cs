@@ -18,17 +18,13 @@ public class SpawnManagerTest : MonoBehaviour
         spawnManagerReference.Interface.SpawnPosition = spawnPosition;
     }
 
-    // Update is called once per frame
+
     void Update()
     {
         if (Keyboard.current.kKey.wasPressedThisFrame)
-        {
             spawnManagerReference.Interface.SpawnGameObject();
-        }
 
         if (Keyboard.current.lKey.wasPressedThisFrame)
-        {
             spawnManagerReference.Interface.DespawnGameObject(lastGameObjectSpawnedToReturn);
-        }
     }
 }

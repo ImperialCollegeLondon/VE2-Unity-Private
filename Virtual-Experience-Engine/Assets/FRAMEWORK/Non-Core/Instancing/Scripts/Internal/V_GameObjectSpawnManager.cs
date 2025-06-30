@@ -12,16 +12,12 @@ namespace VE2.NonCore.Instancing.Internal
         [SerializeField] private V_NetworkObject _networkObject;
         [SerializeField] private GameObject _gameobjectToSpawn;
         [SerializeField] private Transform _spawnPosition;
+        [SerializeField] private bool restrictNumberOfObjects = false;
+        [SerializeField] private int maxNumberOfObjects = 15;
+        [SerializeField] private GameObject tooManyObjectsMessage = null;
 
         private Dictionary<string, GameObject> gameobjectsAgainstIDs = new();
         private int numberOfSpawnedgameobjects = 0;
-
-        [SerializeField] private bool restrictNumberOfObjects = false;
-
-        [SerializeField] private int maxNumberOfObjects = 15;
-
-        [SerializeField] private GameObject tooManyObjectsMessage = null;
-
         public GameObject ObjectToSpawn { get => _gameobjectToSpawn; set => _gameobjectToSpawn = value; }
         public Transform SpawnPosition { get => _spawnPosition; set => _spawnPosition = value; }
 
@@ -41,9 +37,7 @@ namespace VE2.NonCore.Instancing.Internal
                 return null;
 
             if (restrictNumberOfObjects && gameobjectsAgainstIDs.Count >= maxNumberOfObjects)
-            {
                 return null;
-            }
 
             GameObject newGO = SpawnNewGameObject();
 
@@ -113,9 +107,7 @@ namespace VE2.NonCore.Instancing.Internal
             gameobjectsAgainstIDs.Add(gameObjectName, newGO);
 
             if (restrictNumberOfObjects && gameobjectsAgainstIDs.Count >= maxNumberOfObjects)
-            {
                 tooManyObjectsMessage?.SetActive(true);
-            }
 
             return newGO;
         }
@@ -126,9 +118,7 @@ namespace VE2.NonCore.Instancing.Internal
             Destroy(goToDespawn);
 
             if (restrictNumberOfObjects && gameobjectsAgainstIDs.Count < maxNumberOfObjects)
-            {
                 tooManyObjectsMessage?.SetActive(false);
-            }
         }
 
         public int GetNumberOfSpawnedGameObjects()
