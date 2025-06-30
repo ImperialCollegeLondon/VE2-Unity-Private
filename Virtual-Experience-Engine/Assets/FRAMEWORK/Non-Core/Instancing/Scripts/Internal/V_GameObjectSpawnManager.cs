@@ -33,8 +33,10 @@ namespace VE2.NonCore.Instancing.Internal
         //Invoke this to spawn the GameObject
         public GameObject SpawnGameObject()
         {
-            //Since this function is called by an activatable, we know it'll be called on the host client
-            //Since it's being called on the host client, we don't need it to be called on nonhosts too!
+            //As is best practice with modifying network data, we only do so if we are the host of the instance.
+            //If this function is called programmatically by the plugin, the plugin should ensure the call occurs on the host machine.
+            //A good way of doing this is by ensuring the call happens on ALL machines,
+            //which would be the case if the call was triggered by e.g a networked activatable.
             if (!VE2API.InstanceService.IsHost)
                 return null;
 
