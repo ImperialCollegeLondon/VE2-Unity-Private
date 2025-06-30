@@ -26,11 +26,6 @@ public class SpawnManagerTest : MonoBehaviour
             spawnManagerReference.Interface.SpawnGameObject();
         }
 
-        if (Keyboard.current.zKey.wasPressedThisFrame)
-        {
-            lastGameObjectSpawnedToReturn = spawnManagerReference.Interface.SpawnAndReturnGameObject();
-
-        }
         if (Keyboard.current.lKey.wasPressedThisFrame)
         {
             spawnManagerReference.Interface.DespawnGameObject(lastGameObjectSpawnedToReturn);

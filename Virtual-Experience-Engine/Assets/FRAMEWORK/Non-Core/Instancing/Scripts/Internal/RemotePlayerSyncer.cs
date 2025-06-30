@@ -61,7 +61,7 @@ namespace VE2.NonCore.Instancing.Internal
                 }
 
                 _remoteAvatars[receivedRemoteClientInfoWithAppearance.ClientID].HandleReceiveAvatarAppearance(receivedRemoteClientInfoWithAppearance.InstancedAvatarAppearance.OverridableAvatarAppearance);
-                _remoteAvatars[receivedRemoteClientInfoWithAppearance.ClientID].    HandleReceiveAdminUpdateNotice(receivedRemoteClientInfoWithAppearance.IsAdmin);
+                _remoteAvatars[receivedRemoteClientInfoWithAppearance.ClientID].HandleReceiveAdminUpdateNotice(receivedRemoteClientInfoWithAppearance.IsAdmin);
             }
 
             List<ushort> remoteClientIDsToDespawn = new(_remoteAvatars.Keys);

@@ -7,7 +7,7 @@ using VE2.NonCore.Instancing.API;
 
 namespace VE2.NonCore.Instancing.Internal
 {
-    public class V_GameObjectSpawnManager : MonoBehaviour, IV_GameObjectSpawnManager
+    internal class V_GameObjectSpawnManager : MonoBehaviour, IV_GameObjectSpawnManager
     {
         [SerializeField] private V_NetworkObject _networkObject;
         [SerializeField] private GameObject _gameobjectToSpawn;
@@ -30,14 +30,8 @@ namespace VE2.NonCore.Instancing.Internal
             tooManyObjectsMessage?.SetActive(false);
         }
 
-        public void SpawnGameObject()
-        {
-            SpawnAndReturnGameObject();
-        }
-
-
         //Invoke this to spawn the GameObject
-        public GameObject SpawnAndReturnGameObject()
+        public GameObject SpawnGameObject()
         {
             //Since this function is called by an activatable, we know it'll be called on the host client
             //Since it's being called on the host client, we don't need it to be called on nonhosts too!
