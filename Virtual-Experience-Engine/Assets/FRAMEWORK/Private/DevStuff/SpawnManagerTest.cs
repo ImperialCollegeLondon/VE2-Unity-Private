@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using VE2.Common.API;
 using VE2.Common.Shared;
+using VE2.Core.VComponents.API;
 using VE2.NonCore.Instancing.API;
 
 public class SpawnManagerTest : MonoBehaviour
@@ -11,6 +12,7 @@ public class SpawnManagerTest : MonoBehaviour
     public Transform spawnPosition;
 
     private GameObject lastGameObjectSpawnedToReturn;
+    private int counter = 0;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -28,11 +30,15 @@ public class SpawnManagerTest : MonoBehaviour
 
         if (Keyboard.current.zKey.wasPressedThisFrame)
         {
-            lastGameObjectSpawnedToReturn = spawnManagerReference.Interface.SpawnAndReturnGameObject();
+            InterfaceReference<IV_FreeGrabbable> freeGrabbable = spawnManagerReference.Interface.SpawnAndReturnGameObject().GetComponent<InterfaceReference<IV_FreeGrabbable>>();
+            freeGrabbable.MonoBehaviour.enabled = false;
+            freeGrabbable.GameObject.name = "FreeGrabbableObject_" + counter;
+            freeGrabbable.MonoBehaviour.enabled = true;
+            counter++;
         }
         if (Keyboard.current.lKey.wasPressedThisFrame)
         {
-            spawnManagerReference.Interface.OnDespawnTriggered(lastGameObjectSpawnedToReturn);
+            spawnManagerReference.Interface.DespawnGameObject(lastGameObjectSpawnedToReturn);
         }
     }
 }

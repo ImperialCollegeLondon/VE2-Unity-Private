@@ -60,7 +60,7 @@ namespace VE2.NonCore.Instancing.Internal
         }
 
         //Invoke this to delete the GameObject
-        public void OnDespawnTriggered(GameObject gameobjectToDespawn)
+        public void DespawnGameObject(GameObject gameobjectToDespawn)
         {
             //The collision will happen on the host machine, so no need to call this on the non-hosts!
             if (!VE2API.InstanceService.IsHost)

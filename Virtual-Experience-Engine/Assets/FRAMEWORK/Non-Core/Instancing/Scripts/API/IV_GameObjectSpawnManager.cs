@@ -8,6 +8,6 @@ namespace VE2.NonCore.Instancing.API
         public Transform SpawnPosition { get; set; }
         public void SpawnGameObject();
         public GameObject SpawnAndReturnGameObject();
-        public void OnDespawnTriggered(GameObject gameobjectToDespawn);
+        public void DespawnGameObject(GameObject gameobjectToDespawn);
     }
 }
