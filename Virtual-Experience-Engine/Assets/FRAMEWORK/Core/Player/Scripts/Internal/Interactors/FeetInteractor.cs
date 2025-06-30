@@ -39,7 +39,7 @@ namespace VE2.Core.Player.Internal
 
         protected bool IsInteractableAllowed(IGeneralInteractionModule interactable)
         {
-            return interactable != null && (!interactable.AdminOnly || _localAdminIndicator.IsLocalAdmin);
+            return interactable != null && interactable.IsInteractable && (!interactable.AdminOnly || _localAdminIndicator.IsLocalAdmin);
         }
 
         public virtual void HandleOnEnable()
@@ -75,7 +75,7 @@ namespace VE2.Core.Player.Internal
             if (collideInteractionModule.CollideInteractionType != CollideInteractionType.Feet)
                 return;
 
-            bool canInteract = _localClientIDWrapper.IsClientIDReady && IsInteractableAllowed(collideInteractionModule) && collideInteractionModule.IsInteractable;
+            bool canInteract = _localClientIDWrapper.IsClientIDReady && IsInteractableAllowed(collideInteractionModule);
 
             if (canInteract)
                 StartInteractingWithModule(collideInteractionModule);

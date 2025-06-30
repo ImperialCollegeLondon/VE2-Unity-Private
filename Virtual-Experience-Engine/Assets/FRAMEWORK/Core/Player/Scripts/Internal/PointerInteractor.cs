@@ -160,7 +160,7 @@ namespace VE2.Core.Player.Internal
         // Only allow interactable if not admin only, or if local player is admin
         protected bool IsInteractableAllowed(IGeneralInteractionModule interactable)
         {
-            return interactable != null && (!interactable.AdminOnly || _localAdminIndicator.IsLocalAdmin);
+            return interactable != null && interactable.IsInteractable && (!interactable.AdminOnly || _localAdminIndicator.IsLocalAdmin);
         }
 
         protected abstract void Vibrate(float amplitude, float duration);
@@ -411,7 +411,7 @@ namespace VE2.Core.Player.Internal
 
             if (raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange &&
                 raycastResultWrapper.RangedInteractable is IRangedClickInteractionModule rangedClickInteractable && 
-                IsInteractableAllowed(rangedClickInteractable) && rangedClickInteractable.IsInteractable)
+                IsInteractableAllowed(rangedClickInteractable))
             {
                 //TODO - Code smell? This is a bit of a hack to get around the fact that we don't have a way to check if we're in VR or not
                 if (this is InteractorVR && !rangedClickInteractable.ActivateAtRangeInVR)
@@ -568,7 +568,7 @@ namespace VE2.Core.Player.Internal
                 {
                     if (handheldInteraction is IHandheldClickInteractionModule handheldClickInteraction)
                     {
-                        if (handheldClickInteraction.IsInteractable)
+                        if (IsInteractableAllowed(handheldClickInteraction))
                         {
                             handheldClickInteraction.ClickDown(_InteractorID.ClientID);
                             Vibrate(HIGH_HAPTICS_AMPLITUDE, HIGH_HAPTICS_DURATION);
@@ -603,7 +603,7 @@ namespace VE2.Core.Player.Internal
                 {
                     if (handheldInteraction is IHandheldScrollInteractionModule handheldScrollInteraction)
                     {
-                        if (handheldInteraction.IsInteractable)
+                        if (IsInteractableAllowed(handheldInteraction))
                         {
                             handheldScrollInteraction.ScrollUp(_InteractorID.ClientID);
                             Vibrate(HIGH_HAPTICS_AMPLITUDE, HIGH_HAPTICS_DURATION);
@@ -643,7 +643,7 @@ namespace VE2.Core.Player.Internal
                 {
                     if (handheldInteraction is IHandheldScrollInteractionModule handheldScrollInteraction)
                     {
-                        if (handheldInteraction.IsInteractable)
+                        if (IsInteractableAllowed(handheldInteraction))
                         {
                             handheldScrollInteraction.ScrollDown(_InteractorID.ClientID);
                             Vibrate(HIGH_HAPTICS_AMPLITUDE, HIGH_HAPTICS_DURATION);
