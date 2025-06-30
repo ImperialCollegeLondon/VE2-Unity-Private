@@ -30,14 +30,14 @@ namespace VE2.NonCore.Instancing.Internal
             tooManyObjectsMessage?.SetActive(false);
         }
 
-        public void SpawnGameObject()
+        public void SpawnGameObject(string gameObjectName = "none")
         {
-            SpawnAndReturnGameObject();
+            SpawnAndReturnGameObject(gameObjectName);
         }
 
 
         //Invoke this to spawn the GameObject
-        public GameObject SpawnAndReturnGameObject()
+        public GameObject SpawnAndReturnGameObject(string gameObjectName = "none")
         {
             //Since this function is called by an activatable, we know it'll be called on the host client
             //Since it's being called on the host client, we don't need it to be called on nonhosts too!
@@ -49,7 +49,7 @@ namespace VE2.NonCore.Instancing.Internal
                 return null;
             }
 
-            GameObject newGO = SpawnNewGameObject();
+            GameObject newGO = SpawnNewGameObject(gameObjectName);
 
             //Update the network object with the list of gameobjects
             //If we're non-host, this will go to host and sync back to everyone else 
@@ -96,19 +96,25 @@ namespace VE2.NonCore.Instancing.Internal
             }
         }
 
-        //Will be "none" if the spawn has been triggered locally, rather than through sync data
-        private GameObject SpawnNewGameObject(string goName = "none")
+        //Will be "none" if the spawn has been triggered locally, rather than through sync data  
+        private GameObject SpawnNewGameObject(string gameObjectName = "none")
         {
             numberOfSpawnedgameobjects++;
 
-            if (goName.Equals("none"))
-                goName = "spawnedGameobject" + numberOfSpawnedgameobjects;
+            if (gameObjectName.Equals("none") || gameObjectName.Equals("") || gameobjectsAgainstIDs.ContainsKey(gameObjectName))
+                gameObjectName = "spawnedGameobject" + numberOfSpawnedgameobjects;
 
-            GameObject newGO = Instantiate(_gameobjectToSpawn, _spawnPosition.position, _spawnPosition.rotation);
-            newGO.SetActive(false);
-            newGO.name = goName;
+            //A hack to disable onenable using a parent object and enabling once we rename
+            GameObject boot = new GameObject(gameObjectName + "_boot");
+            boot.SetActive(false);
+
+            GameObject newGO = Instantiate(_gameobjectToSpawn, _spawnPosition.position, _spawnPosition.rotation, boot.transform);
+            newGO.name = gameObjectName;
+            newGO.transform.SetParent(null);
+            Destroy(boot);
             newGO.SetActive(true);
-            gameobjectsAgainstIDs.Add(goName, newGO);
+
+            gameobjectsAgainstIDs.Add(gameObjectName, newGO);
 
             if (restrictNumberOfObjects && gameobjectsAgainstIDs.Count >= maxNumberOfObjects)
             {

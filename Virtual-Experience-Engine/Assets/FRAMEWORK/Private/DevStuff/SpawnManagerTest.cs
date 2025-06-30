@@ -25,16 +25,16 @@ public class SpawnManagerTest : MonoBehaviour
     {
         if (Keyboard.current.kKey.wasPressedThisFrame)
         {
-            spawnManagerReference.Interface.SpawnGameObject();
+            spawnManagerReference.Interface.SpawnGameObject("MyPersonalGameObject");
         }
 
         if (Keyboard.current.zKey.wasPressedThisFrame)
         {
             InterfaceReference<IV_FreeGrabbable> freeGrabbable = spawnManagerReference.Interface.SpawnAndReturnGameObject().GetComponent<InterfaceReference<IV_FreeGrabbable>>();
-            freeGrabbable.MonoBehaviour.enabled = false;
-            freeGrabbable.GameObject.name = "FreeGrabbableObject_" + counter;
-            freeGrabbable.MonoBehaviour.enabled = true;
-            counter++;
+            //freeGrabbable.MonoBehaviour.enabled = false;
+            //freeGrabbable.GameObject.name = "FreeGrabbableObject_" + counter;
+            //freeGrabbable.MonoBehaviour.enabled = true;
+            //counter++;
         }
         if (Keyboard.current.lKey.wasPressedThisFrame)
         {
