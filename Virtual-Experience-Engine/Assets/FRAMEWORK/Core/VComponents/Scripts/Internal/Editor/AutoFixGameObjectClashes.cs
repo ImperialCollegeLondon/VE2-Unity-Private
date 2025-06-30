@@ -18,7 +18,7 @@ namespace VE2.Core.VComponents.Internal
                 typeof(V_ToggleActivatable),
                 typeof(V_HoldActivatable),
                 typeof(V_FreeGrabbable),
-                typeof(V_PressurePlate),
+                typeof(V_PressurePlateActivatable),
                 typeof(V_RotatingAdjustable),
                 typeof(V_SlidingAdjustable),
                 typeof(V_HandheldAdjustable),

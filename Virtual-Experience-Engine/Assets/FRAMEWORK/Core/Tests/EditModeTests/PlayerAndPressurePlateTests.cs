@@ -13,15 +13,15 @@ namespace VE2.Core.Tests
     [Category("PlayerAndPressurePlateTests")]
     internal class PlayerAndPressurePlateTests : PlayerServiceSetupFixture
     {
-        private IV_PressurePlate _pressurePlatePluginInterface => _v_pressurePlateProviderStub;
+        private IV_PressurePlateActivatable _pressurePlatePluginInterface => _v_pressurePlateProviderStub;
         private ICollideInteractionModuleProvider _pressurePlateCollideInterface => _v_pressurePlateProviderStub;
-        private V_PressurePlateStub _v_pressurePlateProviderStub;
+        private V_PressurePlateActivatableStub _v_pressurePlateProviderStub;
         private PluginActivatableScript _customerScript;
 
         [SetUp]
         public void SetUpBeforeEveryTest()
         {
-            PressurePlateService pressurePlateService = new(
+            PressurePlateActivatableService pressurePlateService = new(
                 new PressurePlateConfig(),
                 new MultiInteractorActivatableSyncedState(),
                 "debug",

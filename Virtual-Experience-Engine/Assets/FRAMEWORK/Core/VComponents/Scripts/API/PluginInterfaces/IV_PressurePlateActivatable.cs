@@ -5,7 +5,7 @@ using VE2.Common.Shared;
 
 namespace VE2.Core.VComponents.API
 {
-    public interface IV_PressurePlate : IV_GeneralInteractable
+    public interface IV_PressurePlateActivatable : IV_GeneralInteractable
     {
         #region State Module Interface
         public UnityEvent OnActivate { get; }

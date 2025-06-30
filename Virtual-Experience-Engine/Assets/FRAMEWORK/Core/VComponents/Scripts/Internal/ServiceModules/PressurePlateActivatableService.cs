@@ -21,7 +21,7 @@ namespace VE2.Core.VComponents.Internal
         private bool MultiplayerSupportPresent => VE2API.HasMultiPlayerSupport;
     }
     
-    internal class PressurePlateService
+    internal class PressurePlateActivatableService
     {
         #region Interfaces
         public IMultiInteractorActivatableStateModule StateModule => _StateModule;
@@ -33,7 +33,7 @@ namespace VE2.Core.VComponents.Internal
         private readonly ColliderInteractionModule _ColliderInteractionModule;
         #endregion
 
-        public PressurePlateService(PressurePlateConfig config, MultiInteractorActivatableSyncedState state, string id, IClientIDWrapper localClientIdWrapper, IWorldStateSyncableContainer worldStateSyncableContainer)
+        public PressurePlateActivatableService(PressurePlateConfig config, MultiInteractorActivatableSyncedState state, string id, IClientIDWrapper localClientIdWrapper, IWorldStateSyncableContainer worldStateSyncableContainer)
         {
             _StateModule = new(state, config.StateConfig, id, localClientIdWrapper, config.SyncConfig, worldStateSyncableContainer);
             _ColliderInteractionModule = new(CollideInteractionType.Feet, config.GeneralInteractionConfig, config.SyncConfig, id);

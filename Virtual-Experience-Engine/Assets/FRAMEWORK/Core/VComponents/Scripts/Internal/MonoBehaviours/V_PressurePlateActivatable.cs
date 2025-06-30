@@ -7,7 +7,7 @@ using VE2.Core.VComponents.API;
 
 namespace VE2.Core.VComponents.Internal
 {
-    internal partial class V_PressurePlate : IV_PressurePlate
+    internal partial class V_PressurePlateActivatable : IV_PressurePlateActivatable
     {
         #region State Module Interface
         internal IMultiInteractorActivatableStateModule _StateModule => _Service.StateModule;
@@ -31,7 +31,7 @@ namespace VE2.Core.VComponents.Internal
         #endregion
     }
 
-    internal partial class V_PressurePlate : MonoBehaviour, IV_PressurePlate, ICollideInteractionModuleProvider
+    internal partial class V_PressurePlateActivatable : MonoBehaviour, IV_PressurePlateActivatable, ICollideInteractionModuleProvider
     {
         [SerializeField, IgnoreParent] private PressurePlateConfig _config = new();
         [SerializeField, HideInInspector] private MultiInteractorActivatableSyncedState _state = new();
@@ -40,8 +40,8 @@ namespace VE2.Core.VComponents.Internal
         ICollideInteractionModule ICollideInteractionModuleProvider.CollideInteractionModule => _Service.ColliderInteractionModule;
         #endregion
 
-        private PressurePlateService _service = null;
-        private PressurePlateService _Service
+        private PressurePlateActivatableService _service = null;
+        private PressurePlateActivatableService _Service
         {
             get
             {
@@ -57,7 +57,7 @@ namespace VE2.Core.VComponents.Internal
                 return;
 
             string id = "PressurePlate-" + gameObject.name;
-            _service = new PressurePlateService(_config, _state, id, VE2API.LocalClientIdWrapper, VE2API.WorldStateSyncableContainer);
+            _service = new PressurePlateActivatableService(_config, _state, id, VE2API.LocalClientIdWrapper, VE2API.WorldStateSyncableContainer);
         }
 
         private void FixedUpdate()

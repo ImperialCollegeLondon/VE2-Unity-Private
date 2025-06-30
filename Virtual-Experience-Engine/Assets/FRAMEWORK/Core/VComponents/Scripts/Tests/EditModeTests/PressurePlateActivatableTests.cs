@@ -7,7 +7,7 @@ using VE2.Core.VComponents.Internal;
 
 namespace VE2.Core.VComponents.Tests
 {
-    internal partial class V_PressurePlateStub : IV_PressurePlate
+    internal partial class V_PressurePlateActivatableStub : IV_PressurePlateActivatable
     {
         #region State Module Interface
         internal IMultiInteractorActivatableStateModule _StateModule => _Service.StateModule;
@@ -30,15 +30,15 @@ namespace VE2.Core.VComponents.Tests
         #endregion
     }
 
-    internal partial class V_PressurePlateStub : ICollideInteractionModuleProvider
+    internal partial class V_PressurePlateActivatableStub : ICollideInteractionModuleProvider
     {
         #region Player Interfaces
         ICollideInteractionModule ICollideInteractionModuleProvider.CollideInteractionModule => _Service.ColliderInteractionModule;
         #endregion
 
-        internal PressurePlateService _Service = null;
+        internal PressurePlateActivatableService _Service = null;
 
-        internal V_PressurePlateStub(PressurePlateService service)
+        internal V_PressurePlateActivatableStub(PressurePlateActivatableService service)
         {
             _Service = service;
         }
