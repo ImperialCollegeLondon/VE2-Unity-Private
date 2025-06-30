@@ -30,14 +30,14 @@ namespace VE2.NonCore.Instancing.Internal
             tooManyObjectsMessage?.SetActive(false);
         }
 
-        public void SpawnGameObject(string gameObjectName = "none")
+        public void SpawnGameObject()
         {
-            SpawnAndReturnGameObject(gameObjectName);
+            SpawnAndReturnGameObject();
         }
 
 
         //Invoke this to spawn the GameObject
-        public GameObject SpawnAndReturnGameObject(string gameObjectName = "none")
+        public GameObject SpawnAndReturnGameObject()
         {
             //Since this function is called by an activatable, we know it'll be called on the host client
             //Since it's being called on the host client, we don't need it to be called on nonhosts too!
@@ -49,7 +49,7 @@ namespace VE2.NonCore.Instancing.Internal
                 return null;
             }
 
-            GameObject newGO = SpawnNewGameObject(gameObjectName);
+            GameObject newGO = SpawnNewGameObject();
 
             //Update the network object with the list of gameobjects
             //If we're non-host, this will go to host and sync back to everyone else 
@@ -101,7 +101,7 @@ namespace VE2.NonCore.Instancing.Internal
         {
             numberOfSpawnedgameobjects++;
 
-            if (gameObjectName.Equals("none") || gameObjectName.Equals("") || gameobjectsAgainstIDs.ContainsKey(gameObjectName))
+            if (gameObjectName.Equals("none") || gameobjectsAgainstIDs.ContainsKey(gameObjectName))
                 gameObjectName = "spawnedGameobject" + numberOfSpawnedgameobjects;
 
             //A hack to disable onenable using a parent object and enabling once we rename
