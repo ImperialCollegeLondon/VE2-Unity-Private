@@ -33,7 +33,7 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField, PropertyOrder(-7), ShowIf(nameof(VRFailsafeGrab), true)] public float VRRaySnapRangeBackOfHand = 0.1f;
         [SerializeField, PropertyOrder(-6)] public bool VRFailsafeGrab = true;
         [EndGroup]
-        [SerializeField, PropertyOrder(-5), ShowIf(nameof(VRFailsafeGrab), true), Range(1f, 2f)] public float FailsafeGrabMultiplier = 1.2f;
+        [SerializeField, PropertyOrder(-5), ShowIf(nameof(VRFailsafeGrab), true), Range(1f, 2f)] public float VRFailsafeGrabMultiplier = 1.2f;
 
         //TODO - VR raysnap should be allowed even if failsafe grab is disabled
         //Maybe we want a separate toggle to define whether we also allow ray snapping?
@@ -54,7 +54,7 @@ namespace VE2.Core.VComponents.Internal
         public bool VrRaySnap => _rangedGrabInteractionConfig.VRRaySnap;
         public float VRRaySnapRange => _rangedGrabInteractionConfig.VRRaySnapRangeFrontOfHand;
         public float VRRaySnapRangeBackOfHand => _rangedGrabInteractionConfig.VRRaySnapRangeBackOfHand;
-        public float FailsafeGrabMultiplier => _rangedGrabInteractionConfig.FailsafeGrabMultiplier;
+        public float FailsafeGrabMultiplier => _rangedGrabInteractionConfig.VRFailsafeGrabMultiplier;
 
         private readonly string _id;
         private readonly IGrabInteractablesContainer _grabInteractablesContainer;
