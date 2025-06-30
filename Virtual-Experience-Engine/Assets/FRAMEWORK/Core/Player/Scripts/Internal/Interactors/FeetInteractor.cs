@@ -37,7 +37,7 @@ namespace VE2.Core.Player.Internal
             _localAdminIndicator = localAdminIndicator;
         }
 
-        protected bool IsInteractableAllowed(IGeneralInteractionModule interactable)
+        protected bool IsInteractionAllowed(IGeneralInteractionModule interactable)
         {
             return interactable != null && interactable.IsInteractable && (!interactable.AdminOnly || _localAdminIndicator.IsLocalAdmin);
         }
@@ -75,7 +75,7 @@ namespace VE2.Core.Player.Internal
             if (collideInteractionModule.CollideInteractionType != CollideInteractionType.Feet)
                 return;
 
-            bool canInteract = _localClientIDWrapper.IsClientIDReady && IsInteractableAllowed(collideInteractionModule);
+            bool canInteract = _localClientIDWrapper.IsClientIDReady && IsInteractionAllowed(collideInteractionModule);
 
             if (canInteract)
                 StartInteractingWithModule(collideInteractionModule);
@@ -96,7 +96,7 @@ namespace VE2.Core.Player.Internal
             if (collideInteractionModule.CollideInteractionType != CollideInteractionType.Feet)
                 return;
 
-            bool canInteract = _localClientIDWrapper.IsClientIDReady && IsInteractableAllowed(collideInteractionModule);
+            bool canInteract = _localClientIDWrapper.IsClientIDReady && IsInteractionAllowed(collideInteractionModule);
 
             if (canInteract)
             StopInteractingWithModule(collideInteractionModule);
@@ -120,14 +120,13 @@ namespace VE2.Core.Player.Internal
                 bool isCurrentlyInteracting = kvp.Value;
 
                 //If we are colliding with the interaction module, but not interacting with it, and we are admin, we should start interacting
-                if (!isCurrentlyInteracting && IsInteractableAllowed(interactionModule) && 
-                    _localAdminIndicator.IsLocalAdmin && interactionModule.IsInteractable)
+                if (!isCurrentlyInteracting && IsInteractionAllowed(interactionModule))
                 {
                     StartInteractingWithModule(interactionModule);
                     _currentCollidingInteractionModules[interactionModule] = true;
                 }
                 //If we are colliding with the interaction module, and we are interacting with it, but we are not admin, we should stop interacting
-                else if (isCurrentlyInteracting && !IsInteractableAllowed(interactionModule))
+                else if (isCurrentlyInteracting && !IsInteractionAllowed(interactionModule))
                 {
                     StopInteractingWithModule(interactionModule);
                     _currentCollidingInteractionModules[interactionModule] = false;
