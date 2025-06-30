@@ -12,8 +12,6 @@ public class SpawnManagerTest : MonoBehaviour
     public Transform spawnPosition;
 
     private GameObject lastGameObjectSpawnedToReturn;
-    private int counter = 0;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         spawnManagerReference.Interface.ObjectToSpawn = objectToSpawn;
