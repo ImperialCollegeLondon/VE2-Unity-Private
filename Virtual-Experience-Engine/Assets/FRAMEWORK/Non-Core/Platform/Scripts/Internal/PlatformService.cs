@@ -19,17 +19,19 @@ namespace VE2.NonCore.Platform.Internal
 {
     internal static class PlatformServiceFactory
     {
-        internal static PlatformService Create(IPlatformSettingsHandler platformSettingsHandler)
+        internal static PlatformService Create(PlatformServiceConfig config, IPlatformSettingsHandler platformSettingsHandler)
         {
             PlatformCommsHandler commsHandler = new(new DarkRift.Client.DarkRiftClient());
             IPlayerServiceInternal playerService = VE2API.Player as IPlayerServiceInternal; //TODO: Think about this - pretty sure the platform can just take the container, rather than initing the player directly 
             PluginLoader pluginLoader = new PluginLoader(platformSettingsHandler, playerService);
             return new PlatformService(
+                config,
                 commsHandler, 
                 pluginLoader, 
                 playerService, 
                 platformSettingsHandler, 
-                VE2API.PrimaryUIService as IPrimaryUIServiceInternal);
+                VE2API.PrimaryUIService as IPrimaryUIServiceInternal,
+                VE2API.LocalAdminIndicator as ILocalAdminIndicatorWritable);
         }
     }
 
@@ -151,8 +153,16 @@ namespace VE2.NonCore.Platform.Internal
 
         public void GrantLocalPlayerAdmin()
         {
-            //TODO - send to server
-            //TODO - update admin indicator
+            if (!IsConnectedToServer)
+            {
+                Debug.LogError("Can't raise to admin, not connected to server. Wait for connection before changing admin status");
+                return;
+            }
+
+            _localAdminIndicatorWrapper.SetLocalAdminStatus(true);
+
+            AdminUpdateNotice adminUpdateNotice = new(true);
+            _commsHandler.SendMessage(adminUpdateNotice.Bytes, PlatformNetworkingMessageCodes.AdminUpdateNotice, TransmissionProtocol.TCP);
 
             try
             {
@@ -166,8 +176,16 @@ namespace VE2.NonCore.Platform.Internal
         }
         public void RevokeLocalPlayerAdmin()
         {
-            //TODO - send to server
-            //TODO - update admin indicator
+            if (!IsConnectedToServer)
+            {
+                Debug.LogError("Can't raise to admin, not connected to server. Wait for connection before changing admin status");
+                return;
+            }
+
+            _localAdminIndicatorWrapper.SetLocalAdminStatus(false);
+
+            AdminUpdateNotice adminUpdateNotice = new(false);
+            _commsHandler.SendMessage(adminUpdateNotice.Bytes, PlatformNetworkingMessageCodes.AdminUpdateNotice, TransmissionProtocol.TCP);
 
             try
             {
@@ -184,16 +202,18 @@ namespace VE2.NonCore.Platform.Internal
         private readonly PluginLoader _pluginLoader;
         private readonly IPlayerServiceInternal _playerService;
         private readonly IPlatformSettingsHandler _platformSettingsHandler;
-
+        private readonly ILocalAdminIndicatorWritable _localAdminIndicatorWrapper;
         private readonly PlatformServiceConfig _config;
 
-        internal PlatformService(IPlatformCommsHandler commsHandler, PluginLoader pluginLoader, IPlayerServiceInternal playerService,
-            IPlatformSettingsHandler platformSettingsHandler, IPrimaryUIServiceInternal primaryUIService)
+        internal PlatformService(PlatformServiceConfig config, IPlatformCommsHandler commsHandler, PluginLoader pluginLoader, IPlayerServiceInternal playerService,
+            IPlatformSettingsHandler platformSettingsHandler, IPrimaryUIServiceInternal primaryUIService, ILocalAdminIndicatorWritable localAdminIndicatorWrapper)
         {
+            _config = config;
             _commsHandler = commsHandler;
             _pluginLoader = pluginLoader;
             _playerService = playerService;
             _platformSettingsHandler = platformSettingsHandler;
+            _localAdminIndicatorWrapper = localAdminIndicatorWrapper;
 
             if (_playerService != null)
                 _playerService.OnOverridableAvatarAppearanceChanged += HandlePlayerPresentationConfigChanged;
@@ -336,13 +356,6 @@ namespace VE2.NonCore.Platform.Internal
             Debug.Log("Sending player presentation config to server - " + LocalClientID);
             if (IsConnectedToServer)
                 _commsHandler.SendMessage(overridableAvatarAppearance.PresentationConfig.Bytes, PlatformNetworkingMessageCodes.UpdatePlayerPresentation, TransmissionProtocol.TCP);
-        }
-
-        private void HandleAdminUpdateNotice(AdminUpdateNotice adminUpdateNotice)
-        {
-            Debug.Log($"<color=blue>Admin status changed: {LocalClientID}</color>");
-            if (IsConnectedToServer)
-                _commsHandler.SendMessage(adminUpdateNotice.Bytes, PlatformNetworkingMessageCodes.UpdatePlayerPresentation, TransmissionProtocol.TCP);
         }
 
         public void TearDown()

@@ -16,6 +16,14 @@ namespace VE2.Core.VComponents.API
         public Quaternion rotation { get => _Rigidbody.rotation; set => _Rigidbody.rotation = value; }
         public ITransformWrapper transform { get => new TransformWrapper(_Rigidbody.transform); }
 
+        public void SetPositionAndRotationOnRBAndGO(Vector3 position, Quaternion rotation)
+        {
+            _Rigidbody.position = position;
+            _Rigidbody.rotation = rotation;
+            _Rigidbody.transform.position = position;
+            _Rigidbody.transform.rotation = rotation;
+        }
+
         public Renderer renderer { get => _Rigidbody.GetComponent<Renderer>(); }
 
         public bool Equals (Rigidbody other)

@@ -12,6 +12,8 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class FreeGrabbableConfig
     {
+        public void OpenDocs() => Application.OpenURL("https://www.notion.so/V_FreeGrabbable-20f0e4d8ed4d813eb325e03e0c0da701?source=copy_link");
+        [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above)]
         [SerializeField, IgnoreParent] public GrabbableStateConfig StateConfig = new();
 
         [SerializeField, IndentArea(-1)] public RangedFreeGrabInteractionConfig RangedFreeGrabInteractionConfig = new();
@@ -108,8 +110,7 @@ namespace VE2.Core.VComponents.Internal
                     _rigidbody.angularVelocity = Vector3.zero;
                     break;
                 case DropBehaviour.ReturnToPositionBeforeGrab:
-                    _rigidbody.position = _positionOnGrab;
-                    _rigidbody.rotation = _rotationOnGrab;
+                    _rigidbody.SetPositionAndRotationOnRBAndGO(_positionOnGrab, _rotationOnGrab);
                     _rigidbody.linearVelocity = Vector3.zero;
                     _rigidbody.angularVelocity = Vector3.zero;
                     break;

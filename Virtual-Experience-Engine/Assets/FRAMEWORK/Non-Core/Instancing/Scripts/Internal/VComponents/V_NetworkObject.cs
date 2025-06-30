@@ -20,7 +20,9 @@ namespace VE2.NonCore.Instancing.Internal
 
     internal partial class V_NetworkObject : MonoBehaviour
     {
-        [SerializeField, HideLabel, IgnoreParent] private NetworkObjectStateConfig _config = new();
+        public void OpenDocs() => Application.OpenURL("https://www.notion.so/V_NetworkObject-20f0e4d8ed4d8136919be42053469164?source=copy_link");
+        [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above)]
+        [SerializeField, HideLabel, IndentArea(-1)] private NetworkObjectStateConfig _config = new();
         [SerializeField, HideInInspector] private NetworkObjectState _state = new();
 
         private NetworkObjectService _service = null;

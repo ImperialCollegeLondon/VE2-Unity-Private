@@ -93,6 +93,29 @@ namespace VE2.Core.VComponents.Internal
         private bool _freeGrabbableHandlesKinematics = true;
         public bool FreeGrabbableHandlesKinematics { get => _freeGrabbableHandlesKinematics; set => _freeGrabbableHandlesKinematics = value; }
 
+        //Bit of a bodge to allow FreeGrabbables to add RigidBodySyncables without tying the 
+        private const string RigidBodySyncableFullName = "VE2.NonCore.Instancing.Internal.V_RigidbodySyncable"; 
+        private const string RigidBodySyncableAssemblyName = "VE2.NonCore.Instancing.Internal"; 
+
+        void Reset()
+        {
+            TryAddRigidBodySyncable();
+        }
+
+        private void TryAddRigidBodySyncable()
+        {
+            Type syncableType = Type.GetType($"{RigidBodySyncableFullName}, {RigidBodySyncableAssemblyName}");
+
+            if (syncableType == null)
+            {
+                Debug.LogWarning($"Could not automatically add {RigidBodySyncableFullName} to {gameObject.name}. If you want this gameobject's rigidbody to be synced, please add a {RigidBodySyncableFullName} component manually.");
+                return;
+            }
+
+            if (GetComponent(syncableType) == null)
+                gameObject.AddComponent(syncableType);
+        }
+
         private void Awake()
         {
             if (_config.RangedFreeGrabInteractionConfig.AttachPointWrapper == null)

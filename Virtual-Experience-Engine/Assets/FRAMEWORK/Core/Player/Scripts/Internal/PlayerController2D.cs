@@ -147,15 +147,17 @@ namespace VE2.Core.Player.Internal
                 _primaryUIService.OnUIHideInternal -= HandlePrimaryUIDeactivated;            }
         }
 
-        internal override void HandleUpdate() 
+        internal override void HandleUpdate()
         {
             base.HandleUpdate();
 
             if (_primaryUIService == null || !_primaryUIService.IsShowing)
             {
                 _playerLocomotor2D.HandleUpdate();
-                _interactor2D.HandleUpdate(); 
+                _interactor2D.HandleUpdate();
             }
+
+            _feetInteractor2D.HandleUpdate();
         }
 
         internal void HandlePrimaryUIActivated() 

@@ -65,7 +65,7 @@ namespace VE2.Core.VComponents.Internal
                 grabbable = freeGrabbable;
 
             string id = "HHActivatable-" + gameObject.name;
-            _service = new(grabbable, _config, _state, id, VE2API.WorldStateSyncableContainer, VComponentsAPI.ActivatableGroupsContainer, VE2API.LocalClientIdWrapper);
+            _service = new(grabbable, _config, _state, id, VE2API.WorldStateSyncableContainer, VE2API.ActivatableGroupsContainer, VE2API.LocalClientIdWrapper);
         }
 
         private void FixedUpdate()

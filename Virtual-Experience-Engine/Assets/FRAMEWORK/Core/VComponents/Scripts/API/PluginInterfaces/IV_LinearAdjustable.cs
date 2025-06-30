@@ -4,7 +4,7 @@ using VE2.Common.Shared;
 
 namespace VE2.Core.VComponents.API
 {   
-    public interface IV_LinearAdjustable
+    public interface IV_LinearAdjustable : IV_GeneralInteractable
     {
         #region State Module Interface
         public UnityEvent<float> OnValueAdjusted { get; }
@@ -29,12 +29,6 @@ namespace VE2.Core.VComponents.API
 
         #region Ranged Interaction Module Interface
         public float InteractRange { get; set; }
-        #endregion
-
-        #region General Interaction Module Interface
-        public bool AdminOnly { get; set; }
-        public bool EnableControllerVibrations { get; set; }
-        public bool ShowTooltipsAndHighlight { get; set; }
         #endregion
     }
 }

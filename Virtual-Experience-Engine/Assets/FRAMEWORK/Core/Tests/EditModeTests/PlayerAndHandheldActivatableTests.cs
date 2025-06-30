@@ -2,6 +2,7 @@ using NSubstitute;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.Player.Internal;
 using VE2.Core.VComponents.API;
@@ -136,7 +137,7 @@ namespace VE2.Core.Tests
             //Stub out the raycast provider to hit the activatable GO with 0 range
             RayCastProviderSetup.RaycastProviderStub
                 .Raycast(default, default, default, default)
-                .ReturnsForAnyArgs(new RaycastResultWrapper(_grabbableRaycastInterface.RangedGrabInteractionModule, null, 0, true));
+                .ReturnsForAnyArgs(new RaycastResultWrapper(_grabbableRaycastInterface.RangedGrabInteractionModule, null, null, 0, true));
 
             //Wire up the customer script to receive the events
             PluginActivatableScript pluginScriptMock = Substitute.For<PluginActivatableScript>();
@@ -170,7 +171,7 @@ namespace VE2.Core.Tests
             // Stub out the raycast provider so that it "hits" the activatable GameObject with 0 range.
             RayCastProviderSetup.RaycastProviderStub
                 .Raycast(default, default, default, default)
-                .ReturnsForAnyArgs(new RaycastResultWrapper(_grabbable2RaycastInterface.RangedGrabInteractionModule, null, 0, true));
+                .ReturnsForAnyArgs(new RaycastResultWrapper(_grabbable2RaycastInterface.RangedGrabInteractionModule, null, null, 0, true));
 
             // Wire up the customer script (using a NSubstitute mock) to receive the events on the hold activatable interface.
             PluginActivatableScript pluginScriptMock = Substitute.For<PluginActivatableScript>();

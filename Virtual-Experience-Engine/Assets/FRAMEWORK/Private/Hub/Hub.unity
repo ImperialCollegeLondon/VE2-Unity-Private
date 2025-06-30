@@ -3204,6 +3204,7 @@ MonoBehaviour:
   _localClientIdWrapper:
     _ClientID: 65535
   _uiProviderGOName: 
+  platformProviderGOName: PlatformIntegration
 --- !u!4 &167518524
 Transform:
   m_ObjectHideFlags: 1
@@ -10533,10 +10534,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config:
     StateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsActivated: 0
         ClientID: 65535
@@ -10562,11 +10559,9 @@ MonoBehaviour:
           m_Calls: []
       UseActivationGroup: 0
       ActivationGroupID: None
-    GeneralInteractionConfig:
-      AdminOnly: 0
-      EnableControllerVibrations: 1
-      ShowTooltipsAndHighlight: 1
-    ActivatableRangedInteractionConfig:
+    CollisionClickInteractionConfig:
+      ClickWithCollisionInVR: 1
+    RangedClickInteractionConfig:
       InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
@@ -10574,8 +10569,17 @@ MonoBehaviour:
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
-      ActivateAtRangeInVR: 1
-      ActivateWithCollisionInVR: 1
+      ClickAtRangeInVR: 1
+    GeneralInteractionConfig:
+      AdminOnly: 0
+      EnableControllerVibrations: 1
+      ShowTooltipsAndHighlight: 1
+    SyncConfig:
+      IsNetworked: 1
+      TransmissionFrequency: 1
+      TransmissionType: 0
+  _state:
+    IsInitialised: 0
   _collider: {fileID: 0}
 --- !u!65 &481441531
 BoxCollider:
@@ -14323,10 +14327,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config:
     StateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsActivated: 0
         ClientID: 65535
@@ -14352,11 +14352,9 @@ MonoBehaviour:
           m_Calls: []
       UseActivationGroup: 0
       ActivationGroupID: None
-    GeneralInteractionConfig:
-      AdminOnly: 0
-      EnableControllerVibrations: 1
-      ShowTooltipsAndHighlight: 1
-    ActivatableRangedInteractionConfig:
+    CollisionClickInteractionConfig:
+      ClickWithCollisionInVR: 1
+    RangedClickInteractionConfig:
       InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
@@ -14364,8 +14362,17 @@ MonoBehaviour:
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
-      ActivateAtRangeInVR: 1
-      ActivateWithCollisionInVR: 1
+      ClickAtRangeInVR: 1
+    GeneralInteractionConfig:
+      AdminOnly: 0
+      EnableControllerVibrations: 1
+      ShowTooltipsAndHighlight: 1
+    SyncConfig:
+      IsNetworked: 1
+      TransmissionFrequency: 1
+      TransmissionType: 0
+  _state:
+    IsInitialised: 0
   _collider: {fileID: 0}
 --- !u!65 &607023618
 BoxCollider:
@@ -15034,6 +15041,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4832776686e2e1f40b2d0ae7e7ddcc58, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _config:
+    OnBecomeAdmin:
+      m_PersistentCalls:
+        m_Calls: []
+    OnLoseAdmin:
+      m_PersistentCalls:
+        m_Calls: []
 --- !u!1 &647488937
 GameObject:
   m_ObjectHideFlags: 0
@@ -15758,7 +15772,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9ff9fb7d8ecc7c4289aba4550b4d597, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  platformProviderGOName: PlatformIntegration
 --- !u!4 &670257206
 Transform:
   m_ObjectHideFlags: 1
@@ -31549,7 +31562,7 @@ MonoBehaviour:
   _platformServerConnectionSettings:
     Username: devName
     Password: devPassword
-    ServerAddress: 127.0.0.1
+    ServerAddress: 51.142.90.253
     ServerPort: 4298
   _fileSystemGameObject: {fileID: 720854551}
   folderToSearch: /
@@ -62298,10 +62311,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config:
     StateConfig:
-      IsNetworked: 1
-      RepeatedTransmissionConfig:
-        TransmissionType: 0
-        TransmissionFrequency: 1
       InspectorDebug:
         IsActivated: 0
         ClientID: 65535
@@ -62327,11 +62336,9 @@ MonoBehaviour:
           m_Calls: []
       UseActivationGroup: 0
       ActivationGroupID: None
-    GeneralInteractionConfig:
-      AdminOnly: 0
-      EnableControllerVibrations: 1
-      ShowTooltipsAndHighlight: 1
-    ActivatableRangedInteractionConfig:
+    CollisionClickInteractionConfig:
+      ClickWithCollisionInVR: 1
+    RangedClickInteractionConfig:
       InteractionRange: 50
       OnLocalHoverEnter:
         m_PersistentCalls:
@@ -62339,8 +62346,17 @@ MonoBehaviour:
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
-      ActivateAtRangeInVR: 1
-      ActivateWithCollisionInVR: 1
+      ClickAtRangeInVR: 1
+    GeneralInteractionConfig:
+      AdminOnly: 0
+      EnableControllerVibrations: 1
+      ShowTooltipsAndHighlight: 1
+    SyncConfig:
+      IsNetworked: 1
+      TransmissionFrequency: 1
+      TransmissionType: 0
+  _state:
+    IsInitialised: 0
   _collider: {fileID: 0}
 --- !u!1 &1745958809
 GameObject:
@@ -66330,6 +66346,12 @@ MonoBehaviour:
   _playerConfig:
     PlayerModeConfig:
       SupportedPlayerModes: 2
+      OnChangeToVRMode:
+        m_PersistentCalls:
+          m_Calls: []
+      OnChangeTo2DMode:
+        m_PersistentCalls:
+          m_Calls: []
     PlayerInteractionConfig:
       InteractableLayers:
         serializedVersion: 2
@@ -66343,6 +66365,24 @@ MonoBehaviour:
         m_Bits: 130953
       FreeFlyMode: 0
       TeleportRangeMultiplier: 1
+      OnTeleport:
+        m_PersistentCalls:
+          m_Calls: []
+      OnSnapTurn:
+        m_PersistentCalls:
+          m_Calls: []
+      OnHorizontalDrag:
+        m_PersistentCalls:
+          m_Calls: []
+      OnVerticalDrag:
+        m_PersistentCalls:
+          m_Calls: []
+      OnJump2D:
+        m_PersistentCalls:
+          m_Calls: []
+      OnCrouch2D:
+        m_PersistentCalls:
+          m_Calls: []
     CameraConfig:
       FieldOfView2D: 60
       NearClippingPlane: 0.15
@@ -66354,6 +66394,9 @@ MonoBehaviour:
       AntiAliasingQuality: 1
       EnablePostProcessing: 1
       OcclusionCulling: 1
+      OnResetViewVR:
+        m_PersistentCalls:
+          m_Calls: []
     AvatarAppearanceOverrideConfig:
       OverrideHead: 0
       HeadOverrideIndex: 0
@@ -66362,8 +66405,8 @@ MonoBehaviour:
       TorsoOverrideIndex: 0
       TorsoOverrideGameObjects: []
     RepeatedTransmissionConfig:
-      TransmissionType: 0
       TransmissionFrequency: 35
+      TransmissionType: 0
   _defaultPlayerPresentationConfig:
     PlayerName: Unknown
     AvatarHeadType: 0
@@ -66408,6 +66451,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _lastUseSecondaryUI: 0
   _useCustomSecondaryUI: 0
+  _menuUIConfig:
+    OnActivateMainMenu:
+      m_PersistentCalls:
+        m_Calls: []
+    OnDeactivateMainMenu:
+      m_PersistentCalls:
+        m_Calls: []
+  _uiPanelsSetup: 0
 --- !u!1 &1886996815
 GameObject:
   m_ObjectHideFlags: 0

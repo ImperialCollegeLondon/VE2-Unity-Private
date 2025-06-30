@@ -36,7 +36,7 @@ namespace VE2.Core.VComponents.Internal
     internal partial class V_HoldActivatable : MonoBehaviour, IRangedInteractionModuleProvider, ICollideInteractionModuleProvider
     {
         [SerializeField, IgnoreParent] private HoldActivatableConfig _config = new();
-        [SerializeField, HideInInspector] private MultiInteractorActivatableState _state = new();
+        [SerializeField, HideInInspector] private MultiInteractorActivatableSyncedState _state = new();
 
         #region Player Interfaces
         ICollideInteractionModule ICollideInteractionModuleProvider.CollideInteractionModule => _Service.ColliderInteractionModule;
@@ -73,7 +73,7 @@ namespace VE2.Core.VComponents.Internal
                 return;
 
             string id = "HoldActivatable-" + gameObject.name;
-            _service = new HoldActivatableService(_config, _state, id, VE2API.LocalClientIdWrapper);
+            _service = new HoldActivatableService(_config, _state, id, VE2API.LocalClientIdWrapper, VE2API.WorldStateSyncableContainer);
         }
 
         private void FixedUpdate()

@@ -26,6 +26,8 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class LinearAdjustableConfig
     {
+        public void OpenDocs() => Application.OpenURL("https://www.notion.so/V_LinearAdjustable-20f0e4d8ed4d8125b125ea8d031e8aeb?source=copy_link");
+        [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above)]
         [SerializeField, IgnoreParent] public AdjustableStateConfig AdjustableStateConfig = new();
         [SerializeField, IgnoreParent] public SpatialAdjustableServiceConfig LinearAdjustableServiceConfig = new();
         [SerializeField, IgnoreParent] public GrabbableStateConfig GrabbableStateConfig = new();
@@ -44,7 +46,7 @@ namespace VE2.Core.VComponents.Internal
             RangedAdjustableInteractionConfig.AttachPointWrapper = attachPointWrapper;
             RangedAdjustableInteractionConfig.TransformToAdjust = transformToMove;
         }
-        public LinearAdjustableConfig() {}
+        public LinearAdjustableConfig() { }
     }
 
     [Serializable]
@@ -120,14 +122,16 @@ namespace VE2.Core.VComponents.Internal
 
         private void OnScrollUp()
         {
-            float targetValue = _AdjustableStateModule.OutputValue + _config.AdjustableStateConfig.IncrementPerScrollTick; //should this change spatial value?
+            float scrollMultiplier = _config.LinearAdjustableServiceConfig.AdjustmentType == SpatialAdjustmentType.Discrete ? (_AdjustableStateModule.MaximumOutputValue - _AdjustableStateModule.MinimumOutputValue) / (_numberOfValues - 1) : _config.AdjustableStateConfig.IncrementPerScrollTick;
+            float targetValue = _AdjustableStateModule.OutputValue + scrollMultiplier; //should this change spatial value?
             targetValue = Mathf.Clamp(targetValue, _AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue);
             SetValueOnStateModule(targetValue);
         }
 
         private void OnScrollDown()
         {
-            float targetValue = _AdjustableStateModule.OutputValue - _config.AdjustableStateConfig.IncrementPerScrollTick; //should this change spatial value?
+            float scrollMultiplier = _config.LinearAdjustableServiceConfig.AdjustmentType == SpatialAdjustmentType.Discrete ? (_AdjustableStateModule.MaximumOutputValue - _AdjustableStateModule.MinimumOutputValue) / (_numberOfValues - 1) : _config.AdjustableStateConfig.IncrementPerScrollTick;
+            float targetValue = _AdjustableStateModule.OutputValue - scrollMultiplier; //should this change spatial value?
             targetValue = Mathf.Clamp(targetValue, _AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue);
             SetValueOnStateModule(targetValue);
         }
@@ -155,8 +159,8 @@ namespace VE2.Core.VComponents.Internal
             //convert the output value to spatial value
             float newSpatialValue = ConvertToSpatialValue(value);
 
-            if(newSpatialValue == _spatialValue)
-                return;
+            // if (newSpatialValue == _spatialValue)
+            //     return;
 
             _spatialValue = newSpatialValue;
 
@@ -239,7 +243,7 @@ namespace VE2.Core.VComponents.Internal
             value = Mathf.Clamp(value, _AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue);
 
             //get the size between each step based on the number of values provided and the index of the step
-            float stepSize = (_AdjustableStateModule.MaximumOutputValue - _AdjustableStateModule.MinimumOutputValue) / _numberOfValues;
+            float stepSize = (_AdjustableStateModule.MaximumOutputValue - _AdjustableStateModule.MinimumOutputValue) / (_numberOfValues - 1); // -1 because works the same way as the index of an array
             int stepIndex = Mathf.RoundToInt((value - _AdjustableStateModule.MinimumOutputValue) / stepSize);
 
             float newValue = _AdjustableStateModule.MinimumOutputValue + stepIndex * stepSize;

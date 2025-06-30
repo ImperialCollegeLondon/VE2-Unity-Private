@@ -14,7 +14,7 @@ namespace VE2.NonCore.Instancing.Internal
         public IRigidbodySyncableStateModule StateModule => _stateModule;
         private IGrabbableRigidbody _grabbableRigidbody;
         private IRigidbodyWrapper _rigidbody;
-        private IInstanceService _instanceService;
+        private IInstanceServiceInternal _instanceService;
         private bool _isHost => _instanceService.IsHost;
         #endregion
 
@@ -56,7 +56,7 @@ namespace VE2.NonCore.Instancing.Internal
         #endregion
 
         public RigidbodySyncableService(RigidbodySyncableStateConfig config, VE2Serializable state, string id, IWorldStateSyncableContainer worldStateSyncableContainer, 
-            IInstanceService instanceService, IRigidbodyWrapper rigidbodyWrapper, IGrabbableRigidbody grabbableRigidbody)
+            IInstanceServiceInternal instanceService, IRigidbodyWrapper rigidbodyWrapper, IGrabbableRigidbody grabbableRigidbody)
         {
             _config = config;
             _stateModule = new(state, config, id, worldStateSyncableContainer);
@@ -75,8 +75,8 @@ namespace VE2.NonCore.Instancing.Internal
             _receivedRigidbodyStates = new();
 
             _stateModule.OnReceiveState?.AddListener(HandleReceiveRigidbodyState);
-            _instanceService.OnBecomeHost += HandleBecomeHost;
-            _instanceService.OnLoseHost += HandleBecomeNonHost;
+            _instanceService.OnBecomeHostInternal += HandleBecomeHost;
+            _instanceService.OnBecomeNonHostInternal += HandleBecomeNonHost;
         }
 
         private void HandleOnGrab(ushort grabberClientID)
@@ -223,7 +223,6 @@ namespace VE2.NonCore.Instancing.Internal
 
         public void HandleUpdate()
         {
-
             // Non host interpolates on Update when not simulating for themselves
             if (_instanceService.IsConnectedToServer && !_isHost && !_nonHostSimulating)
             {
@@ -235,8 +234,8 @@ namespace VE2.NonCore.Instancing.Internal
         public void TearDown()
         {
             _stateModule.OnReceiveState?.RemoveListener(HandleReceiveRigidbodyState);
-            _instanceService.OnBecomeHost -= HandleBecomeHost;
-            _instanceService.OnLoseHost -= HandleBecomeNonHost;
+            _instanceService.OnBecomeHostInternal -= HandleBecomeHost;
+            _instanceService.OnBecomeNonHostInternal -= HandleBecomeNonHost;
             _stateModule.TearDown();
         }
 

@@ -157,6 +157,12 @@ namespace VE2.Common.API
         #endregion
         //########################################################################################################
 
+        #region InputAPI
+
+
+        #endregion
+        //########################################################################################################
+
         //########################################################################################################
         #region InstancingAPI
 
@@ -257,6 +263,12 @@ namespace VE2.Common.API
         internal static IGrabInteractablesContainer GrabInteractablesContainer => Instance._grabInteractablesContainer;
         private GrabInteractablesContainer _grabInteractablesContainer = new();
 
+        /// <summary>
+        /// Contains all activatable groups in the scene, allows activatables to deactivate when another activatable in the same group is activated
+        /// </summary>
+        internal static ActivatableGroupsContainer ActivatableGroupsContainer { get => Instance._activatableGroupsContainer; private set => Instance._activatableGroupsContainer = value; }
+        private ActivatableGroupsContainer _activatableGroupsContainer = new();
+
         //########################################################################################################
         #endregion
     }
@@ -334,7 +346,7 @@ namespace VE2.Common.API
         }
     }
 
-    internal class LocalAdminIndicator: ILocalAdminIndicatorWritable
+    internal class LocalAdminIndicator : ILocalAdminIndicatorWritable
     {
         public bool IsLocalAdmin { get; private set; } //This is set by the platform system, so it can be used by other systems
         public event Action<bool> OnLocalAdminStatusChanged;
@@ -356,5 +368,35 @@ namespace VE2.Common.API
     internal interface ILocalAdminIndicatorWritable : ILocalAdminIndicator
     {
         public void SetLocalAdminStatus(bool isAdmin);
+    }
+    
+        internal class ActivatableGroupsContainer
+    {
+        private Dictionary<string, List<ISingleInteractorActivatableStateModule>> _activatableGroups = new();
+        public IReadOnlyDictionary<string, List<ISingleInteractorActivatableStateModule>> ActivatableGroups => _activatableGroups;
+
+        public void RegisterActivatable(string activatableGroupID, ISingleInteractorActivatableStateModule singleInteractorActivatableStateModule)
+        {
+            if (!_activatableGroups.ContainsKey(activatableGroupID))
+                _activatableGroups[activatableGroupID] = new List<ISingleInteractorActivatableStateModule>();
+
+            _activatableGroups[activatableGroupID].Add(singleInteractorActivatableStateModule);
+        }
+
+        public void DeregisterActivatable(string activatableGroupID, ISingleInteractorActivatableStateModule singleInteractorActivatableStateModule)
+        {
+            if (_activatableGroups.ContainsKey(activatableGroupID))
+                _activatableGroups[activatableGroupID].Remove(singleInteractorActivatableStateModule);
+        }
+
+        public List<ISingleInteractorActivatableStateModule> GetSingleInteractorActivatableStateModule(string activatableGroupID)
+        {
+            if (!_activatableGroups.ContainsKey(activatableGroupID))
+                return new List<ISingleInteractorActivatableStateModule>();
+
+            return _activatableGroups[activatableGroupID];
+        }
+
+        public void Reset() => _activatableGroups.Clear();
     }
 }

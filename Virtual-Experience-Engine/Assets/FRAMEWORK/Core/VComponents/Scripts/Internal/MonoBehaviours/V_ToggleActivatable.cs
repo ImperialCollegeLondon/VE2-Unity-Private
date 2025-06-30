@@ -40,7 +40,7 @@ namespace VE2.Core.VComponents.Internal
     [ExecuteAlways]
     internal partial class V_ToggleActivatable : MonoBehaviour, IRangedInteractionModuleProvider, ICollideInteractionModuleProvider
     {
-        internal ToggleActivatableConfig Config { get => _config; set { _config = value; }}
+        internal ToggleActivatableConfig Config { get => _config; set { _config = value; } }
         [SerializeField, IgnoreParent] private ToggleActivatableConfig _config = new();
         [SerializeField, HideInInspector] private SingleInteractorActivatableState _state = new();
 
@@ -88,7 +88,7 @@ namespace VE2.Core.VComponents.Internal
                 return;
 
             string id = "Activatable-" + gameObject.name;
-            _service = new ToggleActivatableService(_config, _state, id, VE2API.WorldStateSyncableContainer, VComponentsAPI.ActivatableGroupsContainer, VE2API.LocalClientIdWrapper);
+            _service = new ToggleActivatableService(_config, _state, id, VE2API.WorldStateSyncableContainer, VE2API.ActivatableGroupsContainer, VE2API.LocalClientIdWrapper);
         }
 
         private void FixedUpdate()

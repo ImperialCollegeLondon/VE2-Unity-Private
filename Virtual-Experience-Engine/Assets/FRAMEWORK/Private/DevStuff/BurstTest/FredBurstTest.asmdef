@@ -1,0 +1,22 @@
+{
+    "name": "FredBurstTest",
+    "rootNamespace": "",
+    "references": [
+        "Unity.TextMeshPro",
+        "Unity.Burst",
+        "VE2.Common.API",
+        "VE2.Common.Shared",
+        "VE2.Core.Player.API",
+        "Unity.Mathematics",
+        "VE2.Core.VComponents.API"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

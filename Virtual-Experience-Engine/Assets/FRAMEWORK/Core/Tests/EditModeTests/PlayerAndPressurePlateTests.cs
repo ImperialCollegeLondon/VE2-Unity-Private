@@ -2,6 +2,7 @@ using System;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
+using VE2.Common.Shared;
 using VE2.Core.Player.Internal;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
@@ -22,9 +23,10 @@ namespace VE2.Core.Tests
         {
             PressurePlateService pressurePlateService = new(
                 new PressurePlateConfig(),
-                new MultiInteractorActivatableState(),
+                new MultiInteractorActivatableSyncedState(),
                 "debug",
-                LocalClientIDWrapperSetup.LocalClientIDWrapper);
+                LocalClientIDWrapperSetup.LocalClientIDWrapper,
+                Substitute.For<IWorldStateSyncableContainer>());
 
             _v_pressurePlateProviderStub = new(pressurePlateService);
 

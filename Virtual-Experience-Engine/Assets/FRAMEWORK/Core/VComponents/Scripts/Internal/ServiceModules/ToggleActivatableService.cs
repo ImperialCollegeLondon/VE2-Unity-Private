@@ -11,16 +11,19 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class ToggleActivatableConfig
     {
+        public void OpenDocs() => Application.OpenURL("https://www.notion.so/V_ToggleActivatable-2130e4d8ed4d80fcb471cc08f80acc56?source=copy_link");
+        [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above)]
         [SerializeField, IgnoreParent] public ToggleActivatableStateConfig StateConfig = new();
-        
+
         [SerializeField, IgnoreParent] public CollisionClickInteractionConfig CollisionClickInteractionConfig = new();
         [SerializeField, IndentArea(-1)] public RangedClickInteractionConfig RangedClickInteractionConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
-        
+
         [HideIf(nameof(MultiplayerSupportPresent), false)]
         [SerializeField, IgnoreParent] public WorldStateSyncConfig SyncConfig = new();
 
         private bool MultiplayerSupportPresent => VE2API.HasMultiPlayerSupport;
+
     }
 
     internal class ToggleActivatableService
@@ -44,11 +47,10 @@ namespace VE2.Core.VComponents.Internal
 
             _RangedClickInteractionModule = new(config.RangedClickInteractionConfig, config.GeneralInteractionConfig, id, config.RangedClickInteractionConfig.ClickAtRangeInVR);
 
-            //Note - yes, this network indicator seems strange on first glance
-            //Toggle activatables will sync via the state module, this network indicator is used to indicate whether it should sync through the player or not
-            //This is required for hold activatables and pressure plates, but not for toggle activatables, so we just create a new flag with 'false' here
-            HoldActivatablePlayerSyncIndicator networkIndicator = new(false);
-            _ColliderInteractionModule = new(config.CollisionClickInteractionConfig, config.GeneralInteractionConfig, networkIndicator, id);
+            //Note - yes, this null seems strange on first glance
+            //Toggle activatables will sync only via the state module, for hold activatables, interactions are synced via the interactor
+            //Since this doesn't apply for toggle activatables, we just pass null here
+            _ColliderInteractionModule = new(config.CollisionClickInteractionConfig, config.GeneralInteractionConfig, null, id);
 
             _RangedClickInteractionModule.OnClickDown += HandleInteract;
             _ColliderInteractionModule.OnCollideEnter += HandleInteract;

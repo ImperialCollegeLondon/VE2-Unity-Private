@@ -17,7 +17,7 @@ namespace VE2.NonCore.Platform.Internal
 {
     public class PluginUploader
     {
-        [MenuItem("VE2/Upload built world...", priority = 2)]
+        [MenuItem("VE2/Upload built world...", priority = 3)]
         internal static void ShowWindow()
         {
             var window = ScriptableObject.CreateInstance<PluginUploaderWindow>();
@@ -71,7 +71,9 @@ namespace VE2.NonCore.Platform.Internal
             ServerConnectionSettings ftpNetworkSettings = new("ViRSE", "fwf3f3j21r3ed", "13.87.84.200", 22); //TODO: Load in from SO
 
             //TODO: maybe just the factory can move to the internal interface asmdef?
-            _fileSystem = FileSystemServiceFactory.CreateFileStorageService(ftpNetworkSettings, $"VE2/Worlds/{_environmentType}");
+            string remotePath = $"VE2/Worlds/{_environmentType}";
+            string localPath = Application.persistentDataPath + "/files/" + remotePath;
+            _fileSystem = FileSystemServiceFactory.CreateFileStorageService(ftpNetworkSettings, remotePath, localPath);
 
             List<string> localWorldVersions = _fileSystem.GetLocalFoldersAtPath(_worldFolderName);
             Debug.Log("Searched for local folders, found " + localWorldVersions.Count);

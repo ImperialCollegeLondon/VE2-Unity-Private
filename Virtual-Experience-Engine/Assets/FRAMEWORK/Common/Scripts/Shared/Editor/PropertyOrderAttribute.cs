@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace VE2.Core.VComponents.Internal
+namespace VE2.Common.Shared
 {
     /// <summary>
     /// Attribute to specify the order of properties in the inspector.
@@ -11,7 +11,7 @@ namespace VE2.Core.VComponents.Internal
     /// The lower the number, the higher the priority.
     /// </remarks>
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
-    public class PropertyOrderAttribute : ToolboxAttribute
+    internal class PropertyOrderAttribute : ToolboxAttribute
     {
         public int Order { get; }
 

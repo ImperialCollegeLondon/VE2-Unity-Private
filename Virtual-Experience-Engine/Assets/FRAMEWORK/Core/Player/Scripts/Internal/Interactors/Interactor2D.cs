@@ -44,7 +44,6 @@ namespace VE2.Core.Player.Internal
         protected override void SetInteractorState(InteractorState newState)
         {
             _reticuleImage.enabled = newState != InteractorState.Grabbing;
-
             switch (newState)
             {
                 case InteractorState.Idle:

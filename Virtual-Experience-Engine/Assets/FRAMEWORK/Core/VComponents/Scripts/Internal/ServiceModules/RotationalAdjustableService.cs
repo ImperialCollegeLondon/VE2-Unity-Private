@@ -12,6 +12,8 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class RotationalAdjustableConfig
     {
+        public void OpenDocs() => Application.OpenURL("https://www.notion.so/V_RotationalAdjustable-2170e4d8ed4d800abacafa5b3f72dad7?source=copy_link");
+        [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above)]
         [SerializeField, IgnoreParent] public AdjustableStateConfig AdjustableStateConfig = new();
         [SerializeField, IgnoreParent] public SpatialAdjustableServiceConfig RotationalAdjustableServiceConfig = new();
         [SerializeField, IgnoreParent] public GrabbableStateConfig GrabbableStateConfig = new();
@@ -61,7 +63,7 @@ namespace VE2.Core.VComponents.Internal
 
         //gets the vector from the object to the attach point, this will serve as the starting point for any angle created
         //needs to be the attach point at the start (0 not starting position) to get the correct angle
-        private Vector3 _vectorToHandle => _attachPointTransform.position - _transformToAdjust.position;
+        private Vector3 _initialVectorToHandle = Vector3.zero;
 
         private float _signedAngle = 0;
         private float _oldRotationalValue = 0;
@@ -73,6 +75,9 @@ namespace VE2.Core.VComponents.Internal
             IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer, IClientIDWrapper localClientIdWrapper)
         {
             _config = config;
+
+            //needs the vector to the attachpoint at 0,0,0
+            _initialVectorToHandle = _attachPointTransform.position - _transformToAdjust.position;
 
             _RangedAdjustableInteractionModule = new(id, grabInteractablesContainer, handheldInteractions, config.RangedAdjustableInteractionConfig, config.GeneralInteractionConfig);
 
@@ -100,11 +105,14 @@ namespace VE2.Core.VComponents.Internal
             //get the nth revolution of the starting value
             _numberOfRevolutions = Mathf.FloorToInt(ConvertToSpatialValue(config.AdjustableStateConfig.StartingOutputValue) / 360);
             _oldRotationalValue = ConvertToSpatialValue(config.AdjustableStateConfig.StartingOutputValue) - (_numberOfRevolutions * 360);
+
+            //_initialVectorToHandle = _attachPointTransform.position - _transformToAdjust.position;
         }
 
         private void OnScrollUp()
         {
-            float targetValue = _AdjustableStateModule.OutputValue + _config.AdjustableStateConfig.IncrementPerScrollTick; //should this change spatial value?
+            float scrollMultiplier = _config.RotationalAdjustableServiceConfig.AdjustmentType == SpatialAdjustmentType.Discrete ? (_AdjustableStateModule.MaximumOutputValue - _AdjustableStateModule.MinimumOutputValue) / (_numberOfValues - 1) : _config.AdjustableStateConfig.IncrementPerScrollTick;
+            float targetValue = _AdjustableStateModule.OutputValue + scrollMultiplier; //should this change spatial value?
             targetValue = Mathf.Clamp(targetValue, _AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue);
             SetValueOnStateModule(targetValue);
 
@@ -115,7 +123,8 @@ namespace VE2.Core.VComponents.Internal
 
         private void OnScrollDown()
         {
-            float targetValue = _AdjustableStateModule.OutputValue - _config.AdjustableStateConfig.IncrementPerScrollTick; //should this change spatial value?
+            float scrollMultiplier = _config.RotationalAdjustableServiceConfig.AdjustmentType == SpatialAdjustmentType.Discrete ? (_AdjustableStateModule.MaximumOutputValue - _AdjustableStateModule.MinimumOutputValue) / (_numberOfValues - 1) : _config.AdjustableStateConfig.IncrementPerScrollTick;
+            float targetValue = _AdjustableStateModule.OutputValue - scrollMultiplier; //should this change spatial value?
             targetValue = Mathf.Clamp(targetValue, _AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue);
             SetValueOnStateModule(targetValue);
 
@@ -148,8 +157,8 @@ namespace VE2.Core.VComponents.Internal
             //convert the output value to spatial value
             float newSpatialValue = ConvertToSpatialValue(value);
 
-            if (newSpatialValue == _spatialValue)
-                return;
+            // if (newSpatialValue == _spatialValue)
+            //     return;
 
             _spatialValue = newSpatialValue;
 
@@ -183,7 +192,7 @@ namespace VE2.Core.VComponents.Internal
 
             _AdjustableStateModule.HandleFixedUpdate();
 
-            Debug.DrawLine(_transformToAdjust.position, _transformToAdjust.position + _vectorToHandle, Color.red);
+            Debug.DrawLine(_transformToAdjust.position, _transformToAdjust.position + _initialVectorToHandle, Color.red);
         }
 
         private void TrackPosition(Vector3 grabberPosition)
@@ -209,7 +218,7 @@ namespace VE2.Core.VComponents.Internal
             //project the direction to the grabber and the vector to the handle to be local to the plane of the axis of rotation (in this case the transfor wrappper, the object itself)
             //once thats done take the angle between the vectors relative to the plane it is projected to
             localDirectionToGrabber = Vector3.ProjectOnPlane(directionToGrabber, axisOfRotation);
-            localDirectionToHandle = Vector3.ProjectOnPlane(_vectorToHandle, axisOfRotation);
+            localDirectionToHandle = Vector3.ProjectOnPlane(_initialVectorToHandle, axisOfRotation);
             _signedAngle = Vector3.SignedAngle(localDirectionToHandle.normalized, localDirectionToGrabber.normalized, axisOfRotation);
 
             //signed angle is always between -180 and 180, we need to convert it to 0-360
@@ -276,7 +285,7 @@ namespace VE2.Core.VComponents.Internal
             value = Mathf.Clamp(value, _AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue);
 
             //get the size between each step based on the number of values provided and the index of the step
-            float stepSize = (_AdjustableStateModule.MaximumOutputValue - _AdjustableStateModule.MinimumOutputValue) / _numberOfValues;
+            float stepSize = (_AdjustableStateModule.MaximumOutputValue - _AdjustableStateModule.MinimumOutputValue) / (_numberOfValues - 1); // -1 because works the same way as the index of an array
             int stepIndex = Mathf.RoundToInt((value - _AdjustableStateModule.MinimumOutputValue) / stepSize);
 
             float newValue = _AdjustableStateModule.MinimumOutputValue + stepIndex * stepSize;

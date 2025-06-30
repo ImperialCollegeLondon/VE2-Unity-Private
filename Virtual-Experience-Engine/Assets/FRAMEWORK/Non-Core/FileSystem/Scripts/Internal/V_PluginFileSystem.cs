@@ -7,14 +7,14 @@ using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 
 namespace VE2.NonCore.FileSystem.Internal
 {
-    internal class V_PluginFileSystem : FileSystemIntegrationBase, IFileSystem
+    internal class V_PluginFileSystem : FileSystemIntegrationBase, IV_FileSystem
     {
         [Title("Debug Server Settings")]
         [BeginGroup, IgnoreParent, EndGroup, SerializeField] private ServerConnectionSettings _debugServerSettings;
     [   EditorButton(nameof(OpenLocalWorkingFolder), "Open Local Working Folder", activityType: ButtonActivityType.Everything)]
         [SerializeField, DisableInPlayMode, SpaceArea(spaceAfter: 5, Order = 50)] private bool _useDebugSettingsInBuild = false;
 
-        public override string LocalWorkingPath => $"VE2/PluginFiles/{SceneManager.GetActiveScene().name}";
+        public override string RemoteWorkingPath => $"VE2/PluginFiles/{SceneManager.GetActiveScene().name}";
 
         private void OnEnable()
         {

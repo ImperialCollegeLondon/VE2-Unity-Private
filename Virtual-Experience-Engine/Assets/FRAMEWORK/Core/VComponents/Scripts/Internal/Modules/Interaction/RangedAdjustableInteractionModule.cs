@@ -11,7 +11,7 @@ namespace VE2.Core.VComponents.Internal
     internal class RangedAdjustableInteractionConfig : RangedGrabInteractionConfig
     {
         [BeginGroup(Style = GroupStyle.Round)]
-        [Title("Adjustable Interaction Settings", ApplyCondition = true)]
+        [Title("Ranged Adjustable Interaction Settings", ApplyCondition = true)]
         [EndGroup]
         [SerializeField, PropertyOrder(-100)] private Transform _transformToAdjust = null;
         private ITransformWrapper _transformToAdjustWrapper;

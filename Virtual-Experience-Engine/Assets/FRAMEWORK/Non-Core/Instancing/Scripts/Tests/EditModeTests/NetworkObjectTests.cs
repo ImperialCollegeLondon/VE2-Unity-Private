@@ -65,7 +65,7 @@ namespace VE2.NonCore.Instancing.VComponents.Tests
 
         public UnityEvent<object> OnDataChange => _Service.StateModule.OnStateChange;
         public object CurrentData => _Service.StateModule.NetworkObject;
-        public void UpdateData(object data) => _Service.StateModule.NetworkObject = data;
+        public void UpdateData(object data) => _Service.StateModule.UpdateDataFromPlugin(data);
         #endregion
     }
 

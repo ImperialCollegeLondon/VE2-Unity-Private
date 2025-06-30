@@ -15,12 +15,20 @@ namespace VE2.Core.Player.Internal
         private readonly Dictionary<string, bool> _heldActivatableIDsAgainstNetworkFlags = new();
         private InteractorID _interactorID => _localClientIDWrapper.IsClientIDReady ? new InteractorID(_localClientIDWrapper.Value, _InteractorType) : null;
 
+        /// <summary>
+        /// key is the interaction module, value is whether we are actually interacting with it 
+        /// Used to handle changes to admin rights. If we're colliding but not interacting, and we find ourselves to be admin, we should start interacting 
+        /// If we're colliding and we ARE interacting, but we find ourselves to be non-admin, we should stop interacting.
+        /// This also applies to the case of gaining our local client ID after the collision starts
+        /// </summary>
+        private Dictionary<ICollideInteractionModule, bool> _currentCollidingInteractionModules = new();
+
         public readonly ICollisionDetector _collisionDetector;
         private readonly InteractorType _InteractorType;
         private readonly ILocalClientIDWrapper _localClientIDWrapper;
         private readonly ILocalAdminIndicator _localAdminIndicator;
 
-        internal FeetInteractor(ICollisionDetectorFactory collisionDetectorFactory, ColliderType colliderType, Collider collider, InteractorType interactorType, 
+        internal FeetInteractor(ICollisionDetectorFactory collisionDetectorFactory, ColliderType colliderType, Collider collider, InteractorType interactorType,
             ILocalClientIDWrapper localClientIDWrapper, ILocalAdminIndicator localAdminIndicator, PlayerInteractionConfig interactionConfig)
         {
             _collisionDetector = collisionDetectorFactory.CreateCollisionDetector(collider, colliderType, interactionConfig.InteractableLayers);
@@ -28,10 +36,12 @@ namespace VE2.Core.Player.Internal
             _localClientIDWrapper = localClientIDWrapper;
             _localAdminIndicator = localAdminIndicator;
         }
+
         protected bool IsInteractableAllowed(IGeneralInteractionModule interactable)
         {
             return interactable != null && (!interactable.AdminOnly || _localAdminIndicator.IsLocalAdmin);
         }
+
         public virtual void HandleOnEnable()
         {
             _collisionDetector.OnCollideStart += HandleCollideStart;
@@ -62,27 +72,65 @@ namespace VE2.Core.Player.Internal
 
         private void HandleCollideStart(ICollideInteractionModule collideInteractionModule)
         {
-            if (_localClientIDWrapper.IsClientIDReady &&
-                IsInteractableAllowed(collideInteractionModule) &&
-                collideInteractionModule.CollideInteractionType == CollideInteractionType.Feet)
-            {
-                collideInteractionModule.InvokeOnCollideEnter(_interactorID);
+            if (collideInteractionModule.CollideInteractionType != CollideInteractionType.Feet)
+                return;
 
-                if (collideInteractionModule.IsNetworked)
-                    _heldActivatableIDsAgainstNetworkFlags.Add(collideInteractionModule.ID, collideInteractionModule.IsNetworked);
-            }
+            bool canInteract = _localClientIDWrapper.IsClientIDReady && IsInteractableAllowed(collideInteractionModule);
+
+            if (canInteract)
+                StartInteractingWithModule(collideInteractionModule);
+
+            _currentCollidingInteractionModules.Add(collideInteractionModule, canInteract);
+        }
+
+        private void StartInteractingWithModule(ICollideInteractionModule collideInteractionModule)
+        {
+            collideInteractionModule.InvokeOnCollideEnter(_interactorID);
+
+            if (collideInteractionModule.IsNetworked)
+                _heldActivatableIDsAgainstNetworkFlags.Add(collideInteractionModule.ID, collideInteractionModule.IsNetworked);
         }
 
         private void HandleCollideEnd(ICollideInteractionModule collideInteractionModule)
         {
-            if (_localClientIDWrapper.IsClientIDReady &&
-                IsInteractableAllowed(collideInteractionModule) &&
-                collideInteractionModule.CollideInteractionType == CollideInteractionType.Feet)
-            {
-                collideInteractionModule.InvokeOnCollideExit(_interactorID);
+            if (collideInteractionModule.CollideInteractionType != CollideInteractionType.Feet)
+                return;
 
-                if (collideInteractionModule.IsNetworked)
-                    _heldActivatableIDsAgainstNetworkFlags.Remove(collideInteractionModule.ID);
+            bool canInteract = _localClientIDWrapper.IsClientIDReady && IsInteractableAllowed(collideInteractionModule);
+
+            if (canInteract)
+            StopInteractingWithModule(collideInteractionModule);
+
+            _currentCollidingInteractionModules.Remove(collideInteractionModule);
+        }
+
+        private void StopInteractingWithModule(ICollideInteractionModule collideInteractionModule)
+        {
+            collideInteractionModule.InvokeOnCollideExit(_interactorID);
+
+            if (collideInteractionModule.IsNetworked)
+                _heldActivatableIDsAgainstNetworkFlags.Remove(collideInteractionModule.ID);
+        }
+
+        internal void HandleUpdate()
+        {
+            foreach (var kvp in _currentCollidingInteractionModules.ToList())
+            {
+                ICollideInteractionModule interactionModule = kvp.Key;
+                bool isCurrentlyInteracting = kvp.Value;
+
+                //If we are colliding with the interaction module, but not interacting with it, and we are admin, we should start interacting
+                if (!isCurrentlyInteracting && IsInteractableAllowed(interactionModule) && _localAdminIndicator.IsLocalAdmin)
+                {
+                    StartInteractingWithModule(interactionModule);
+                    _currentCollidingInteractionModules[interactionModule] = true;
+                }
+                //If we are colliding with the interaction module, and we are interacting with it, but we are not admin, we should stop interacting
+                else if (isCurrentlyInteracting && !IsInteractableAllowed(interactionModule))
+                {
+                    StopInteractingWithModule(interactionModule);
+                    _currentCollidingInteractionModules[interactionModule] = false;
+                }
             }
         }
     }

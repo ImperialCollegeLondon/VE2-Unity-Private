@@ -41,6 +41,8 @@ namespace VE2.Core.VComponents.Integration
     [AddComponentMenu("")] //Better to create this from the gameobject menu, where it'll spawn the entire prefab. Hide this from the AC menu
     internal partial class V_CustomInfoPoint : MonoBehaviour
     {
+        public void OpenDocs() => Application.OpenURL("https://www.notion.so/V_CustomInfoPoint-20f0e4d8ed4d81eb8e3eee6377ffa130?source=copy_link");
+        [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above)]
         [Title("InfoPoint Settings", Order = -50)]
         [SerializeField, BeginGroup] private GameObject _triggerGameObject;
         [SerializeField] private GameObject _canvasGameObject;
