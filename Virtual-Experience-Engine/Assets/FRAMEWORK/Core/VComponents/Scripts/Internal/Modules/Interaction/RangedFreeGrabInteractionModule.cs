@@ -16,7 +16,7 @@ namespace VE2.Core.VComponents.Internal
         [Space(5)]
         [Title("Ranged Free Grab Interaction Settings")]
         [SerializeField, PropertyOrder(-100)] public DropBehaviour DropBehaviour = DropBehaviour.KeepMomentum;
-        [SerializeField, PropertyOrder(-99)] public bool AlignOrientationOnGrab = false;
+        [SerializeField, PropertyOrder(-99)] public bool AlignOrientationOnGrab = true;
 
         [SerializeField, PropertyOrder(-98)] public bool PreserveInspectModeOrientation = false;
 
