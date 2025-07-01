@@ -79,11 +79,17 @@ namespace VE2.Core.VComponents.Internal
         {
             CommonUtils.InstantiateResource("TableB");
         }
-        
+
         [MenuItem("/GameObject/VE2/Models/ButtonStand", priority = 2)]
         private static void CreateButtonStand()
         {
             CommonUtils.InstantiateResource("ButtonStand");
+        }
+        
+        [MenuItem("/GameObject/VE2/Models/TrainingShooter", priority = 2)]
+        private static void CreateTrainingShooter()
+        {
+            CommonUtils.InstantiateResource("TrainingShooter");
         }
     }
 }
