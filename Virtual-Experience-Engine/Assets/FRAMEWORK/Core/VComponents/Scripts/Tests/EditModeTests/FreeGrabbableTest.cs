@@ -94,6 +94,7 @@ namespace VE2.Core.VComponents.Tests
         public bool AdminOnly {get => _RangedGrabModule.AdminOnly; set => _RangedGrabModule.AdminOnly = value; }
         public bool EnableControllerVibrations { get => _RangedGrabModule.EnableControllerVibrations; set => _RangedGrabModule.EnableControllerVibrations = value; }
         public bool ShowTooltipsAndHighlight { get => _RangedGrabModule.ShowTooltipsAndHighlight; set => _RangedGrabModule.ShowTooltipsAndHighlight = value; }
+        public bool IsInteractable { get => _RangedGrabModule.IsInteractable; set => _RangedGrabModule.IsInteractable = value; }
         #endregion
     }
 

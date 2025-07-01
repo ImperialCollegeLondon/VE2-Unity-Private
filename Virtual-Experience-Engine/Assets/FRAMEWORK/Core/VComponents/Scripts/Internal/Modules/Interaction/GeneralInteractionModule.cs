@@ -13,7 +13,9 @@ namespace VE2.Core.VComponents.Internal
 
         [SerializeField] public bool EnableControllerVibrations = true;
 
-        [EndGroup, SerializeField] public bool ShowTooltipsAndHighlight = true;
+        [SerializeField] public bool ShowTooltipsAndHighlight = true;
+
+        [EndGroup, SerializeField] public bool IsInteractable = true;
     }
 
     internal abstract class GeneralInteractionModule : IGeneralInteractionModule
@@ -21,6 +23,8 @@ namespace VE2.Core.VComponents.Internal
         public bool AdminOnly { get { return _config.AdminOnly; } set { _config.AdminOnly = value; } }
         public bool EnableControllerVibrations { get => _config.EnableControllerVibrations; set => _config.EnableControllerVibrations = value; }
         public bool ShowTooltipsAndHighlight { get => _config.ShowTooltipsAndHighlight; set => _config.ShowTooltipsAndHighlight = value; }
+        public bool IsInteractable { get => _config.IsInteractable; set => _config.IsInteractable = value; }
+
         private readonly GeneralInteractionConfig _config;
 
         public GeneralInteractionModule(GeneralInteractionConfig config)
