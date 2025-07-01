@@ -31,5 +31,7 @@ namespace VE2.Core.Player.API
         public void SetPlayerPosition(Vector3 position);
         public Quaternion PlayerRotation { get; }
         public void SetPlayerRotation(Quaternion rotation);
+
+        public Vector3 PlayerSpawnPoint { get; }
     }
 }

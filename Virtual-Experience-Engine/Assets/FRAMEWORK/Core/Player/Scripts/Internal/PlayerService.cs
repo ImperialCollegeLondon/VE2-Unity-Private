@@ -13,7 +13,7 @@ namespace VE2.Core.Player.Internal
     internal static class VE2PlayerServiceFactory
     {
         internal static PlayerService Create(PlayerTransformData state, PlayerConfig config, IPlayerPersistentDataHandler playerPersistentDataHandler, 
-            IXRManagerWrapper xrManagerWrapper, IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IXRHapticsWrapper xRHapticsWrapperLeft, IXRHapticsWrapper xRHapticsWrapperRight)
+            IXRManagerWrapper xrManagerWrapper, IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IXRHapticsWrapper xRHapticsWrapperLeft, IXRHapticsWrapper xRHapticsWrapperRight, ITransformWrapper playerSpawnTransform)
         {
             return new PlayerService(state, config, 
                 VE2API.InteractorContainer,
@@ -29,7 +29,8 @@ namespace VE2.Core.Player.Internal
                 primaryUIService,
                 secondaryUIService,
                 xRHapticsWrapperLeft,
-                xRHapticsWrapperRight); //TODO: reorder these?
+                xRHapticsWrapperRight,
+                playerSpawnTransform); //TODO: reorder these?
         }
     }
 
@@ -89,6 +90,8 @@ namespace VE2.Core.Player.Internal
             }
         }
 
+        public Vector3 PlayerSpawnPoint => _playerSpawnTransform.position;
+
         public void SetAvatarHeadOverride(ushort index) 
         {
             _config.AvatarAppearanceOverrideConfig.OverrideHead = true;
@@ -146,11 +149,12 @@ namespace VE2.Core.Player.Internal
         private readonly IPlayerPersistentDataHandler _playerSettingsHandler;
         private readonly ILocalPlayerSyncableContainer _playerSyncContainer;
         private readonly IPrimaryUIServiceInternal _primaryUIService;
+        private readonly ITransformWrapper _playerSpawnTransform;
 
         internal PlayerService(PlayerTransformData transformData, PlayerConfig config, HandInteractorContainer interactorContainer, IPlayerPersistentDataHandler playerSettingsHandler, 
             ILocalClientIDWrapper localClientIDWrapper, ILocalAdminIndicator localAdminIndicator, ILocalPlayerSyncableContainer playerSyncContainer, IGrabInteractablesContainer grabInteractablesContainer, 
             PlayerInputContainer playerInputContainer, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, IXRManagerWrapper xrManagerWrapper, 
-            IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IXRHapticsWrapper xRHapticsWrapperLeft, IXRHapticsWrapper xRHapticsWrapperRight)
+            IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IXRHapticsWrapper xRHapticsWrapperLeft, IXRHapticsWrapper xRHapticsWrapperRight, ITransformWrapper playerSpawnTransform)
         {
             PlayerTransformData = transformData;
             _config = config;
@@ -160,6 +164,8 @@ namespace VE2.Core.Player.Internal
 
             _playerSyncContainer = playerSyncContainer;
             _playerSyncContainer.RegisterLocalPlayer(this);
+
+            _playerSpawnTransform = playerSpawnTransform;
 
             if (_config.PlayerModeConfig.EnableVR)
             {

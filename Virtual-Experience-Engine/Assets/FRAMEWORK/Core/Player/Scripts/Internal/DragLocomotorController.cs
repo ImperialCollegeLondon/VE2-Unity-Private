@@ -25,7 +25,7 @@ namespace VE2.Core.Player.Internal
         private readonly Transform _headTransform; //For orienting the drag icons towards the camera
         private readonly Transform _handTransform; //For measuring drag delta 
         private MovementModeConfig _movementModeConfig;
-        private bool _previousFreeFlyMode = false;
+        private bool _previousFreeFlyModeStatus = false;
 
         public DragLocomotorController(DragLocomotorReferences locomotorVRReferences, DragLocomotorInputContainer inputContainer, DragLocomotorInputContainer otherVRHandInputContainer,
             Transform rootTransform, Transform headOffsetTransform, Transform headTransform, Transform handTransform, MovementModeConfig movementModeConfig)
@@ -44,20 +44,20 @@ namespace VE2.Core.Player.Internal
             _handTransform = handTransform;
 
             _movementModeConfig = movementModeConfig;
-            _previousFreeFlyMode = _movementModeConfig.FreeFlyMode;
+            _previousFreeFlyModeStatus = _movementModeConfig.FreeFlyMode;
         }
 
         public void HandleUpdate()
         {
             // Check if FreeFlyMode has changed
-            if (_movementModeConfig.FreeFlyMode != _previousFreeFlyMode)
+            if (_movementModeConfig.FreeFlyMode != _previousFreeFlyModeStatus)
             {
                 if (_movementModeConfig.FreeFlyMode)
                     EnterFreeFlyMode();
                 else
                     ExitFreeFlyMode();
 
-                _previousFreeFlyMode = _movementModeConfig.FreeFlyMode;
+                _previousFreeFlyModeStatus = _movementModeConfig.FreeFlyMode;
             }
 
             Vector3 cameraToIcon = _sphereIcon.transform.position - _headTransform.position;
@@ -85,7 +85,7 @@ namespace VE2.Core.Player.Internal
             // Save the current head offset position
             _savedHeadOffset = _headOffsetTransform.localPosition;
             // Collapse the rig
-            _headOffsetTransform.localPosition = Vector3.zero;
+            _headTransform.localPosition = Vector3.zero;
         }
 
         private void ExitFreeFlyMode()
@@ -108,7 +108,7 @@ namespace VE2.Core.Player.Internal
         private Vector3 GetSpawnPosition()
         {
             // TODO: Replace with actual spawn position retrieval logic
-            return Vector3.zero;
+            return VE2API.Player.PlayerSpawnPoint;
         }
 
         public void HandleOEnable()
@@ -241,7 +241,7 @@ namespace VE2.Core.Player.Internal
                 {
                     // Only block on walls, not on shallow slopes:
                     float upDot = Vector3.Dot(obstacleHit.normal, Vector3.up);
-                    if (upDot < 0.2f) //TODO: Make this configurable into a ramp angle tolerance?
+                    if (upDot < 0.1f) //TODO: Make this configurable into a ramp angle tolerance?
                     {
                         Debug.Log($"Movement blocked by {obstacleHit.collider.name}.");
                         return;
@@ -296,7 +296,7 @@ namespace VE2.Core.Player.Internal
                 Vector3 direction = moveVector.normalized;
                 float distance = moveVector.magnitude + collisionOffset;
 
-                if (Physics.Raycast(_rootTransform.position, direction, out RaycastHit hitInfo, distance, _movementModeConfig.CollisionLayers))
+                if (Physics.Raycast(_headTransform.position, direction, out RaycastHit hitInfo, distance, _movementModeConfig.CollisionLayers))
                     Debug.Log($"Vertical movement aborted: Collision detected with {hitInfo.collider.name}.");
                 else
                     _rootTransform.position = targetPosition;
