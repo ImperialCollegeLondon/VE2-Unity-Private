@@ -231,21 +231,24 @@ namespace VE2.Core.Player.Internal
                 // Existing movement logic with ground checks
                 float maxStepHeight = 0.5f;
                 float stepHeight = 0.5f; // TODO: Make configurable
+                float obstacleOffset = 1.0f;
 
                 Vector3 currentRaycastPosition = _rootTransform.position + new Vector3(0, maxStepHeight, 0);
                 Vector3 targetRaycastPosition = currentRaycastPosition + moveVector;
 
                 //Raycast from where we are, to where we are trying to be, to check for objects in our way
                 //If we hit something in the collision layers, abort movement
-                if (Physics.Raycast(currentRaycastPosition, moveVector.normalized, out RaycastHit obstacleHit, moveVector.magnitude + collisionOffset, _movementModeConfig.CollisionLayers))
+                if (Physics.CapsuleCast(
+                       _headTransform.position,
+                       _headTransform.position - new Vector3(0, obstacleOffset, 0),
+                       collisionOffset,
+                       moveVector.normalized,
+                       out RaycastHit obstacleHit,
+                       moveVector.magnitude + collisionOffset,
+                       _movementModeConfig.CollisionLayers))
                 {
-                    // Only block on walls, not on shallow slopes:
-                    float upDot = Vector3.Dot(obstacleHit.normal, Vector3.up);
-                    if (upDot < 0.1f) //TODO: Make this configurable into a ramp angle tolerance?
-                    {
-                        Debug.Log($"Movement blocked by {obstacleHit.collider.name}.");
-                        return;
-                    }
+                    Debug.Log($"Movement blocked by {obstacleHit.collider.name}.");
+                    return;
                 }
                 //TODO: There's def a bug here, we're able to get stuck on non-ground objects, and then we can't move away
 
