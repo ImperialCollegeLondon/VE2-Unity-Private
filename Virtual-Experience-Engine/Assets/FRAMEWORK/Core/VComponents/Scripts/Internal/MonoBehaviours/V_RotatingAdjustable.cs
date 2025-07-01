@@ -54,6 +54,7 @@ namespace VE2.Core.VComponents.Internal
         public bool AdminOnly {get => _RangedAdjustableModule.AdminOnly; set => _RangedAdjustableModule.AdminOnly = value; }
         public bool EnableControllerVibrations { get => _RangedAdjustableModule.EnableControllerVibrations; set => _RangedAdjustableModule.EnableControllerVibrations = value; }
         public bool ShowTooltipsAndHighlight { get => _RangedAdjustableModule.ShowTooltipsAndHighlight; set => _RangedAdjustableModule.ShowTooltipsAndHighlight = value; }
+        public bool IsInteractable { get => _RangedAdjustableModule.IsInteractable; set => _RangedAdjustableModule.IsInteractable = value; }
         #endregion
     }
 
