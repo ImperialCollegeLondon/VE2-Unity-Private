@@ -29,7 +29,7 @@ public class PluginTest : MonoBehaviour
 
     private IV_ToggleActivatable _pushActivatable => _pushButtonGO.GetComponent<IV_ToggleActivatable>();
     private IV_HoldActivatable _holdActivatable => _holdButtonGO.GetComponent<IV_HoldActivatable>();
-    private IV_PressurePlate _pressurePlate => _pressurePlateGO.GetComponent<IV_PressurePlate>();
+    private IV_PressurePlateActivatable _pressurePlate => _pressurePlateGO.GetComponent<IV_PressurePlateActivatable>();
     private IV_FreeGrabbable _freeGrabbable => _freeGrabbableGO.GetComponent<IV_FreeGrabbable>();
     private IV_HandheldActivatable _handheldActivatable => _handheldActivatableGO.GetComponent<IV_HandheldActivatable>();
     private IV_HandheldAdjustable _handheldAdjustable => _handheldAdjustableGO.GetComponent<IV_HandheldAdjustable>();

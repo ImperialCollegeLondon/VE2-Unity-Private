@@ -34,6 +34,7 @@ namespace VE2.Core.VComponents.Integration
         public bool AdminOnly {get => _RangedToggleClickModule.AdminOnly; set => _RangedToggleClickModule.AdminOnly = value; }
         public bool EnableControllerVibrations { get => _RangedToggleClickModule.EnableControllerVibrations; set => _RangedToggleClickModule.EnableControllerVibrations = value; }
         public bool ShowTooltipsAndHighlight { get => _RangedToggleClickModule.ShowTooltipsAndHighlight; set => _RangedToggleClickModule.ShowTooltipsAndHighlight = value; }
+        public bool IsInteractable { get => _RangedToggleClickModule.IsInteractable; set => _RangedToggleClickModule.IsInteractable = value; }
         #endregion
     }
 

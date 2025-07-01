@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
+using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Shared;
@@ -18,14 +19,13 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField, IgnoreParent] internal SingleInteractorActivatableStateDebug InspectorDebug = new();
         [SerializeField] public bool ActivateOnStart = false;
 
-        [SpaceArea(spaceAfter: 5, Order = -1), SerializeField] public UnityEvent OnActivate = new();
-        [SpaceArea(spaceAfter: 10, Order = -2), SerializeField] public UnityEvent OnDeactivate = new();
+        [SpaceArea(Order = -1), SerializeField] public UnityEvent OnActivate = new();
+        [SpaceArea(spaceAfter: 5 , Order = -2), SerializeField] public UnityEvent OnDeactivate = new();
 
-        [SpaceArea(spaceAfter: 10, Order = -3), SerializeField] public bool UseActivationGroup = false;
+        [SpaceArea(Order = -3), SerializeField] public bool UseActivationGroup = false;
 
         [EndGroup(ApplyCondition = false, Order = 50)]
         [SpaceArea(spaceAfter: 5, Order = -4), ShowIf("UseActivationGroup", true), DisableInPlayMode(), SerializeField] public string ActivationGroupID = "None";
-
     }
 
     [Serializable]

@@ -21,6 +21,15 @@ namespace VE2.Common.Shared
             }
         }
 
+        public MonoBehaviour MonoBehaviour
+        {
+            get
+            {
+                if (_gameObject != null)
+                    return _gameObject.GetComponent(typeof(T)) as MonoBehaviour;
+                return null;
+            }
+        }
 
         public static implicit operator T(InterfaceReference<T> reference) => reference?.Interface;
     }

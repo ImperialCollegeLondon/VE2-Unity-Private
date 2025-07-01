@@ -138,8 +138,8 @@ MonoBehaviour:
               m_BoolArgument: 0
             m_CallState: 2
           - m_Target: {fileID: 9024393120457683630}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMin
+            m_TargetAssemblyTypeName: VE2.Common.Shared.V_LightTweener, VE2.Common.Shared
+            m_MethodName: GoToMax
             m_Mode: 1
             m_Arguments:
               m_ObjectArgument: {fileID: 0}
@@ -212,19 +212,14 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-      IsNetworked: 1
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
-    RangedInteractionConfig:
-      InteractionRange: 5
-      OnLocalHoverEnter:
-        m_PersistentCalls:
-          m_Calls: []
-      OnLocalHoverExit:
-        m_PersistentCalls:
-          m_Calls: []
+    SyncConfig:
+      IsNetworked: 1
+      TransmissionFrequency: 1
+      TransmissionType: 0
 --- !u!82 &2254723250047947483
 AudioSource:
   m_ObjectHideFlags: 0

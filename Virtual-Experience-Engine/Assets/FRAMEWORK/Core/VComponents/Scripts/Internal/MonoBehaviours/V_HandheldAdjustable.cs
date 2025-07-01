@@ -27,6 +27,7 @@ namespace VE2.Core.VComponents.Internal
         public bool AdminOnly { get => _HandheldScrollModule.AdminOnly; set => _HandheldScrollModule.AdminOnly = value; }
         public bool EnableControllerVibrations { get => _HandheldScrollModule.EnableControllerVibrations; set => _HandheldScrollModule.EnableControllerVibrations = value; }
         public bool ShowTooltipsAndHighlight { get => _HandheldScrollModule.ShowTooltipsAndHighlight; set => _HandheldScrollModule.ShowTooltipsAndHighlight = value; }
+        public bool IsInteractable { get => _HandheldScrollModule.IsInteractable; set => _HandheldScrollModule.IsInteractable = value; }
         #endregion
     }
 

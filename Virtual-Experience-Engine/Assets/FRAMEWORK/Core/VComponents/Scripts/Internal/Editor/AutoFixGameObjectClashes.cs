@@ -18,9 +18,9 @@ namespace VE2.Core.VComponents.Internal
                 typeof(V_ToggleActivatable),
                 typeof(V_HoldActivatable),
                 typeof(V_FreeGrabbable),
-                typeof(V_PressurePlate),
-                typeof(V_RotationalAdjustable),
-                typeof(V_LinearAdjustable),
+                typeof(V_PressurePlateActivatable),
+                typeof(V_RotatingAdjustable),
+                typeof(V_SlidingAdjustable),
                 typeof(V_HandheldAdjustable),
                 typeof(V_CustomInfoPoint),
                 typeof(InfoPointTriggerAnimationHandler),
@@ -31,6 +31,7 @@ namespace VE2.Core.VComponents.Internal
         private static readonly string[] VComponentTypeNames = new string[]
         {
                 "V_RigidbodySyncable",
+                "V_TransformSyncable",
                 "V_NetworkObject",
                 "V_InstantMessageHandler"
         };

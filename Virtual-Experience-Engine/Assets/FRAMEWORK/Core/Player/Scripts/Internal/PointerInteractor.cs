@@ -158,9 +158,9 @@ namespace VE2.Core.Player.Internal
         }
 
         // Only allow interactable if not admin only, or if local player is admin
-        protected bool IsInteractableAllowed(IGeneralInteractionModule interactable)
+        protected bool IsInteractionAllowed(IGeneralInteractionModule interactable)
         {
-            return interactable != null && (!interactable.AdminOnly || _localAdminIndicator.IsLocalAdmin);
+            return interactable != null && interactable.IsInteractable && (!interactable.AdminOnly || _localAdminIndicator.IsLocalAdmin);
         }
 
         protected abstract void Vibrate(float amplitude, float duration);
@@ -182,7 +182,8 @@ namespace VE2.Core.Player.Internal
             //Update the current hovering interactable, as long as we're not waiting for id, and it's not a grabbable that we were previously hovering over
             if (_LocalClientIDWrapper.IsClientIDReady && !(previousHoveringInteractable is IRangedGrabInteractionModule previousRangedGrabInteractable && _CurrentGrabbingGrabbable == previousRangedGrabInteractable))
             {
-                if (raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange && IsInteractableAllowed(raycastResultWrapper.RangedInteractableInRange))
+                if (raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange && 
+                    IsInteractionAllowed(raycastResultWrapper.RangedInteractableInRange))
                     _CurrentHoveringInteractable = raycastResultWrapper.RangedInteractableInRange;
                 else if (this is InteractorVR && !raycastResultWrapper.HitInteractable && sphereCastResultWrapper != null && sphereCastResultWrapper.HitInteractable && sphereCastResultWrapper.RangedInteractableIsInRange)
                     _CurrentHoveringInteractable = sphereCastResultWrapper.RangedInteractableInRange;
@@ -211,7 +212,7 @@ namespace VE2.Core.Player.Internal
             }
 
             //If we've started hovering over something, call enter hover
-            if (_LocalClientIDWrapper.IsClientIDReady && _CurrentHoveringInteractable != null && _CurrentHoveringInteractable != previousHoveringInteractable)
+            if (_CurrentHoveringInteractable != null && _CurrentHoveringInteractable != previousHoveringInteractable)
             {
                 if (_CurrentHoveringClickInteractable != null && this is InteractorVR && !_CurrentHoveringClickInteractable.ActivateAtRangeInVR)
                     return;
@@ -239,7 +240,7 @@ namespace VE2.Core.Player.Internal
                 {
                     if (raycastResultWrapper.HitInteractable && _CurrentlySelectedScrollableUI == null)
                     {
-                        isAllowedToInteract = IsInteractableAllowed(raycastResultWrapper.RangedInteractable);
+                        isAllowedToInteract = IsInteractionAllowed(raycastResultWrapper.RangedInteractable);
                         if (raycastResultWrapper.RangedInteractable is IRangedClickInteractionModule rangedClickInteraction && this is InteractorVR)
                             isAllowedToInteract &= rangedClickInteraction.ActivateAtRangeInVR;
 
@@ -408,7 +409,8 @@ namespace VE2.Core.Player.Internal
             RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
 
             if (raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange &&
-                raycastResultWrapper.RangedInteractable is IRangedClickInteractionModule rangedClickInteractable && IsInteractableAllowed(rangedClickInteractable))
+                raycastResultWrapper.RangedInteractable is IRangedClickInteractionModule rangedClickInteractable && 
+                IsInteractionAllowed(rangedClickInteractable))
             {
                 //TODO - Code smell? This is a bit of a hack to get around the fact that we don't have a way to check if we're in VR or not
                 if (this is InteractorVR && !rangedClickInteractable.ActivateAtRangeInVR)
@@ -469,7 +471,7 @@ namespace VE2.Core.Player.Internal
                 {
                     if (raycastResultWrapper != null && raycastResultWrapper.HitInteractable && raycastResultWrapper.RangedInteractableIsInRange)
                     {
-                        if (IsInteractableAllowed(raycastResultWrapper.RangedInteractable))
+                        if (IsInteractionAllowed(raycastResultWrapper.RangedInteractable))
                         {
                             if (raycastResultWrapper.RangedInteractable is IRangedGrabInteractionModule rangedGrabInteractable)
                             {
@@ -491,7 +493,7 @@ namespace VE2.Core.Player.Internal
 
                         if (sphereCastResultWrapper != null && sphereCastResultWrapper.HitInteractable && sphereCastResultWrapper.RangedInteractableIsInRange)
                         {
-                            if (IsInteractableAllowed(sphereCastResultWrapper.RangedInteractable))
+                            if (IsInteractionAllowed(sphereCastResultWrapper.RangedInteractable))
                             {
                                 if (sphereCastResultWrapper.RangedInteractable is IRangedGrabInteractionModule rangedGrabInteractable)
                                 {
@@ -564,8 +566,11 @@ namespace VE2.Core.Player.Internal
                 {
                     if (handheldInteraction is IHandheldClickInteractionModule handheldClickInteraction)
                     {
-                        handheldClickInteraction.ClickDown(_InteractorID.ClientID);
-                        Vibrate(HIGH_HAPTICS_AMPLITUDE, HIGH_HAPTICS_DURATION);
+                        if (IsInteractionAllowed(handheldClickInteraction))
+                        {
+                            handheldClickInteraction.ClickDown(_InteractorID.ClientID);
+                            Vibrate(HIGH_HAPTICS_AMPLITUDE, HIGH_HAPTICS_DURATION);
+                        }
                     }
                 }
             }
@@ -596,8 +601,11 @@ namespace VE2.Core.Player.Internal
                 {
                     if (handheldInteraction is IHandheldScrollInteractionModule handheldScrollInteraction)
                     {
-                        handheldScrollInteraction.ScrollUp(_InteractorID.ClientID);
-                        Vibrate(HIGH_HAPTICS_AMPLITUDE, HIGH_HAPTICS_DURATION);
+                        if (IsInteractionAllowed(handheldInteraction))
+                        {
+                            handheldScrollInteraction.ScrollUp(_InteractorID.ClientID);
+                            Vibrate(HIGH_HAPTICS_AMPLITUDE, HIGH_HAPTICS_DURATION);
+                        }
                     }
                 }
             }
@@ -607,7 +615,7 @@ namespace VE2.Core.Player.Internal
 
                 if (_LocalClientIDWrapper.IsClientIDReady && raycastResultWrapper != null)
                 {
-                    if (raycastResultWrapper.HitInteractable && IsInteractableAllowed(raycastResultWrapper.RangedInteractable))
+                    if (raycastResultWrapper.HitInteractable && IsInteractionAllowed(raycastResultWrapper.RangedInteractable))
                     {
                         //if while scrolling up, raycast returns an adjustable module
                         if (raycastResultWrapper.RangedInteractable is IRangedAdjustableInteractionModule rangedAdjustableInteraction)
@@ -633,8 +641,11 @@ namespace VE2.Core.Player.Internal
                 {
                     if (handheldInteraction is IHandheldScrollInteractionModule handheldScrollInteraction)
                     {
-                        handheldScrollInteraction.ScrollDown(_InteractorID.ClientID);
-                        Vibrate(HIGH_HAPTICS_AMPLITUDE, HIGH_HAPTICS_DURATION);
+                        if (IsInteractionAllowed(handheldInteraction))
+                        {
+                            handheldScrollInteraction.ScrollDown(_InteractorID.ClientID);
+                            Vibrate(HIGH_HAPTICS_AMPLITUDE, HIGH_HAPTICS_DURATION);
+                        }
                     }
                 }
             }
@@ -644,7 +655,7 @@ namespace VE2.Core.Player.Internal
 
                 if (_LocalClientIDWrapper.IsClientIDReady && raycastResultWrapper != null)
                 {
-                    if (raycastResultWrapper.HitInteractable && IsInteractableAllowed(raycastResultWrapper.RangedInteractable))
+                    if (raycastResultWrapper.HitInteractable && IsInteractionAllowed(raycastResultWrapper.RangedInteractable))
                     {
                         //if while scrolling up, raycast returns an adjustable module
                         if (raycastResultWrapper.RangedInteractable is IRangedAdjustableInteractionModule rangedAdjustableInteraction)

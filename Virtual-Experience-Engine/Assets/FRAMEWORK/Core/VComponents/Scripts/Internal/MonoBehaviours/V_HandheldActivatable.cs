@@ -30,6 +30,7 @@ namespace VE2.Core.VComponents.Internal
         public bool AdminOnly {get => _HandheldClickModule.AdminOnly; set => _HandheldClickModule.AdminOnly = value; }
         public bool EnableControllerVibrations { get => _HandheldClickModule.EnableControllerVibrations; set => _HandheldClickModule.EnableControllerVibrations = value; }
         public bool ShowTooltipsAndHighlight { get => _HandheldClickModule.ShowTooltipsAndHighlight; set => _HandheldClickModule.ShowTooltipsAndHighlight = value; }
+        public bool IsInteractable { get => _HandheldClickModule.IsInteractable; set => _HandheldClickModule.IsInteractable = value; }
         #endregion
     }
 
@@ -65,7 +66,7 @@ namespace VE2.Core.VComponents.Internal
                 grabbable = freeGrabbable;
 
             string id = "HHActivatable-" + gameObject.name;
-            _service = new(grabbable, _config, _state, id, VE2API.WorldStateSyncableContainer, VComponentsAPI.ActivatableGroupsContainer, VE2API.LocalClientIdWrapper);
+            _service = new(grabbable, _config, _state, id, VE2API.WorldStateSyncableContainer, VE2API.ActivatableGroupsContainer, VE2API.LocalClientIdWrapper);
         }
 
         private void FixedUpdate()
