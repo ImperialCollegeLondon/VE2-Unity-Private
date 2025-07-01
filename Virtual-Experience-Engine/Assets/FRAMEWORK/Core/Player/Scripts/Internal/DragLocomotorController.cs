@@ -253,7 +253,7 @@ namespace VE2.Core.Player.Internal
                 //If we don't hit anything, or if the thing we hit is not within the traversable layers, abort movement
                 if (!Physics.Raycast(currentRaycastPosition, Vector3.down, out RaycastHit groundHitFromCurrentPos, maxStepHeight + collisionOffset, _movementModeConfig.TraversableLayers))
                 {
-                    Debug.LogWarning($"Movement aborted: Current position is not above ground.Ground hit {groundHitFromCurrentPos.collider.gameObject.name}");
+                    Debug.LogWarning($"Movement aborted: Current position is not above ground.Ground hit {groundHitFromCurrentPos.collider?.gameObject.name}");
                     return;
                 }
 
