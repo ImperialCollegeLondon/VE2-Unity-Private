@@ -66,8 +66,10 @@ namespace VE2.Core.VComponents.Internal
         {
             _adjustableStateConfig = adjustableStateConfig;
 
-            if (_adjustableStateConfig.EmitValueOnStart)
-                InvokeOnValueAdjustedEvents(_state.Value);
+            //set the initial value of the adjustable state module
+            if (!_state.IsInitialised)
+                SetValue(_adjustableStateConfig.StartingOutputValue, ushort.MaxValue, _adjustableStateConfig.EmitValueOnStart);
+            _state.IsInitialised = true;
 
             _adjustableStateConfig.InspectorDebug.OnDebugUpdateStatePressed += SetOutputValue;
             _adjustableStateConfig.InspectorDebug.Value = _state.Value;
@@ -76,7 +78,7 @@ namespace VE2.Core.VComponents.Internal
             _localClientIdWrapper = localClientIdWrapper;
         }
 
-        public void SetValue(float value, ushort clientID)
+        public void SetValue(float value, ushort clientID, bool shouldEmitPluginEvent = true)
         {
             if (_state.Value == value)
                 return;
@@ -97,20 +99,23 @@ namespace VE2.Core.VComponents.Internal
             _adjustableStateConfig.InspectorDebug.Value = _state.Value;
             _adjustableStateConfig.InspectorDebug.ClientID = _state.MostRecentInteractingClientID;
 
-            InvokeOnValueAdjustedEvents(_state.Value);
+            InvokeOnValueAdjustedEvents(_state.Value, shouldEmitPluginEvent);
         }
 
-        private void InvokeOnValueAdjustedEvents(float value)
+        private void InvokeOnValueAdjustedEvents(float value, bool shouldEmitPluginEvent = true)
         {
             OnValueChangedInternal?.Invoke(value);
 
-            try
+            if (shouldEmitPluginEvent)
             {
-                OnValueAdjusted?.Invoke(value);
-            }
-            catch (Exception e)
-            {
-                Debug.Log($"Error when emitting OnValueAdjusted from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
+                try
+                {
+                    OnValueAdjusted?.Invoke(value);
+                }
+                catch (Exception e)
+                {
+                    Debug.Log($"Error when emitting OnValueAdjusted from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
+                }
             }
         }
 

@@ -97,11 +97,6 @@ namespace VE2.Core.VComponents.Internal
 
             _AdjustableStateModule.OnValueChangedInternal += (float value) => OnStateValueChanged(value);
 
-            //set the initial value of the adjustable state module
-            if (!adjustableState.IsInitialised)
-                SetValueOnStateModule(config.AdjustableStateConfig.StartingOutputValue);
-            adjustableState.IsInitialised = true;
-
             //get the nth revolution of the starting value
             _numberOfRevolutions = Mathf.FloorToInt(ConvertToSpatialValue(config.AdjustableStateConfig.StartingOutputValue) / 360);
             _oldRotationalValue = ConvertToSpatialValue(config.AdjustableStateConfig.StartingOutputValue) - (_numberOfRevolutions * 360);

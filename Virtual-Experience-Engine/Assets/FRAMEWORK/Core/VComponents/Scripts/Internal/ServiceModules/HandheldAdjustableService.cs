@@ -55,10 +55,6 @@ namespace VE2.Core.VComponents.Internal
             _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, localClientIdWrapper);
             _HandheldScrollInteractionModule = new(config.GeneralInteractionConfig);
 
-            if (!state.IsInitialised)
-                _StateModule.SetValue(config.StateConfig.StartingOutputValue, ushort.MaxValue);
-            state.IsInitialised = true;
-
             _handheldAdjustableServiceConfig = config.HandheldAdjustableServiceConfig;
             _adjustableStateConfig = config.StateConfig;
             _HandheldScrollInteractionModule.OnScrollUp += HandleScrollUp;

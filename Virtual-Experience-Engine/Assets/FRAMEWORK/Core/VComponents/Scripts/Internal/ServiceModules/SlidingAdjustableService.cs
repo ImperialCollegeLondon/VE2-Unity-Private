@@ -112,11 +112,6 @@ namespace VE2.Core.VComponents.Internal
 
             _AdjustableStateModule.OnValueChangedInternal += (float value) => OnStateValueChanged(value);
 
-            //UnityEngine.Debug.Log(config.AdjustableStateConfig.StartingOutputValue);
-
-            //set the initial value of the adjustable state module
-            if (!adjustableState.IsInitialised)
-                SetValueOnStateModule(config.AdjustableStateConfig.StartingOutputValue);
             adjustableState.IsInitialised = true;
         }
 
