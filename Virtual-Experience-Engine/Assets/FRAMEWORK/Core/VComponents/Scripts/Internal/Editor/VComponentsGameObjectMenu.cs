@@ -44,6 +44,18 @@ namespace VE2.Core.VComponents.Internal
             CommonUtils.InstantiateResource("AdjustableSlider");
         }
 
+        [MenuItem("/GameObject/VE2/Interactables/GrabbableBox", priority = 6)]
+        private static void CreateGrabbableBox()
+        {
+            CommonUtils.InstantiateResource("GrabbableBox");
+        }
+
+        [MenuItem("/GameObject/VE2/Interactables/GrabbableShooter", priority = 6)]
+        private static void CreateGrabbableShooter()
+        {
+            CommonUtils.InstantiateResource("GrabbableShooter");
+        }
+
         [MenuItem("/GameObject/VE2/UIs/CustomInfoPoint", priority = 6)]
         private static void CreateCustomInfoPoint()
         {
@@ -52,8 +64,32 @@ namespace VE2.Core.VComponents.Internal
             GameObject trigger = infoPoint.GetComponentInChildren<InfoPointTriggerAnimationHandler>().gameObject;
             trigger.name = $"{infoPoint.name}_Trigger"; //The actual trigger holds the activatable!
 
-            GameObject canvas = infoPoint.GetComponentInChildren<InfoPointCanvasAnimationHandler>().gameObject; 
+            GameObject canvas = infoPoint.GetComponentInChildren<InfoPointCanvasAnimationHandler>().gameObject;
             canvas.name = $"{infoPoint.name}_Canvas"; //May as well do the same to the canvas, for consistency
+        }
+
+        [MenuItem("/GameObject/VE2/Models/TableA", priority = 0)]
+        private static void CreateTableA()
+        {
+            CommonUtils.InstantiateResource("TableA");
+        }
+
+        [MenuItem("/GameObject/VE2/Models/TableB", priority = 1)]
+        private static void CreateTableB()
+        {
+            CommonUtils.InstantiateResource("TableB");
+        }
+
+        [MenuItem("/GameObject/VE2/Models/ButtonStand", priority = 2)]
+        private static void CreateButtonStand()
+        {
+            CommonUtils.InstantiateResource("ButtonStand");
+        }
+        
+        [MenuItem("/GameObject/VE2/Models/TrainingShooter", priority = 2)]
+        private static void CreateTrainingShooter()
+        {
+            CommonUtils.InstantiateResource("TrainingShooter");
         }
     }
 }
