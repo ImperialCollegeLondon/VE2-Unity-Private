@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &2556242983153585843
+--- !u!1 &924581523141503783
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,17 +8,17 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1251220802326258660}
-  - component: {fileID: 3270115606935378456}
-  - component: {fileID: 7865601250151778219}
-  - component: {fileID: 8011404282768389784}
-  - component: {fileID: 9117974930379665252}
-  - component: {fileID: 1594958222449140861}
-  - component: {fileID: 1645598466710479970}
-  - component: {fileID: 3919246648873120818}
-  - component: {fileID: 4751967642568608396}
-  - component: {fileID: 1016068347218313250}
-  - component: {fileID: 8834583911495472739}
+  - component: {fileID: 5387100400722406629}
+  - component: {fileID: 1170299744859474009}
+  - component: {fileID: 76825374297862086}
+  - component: {fileID: 2731889857247862077}
+  - component: {fileID: 6652956811268011051}
+  - component: {fileID: 6692659879034579304}
+  - component: {fileID: 7462957267653271321}
+  - component: {fileID: 7242965934180994293}
+  - component: {fileID: 208731897678617500}
+  - component: {fileID: 6004894219996262209}
+  - component: {fileID: 9143402606288101825}
   m_Layer: 0
   m_Name: GrabbableShooter
   m_TagString: Untagged
@@ -26,39 +26,39 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1251220802326258660
+--- !u!4 &5387100400722406629
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2556242983153585843}
+  m_GameObject: {fileID: 924581523141503783}
   serializedVersion: 2
   m_LocalRotation: {x: -0.532738, y: -0.66645014, z: -0.3202522, w: -0.41167107}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.002, y: 1.219, z: -0.005}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 6297151540508155895}
-  - {fileID: 8843118494318222509}
-  - {fileID: 5241486133919153633}
+  - {fileID: 3321639820342401338}
+  - {fileID: 3250804446278087995}
+  - {fileID: 2902412774330714772}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0.674, y: 117.127, z: -283.137}
---- !u!33 &3270115606935378456
+--- !u!33 &1170299744859474009
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2556242983153585843}
+  m_GameObject: {fileID: 924581523141503783}
   m_Mesh: {fileID: -6332468004853425968, guid: 403a95fe265202d46b3fbdc6ce8a15b4, type: 3}
---- !u!23 &7865601250151778219
+--- !u!23 &76825374297862086
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2556242983153585843}
+  m_GameObject: {fileID: 924581523141503783}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -97,117 +97,13 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &8011404282768389784
+--- !u!114 &2731889857247862077
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2556242983153585843}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 798ea06aad185d24ebd00082726ac30e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _config:
-    StateConfig:
-      InspectorDebug:
-        IsGrabbed: 0
-        ClientID: 0
-      OnGrab:
-        m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 1645598466710479970}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMax
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-      OnDrop:
-        m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 1645598466710479970}
-            m_TargetAssemblyTypeName: VE2.Core.Common.V_LightTweener, VE2.Core.Common
-            m_MethodName: GoToMin
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-    RangedFreeGrabInteractionConfig:
-      InteractionRange: 50
-      OnLocalHoverEnter:
-        m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 1645598466710479970}
-            m_TargetAssemblyTypeName: VE2.Common.Shared.V_LightTweener, VE2.Common.Shared
-            m_MethodName: GoToMax
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-      OnLocalHoverExit:
-        m_PersistentCalls:
-          m_Calls:
-          - m_Target: {fileID: 1645598466710479970}
-            m_TargetAssemblyTypeName: VE2.Common.Shared.V_LightTweener, VE2.Common.Shared
-            m_MethodName: GoToMin
-            m_Mode: 1
-            m_Arguments:
-              m_ObjectArgument: {fileID: 0}
-              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-              m_IntArgument: 0
-              m_FloatArgument: 0
-              m_StringArgument: 
-              m_BoolArgument: 0
-            m_CallState: 2
-      _attachPoint: {fileID: 6297151540508155895}
-      VRRaySnap: 1
-      VRRaySnapRangeFrontOfHand: 0.15
-      VRRaySnapRangeBackOfHand: 0.1
-      VRFailsafeGrab: 1
-      VRFailsafeGrabMultiplier: 1.2
-      DropBehaviour: 0
-      AlignOrientationOnGrab: 1
-      PreserveInspectModeOrientation: 0
-      OnLocalInspectModeEnter:
-        m_PersistentCalls:
-          m_Calls: []
-      OnLocalInspectModeExit:
-        m_PersistentCalls:
-          m_Calls: []
-    GeneralInteractionConfig:
-      AdminOnly: 0
-      EnableControllerVibrations: 1
-      ShowTooltipsAndHighlight: 1
-    SyncConfig:
-      IsNetworked: 1
-      TransmissionFrequency: 1
-      TransmissionType: 0
-  _collider: {fileID: 8834583911495472739}
-  _rigidbody: {fileID: 1594958222449140861}
---- !u!114 &9117974930379665252
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2556242983153585843}
+  m_GameObject: {fileID: 924581523141503783}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 99b57da60513d9445907703e7b06f95f, type: 3}
@@ -223,8 +119,8 @@ MonoBehaviour:
       OnActivate:
         m_PersistentCalls:
           m_Calls:
-          - m_Target: {fileID: 4751967642568608396}
-            m_TargetAssemblyTypeName: V_ForceImparter, VE2.Common.Shared
+          - m_Target: {fileID: 6004894219996262209}
+            m_TargetAssemblyTypeName: V_ImpulseImparter, VE2.Common.Shared
             m_MethodName: ImpartForce
             m_Mode: 1
             m_Arguments:
@@ -235,7 +131,7 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
-          - m_Target: {fileID: 1016068347218313250}
+          - m_Target: {fileID: 9143402606288101825}
             m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
             m_MethodName: PlayOneShot
             m_Mode: 2
@@ -260,19 +156,173 @@ MonoBehaviour:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
+      IsInteractable: 1
     SyncConfig:
       IsNetworked: 1
       TransmissionFrequency: 1
       TransmissionType: 0
   _state:
     IsInitialised: 0
---- !u!54 &1594958222449140861
+--- !u!114 &6652956811268011051
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 924581523141503783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 798ea06aad185d24ebd00082726ac30e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _config:
+    StateConfig:
+      InspectorDebug:
+        IsGrabbed: 0
+        ClientID: 65535
+      OnGrab:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 7462957267653271321}
+            m_TargetAssemblyTypeName: VE2.Common.Shared.V_LightTweener, VE2.Common.Shared
+            m_MethodName: GoToMax
+            m_Mode: 1
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
+          - m_Target: {fileID: 2955920930660828463}
+            m_TargetAssemblyTypeName: VE2.Common.Shared.V_LightTweener, VE2.Common.Shared
+            m_MethodName: GoToMax
+            m_Mode: 1
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 1
+            m_CallState: 2
+      OnDrop:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 7462957267653271321}
+            m_TargetAssemblyTypeName: VE2.Common.Shared.V_LightTweener, VE2.Common.Shared
+            m_MethodName: GoToMin
+            m_Mode: 1
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
+          - m_Target: {fileID: 2955920930660828463}
+            m_TargetAssemblyTypeName: VE2.Common.Shared.V_LightTweener, VE2.Common.Shared
+            m_MethodName: GoToMin
+            m_Mode: 1
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
+    RangedFreeGrabInteractionConfig:
+      InteractionRange: 50
+      OnLocalHoverEnter:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 7462957267653271321}
+            m_TargetAssemblyTypeName: VE2.Common.Shared.V_LightTweener, VE2.Common.Shared
+            m_MethodName: GoToMax
+            m_Mode: 1
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
+          - m_Target: {fileID: 2955920930660828463}
+            m_TargetAssemblyTypeName: VE2.Common.Shared.V_LightTweener, VE2.Common.Shared
+            m_MethodName: GoToMax
+            m_Mode: 1
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 1
+            m_CallState: 2
+      OnLocalHoverExit:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 7462957267653271321}
+            m_TargetAssemblyTypeName: VE2.Common.Shared.V_LightTweener, VE2.Common.Shared
+            m_MethodName: GoToMin
+            m_Mode: 1
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
+          - m_Target: {fileID: 2955920930660828463}
+            m_TargetAssemblyTypeName: VE2.Common.Shared.V_LightTweener, VE2.Common.Shared
+            m_MethodName: GoToMin
+            m_Mode: 1
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
+      _attachPoint: {fileID: 3321639820342401338}
+      VRRaySnap: 1
+      VRRaySnapRangeFrontOfHand: 0.15
+      VRRaySnapRangeBackOfHand: 0.1
+      VRFailsafeGrab: 1
+      VRFailsafeGrabMultiplier: 1.2
+      DropBehaviour: 0
+      AlignOrientationOnGrab: 1
+      PreserveInspectModeOrientation: 0
+      OnLocalInspectModeEnter:
+        m_PersistentCalls:
+          m_Calls: []
+      OnLocalInspectModeExit:
+        m_PersistentCalls:
+          m_Calls: []
+    GeneralInteractionConfig:
+      AdminOnly: 0
+      EnableControllerVibrations: 1
+      ShowTooltipsAndHighlight: 1
+      IsInteractable: 1
+    SyncConfig:
+      IsNetworked: 1
+      TransmissionFrequency: 1
+      TransmissionType: 0
+  _collider: {fileID: 7242965934180994293}
+  _rigidbody: {fileID: 6692659879034579304}
+--- !u!54 &6692659879034579304
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2556242983153585843}
+  m_GameObject: {fileID: 924581523141503783}
   serializedVersion: 4
   m_Mass: 1
   m_Drag: 0
@@ -293,24 +343,24 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &1645598466710479970
+--- !u!114 &7462957267653271321
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2556242983153585843}
+  m_GameObject: {fileID: 924581523141503783}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 147c1e7bf7305bf4593ab2cadc008b4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _tweenLight: 1
-  _light: {fileID: 6438605000574682501}
+  _tweenLight: 0
+  _light: {fileID: 0}
   _minIntensity: 0
   _maxIntensity: 0.2
   _tweenEmission: 1
-  _renderer: {fileID: 7865601250151778219}
+  _renderer: {fileID: 76825374297862086}
   _minEmissiveIntensity: 0
   _maxEmissiveIntensity: 1.5
   _emissiveMaterialIndex: 0
@@ -318,13 +368,35 @@ MonoBehaviour:
   _tweenDuration: 0.3
   _easeType: 19
   _startAtMin: 1
---- !u!114 &3919246648873120818
+--- !u!64 &7242965934180994293
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 924581523141503783}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -6332468004853425968, guid: 403a95fe265202d46b3fbdc6ce8a15b4, type: 3}
+--- !u!114 &208731897678617500
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2556242983153585843}
+  m_GameObject: {fileID: 924581523141503783}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b21d18ebf1323c64ab9ac2b227222645, type: 3}
@@ -342,34 +414,34 @@ MonoBehaviour:
     FixedTime: 0
     GrabCounter: 0
     LatestRoundTripTime: 0
---- !u!114 &4751967642568608396
+--- !u!114 &6004894219996262209
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2556242983153585843}
+  m_GameObject: {fileID: 924581523141503783}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f84ef762a896d0445ba3446d32e0e984, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _forceMagnitude: 1
-  _forceLocalDirection: {x: 0, y: 0, z: -1}
---- !u!82 &1016068347218313250
+  _forceLocalDirection: {x: 0, y: 0, z: 1}
+--- !u!82 &9143402606288101825
 AudioSource:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2556242983153585843}
+  m_GameObject: {fileID: 924581523141503783}
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: ed4eca299e53a9d4fad31dd7544dc6e8, type: 3}
   m_Resource: {fileID: 8300000, guid: ed4eca299e53a9d4fad31dd7544dc6e8, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.744
+  m_Volume: 0.756
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -453,29 +525,7 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!64 &8834583911495472739
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2556242983153585843}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: -6332468004853425968, guid: 403a95fe265202d46b3fbdc6ce8a15b4, type: 3}
---- !u!1 &3107583444953981598
+--- !u!1 &3972173226040455066
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -483,44 +533,45 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 8843118494318222509}
-  - component: {fileID: 6438605000574682501}
-  - component: {fileID: 3913247814627354487}
+  - component: {fileID: 2902412774330714772}
+  - component: {fileID: 3254646070309052635}
+  - component: {fileID: 8734876324298894181}
+  - component: {fileID: 2955920930660828463}
   m_Layer: 0
-  m_Name: ZapperLight
+  m_Name: Point Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &8843118494318222509
+--- !u!4 &2902412774330714772
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3107583444953981598}
+  m_GameObject: {fileID: 3972173226040455066}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0, z: 0.0444}
+  m_LocalPosition: {x: 0, y: -0, z: 0.0789}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1251220802326258660}
+  m_Father: {fileID: 5387100400722406629}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!108 &6438605000574682501
+--- !u!108 &3254646070309052635
 Light:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3107583444953981598}
+  m_GameObject: {fileID: 3972173226040455066}
   m_Enabled: 1
   serializedVersion: 11
   m_Type: 2
-  m_Color: {r: 0.8622977, g: 0.08962262, b: 1, a: 1}
-  m_Intensity: 0
-  m_Range: 0.36
+  m_Color: {r: 1, g: 0, b: 0.90894413, a: 1}
+  m_Intensity: 0.13
+  m_Range: 0.17
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
@@ -573,13 +624,13 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
---- !u!114 &3913247814627354487
+--- !u!114 &8734876324298894181
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3107583444953981598}
+  m_GameObject: {fileID: 3972173226040455066}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
@@ -596,7 +647,32 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 0
---- !u!1 &7711169512722934030
+--- !u!114 &2955920930660828463
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3972173226040455066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 147c1e7bf7305bf4593ab2cadc008b4e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _tweenLight: 1
+  _light: {fileID: 3254646070309052635}
+  _minIntensity: 0
+  _maxIntensity: 0.2
+  _tweenEmission: 0
+  _renderer: {fileID: 0}
+  _minEmissiveIntensity: 0.5
+  _maxEmissiveIntensity: 1.5
+  _emissiveMaterialIndex: 0
+  _emissiveColor: {r: 1, g: 1, b: 1, a: 1}
+  _tweenDuration: 0.3
+  _easeType: 1
+  _startAtMin: 1
+--- !u!1 &5998606044086128207
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -604,38 +680,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 6297151540508155895}
-  m_Layer: 0
-  m_Name: AttachPoint
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &6297151540508155895
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7711169512722934030}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0.16666593, y: 0.0000026673072, z: 0.00000071525557, w: 0.9860134}
-  m_LocalPosition: {x: 0, y: -0.0423, z: -0.0073}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1251220802326258660}
-  m_LocalEulerAnglesHint: {x: 180, y: 65.924, z: 90}
---- !u!1 &8759799644650835719
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 5241486133919153633}
+  - component: {fileID: 3250804446278087995}
   m_Layer: 0
   m_Name: ProjectileSpawnPoint
   m_TagString: Untagged
@@ -643,18 +688,49 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &5241486133919153633
+--- !u!4 &3250804446278087995
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8759799644650835719}
+  m_GameObject: {fileID: 5998606044086128207}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0, y: -0, z: 0.1486}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1251220802326258660}
+  m_Father: {fileID: 5387100400722406629}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8961763608803093032
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3321639820342401338}
+  m_Layer: 0
+  m_Name: AttachPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3321639820342401338
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8961763608803093032}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.09948139, y: 0.0000025779011, z: 0.0000008940698, w: 0.99503946}
+  m_LocalPosition: {x: 0, y: -0.0423, z: -0.0073}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5387100400722406629}
+  m_LocalEulerAnglesHint: {x: 168.581, y: 180, z: 180}

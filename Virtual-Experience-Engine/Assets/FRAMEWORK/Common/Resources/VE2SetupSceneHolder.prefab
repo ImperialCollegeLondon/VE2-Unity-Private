@@ -826,6 +826,7 @@ MonoBehaviour:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
+      IsInteractable: 1
     SyncConfig:
       IsNetworked: 1
       TransmissionFrequency: 1
@@ -3497,12 +3498,13 @@ MonoBehaviour:
       VRRaySnapRangeFrontOfHand: 0.15
       VRRaySnapRangeBackOfHand: 0.1
       VRFailsafeGrab: 1
-      FailsafeGrabMultiplier: 1.2
+      VRFailsafeGrabMultiplier: 1.2
       _transformToAdjust: {fileID: 2861417968762198939}
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
+      IsInteractable: 1
     SyncConfig:
       IsNetworked: 1
       TransmissionFrequency: 1
@@ -4137,12 +4139,13 @@ MonoBehaviour:
       VRRaySnapRangeFrontOfHand: 0.15
       VRRaySnapRangeBackOfHand: 0.1
       VRFailsafeGrab: 1
-      FailsafeGrabMultiplier: 1.2
+      VRFailsafeGrabMultiplier: 1.2
       _transformToAdjust: {fileID: 5157922448671070186}
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
+      IsInteractable: 1
     SyncConfig:
       IsNetworked: 1
       TransmissionFrequency: 1
@@ -5234,12 +5237,13 @@ MonoBehaviour:
       VRRaySnapRangeFrontOfHand: 0.15
       VRRaySnapRangeBackOfHand: 0.1
       VRFailsafeGrab: 1
-      FailsafeGrabMultiplier: 1.2
+      VRFailsafeGrabMultiplier: 1.2
       _transformToAdjust: {fileID: 4451285031249582549}
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
+      IsInteractable: 1
     SyncConfig:
       IsNetworked: 1
       TransmissionFrequency: 1
@@ -6960,7 +6964,7 @@ MonoBehaviour:
       VRRaySnapRangeFrontOfHand: 0.15
       VRRaySnapRangeBackOfHand: 0.1
       VRFailsafeGrab: 1
-      FailsafeGrabMultiplier: 1.2
+      VRFailsafeGrabMultiplier: 1.2
       DropBehaviour: 0
       AlignOrientationOnGrab: 1
       PreserveInspectModeOrientation: 1
@@ -6974,6 +6978,7 @@ MonoBehaviour:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
+      IsInteractable: 1
     SyncConfig:
       IsNetworked: 1
       TransmissionFrequency: 1
@@ -7444,6 +7449,7 @@ GameObject:
   - component: {fileID: 4522969619655655555}
   - component: {fileID: 2964081318668640016}
   - component: {fileID: 141378357387270686}
+  - component: {fileID: 2975625765761402348}
   m_Layer: 0
   m_Name: PlayerSpawner
   m_TagString: Untagged
@@ -7580,6 +7586,19 @@ MonoBehaviour:
       m_PersistentCalls:
         m_Calls: []
   _uiPanelsSetup: 0
+--- !u!114 &2975625765761402348
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4622263079073704117}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88f3a02c3aa0fd44f9f669931bcc4e16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minutesBetweenAutosave: 3
 --- !u!1 &4647801973896393088
 GameObject:
   m_ObjectHideFlags: 0
@@ -8325,6 +8344,7 @@ MonoBehaviour:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
+      IsInteractable: 1
     SyncConfig:
       IsNetworked: 1
       TransmissionFrequency: 1
@@ -10030,7 +10050,7 @@ MonoBehaviour:
       VRRaySnapRangeFrontOfHand: 0.15
       VRRaySnapRangeBackOfHand: 0.1
       VRFailsafeGrab: 1
-      FailsafeGrabMultiplier: 1.2
+      VRFailsafeGrabMultiplier: 1.2
       DropBehaviour: 2
       AlignOrientationOnGrab: 1
       PreserveInspectModeOrientation: 0
@@ -10044,6 +10064,7 @@ MonoBehaviour:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
+      IsInteractable: 1
     SyncConfig:
       IsNetworked: 1
       TransmissionFrequency: 1
@@ -10108,6 +10129,7 @@ MonoBehaviour:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
+      IsInteractable: 1
     SyncConfig:
       IsNetworked: 1
       TransmissionFrequency: 1
@@ -10158,6 +10180,7 @@ MonoBehaviour:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
+      IsInteractable: 1
     SyncConfig:
       IsNetworked: 1
       TransmissionFrequency: 1
@@ -10893,6 +10916,7 @@ MonoBehaviour:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
+      IsInteractable: 1
     SyncConfig:
       IsNetworked: 1
       TransmissionFrequency: 1
