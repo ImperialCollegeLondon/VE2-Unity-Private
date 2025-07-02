@@ -46,7 +46,8 @@ public class FrameworkInstaller : EditorWindow
         "Unity-Editor-Toolbox",
         "Unity3D-NSubstitute",
         "NuGetForUnity",
-        "VE2-Distribution"
+        "VE2-Distribution",
+        "ParrelSync",
     };
 
     // Cached list of installed packages.
@@ -103,6 +104,7 @@ public class FrameworkInstaller : EditorWindow
         packageQueue.Enqueue("https://github.com/Thundernerd/Unity3D-NSubstitute.git");
         packageQueue.Enqueue("https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity");
         packageQueue.Enqueue("https://github.com/ImperialCollegeLondon/VE2-Distribution.git?path=VE2#main");
+        packageQueue.Enqueue("https://github.com/VeriorPies/ParrelSync.git");
 
         totalPackages = packageQueue.Count;
         // Fetch the list of already installed packages.
@@ -217,7 +219,7 @@ public class FrameworkInstaller : EditorWindow
 
         // Extract the last part of the URL path (i.e., the repo name, e.g., Unity-Editor-Toolbox)
         string repoName = uri.AbsolutePath.Split('/').LastOrDefault()?.Replace(".git", "");
-        
+
         // Check if there's a "path" parameter in the URL (after '?')
         string path = string.Empty;
         var queryParams = Uri.UnescapeDataString(packageUrl.Split('?').Skip(1).FirstOrDefault() ?? "");
@@ -227,7 +229,7 @@ public class FrameworkInstaller : EditorWindow
                             .FirstOrDefault(p => p.StartsWith("path="))?
                             .Substring(5); // Remove "path=" prefix
         }
-        
+
         // If path is empty or just the root, return "root"
         if (string.IsNullOrEmpty(path))
         {
@@ -236,8 +238,6 @@ public class FrameworkInstaller : EditorWindow
 
         return $"{repoName} (path: {path})";  // Example: "Unity-Editor-Toolbox (path: root)"
     }
-
-
 
     string ExtractRepositoryName(string packageUrl)
     {
