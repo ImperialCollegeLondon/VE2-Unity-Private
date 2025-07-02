@@ -5,7 +5,7 @@ using UnityEngine.Rendering;
 
 public static class VE2URPSetup
 {
-    private const string RENDER_ASSET_PATH = "Packages/com.ve2.framework/Common/Shared/URP/URP-HighFidelity.asset";
+    private const string RENDER_ASSET_PATH = "Packages/com.ic.ve2/FRAMEWORK/Common/Shared/URP/URP-HighFidelity.asset";
 
     [MenuItem("VE2/Set up URP Settings", priority = -1)]
     public static void SetupURP()
