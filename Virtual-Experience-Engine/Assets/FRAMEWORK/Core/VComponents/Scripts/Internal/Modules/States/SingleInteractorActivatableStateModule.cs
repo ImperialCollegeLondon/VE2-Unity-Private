@@ -94,6 +94,16 @@ namespace VE2.Core.VComponents.Internal
             toggleActivatableStateConfig.InspectorDebug.OnDebugUpdateStatePressed += (bool newState) => SetActivated(newState);
         }
 
+        //Can't be called in the constructor, as this will emit events, that may trigger the plugin to access the state module before it is fully initialized.
+        public void InitializeStateIfNotAlready()
+        {
+            //set the initial value of the adjustable state module
+            if (!_state.IsInitialised && _toggleActivatableStateConfig.ActivateOnStart)
+                SetActivated(true);
+
+            _state.IsInitialised = true;
+        }
+
         public void SetNewState(ushort clientID)
         {
             // If this module belongs to an activation group, deactivate others.

@@ -68,6 +68,7 @@ namespace VE2.Core.VComponents.Internal
 
         private void HandleScrollUp(ushort clientID)
         {
+            Debug.Log($"HandleScrollUp called for client {clientID} with current value {_StateModule.OutputValue}");
             float targetValue = _StateModule.OutputValue + _adjustableStateConfig.IncrementPerScrollTick;
 
             if (targetValue > _StateModule.MaximumOutputValue)

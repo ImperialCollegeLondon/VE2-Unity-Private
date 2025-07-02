@@ -62,6 +62,8 @@ namespace VE2.Core.VComponents.Internal
                 _state = new AdjustableState(float.MaxValue);
 
             _service = new(_config, _state, id, VE2API.WorldStateSyncableContainer, VE2API.LocalClientIdWrapper);
+
+            ((AdjustableStateModule)_service.StateModule).InitializeStateIfNotAlready();
         }
 
         private void FixedUpdate()

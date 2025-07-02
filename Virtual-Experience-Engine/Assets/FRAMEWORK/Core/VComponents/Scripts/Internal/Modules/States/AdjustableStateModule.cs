@@ -66,16 +66,20 @@ namespace VE2.Core.VComponents.Internal
         {
             _adjustableStateConfig = adjustableStateConfig;
 
-            //set the initial value of the adjustable state module
-            if (!_state.IsInitialised)
-                SetValue(_adjustableStateConfig.StartingOutputValue, ushort.MaxValue, _adjustableStateConfig.EmitValueOnStart);
-            _state.IsInitialised = true;
-
             _adjustableStateConfig.InspectorDebug.OnDebugUpdateStatePressed += SetOutputValue;
             _adjustableStateConfig.InspectorDebug.Value = _state.Value;
             _adjustableStateConfig.InspectorDebug.ClientID = _state.MostRecentInteractingClientID;
 
             _localClientIdWrapper = localClientIdWrapper;
+        }
+
+        //Can't be called in the constructor, as this will emit events, that may trigger the plugin to access the state module before it is fully initialized.
+        public void InitializeStateIfNotAlready()
+        {
+            //set the initial value of the adjustable state module
+            if (!_state.IsInitialised)
+                SetValue(_adjustableStateConfig.StartingOutputValue, ushort.MaxValue, _adjustableStateConfig.EmitValueOnStart);
+            _state.IsInitialised = true;
         }
 
         public void SetValue(float value, ushort clientID, bool shouldEmitPluginEvent = true)
