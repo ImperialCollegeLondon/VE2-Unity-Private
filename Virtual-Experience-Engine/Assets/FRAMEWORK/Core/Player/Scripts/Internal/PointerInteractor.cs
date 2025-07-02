@@ -620,7 +620,7 @@ namespace VE2.Core.Player.Internal
                         //if while scrolling up, raycast returns an adjustable module
                         if (raycastResultWrapper.RangedInteractable is IRangedAdjustableInteractionModule rangedAdjustableInteraction)
                         {
-                            rangedAdjustableInteraction.ScrollUp();
+                            rangedAdjustableInteraction.ScrollUp(_InteractorID.ClientID);
                             Vibrate(HIGH_HAPTICS_AMPLITUDE, HIGH_HAPTICS_DURATION);
                         }
                     }
@@ -660,7 +660,7 @@ namespace VE2.Core.Player.Internal
                         //if while scrolling up, raycast returns an adjustable module
                         if (raycastResultWrapper.RangedInteractable is IRangedAdjustableInteractionModule rangedAdjustableInteraction)
                         {
-                            rangedAdjustableInteraction.ScrollDown();
+                            rangedAdjustableInteraction.ScrollDown(_InteractorID.ClientID);
                             Vibrate(HIGH_HAPTICS_AMPLITUDE, HIGH_HAPTICS_DURATION);
                         }
                     }

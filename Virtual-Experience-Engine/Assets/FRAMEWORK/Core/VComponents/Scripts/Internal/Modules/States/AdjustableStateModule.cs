@@ -45,7 +45,7 @@ namespace VE2.Core.VComponents.Internal
     internal class AdjustableStateModule : BaseWorldStateModule, IAdjustableStateModule
     {
         public float OutputValue => _state.Value;
-        public void SetOutputValue(float newValue) => SetValue(newValue, ushort.MaxValue);
+        public void SetOutputValue(float newValue) => SetOutputValueInternal(newValue, ushort.MaxValue);
         public UnityEvent<float> OnValueAdjusted => _adjustableStateConfig.OnValueAdjusted;
         public IClientIDWrapper MostRecentInteractingClientID => _state.MostRecentInteractingClientID == ushort.MaxValue ? null : 
             new ClientIDWrapper(_state.MostRecentInteractingClientID, _state.MostRecentInteractingClientID == _localClientIdWrapper.Value);
@@ -74,15 +74,15 @@ namespace VE2.Core.VComponents.Internal
         }
 
         //Can't be called in the constructor, as this will emit events, that may trigger the plugin to access the state module before it is fully initialized.
-        public void InitializeStateIfNotAlready()
+        internal void InitializeStateIfNotAlready()
         {
             //set the initial value of the adjustable state module
             if (!_state.IsInitialised)
-                SetValue(_adjustableStateConfig.StartingOutputValue, ushort.MaxValue, _adjustableStateConfig.EmitValueOnStart);
+                SetOutputValueInternal(_adjustableStateConfig.StartingOutputValue, ushort.MaxValue, _adjustableStateConfig.EmitValueOnStart);
             _state.IsInitialised = true;
         }
 
-        public void SetValue(float value, ushort clientID, bool shouldEmitPluginEvent = true)
+        internal void SetOutputValueInternal(float value, ushort clientID = ushort.MaxValue, bool shouldEmitPluginEvent = true)
         {
             if (_state.Value == value)
                 return;

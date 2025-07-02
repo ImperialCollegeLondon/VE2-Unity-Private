@@ -41,7 +41,8 @@ namespace VE2.Core.VComponents.Internal
             MaximumOutputValue = max;
         }
         
-        public IClientIDWrapper MostRecentInteractingClientID => _GrabbableStateModule.MostRecentInteractingClientID;
+        public IClientIDWrapper MostRecentGrabbingClientID => _GrabbableStateModule.MostRecentInteractingClientID;
+        public IClientIDWrapper MostRecentAdjustingClientID => _AdjustableStateModule.MostRecentInteractingClientID;
         #endregion
 
         #region Ranged Interaction Module Interface

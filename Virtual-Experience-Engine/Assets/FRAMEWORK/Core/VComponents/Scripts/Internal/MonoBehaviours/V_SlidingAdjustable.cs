@@ -41,7 +41,8 @@ namespace VE2.Core.VComponents.Internal
             MaximumOutputValue = max;
         }
 
-        public IClientIDWrapper MostRecentInteractingClientID => _GrabbableStateModule.MostRecentInteractingClientID;
+        public IClientIDWrapper MostRecentGrabbingClientID => _GrabbableStateModule.MostRecentInteractingClientID;
+        public IClientIDWrapper MostRecentAdjustingClientID => _AdjustableStateModule.MostRecentInteractingClientID;
         #endregion
 
         #region Ranged Interaction Module Interface
@@ -61,7 +62,7 @@ namespace VE2.Core.VComponents.Internal
     internal partial class V_SlidingAdjustable : MonoBehaviour, IRangedGrabInteractionModuleProvider
     {
         [SerializeField, IgnoreParent] private SlidingAdjustableConfig _config = new();
-        [SerializeField, HideInInspector] private AdjustableState _adjustableState = null;
+        [SerializeField, HideInInspector] private AdjustableState _adjustableState = new();
         [SerializeField, HideInInspector] private GrabbableState _freeGrabbableState = new();
 
         #region Player Interfaces
@@ -120,9 +121,6 @@ namespace VE2.Core.VComponents.Internal
                 _config.RangedAdjustableInteractionConfig.AttachPointWrapper = new TransformWrapper(transform);
                 Debug.LogWarning($"The adjustable on {gameObject.name} does not have an assigned AttachPoint, and so may not behave as intended");
             }
-
-            if (_adjustableState == null)
-                _adjustableState = new AdjustableState(_config.AdjustableStateConfig.StartingOutputValue);
 
             List<IHandheldInteractionModule> handheldInteractions = new();
 

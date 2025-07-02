@@ -48,15 +48,15 @@ namespace VE2.Core.VComponents.Internal
         public int NumberOfValues { get => _numberOfValues; set => UpdateSteps(value); }
 
         #region Interfaces
-        public IAdjustableStateModule AdjustableStateModule => _AdjustableStateModule;
-        public IGrabbableStateModule GrabbableStateModule => _FreeGrabbableStateModule;
-        public IRangedAdjustableInteractionModule RangedAdjustableInteractionModule => _RangedAdjustableInteractionModule;
+        public IAdjustableStateModule AdjustableStateModule => _adjustableStateModule;
+        public IGrabbableStateModule GrabbableStateModule => _grabbableStateModule;
+        public IRangedAdjustableInteractionModule RangedAdjustableInteractionModule => _rangedAdjustableInteractionModule;
         #endregion
 
         #region Modules
-        private readonly AdjustableStateModule _AdjustableStateModule;
-        private readonly GrabbableStateModule _FreeGrabbableStateModule;
-        private readonly RangedAdjustableInteractionModule _RangedAdjustableInteractionModule;
+        private readonly AdjustableStateModule _adjustableStateModule;
+        private readonly GrabbableStateModule _grabbableStateModule;
+        private readonly RangedAdjustableInteractionModule _rangedAdjustableInteractionModule;
         #endregion
 
         private readonly RotatingAdjustableConfig _config;
@@ -79,65 +79,60 @@ namespace VE2.Core.VComponents.Internal
             //needs the vector to the attachpoint at 0,0,0
             _initialVectorToHandle = _attachPointTransform.position - _transformToAdjust.position;
 
-            _RangedAdjustableInteractionModule = new(id, grabInteractablesContainer, handheldInteractions, config.RangedAdjustableInteractionConfig, config.GeneralInteractionConfig);
+            _rangedAdjustableInteractionModule = new(id, grabInteractablesContainer, handheldInteractions, config.RangedAdjustableInteractionConfig, config.GeneralInteractionConfig);
 
             //seperate modules for adjustable state and free grabbable state. Give the adjustable state module a different ID so it doesn't clash in the syncer with the grabbable state module
             //The Grabbable state module needs the same ID that is passed to the ranged adjustable interaction module, so the interactor can pull the module from the grab interactable container
-            _AdjustableStateModule = new(adjustableState, config.AdjustableStateConfig, config.SyncConfig, $"ADJ-{id}", worldStateSyncableContainer, localClientIdWrapper);
-            _FreeGrabbableStateModule = new(grabbableState, config.GrabbableStateConfig, config.SyncConfig, $"{id}", worldStateSyncableContainer, interactorContainer, localClientIdWrapper);
+            _adjustableStateModule = new(adjustableState, config.AdjustableStateConfig, config.SyncConfig, $"ADJ-{id}", worldStateSyncableContainer, localClientIdWrapper);
+            _grabbableStateModule = new(grabbableState, config.GrabbableStateConfig, config.SyncConfig, $"{id}", worldStateSyncableContainer, interactorContainer, localClientIdWrapper);
 
-            _RangedAdjustableInteractionModule.OnLocalInteractorRequestGrab += (InteractorID interactorID) => _FreeGrabbableStateModule.SetGrabbed(interactorID);
-            _RangedAdjustableInteractionModule.OnLocalInteractorRequestDrop += (InteractorID interactorID) => _FreeGrabbableStateModule.SetDropped(interactorID);
+            _rangedAdjustableInteractionModule.OnLocalInteractorRequestGrab += (InteractorID interactorID) => _grabbableStateModule.SetGrabbed(interactorID);
+            _rangedAdjustableInteractionModule.OnLocalInteractorRequestDrop += (InteractorID interactorID) => _grabbableStateModule.SetDropped(interactorID);
 
-            _RangedAdjustableInteractionModule.OnScrollUp += OnScrollUp;
-            _RangedAdjustableInteractionModule.OnScrollDown += OnScrollDown;
+            _rangedAdjustableInteractionModule.OnScrollUp += HandleScrollUp;
+            _rangedAdjustableInteractionModule.OnScrollDown += HandleScrollDown;
 
-            _FreeGrabbableStateModule.OnGrabConfirmed += OnGrabConfirmed;
-            _FreeGrabbableStateModule.OnDropConfirmed += OnDropConfirmed;
+            _grabbableStateModule.OnGrabConfirmed += HandleGrabConfirmed;
+            _grabbableStateModule.OnDropConfirmed += HandleDropConfirmed;
 
-            _AdjustableStateModule.OnValueChangedInternal += (float value) => OnStateValueChanged(value);
+            _adjustableStateModule.OnValueChangedInternal += (float value) => HandleStateValueChanged(value);
 
             //get the nth revolution of the starting value
             _numberOfRevolutions = Mathf.FloorToInt(ConvertToSpatialValue(config.AdjustableStateConfig.StartingOutputValue) / 360);
             _oldRotationalValue = ConvertToSpatialValue(config.AdjustableStateConfig.StartingOutputValue) - (_numberOfRevolutions * 360);
-
-            //_initialVectorToHandle = _attachPointTransform.position - _transformToAdjust.position;
         }
 
-        private void OnScrollUp()
+        private void HandleScrollUp(ushort clientID)
         {
-            float scrollMultiplier = _config.RotationalAdjustableServiceConfig.AdjustmentType == SpatialAdjustmentType.Discrete ? (_AdjustableStateModule.MaximumOutputValue - _AdjustableStateModule.MinimumOutputValue) / (_numberOfValues - 1) : _config.AdjustableStateConfig.IncrementPerScrollTick;
-            float targetValue = _AdjustableStateModule.OutputValue + scrollMultiplier; //should this change spatial value?
-            targetValue = Mathf.Clamp(targetValue, _AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue);
-            SetValueOnStateModule(targetValue);
+            float scrollMultiplier = _config.RotationalAdjustableServiceConfig.AdjustmentType == SpatialAdjustmentType.Discrete ? (_adjustableStateModule.MaximumOutputValue - _adjustableStateModule.MinimumOutputValue) / (_numberOfValues - 1) : _config.AdjustableStateConfig.IncrementPerScrollTick;
+            float targetValue = _adjustableStateModule.OutputValue + scrollMultiplier; //should this change spatial value?
+            targetValue = Mathf.Clamp(targetValue, _adjustableStateModule.MinimumOutputValue, _adjustableStateModule.MaximumOutputValue);
+            SetValueOnStateModule(targetValue, clientID);
 
             float spatialVal = ConvertToSpatialValue(targetValue);
             _oldRotationalValue = (spatialVal % 360 + 360) % 360; //this is to make sure the value is always positive
             _numberOfRevolutions = Mathf.FloorToInt(spatialVal / 360);
         }
 
-        private void OnScrollDown()
+        private void HandleScrollDown(ushort clientID)
         {
-            float scrollMultiplier = _config.RotationalAdjustableServiceConfig.AdjustmentType == SpatialAdjustmentType.Discrete ? (_AdjustableStateModule.MaximumOutputValue - _AdjustableStateModule.MinimumOutputValue) / (_numberOfValues - 1) : _config.AdjustableStateConfig.IncrementPerScrollTick;
-            float targetValue = _AdjustableStateModule.OutputValue - scrollMultiplier; //should this change spatial value?
-            targetValue = Mathf.Clamp(targetValue, _AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue);
-            SetValueOnStateModule(targetValue);
+            float scrollMultiplier = _config.RotationalAdjustableServiceConfig.AdjustmentType == SpatialAdjustmentType.Discrete ? (_adjustableStateModule.MaximumOutputValue - _adjustableStateModule.MinimumOutputValue) / (_numberOfValues - 1) : _config.AdjustableStateConfig.IncrementPerScrollTick;
+            float targetValue = _adjustableStateModule.OutputValue - scrollMultiplier; //should this change spatial value?
+            targetValue = Mathf.Clamp(targetValue, _adjustableStateModule.MinimumOutputValue, _adjustableStateModule.MaximumOutputValue);
+            SetValueOnStateModule(targetValue, clientID);
 
             float spatialVal = ConvertToSpatialValue(targetValue);
             _oldRotationalValue = (spatialVal % 360 + 360) % 360; //this is to make sure the value is always positive
             _numberOfRevolutions = Mathf.FloorToInt(spatialVal / 360);
         }
 
-        private void OnGrabConfirmed(ushort id)
+        private void HandleGrabConfirmed(ushort id)
         {
             _oldRotationalValue = (_spatialValue % 360 + 360) % 360; //this is to make sure the value is always positive
             _numberOfRevolutions = Mathf.FloorToInt(_spatialValue / 360); //get the nth revolution of the starting value
         }
 
-        private void OnDropConfirmed(ushort id)
-        {
-
-        }
+        private void HandleDropConfirmed(ushort id) { }
 
         private void SetSpatialValue(float spatialValue)
         {
@@ -146,20 +141,13 @@ namespace VE2.Core.VComponents.Internal
             SetValueOnStateModule(OutputValue);
         }
 
-        private void OnStateValueChanged(float value)
+        private void HandleStateValueChanged(float value)
         {
             //Values received from the state are always output values
             //convert the output value to spatial value
             float newSpatialValue = ConvertToSpatialValue(value);
 
-            // if (newSpatialValue == _spatialValue)
-            //     return;
-
             _spatialValue = newSpatialValue;
-
-            // //set revs and the old rotational value received from the state if host so the values remained synced
-            // _numberOfRevolutions = Mathf.FloorToInt(_spatialValue / 360);
-            // _oldRotationalValue = (_spatialValue % 360 + 360) % 360; //this is to make sure the value is always positive
 
             switch (_config.RotationalAdjustableServiceConfig.AdjustmentAxis)
             {
@@ -174,18 +162,18 @@ namespace VE2.Core.VComponents.Internal
                     break;
             }
 
-            _RangedAdjustableInteractionModule.NotifyValueChanged();
+            _rangedAdjustableInteractionModule.NotifyValueChanged();
         }
 
         public void HandleFixedUpdate()
         {
-            _FreeGrabbableStateModule.HandleFixedUpdate();
-            if (_FreeGrabbableStateModule.IsLocalGrabbed)
+            _grabbableStateModule.HandleFixedUpdate();
+            if (_grabbableStateModule.IsLocalGrabbed)
             {
-                TrackPosition(_FreeGrabbableStateModule.CurrentGrabbingInteractor.GrabberTransformWrapper.position);
+                TrackPosition(_grabbableStateModule.CurrentGrabbingInteractor.GrabberTransformWrapper.position);
             }
 
-            _AdjustableStateModule.HandleFixedUpdate();
+            _adjustableStateModule.HandleFixedUpdate();
 
             Debug.DrawLine(_transformToAdjust.position, _transformToAdjust.position + _initialVectorToHandle, Color.red);
         }
@@ -220,27 +208,6 @@ namespace VE2.Core.VComponents.Internal
             if (_signedAngle < 0)
                 _signedAngle += 360;
 
-
-            // if (_adjustmentProperty == SpatialAdjustmentProperty.Continuous)
-            // {
-            //     //dont allow the angle to go over 360 or under 0 if the state is at the maximum or minimum value
-            //     if (_signedAngle > 0 && _signedAngle < 345 && _AdjustableStateModule.IsAtMaximumValue)
-            //         _signedAngle = 0;
-            //     else if (_signedAngle < 360 && _signedAngle > 15 && _AdjustableStateModule.IsAtMinimumValue)
-            //         _signedAngle = 0;
-            // }
-            // else
-            // {
-            //     //get the size between each step based on the number of values provided and the index of the step
-            //     float stepSize = (_maximumSpatialValue - _minimumSpatialValue) / _numberOfValues;
-
-            //     //dont allow the angle to go over 360 or under 0 if the state is at the maximum or minimum value
-            //     if (_signedAngle > 0 && _signedAngle < 360 - stepSize && _AdjustableStateModule.IsAtMaximumValue)
-            //         _signedAngle = 0;
-            //     else if (_signedAngle < 360 && _signedAngle > stepSize && _AdjustableStateModule.IsAtMinimumValue)
-            //         _signedAngle = 0;
-            // }
-
             if (_signedAngle - _oldRotationalValue < -180) //if the angle has gone over 360 increment the number of revolutions
                 _numberOfRevolutions++;
             else if (_signedAngle - _oldRotationalValue > 180) //if the angle has gone under 0 decrement the number of revolutions
@@ -249,63 +216,63 @@ namespace VE2.Core.VComponents.Internal
             _numberOfRevolutions = Mathf.Clamp(_numberOfRevolutions, _minRevs - 1, _maxRevs + 1);
             _oldRotationalValue = _signedAngle; //set the old rotational value to the current signed angle
 
-            //Debug.Log($"Sending Signed Angle: {_signedAngle} | Old Rotational Value: {_oldRotationalValue} | Difference: {_signedAngle - _oldRotationalValue} | Number of Revs: {_numberOfRevolutions}");
-
             float angularAdjustment = _signedAngle + (_numberOfRevolutions * 360);
             angularAdjustment = Mathf.Clamp(angularAdjustment, MinimumSpatialValue, MaximumSpatialValue);
 
             float OutputValue = ConvertToOutputValue(angularAdjustment);
-            SetValueOnStateModule(OutputValue);
+            SetValueOnStateModule(OutputValue, _grabbableStateModule.MostRecentInteractingClientID.Value);
         }
 
         /* MAKE SURE ANY SPATIAL VALUE IS CONVERTED TO OUTPUT VALUE BEFORE SETTING IT TO THE STATE MODULE
         ALWAYS CALL THIS VALUE TO SET THE VALUE TO THE STATE MODULE, it calculates it automatically based on if it is discrete and continuous
         and sets it to tthe state module */
-        private void SetValueOnStateModule(float value)
+        private void SetValueOnStateModule(float value, ushort clientID = ushort.MaxValue)
         {
             if (_config.RotationalAdjustableServiceConfig.AdjustmentType == SpatialAdjustmentType.Discrete)
-                SetValueByStep(value);
+                SetValueByStep(value, clientID);
             else
-                _AdjustableStateModule.SetOutputValue(value);
+                _adjustableStateModule.SetOutputValueInternal(value, clientID);
         }
 
         private void UpdateSteps(int steps)
         {
             _config.RotationalAdjustableServiceConfig.NumberOfDiscreteValues = steps;
-            SetValueOnStateModule(_AdjustableStateModule.OutputValue);
+
+            //Refresh value now that number of steps has changed
+            SetValueOnStateModule(_adjustableStateModule.OutputValue);
         }
 
-        private void SetValueByStep(float value)
+        private void SetValueByStep(float value, ushort clientID)
         {
-            value = Mathf.Clamp(value, _AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue);
+            value = Mathf.Clamp(value, _adjustableStateModule.MinimumOutputValue, _adjustableStateModule.MaximumOutputValue);
 
             //get the size between each step based on the number of values provided and the index of the step
-            float stepSize = (_AdjustableStateModule.MaximumOutputValue - _AdjustableStateModule.MinimumOutputValue) / (_numberOfValues - 1); // -1 because works the same way as the index of an array
-            int stepIndex = Mathf.RoundToInt((value - _AdjustableStateModule.MinimumOutputValue) / stepSize);
+            float stepSize = (_adjustableStateModule.MaximumOutputValue - _adjustableStateModule.MinimumOutputValue) / (_numberOfValues - 1); // -1 because works the same way as the index of an array
+            int stepIndex = Mathf.RoundToInt((value - _adjustableStateModule.MinimumOutputValue) / stepSize);
 
-            float newValue = _AdjustableStateModule.MinimumOutputValue + stepIndex * stepSize;
+            float newValue = _adjustableStateModule.MinimumOutputValue + stepIndex * stepSize;
 
-            _AdjustableStateModule.SetOutputValue(newValue);
+            _adjustableStateModule.SetOutputValueInternal(newValue, clientID);
         }
 
         private float ConvertToSpatialValue(float outputValue)
         {
-            return Mathf.Lerp(MinimumSpatialValue, MaximumSpatialValue, Mathf.InverseLerp(_AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue, outputValue));
+            return Mathf.Lerp(MinimumSpatialValue, MaximumSpatialValue, Mathf.InverseLerp(_adjustableStateModule.MinimumOutputValue, _adjustableStateModule.MaximumOutputValue, outputValue));
         }
 
         private float ConvertToOutputValue(float spatialValue)
         {
-            return Mathf.Lerp(_AdjustableStateModule.MinimumOutputValue, _AdjustableStateModule.MaximumOutputValue, Mathf.InverseLerp(MinimumSpatialValue, MaximumSpatialValue, spatialValue));
+            return Mathf.Lerp(_adjustableStateModule.MinimumOutputValue, _adjustableStateModule.MaximumOutputValue, Mathf.InverseLerp(MinimumSpatialValue, MaximumSpatialValue, spatialValue));
         }
 
         public void TearDown()
         {
-            _RangedAdjustableInteractionModule.TearDown();
-            _AdjustableStateModule.TearDown();
-            _FreeGrabbableStateModule.TearDown();
+            _rangedAdjustableInteractionModule.TearDown();
+            _adjustableStateModule.TearDown();
+            _grabbableStateModule.TearDown();
 
-            _FreeGrabbableStateModule.OnGrabConfirmed -= OnGrabConfirmed;
-            _FreeGrabbableStateModule.OnDropConfirmed -= OnDropConfirmed;
+            _grabbableStateModule.OnGrabConfirmed -= HandleGrabConfirmed;
+            _grabbableStateModule.OnDropConfirmed -= HandleDropConfirmed;
         }
 
     }

@@ -79,7 +79,7 @@ namespace VE2.Core.VComponents.Internal
                     targetValue = Mathf.Clamp(targetValue, _StateModule.MinimumOutputValue, _StateModule.MaximumOutputValue);
             }
 
-            _StateModule.SetValue(targetValue, clientID);
+            _StateModule.SetOutputValueInternal(targetValue, clientID);
         }
 
         private void HandleScrollDown(ushort clientID)
@@ -94,7 +94,7 @@ namespace VE2.Core.VComponents.Internal
                     targetValue = Mathf.Clamp(targetValue, _StateModule.MinimumOutputValue, _StateModule.MaximumOutputValue);
             }
 
-            _StateModule.SetValue(targetValue, clientID);
+            _StateModule.SetOutputValueInternal(targetValue, clientID);
         }
 
         public void TearDown()
