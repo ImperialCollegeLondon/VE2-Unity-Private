@@ -104,7 +104,7 @@ public class FrameworkInstaller : EditorWindow
         packageQueue.Enqueue("https://github.com/Thundernerd/Unity3D-NSubstitute.git");
         packageQueue.Enqueue("https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity");
         packageQueue.Enqueue("https://github.com/ImperialCollegeLondon/VE2-Distribution.git?path=VE2#main");
-        packageQueue.Enqueue("https://github.com/VeriorPies/ParrelSync.git");
+        packageQueue.Enqueue("https://github.com/VeriorPies/ParrelSync.git?path=/ParrelSync");
 
         totalPackages = packageQueue.Count;
         // Fetch the list of already installed packages.
