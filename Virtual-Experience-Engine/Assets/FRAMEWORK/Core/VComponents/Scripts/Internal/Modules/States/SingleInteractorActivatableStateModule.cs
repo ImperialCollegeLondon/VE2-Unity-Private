@@ -95,13 +95,10 @@ namespace VE2.Core.VComponents.Internal
         }
 
         //Can't be called in the constructor, as this will emit events, that may trigger the plugin to access the state module before it is fully initialized.
-        public void InitializeStateIfNotAlready()
+        public void InitializeStateWithStartingValue()
         {
-            //set the initial value of the adjustable state module
-            if (!_state.IsInitialised && _toggleActivatableStateConfig.ActivateOnStart)
-                SetActivated(true);
-
-            _state.IsInitialised = true;
+            if (_toggleActivatableStateConfig.ActivateOnStart)
+                UpdateActivationState(ushort.MaxValue, true);
         }
 
         public void SetNewState(ushort clientID)
@@ -190,7 +187,6 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class SingleInteractorActivatableState : VE2Serializable
     {
-        public bool IsInitialised = false;
         public ushort StateChangeNumber { get; set; }
         public bool IsActivated { get; set; }
         public ushort MostRecentInteractingClientID { get; set; }

@@ -33,7 +33,7 @@ namespace VE2.Core.Tests
 
             //Create the activatable with above random values
             HandheldAdjustableService handheldAdjustable = new(_handheldAdjustableConfig, new AdjustableState(), "debug", Substitute.For<IWorldStateSyncableContainer>(), LocalClientIDWrapperSetup.LocalClientIDWrapper);
-            ((AdjustableStateModule)handheldAdjustable.StateModule).InitializeStateIfNotAlready(); 
+            handheldAdjustable.HandleStart();
 
             //Stub out the VC (provider layer) with the activatable
             _v_handheldAdjustableStub = new(handheldAdjustable);

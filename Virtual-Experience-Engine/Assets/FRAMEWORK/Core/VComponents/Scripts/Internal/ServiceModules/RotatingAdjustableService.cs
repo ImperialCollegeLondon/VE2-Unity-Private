@@ -102,6 +102,8 @@ namespace VE2.Core.VComponents.Internal
             _oldRotationalValue = ConvertToSpatialValue(config.AdjustableStateConfig.StartingOutputValue) - (_numberOfRevolutions * 360);
         }
 
+        public void HandleStart() => _adjustableStateModule.InitializeStateWithStartingValue();
+
         private void HandleScrollUp(ushort clientID)
         {
             float scrollMultiplier = _config.RotationalAdjustableServiceConfig.AdjustmentType == SpatialAdjustmentType.Discrete ? (_adjustableStateModule.MaximumOutputValue - _adjustableStateModule.MinimumOutputValue) / (_numberOfValues - 1) : _config.AdjustableStateConfig.IncrementPerScrollTick;

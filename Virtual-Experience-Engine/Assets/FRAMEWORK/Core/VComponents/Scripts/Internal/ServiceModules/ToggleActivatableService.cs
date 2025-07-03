@@ -29,46 +29,44 @@ namespace VE2.Core.VComponents.Internal
     internal class ToggleActivatableService
     {
         #region Interfaces
-        public ISingleInteractorActivatableStateModule StateModule => _StateModule;
-        public IRangedToggleClickInteractionModule RangedClickInteractionModule => _RangedClickInteractionModule;
-        public ICollideInteractionModule ColliderInteractionModule => _ColliderInteractionModule;
+        public ISingleInteractorActivatableStateModule StateModule => _stateModule;
+        public IRangedToggleClickInteractionModule RangedClickInteractionModule => _rangedClickInteractionModule;
+        public ICollideInteractionModule ColliderInteractionModule => _colliderInteractionModule;
         #endregion
 
         #region Modules
-        private readonly SingleInteractorActivatableStateModule _StateModule;
-        private readonly RangedToggleClickInteractionModule _RangedClickInteractionModule;
-        private readonly ColliderInteractionModule _ColliderInteractionModule;
+        private readonly SingleInteractorActivatableStateModule _stateModule;
+        private readonly RangedToggleClickInteractionModule _rangedClickInteractionModule;
+        private readonly ColliderInteractionModule _colliderInteractionModule;
         #endregion
 
         public ToggleActivatableService(ToggleActivatableConfig config, SingleInteractorActivatableState state, string id, IWorldStateSyncableContainer worldStateSyncableContainer,
             ActivatableGroupsContainer activatableGroupsContainer, IClientIDWrapper localClientIdWrapper)
         {
-            _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, activatableGroupsContainer, localClientIdWrapper);
+            _stateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, activatableGroupsContainer, localClientIdWrapper);
 
-            _RangedClickInteractionModule = new(config.RangedClickInteractionConfig, config.GeneralInteractionConfig, id, config.RangedClickInteractionConfig.ClickAtRangeInVR);
+            _rangedClickInteractionModule = new(config.RangedClickInteractionConfig, config.GeneralInteractionConfig, id, config.RangedClickInteractionConfig.ClickAtRangeInVR);
 
             //Note - yes, this null seems strange on first glance
             //Toggle activatables will sync only via the state module, for hold activatables, interactions are synced via the interactor
             //Since this doesn't apply for toggle activatables, we just pass null here
-            _ColliderInteractionModule = new(config.CollisionClickInteractionConfig, config.GeneralInteractionConfig, null, id);
+            _colliderInteractionModule = new(config.CollisionClickInteractionConfig, config.GeneralInteractionConfig, null, id);
 
-            _RangedClickInteractionModule.OnClickDown += HandleInteract;
-            _ColliderInteractionModule.OnCollideEnter += HandleInteract;
+            _rangedClickInteractionModule.OnClickDown += HandleInteract;
+            _colliderInteractionModule.OnCollideEnter += HandleInteract;
         }
 
-        public void HandleFixedUpdate()
-        {
-            _StateModule.HandleFixedUpdate();
-        }
+        public void HandleStart() => _stateModule.InitializeStateWithStartingValue();
+        public void HandleFixedUpdate() => _stateModule.HandleFixedUpdate();
 
         private void HandleInteract(InteractorID interactorID)
         {
-            _StateModule.SetNewState(interactorID.ClientID);
+            _stateModule.SetNewState(interactorID.ClientID);
         }
 
         public void TearDown()
         {
-            _StateModule.TearDown();
+            _stateModule.TearDown();
         }
     }
 }

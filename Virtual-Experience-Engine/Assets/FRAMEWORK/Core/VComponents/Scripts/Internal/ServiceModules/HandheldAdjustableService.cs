@@ -38,12 +38,12 @@ namespace VE2.Core.VComponents.Internal
     internal class HandheldAdjustableService
     {
         #region Interfaces
-        public IAdjustableStateModule StateModule => _StateModule;
+        public IAdjustableStateModule StateModule => _stateModule;
         public IHandheldScrollInteractionModule HandheldScrollInteractionModule => _HandheldScrollInteractionModule;
         #endregion
 
         #region Modules
-        private readonly AdjustableStateModule _StateModule;
+        private readonly AdjustableStateModule _stateModule;
         private readonly HandheldScrollInteractionModule _HandheldScrollInteractionModule;
         #endregion
 
@@ -52,7 +52,7 @@ namespace VE2.Core.VComponents.Internal
 
         public HandheldAdjustableService(HandheldAdjustableConfig config, AdjustableState state, string id, IWorldStateSyncableContainer worldStateSyncableContainer, IClientIDWrapper localClientIdWrapper)
         {
-            _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, localClientIdWrapper);
+            _stateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, localClientIdWrapper);
             _HandheldScrollInteractionModule = new(config.GeneralInteractionConfig);
 
             _handheldAdjustableServiceConfig = config.HandheldAdjustableServiceConfig;
@@ -61,45 +61,47 @@ namespace VE2.Core.VComponents.Internal
             _HandheldScrollInteractionModule.OnScrollDown += HandleScrollDown;
         }
 
+        public void HandleStart() => _stateModule.InitializeStateWithStartingValue();
+
         public void HandleFixedUpdate()
         {
-            _StateModule.HandleFixedUpdate();
+            _stateModule.HandleFixedUpdate();
         }
 
         private void HandleScrollUp(ushort clientID)
         {
-            Debug.Log($"HandleScrollUp called for client {clientID} with current value {_StateModule.OutputValue}");
-            float targetValue = _StateModule.OutputValue + _adjustableStateConfig.IncrementPerScrollTick;
+            Debug.Log($"HandleScrollUp called for client {clientID} with current value {_stateModule.OutputValue}");
+            float targetValue = _stateModule.OutputValue + _adjustableStateConfig.IncrementPerScrollTick;
 
-            if (targetValue > _StateModule.MaximumOutputValue)
+            if (targetValue > _stateModule.MaximumOutputValue)
             {
                 if (_handheldAdjustableServiceConfig.LoopValues)
-                    targetValue -= _StateModule.Range;
+                    targetValue -= _stateModule.Range;
                 else
-                    targetValue = Mathf.Clamp(targetValue, _StateModule.MinimumOutputValue, _StateModule.MaximumOutputValue);
+                    targetValue = Mathf.Clamp(targetValue, _stateModule.MinimumOutputValue, _stateModule.MaximumOutputValue);
             }
 
-            _StateModule.SetOutputValueInternal(targetValue, clientID);
+            _stateModule.SetOutputValueInternal(targetValue, clientID);
         }
 
         private void HandleScrollDown(ushort clientID)
         {
-            float targetValue = _StateModule.OutputValue - _adjustableStateConfig.IncrementPerScrollTick;
+            float targetValue = _stateModule.OutputValue - _adjustableStateConfig.IncrementPerScrollTick;
 
-            if (targetValue < _StateModule.MinimumOutputValue)
+            if (targetValue < _stateModule.MinimumOutputValue)
             {
                 if (_handheldAdjustableServiceConfig.LoopValues)
-                    targetValue += _StateModule.Range;
+                    targetValue += _stateModule.Range;
                 else
-                    targetValue = Mathf.Clamp(targetValue, _StateModule.MinimumOutputValue, _StateModule.MaximumOutputValue);
+                    targetValue = Mathf.Clamp(targetValue, _stateModule.MinimumOutputValue, _stateModule.MaximumOutputValue);
             }
 
-            _StateModule.SetOutputValueInternal(targetValue, clientID);
+            _stateModule.SetOutputValueInternal(targetValue, clientID);
         }
 
         public void TearDown()
         {
-            _StateModule.TearDown();
+            _stateModule.TearDown();
         }
     }
 }

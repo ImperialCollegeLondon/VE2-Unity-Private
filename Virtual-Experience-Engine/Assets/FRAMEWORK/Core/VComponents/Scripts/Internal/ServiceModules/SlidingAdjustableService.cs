@@ -113,6 +113,8 @@ namespace VE2.Core.VComponents.Internal
             _adjustableStateModule.OnValueChangedInternal += (float value) => HandleStateValueChanged(value);
         }
 
+        public void HandleStart() => _adjustableStateModule.InitializeStateWithStartingValue();
+
         private void HandleScrollUp(ushort clientID)
         {
             float scrollMultiplier = _config.LinearAdjustableServiceConfig.AdjustmentType == SpatialAdjustmentType.Discrete ? (_adjustableStateModule.MaximumOutputValue - _adjustableStateModule.MinimumOutputValue) / (_numberOfValues - 1) : _config.AdjustableStateConfig.IncrementPerScrollTick;

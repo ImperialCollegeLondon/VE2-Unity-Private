@@ -90,14 +90,10 @@ namespace VE2.Core.VComponents.Internal
 
             string id = "Activatable-" + gameObject.name;
             _service = new ToggleActivatableService(_config, _state, id, VE2API.WorldStateSyncableContainer, VE2API.ActivatableGroupsContainer, VE2API.LocalClientIdWrapper);
-
-            ((SingleInteractorActivatableStateModule)_service.StateModule).InitializeStateIfNotAlready();
         }
 
-        private void FixedUpdate()
-        {
-            _service?.HandleFixedUpdate();
-        }
+        private void Start() => _service?.HandleStart();
+        private void FixedUpdate() => _service?.HandleFixedUpdate();
 
         private void OnDisable()
         {

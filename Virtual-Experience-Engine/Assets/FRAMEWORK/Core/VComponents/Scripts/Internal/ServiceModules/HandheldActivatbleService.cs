@@ -27,59 +27,53 @@ namespace VE2.Core.VComponents.Internal
     internal class HandheldActivatableService
     {
         #region Interfaces
-        public ISingleInteractorActivatableStateModule StateModule => _StateModule;
-        public IHandheldClickInteractionModule HandheldClickInteractionModule => _HandheldClickInteractionModule;
+        public ISingleInteractorActivatableStateModule StateModule => _stateModule;
+        public IHandheldClickInteractionModule HandheldClickInteractionModule => _handheldClickInteractionModule;
         public IV_FreeGrabbable Grabbable;
         #endregion
 
         #region Modules
-        private readonly SingleInteractorActivatableStateModule _StateModule;
-        private readonly HandheldClickInteractionModule _HandheldClickInteractionModule;
+        private readonly SingleInteractorActivatableStateModule _stateModule;
+        private readonly HandheldClickInteractionModule _handheldClickInteractionModule;
         #endregion
 
         public HandheldActivatableService(IV_FreeGrabbable grabbable, HandheldActivatableConfig config, SingleInteractorActivatableState state, string id, IWorldStateSyncableContainer worldStateSyncableContainer,
             ActivatableGroupsContainer activatableGroupsContainer, IClientIDWrapper localClientIdWrapper)
         {
-            _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, activatableGroupsContainer, localClientIdWrapper);
-            _HandheldClickInteractionModule = new(grabbable, config.HandheldClickInteractionConfig, config.GeneralInteractionConfig);
+            _stateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, activatableGroupsContainer, localClientIdWrapper);
+            _handheldClickInteractionModule = new(grabbable, config.HandheldClickInteractionConfig, config.GeneralInteractionConfig);
             Grabbable = grabbable;
 
-            _HandheldClickInteractionModule.OnClickDown += HandleClickDown;
-            _HandheldClickInteractionModule.OnClickUp += HandleClickUp;
-            
-            //set the initial value of the adjustable state module
-            if (!state.IsInitialised && config.StateConfig.ActivateOnStart)
-                _StateModule.SetActivated(config.StateConfig.ActivateOnStart);
-            state.IsInitialised = true;
+            _handheldClickInteractionModule.OnClickDown += HandleClickDown;
+            _handheldClickInteractionModule.OnClickUp += HandleClickUp;
         }
 
-        public void HandleFixedUpdate()
-        {
-            _StateModule.HandleFixedUpdate();
-        }
+        public void HandleStart() => _stateModule.InitializeStateWithStartingValue();
+
+        public void HandleFixedUpdate() => _stateModule.HandleFixedUpdate();
 
         private void HandleClickDown(ushort clientID)
         {
-            _StateModule.SetNewState(clientID);
+            _stateModule.SetNewState(clientID);
 
-            if (_HandheldClickInteractionModule.DeactivateOnDrop)
+            if (_handheldClickInteractionModule.DeactivateOnDrop)
                 Grabbable.OnDrop.AddListener(HandleExternalClickUp);
         }
 
         private void HandleClickUp(ushort clientID)
         {
-            if (_HandheldClickInteractionModule.IsHoldMode)
+            if (_handheldClickInteractionModule.IsHoldMode)
             {
-                if (_StateModule.IsActivated)
+                if (_stateModule.IsActivated)
                 {
-                    _StateModule.SetNewState(clientID);
+                    _stateModule.SetNewState(clientID);
                 }
             }
         }
 
         private void HandleExternalClickUp()
         {
-            if (_HandheldClickInteractionModule.IsHoldMode)
+            if (_handheldClickInteractionModule.IsHoldMode)
                 HandleClickUp(Grabbable.MostRecentInteractingClientID.Value);
             else
                 HandleClickDown(Grabbable.MostRecentInteractingClientID.Value);
@@ -87,7 +81,7 @@ namespace VE2.Core.VComponents.Internal
 
         public void TearDown()
         {
-            _StateModule.TearDown();
+            _stateModule.TearDown();
         }
     }
 

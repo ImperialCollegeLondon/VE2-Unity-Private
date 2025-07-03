@@ -74,12 +74,9 @@ namespace VE2.Core.VComponents.Internal
         }
 
         //Can't be called in the constructor, as this will emit events, that may trigger the plugin to access the state module before it is fully initialized.
-        internal void InitializeStateIfNotAlready()
+        internal void InitializeStateWithStartingValue()
         {
-            //set the initial value of the adjustable state module
-            if (!_state.IsInitialised)
-                SetOutputValueInternal(_adjustableStateConfig.StartingOutputValue, ushort.MaxValue, _adjustableStateConfig.EmitValueOnStart);
-            _state.IsInitialised = true;
+            SetOutputValueInternal(_adjustableStateConfig.StartingOutputValue, ushort.MaxValue, _adjustableStateConfig.EmitValueOnStart);
         }
 
         internal void SetOutputValueInternal(float value, ushort clientID = ushort.MaxValue, bool shouldEmitPluginEvent = true)
@@ -136,7 +133,6 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class AdjustableState : VE2Serializable
     {
-        public bool IsInitialised = false;
         public ushort StateChangeNumber { get; set; }
         public float Value { get; set; }
         public ushort MostRecentInteractingClientID { get; set; }

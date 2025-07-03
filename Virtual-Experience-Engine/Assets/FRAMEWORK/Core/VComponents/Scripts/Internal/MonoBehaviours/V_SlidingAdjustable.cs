@@ -140,14 +140,10 @@ namespace VE2.Core.VComponents.Internal
                 VE2API.GrabInteractablesContainer,
                 VE2API.InteractorContainer,
                 VE2API.LocalClientIdWrapper);
-
-            ((AdjustableStateModule)_service.AdjustableStateModule).InitializeStateIfNotAlready();
         }
 
-        private void FixedUpdate()
-        {
-            _service.HandleFixedUpdate();
-        }
+        private void Start() => _service.HandleStart();
+        private void FixedUpdate() => _service.HandleFixedUpdate();
 
         private void OnDisable()
         {
