@@ -1,4 +1,4 @@
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 using UnityEditor.PackageManager;
 using UnityEditor.PackageManager.Requests;
@@ -15,6 +15,12 @@ public class FrameworkInstaller : EditorWindow
     public static bool CoreModulesInstalled = false;
     private const string CoreModulesInstalledKey = "CoreModulesInstalled";
 
+    // --- State flags to Check if DOTween exists ---
+    private bool initialDotweenExists = false;
+    private bool isDotweenDetected = false;
+    private bool isRemovingDotween = false;
+    private const string DOTWEEN_ASSET_PATH = "Assets/Plugins/Demigiant/DOTween";
+    private bool allPackagesInstalled = false;
 
     // Installation-related fields.
     private Queue<string> packageQueue = new Queue<string>();
@@ -60,8 +66,7 @@ public class FrameworkInstaller : EditorWindow
     public static void ShowInstallerWindow()
     {
         FrameworkInstaller window = GetWindow<FrameworkInstaller>("VE2 Framework Installer");
-        window.position = new Rect(Screen.width / 2, Screen.height / 2, 400, 280);
-        window.StartInstallation();
+        window.position = new Rect(Screen.width / 2, Screen.height / 2, 400, 330);
     }
 
     // The removal menu item is only enabled after core modules are installed.
@@ -83,6 +88,12 @@ public class FrameworkInstaller : EditorWindow
     {
         // Restore persisted state.
         CoreModulesInstalled = EditorPrefs.GetBool(CoreModulesInstalledKey, false);
+
+        // Fetch installed packages so we can detect DOTween
+        RefreshDotweenDetection();
+
+        listRequest = Client.List(true, true);
+        EditorApplication.update += UpdateInstalledPackages;
     }
 
 
@@ -119,11 +130,7 @@ public class FrameworkInstaller : EditorWindow
     {
         if (listRequest != null && listRequest.IsCompleted)
         {
-            installedPackages = new List<PackageInfo>();
-            foreach (var pkg in listRequest.Result)
-            {
-                installedPackages.Add(pkg);
-            }
+            installedPackages = listRequest.Result.ToList();
             listRequest = null;
             EditorApplication.update -= UpdateInstalledPackages;
         }
@@ -133,6 +140,95 @@ public class FrameworkInstaller : EditorWindow
         // {
         //     Debug.Log($"Already Installed Package: {pkg.packageId}");
         // }
+    }
+
+    void RefreshDotweenDetection()
+    {
+        if (initialDotweenExists)
+        {
+            if (allPackagesInstalled)
+            {
+                initialDotweenExists = false;
+                return;
+            }
+        }
+
+        if (AssetDatabase.IsValidFolder(DOTWEEN_ASSET_PATH))
+        {
+            initialDotweenExists = true;
+            Debug.Log("✅ DOTween detected in Assets folder.");
+            return;
+        }
+
+        if (AppDomain.CurrentDomain.GetAssemblies().Any(a =>
+               a.GetName().Name.IndexOf("dotween", StringComparison.OrdinalIgnoreCase) >= 0))
+        {
+            Debug.Log("✅ DOTween detected in assemblies.");
+            initialDotweenExists = true;
+            return;
+        }
+
+        if (Type.GetType("DG.Tweening.Tween") != null)
+        {
+            Debug.Log("✅ DOTween detected via reflection.");
+            initialDotweenExists = true;
+            return;
+        }
+
+        // nothing detected
+        initialDotweenExists = false;
+    }
+
+    void StartRemoveDotween()
+    {
+        isRemovingDotween = true;
+
+        // 1) Find and delete any folder asset named "DOTween".
+        string[] guids = AssetDatabase.FindAssets("DOTween t:Folder");
+        foreach (var guid in guids)
+        {
+            string folderPath = AssetDatabase.GUIDToAssetPath(guid);
+            if (AssetDatabase.IsValidFolder(folderPath))
+            {
+                Debug.Log($"Deleting DOTween folder: {folderPath}");
+                AssetDatabase.DeleteAsset(folderPath);
+            }
+        }
+
+        // 2) (Redundancy) Delete any leftover DLL whose assembly name contains "DOTween"
+        var asm = AppDomain.CurrentDomain
+                           .GetAssemblies()
+                           .FirstOrDefault(a => a.GetName().Name
+                               .IndexOf("DOTween", StringComparison.OrdinalIgnoreCase) >= 0);
+        if (asm != null)
+        {
+            var asmPath = new Uri(asm.CodeBase).LocalPath;
+            if (asmPath.StartsWith(Application.dataPath, StringComparison.OrdinalIgnoreCase))
+            {
+                string rel = "Assets" + asmPath.Substring(Application.dataPath.Length);
+                if (AssetDatabase.DeleteAsset(rel))
+                    Debug.Log($"Deleted DOTween DLL: {rel}");
+            }
+        }
+
+        // 3) (Redundancy) Delete any MonoScript in DG.Tweening namespace
+        foreach (var ms in MonoImporter.GetAllRuntimeMonoScripts())
+        {
+            var cls = ms.GetClass();
+            if (cls != null && cls.Namespace != null && cls.Namespace.StartsWith("DG.Tweening"))
+            {
+                string scriptPath = AssetDatabase.GetAssetPath(ms);
+                if (AssetDatabase.DeleteAsset(scriptPath))
+                    Debug.Log($"Deleted DOTween script: {scriptPath}");
+            }
+        }
+
+        // Refresh the AssetDatabase so the Editor UI updates immediately
+        AssetDatabase.Refresh();
+        Debug.Log("✅ DOTween asset scripts/DLL removed.");
+        isRemovingDotween = false;
+        initialDotweenExists = false;
+        Repaint();
     }
 
     void InstallNextPackage()
@@ -165,9 +261,17 @@ public class FrameworkInstaller : EditorWindow
             Debug.Log("\ud83c\udf89 All packages installed.");
             currentInstalling = "Installation complete.";
             isInstalling = false;
+            allPackagesInstalled = true;
             downloadStatus = "";
             installStatus = "Installation complete.";
             installedCount = totalPackages;
+
+            if (!PlayerSettings.runInBackground)
+            {
+                PlayerSettings.runInBackground = true;
+                Debug.Log("\ud83d\udd3a 'Run In Background' has been enabled in Player Settings for VE2.");
+            }
+               
             // Set the static flag to enable removal.
             CoreModulesInstalled = true;
             EditorPrefs.SetBool(CoreModulesInstalledKey, true);
@@ -371,11 +475,15 @@ public class FrameworkInstaller : EditorWindow
         {
             EditorGUILayout.HelpBox("\u26a0\ufe0f Removing core modules. Please wait...", MessageType.Warning);
         }
+        else if(initialDotweenExists)
+        {
+            EditorGUILayout.HelpBox("\u26a0\ufe0f It is highly recommended that you remove DOTween first before installing.", MessageType.Warning);
+        }
         else
         {
-            EditorGUILayout.HelpBox("\u2705 Installation complete. Use the menu item to remove core modules.", MessageType.Info);
+            EditorGUILayout.HelpBox("\u2705 Ready to install VE2. Click button below to continue", MessageType.Info);
         }
-
+        
         GUILayout.Space(10);
         GUILayout.Label($"Install Progress: {installedCount} of {totalPackages} processed", EditorStyles.boldLabel);
         GUILayout.Label("Current Operation: " + (string.IsNullOrEmpty(downloadStatus) ? installStatus : downloadStatus), EditorStyles.wordWrappedLabel);
@@ -388,15 +496,24 @@ public class FrameworkInstaller : EditorWindow
         GUILayout.Label("Download Status: " + downloadStatus, EditorStyles.wordWrappedLabel);
         GUILayout.Label("Installation Status: " + installStatus, EditorStyles.wordWrappedLabel);
 
-        if (isRemoving)
+        float removeProgress = totalPackages > 0 ? (float)installedCount / totalPackages : 0f;
+        EditorGUI.ProgressBar(EditorGUILayout.GetControlRect(false, 20), removeProgress, $"{installedCount}/{totalPackages}");
+
+        GUILayout.Space(20);
+        if (initialDotweenExists)
         {
-            GUILayout.Space(20);
-            GUILayout.Label($"Remove Progress: {removedCount} of {totalRemovals} processed", EditorStyles.boldLabel);
-            GUILayout.Label("Removal Status: " + removalStatus, EditorStyles.wordWrappedLabel);
-            float removeProgress = totalRemovals > 0 ? (float)removedCount / totalRemovals : 0f;
-            EditorGUI.ProgressBar(EditorGUILayout.GetControlRect(false, 20), removeProgress, $"{removedCount}/{totalRemovals}");
+            if (GUILayout.Button("Remove DOTween"))
+                StartRemoveDotween();
         }
 
+        GUILayout.Space(8);
+        
+        // Install Anyway is always clickable
+        if (GUILayout.Button(initialDotweenExists ? "Install VE2 Anyway" : "Install VE2"))
+            StartInstallation();
+
+        GUILayout.Space(20);
         GUILayout.FlexibleSpace();
+
     }
 }
