@@ -11,8 +11,7 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class ToggleActivatableConfig
     {
-        public void OpenDocs() => Application.OpenURL("https://www.notion.so/V_ToggleActivatable-2130e4d8ed4d80fcb471cc08f80acc56?source=copy_link");
-        [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above)]
+        // Docs button lives in the monobehaviour so it doesn't also appear in the info point insepctor
         [SerializeField, IgnoreParent] public ToggleActivatableStateConfig StateConfig = new();
 
         [SerializeField, IgnoreParent] public CollisionClickInteractionConfig CollisionClickInteractionConfig = new();

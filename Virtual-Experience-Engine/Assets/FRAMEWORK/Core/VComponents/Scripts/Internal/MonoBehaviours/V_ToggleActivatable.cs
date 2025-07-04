@@ -42,6 +42,10 @@ namespace VE2.Core.VComponents.Internal
     internal partial class V_ToggleActivatable : MonoBehaviour, IRangedInteractionModuleProvider, ICollideInteractionModuleProvider
     {
         internal ToggleActivatableConfig Config { get => _config; set { _config = value; } }
+
+        //Docs button lives in the monobehaviour so it doesn't also appear in the info point inspector
+        public void OpenDocs() => Application.OpenURL("https://www.notion.so/V_ToggleActivatable-2130e4d8ed4d80fcb471cc08f80acc56?source=copy_link");
+        [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above)]
         [SerializeField, IgnoreParent] private ToggleActivatableConfig _config = new();
         [SerializeField, HideInInspector] private SingleInteractorActivatableState _state = new();
 
