@@ -41,10 +41,11 @@ namespace VE2.NonCore.Instancing.Internal
                 BinaryFormatter binaryFormatter = new();
                 _state.SerializedNetworkObject.SetLength(0);
                 binaryFormatter.Serialize(_state.SerializedNetworkObject, unserializedNetworkObject);
+                _state.StateChangeNumber++;
             }
             catch (Exception e)
             {
-                Debug.Log($"Error encountered when trying to serialize NetworkObject with ID {ID} \n{e.Message}\n{e.StackTrace}");
+                Debug.LogError($"Error encountered when trying to serialize NetworkObject with ID {ID} \n{e.Message}\n{e.StackTrace}");
                 return;
             }
 
@@ -68,7 +69,7 @@ namespace VE2.NonCore.Instancing.Internal
             }
             catch (Exception e)
             {
-                Debug.Log($"Error when emitting OnStateChange from NetworkObject with ID {ID} \n{e.Message}\n{e.StackTrace}");
+                Debug.LogError($"Error when emitting OnStateChange from NetworkObject with ID {ID} \n{e.Message}\n{e.StackTrace}");
             }
         }
 
