@@ -1,0 +1,24 @@
+{
+    "name": "VE2.Training.Lesson4",
+    "rootNamespace": "",
+    "references": [
+        "GUID:31d42fc8b8816ac4da3e7a43bd0fe2e4",
+        "GUID:111c54dcd318c434faa4cad0b1ad6d57",
+        "GUID:a846559b89903a647be42d7c2e0e6032",
+        "GUID:27761945d4a599347997de06d94a1ae9",
+        "GUID:ff046aa714328534ba481891b8887cca",
+        "GUID:de2a238d0a25e144a9f6ce4fb7d8ebb2",
+        "GUID:436731590c8e9ba40b57a1f200ff5c2f",
+        "GUID:8d2e05375753d0f4b95f2552fddd124d",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
