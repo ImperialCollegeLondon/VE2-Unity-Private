@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using PackageInfo = UnityEditor.PackageManager.PackageInfo;
 using System;
 using System.Linq;
+using System.IO;
 
 public class FrameworkInstaller : EditorWindow
 {
@@ -114,7 +115,7 @@ public class FrameworkInstaller : EditorWindow
         packageQueue.Enqueue("https://github.com/arimger/Unity-Editor-Toolbox.git#upm");
         packageQueue.Enqueue("https://github.com/Thundernerd/Unity3D-NSubstitute.git");
         packageQueue.Enqueue("https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity");
-        packageQueue.Enqueue("https://github.com/ImperialCollegeLondon/VE2-Distribution.git?path=VE2#main");
+        packageQueue.Enqueue(GetOfflineInstallerLocation());
         packageQueue.Enqueue("https://github.com/VeriorPies/ParrelSync.git?path=/ParrelSync");
 
         totalPackages = packageQueue.Count;
@@ -126,6 +127,25 @@ public class FrameworkInstaller : EditorWindow
         EditorApplication.update += InstallNextPackage;
     }
 
+    string GetOfflineInstallerLocation()
+    {
+        // get the path to VE2Installer/Assets
+        var assetsPath = Application.dataPath;
+
+        // go up one level to VE2Installer/
+        var installerRoot = Path.GetFullPath(Path.Combine(assetsPath, ".."));
+
+        // go up one more to VE2-Distribution/
+        var distributionRoot = Path.GetFullPath(Path.Combine(installerRoot, ".."));
+
+        // now into the VE2 folder
+        var ve2Folder = Path.Combine(distributionRoot, "VE2");
+
+        // UPM wants a file: URL with forward-slashes
+        var ve2FileUrl = "file://" + ve2Folder.Replace('\\', '/');
+
+        return ve2FileUrl;
+    }
     void UpdateInstalledPackages()
     {
         if (listRequest != null && listRequest.IsCompleted)
