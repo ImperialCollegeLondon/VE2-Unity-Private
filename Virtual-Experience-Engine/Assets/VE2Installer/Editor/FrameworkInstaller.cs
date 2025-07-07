@@ -3,6 +3,8 @@ using UnityEngine;
 using UnityEditor.PackageManager;
 using UnityEditor.PackageManager.Requests;
 using System.Collections.Generic;
+using System.Reflection;
+
 
 // Alias to resolve ambiguity between UnityEditor.PackageManager.PackageInfo and UnityEditor.PackageInfo
 using PackageInfo = UnityEditor.PackageManager.PackageInfo;
@@ -11,6 +13,8 @@ using System.Linq;
 
 public class FrameworkInstaller : EditorWindow
 {
+    private const string SSHNET_PENDING_KEY = "VE2_SshNetPending";
+
     // Static flag indicating whether core modules are installed.
     public static bool CoreModulesInstalled = false;
     private const string CoreModulesInstalledKey = "CoreModulesInstalled";
@@ -44,6 +48,8 @@ public class FrameworkInstaller : EditorWindow
     private const float REMOVAL_REQUEST_TIMEOUT = 30f;
     private float currentRemovalRequestStartTime = 0f;
     private string currentRemovingPackage = "";
+
+    private bool sshNetRequested = false;
 
     // Known core module repository names in installation order.
     // To remove in reverse order, we will iterate over this array backwards.
@@ -86,6 +92,11 @@ public class FrameworkInstaller : EditorWindow
     // --- EditorWindow Lifecycle ---
     void OnEnable()
     {
+        if (EditorPrefs.GetBool(SSHNET_PENDING_KEY, false))
+        {
+            EditorPrefs.SetBool(SSHNET_PENDING_KEY, false);
+            InstallSshNetViaNuGet();  // now the NuGetForUnity asm is loaded
+        }
         // Restore persisted state.
         CoreModulesInstalled = EditorPrefs.GetBool(CoreModulesInstalledKey, false);
 
@@ -233,6 +244,38 @@ public class FrameworkInstaller : EditorWindow
 
     void InstallNextPackage()
     {
+        if (currentRequest != null && currentRequest.IsCompleted)
+        {
+            if (currentRequest.Status != StatusCode.Success)
+                AbortInstallation($"Failed to install {currentInstalling}: {currentRequest.Error.message}");
+            else
+            {
+                // ① After NuGetForUnity is installed, reflectively pull in SSH.NET:
+                if (currentInstalling.Contains("NuGetForUnity"))
+                {
+                    sshNetRequested = true;
+                    EditorPrefs.SetBool(SSHNET_PENDING_KEY, true);
+                    AssetDatabase.Refresh();  // → triggers domain reload
+                }
+
+                if (!sshNetRequested &&
+                    currentInstalling.IndexOf("NuGetForUnity", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    sshNetRequested = true;
+                    Debug.Log("🔄 Installing SSH.NET via NuGetForUnity…");
+                    InstallSshNetViaNuGet();
+                }
+
+                installedCount++;
+            }
+
+            // clear & move on
+            currentRequest = null;
+            downloadStatus = "";
+            installStatus = $"Installed: {currentInstalling}";
+            return;
+        }
+
         if (installedPackages == null)
             return;
 
@@ -276,6 +319,45 @@ public class FrameworkInstaller : EditorWindow
             CoreModulesInstalled = true;
             EditorPrefs.SetBool(CoreModulesInstalledKey, true);
         }
+    }
+
+    private void InstallSshNetViaNuGet()
+    {
+        // Look for the NuGetForUnity assembly (editor-only)
+        var nugetAsm = AppDomain.CurrentDomain
+            .GetAssemblies()
+            .FirstOrDefault(a => a.GetName().Name.IndexOf("NuGetForUnity", StringComparison.OrdinalIgnoreCase) >= 0);
+        if (nugetAsm == null)
+        {
+            Debug.LogWarning("NuGetForUnity assembly not found — SSH.NET install deferred.");
+            return;
+        }
+
+        // Find the NugetHelper type
+        var helperType = nugetAsm.GetType("NuGetForUnity.NugetHelper")
+                     ?? nugetAsm.GetType("NuGetForUnity.NuGetHelper");
+        if (helperType == null)
+        {
+            Debug.LogError("Could not find NugetHelper type in NuGetForUnity.");
+            return;
+        }
+
+        // Find the AddPackage(string, string) method overload
+        var addMethod = helperType.GetMethod(
+            "AddPackage",
+            BindingFlags.Public | BindingFlags.Static,
+            null,
+            new[] { typeof(string), typeof(string) },
+            null
+        );
+        if (addMethod == null)
+        {
+            Debug.LogError("Could not find AddPackage(string, string) on NugetHelper.");
+            return;
+        }
+
+        // Invoke it: packageId = "SSH.NET", version = null (latest)
+        addMethod.Invoke(null, new object[] { "SSH.NET", null });
     }
 
     void AbortInstallation(string errorMessage)
