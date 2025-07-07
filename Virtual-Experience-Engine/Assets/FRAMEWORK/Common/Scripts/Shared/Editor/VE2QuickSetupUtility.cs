@@ -11,7 +11,7 @@ namespace VE2.Common.Shared
         internal static void ShowWindow()
         {
             var window = ScriptableObject.CreateInstance<VE2QuickSetupWindow>();
-            window.position = new Rect(Screen.width / 2, Screen.height / 2, 500, 550);
+            window.position = new Rect(Screen.width / 2, Screen.height / 2, 500, 650);
             window.titleContent = new GUIContent("VE2 Quick Setup");
             window.Show();
         }
@@ -24,6 +24,7 @@ namespace VE2.Common.Shared
         private bool urp = true;
         private bool enableXR = true;
         private bool enableOculusProfile = true;
+        private bool editorToolbox = true;
         private bool createScene = true;
 
         private Vector2 scroll;
@@ -54,6 +55,10 @@ namespace VE2.Common.Shared
             DrawCheckbox(ref enableOculusProfile,
                 "Enable Oculus Touch Interaction Profile",
                 "Enables the Oculus Touch interaction profile for OpenXR.");
+
+            DrawCheckbox(ref editorToolbox,
+                "Configure Editor Toolbox",
+                "Creates a preconfigured EditorToolbox settings file to ensure VE2 inspectors behave correctly.");
 
             DrawCheckbox(ref createScene,
                 "Create Quick Start Scene",
@@ -93,7 +98,7 @@ namespace VE2.Common.Shared
 
         private bool AnySelected()
         {
-            return asmdef || layersAndTags || urp || enableXR || enableOculusProfile || createScene;
+            return asmdef || layersAndTags || urp || enableXR || enableOculusProfile || editorToolbox || createScene;
         }
 
         private void RunSetup()
@@ -112,6 +117,9 @@ namespace VE2.Common.Shared
 
             if (enableOculusProfile)
                 VE2SetupXR.EnableOpenXRFeatures();
+
+            if (editorToolbox)
+                VE2AutoEditorToolboxSetup.CreateToolboxEditorSettingsAsset();
 
             if (createScene)
                 VE2SceneSetupHelper.CreateQuickStartScene();

@@ -74,7 +74,7 @@ namespace VE2.Common.Shared
 
             if (result == 1) // "Show me docs for this scene"
             {
-                Application.OpenURL("https://www.google.com"); // Replace with your actual docs URL
+                Application.OpenURL("https://www.notion.so/Understanding-the-VE2-Quickstart-Scene-2290e4d8ed4d80c4a0dcceda148f51ef"); 
             }
         }
     }
