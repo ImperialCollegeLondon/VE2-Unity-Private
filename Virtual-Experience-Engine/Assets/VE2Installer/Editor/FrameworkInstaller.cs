@@ -1,4 +1,4 @@
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 using UnityEditor.PackageManager;
 using UnityEditor.PackageManager.Requests;
@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using PackageInfo = UnityEditor.PackageManager.PackageInfo;
 using System;
 using System.Linq;
+using System.IO;
+using System.Text.RegularExpressions;
 
 public class FrameworkInstaller : EditorWindow
 {
@@ -15,6 +17,12 @@ public class FrameworkInstaller : EditorWindow
     public static bool CoreModulesInstalled = false;
     private const string CoreModulesInstalledKey = "CoreModulesInstalled";
 
+    // --- State flags to Check if DOTween exists ---
+    private bool initialDotweenExists = false;
+    private bool isDotweenDetected = false;
+    private bool isRemovingDotween = false;
+    private const string DOTWEEN_ASSET_PATH = "Assets/Plugins/Demigiant/DOTween";
+    private bool allPackagesInstalled = false;
 
     // Installation-related fields.
     private Queue<string> packageQueue = new Queue<string>();
@@ -39,6 +47,17 @@ public class FrameworkInstaller : EditorWindow
     private float currentRemovalRequestStartTime = 0f;
     private string currentRemovingPackage = "";
 
+    // Path to the local VE2 package.
+    private string ve2Path = "";
+    private const string VE2PathKey = "VE2_LocalPath";
+    private bool isValidVE2Path = false;
+
+    // Selecting Remote or Local VE2
+    private bool useRemoteVE2 = true;
+    private const string UseRemoteVE2Key = "UseRemoteVE2";
+    private const string VE2RemoteUrl = "https://github.com/ImperialCollegeLondon/VE2-Distribution.git?path=VE2#dotween-test";
+
+
     // Known core module repository names in installation order.
     // To remove in reverse order, we will iterate over this array backwards.
     private static readonly string[] _repoNames = new string[]
@@ -46,7 +65,8 @@ public class FrameworkInstaller : EditorWindow
         "Unity-Editor-Toolbox",
         "Unity3D-NSubstitute",
         "NuGetForUnity",
-        "VE2-Distribution"
+        "VE2-Distribution",
+        "ParrelSync",
     };
 
     // Cached list of installed packages.
@@ -59,8 +79,7 @@ public class FrameworkInstaller : EditorWindow
     public static void ShowInstallerWindow()
     {
         FrameworkInstaller window = GetWindow<FrameworkInstaller>("VE2 Framework Installer");
-        window.position = new Rect(Screen.width / 2, Screen.height / 2, 400, 280);
-        window.StartInstallation();
+        window.position = new Rect(Screen.width / 2, Screen.height / 2, 400, 350);
     }
 
     // The removal menu item is only enabled after core modules are installed.
@@ -82,6 +101,17 @@ public class FrameworkInstaller : EditorWindow
     {
         // Restore persisted state.
         CoreModulesInstalled = EditorPrefs.GetBool(CoreModulesInstalledKey, false);
+
+        // Fetch installed packages so we can detect DOTween
+        RefreshDotweenDetection();
+
+        listRequest = Client.List(true, true);
+        EditorApplication.update += UpdateInstalledPackages;
+
+        useRemoteVE2 = EditorPrefs.GetBool(UseRemoteVE2Key, true);
+
+        // load last‐used VE2 path
+        ve2Path = EditorPrefs.GetString(VE2PathKey, "");
     }
 
 
@@ -97,12 +127,15 @@ public class FrameworkInstaller : EditorWindow
         totalPackages = 0;
         downloadStatus = "";
         installStatus = "";
+        var fileUrl = "file:" + ve2Path.Replace('\\', '/');
+        string ve2Package = useRemoteVE2 ? VE2RemoteUrl : fileUrl;
 
         // Enqueue the core module package URLs in installation order.
         packageQueue.Enqueue("https://github.com/arimger/Unity-Editor-Toolbox.git#upm");
         packageQueue.Enqueue("https://github.com/Thundernerd/Unity3D-NSubstitute.git");
         packageQueue.Enqueue("https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity");
-        packageQueue.Enqueue("https://github.com/ImperialCollegeLondon/VE2-Distribution.git?path=VE2#main");
+        packageQueue.Enqueue(ve2Package);
+        packageQueue.Enqueue("https://github.com/VeriorPies/ParrelSync.git?path=/ParrelSync");
 
         totalPackages = packageQueue.Count;
         // Fetch the list of already installed packages.
@@ -117,11 +150,7 @@ public class FrameworkInstaller : EditorWindow
     {
         if (listRequest != null && listRequest.IsCompleted)
         {
-            installedPackages = new List<PackageInfo>();
-            foreach (var pkg in listRequest.Result)
-            {
-                installedPackages.Add(pkg);
-            }
+            installedPackages = listRequest.Result.ToList();
             listRequest = null;
             EditorApplication.update -= UpdateInstalledPackages;
         }
@@ -131,6 +160,95 @@ public class FrameworkInstaller : EditorWindow
         // {
         //     Debug.Log($"Already Installed Package: {pkg.packageId}");
         // }
+    }
+
+    void RefreshDotweenDetection()
+    {
+        if (initialDotweenExists)
+        {
+            if (allPackagesInstalled)
+            {
+                initialDotweenExists = false;
+                return;
+            }
+        }
+
+        if (AssetDatabase.IsValidFolder(DOTWEEN_ASSET_PATH))
+        {
+            initialDotweenExists = true;
+            Debug.Log("✅ DOTween detected in Assets folder.");
+            return;
+        }
+
+        if (AppDomain.CurrentDomain.GetAssemblies().Any(a =>
+               a.GetName().Name.IndexOf("dotween", StringComparison.OrdinalIgnoreCase) >= 0))
+        {
+            Debug.Log("✅ DOTween detected in assemblies.");
+            initialDotweenExists = true;
+            return;
+        }
+
+        if (Type.GetType("DG.Tweening.Tween") != null)
+        {
+            Debug.Log("✅ DOTween detected via reflection.");
+            initialDotweenExists = true;
+            return;
+        }
+
+        // nothing detected
+        initialDotweenExists = false;
+    }
+
+    void StartRemoveDotween()
+    {
+        isRemovingDotween = true;
+
+        // 1) Find and delete any folder asset named "DOTween".
+        string[] guids = AssetDatabase.FindAssets("DOTween t:Folder");
+        foreach (var guid in guids)
+        {
+            string folderPath = AssetDatabase.GUIDToAssetPath(guid);
+            if (AssetDatabase.IsValidFolder(folderPath))
+            {
+                Debug.Log($"Deleting DOTween folder: {folderPath}");
+                AssetDatabase.DeleteAsset(folderPath);
+            }
+        }
+
+        // 2) (Redundancy) Delete any leftover DLL whose assembly name contains "DOTween"
+        var asm = AppDomain.CurrentDomain
+                           .GetAssemblies()
+                           .FirstOrDefault(a => a.GetName().Name
+                               .IndexOf("DOTween", StringComparison.OrdinalIgnoreCase) >= 0);
+        if (asm != null)
+        {
+            var asmPath = new Uri(asm.CodeBase).LocalPath;
+            if (asmPath.StartsWith(Application.dataPath, StringComparison.OrdinalIgnoreCase))
+            {
+                string rel = "Assets" + asmPath.Substring(Application.dataPath.Length);
+                if (AssetDatabase.DeleteAsset(rel))
+                    Debug.Log($"Deleted DOTween DLL: {rel}");
+            }
+        }
+
+        // 3) (Redundancy) Delete any MonoScript in DG.Tweening namespace
+        foreach (var ms in MonoImporter.GetAllRuntimeMonoScripts())
+        {
+            var cls = ms.GetClass();
+            if (cls != null && cls.Namespace != null && cls.Namespace.StartsWith("DG.Tweening"))
+            {
+                string scriptPath = AssetDatabase.GetAssetPath(ms);
+                if (AssetDatabase.DeleteAsset(scriptPath))
+                    Debug.Log($"Deleted DOTween script: {scriptPath}");
+            }
+        }
+
+        // Refresh the AssetDatabase so the Editor UI updates immediately
+        AssetDatabase.Refresh();
+        Debug.Log("✅ DOTween asset scripts/DLL removed.");
+        isRemovingDotween = false;
+        initialDotweenExists = false;
+        Repaint();
     }
 
     void InstallNextPackage()
@@ -163,9 +281,17 @@ public class FrameworkInstaller : EditorWindow
             Debug.Log("\ud83c\udf89 All packages installed.");
             currentInstalling = "Installation complete.";
             isInstalling = false;
+            allPackagesInstalled = true;
             downloadStatus = "";
             installStatus = "Installation complete.";
             installedCount = totalPackages;
+
+            if (!PlayerSettings.runInBackground)
+            {
+                PlayerSettings.runInBackground = true;
+                Debug.Log("\ud83d\udd3a 'Run In Background' has been enabled in Player Settings for VE2.");
+            }
+               
             // Set the static flag to enable removal.
             CoreModulesInstalled = true;
             EditorPrefs.SetBool(CoreModulesInstalledKey, true);
@@ -201,7 +327,6 @@ public class FrameworkInstaller : EditorWindow
         }
         return false; // No matching package name found
     }
-
     string ExtractPackageNameAndPath(string packageUrl)
     {
         // Extract the base URL (repo URL without query and fragment)
@@ -217,7 +342,7 @@ public class FrameworkInstaller : EditorWindow
 
         // Extract the last part of the URL path (i.e., the repo name, e.g., Unity-Editor-Toolbox)
         string repoName = uri.AbsolutePath.Split('/').LastOrDefault()?.Replace(".git", "");
-        
+
         // Check if there's a "path" parameter in the URL (after '?')
         string path = string.Empty;
         var queryParams = Uri.UnescapeDataString(packageUrl.Split('?').Skip(1).FirstOrDefault() ?? "");
@@ -227,7 +352,7 @@ public class FrameworkInstaller : EditorWindow
                             .FirstOrDefault(p => p.StartsWith("path="))?
                             .Substring(5); // Remove "path=" prefix
         }
-        
+
         // If path is empty or just the root, return "root"
         if (string.IsNullOrEmpty(path))
         {
@@ -236,8 +361,6 @@ public class FrameworkInstaller : EditorWindow
 
         return $"{repoName} (path: {path})";  // Example: "Unity-Editor-Toolbox (path: root)"
     }
-
-
 
     string ExtractRepositoryName(string packageUrl)
     {
@@ -363,7 +486,47 @@ public class FrameworkInstaller : EditorWindow
     void OnGUI()
     {
         GUILayout.Space(10);
-        if (isInstalling)
+
+        // ——— REMOTE vs LOCAL toggle ——————————————————————————
+        bool newUseRemote = EditorGUILayout.ToggleLeft(
+            new GUIContent("Get VE2 from Remote", "When unchecked, will use your local VE2 folder selected"), useRemoteVE2);
+        if (newUseRemote != useRemoteVE2)
+        {
+            useRemoteVE2 = newUseRemote;
+            EditorPrefs.SetBool(UseRemoteVE2Key, useRemoteVE2);
+        }
+        GUILayout.Space(8);
+
+        // — Validate if path exists ———————————————————————
+        bool isValidVE2Path = Directory.Exists(ve2Path) && File.Exists(Path.Combine(ve2Path, "package.json"));
+
+        if (!string.IsNullOrEmpty(ve2Path) && !isValidVE2Path)
+            EditorGUILayout.HelpBox("Selected folder does not contain a VE2 package.json", MessageType.Error);
+
+        this.isValidVE2Path = useRemoteVE2 || isValidVE2Path;
+        // Show path picker, but disable it when in Remote mode
+        EditorGUILayout.LabelField("Local VE2 Folder", EditorStyles.boldLabel);
+        EditorGUI.BeginDisabledGroup(useRemoteVE2);
+        EditorGUILayout.BeginHorizontal();
+        ve2Path = EditorGUILayout.TextField(ve2Path, GUILayout.ExpandWidth(true));
+        if (GUILayout.Button("…", GUILayout.Width(30)))
+        {
+            var picked = EditorUtility.OpenFolderPanel("Select VE2 Package Folder", ve2Path, "");
+            if (!string.IsNullOrEmpty(picked))
+            {
+                ve2Path = picked;
+                EditorPrefs.SetString(VE2PathKey, ve2Path);
+            }
+        }
+        EditorGUILayout.EndHorizontal();
+        EditorGUI.EndDisabledGroup();
+        GUILayout.Space(8);
+
+        if (!this.isValidVE2Path)
+        {
+            EditorGUILayout.HelpBox("\u26a0\ufe0f Select a Path To VE2 Framework before you begin installation", MessageType.Warning);
+        }
+        else if (isInstalling)
         {
             EditorGUILayout.HelpBox("\u26a0\ufe0f Please do not close this window while packages are installing.", MessageType.Warning);
         }
@@ -371,9 +534,13 @@ public class FrameworkInstaller : EditorWindow
         {
             EditorGUILayout.HelpBox("\u26a0\ufe0f Removing core modules. Please wait...", MessageType.Warning);
         }
+        else if(initialDotweenExists)
+        {
+            EditorGUILayout.HelpBox("\u26a0\ufe0f It is highly recommended that you remove DOTween first before installing.", MessageType.Warning);
+        }
         else
         {
-            EditorGUILayout.HelpBox("\u2705 Installation complete. Use the menu item to remove core modules.", MessageType.Info);
+            EditorGUILayout.HelpBox("\u2705 Ready to install VE2. Click button below to continue", MessageType.Info);
         }
 
         GUILayout.Space(10);
@@ -388,15 +555,27 @@ public class FrameworkInstaller : EditorWindow
         GUILayout.Label("Download Status: " + downloadStatus, EditorStyles.wordWrappedLabel);
         GUILayout.Label("Installation Status: " + installStatus, EditorStyles.wordWrappedLabel);
 
-        if (isRemoving)
+        float removeProgress = totalPackages > 0 ? (float)installedCount / totalPackages : 0f;
+        EditorGUI.ProgressBar(EditorGUILayout.GetControlRect(false, 20), removeProgress, $"{installedCount}/{totalPackages}");
+
+        GUILayout.Space(20);
+        if (initialDotweenExists)
         {
-            GUILayout.Space(20);
-            GUILayout.Label($"Remove Progress: {removedCount} of {totalRemovals} processed", EditorStyles.boldLabel);
-            GUILayout.Label("Removal Status: " + removalStatus, EditorStyles.wordWrappedLabel);
-            float removeProgress = totalRemovals > 0 ? (float)removedCount / totalRemovals : 0f;
-            EditorGUI.ProgressBar(EditorGUILayout.GetControlRect(false, 20), removeProgress, $"{removedCount}/{totalRemovals}");
+            if (GUILayout.Button("Remove DOTween"))
+                StartRemoveDotween();
         }
 
+        GUILayout.Space(8);
+
+        // — Install button, only enabled when we have a good path —
+        EditorGUI.BeginDisabledGroup(!isValidVE2Path || isInstalling || isRemoving);
+        if (GUILayout.Button(initialDotweenExists ? "Install VE2 Anyway" : "Install VE2"))
+        {
+            // stash into the queue
+            StartInstallation();
+        }
+        EditorGUI.EndDisabledGroup();
         GUILayout.FlexibleSpace();
+
     }
 }
