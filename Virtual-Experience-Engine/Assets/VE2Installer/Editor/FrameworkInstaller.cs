@@ -55,7 +55,7 @@ public class FrameworkInstaller : EditorWindow
     // Selecting Remote or Local VE2
     private bool useRemoteVE2 = true;
     private const string UseRemoteVE2Key = "UseRemoteVE2";
-    private const string VE2RemoteUrl = "https://github.com/ImperialCollegeLondon/VE2-Distribution.git#OT/WorkingDistributionPolish?path=VE2";
+    private const string VE2RemoteUrl = "https://github.com/ImperialCollegeLondon/VE2-Distribution.git#dotween-test?path=VE2";
 
 
     // Known core module repository names in installation order.
