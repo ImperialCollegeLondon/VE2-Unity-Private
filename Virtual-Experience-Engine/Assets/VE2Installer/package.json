@@ -1,6 +1,6 @@
 {
   "name": "com.ic.ve2installer",
-  "version": "0.0.2",
+  "version": "0.0.5",
   "displayName": "VE2-Installer",
   "description": "Installs VE2 and all its dependencies",
   "unity": "2023.3",
@@ -19,7 +19,7 @@
     "Education"
   ],
   "author": {
-    "name": "IC",
+    "name": "Imperial College London",
     "email": "f.tovey-ansell@imperial.ac.uk",
     "url": "https://www.imperial.ac.uk/virse/"
   }

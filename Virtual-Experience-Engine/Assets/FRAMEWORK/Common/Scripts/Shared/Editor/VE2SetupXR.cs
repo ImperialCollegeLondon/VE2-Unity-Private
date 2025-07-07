@@ -78,6 +78,8 @@ namespace VE2.Common.Shared
             {
                 Debug.Log("OpenXR Loader already present.");
             }
+
+            EditorUtility.RequestScriptReload();
         }
 
         // public static void DebugXRSettings()

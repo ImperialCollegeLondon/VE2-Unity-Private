@@ -20,6 +20,7 @@ namespace VE2.Common.Shared
     internal class VE2QuickSetupWindow : EditorWindow
     {
         private bool asmdef = true;
+        private bool tmp = true;
         private bool layersAndTags = true;
         private bool urp = true;
         private bool enableXR = true;
@@ -38,6 +39,10 @@ namespace VE2.Common.Shared
             DrawCheckbox(ref asmdef,
                 "Create VE2 Assembly Definition",
                 "Creates an ASMDEF in Assets/Scripts, preconfigured with required VE2 references. Ensure all your scripts live within this folder.");
+
+            DrawCheckbox(ref tmp,
+                "Import TMP Essentials",
+                "Imports the TextMeshPro Essentials package, this is required for TMP to function correctly.");
 
             DrawCheckbox(ref layersAndTags,
                 "Configure Layers and Tags",
@@ -98,13 +103,16 @@ namespace VE2.Common.Shared
 
         private bool AnySelected()
         {
-            return asmdef || layersAndTags || urp || enableXR || enableOculusProfile || editorToolbox || createScene;
+            return asmdef || tmp || layersAndTags || urp || enableXR || enableOculusProfile || editorToolbox || createScene;
         }
 
         private void RunSetup()
         {
             if (asmdef)
                 VE2AutoAsmDef.CreateOrUpdateAsmdef();
+
+            if (tmp)
+                VE2TMPSetup.ImportTextMeshProEssentials();
 
             if (layersAndTags)
                 VE2LayerAutoConfig.ConfigureLayersAndTags();
@@ -126,19 +134,7 @@ namespace VE2.Common.Shared
 
             if (enableXR)
             {
-                // Ask about restarting Unity for VR compatibility
-                int restartResult = EditorUtility.DisplayDialogComplex(
-                    "VE2 Setup Complete",
-                    "Your project has been configured for VE2.\n\nIt is recommended to restart Unity before testing in VR to ensure all XR settings are fully applied.",
-                    "Restart now",
-                    "I'll restart later",
-                    null
-                );
-
-                if (restartResult == 0) // "Restart now"
-                {
-                    EditorApplication.OpenProject(Environment.CurrentDirectory); // Relaunch current project
-                }
+                EditorUtility.DisplayDialog("VE2 Setup Complete", "Your project has been configured for VE2.\n\nIt is recommended to restart Unity before testing in VR", "Understood");
             }
             else
             {
