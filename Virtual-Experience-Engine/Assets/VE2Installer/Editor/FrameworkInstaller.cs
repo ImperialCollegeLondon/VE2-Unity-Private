@@ -9,6 +9,7 @@ using PackageInfo = UnityEditor.PackageManager.PackageInfo;
 using System;
 using System.Linq;
 using System.IO;
+using System.Text.RegularExpressions;
 
 public class FrameworkInstaller : EditorWindow
 {
@@ -142,7 +143,8 @@ public class FrameworkInstaller : EditorWindow
         var ve2Folder = Path.Combine(distributionRoot, "VE2");
 
         // UPM wants a file: URL with forward-slashes
-        var ve2FileUrl = "file://" + ve2Folder.Replace('\\', '/');
+        var ve2FileUrl = "file:" + ve2Folder.Replace('\\','/');
+
 
         return ve2FileUrl;
     }
@@ -310,22 +312,44 @@ public class FrameworkInstaller : EditorWindow
         EditorApplication.update -= InstallNextPackage;
     }
 
+    //bool IsPackageInstalled(string packageUrl)
+    //{
+    //    // Assuming packageUrl contains the package name or can be used to extract it
+    //    string packageName = ExtractPackageNameAndPath(packageUrl); // This would extract the unique packageName from packageUrl
+
+    //    if (string.IsNullOrEmpty(packageName))
+    //        return false;
+
+    //    foreach (var pkg in installedPackages)
+    //    {
+    //        if (pkg.name != null && pkg.name.Equals(packageName, System.StringComparison.OrdinalIgnoreCase))
+    //        {
+    //            return true; // Package with the same name is already installed
+    //        }
+    //    }
+    //    return false; // No matching package name found
+    //}
     bool IsPackageInstalled(string packageUrl)
     {
-        // Assuming packageUrl contains the package name or can be used to extract it
-        string packageName = ExtractPackageNameAndPath(packageUrl); // This would extract the unique packageName from packageUrl
+        // grab client-side name (e.g. “com.ic.ve2”) rather than repo-based
+        string declaredName;
+        if (packageUrl.StartsWith("file:"))
+            declaredName = LoadNameFromLocalPackage(packageUrl.Substring(5));
+        else
+            declaredName = ExtractRepositoryName(packageUrl);
 
-        if (string.IsNullOrEmpty(packageName))
-            return false;
+        return installedPackages.Any(p => p.name == declaredName);
+    }
 
-        foreach (var pkg in installedPackages)
-        {
-            if (pkg.name != null && pkg.name.Equals(packageName, System.StringComparison.OrdinalIgnoreCase))
-            {
-                return true; // Package with the same name is already installed
-            }
-        }
-        return false; // No matching package name found
+    string LoadNameFromLocalPackage(string path)
+    {
+        // path might be "../VE2" or "C:/…/VE2"
+        var full = Path.GetFullPath(path);
+        var pj = Path.Combine(full, "package.json");
+        var json = File.ReadAllText(pj);
+        // simple JSON parse for the “name” field:
+        var match = Regex.Match(json, @"""name""\s*:\s*""([^""]+)""");
+        return match.Success ? match.Groups[1].Value : "";
     }
 
     string ExtractPackageNameAndPath(string packageUrl)
