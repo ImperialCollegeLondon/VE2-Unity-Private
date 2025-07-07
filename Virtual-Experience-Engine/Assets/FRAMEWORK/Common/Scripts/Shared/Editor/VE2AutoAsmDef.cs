@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace VE2.Core.Common
+namespace VE2.Common.Shared
 {
     internal class VE2AutoAsmDef
     {
@@ -22,7 +22,7 @@ namespace VE2.Core.Common
             "VE2.NonCore.Platform.API",
         };
 
-        [MenuItem("VE2/Create Plugin Assembly Definition", priority = -1)]
+        //[MenuItem("VE2/Create Plugin Assembly Definition", priority = -1000)]
         public static void CreateOrUpdateAsmdef()
         {
             string folderPath = "Assets/Scripts";

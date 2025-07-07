@@ -3,8 +3,6 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using VE2.NonCore.Instancing.API;
 using VE2.NonCore.Instancing.Internal;
-using VE2.Core.VComponents.API;
-using VE2.Core.Common;
 using UnityEngine.Events;
 
 namespace VE2.NonCore.Instancing.VComponents.Tests

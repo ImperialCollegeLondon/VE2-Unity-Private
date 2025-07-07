@@ -3509,8 +3509,6 @@ MonoBehaviour:
       IsNetworked: 1
       TransmissionFrequency: 1
       TransmissionType: 0
-  _adjustableState:
-    IsInitialised: 0
 --- !u!1 &2198193809640329783
 GameObject:
   m_ObjectHideFlags: 0
@@ -4150,8 +4148,6 @@ MonoBehaviour:
       IsNetworked: 1
       TransmissionFrequency: 1
       TransmissionType: 0
-  _adjustableState:
-    IsInitialised: 0
 --- !u!1 &2495110589791976000
 GameObject:
   m_ObjectHideFlags: 0
@@ -5248,8 +5244,6 @@ MonoBehaviour:
       IsNetworked: 1
       TransmissionFrequency: 1
       TransmissionType: 0
-  _adjustableState:
-    IsInitialised: 0
 --- !u!1 &3240915991300950720
 GameObject:
   m_ObjectHideFlags: 0
@@ -10134,8 +10128,6 @@ MonoBehaviour:
       IsNetworked: 1
       TransmissionFrequency: 1
       TransmissionType: 0
-  _state:
-    IsInitialised: 0
 --- !u!114 &1067512528335057717
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10185,8 +10177,6 @@ MonoBehaviour:
       IsNetworked: 1
       TransmissionFrequency: 1
       TransmissionType: 0
-  _state:
-    IsInitialised: 0
 --- !u!65 &1472424953527648876
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -10921,8 +10911,6 @@ MonoBehaviour:
       IsNetworked: 1
       TransmissionFrequency: 1
       TransmissionType: 0
-  _state:
-    IsInitialised: 0
   _collider: {fileID: 5871888969178367326}
 --- !u!65 &5871888969178367326
 BoxCollider:
@@ -12513,7 +12501,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &339312047194016430
 Transform:
   m_ObjectHideFlags: 0
