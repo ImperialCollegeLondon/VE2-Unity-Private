@@ -45,7 +45,7 @@ namespace VE2.Common.Shared
 
     internal class LayerAutoConfig
     {
-        [MenuItem("VE2/Configure Layers and Tags", priority = 0)]
+        [MenuItem("VE2/Configure Layers and Tags", priority = -998)]
         internal static void ShowWindow()
         {
             var window = ScriptableObject.CreateInstance<VE2LayerAutoConfig>();
