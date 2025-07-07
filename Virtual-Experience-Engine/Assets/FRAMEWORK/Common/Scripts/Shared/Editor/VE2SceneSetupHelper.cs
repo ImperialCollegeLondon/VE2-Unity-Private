@@ -64,7 +64,7 @@ namespace VE2.Common.Shared
             }
 
             int result = EditorUtility.DisplayDialogComplex(
-                "VE2 Setup complete",
+                "VE2 Quickstart Scene Setup Complete",
                 "A quickstart scene has been created and opened in the editor, ready for you to begin using VE2.\n\n" +
                 "⚠️ Remember to RENAME THIS SCENE to something unique before exporting it to the VE2 platform.",
                 "Got it!",

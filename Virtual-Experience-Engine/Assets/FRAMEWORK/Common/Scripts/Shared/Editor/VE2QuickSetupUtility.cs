@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System;
 using UnityEditor;
 using UnityEngine;
 
@@ -114,8 +115,27 @@ namespace VE2.Common.Shared
 
             if (createScene)
                 VE2SceneSetupHelper.CreateQuickStartScene();
+
+            if (enableXR)
+            {
+                // Ask about restarting Unity for VR compatibility
+                int restartResult = EditorUtility.DisplayDialogComplex(
+                    "VE2 Setup Complete",
+                    "Your project has been configured for VE2.\n\nIt is recommended to restart Unity before testing in VR to ensure all XR settings are fully applied.",
+                    "Restart now",
+                    "I'll restart later",
+                    null
+                );
+
+                if (restartResult == 0) // "Restart now"
+                {
+                    EditorApplication.OpenProject(Environment.CurrentDirectory); // Relaunch current project
+                }
+            }
             else
+            {
                 EditorUtility.DisplayDialog("VE2 Setup Complete", "Your project has been configured for VE2.", "OK");
+            }
         }
     }
 }
