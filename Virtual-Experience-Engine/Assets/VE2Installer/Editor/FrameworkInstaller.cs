@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using PackageInfo = UnityEditor.PackageManager.PackageInfo;
 using System;
 using System.Linq;
+using System.IO;
+using System.Text.RegularExpressions;
 
 public class FrameworkInstaller : EditorWindow
 {
@@ -44,6 +46,11 @@ public class FrameworkInstaller : EditorWindow
     private const float REMOVAL_REQUEST_TIMEOUT = 30f;
     private float currentRemovalRequestStartTime = 0f;
     private string currentRemovingPackage = "";
+
+    // Path to the local VE2 package.
+    private string ve2Path = "";
+    private const string VE2PathKey = "VE2_LocalPath";
+    private bool isValidVE2Path = false;
 
     // Known core module repository names in installation order.
     // To remove in reverse order, we will iterate over this array backwards.
@@ -94,6 +101,9 @@ public class FrameworkInstaller : EditorWindow
 
         listRequest = Client.List(true, true);
         EditorApplication.update += UpdateInstalledPackages;
+
+        // load last‐used VE2 path
+        ve2Path = EditorPrefs.GetString(VE2PathKey, "");
     }
 
 
@@ -109,12 +119,13 @@ public class FrameworkInstaller : EditorWindow
         totalPackages = 0;
         downloadStatus = "";
         installStatus = "";
+        var fileUrl = "file:" + ve2Path.Replace('\\', '/');
 
         // Enqueue the core module package URLs in installation order.
         packageQueue.Enqueue("https://github.com/arimger/Unity-Editor-Toolbox.git#upm");
         packageQueue.Enqueue("https://github.com/Thundernerd/Unity3D-NSubstitute.git");
         packageQueue.Enqueue("https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity");
-        packageQueue.Enqueue("https://github.com/ImperialCollegeLondon/VE2-Distribution.git?path=VE2#main");
+        packageQueue.Enqueue(fileUrl);
         packageQueue.Enqueue("https://github.com/VeriorPies/ParrelSync.git?path=/ParrelSync");
 
         totalPackages = packageQueue.Count;
@@ -307,7 +318,6 @@ public class FrameworkInstaller : EditorWindow
         }
         return false; // No matching package name found
     }
-
     string ExtractPackageNameAndPath(string packageUrl)
     {
         // Extract the base URL (repo URL without query and fragment)
@@ -467,7 +477,12 @@ public class FrameworkInstaller : EditorWindow
     void OnGUI()
     {
         GUILayout.Space(10);
-        if (isInstalling)
+
+        if (!isValidVE2Path)
+        {
+            EditorGUILayout.HelpBox("\u26a0\ufe0f Select a Path To VE2 Framework before you begin installation", MessageType.Warning);
+        }
+        else if (isInstalling)
         {
             EditorGUILayout.HelpBox("\u26a0\ufe0f Please do not close this window while packages are installing.", MessageType.Warning);
         }
@@ -483,7 +498,35 @@ public class FrameworkInstaller : EditorWindow
         {
             EditorGUILayout.HelpBox("\u2705 Ready to install VE2. Click button below to continue", MessageType.Info);
         }
-        
+
+        GUILayout.Space(10);
+        EditorGUILayout.LabelField("Local VE2 Folder", EditorStyles.boldLabel);
+
+        // — Folder picker row —
+        EditorGUILayout.BeginHorizontal();
+        ve2Path = EditorGUILayout.TextField(ve2Path, GUILayout.ExpandWidth(true));
+        if (GUILayout.Button("…", GUILayout.Width(30)))
+        {
+            var picked = EditorUtility.OpenFolderPanel(
+                "Select VE2 Package Folder",
+                ve2Path,
+                "");
+            if (!string.IsNullOrEmpty(picked))
+            {
+                ve2Path = picked;
+                // persist it right away
+                EditorPrefs.SetString(VE2PathKey, ve2Path);
+            }
+        }
+        EditorGUILayout.EndHorizontal();
+        // — Validate it —
+        bool isValidVE2 = Directory.Exists(ve2Path) && File.Exists(Path.Combine(ve2Path, "package.json"));
+
+        if (!string.IsNullOrEmpty(ve2Path) && !isValidVE2)
+            EditorGUILayout.HelpBox("Selected folder does not contain a VE2 package.json",MessageType.Error);
+
+        GUILayout.Space(8);
+
         GUILayout.Space(10);
         GUILayout.Label($"Install Progress: {installedCount} of {totalPackages} processed", EditorStyles.boldLabel);
         GUILayout.Label("Current Operation: " + (string.IsNullOrEmpty(downloadStatus) ? installStatus : downloadStatus), EditorStyles.wordWrappedLabel);
@@ -507,10 +550,15 @@ public class FrameworkInstaller : EditorWindow
         }
 
         GUILayout.Space(8);
-        
-        // Install Anyway is always clickable
+
+        // — Install button, only enabled when we have a good path —
+        EditorGUI.BeginDisabledGroup(!isValidVE2 || isInstalling || isRemoving);
         if (GUILayout.Button(initialDotweenExists ? "Install VE2 Anyway" : "Install VE2"))
+        {
+            // stash into the queue
             StartInstallation();
+        }
+        EditorGUI.EndDisabledGroup();
 
         GUILayout.Space(20);
         GUILayout.FlexibleSpace();
