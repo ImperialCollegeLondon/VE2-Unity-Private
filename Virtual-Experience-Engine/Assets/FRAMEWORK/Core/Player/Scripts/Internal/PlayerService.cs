@@ -186,7 +186,7 @@ namespace VE2.Core.Player.Internal
                 PlayerTransformData.IsVRMode = true;
             else if (_config.PlayerModeConfig.Enable2D && !_config.PlayerModeConfig.EnableVR)
                 PlayerTransformData.IsVRMode = false;
-            else if (playerSettingsHandler.PersistentPlayerMode != PersistentPlayerMode.NotInitialized)
+            else if (Application.isPlaying && playerSettingsHandler.PersistentPlayerMode != PersistentPlayerMode.NotInitialized) //Only if playing, so we don't break tests
                 PlayerTransformData.IsVRMode = playerSettingsHandler.PersistentPlayerMode == PersistentPlayerMode.VR;
 
             _playerSettingsHandler.PersistentPlayerMode = PlayerTransformData.IsVRMode ? PersistentPlayerMode.VR : PersistentPlayerMode.TwoD;
