@@ -5812,7 +5812,7 @@ MonoBehaviour:
         IsActivated: 0
         ClientID: 65535
         _newState: 0
-      ActivateOnStart: 1
+      ActivateOnStart: 0
       OnActivate:
         m_PersistentCalls:
           m_Calls:
@@ -29286,7 +29286,7 @@ MonoBehaviour:
             m_CallState: 2
       MinimumOutputValue: 0
       MaximumOutputValue: 1
-      StartingOutputValue: 0.5
+      StartingOutputValue: 0
       EmitValueOnStart: 1
       IncrementPerScrollTick: 0.1
     RotationalAdjustableServiceConfig:
