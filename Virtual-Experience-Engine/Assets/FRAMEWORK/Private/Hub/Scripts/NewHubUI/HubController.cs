@@ -92,12 +92,13 @@ internal class HubController : MonoBehaviour
             _hubWorldPageView.UpdateDownloadingWorldProgress(progressPercent);
         }
 
-        if (_currentInstallingPackageName != null)
+        if (_currentInstallingPackageName != "none")
         {
+            Debug.Log("Checking if APK is installed: " + _currentInstallingPackageName);
             if (_viewingWorldDetails.AndroidPackageName != _currentInstallingPackageName)
             {
                 // If the world details have changed, reset the current installing package name
-                _currentInstallingPackageName = null;
+                _currentInstallingPackageName = "none";
                 return;
             }
 
@@ -112,7 +113,7 @@ internal class HubController : MonoBehaviour
                     AndroidJavaObject packageInfo = packageManager.Call<AndroidJavaObject>("getPackageInfo", _currentInstallingPackageName, 0);
                     string versionName = packageInfo.Get<string>("versionName");
 
-                    _currentInstallingPackageName = null;
+                    _currentInstallingPackageName = "none";
                     Debug.Log($"APK {_currentInstallingPackageName} successfully installed. Version: {versionName}");
 
                     _hubWorldPageView.ShowEnterWorldButton();
@@ -227,7 +228,7 @@ internal class HubController : MonoBehaviour
     private List<HubFileDownloadInfo> _filesToDownload;
     private int _curentFileDownloadIndex = -1;
     private IRemoteFileTaskInfo _currentDownloadTask;
-    private string _currentInstallingPackageName = null;
+    private string _currentInstallingPackageName = "none";
 
     private void HandleStartDownloadClicked()
     {

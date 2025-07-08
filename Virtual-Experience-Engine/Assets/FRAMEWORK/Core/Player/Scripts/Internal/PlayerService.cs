@@ -186,11 +186,14 @@ namespace VE2.Core.Player.Internal
                 PlayerTransformData.IsVRMode = true;
             else if (_config.PlayerModeConfig.Enable2D && !_config.PlayerModeConfig.EnableVR)
                 PlayerTransformData.IsVRMode = false;
+            else if (playerSettingsHandler.PersistentPlayerMode != PersistentPlayerMode.NotInitialized)
+                PlayerTransformData.IsVRMode = playerSettingsHandler.PersistentPlayerMode == PersistentPlayerMode.VR;
 
-            //TODO, figure out what mode to start in? Maybe we need some persistent data to remember the mode in the last scene??
+            _playerSettingsHandler.PersistentPlayerMode = PlayerTransformData.IsVRMode ? PersistentPlayerMode.VR : PersistentPlayerMode.TwoD;
+
             if (PlayerTransformData.IsVRMode)
                 _playerVR.ActivatePlayer(PlayerTransformData);
-            else 
+            else
                 _player2D.ActivatePlayer(PlayerTransformData);
 
             _playerInputContainer.ChangeMode.OnPressed += HandleChangeModePressed;
@@ -233,7 +236,7 @@ namespace VE2.Core.Player.Internal
             if (!_config.PlayerModeConfig.Enable2D || !_config.PlayerModeConfig.EnableVR)
                 return; //Can't change modes if both aren't enabled!
 
-            try 
+            try
             {
                 if (PlayerTransformData.IsVRMode) //switch to 2d
                 {
@@ -253,6 +256,7 @@ namespace VE2.Core.Player.Internal
                 }
 
                 PlayerTransformData.IsVRMode = !PlayerTransformData.IsVRMode;
+                _playerSettingsHandler.PersistentPlayerMode = PlayerTransformData.IsVRMode ? PersistentPlayerMode.VR : PersistentPlayerMode.TwoD;
             }
             catch (System.Exception e)
             {
@@ -330,11 +334,5 @@ namespace VE2.Core.Player.Internal
 
             _playerInputContainer.ChangeMode.OnPressed -= HandleChangeModePressed;
         }
-    }
-
-    public enum LocalPlayerMode
-    {
-        TwoD, 
-        VR
     }
 }

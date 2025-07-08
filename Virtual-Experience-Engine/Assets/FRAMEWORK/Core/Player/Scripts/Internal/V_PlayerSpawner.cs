@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.SceneManagement;
 using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.Player.API;
@@ -220,7 +221,7 @@ namespace VE2.Core.Player.Internal
             }
 
             if (Application.platform == RuntimePlatform.Android && !Application.isEditor)
-                _playerConfig.PlayerModeConfig.SupportedPlayerModes = SupportedPlayerModes.OnlyVR;
+                    _playerConfig.PlayerModeConfig.SupportedPlayerModes = SupportedPlayerModes.OnlyVR;
 
             XRManagerWrapper xrManagerWrapper = FindFirstObjectByType<XRManagerWrapper>();
             if (xrManagerWrapper == null)

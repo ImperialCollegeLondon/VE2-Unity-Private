@@ -4,11 +4,20 @@ using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.Core.Player.Internal
 {
+    internal enum PersistentPlayerMode
+    {
+        NotInitialized,
+        VR,
+        TwoD,
+    }
+
     internal interface IPlayerPersistentDataHandler
     {
         public bool RememberPlayerSettings { get; set; }
 
         public PlayerPresentationConfig PlayerPresentationConfig { get; set; }
+
+        public PersistentPlayerMode PersistentPlayerMode { get; set; }
 
         public event Action<PlayerPresentationConfig> OnDebugSaveAppearance;
 
@@ -32,6 +41,7 @@ namespace VE2.Core.Player.Internal
         private const string HasArgsArgName = "hasArgs";
         public static string RememberPlayerSettingsArgName => "rememberPlayerSettingsArg";
         public static string PlayerPresentationConfigArgName => "playerPresentationConfigArg";
+        public static string PersistentPlayerModeArgName => "persistentPlayerModeArg";
 
         private bool _isPlaying => Application.isPlaying;
 
@@ -48,6 +58,18 @@ namespace VE2.Core.Player.Internal
                     PlayerPrefs.DeleteKey(PlayerPresentationConfigArgName);
 
                 PlayerPrefs.SetInt(RememberPlayerSettingsArgName, value ? 1 : 0);
+            }
+        }
+
+        [SpaceArea(10)]
+        [SerializeField, IgnoreParent, DisableIf(nameof(_isPlaying), false), BeginGroup("Persistent Player Mode")] private PersistentPlayerMode _persistentPlayerMode = PersistentPlayerMode.NotInitialized;
+        public PersistentPlayerMode PersistentPlayerMode
+        {
+            get => _persistentPlayerMode;
+            set
+            {
+                _persistentPlayerMode = value;
+                //PlayerPrefs.SetInt(PersistentPlayerModeArgName, (int)value);
             }
         }
 
@@ -138,6 +160,7 @@ namespace VE2.Core.Player.Internal
         {
             intent.Call<AndroidJavaObject>("putExtra", HasArgsArgName, true);
             intent.Call<AndroidJavaObject>("putExtra", PlayerPresentationConfigArgName, Convert.ToBase64String(_playerPresentationConfig.Bytes));
+            intent.Call<AndroidJavaObject>("putExtra", PersistentPlayerModeArgName, _persistentPlayerMode);
             return intent;
         }
 
