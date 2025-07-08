@@ -1,14 +1,13 @@
-using System;
-using UnityEngine;
-
 #if UNITY_EDITOR
 using UnityEditor;
+using Toolbox.Editor;
 #endif
 
+using System;
+using UnityEngine;
 using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.NonCore.Instancing.API;
-using Toolbox.Editor;
 
 namespace VE2.NonCore.Instancing.Internal
 {

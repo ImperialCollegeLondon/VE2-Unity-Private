@@ -1154,7 +1154,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 1
+  m_SortingOrder: -2
   m_TargetDisplay: 0
 --- !u!224 &52326442
 RectTransform:
@@ -3200,7 +3200,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42c71687d1b78b848b78a9a33d60f5dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _preferVRMode: 0
+  _preferVRMode: 1
   _localClientIdWrapper:
     _ClientID: 65535
   _uiProviderGOName: 
@@ -3653,7 +3653,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 1
+  m_SortingOrder: -2
   m_TargetDisplay: 0
 --- !u!224 &177697198
 RectTransform:
@@ -6087,7 +6087,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 46
+  m_SortingOrder: -2
   m_TargetDisplay: 0
 --- !u!1 &297905073
 GameObject:
@@ -10574,12 +10574,11 @@ MonoBehaviour:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
+      IsInteractable: 1
     SyncConfig:
       IsNetworked: 1
       TransmissionFrequency: 1
       TransmissionType: 0
-  _state:
-    IsInitialised: 0
   _collider: {fileID: 0}
 --- !u!65 &481441531
 BoxCollider:
@@ -14367,12 +14366,11 @@ MonoBehaviour:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
+      IsInteractable: 1
     SyncConfig:
       IsNetworked: 1
       TransmissionFrequency: 1
       TransmissionType: 0
-  _state:
-    IsInitialised: 0
   _collider: {fileID: 0}
 --- !u!65 &607023618
 BoxCollider:
@@ -30507,7 +30505,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 46
+  m_SortingOrder: -2
   m_TargetDisplay: 0
 --- !u!224 &686034918
 RectTransform:
@@ -35297,7 +35295,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 46
+  m_SortingOrder: -2
   m_TargetDisplay: 0
 --- !u!224 &867815292
 RectTransform:
@@ -36198,7 +36196,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 1
+  m_SortingOrder: -2
   m_TargetDisplay: 0
 --- !u!224 &898115921
 RectTransform:
@@ -62351,12 +62349,11 @@ MonoBehaviour:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
+      IsInteractable: 1
     SyncConfig:
       IsNetworked: 1
       TransmissionFrequency: 1
       TransmissionType: 0
-  _state:
-    IsInitialised: 0
   _collider: {fileID: 0}
 --- !u!1 &1745958809
 GameObject:
@@ -64449,7 +64446,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 46
+  m_SortingOrder: -2
   m_TargetDisplay: 0
 --- !u!224 &1795880927
 RectTransform:

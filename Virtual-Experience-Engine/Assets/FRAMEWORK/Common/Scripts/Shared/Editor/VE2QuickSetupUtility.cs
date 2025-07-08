@@ -26,6 +26,7 @@ namespace VE2.Common.Shared
         private bool enableXR = true;
         private bool enableOculusProfile = true;
         private bool editorToolbox = true;
+        private bool androidManifest = true;
         private bool createScene = true;
 
         private Vector2 scroll;
@@ -65,6 +66,10 @@ namespace VE2.Common.Shared
                 "Configure Editor Toolbox",
                 "Creates a preconfigured EditorToolbox settings file to ensure VE2 inspectors behave correctly.");
 
+            DrawCheckbox(ref androidManifest,
+                "Create Android Manifest",
+                "Creates a custom AndroidManifest.xml in Assets/Plugins/Android - required for Android builds");
+
             DrawCheckbox(ref createScene,
                 "Create Quick Start Scene",
                 "Creates a new scene in Assets/Scenes, preconfigured with VE2 utilities and some example interactions.");
@@ -103,7 +108,7 @@ namespace VE2.Common.Shared
 
         private bool AnySelected()
         {
-            return asmdef || tmp || layersAndTags || urp || enableXR || enableOculusProfile || editorToolbox || createScene;
+            return asmdef || tmp || layersAndTags || urp || enableXR || enableOculusProfile || editorToolbox || createScene || androidManifest;
         }
 
         private void RunSetup()
@@ -120,14 +125,17 @@ namespace VE2.Common.Shared
             if (urp)
                 VE2URPSetup.SetupURP();
 
+            if (enableOculusProfile) // doesn't seem to work when done the first time, noy trying moving it before the EnableOpenXRFeatures call
+                VE2SetupXR.EnableOpenXRFeatures();
+
             if (enableXR)
                 VE2SetupXR.EnableXRPlugInManagement();
 
-            if (enableOculusProfile)
-                VE2SetupXR.EnableOpenXRFeatures();
-
             if (editorToolbox)
                 VE2AutoEditorToolboxSetup.CreateToolboxEditorSettingsAsset();
+
+            if (androidManifest)
+                VE2SetupAndroidManifest.CopyManifestFromResources();
 
             if (createScene)
                 VE2SceneSetupHelper.CreateQuickStartScene();
