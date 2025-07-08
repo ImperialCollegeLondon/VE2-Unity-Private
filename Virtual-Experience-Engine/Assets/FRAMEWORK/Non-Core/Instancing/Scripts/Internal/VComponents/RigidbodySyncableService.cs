@@ -128,7 +128,7 @@ namespace VE2.NonCore.Instancing.Internal
         {
 
             // Make all rigidbodys in the scene, apart from this one, kinematic
-            Dictionary<IRigidbodyWrapper, bool> kinematicStates = new();
+            Dictionary<IRigidbodyWrapper, (bool isKinematic, Vector3 linearVelocity, Vector3 angularVelocity)> kinematicStates = new();
 
             foreach (Rigidbody rigidbodyInScene in GameObject.FindObjectsByType<Rigidbody>(FindObjectsSortMode.None))
             {
@@ -138,7 +138,7 @@ namespace VE2.NonCore.Instancing.Internal
                 }
 
                 IRigidbodyWrapper rigidbodyInSceneWrapper = new RigidbodyWrapper(rigidbodyInScene);
-                kinematicStates.Add(rigidbodyInSceneWrapper, rigidbodyInSceneWrapper.isKinematic);
+                kinematicStates.Add(rigidbodyInSceneWrapper, (rigidbodyInSceneWrapper.isKinematic, rigidbodyInSceneWrapper.linearVelocity, rigidbodyInSceneWrapper.angularVelocity));
                 rigidbodyInSceneWrapper.isKinematic = true;
             }
 
@@ -160,8 +160,16 @@ namespace VE2.NonCore.Instancing.Internal
             // Return physics and the locked rigidbodies back to normal
             Physics.simulationMode = SimulationMode.FixedUpdate;
 
-            foreach (KeyValuePair<IRigidbodyWrapper, bool> kinematicState in kinematicStates)
-                kinematicState.Key.isKinematic = kinematicState.Value;
+            foreach (KeyValuePair<IRigidbodyWrapper, (bool isKinematic, Vector3 linearVelocity, Vector3 angularVelocity)> kinematicState in kinematicStates)
+            {
+                kinematicState.Key.isKinematic = kinematicState.Value.isKinematic;
+
+                if (!kinematicState.Key.isKinematic)
+                {
+                    kinematicState.Key.linearVelocity = kinematicState.Value.linearVelocity;
+                    kinematicState.Key.angularVelocity = kinematicState.Value.angularVelocity;
+                }
+            }
 
             // Set a > 0 value for host smoothing frames, which are then handled in FixedUpdate
             _hostSmoothingFramesLeft = LAG_COMP_SMOOTHING_FRAMES;
@@ -509,7 +517,6 @@ namespace VE2.NonCore.Instancing.Internal
             _rigidbody.linearVelocity = velocity;
             _rigidbody.angularVelocity = angularVelocity;
         }
-
 
         #endregion
 
