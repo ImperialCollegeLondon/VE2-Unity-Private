@@ -11,9 +11,6 @@ using VE2.NonCore.Instancing.API;
 
 public class GameHandler : MonoBehaviour
 {
-    [SerializeField] private InterfaceReference<IV_NetworkObject> _networkObject;
-    [SerializeField] private InterfaceReference<IV_HoldActivatable> _startButton;
-
     public static GameHandler instance;
 
     public Transform mazeTeleportPosition;
@@ -36,25 +33,24 @@ public class GameHandler : MonoBehaviour
 
     public void StartGame()
     {
-        if (_startButton.Interface.MostRecentInteractingClientID.IsLocal)
-        {
-            VE2API.Player.SetPlayerPosition(mazeTeleportPosition.position);
-            VE2API.Player.SetPlayerRotation(lobbyTeleportPosition.rotation);    
-        }
+        //TODO - move the player who pushed the button to the mazeTeleportPosition
     }
 
     public void LoseLife()
     {
-        if (VE2API.InstanceService.IsHost)
-        {
-            lives--;
-            _networkObject.Interface.UpdateData(lives);
-        }
+        //TODO - only modify if we're host, should then send to a V_NetworkObject
+        //We'll also need a receiver method for our V_NetworkObject, which should 
+        //receive this num lives, and update the UI, play sounds, and check for game over 
+        lives--;
 
-        if (_startButton.Interface.MostRecentInteractingClientID.IsLocal)
+        //TODO - move the player who pushed the button to the lobbyTeleportPosition
+
+        GetComponent<AudioSource>().Play();
+        livesText.text = $"Lives: {lives}";
+
+        if (lives == 0)
         {
-            VE2API.Player.SetPlayerPosition(lobbyTeleportPosition.position);
-            VE2API.Player.SetPlayerRotation(lobbyTeleportPosition.rotation);
+            GameOver(Scorer.instance.GetScore());
         }
     }
 
@@ -72,26 +68,6 @@ public class GameHandler : MonoBehaviour
         scoreText.text = $"Final Score: {finalScore}";
         DOVirtual.DelayedCall(3f, () => levelCleared.SetActive(true));
         DOVirtual.DelayedCall(4.5f, () => ShowScore());
-    }
-
-    public void HandleSyncDataUpdated(object obj)
-    {
-        int newLives = (int)obj;
-
-        if (newLives < lives)
-        {
-            GetComponent<AudioSource>().Play();
-        }
-
-        if (!VE2API.InstanceService.IsHost)
-            lives = (int)obj;
-
-        livesText.text = $"Lives: {lives}";
-
-        if (lives == 0)
-        {
-            GameOver(Scorer.instance.GetScore());
-        }
     }
 
     private void ShowScore()
