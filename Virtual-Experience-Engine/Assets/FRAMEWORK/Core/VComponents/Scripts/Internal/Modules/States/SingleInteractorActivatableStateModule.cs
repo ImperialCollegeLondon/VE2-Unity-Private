@@ -59,7 +59,7 @@ namespace VE2.Core.VComponents.Internal
         public void SetActivated(bool newIsActivated)
         {
             if (newIsActivated != _state.IsActivated)
-                SetNewState(ushort.MaxValue);
+                UpdateActivationState(ushort.MaxValue, newIsActivated);
             else
                 Debug.LogWarning($"Tried to set activated state on {ID} to {newIsActivated} but state is already {_state.IsActivated}");
         }
@@ -101,23 +101,7 @@ namespace VE2.Core.VComponents.Internal
                 UpdateActivationState(ushort.MaxValue, true);
         }
 
-        public void SetNewState(ushort clientID)
-        {
-            // If this module belongs to an activation group, deactivate others.
-            if (_isInActivationGroup)
-            {
-                List<ISingleInteractorActivatableStateModule> groupModules = _activatableGroupsContainer.GetSingleInteractorActivatableStateModule(_activationGroupID);
-                foreach (ISingleInteractorActivatableStateModule module in groupModules)
-                {
-                    if (module != this && module.IsActivated)
-                        module.Deactivate();
-                }
-            }
-
-            UpdateActivationState(clientID, !_state.IsActivated);
-        }
-
-        private void UpdateActivationState(ushort clientID, bool newIsActivated)
+        public void UpdateActivationState(ushort clientID, bool newIsActivated)
         {
             // Only update if the state is actually changing.
             if (_state.IsActivated == newIsActivated)
@@ -133,9 +117,24 @@ namespace VE2.Core.VComponents.Internal
             _state.StateChangeNumber++;
 
             if (newIsActivated)
+            {
+                // If this module belongs to an activation group, deactivate others.
+                if (_isInActivationGroup)
+                {
+                    List<ISingleInteractorActivatableStateModule> groupModules = _activatableGroupsContainer.GetSingleInteractorActivatableStateModule(_activationGroupID);
+                    foreach (ISingleInteractorActivatableStateModule module in groupModules)
+                    {
+                        if (module != this && module.IsActivated)
+                            module.Deactivate();
+                    }
+                }
+
                 InvokeCustomerOnActivateEvent();
+            }
             else
+            {
                 InvokeCustomerOnDeactivateEvent();
+            }
         }
 
         private void InvokeCustomerOnActivateEvent()
@@ -146,7 +145,7 @@ namespace VE2.Core.VComponents.Internal
             }
             catch (Exception e)
             {
-                Debug.Log($"Error when emitting OnActivate from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
+                Debug.LogError($"Error when emitting OnActivate from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
             }
         }
 
@@ -158,7 +157,7 @@ namespace VE2.Core.VComponents.Internal
             }
             catch (Exception e)
             {
-                Debug.Log($"Error when emitting OnDeactivate from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
+                Debug.LogError($"Error when emitting OnDeactivate from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
             }
         }
 
