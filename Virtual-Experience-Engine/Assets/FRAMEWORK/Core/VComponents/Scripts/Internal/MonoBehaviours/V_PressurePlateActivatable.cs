@@ -32,6 +32,7 @@ namespace VE2.Core.VComponents.Internal
         #endregion
     }
 
+    [DisallowMultipleComponent]
     internal partial class V_PressurePlateActivatable : MonoBehaviour, IV_PressurePlateActivatable, ICollideInteractionModuleProvider
     {
         [SerializeField, IgnoreParent] private PressurePlateConfig _config = new();

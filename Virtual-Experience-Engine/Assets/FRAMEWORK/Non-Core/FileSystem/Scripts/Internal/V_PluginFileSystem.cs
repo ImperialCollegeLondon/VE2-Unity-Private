@@ -7,11 +7,12 @@ using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 
 namespace VE2.NonCore.FileSystem.Internal
 {
+    [DisallowMultipleComponent]
     internal class V_PluginFileSystem : FileSystemIntegrationBase, IV_FileSystem
     {
         [Title("Debug Server Settings")]
         [BeginGroup, IgnoreParent, EndGroup, SerializeField] private ServerConnectionSettings _debugServerSettings;
-    [   EditorButton(nameof(OpenLocalWorkingFolder), "Open Local Working Folder", activityType: ButtonActivityType.Everything)]
+        [EditorButton(nameof(OpenLocalWorkingFolder), "Open Local Working Folder", activityType: ButtonActivityType.Everything)]
         [SerializeField, DisableInPlayMode, SpaceArea(spaceAfter: 5, Order = 50)] private bool _useDebugSettingsInBuild = false;
 
         public override string RemoteWorkingPath => $"VE2/PluginFiles/{SceneManager.GetActiveScene().name}";
@@ -30,7 +31,7 @@ namespace VE2.NonCore.FileSystem.Internal
                 {
                     Debug.LogError("Can't boot file system, no server settings returned from platform, and debug settings are disabled in build");
                     return;
-                }   
+                }
             }
 
             CreateFileSystem(serverSettings);

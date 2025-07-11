@@ -32,6 +32,7 @@ namespace VE2.Core.VComponents.Internal
     }
 
     [RequireComponent(typeof(V_FreeGrabbable))]
+    [DisallowMultipleComponent]
     internal partial class V_HandheldAdjustable : MonoBehaviour
     {
         [SerializeField, HideLabel, IgnoreParent] private HandheldAdjustableConfig _config = new();

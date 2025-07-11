@@ -34,6 +34,7 @@ namespace VE2.Core.VComponents.Internal
         #endregion
     }
 
+    [DisallowMultipleComponent]
     internal partial class V_HoldActivatable : MonoBehaviour, IRangedInteractionModuleProvider, ICollideInteractionModuleProvider
     {
         [SerializeField, IgnoreParent] private HoldActivatableConfig _config = new();

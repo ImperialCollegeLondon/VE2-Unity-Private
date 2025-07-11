@@ -39,6 +39,7 @@ namespace VE2.Core.VComponents.Internal
     }
 
     [ExecuteAlways]
+    [DisallowMultipleComponent]
     internal partial class V_ToggleActivatable : MonoBehaviour, IRangedInteractionModuleProvider, ICollideInteractionModuleProvider
     {
         internal ToggleActivatableConfig Config { get => _config; set { _config = value; } }
@@ -55,9 +56,9 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         #region Inspector Utils
-        internal Collider Collider 
+        internal Collider Collider
         {
-            get 
+            get
             {
                 if (_collider == null)
                     _collider = GetComponent<Collider>();
@@ -66,7 +67,7 @@ namespace VE2.Core.VComponents.Internal
         }
         [SerializeField, HideInInspector] private Collider _collider = null;
         #endregion
-        
+
         private ToggleActivatableService _service = null;
         private ToggleActivatableService _Service
         {

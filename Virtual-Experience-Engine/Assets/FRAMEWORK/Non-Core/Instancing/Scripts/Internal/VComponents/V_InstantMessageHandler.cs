@@ -5,13 +5,14 @@ using VE2.NonCore.Instancing.API;
 
 namespace VE2.NonCore.Instancing.Internal
 {
+    [DisallowMultipleComponent]
     internal class V_InstantMessageHandler : MonoBehaviour, IV_InstantMessageHandler
     {
         [SerializeField, HideLabel, IgnoreParent] private InstantMessageHandlerConfig _config = new();
         private string _id;
 
         public void SendInstantMessage(object message) => _Service.SendInstantMessage(message);
-        
+
         public UnityEvent<object> OnMessageReceived => _config.OnMessageReceived;
 
         private InstantMessageHandlerService _service;

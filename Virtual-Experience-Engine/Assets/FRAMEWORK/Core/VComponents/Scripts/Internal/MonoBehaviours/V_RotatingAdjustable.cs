@@ -59,12 +59,13 @@ namespace VE2.Core.VComponents.Internal
         #endregion
     }
 
+    [DisallowMultipleComponent]
     internal partial class V_RotatingAdjustable : MonoBehaviour, IRangedGrabInteractionModuleProvider
     {
         [SerializeField, IgnoreParent] private RotatingAdjustableConfig _config = new();
         [SerializeField, HideInInspector] private AdjustableState _adjustableState = new();
         [SerializeField, HideInInspector] private GrabbableState _freeGrabbableState = new();
-        
+
 
         #region Player Interfaces
         IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _Service.RangedAdjustableInteractionModule;

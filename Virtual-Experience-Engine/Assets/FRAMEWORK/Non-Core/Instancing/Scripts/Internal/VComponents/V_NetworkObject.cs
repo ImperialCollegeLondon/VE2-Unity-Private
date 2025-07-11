@@ -18,6 +18,7 @@ namespace VE2.NonCore.Instancing.Internal
         #endregion
     }
 
+    [DisallowMultipleComponent]
     internal partial class V_NetworkObject : MonoBehaviour
     {
         public void OpenDocs() => Application.OpenURL("https://www.notion.so/V_NetworkObject-20f0e4d8ed4d8136919be42053469164?source=copy_link");

@@ -35,6 +35,7 @@ namespace VE2.Core.VComponents.Internal
     }
 
     [RequireComponent(typeof(V_FreeGrabbable))]
+    [DisallowMultipleComponent]
     internal partial class V_HandheldActivatable : MonoBehaviour
     {
         [SerializeField, HideLabel, IgnoreParent] private HandheldActivatableConfig _config = new();

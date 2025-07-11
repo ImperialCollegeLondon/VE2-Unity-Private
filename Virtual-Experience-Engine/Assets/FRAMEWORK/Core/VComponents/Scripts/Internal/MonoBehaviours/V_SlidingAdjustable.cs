@@ -59,6 +59,7 @@ namespace VE2.Core.VComponents.Internal
         #endregion
     }
     
+    [DisallowMultipleComponent]
     internal partial class V_SlidingAdjustable : MonoBehaviour, IRangedGrabInteractionModuleProvider
     {
         [SerializeField, IgnoreParent] private SlidingAdjustableConfig _config = new();
