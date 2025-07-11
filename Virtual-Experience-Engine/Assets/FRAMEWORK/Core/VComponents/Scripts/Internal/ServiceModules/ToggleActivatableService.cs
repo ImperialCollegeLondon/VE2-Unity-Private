@@ -60,7 +60,7 @@ namespace VE2.Core.VComponents.Internal
 
         private void HandleInteract(InteractorID interactorID)
         {
-            _stateModule.SetNewState(interactorID.ClientID);
+            _stateModule.UpdateActivationState(interactorID.ClientID, !_stateModule.IsActivated);
         }
 
         public void TearDown()

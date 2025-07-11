@@ -103,7 +103,7 @@ namespace VE2.Core.VComponents.Internal
                     }
                     catch (Exception e)
                     {
-                        Debug.Log($"Error when emitting OnLocalInteractorGrab from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
+                        Debug.LogError($"Error when emitting OnLocalInteractorGrab from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
                     }
                 }
                 else
@@ -137,7 +137,7 @@ namespace VE2.Core.VComponents.Internal
             }
             catch (Exception e)
             {
-                Debug.Log($"Error when emitting OnLocalInteractorDrop from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
+                Debug.LogError($"Error when emitting OnLocalInteractorDrop from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
             }
         }
 

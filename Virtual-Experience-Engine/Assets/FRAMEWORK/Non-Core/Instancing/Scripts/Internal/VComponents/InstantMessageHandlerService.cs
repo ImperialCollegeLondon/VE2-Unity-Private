@@ -41,7 +41,7 @@ namespace VE2.NonCore.Instancing.Internal
 
             // Instance server won't send IM back to sender, but it can still useful to trigger this event locally
             if (!_config.NoLocalCallback)
-                _config.OnMessageReceived?.Invoke(messageObject);
+                InvokeCustomerEvent(messageObject);
         }
 
         public void ReceiveInstantMessage(MemoryStream serializedMessageObject)
@@ -50,7 +50,19 @@ namespace VE2.NonCore.Instancing.Internal
             BinaryFormatter binaryFormatter = new();
             object deserializedMessageObject = binaryFormatter.Deserialize(serializedMessageObject);
 
-            _config.OnMessageReceived?.Invoke(deserializedMessageObject);
+            InvokeCustomerEvent(deserializedMessageObject);
+        }
+
+        private void InvokeCustomerEvent(object obj)
+        {
+            try
+            {
+                _config.OnMessageReceived?.Invoke(obj);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Error when invoking OnMessageReceived for InstantMessageHandler with ID {_id} \n{e.Message}\n{e.StackTrace}");
+            }
         }
 
         public void TearDown()

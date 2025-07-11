@@ -48,39 +48,54 @@ namespace VE2.Core.VComponents.Internal
             _handheldClickInteractionModule.OnClickUp += HandleClickUp;
         }
 
-        public void HandleStart() => _stateModule.InitializeStateWithStartingValue();
+        public void HandleStart()
+        {
+            _stateModule.InitializeStateWithStartingValue();
+
+            //This needs to be done here, after the grabbable has been initialized
+            //TODO - should be using an internal interface here?
+            Grabbable.OnDrop.AddListener(HandleGrabbableDropped);
+        }
 
         public void HandleFixedUpdate() => _stateModule.HandleFixedUpdate();
 
+        private void HandleGrabbableDropped()
+        {
+            if (_handheldClickInteractionModule.DeactivateOnDrop)
+                _stateModule.UpdateActivationState(Grabbable.MostRecentInteractingClientID.Value, false);
+        }
+
         private void HandleClickDown(ushort clientID)
         {
-            _stateModule.SetNewState(clientID);
-
-            if (_handheldClickInteractionModule.DeactivateOnDrop)
-                Grabbable.OnDrop.AddListener(HandleExternalClickUp);
+            if (_handheldClickInteractionModule.IsHoldMode)
+            {
+                _stateModule.UpdateActivationState(clientID, true);
+            }
+            else
+            {
+                _stateModule.UpdateActivationState(clientID, !_stateModule.IsActivated);
+            }
         }
 
         private void HandleClickUp(ushort clientID)
         {
             if (_handheldClickInteractionModule.IsHoldMode)
             {
-                if (_stateModule.IsActivated)
-                {
-                    _stateModule.SetNewState(clientID);
-                }
-            }
+                _stateModule.UpdateActivationState(clientID, false);
+            }  //Otherwise, do nothing
         }
 
-        private void HandleExternalClickUp()
-        {
-            if (_handheldClickInteractionModule.IsHoldMode)
-                HandleClickUp(Grabbable.MostRecentInteractingClientID.Value);
-            else
-                HandleClickDown(Grabbable.MostRecentInteractingClientID.Value);
-        }
+        // private void HandleExternalClickUp()
+        // {
+        //     if (_handheldClickInteractionModule.IsHoldMode)
+        //         HandleClickUp(Grabbable.MostRecentInteractingClientID.Value);
+        //     else
+        //         HandleClickDown(Grabbable.MostRecentInteractingClientID.Value);
+        // }
 
         public void TearDown()
         {
+            Grabbable.OnDrop.RemoveListener(HandleGrabbableDropped);
             _stateModule.TearDown();
         }
     }
