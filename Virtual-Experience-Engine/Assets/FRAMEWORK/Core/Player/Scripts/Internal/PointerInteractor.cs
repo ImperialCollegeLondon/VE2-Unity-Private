@@ -428,7 +428,7 @@ namespace VE2.Core.Player.Internal
                 raycastResultWrapper.UIButton.onClick.Invoke();
                 Vibrate(HIGH_HAPTICS_AMPLITUDE, HIGH_HAPTICS_DURATION); 
             }
-            else if (raycastResultWrapper.HitScrollableUI)
+            else if (raycastResultWrapper.HitScrollableUI && !raycastResultWrapper.HitUIButton) //Only drag scroll field if we didn't click on a button within that field
             {
                 _CurrentlySelectedScrollableUI = raycastResultWrapper.ScrollableUI;
                 _CurrentlySelectedScrollableUI.OnScrollbarBeginDrag(raycastResultWrapper.HitPosition);
