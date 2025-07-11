@@ -29,7 +29,6 @@ namespace VE2.Core.Player.Internal
             
                 if (button != null || scrollableUI != null)
                 {
-                    Debug.Log("Hit UI, button? " + (button != null) + ", scrollableUI: " + (scrollableUI != null));
                     result = new(null, button, scrollableUI, raycastHit.distance, true, raycastHit.point);
                 }
                 else //Search up through the heirarchy looking for 
