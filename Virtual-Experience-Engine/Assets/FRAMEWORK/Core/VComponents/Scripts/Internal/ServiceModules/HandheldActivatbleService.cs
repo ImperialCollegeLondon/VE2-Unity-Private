@@ -46,11 +46,16 @@ namespace VE2.Core.VComponents.Internal
 
             _handheldClickInteractionModule.OnClickDown += HandleClickDown;
             _handheldClickInteractionModule.OnClickUp += HandleClickUp;
-
-            Grabbable.OnDrop.AddListener(HandleGrabbableDropped);
         }
 
-        public void HandleStart() => _stateModule.InitializeStateWithStartingValue();
+        public void HandleStart()
+        {
+            _stateModule.InitializeStateWithStartingValue();
+
+            //This needs to be done here, after the grabbable has been initialized
+            //TODO - should be using an internal interface here?
+            Grabbable.OnDrop.AddListener(HandleGrabbableDropped);
+        }
 
         public void HandleFixedUpdate() => _stateModule.HandleFixedUpdate();
 
