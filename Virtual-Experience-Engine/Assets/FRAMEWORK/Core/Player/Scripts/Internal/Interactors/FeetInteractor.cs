@@ -114,6 +114,9 @@ namespace VE2.Core.Player.Internal
 
         internal void HandleUpdate()
         {
+            if (!_localClientIDWrapper.IsClientIDReady)
+                return;
+
             foreach (var kvp in _currentCollidingInteractionModules.ToList())
             {
                 ICollideInteractionModule interactionModule = kvp.Key;
