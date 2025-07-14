@@ -193,7 +193,7 @@ namespace VE2.NonCore.Instancing.Internal
             //Debug.Log("<color=green> Try register to server pop'n with instance code - " + _instanceCode);
 
             bool usingFrameworkAvatar = _playerService != null; 
-            OverridableAvatarAppearance overridableAvatarAppearance = usingFrameworkAvatar? _playerService.OverridableAvatarAppearance : new();
+            InstancedAvatarAppearance overridableAvatarAppearance = usingFrameworkAvatar? _playerService.OverridableAvatarAppearance : new();
             AvatarAppearanceWrapper avatarAppearanceWrapper = new(usingFrameworkAvatar, overridableAvatarAppearance);
 
             //We also send the LocalClientID here, this will either be maxvalue (if this is our first time connecting, the server will give us a new ID)..

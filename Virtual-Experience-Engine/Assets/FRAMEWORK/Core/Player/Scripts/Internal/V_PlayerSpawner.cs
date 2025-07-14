@@ -8,6 +8,7 @@ using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.Player.API;
 using VE2.Core.UI.API;
+using static VE2.Common.Shared.CommonSerializables;
 using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.Core.Player.Internal
@@ -44,8 +45,12 @@ namespace VE2.Core.Player.Internal
         [Title("Camera Config")]
         [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public CameraConfig CameraConfig = new();
 
-        [Title("Avatar Appearance Overrides")]
-        [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public AvatarAppearanceOverrideConfig AvatarAppearanceOverrideConfig = new();
+        //[Title("Avatar Appearance Overrides")]
+        //[BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public PlayerGameObjectSelections AvatarAppearanceOverrideConfig = new();
+
+        [Title("Player GameObject Config")]
+        [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent] public PlayerGameObjectSelections PlayerGameObjectConfig = new();
+        [SerializeField, IgnoreParent, EndGroup] public PlayerGameObjectPrefabs PlayerGameObjectPrefabs = new();
 
         [Title("Transmission Settings", ApplyCondition = true)]
         [HideIf(nameof(_hasMultiplayerSupport), false)]
@@ -102,16 +107,54 @@ namespace VE2.Core.Player.Internal
         [SerializeField] internal UnityEvent OnResetViewVR = new UnityEvent();
     }
 
-    [Serializable]
-    internal class AvatarAppearanceOverrideConfig
-    {
-        [SerializeField] internal bool OverrideHead = false;
-        [SerializeField, EnableIf(nameof(OverrideHead), true)] internal ushort HeadOverrideIndex = 0;
-        [SerializeField, ReorderableList] internal List<GameObject> HeadOverrideGameObjects = new();
+    // [Serializable]
+    // internal class PlayerGameObjectSelections
+    // {
+    //     [Title("Head GameObject Config")]
+    //     [SerializeField] internal PlayerGameObjectSelection _headGameObjectConfig = new();
 
-        [SerializeField] internal bool OverrideTorso = false;
-        [SerializeField, EnableIf(nameof(OverrideTorso), true)] internal ushort TorsoOverrideIndex = 0;
-        [SerializeField, ReorderableList] internal List<GameObject> TorsoOverrideGameObjects = new();
+    //     [Title("Torso GameObject Config")]
+    //     [SerializeField] internal PlayerGameObjectSelection _torsoGameObjectConfig = new();
+
+    //     [Title("VR Hand Right GameObject Config")]
+    //     [SerializeField] internal PlayerGameObjectSelection _vrHandRightGameObjectConfig = new();
+
+    //     [Title("VR Hand Left GameObject Config")]
+    //     [SerializeField] internal PlayerGameObjectSelection _vrHandLeftGameObjectConfig = new();
+    // }
+
+    // [Serializable]
+    // internal class PlayerGameObjectSelection
+    // {
+    //     [SerializeField] internal bool BuiltInGameObjectEnabled = true;
+    //     [SerializeField] internal bool CustomGameObjectEnabled = false;
+    //     [EditorButton(nameof(Refresh), "Refresh", ButtonActivityType.OnPlayMode, PositionType = ButtonPositionType.Below)]
+    //     [SerializeField, EnableIf(nameof(CustomGameObjectEnabled), true)] internal ushort CustomGameObjectIndex = 0;
+
+    //     private void Refresh() => OnGameObjectConfigChanged?.Invoke();
+    //     internal event Action OnGameObjectConfigChanged;
+
+    //     // [Serializable]
+    //     // internal class PlayerGameObjectConfigWrapper : VE2Serializable
+    //     // {
+    //     //         //private readonly PlayerGameObjectConfigWrapper _gameObjectConfig;
+
+    //     //         public PlayerGameObjectConfigWrapper() { }
+
+    //     //         public PlayerGameObjectConfigWrapper(byte[] bytes) : base(bytes)
+    //     //         {
+    //     //                 PlayerGameObjectConfig _gameObjectConfig = new PlayerGameObjectConfigWrapper(bytes);
+    //     //         }
+    //     // }
+    // }
+
+    [Serializable]
+    internal class PlayerGameObjectPrefabs
+    {
+        [SerializeField, ReorderableList] internal List<GameObject> CustomHeadGameObjects = new();
+        [SerializeField, ReorderableList] internal List<GameObject> CustomTorsoGameObjects = new();
+        [SerializeField, ReorderableList] internal List<GameObject> CustomVRHandRightGameObjects = new();
+        [SerializeField, ReorderableList] internal List<GameObject> CustomVRHandLeftGameObjects = new();
     }
 
     [Serializable]
@@ -144,7 +187,7 @@ namespace VE2.Core.Player.Internal
         [SerializeField, IgnoreParent] internal PlayerConfig _playerConfig = new();
 
         [SpaceArea(spaceBefore: 10), Help("If running standalone, this presentation config will be used, if integrated with the VE2 platform, the platform will provide the presentation config.")]
-        [BeginGroup("Debug settings"), SerializeField, DisableInPlayMode, IgnoreParent, EndGroup] private PlayerPresentationConfig _defaultPlayerPresentationConfig = new();
+        [BeginGroup("Debug settings"), SerializeField, DisableInPlayMode, IgnoreParent, EndGroup] private BuiltInPlayerPresentationConfig _defaultPlayerPresentationConfig = new();
 
         #region Provider Interfaces
         private PlayerService _playerService;

@@ -15,9 +15,9 @@ namespace VE2.Core.Player.API
         /// <summary>
         /// call MarkPlayerSettingsUpdated after modifying this property
         /// </summary>
-        public OverridableAvatarAppearance OverridableAvatarAppearance { get; }
+        public InstancedAvatarAppearance OverridableAvatarAppearance { get; }
         public void MarkPlayerSettingsUpdated() { }
-        public event Action<OverridableAvatarAppearance> OnOverridableAvatarAppearanceChanged;
+        public event Action<InstancedAvatarAppearance> OnOverridableAvatarAppearanceChanged;
 
         public List<GameObject> HeadOverrideGOs { get; }
         public List<GameObject> TorsoOverrideGOs { get; }

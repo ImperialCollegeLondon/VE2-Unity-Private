@@ -38,7 +38,7 @@ namespace VE2.Core.Player.Internal
         #region Interfaces  
         public PlayerTransformData PlayerTransformData {get; private set;}
 
-        public event Action<OverridableAvatarAppearance> OnOverridableAvatarAppearanceChanged;
+        public event Action<InstancedAvatarAppearance> OnOverridableAvatarAppearanceChanged;
 
         public void MarkPlayerSettingsUpdated() 
         {
@@ -46,17 +46,8 @@ namespace VE2.Core.Player.Internal
             //OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
         }
 
-        public OverridableAvatarAppearance OverridableAvatarAppearance { 
-            get 
-            {
-                return new OverridableAvatarAppearance(
-                    _playerSettingsHandler.PlayerPresentationConfig,
-                    _config.AvatarAppearanceOverrideConfig.OverrideHead,
-                    _config.AvatarAppearanceOverrideConfig.HeadOverrideIndex, 
-                    _config.AvatarAppearanceOverrideConfig.OverrideTorso,
-                    _config.AvatarAppearanceOverrideConfig.TorsoOverrideIndex);
-            } 
-        }
+        //Ideally, would prefer to just have the entire object here. but the built in config comes from the PDH
+        public InstancedAvatarAppearance OverridableAvatarAppearance => new (_playerSettingsHandler.PlayerPresentationConfig, _config.PlayerGameObjectConfig);
 
 
         public bool RememberPlayerSettings { get => _playerSettingsHandler.RememberPlayerSettings; set => _playerSettingsHandler.RememberPlayerSettings = value; }
@@ -75,8 +66,8 @@ namespace VE2.Core.Player.Internal
         public UnityEvent OnCrouch2D => _config.MovementModeConfig.OnCrouch2D;
         public UnityEvent OnResetViewVR => _config.CameraConfig.OnResetViewVR;
 
-        public List<GameObject> HeadOverrideGOs => _config.AvatarAppearanceOverrideConfig.HeadOverrideGameObjects;
-        public List<GameObject> TorsoOverrideGOs => _config.AvatarAppearanceOverrideConfig.TorsoOverrideGameObjects;
+        public List<GameObject> HeadOverrideGOs => _config.PlayerGameObjectPrefabs.CustomHeadGameObjects;
+        public List<GameObject> TorsoOverrideGOs => _config.PlayerGameObjectPrefabs.CustomTorsoGameObjects;
 
         public Camera ActiveCamera 
         {
@@ -91,26 +82,26 @@ namespace VE2.Core.Player.Internal
 
         public void SetAvatarHeadOverride(ushort index) 
         {
-            _config.AvatarAppearanceOverrideConfig.OverrideHead = true;
-            _config.AvatarAppearanceOverrideConfig.HeadOverrideIndex = index;
+            _config.AvatarAppearanceOverrideConfig.StartWithCustomHeadEnabled = true;
+            _config.AvatarAppearanceOverrideConfig.StartingHeadOverrideIndex = index;
             OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
         }
             
-        public void SetAvatarTorsoOverride(ushort index) 
+        public void SetCustomHeadIndex(ushort index) 
         {
-            _config.AvatarAppearanceOverrideConfig.OverrideTorso = true;
+            _config.AvatarAppearanceOverrideConfig.StartWithCustomTorsoEnabled = true;
             _config.AvatarAppearanceOverrideConfig.TorsoOverrideIndex = index;
             OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
         }
 
         public void ClearAvatarHeadOverride() 
         {
-            _config.AvatarAppearanceOverrideConfig.OverrideHead = false;
+            _config.AvatarAppearanceOverrideConfig.StartWithCustomHeadEnabled = false;
             OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
         }
         public void ClearAvatarTorsoOverride()
         {
-            _config.AvatarAppearanceOverrideConfig.OverrideTorso = false;
+            _config.AvatarAppearanceOverrideConfig.StartWithCustomTorsoEnabled = false;
             OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
         }
 
@@ -276,7 +267,7 @@ namespace VE2.Core.Player.Internal
             }
         }
 
-        private void HandlePlayerPresentationChanged(PlayerPresentationConfig presentationConfig)
+        private void HandlePlayerPresentationChanged(BuiltInPlayerPresentationConfig presentationConfig)
         {
             OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
 

@@ -10,28 +10,28 @@ namespace VE2.Private.Hub
 
         public void SetPlayerRed() 
         {
-            _playerServiceInternal.OverridableAvatarAppearance.PresentationConfig.AvatarRed = 255;
-            _playerServiceInternal.OverridableAvatarAppearance.PresentationConfig.AvatarGreen = 0;
-            _playerServiceInternal.OverridableAvatarAppearance.PresentationConfig.AvatarBlue = 0;
-            _playerServiceInternal.OverridableAvatarAppearance.PresentationConfig.PlayerName = "Red";
+            _playerServiceInternal.OverridableAvatarAppearance.BuiltInPresentationConfig.AvatarRed = 255;
+            _playerServiceInternal.OverridableAvatarAppearance.BuiltInPresentationConfig.AvatarGreen = 0;
+            _playerServiceInternal.OverridableAvatarAppearance.BuiltInPresentationConfig.AvatarBlue = 0;
+            _playerServiceInternal.OverridableAvatarAppearance.BuiltInPresentationConfig.PlayerName = "Red";
             _playerServiceInternal.MarkPlayerSettingsUpdated();
         }
 
         public void SetPlayerGreen() 
         {
-            _playerServiceInternal.OverridableAvatarAppearance.PresentationConfig.AvatarRed = 0;
-            _playerServiceInternal.OverridableAvatarAppearance.PresentationConfig.AvatarGreen = 255;
-            _playerServiceInternal.OverridableAvatarAppearance.PresentationConfig.AvatarBlue = 0;
-            _playerServiceInternal.OverridableAvatarAppearance.PresentationConfig.PlayerName = "Green";
+            _playerServiceInternal.OverridableAvatarAppearance.BuiltInPresentationConfig.AvatarRed = 0;
+            _playerServiceInternal.OverridableAvatarAppearance.BuiltInPresentationConfig.AvatarGreen = 255;
+            _playerServiceInternal.OverridableAvatarAppearance.BuiltInPresentationConfig.AvatarBlue = 0;
+            _playerServiceInternal.OverridableAvatarAppearance.BuiltInPresentationConfig.PlayerName = "Green";
             _playerServiceInternal.MarkPlayerSettingsUpdated();
         }
 
         public void SetPlayerBlue() 
         {
-            _playerServiceInternal.OverridableAvatarAppearance.PresentationConfig.AvatarRed = 0;
-            _playerServiceInternal.OverridableAvatarAppearance.PresentationConfig.AvatarGreen = 0;
-            _playerServiceInternal.OverridableAvatarAppearance.PresentationConfig.AvatarBlue = 255;
-            _playerServiceInternal.OverridableAvatarAppearance.PresentationConfig.PlayerName = "Blue";
+            _playerServiceInternal.OverridableAvatarAppearance.BuiltInPresentationConfig.AvatarRed = 0;
+            _playerServiceInternal.OverridableAvatarAppearance.BuiltInPresentationConfig.AvatarGreen = 0;
+            _playerServiceInternal.OverridableAvatarAppearance.BuiltInPresentationConfig.AvatarBlue = 255;
+            _playerServiceInternal.OverridableAvatarAppearance.BuiltInPresentationConfig.PlayerName = "Blue";
             _playerServiceInternal.MarkPlayerSettingsUpdated();
         }
     }

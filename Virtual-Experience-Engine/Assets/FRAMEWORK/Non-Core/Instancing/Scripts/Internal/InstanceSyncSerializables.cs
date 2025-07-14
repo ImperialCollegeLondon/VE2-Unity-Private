@@ -327,13 +327,13 @@ namespace VE2.NonCore.Instancing.Internal
         public class AvatarAppearanceWrapper : VE2Serializable //TODO: Should probably live in player serializables?
         {
             public bool UsingFrameworkPlayer;
-            public OverridableAvatarAppearance OverridableAvatarAppearance;
+            public InstancedAvatarAppearance OverridableAvatarAppearance;
 
             public AvatarAppearanceWrapper() { }
 
             public AvatarAppearanceWrapper(byte[] bytes) : base(bytes) { }
 
-            public AvatarAppearanceWrapper(bool usingFrameworkAvatar, OverridableAvatarAppearance frameworkAvatarAppearance)
+            public AvatarAppearanceWrapper(bool usingFrameworkAvatar, InstancedAvatarAppearance frameworkAvatarAppearance)
             {
                 UsingFrameworkPlayer = usingFrameworkAvatar;
                 OverridableAvatarAppearance = frameworkAvatarAppearance;

@@ -47,7 +47,7 @@ namespace VE2.NonCore.Instancing.Internal
             playerServiceInternal.OnOverridableAvatarAppearanceChanged -= HandleLocalAppearanceChanged;
         }
 
-        private void HandleLocalAppearanceChanged(OverridableAvatarAppearance appearance)
+        private void HandleLocalAppearanceChanged(InstancedAvatarAppearance appearance)
         {
             AvatarAppearanceWrapper avatarAppearanceWrapper = new(appearance != null, appearance);
             _commsHandler.SendMessage(avatarAppearanceWrapper.Bytes, InstanceNetworkingMessageCodes.UpdateAvatarPresentation, TransmissionProtocol.TCP);

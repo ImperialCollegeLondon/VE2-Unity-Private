@@ -174,7 +174,7 @@ namespace VE2.Core.Player.Internal
             _interactor2D.HandleOnEnable(); 
         }
 
-        internal void HandleReceiveAvatarAppearance(OverridableAvatarAppearance newAvatarAppearance) 
+        internal void HandleReceiveAvatarAppearance(InstancedAvatarAppearance newAvatarAppearance) 
         {
             _localAvatarHandler.HandleReceiveAvatarAppearance(newAvatarAppearance);
         }

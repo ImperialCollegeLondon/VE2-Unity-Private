@@ -93,9 +93,9 @@ namespace VE2.NonCore.Instancing.Internal
         }
 
 
-        internal void HandleReceiveAvatarAppearance(OverridableAvatarAppearance newAvatarAppearance)
+        internal void HandleReceiveAvatarAppearance(InstancedAvatarAppearance newAvatarAppearance)
         {
-            _playerNameText.text = newAvatarAppearance.PresentationConfig.PlayerName;
+            _playerNameText.text = newAvatarAppearance.BuiltInPresentationConfig.PlayerName;
             _avatarHandler.HandleReceiveAvatarAppearance(newAvatarAppearance);
         }
 

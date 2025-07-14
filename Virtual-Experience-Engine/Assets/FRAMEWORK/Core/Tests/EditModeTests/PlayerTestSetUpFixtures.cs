@@ -137,7 +137,7 @@ namespace VE2.Core.Tests
         public static void PlayerPersistentDataHandlerStubSetupOnce()
         {
             PlayerPersistentDataHandlerStub = Substitute.For<IPlayerPersistentDataHandler>();
-            PlayerPersistentDataHandlerStub.PlayerPresentationConfig.Returns(new PlayerPresentationConfig());
+            PlayerPersistentDataHandlerStub.PlayerPresentationConfig.Returns(new BuiltInPlayerPresentationConfig());
         }
     }
 
