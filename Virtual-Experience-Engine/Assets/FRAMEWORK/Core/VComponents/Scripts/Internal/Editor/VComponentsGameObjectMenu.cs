@@ -56,6 +56,12 @@ namespace VE2.Core.VComponents.Internal
             CommonUtils.InstantiateResource("GrabbableShooter");
         }
 
+        [MenuItem("/GameObject/VE2/Interactables/LaserPointer", priority = 7)]
+        private static void CreateLaserPointer()
+        {
+            CommonUtils.InstantiateResource("LaserPointer");
+        }
+
         [MenuItem("/GameObject/VE2/UIs/CustomInfoPoint", priority = 6)]
         private static void CreateCustomInfoPoint()
         {
