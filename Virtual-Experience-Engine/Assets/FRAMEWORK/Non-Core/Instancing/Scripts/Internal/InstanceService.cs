@@ -188,18 +188,61 @@ namespace VE2.NonCore.Instancing.Internal
             }
         }
 
-        private void SendServerRegistration() 
+        private void SendServerRegistration()
         {
+            //BuiltInPlayerPresentationConfig __builtInConfig = new("test", 0, 0, new Color(255, 255, 255));
+            // PlayerGameObjectSelections playerGameObjectSelections = new PlayerGameObjectSelections(
+            //     new PlayerGameObjectSelection(true, "Head", "HeadPrefab"),
+            //     new PlayerGameObjectSelection(true, "Torso", "TorsoPrefab"),
+            //     new PlayerGameObjectSelection(true, "VRHandRight", "VRHandRightPrefab"),
+            //     new PlayerGameObjectSelection(true, "VRHandLeft", "VRHandLeftPrefab"));
+            //InstancedAvatarAppearance initialAppearance = new()
+
+
+            InstancedAvatarAppearance initialTestAppearance = _playerService.InstancedAvatarAppearance;
+            // Debug.Log("Starting initial test...");
+            // InstancedAvatarAppearance anotherTestAppearance = new(initialTestAppearance.Bytes);
+            // Debug.Log($"Initial test appearance passed: {anotherTestAppearance.PlayerGameObjectSelections.HeadGameObjectConfig.BuiltInGameObjectEnabled}");
+            // return;
+
+            //''''''''''''''''''''''''
+            // Debug.LogWarning($"Initial test appearance: {initialTestAppearance.PlayerGameObjectSelections.HeadGameObjectConfig.BuiltInGameObjectEnabled}");
+            // PlayerGameObjectSelections initialTestPlayerGameObjectSelections = initialTestAppearance.PlayerGameObjectSelections;
+            // Debug.Log($"Initial test player game object selections: Head enabled? {initialTestPlayerGameObjectSelections.HeadGameObjectConfig.BuiltInGameObjectEnabled}");
+            // PlayerGameObjectSelections initialTestPlayerGameObjectSelections2 = new(initialTestPlayerGameObjectSelections.Bytes);
+            // Debug.Log($"Initial test player game object selections 2: Head enabled? {initialTestPlayerGameObjectSelections2.HeadGameObjectConfig.BuiltInGameObjectEnabled}");
+
+            // Debug.LogWarning("Initial test built-in head index: " + initialTestAppearance.BuiltInPresentationConfig.AvatarHeadIndex);
+            // BuiltInPlayerPresentationConfig builtInPresTest2 = new(initialTestAppearance.BuiltInPresentationConfig.Bytes);
+            // Debug.LogWarning("Initial test built-in head index 2: " + builtInPresTest2.AvatarHeadIndex);
+            //''''These all pass'''''
+
             //Debug.Log("<color=green> Try register to server pop'n with instance code - " + _instanceCode);
 
-            bool usingFrameworkAvatar = _playerService != null; 
-            InstancedAvatarAppearance overridableAvatarAppearance = usingFrameworkAvatar? _playerService.OverridableAvatarAppearance : new();
+            bool usingFrameworkAvatar = _playerService != null;
+            Debug.Log($"Using framework avatar: {usingFrameworkAvatar}");
+            InstancedAvatarAppearance overridableAvatarAppearance = usingFrameworkAvatar ? _playerService.InstancedAvatarAppearance : new();
+
+            // Debug.LogWarning("Create test InstancedAvatarAppearance");
+            // InstancedAvatarAppearance overridableAvatarAppearance2 = new(overridableAvatarAppearance.Bytes);
+            // Debug.LogWarning($"Overridable avatar appearance: {overridableAvatarAppearance2.PlayerGameObjectSelections.HeadGameObjectConfig.BuiltInGameObjectEnabled}");
+
+
             AvatarAppearanceWrapper avatarAppearanceWrapper = new(usingFrameworkAvatar, overridableAvatarAppearance);
+            // Debug.LogWarning("Create test AvatarAppearanceWrapper");
+            // AvatarAppearanceWrapper test2 = new(avatarAppearanceWrapper.Bytes);
+            // Debug.LogWarning("Test avatar appearance wrapper: " + test2.InstancedAvatarAppearance.PlayerGameObjectSelections.HeadGameObjectConfig.BuiltInGameObjectEnabled);
 
             //We also send the LocalClientID here, this will either be maxvalue (if this is our first time connecting, the server will give us a new ID)..
             //..or it'll be the ID we we're restored after a disconnect (if we're reconnecting, the server will use the ID we provide)
+            Debug.LogWarning("Creating reg request");
             ServerRegistrationRequest serverRegistrationRequest = new(_instanceCode, _instanceInfoContainer.LocalClientID, avatarAppearanceWrapper);
-            _commsHandler.SendMessage(serverRegistrationRequest.Bytes, InstanceNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
+            byte[] serverRegistrationRequestBytes = serverRegistrationRequest.Bytes;
+            _commsHandler.SendMessage(serverRegistrationRequestBytes, InstanceNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
+            Debug.LogWarning("Reg request created, sending to server");
+
+            ServerRegistrationRequest serverRegistrationRequest2 = new(serverRegistrationRequestBytes);
+            Debug.Log($"ServerRegistrationRequest: InstanceCode: {serverRegistrationRequest2.InstanceCode}, LocalClientID: {serverRegistrationRequest2.IDToRestore}, UsingFrameworkAvatar: {serverRegistrationRequest2.AvatarAppearanceWrapper.UsingFrameworkPlayer} built-in head enabled? {serverRegistrationRequest2.AvatarAppearanceWrapper.InstancedAvatarAppearance.PlayerGameObjectSelections.HeadGameObjectConfig.BuiltInGameObjectEnabled}");
         }
 
         private void HandleReceiveServerRegistrationConfirmation(byte[] bytes)

@@ -14,7 +14,7 @@ namespace VE2.NonCore.Instancing.Internal
 {
     internal class InstanceSyncSerializables
     {
-        public static readonly int InstanceNetcodeVersion = 8;
+        public static readonly int InstanceNetcodeVersion = 9;
 
         public enum InstanceNetworkingMessageCodes
         {

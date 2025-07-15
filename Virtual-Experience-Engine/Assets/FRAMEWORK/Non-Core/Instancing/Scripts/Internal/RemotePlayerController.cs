@@ -123,6 +123,8 @@ namespace VE2.NonCore.Instancing.Internal
             Vector3 dirToCamera = Camera.main.transform.position - _namePlateTransform.position;
             Vector3 lookPosition = _namePlateTransform.position - dirToCamera;
             _namePlateTransform.LookAt(lookPosition);
+
+            _avatarHandler.HandleUpdate();
         }
 
         private void OnDisable()

@@ -232,7 +232,7 @@ namespace VE2.Core.Player.Internal
         public readonly PlayerGameObjectHandler HandVRRightHandler;
         public readonly PlayerGameObjectHandler HandVRLeftHandler;
 
-        private float _torsoYOffsetFromHead = -0.387f;
+        private float _torsoYOffsetFromHead = -0.42f;
 
         public void HandleUpdate()
         {

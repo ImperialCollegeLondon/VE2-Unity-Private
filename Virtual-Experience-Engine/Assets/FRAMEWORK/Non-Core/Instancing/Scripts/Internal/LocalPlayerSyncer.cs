@@ -36,7 +36,7 @@ namespace VE2.NonCore.Instancing.Internal
 
         private void HandleLocalPlayerRegistered(IPlayerServiceInternal playerServiceInternal)
         {
-            playerServiceInternal.OnOverridableAvatarAppearanceChanged += HandleLocalAppearanceChanged;
+            playerServiceInternal.OnInstancedAvatarAppearanceChanged += HandleLocalAppearanceChanged;
         }
 
         private void HandleLocalPlayerDeregistered(IPlayerServiceInternal playerServiceInternal)
@@ -44,7 +44,7 @@ namespace VE2.NonCore.Instancing.Internal
             if (playerServiceInternal == null) //Null if deregistrations happen when leaving play mode
                 return;
 
-            playerServiceInternal.OnOverridableAvatarAppearanceChanged -= HandleLocalAppearanceChanged;
+            playerServiceInternal.OnInstancedAvatarAppearanceChanged -= HandleLocalAppearanceChanged;
         }
 
         private void HandleLocalAppearanceChanged(InstancedAvatarAppearance appearance)
@@ -79,7 +79,7 @@ namespace VE2.NonCore.Instancing.Internal
         public void TearDown() 
         {
             if (_playerSyncable != null)
-                _playerSyncable.OnOverridableAvatarAppearanceChanged -= HandleLocalAppearanceChanged;
+                _playerSyncable.OnInstancedAvatarAppearanceChanged -= HandleLocalAppearanceChanged;
 
             _localAdminIndicatorWrapper.OnLocalAdminStatusChanged -= HandleLocalAdminStatusChanged;
         }

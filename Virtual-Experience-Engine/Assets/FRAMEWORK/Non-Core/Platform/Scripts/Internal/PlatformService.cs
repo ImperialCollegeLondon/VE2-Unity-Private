@@ -139,7 +139,7 @@ namespace VE2.NonCore.Platform.Internal
                 The platform doesn't know about the instancce service
                 Yeah ok so the instance service should find the primary UI service 
         */
-        public string PlayerDisplayName => _playerService.OverridableAvatarAppearance.BuiltInPresentationConfig.PlayerName;
+        public string PlayerDisplayName => _playerService.InstancedAvatarAppearance.BuiltInPresentationConfig.PlayerName;
 
         public InstanceCode CurrentInstanceCode { get => _platformSettingsHandler.InstanceCode; private set => _platformSettingsHandler.InstanceCode = value; }
 
@@ -216,7 +216,7 @@ namespace VE2.NonCore.Platform.Internal
             _localAdminIndicatorWrapper = localAdminIndicatorWrapper;
 
             if (_playerService != null)
-                _playerService.OnOverridableAvatarAppearanceChanged += HandlePlayerPresentationConfigChanged;
+                _playerService.OnInstancedAvatarAppearanceChanged += HandlePlayerPresentationConfigChanged;
 
             commsHandler.OnReceiveNetcodeConfirmation += HandleReceiveNetcodeVersion;
             commsHandler.OnReceiveServerRegistrationConfirmation += HandleReceiveServerRegistrationResponse;
@@ -256,7 +256,7 @@ namespace VE2.NonCore.Platform.Internal
                 string customerID = "test", customerKey = "test"; //TODO - figure out these too!
 
                 Debug.Log("Rec netcode - requesting reg into " + CurrentInstanceCode.ToString());
-                ServerRegistrationRequest serverRegistrationRequest = new(customerID, customerKey, CurrentInstanceCode, _playerService.OverridableAvatarAppearance.BuiltInPresentationConfig);
+                ServerRegistrationRequest serverRegistrationRequest = new(customerID, customerKey, CurrentInstanceCode, _playerService.InstancedAvatarAppearance.BuiltInPresentationConfig);
                 _commsHandler.SendMessage(serverRegistrationRequest.Bytes, PlatformNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
             }
         }
@@ -363,7 +363,7 @@ namespace VE2.NonCore.Platform.Internal
             _commsHandler?.DisconnectFromServer();
 
             if (_playerService != null)
-                _playerService.OnOverridableAvatarAppearanceChanged -= HandlePlayerPresentationConfigChanged;
+                _playerService.OnInstancedAvatarAppearanceChanged -= HandlePlayerPresentationConfigChanged;
         }
     }
 

@@ -2,9 +2,6 @@ using System;
 using System.IO;
 using static VE2.Common.Shared.CommonSerializables;
 using System.Collections.Generic;
-using JetBrains.Annotations;
-
-
 
 #if UNITY_EDITOR
 using UnityEngine;
@@ -159,12 +156,28 @@ namespace VE2.Core.Player.API
 #if UNITY_EDITOR
                         [EndIndent, SerializeField]
 #endif
-                        public Color AvatarColor = new Color(255, 60, 60);
+                        public ushort AvatarColorR = 0;
+                        public ushort AvatarColorG = 0;
+                        public ushort AvatarColorB = 0;
+
+#if UNITY_EDITOR
+                        public Color AvatarColor
+                        {
+                                get => new Color(AvatarColorR, AvatarColorG, AvatarColorB);
+                                set
+                                {
+                                        AvatarColorR = (ushort)(value.r);
+                                        AvatarColorG = (ushort)(value.g);
+                                        AvatarColorB = (ushort)(value.b);
+                                }
+                        }       
+                        #endif
 
                         public BuiltInPlayerPresentationConfig() { }
 
                         public BuiltInPlayerPresentationConfig(byte[] bytes) : base(bytes) { }
 
+#if UNITY_EDITOR
                         public BuiltInPlayerPresentationConfig(string playerName, ushort avatarHeadType, ushort avatarBodyType, Color avatarColor)
                         {
                                 PlayerName = playerName;
@@ -180,6 +193,7 @@ namespace VE2.Core.Player.API
                                 AvatarTorsoIndex = other.AvatarTorsoIndex;
                                 AvatarColor = other.AvatarColor;
                         }
+                        #endif  
 
                         protected override byte[] ConvertToBytes()
                         {
@@ -189,9 +203,9 @@ namespace VE2.Core.Player.API
                                 writer.Write(PlayerName);
                                 writer.Write((ushort)AvatarHeadIndex);
                                 writer.Write((ushort)AvatarTorsoIndex);
-                                writer.Write((ushort)AvatarColor.r);
-                                writer.Write((ushort)AvatarColor.g);
-                                writer.Write((ushort)AvatarColor.b);
+                                writer.Write((ushort)AvatarColorR);
+                                writer.Write((ushort)AvatarColorG);
+                                writer.Write((ushort)AvatarColorB);
 
                                 return stream.ToArray();
                         }
@@ -204,11 +218,9 @@ namespace VE2.Core.Player.API
                                 PlayerName = reader.ReadString();
                                 AvatarHeadIndex = reader.ReadUInt16();
                                 AvatarTorsoIndex = reader.ReadUInt16();
-                                AvatarColor = new Color(
-                                        reader.ReadUInt16(),
-                                        reader.ReadUInt16(),
-                                        reader.ReadUInt16()
-                                );
+                                AvatarColorR = reader.ReadUInt16();
+                                AvatarColorG = reader.ReadUInt16();
+                                AvatarColorB = reader.ReadUInt16();
                         }
                         
                         public override bool Equals(object obj)
@@ -218,7 +230,9 @@ namespace VE2.Core.Player.API
                                         return PlayerName == other.PlayerName &&
                                         AvatarHeadIndex == other.AvatarHeadIndex &&
                                         AvatarTorsoIndex == other.AvatarTorsoIndex &&
-                                        AvatarColor.Equals(other.AvatarColor);
+                                        AvatarColorR == other.AvatarColorR &&
+                                        AvatarColorG == other.AvatarColorG &&
+                                        AvatarColorB == other.AvatarColorB;
                                 }
                                 return false;
                         }
@@ -227,17 +241,29 @@ namespace VE2.Core.Player.API
                 [Serializable]
                 internal class PlayerGameObjectSelections : VE2Serializable
                 {
+#if UNITY_EDITOR
                         [Title("Head GameObject Config")]
-                        [SerializeField] internal PlayerGameObjectSelection HeadGameObjectConfig = new();
+                        [SerializeField]
+#endif
+                        internal PlayerGameObjectSelection HeadGameObjectConfig = new();
 
+#if UNITY_EDITOR
                         [Title("Torso GameObject Config")]
-                        [SerializeField] internal PlayerGameObjectSelection TorsoGameObjectConfig = new();
+                        [SerializeField]
+#endif
+                        internal PlayerGameObjectSelection TorsoGameObjectConfig = new();
 
+#if UNITY_EDITOR
                         [Title("VR Hand Right GameObject Config")]
-                        [SerializeField] internal PlayerGameObjectSelection VRHandRightGameObjectConfig = new();
+                        [SerializeField]
+#endif
+                        internal PlayerGameObjectSelection VRHandRightGameObjectConfig = new();
 
+#if UNITY_EDITOR
                         [Title("VR Hand Left GameObject Config")]
-                        [SerializeField] internal PlayerGameObjectSelection VRHandLeftGameObjectConfig = new();
+                        [SerializeField]
+#endif
+                        internal PlayerGameObjectSelection VRHandLeftGameObjectConfig = new();
 
                         public PlayerGameObjectSelections() { }
 
@@ -306,9 +332,20 @@ namespace VE2.Core.Player.API
                 [Serializable]
                 internal class PlayerGameObjectSelection : VE2Serializable
                 {
-                        [SerializeField] internal bool BuiltInGameObjectEnabled = true;
-                        [SerializeField] internal bool CustomGameObjectEnabled = false;
-                        [SerializeField, EnableIf(nameof(CustomGameObjectEnabled), true)] internal ushort CustomGameObjectIndex = 0;
+#if UNITY_EDITOR
+                        [SerializeField]
+#endif
+                        internal bool BuiltInGameObjectEnabled = true;
+
+#if UNITY_EDITOR
+                        [SerializeField]
+#endif
+                        internal bool CustomGameObjectEnabled = false;
+
+#if UNITY_EDITOR
+                        [SerializeField, EnableIf(nameof(CustomGameObjectEnabled), true)]
+#endif
+                        internal ushort CustomGameObjectIndex = 0;
 
                         public PlayerGameObjectSelection() { }
 
@@ -363,9 +400,9 @@ namespace VE2.Core.Player.API
                                 writer.Write((ushort)presentationConfigBytes.Length);
                                 writer.Write(presentationConfigBytes);
 
-                                writer.Write(PlayerGameObjectSelections.Bytes);
-                                writer.Write((ushort)PlayerGameObjectSelections.Bytes.Length);
-                                writer.Write(PlayerGameObjectSelections.Bytes);
+                                byte[] playerGameObjectSelectionsBytes = PlayerGameObjectSelections.Bytes;
+                                writer.Write((ushort)playerGameObjectSelectionsBytes.Length);
+                                writer.Write(playerGameObjectSelectionsBytes);
 
                                 return stream.ToArray();
                         }
@@ -375,9 +412,11 @@ namespace VE2.Core.Player.API
                                 using MemoryStream stream = new(bytes);
                                 using BinaryReader reader = new(stream);
 
+
                                 ushort presentationConfigLength = reader.ReadUInt16();
                                 byte[] presentationConfigBytes = reader.ReadBytes(presentationConfigLength);
                                 BuiltInPresentationConfig = new BuiltInPlayerPresentationConfig(presentationConfigBytes);
+
 
                                 ushort playerGameObjectSelectionsLength = reader.ReadUInt16();
                                 byte[] playerGameObjectSelectionsBytes = reader.ReadBytes(playerGameObjectSelectionsLength);

@@ -20,6 +20,8 @@ namespace VE2.Core.Player.Internal
         {
             if (Physics.Raycast(_PlayerHeadTransform.position, Vector3.down, out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("Ground")))
                 _FeetCollisionDetector.transform.position = hit.point;
+
+            AvatarHandler?.HandleUpdate();
         }
 
         protected void ConfigureCamera(CameraConfig cameraConfig)

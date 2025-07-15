@@ -2487,7 +2487,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &446962486
 Transform:
   m_ObjectHideFlags: 0
@@ -4131,9 +4131,11 @@ MonoBehaviour:
       TransmissionType: 0
   _defaultPlayerPresentationConfig:
     PlayerName: DebugName
-    AvatarHeadIndex: 0
+    AvatarHeadIndex: 1
     AvatarTorsoIndex: 0
-    AvatarColor: {r: 255, g: 60, b: 60, a: 1}
+    AvatarColorR: 255
+    AvatarColorG: 70
+    AvatarColorB: 70
   _transformDataSetup: 0
   _playerTransformData:
     IsVRMode: 0
