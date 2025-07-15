@@ -49,8 +49,8 @@ namespace VE2.Core.Player.Internal
         //[BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public PlayerGameObjectSelections AvatarAppearanceOverrideConfig = new();
 
         [Title("Player GameObject Config")]
-        [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent] public PlayerGameObjectSelections PlayerGameObjectConfig = new();
-        [SerializeField, IgnoreParent, EndGroup] public PlayerGameObjectPrefabs PlayerGameObjectPrefabs = new();
+        [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent] public PlayerGameObjectSelections PlayerGameObjectSelections = new();
+        [SerializeField, IgnoreParent, EndGroup] public PlayerGameObjectPrefabs PlayerCustomGameObjectPrefabs = new();
 
         [Title("Transmission Settings", ApplyCondition = true)]
         [HideIf(nameof(_hasMultiplayerSupport), false)]
@@ -151,10 +151,20 @@ namespace VE2.Core.Player.Internal
     [Serializable]
     internal class PlayerGameObjectPrefabs
     {
-        [SerializeField, ReorderableList] internal List<GameObject> CustomHeadGameObjects = new();
-        [SerializeField, ReorderableList] internal List<GameObject> CustomTorsoGameObjects = new();
-        [SerializeField, ReorderableList] internal List<GameObject> CustomVRHandRightGameObjects = new();
-        [SerializeField, ReorderableList] internal List<GameObject> CustomVRHandLeftGameObjects = new();
+        [SerializeField, ReorderableList] internal List<GameObject> Heads = new();
+        [SerializeField, ReorderableList] internal List<GameObject> Torsos = new();
+        [SerializeField, ReorderableList] internal List<GameObject> VRRightHands = new();
+        [SerializeField, ReorderableList] internal List<GameObject> VRLefthands = new();
+
+        public PlayerGameObjectPrefabs(List<GameObject> heads, List<GameObject> torsos, List<GameObject> vrRightHands, List<GameObject> vrLeftHands)
+        {
+            Heads = heads;
+            Torsos = torsos;
+            VRRightHands = vrRightHands;
+            VRLefthands = vrLeftHands;
+        }
+
+        public PlayerGameObjectPrefabs() { }
     }
 
     [Serializable]

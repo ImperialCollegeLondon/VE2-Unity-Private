@@ -11,12 +11,6 @@ namespace VE2.Core.Player.Internal
         internal Transform VerticalOffsetTransform => _verticalOffsetTransform;
         [SerializeField] private Transform _verticalOffsetTransform;
 
-        internal Transform HeadTransform => _headTransform;
-        [SerializeField] private Transform _headTransform;   
-
-        internal Collider FeetCollider => _feetCollider;
-        [SerializeField] private Collider _feetCollider;
-
         internal ResetViewUIHandler ResetViewUIHandler => _resetViewUIHandler;
         [SerializeField] private ResetViewUIHandler _resetViewUIHandler;
 

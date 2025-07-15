@@ -15,7 +15,7 @@ namespace VE2.Core.Player.Internal
     {
         public bool RememberPlayerSettings { get; set; }
 
-        public BuiltInPlayerPresentationConfig PlayerPresentationConfig { get; set; }
+        public BuiltInPlayerPresentationConfig BuiltInPlayerGameObjectConfig { get; set; }
 
         public PersistentPlayerMode PersistentPlayerMode { get; set; }
 
@@ -81,7 +81,7 @@ namespace VE2.Core.Player.Internal
         /// <summary>
         /// call MarkPlayerSettingsUpdated after modifying this property
         /// </summary>
-        public BuiltInPlayerPresentationConfig PlayerPresentationConfig 
+        public BuiltInPlayerPresentationConfig BuiltInPlayerGameObjectConfig 
         {
             get
             {
@@ -101,7 +101,7 @@ namespace VE2.Core.Player.Internal
                                 string playerPresentationConfigBytesAsString = intent.Call<string>("getStringExtra", PlayerPresentationConfigArgName);
                                 byte[] playerPresentationConfigBytes = System.Convert.FromBase64String(playerPresentationConfigBytesAsString);
                                 _playerPresentationConfig = new(playerPresentationConfigBytes);
-                                Debug.Log("set new color to " + _playerPresentationConfig.AvatarRed + "-" + _playerPresentationConfig.AvatarGreen + "-" + _playerPresentationConfig.AvatarBlue);
+                                Debug.Log("set new color to " + _playerPresentationConfig.AvatarColor.r + "-" + _playerPresentationConfig.AvatarColor.g + "-" + _playerPresentationConfig.AvatarColor.b);
                             }
                             else if (_rememberPlayerSettings)
                                 _playerPresentationConfig = GetPlayerPresentationFromPlayerPrefs();

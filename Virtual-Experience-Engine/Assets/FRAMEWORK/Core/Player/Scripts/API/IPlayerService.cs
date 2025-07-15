@@ -5,14 +5,14 @@ using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.Core.Player.API
 {
-    public interface IPlayerGameObjectsHandler
+    public interface IPlayerGameObjectHandler
     {
         public void SetBuiltInGameObjectEnabled(bool isEnabled);
         public void SetCustomGameObjectEnabled(bool isEnabled);
         public void SetCustomGameObjectIndex(ushort type);
     }
 
-    public interface IPlayerGameObjectHandler
+    public interface IPlayerGameObjectsHandler
     {
         public IPlayerGameObjectsHandler HeadHandler { get; }
         public IPlayerGameObjectsHandler TorsoHandler { get; }
@@ -26,7 +26,14 @@ namespace VE2.Core.Player.API
         public UnityEvent OnChangeToVRMode { get; }
         public UnityEvent OnChangeTo2DMode { get; }
 
-        public IPlayerGameObjectsHandler PlayerGameObjectsHandler { get; }
+        //public IPlayerGameObjectsHandler PlayerGameObjectsHandler { get; }
+        public void SetBuiltInHeadEnabled(bool isEnabled);
+        public void SetCustomHeadEnabled(bool isEnabled);
+        public void SetCustomHeadIndex(ushort type);
+
+        public void SetBuiltInTorsoEnabled(bool isEnabled);
+        public void SetCustomTorsoEnabled(bool isEnabled);
+        public void SetCustomTorsoIndex(ushort type);
 
         public Camera ActiveCamera { get; }
 

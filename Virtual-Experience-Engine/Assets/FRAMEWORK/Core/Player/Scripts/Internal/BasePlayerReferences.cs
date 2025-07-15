@@ -10,5 +10,17 @@ namespace VE2.Core.Player.Internal
 
         public RectTransform PrimaryUIHolderRect => _primaryUIHolderRect;
         [SerializeField, IgnoreParent] private RectTransform _primaryUIHolderRect;
+
+        internal Transform HeadTransform => _headTransform;
+        [SerializeField] private Transform _headTransform;   
+
+        internal Transform TorsoTransform => _torsoTransform;
+        [SerializeField] private Transform _torsoTransform;
+
+        //Then what about vr vs 2d
+        //No hands in 2d, how do we even tell the avatar handler whether to use hands?
+
+        internal Collider FeetCollider => _feetCollider;
+        [SerializeField] private Collider _feetCollider;
     }
 }

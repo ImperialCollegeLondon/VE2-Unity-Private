@@ -55,8 +55,9 @@ namespace VE2.Core.Player.Internal
         private readonly RectTransform _primaryUIHolderRect;
         private readonly ISecondaryUIServiceInternal _secondaryUIService;
 
-        internal PlayerControllerVR(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, PlayerVRInputContainer playerVRInputContainer, IPlayerPersistentDataHandler playerSettingsHandler, 
-            PlayerVRControlConfig controlConfig, PlayerInteractionConfig interactionConfig, MovementModeConfig movementModeConfig, CameraConfig cameraConfig, IRaycastProvider raycastProvider, 
+        internal PlayerControllerVR(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, PlayerVRInputContainer playerVRInputContainer,
+            IPlayerPersistentDataHandler playerSettingsHandler, AvatarHandlerBuilderContext avatarHandlerBuilderContext,
+            PlayerVRControlConfig controlConfig, PlayerInteractionConfig interactionConfig, MovementModeConfig movementModeConfig, CameraConfig cameraConfig, IRaycastProvider raycastProvider,
             ICollisionDetectorFactory collisionDetectorFactory, IXRManagerWrapper xrManagerSettingsWrapper, ILocalClientIDWrapper localClientIDWrapper, ILocalAdminIndicator localAdminIndicator,
             IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IXRHapticsWrapper xRHapticsWrapperLeft, IXRHapticsWrapper xRHapticsWrapperRight)
         {
@@ -70,6 +71,10 @@ namespace VE2.Core.Player.Internal
 
             _primaryUIService = primaryUIService;
             _secondaryUIService = secondaryUIService;
+
+            //How is all this going to work with the VR hands? 
+            //The hands need to be lined up with the ray origin point
+            //Ok, so the visual needs to be separate from the actual transforms in some way
 
             PlayerVRReferences playerVRReferences = _playerGO.GetComponent<PlayerVRReferences>();
             Camera = playerVRReferences.Camera;
@@ -95,17 +100,21 @@ namespace VE2.Core.Player.Internal
             FreeGrabbableWrapper leftHandGrabbableWrapper = new FreeGrabbableWrapper();
             FreeGrabbableWrapper rightHandGrabbableWrapper = new FreeGrabbableWrapper();
 
-            _handControllerLeft = CreateHandController(handVRLeftGO, handVRRightGO, interactorContainer, grabInteractablesContainer, 
+            _handControllerLeft = CreateHandController(handVRLeftGO, handVRRightGO, interactorContainer, grabInteractablesContainer,
                 playerVRInputContainer.HandVRLeftInputContainer, playerVRInputContainer.HandVRRightInputContainer.DragLocomotorInputContainer,
-                interactionConfig, InteractorType.LeftHandVR, raycastProvider, collisionDetectorFactory, ColliderType.HandVRLeft, localClientIDWrapper, localAdminIndicator, 
+                interactionConfig, InteractorType.LeftHandVR, raycastProvider, collisionDetectorFactory, ColliderType.HandVRLeft, localClientIDWrapper, localAdminIndicator,
                 leftHandGrabbableWrapper, rightHandGrabbableWrapper, secondaryUIService, movementModeConfig, false, xRHapticsWrapperLeft);
 
-            _handControllerRight = CreateHandController(handVRRightGO, handVRLeftGO, interactorContainer, grabInteractablesContainer, 
+            _handControllerRight = CreateHandController(handVRRightGO, handVRLeftGO, interactorContainer, grabInteractablesContainer,
                 playerVRInputContainer.HandVRRightInputContainer, playerVRInputContainer.HandVRLeftInputContainer.DragLocomotorInputContainer,
                 interactionConfig, InteractorType.RightHandVR, raycastProvider, collisionDetectorFactory, ColliderType.HandVRRight, localClientIDWrapper, localAdminIndicator,
                 rightHandGrabbableWrapper, leftHandGrabbableWrapper, secondaryUIService, movementModeConfig, true, xRHapticsWrapperRight);
-        
+
             ConfigureCamera(cameraConfig);
+            
+            AvatarHandler = new(
+                avatarHandlerBuilderContext.PlayerBuiltInGameObjectPrefabs, avatarHandlerBuilderContext.PlayerCustomGameObjectPrefabs, avatarHandlerBuilderContext.CurrentInstancedAvatarAppearance,
+                playerVRReferences.HeadTransform, playerVRReferences.TorsoTransform, _handControllerRight.Transform, _handControllerLeft.Transform);
         }
 
 

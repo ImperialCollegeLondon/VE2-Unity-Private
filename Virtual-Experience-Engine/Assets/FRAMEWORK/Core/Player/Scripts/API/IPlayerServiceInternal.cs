@@ -16,11 +16,11 @@ namespace VE2.Core.Player.API
         /// call MarkPlayerSettingsUpdated after modifying this property
         /// </summary>
         public InstancedAvatarAppearance OverridableAvatarAppearance { get; }
-        public void MarkPlayerSettingsUpdated() { }
+        public void MarkPlayerGameObjectsChanged() { }
         public event Action<InstancedAvatarAppearance> OnOverridableAvatarAppearanceChanged;
 
-        public List<GameObject> HeadOverrideGOs { get; }
-        public List<GameObject> TorsoOverrideGOs { get; }
+        public List<GameObject> CustomHeadPrefabs { get; }
+        public List<GameObject> CustomTorsoPrefabs { get; }
 
         public TransmissionProtocol TransmissionProtocol { get; }
         public float TransmissionFrequency { get; }

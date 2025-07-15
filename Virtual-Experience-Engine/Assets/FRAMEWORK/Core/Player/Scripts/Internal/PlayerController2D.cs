@@ -53,7 +53,7 @@ namespace VE2.Core.Player.Internal
         private readonly Player2DLocomotor _playerLocomotor2D;
         private readonly Interactor2D _interactor2D;
         private readonly FeetInteractor _feetInteractor2D;
-        private readonly AvatarVisHandler _localAvatarHandler;
+        private readonly PlayerGameObjectsHandler _localAvatarHandler;
 
         private readonly IPrimaryUIServiceInternal _primaryUIService;
         private readonly RectTransform _primaryUIHolderRect;
@@ -63,10 +63,11 @@ namespace VE2.Core.Player.Internal
         private readonly RectTransform _overlayUIRect;
         private readonly InspectModeIndicator _inspectModeIndicator;
 
-        internal PlayerController2D(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, Player2DInputContainer player2DInputContainer, 
-            IPlayerPersistentDataHandler playerPersistentDataHandler, Player2DControlConfig controlConfig, PlayerInteractionConfig interactionConfig, MovementModeConfig movementModeConfig, 
+        internal PlayerController2D(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, Player2DInputContainer player2DInputContainer,
+            IPlayerPersistentDataHandler playerPersistentDataHandler, AvatarHandlerBuilderContext avatarHandlerBuilderContext,
+            Player2DControlConfig controlConfig, PlayerInteractionConfig interactionConfig, MovementModeConfig movementModeConfig,
             CameraConfig cameraConfig, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ILocalClientIDWrapper localClientIDWrapper, ILocalAdminIndicator localAdminIndicator,
-            IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IPlayerServiceInternal playerService) 
+            IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IPlayerServiceInternal playerService)
         {
             GameObject player2DPrefab = Resources.Load("2dPlayer") as GameObject;
             _playerGO = GameObject.Instantiate(player2DPrefab, null, false);
@@ -80,8 +81,6 @@ namespace VE2.Core.Player.Internal
 
             Player2DReferences player2DReferences = _playerGO.GetComponent<Player2DReferences>();
             Camera = player2DReferences.Camera;
-            _localAvatarHandler = player2DReferences.LocalAvatarHandler;
-            _localAvatarHandler.Initialize(playerService);
 
             _primaryUIHolderRect = player2DReferences.PrimaryUIHolderRect;
             _secondaryUIHolder = player2DReferences.SecondaryUIHolderRect;
@@ -99,8 +98,12 @@ namespace VE2.Core.Player.Internal
             base._PlayerHeadTransform = _playerLocomotor2D.HeadTransform;
             base._FeetCollisionDetector = _feetInteractor2D._collisionDetector as CollisionDetector;
 
-            ConfigureCamera(cameraConfig);  
-            
+            ConfigureCamera(cameraConfig);
+
+            AvatarHandler = new(
+                avatarHandlerBuilderContext.PlayerBuiltInGameObjectPrefabs, avatarHandlerBuilderContext.PlayerCustomGameObjectPrefabs, avatarHandlerBuilderContext.CurrentInstancedAvatarAppearance,
+                player2DReferences.HeadTransform, player2DReferences.TorsoTransform);
+
             //TODO: think about inspect mode, does that live in the interactor, or the player controller?
             //If interactor, will need to make the interactor2d constructor take a this as a param, and forward the other params to the base constructor
         }
@@ -174,10 +177,10 @@ namespace VE2.Core.Player.Internal
             _interactor2D.HandleOnEnable(); 
         }
 
-        internal void HandleReceiveAvatarAppearance(InstancedAvatarAppearance newAvatarAppearance) 
-        {
-            _localAvatarHandler.HandleReceiveAvatarAppearance(newAvatarAppearance);
-        }
+        // internal void HandleReceiveAvatarAppearance(InstancedAvatarAppearance newAvatarAppearance) 
+        // {
+        //     _localAvatarHandler.HandleReceiveAvatarAppearance(newAvatarAppearance);
+        // }
 
         internal void MoveRectToOverlayUI(RectTransform newRect)
         {

@@ -228,16 +228,16 @@ namespace VE2.Core.Player.API
                 internal class PlayerGameObjectSelections : VE2Serializable
                 {
                         [Title("Head GameObject Config")]
-                        [SerializeField] internal PlayerGameObjectSelection _headGameObjectConfig = new();
+                        [SerializeField] internal PlayerGameObjectSelection HeadGameObjectConfig = new();
 
                         [Title("Torso GameObject Config")]
-                        [SerializeField] internal PlayerGameObjectSelection _torsoGameObjectConfig = new();
+                        [SerializeField] internal PlayerGameObjectSelection TorsoGameObjectConfig = new();
 
                         [Title("VR Hand Right GameObject Config")]
-                        [SerializeField] internal PlayerGameObjectSelection _vrHandRightGameObjectConfig = new();
+                        [SerializeField] internal PlayerGameObjectSelection VRHandRightGameObjectConfig = new();
 
                         [Title("VR Hand Left GameObject Config")]
-                        [SerializeField] internal PlayerGameObjectSelection _vrHandLeftGameObjectConfig = new();
+                        [SerializeField] internal PlayerGameObjectSelection VRHandLeftGameObjectConfig = new();
 
                         public PlayerGameObjectSelections() { }
 
@@ -248,19 +248,19 @@ namespace VE2.Core.Player.API
                                 using MemoryStream stream = new();
                                 using BinaryWriter writer = new(stream);
 
-                                byte[] headConfigBytes = _headGameObjectConfig.Bytes;
+                                byte[] headConfigBytes = HeadGameObjectConfig.Bytes;
                                 writer.Write((ushort)headConfigBytes.Length);
                                 writer.Write(headConfigBytes);
 
-                                byte[] torsoConfigBytes = _torsoGameObjectConfig.Bytes;
+                                byte[] torsoConfigBytes = TorsoGameObjectConfig.Bytes;
                                 writer.Write((ushort)torsoConfigBytes.Length);
                                 writer.Write(torsoConfigBytes);
 
-                                byte[] vrHandRightConfigBytes = _vrHandRightGameObjectConfig.Bytes;
+                                byte[] vrHandRightConfigBytes = VRHandRightGameObjectConfig.Bytes;
                                 writer.Write((ushort)vrHandRightConfigBytes.Length);
                                 writer.Write(vrHandRightConfigBytes);
 
-                                byte[] vrHandLeftConfigBytes = _vrHandLeftGameObjectConfig.Bytes;
+                                byte[] vrHandLeftConfigBytes = VRHandLeftGameObjectConfig.Bytes;
                                 writer.Write((ushort)vrHandLeftConfigBytes.Length);
                                 writer.Write(vrHandLeftConfigBytes);
 
@@ -274,29 +274,29 @@ namespace VE2.Core.Player.API
 
                                 ushort headConfigLength = reader.ReadUInt16();
                                 byte[] headConfigBytes = reader.ReadBytes(headConfigLength);
-                                _headGameObjectConfig = new PlayerGameObjectSelection(headConfigBytes);
+                                HeadGameObjectConfig = new PlayerGameObjectSelection(headConfigBytes);
 
                                 ushort torsoConfigLength = reader.ReadUInt16();
                                 byte[] torsoConfigBytes = reader.ReadBytes(torsoConfigLength);
-                                _torsoGameObjectConfig = new PlayerGameObjectSelection(torsoConfigBytes);
+                                TorsoGameObjectConfig = new PlayerGameObjectSelection(torsoConfigBytes);
 
                                 ushort vrHandRightConfigLength = reader.ReadUInt16();
                                 byte[] vrHandRightConfigBytes = reader.ReadBytes(vrHandRightConfigLength);
-                                _vrHandRightGameObjectConfig = new PlayerGameObjectSelection(vrHandRightConfigBytes);
+                                VRHandRightGameObjectConfig = new PlayerGameObjectSelection(vrHandRightConfigBytes);
 
                                 ushort vrHandLeftConfigLength = reader.ReadUInt16();
                                 byte[] vrHandLeftConfigBytes = reader.ReadBytes(vrHandLeftConfigLength);
-                                _vrHandLeftGameObjectConfig = new PlayerGameObjectSelection(vrHandLeftConfigBytes);
+                                VRHandLeftGameObjectConfig = new PlayerGameObjectSelection(vrHandLeftConfigBytes);
                         }
                         
                         public override bool Equals(object obj)
                         {
                                 if (obj is PlayerGameObjectSelections other)
                                 {
-                                        return _headGameObjectConfig.Equals(other._headGameObjectConfig) &&
-                                               _torsoGameObjectConfig.Equals(other._torsoGameObjectConfig) &&
-                                               _vrHandRightGameObjectConfig.Equals(other._vrHandRightGameObjectConfig) &&
-                                               _vrHandLeftGameObjectConfig.Equals(other._vrHandLeftGameObjectConfig);
+                                        return HeadGameObjectConfig.Equals(other.HeadGameObjectConfig) &&
+                                               TorsoGameObjectConfig.Equals(other.TorsoGameObjectConfig) &&
+                                               VRHandRightGameObjectConfig.Equals(other.VRHandRightGameObjectConfig) &&
+                                               VRHandLeftGameObjectConfig.Equals(other.VRHandLeftGameObjectConfig);
                                 }
                                 return false;
                         }

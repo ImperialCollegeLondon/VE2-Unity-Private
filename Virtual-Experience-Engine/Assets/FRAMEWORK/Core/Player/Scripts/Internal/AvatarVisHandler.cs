@@ -15,7 +15,8 @@ using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.Core.Player.Internal
 {
-    internal class PlayerGameObjectHandler
+    //TODO - refactor this to be reusable between built in and custom, should just deal with one or the other
+    internal class PlayerGameObjectHandler : IPlayerGameObjectHandler
     {
         private readonly Transform _holderTransform;
 
@@ -33,19 +34,26 @@ namespace VE2.Core.Player.Internal
         private int _customGameObjectIndex;
 
         public PlayerGameObjectHandler(Transform holderTransform,
-            List<GameObject> builtInGameObjectPrefabs, bool isBuiltInGameObjectEnabled, ushort builtInGameObjectIndex, Color builtInColor,
-            List<GameObject> customGameObjectPrefabs, bool isCustomGameObjectEnabled, ushort customGameObjectIndex)
+            List<GameObject> builtInGameObjectPrefabs, ushort builtInGameObjectIndex, Color builtInColor,
+            List<GameObject> customGameObjectPrefabs, PlayerGameObjectSelection gameObjectSelection)
         {
             _holderTransform = holderTransform;
 
             _builtInGameObjectPrefabs = builtInGameObjectPrefabs;
-            SetBuiltInGameObjectEnabled(isBuiltInGameObjectEnabled);
+            SetBuiltInGameObjectEnabled(gameObjectSelection.BuiltInGameObjectEnabled);
             SetBuiltInGameObjectIndex(builtInGameObjectIndex);
             SetBuiltInColor(builtInColor);
 
             _customGameObjectPrefabs = customGameObjectPrefabs;
-            SetCustomGameObjectEnabled(isCustomGameObjectEnabled);
-            SetCustomGameObjectIndex(customGameObjectIndex);
+            SetCustomGameObjectEnabled(gameObjectSelection.CustomGameObjectEnabled);
+            SetCustomGameObjectIndex(gameObjectSelection.CustomGameObjectIndex);
+        }
+
+        public void SetGameObjectSelections(PlayerGameObjectSelection gameObjectSelection)
+        {
+            SetBuiltInGameObjectEnabled(gameObjectSelection.BuiltInGameObjectEnabled);
+            SetCustomGameObjectEnabled(gameObjectSelection.CustomGameObjectEnabled);
+            SetCustomGameObjectIndex(gameObjectSelection.CustomGameObjectIndex);
         }
 
         public void SetBuiltInGameObjectEnabled(bool isEnabled)
@@ -179,119 +187,104 @@ namespace VE2.Core.Player.Internal
         // }
     }
 
-    [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
-    internal class AvatarVisHandler : MonoBehaviour
-    {
-        [SerializeField] private Transform _headHolder;
-        [SerializeField] private Transform _torsoHolder;
-        [SerializeField] private Transform _handVRRightHolder;
-        [SerializeField] private Transform _handVRLeftHolder;
+    // internal class AvatarHandlerContextSub
+    // {
 
-        private PlayerGameObjectHandler _headHandler;
-        private PlayerGameObjectHandler _torsoHandler;
-        private PlayerGameObjectHandler _handVRRightHandler;
-        private PlayerGameObjectHandler _handVRLeftHandler;
+    // }
+
+    // internal class AvatarHandlerContext
+    // {
+    //     public List<GameObject> BuiltInHeadPrefabs { get; set; }
+    //     public List<GameObject> BuiltInTorsoPrefabs { get; set; }
+    //     public List<GameObject> CustomHeadPrefabs { get; set; }
+    //     public List<GameObject> CustomTorsoPrefabs { get; set; }
+    //     public List<GameObject> CustomVRRightHands { get; set; }
+    //     public List<GameObject> CustomVRLeftHands { get; set; }
+    // }
+
+    internal class AvatarHandlerBuilderContext
+    {
+        public PlayerGameObjectPrefabs PlayerBuiltInGameObjectPrefabs;
+        public PlayerGameObjectPrefabs PlayerCustomGameObjectPrefabs;
+        public InstancedAvatarAppearance CurrentInstancedAvatarAppearance;
+
+        public AvatarHandlerBuilderContext(PlayerGameObjectPrefabs playerBuiltInGameObjectPrefabs, PlayerGameObjectPrefabs playerCustomGameObjectPrefabs, InstancedAvatarAppearance currentInstancedAvatarAppearance)
+        {
+            PlayerBuiltInGameObjectPrefabs = playerBuiltInGameObjectPrefabs;
+            PlayerCustomGameObjectPrefabs = playerCustomGameObjectPrefabs;
+            CurrentInstancedAvatarAppearance = currentInstancedAvatarAppearance;
+        }
+    }
+
+    //[AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
+    internal class PlayerGameObjectsHandler //: MonoBehaviour//, IPlayerGameObjectsHandler
+    {
+        private readonly Transform _headHolder;
+        private readonly Transform _torsoHolder;
+        private readonly Transform _handVRRightHolder;
+        private readonly Transform _handVRLeftHolder;
+
+        public readonly PlayerGameObjectHandler HeadHandler;
+        public readonly PlayerGameObjectHandler TorsoHandler;
+        public readonly PlayerGameObjectHandler HandVRRightHandler;
+        public readonly PlayerGameObjectHandler HandVRLeftHandler;
 
         private float _torsoYOffsetFromHead = -0.387f;
 
-        private InstancedAvatarAppearance _currentRemoteAvatarAppearance;
-
-
-        private void Awake()
-        {
-            //Assuming at this point the head and torso are a child of this GO
-        }
-
-        private void Update()
+        public void HandleUpdate()
         {
             _torsoHolder.position = _headHolder.position + (_torsoYOffsetFromHead * Vector3.up);
         }
 
+        //We don't really want to have to pipe the prefab lists all the way down 
+        //What if we created this as empty, just with the prefabs, and we give it the config in some setup method
+        //That healps cut down the size of the constructor I guess, and removes repeated set appearance code in setup
+
         /// <summary>
         /// Note, this WON'T set the initial appearance, HandleReceiveAvatarAppearance should be called after initialization
         /// </summary>
-        public void Initialize(IPlayerServiceInternal playerServiceInternal, InstancedAvatarAppearance avatarAppearance)
+        public PlayerGameObjectsHandler(PlayerGameObjectPrefabs BuiltInGameObjectPrefabs, PlayerGameObjectPrefabs playerGameObjectPrefabs, InstancedAvatarAppearance avatarAppearance,
+            Transform headHolder, Transform torsoHolder, Transform handVRRightHolder = null, Transform handVRLeftHolder = null)
         {
-            //TODO - maybe these should come from PlayerService too?
-            List<GameObject> builtInHeadGameObjectPrefabs = new List<GameObject>()
-            {
-                Resources.Load<GameObject>("Avatars/Heads/V_Avatar_Head_Default_1"),
-                Resources.Load<GameObject>("Avatars/Heads/V_Avatar_Head_Default_2"),
-            };
+            _headHolder = headHolder;
+            _torsoHolder = torsoHolder;
+            _handVRRightHolder = handVRRightHolder;
+            _handVRLeftHolder = handVRLeftHolder;
 
-            //This doesn't seem great to me... lot of chaining, and weird that BuiltInGameObject enabled comes from PlayerGameObjectSelections, not BuiltInPresentationConfig
-            //it's because the plugin can decide if it wants to use the built-in head or not, so it needs to be set in the PlayerGameObjectSelections
+            Color avatarColor = avatarAppearance.BuiltInPresentationConfig.AvatarColor;
 
-            PlayerGameObjectSelection headSelection = avatarAppearance.PlayerGameObjectSelections._headGameObjectConfig;
-            _headHandler = new PlayerGameObjectHandler(_headHolder,
-                builtInHeadGameObjectPrefabs,
-                headSelection.BuiltInGameObjectEnabled,
+            HeadHandler = new PlayerGameObjectHandler(_headHolder,
+                BuiltInGameObjectPrefabs.Heads,
                 avatarAppearance.BuiltInPresentationConfig.AvatarHeadIndex,
-                avatarAppearance.BuiltInPresentationConfig.AvatarColor,
-                playerServiceInternal.HeadOverrideGOs,
-                headSelection.CustomGameObjectEnabled,
-                headSelection.CustomGameObjectIndex);
+                avatarColor,
+                playerGameObjectPrefabs.Heads,
+                avatarAppearance.PlayerGameObjectSelections.HeadGameObjectConfig);
 
-            List<GameObject> builtInTorsoGameObjectPrefabs = new List<GameObject>()
-            {
-                Resources.Load<GameObject>("Avatars/Torsos/V_Avatar_Torso_Default_1"),
-            };
-
-            PlayerGameObjectSelection torsoSelection = avatarAppearance.PlayerGameObjectSelections._torsoGameObjectConfig;
-            _torsoHandler = new PlayerGameObjectHandler(_torsoHolder,
-                builtInTorsoGameObjectPrefabs,
-                torsoSelection.BuiltInGameObjectEnabled,
+            TorsoHandler = new PlayerGameObjectHandler(_torsoHolder,
+                BuiltInGameObjectPrefabs.Torsos,
                 avatarAppearance.BuiltInPresentationConfig.AvatarTorsoIndex,
-                avatarAppearance.BuiltInPresentationConfig.AvatarColor,
-                playerServiceInternal.HeadOverrideGOs,
-                torsoSelection.CustomGameObjectEnabled,
-                torsoSelection.CustomGameObjectIndex);
+                avatarColor,
+                playerGameObjectPrefabs.Torsos,
+                avatarAppearance.PlayerGameObjectSelections.TorsoGameObjectConfig);
 
             //TODO: left and right hands, need prefabbing too
         }
 
         public void UpdateInstacedAvatarAppearance(InstancedAvatarAppearance newAvatarAppearance)
         {
-            PlayerGameObjectSelection headSelection = newAvatarAppearance.PlayerGameObjectSelections._headGameObjectConfig;
+            HeadHandler.SetGameObjectSelections(newAvatarAppearance.PlayerGameObjectSelections.HeadGameObjectConfig);
+            HeadHandler.SetBuiltInGameObjectIndex(newAvatarAppearance.BuiltInPresentationConfig.AvatarHeadIndex);
+            HeadHandler.SetBuiltInColor(newAvatarAppearance.BuiltInPresentationConfig.AvatarColor);
 
-            _headHandler.SetBuiltInGameObjectEnabled(headSelection.BuiltInGameObjectEnabled);
-            _headHandler.SetCustomGameObjectEnabled(headSelection.CustomGameObjectEnabled);
-            _headHandler.SetBuiltInGameObjectIndex(newAvatarAppearance.BuiltInPresentationConfig.AvatarHeadIndex);
-            _headHandler.SetCustomGameObjectIndex(headSelection.CustomGameObjectIndex);
+            TorsoHandler.SetGameObjectSelections(newAvatarAppearance.PlayerGameObjectSelections.TorsoGameObjectConfig);
+            TorsoHandler.SetBuiltInGameObjectIndex(newAvatarAppearance.BuiltInPresentationConfig.AvatarTorsoIndex);
+            TorsoHandler.SetBuiltInColor(newAvatarAppearance.BuiltInPresentationConfig.AvatarColor);
 
-
-            _torsoHandler.SetBuiltInGameObjectEnabled(newAvatarAppearance.PlayerGameObjectSelections._torsoGameObjectConfig.BuiltInGameObjectEnabled);
-            _torsoHandler.SetCustomGameObjectEnabled(newAvatarAppearance.PlayerGameObjectSelections._torsoGameObjectConfig.CustomGameObjectEnabled);
-            _torsoHandler.SetBuiltInGameObjectIndex(newAvatarAppearance.BuiltInPresentationConfig.AvatarTorsoIndex);
-
-            if (_currentRemoteAvatarAppearance != null && _currentRemoteAvatarAppearance.Equals(newAvatarAppearance))
-                return;
-
-            bool headChanged = SetHead(newAvatarAppearance.BuiltInPresentationConfig.AvatarHeadIndex, newAvatarAppearance.OverrideHead, newAvatarAppearance.HeadOverrideIndex);
-            bool torsoChanged = SetTorso(newAvatarAppearance.BuiltInPresentationConfig.AvatarTorsoIndex, newAvatarAppearance.OverrideTorso, newAvatarAppearance.TorsoOverrideIndex);
-
-            if (headChanged || torsoChanged)
-                RecaptureMaterials();
-
-            foreach (Material material in _colorMaterials)
-                material.color = new Color(newAvatarAppearance.BuiltInPresentationConfig.AvatarRed, newAvatarAppearance.BuiltInPresentationConfig.AvatarGreen, newAvatarAppearance.BuiltInPresentationConfig.AvatarBlue) / 255f;
-
-            _currentRemoteAvatarAppearance = newAvatarAppearance;
+            //_currentRemoteAvatarAppearance = newAvatarAppearance;
         }
-
-
-        // private bool TryGetOverrideGO(ushort overrideIndex, List<GameObject> overrideGameObjects, out GameObject overrideGO)
-        // {
-        //     if (overrideGameObjects.Count > overrideIndex && overrideGameObjects[overrideIndex] != null)
-        //     {
-        //         overrideGO = overrideGameObjects[overrideIndex];
-        //         return true;
-        //     }
-        //     else
-        //     {
-        //         overrideGO = null;
-        //         return false;
-        //     }
-        // }
     }
 }
+
+//What if we remove this layer and just have the player managing each sub peice directly 
+//The player needs all the interfaces on it anyway
+//Nah, this way works fine

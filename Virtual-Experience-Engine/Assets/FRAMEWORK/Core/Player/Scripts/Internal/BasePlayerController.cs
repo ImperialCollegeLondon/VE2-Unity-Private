@@ -10,6 +10,7 @@ namespace VE2.Core.Player.Internal
         public Quaternion PlayerRotation => _rootTransform.rotation;
         public virtual void SetPlayerRotation(Quaternion rotation) => _rootTransform.rotation = rotation;
 
+        internal PlayerGameObjectsHandler AvatarHandler;
         internal Camera Camera;
         protected CollisionDetector _FeetCollisionDetector;
         protected Transform _PlayerHeadTransform;
