@@ -16,7 +16,7 @@ using static VE2.Core.Player.API.PlayerSerializables;
 namespace VE2.Core.Player.Internal
 {
     //TODO - refactor this to be reusable between built in and custom, should just deal with one or the other
-    internal class PlayerGameObjectHandler : IPlayerGameObjectHandler
+    internal class PlayerGameObjectHandler //: IPlayerGameObjectHandler
     {
         private readonly Transform _holderTransform;
 
@@ -24,13 +24,11 @@ namespace VE2.Core.Player.Internal
 
         private readonly List<GameObject> _builtInGameObjectPrefabs;
         private GameObject _activeBuiltInGameObject;
-        private bool _isBuiltInGameObjectEnabled;
         private int _builtInGameObjectIndex;
         private Color _builtInColor;
 
         private readonly List<GameObject> _customGameObjectPrefabs;
         private GameObject _activeCustomGameObject;
-        private bool _isCustomGameObjectEnabled;
         private int _customGameObjectIndex;
 
         public PlayerGameObjectHandler(Transform holderTransform,
@@ -58,18 +56,20 @@ namespace VE2.Core.Player.Internal
 
         public void SetBuiltInGameObjectEnabled(bool isEnabled)
         {
-            if (_isBuiltInGameObjectEnabled == isEnabled)
-                return;
-
-            _isBuiltInGameObjectEnabled = isEnabled;
-
-            GameObject.Destroy(_activeCustomGameObject);
-            _activeCustomGameObject = GameObject.Instantiate(
-                _customGameObjectPrefabs[_customGameObjectIndex],
-                _holderTransform.position,
-                _holderTransform.rotation,
-                _holderTransform);
-            SetBuiltInColor(_builtInColor);
+            if (!isEnabled && _activeBuiltInGameObject != null)
+            {
+                GameObject.Destroy(_activeBuiltInGameObject);
+                _activeBuiltInGameObject = null;
+            }
+            else if (isEnabled && _activeBuiltInGameObject == null)
+            {
+                _activeBuiltInGameObject = GameObject.Instantiate(
+                    _builtInGameObjectPrefabs[_builtInGameObjectIndex],
+                    _holderTransform.position,
+                    _holderTransform.rotation,
+                    _holderTransform);
+                SetBuiltInColor(_builtInColor);
+            }
         }
 
         internal void SetBuiltInGameObjectIndex(ushort index)
@@ -91,17 +91,20 @@ namespace VE2.Core.Player.Internal
 
         public void SetCustomGameObjectEnabled(bool isEnabled)
         {
-            if (_isCustomGameObjectEnabled == isEnabled)
-                return;
-
-            _isCustomGameObjectEnabled = isEnabled;
-
-            GameObject.Destroy(_activeCustomGameObject);
-            _activeCustomGameObject = GameObject.Instantiate(
-                _customGameObjectPrefabs[_customGameObjectIndex],
-                _holderTransform.position,
-                _holderTransform.rotation,
-                _holderTransform);
+            if (!isEnabled && _activeCustomGameObject != null)
+            {
+                GameObject.Destroy(_activeCustomGameObject);
+                _activeCustomGameObject = null;
+            }
+            else if (isEnabled && _activeCustomGameObject == null)
+            {
+                _activeCustomGameObject = GameObject.Instantiate(
+                    _customGameObjectPrefabs[_customGameObjectIndex],
+                    _holderTransform.position,
+                    _holderTransform.rotation,
+                    _holderTransform);
+                //SetBuiltInColor(_builtInColor);
+            }
         }
 
         public void SetCustomGameObjectIndex(ushort index)
@@ -270,7 +273,7 @@ namespace VE2.Core.Player.Internal
             //TODO: left and right hands, need prefabbing too
         }
 
-        public void UpdateInstacedAvatarAppearance(InstancedAvatarAppearance newAvatarAppearance)
+        public void UpdateInstancedAvatarAppearance(InstancedAvatarAppearance newAvatarAppearance)
         {
             HeadHandler.SetGameObjectSelections(newAvatarAppearance.PlayerGameObjectSelections.HeadGameObjectConfig);
             HeadHandler.SetBuiltInGameObjectIndex(newAvatarAppearance.BuiltInPresentationConfig.AvatarHeadIndex);
@@ -287,4 +290,4 @@ namespace VE2.Core.Player.Internal
 
 //What if we remove this layer and just have the player managing each sub peice directly 
 //The player needs all the interfaces on it anyway
-//Nah, this way works fine
+//Nah, this way works fine, we can just keep the individual parts public and wire through that way

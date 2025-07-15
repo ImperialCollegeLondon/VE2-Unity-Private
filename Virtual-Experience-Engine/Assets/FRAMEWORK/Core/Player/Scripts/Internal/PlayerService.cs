@@ -62,16 +62,16 @@ namespace VE2.Core.Player.Internal
         public UnityEvent OnCrouch2D => _config.MovementModeConfig.OnCrouch2D;
         public UnityEvent OnResetViewVR => _config.CameraConfig.OnResetViewVR;
 
-        public List<GameObject> CustomHeadPrefabs => _config.PlayerCustomGameObjectPrefabs.Heads;
-        public List<GameObject> CustomTorsoPrefabs => _config.PlayerCustomGameObjectPrefabs.Torsos;
+        public PlayerGameObjectPrefabs BuiltInGameObjectPrefabs { get; private set; }
+        public PlayerGameObjectPrefabs CustomGameObjectPrefabs => _config.PlayerCustomGameObjectPrefabs;
 
-        public Camera ActiveCamera 
+        public Camera ActiveCamera
         {
-            get 
+            get
             {
                 if (PlayerTransformData.IsVRMode)
                     return _playerVR.Camera;
-                else 
+                else
                     return _player2D.Camera;
             }
         }
@@ -114,8 +114,8 @@ namespace VE2.Core.Player.Internal
 
         public void MarkPlayerGameObjectsChanged()
         {
-            _playerSettingsHandler.MarkAppearanceChanged();
-            _activeAvatarHandler.UpdateInstacedAvatarAppearance(_currentInstancedAvatarAppearance);
+            _playerSettingsHandler.SaveAppearance();
+            _activeAvatarHandler.UpdateInstancedAvatarAppearance(_currentInstancedAvatarAppearance);
             OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
         }
 
@@ -178,8 +178,8 @@ namespace VE2.Core.Player.Internal
                 Resources.Load<GameObject>("Avatars/Torsos/V_Avatar_Torso_Default_1"),
             };
 
-            PlayerGameObjectPrefabs builtInPlayerGameObjectPrefabs = new(builtInHeadGameObjectPrefabs, builtInTorsoGameObjectPrefabs, new List<GameObject>(), new List<GameObject>());
-            AvatarHandlerBuilderContext avatarHandlerBuilderContext = new(builtInPlayerGameObjectPrefabs, config.PlayerCustomGameObjectPrefabs, _currentInstancedAvatarAppearance);
+            BuiltInGameObjectPrefabs = new(builtInHeadGameObjectPrefabs, builtInTorsoGameObjectPrefabs, new List<GameObject>(), new List<GameObject>());
+            AvatarHandlerBuilderContext avatarHandlerBuilderContext = new(BuiltInGameObjectPrefabs, config.PlayerCustomGameObjectPrefabs, _currentInstancedAvatarAppearance);
 
             _playerSyncContainer = playerSyncContainer;
             _playerSyncContainer.RegisterLocalPlayer(this);
@@ -202,7 +202,7 @@ namespace VE2.Core.Player.Internal
                     raycastProvider, collisionDetectorFactory, localClientIDWrapper, localAdminIndicator, primaryUIService, secondaryUIService, this);
             }
 
-            _activeAvatarHandler.UpdateInstacedAvatarAppearance(_currentInstancedAvatarAppearance);
+            _activeAvatarHandler.UpdateInstancedAvatarAppearance(_currentInstancedAvatarAppearance);
 
             // _playerSettingsHandler.OnDebugSaveAppearance += HandlePlayerPresentationChanged;
             // HandlePlayerPresentationChanged(_playerSettingsHandler.BuiltInPlayerGameObjectConfig); //Do this now to set the initial appearance

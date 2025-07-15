@@ -19,12 +19,12 @@ namespace VE2.Core.Player.Internal
 
         public PersistentPlayerMode PersistentPlayerMode { get; set; }
 
-        public event Action<BuiltInPlayerPresentationConfig> OnDebugSaveAppearance;
+        //public event Action<BuiltInPlayerPresentationConfig> OnDebugSaveAppearance;
 
         /// <summary>
         /// Will save to playerprefs if RememberPlayerSettings is true
         /// </summary>
-        public void MarkAppearanceChanged();
+        public void SaveAppearance();
 
         public void SetDefaults(BuiltInPlayerPresentationConfig defaultPlayerPresentationConfig);
 
@@ -73,7 +73,7 @@ namespace VE2.Core.Player.Internal
             }
         }
 
-        [EditorButton("MarkAppearanceChanged", nameof(MarkAppearanceChanged), ApplyCondition = false)] //TODO - just for debug, remove once proper customisation UI is working
+        [EditorButton("MarkAppearanceChanged", nameof(SaveAppearance), ApplyCondition = false)] //TODO - just for debug, remove once proper customisation UI is working
         [SerializeField, Disable] private bool _playerPresentationSetup = false;
         [SerializeField, Disable] private BuiltInPlayerPresentationConfig _defaultPlayerPresentationConfig;
         [SerializeField, DisableIf(nameof(_isPlaying), false), EndGroup] private BuiltInPlayerPresentationConfig _playerPresentationConfig = new();
@@ -126,7 +126,7 @@ namespace VE2.Core.Player.Internal
             {
                 _playerPresentationSetup = true;
                 _playerPresentationConfig = value;
-                MarkAppearanceChanged();
+                SaveAppearance();
             }
         }
 
@@ -137,11 +137,11 @@ namespace VE2.Core.Player.Internal
             return new(playerPresentationConfigBytes);
         }
 
-        public event Action<BuiltInPlayerPresentationConfig> OnDebugSaveAppearance;
+        //public event Action<BuiltInPlayerPresentationConfig> OnDebugSaveAppearance;
 
-        public void MarkAppearanceChanged()
+        public void SaveAppearance()
         {
-            OnDebugSaveAppearance?.Invoke(_playerPresentationConfig); //TODO remove
+            //OnDebugSaveAppearance?.Invoke(_playerPresentationConfig); //TODO remove
 
             PlayerPrefs.SetInt(RememberPlayerSettingsArgName, _rememberPlayerSettings ? 1 : 0);
             

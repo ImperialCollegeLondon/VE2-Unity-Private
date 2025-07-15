@@ -147,7 +147,8 @@ namespace VE2.Core.Player.Internal
             if (_primaryUIService != null)
             {
                 _primaryUIService.OnUIShowInternal -= HandlePrimaryUIActivated;
-                _primaryUIService.OnUIHideInternal -= HandlePrimaryUIDeactivated;            }
+                _primaryUIService.OnUIHideInternal -= HandlePrimaryUIDeactivated;
+            }
         }
 
         internal override void HandleUpdate()

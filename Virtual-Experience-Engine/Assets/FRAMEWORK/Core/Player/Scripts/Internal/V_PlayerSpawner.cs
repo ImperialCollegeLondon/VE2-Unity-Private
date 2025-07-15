@@ -148,24 +148,24 @@ namespace VE2.Core.Player.Internal
     //     // }
     // }
 
-    [Serializable]
-    internal class PlayerGameObjectPrefabs
-    {
-        [SerializeField, ReorderableList] internal List<GameObject> Heads = new();
-        [SerializeField, ReorderableList] internal List<GameObject> Torsos = new();
-        [SerializeField, ReorderableList] internal List<GameObject> VRRightHands = new();
-        [SerializeField, ReorderableList] internal List<GameObject> VRLefthands = new();
+    // [Serializable]
+    // internal class PlayerGameObjectPrefabs
+    // {
+    //     [SerializeField, ReorderableList] internal List<GameObject> Heads = new();
+    //     [SerializeField, ReorderableList] internal List<GameObject> Torsos = new();
+    //     [SerializeField, ReorderableList] internal List<GameObject> VRRightHands = new();
+    //     [SerializeField, ReorderableList] internal List<GameObject> VRLefthands = new();
 
-        public PlayerGameObjectPrefabs(List<GameObject> heads, List<GameObject> torsos, List<GameObject> vrRightHands, List<GameObject> vrLeftHands)
-        {
-            Heads = heads;
-            Torsos = torsos;
-            VRRightHands = vrRightHands;
-            VRLefthands = vrLeftHands;
-        }
+    //     public PlayerGameObjectPrefabs(List<GameObject> heads, List<GameObject> torsos, List<GameObject> vrRightHands, List<GameObject> vrLeftHands)
+    //     {
+    //         Heads = heads;
+    //         Torsos = torsos;
+    //         VRRightHands = vrRightHands;
+    //         VRLefthands = vrLeftHands;
+    //     }
 
-        public PlayerGameObjectPrefabs() { }
-    }
+    //     public PlayerGameObjectPrefabs() { }
+    // }
 
     [Serializable]
     internal class PlayerTransmissionConfig 

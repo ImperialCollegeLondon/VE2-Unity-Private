@@ -19,8 +19,8 @@ namespace VE2.Core.Player.API
         public void MarkPlayerGameObjectsChanged() { }
         public event Action<InstancedAvatarAppearance> OnOverridableAvatarAppearanceChanged;
 
-        public List<GameObject> CustomHeadPrefabs { get; }
-        public List<GameObject> CustomTorsoPrefabs { get; }
+        public PlayerGameObjectPrefabs BuiltInGameObjectPrefabs { get; }
+        public PlayerGameObjectPrefabs CustomGameObjectPrefabs { get; }
 
         public TransmissionProtocol TransmissionProtocol { get; }
         public float TransmissionFrequency { get; }
@@ -28,5 +28,24 @@ namespace VE2.Core.Player.API
         public AndroidJavaObject AddArgsToIntent(AndroidJavaObject intent);
 
         public void AddPanelTo2DOverlayUI(RectTransform rect);
+    }
+    
+    [Serializable]
+    internal class PlayerGameObjectPrefabs
+    {
+        [SerializeField, ReorderableList] internal List<GameObject> Heads = new();
+        [SerializeField, ReorderableList] internal List<GameObject> Torsos = new();
+        [SerializeField, ReorderableList] internal List<GameObject> VRRightHands = new();
+        [SerializeField, ReorderableList] internal List<GameObject> VRLefthands = new();
+
+        public PlayerGameObjectPrefabs(List<GameObject> heads, List<GameObject> torsos, List<GameObject> vrRightHands, List<GameObject> vrLeftHands)
+        {
+            Heads = heads;
+            Torsos = torsos;
+            VRRightHands = vrRightHands;
+            VRLefthands = vrLeftHands;
+        }
+
+        public PlayerGameObjectPrefabs() { }
     }
 }

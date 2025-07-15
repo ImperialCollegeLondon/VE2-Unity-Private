@@ -100,7 +100,7 @@ namespace VE2.NonCore.Instancing.Internal
         internal void HandleReceiveAvatarAppearance(InstancedAvatarAppearance newAvatarAppearance)
         {
             _playerNameText.text = newAvatarAppearance.BuiltInPresentationConfig.PlayerName;
-            _avatarHandler.UpdateInstacedAvatarAppearance(newAvatarAppearance);
+            _avatarHandler.UpdateInstancedAvatarAppearance(newAvatarAppearance);
         }
 
         internal void HandleReceiveAdminUpdateNotice(bool isNewAdmin)

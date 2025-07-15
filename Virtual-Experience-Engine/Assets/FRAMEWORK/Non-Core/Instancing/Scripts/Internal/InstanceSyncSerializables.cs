@@ -283,7 +283,7 @@ namespace VE2.NonCore.Instancing.Internal
 
         public class InstancedClientInfo : ClientInfoBase
         {
-            public AvatarAppearanceWrapper InstancedAvatarAppearance;
+            public AvatarAppearanceWrapper AvatarAppearanceWrapper;
 
             public InstancedClientInfo() { }
 
@@ -291,7 +291,7 @@ namespace VE2.NonCore.Instancing.Internal
 
             public InstancedClientInfo(ushort clientID, bool isAdmin, AvatarAppearanceWrapper instancedAvatarAppearance) : base(clientID, isAdmin, "unknown") //TODO, machine name should maybe be platform-specific?
             {
-                InstancedAvatarAppearance = instancedAvatarAppearance;
+                AvatarAppearanceWrapper = instancedAvatarAppearance;
             }
 
             protected override byte[] ConvertToBytes()
@@ -303,7 +303,7 @@ namespace VE2.NonCore.Instancing.Internal
                 writer.Write((ushort)baseBytes.Length);
                 writer.Write(baseBytes);
 
-                byte[] avatarAppearanceBytes = InstancedAvatarAppearance.Bytes;
+                byte[] avatarAppearanceBytes = AvatarAppearanceWrapper.Bytes;
                 writer.Write((ushort)avatarAppearanceBytes.Length);
                 writer.Write(avatarAppearanceBytes);
 
@@ -320,14 +320,14 @@ namespace VE2.NonCore.Instancing.Internal
                 base.PopulateFromBytes(baseData);
 
                 ushort avatarAppearanceLength = reader.ReadUInt16();
-                InstancedAvatarAppearance = new AvatarAppearanceWrapper(reader.ReadBytes(avatarAppearanceLength));
+                AvatarAppearanceWrapper = new AvatarAppearanceWrapper(reader.ReadBytes(avatarAppearanceLength));
             }
         }
 
         public class AvatarAppearanceWrapper : VE2Serializable //TODO: Should probably live in player serializables?
         {
             public bool UsingFrameworkPlayer;
-            public InstancedAvatarAppearance OverridableAvatarAppearance;
+            public InstancedAvatarAppearance InstancedAvatarAppearance;
 
             public AvatarAppearanceWrapper() { }
 
@@ -336,7 +336,7 @@ namespace VE2.NonCore.Instancing.Internal
             public AvatarAppearanceWrapper(bool usingFrameworkAvatar, InstancedAvatarAppearance frameworkAvatarAppearance)
             {
                 UsingFrameworkPlayer = usingFrameworkAvatar;
-                OverridableAvatarAppearance = frameworkAvatarAppearance;
+                InstancedAvatarAppearance = frameworkAvatarAppearance;
             }
 
             protected override byte[] ConvertToBytes()
@@ -348,7 +348,7 @@ namespace VE2.NonCore.Instancing.Internal
 
                 if (UsingFrameworkPlayer)
                 {
-                    byte[] virseAppearanceBytes = OverridableAvatarAppearance.Bytes;
+                    byte[] virseAppearanceBytes = InstancedAvatarAppearance.Bytes;
                     writer.Write((ushort)virseAppearanceBytes.Length);
                     writer.Write(virseAppearanceBytes);
                 }
@@ -367,7 +367,7 @@ namespace VE2.NonCore.Instancing.Internal
                 {
                     ushort virseAppearanceBytesLength = reader.ReadUInt16();
                     byte[] virseAppearanceBytes = reader.ReadBytes(virseAppearanceBytesLength);
-                    OverridableAvatarAppearance = new(virseAppearanceBytes);
+                    InstancedAvatarAppearance = new(virseAppearanceBytes);
                 }
             }
         }

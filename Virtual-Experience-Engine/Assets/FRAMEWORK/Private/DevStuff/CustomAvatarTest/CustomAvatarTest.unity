@@ -2487,7 +2487,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &446962486
 Transform:
   m_ObjectHideFlags: 0
@@ -4104,27 +4104,36 @@ MonoBehaviour:
       OnResetViewVR:
         m_PersistentCalls:
           m_Calls: []
-    AvatarAppearanceOverrideConfig:
-      OverrideHead: 0
-      HeadOverrideIndex: 0
-      HeadOverrideGameObjects:
-      - {fileID: 986078756826171031, guid: c94e2ddb71d966547a7aac46a499119d, type: 3}
-      - {fileID: 7506260605586009539, guid: 1ceab9568fef06541ad70e4797ac4853, type: 3}
-      OverrideTorso: 0
-      TorsoOverrideIndex: 0
-      TorsoOverrideGameObjects:
-      - {fileID: 2707269629171340054, guid: 75bc064447dd17e4fa9718200696fbee, type: 3}
-      - {fileID: 2707269629171340054, guid: 75bc064447dd17e4fa9718200696fbee, type: 3}
+    PlayerGameObjectSelections:
+      HeadGameObjectConfig:
+        BuiltInGameObjectEnabled: 1
+        CustomGameObjectEnabled: 0
+        CustomGameObjectIndex: 0
+      TorsoGameObjectConfig:
+        BuiltInGameObjectEnabled: 1
+        CustomGameObjectEnabled: 0
+        CustomGameObjectIndex: 0
+      VRHandRightGameObjectConfig:
+        BuiltInGameObjectEnabled: 1
+        CustomGameObjectEnabled: 0
+        CustomGameObjectIndex: 0
+      VRHandLeftGameObjectConfig:
+        BuiltInGameObjectEnabled: 1
+        CustomGameObjectEnabled: 0
+        CustomGameObjectIndex: 0
+    PlayerCustomGameObjectPrefabs:
+      Heads: []
+      Torsos: []
+      VRRightHands: []
+      VRLefthands: []
     RepeatedTransmissionConfig:
       TransmissionFrequency: 35
       TransmissionType: 0
   _defaultPlayerPresentationConfig:
     PlayerName: DebugName
-    AvatarHeadType: 0
-    AvatarTorsoType: 0
-    AvatarRed: 255
-    AvatarGreen: 0
-    AvatarBlue: 0
+    AvatarHeadIndex: 0
+    AvatarTorsoIndex: 0
+    AvatarColor: {r: 255, g: 60, b: 60, a: 1}
   _transformDataSetup: 0
   _playerTransformData:
     IsVRMode: 0
