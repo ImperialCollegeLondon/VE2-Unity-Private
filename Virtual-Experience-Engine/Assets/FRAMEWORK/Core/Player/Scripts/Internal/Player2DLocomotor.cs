@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
+using VE2.Core.Player.API;
 
 namespace VE2.Core.Player.Internal
 {
@@ -23,6 +24,7 @@ namespace VE2.Core.Player.Internal
         private readonly MovementModeConfig _movementModeConfig;
         private readonly InspectModeIndicator _inspectModeIndicator;
 
+        private PlayerLocomotor2DInputContainer _playerLocomotor2DInputContainer;
         private LayerMask _traversableLayers => _movementModeConfig.TraversableLayers;
         private float _originalControllerHeight;
         private float verticalVelocity = 0f;
@@ -72,7 +74,7 @@ namespace VE2.Core.Player.Internal
             }    
         }
 
-        internal Player2DLocomotor(Locomotor2DReferences locomotor2DReferences, MovementModeConfig movementModeConfig, InspectModeIndicator inspectModeIndicator)
+        internal Player2DLocomotor(Locomotor2DReferences locomotor2DReferences, MovementModeConfig movementModeConfig, InspectModeIndicator inspectModeIndicator, PlayerLocomotor2DInputContainer playerLocomotor2DInputContainer)
         {
             _characterController = locomotor2DReferences.Controller;
             _verticalOffsetTransform = locomotor2DReferences.VerticalOffsetTransform;
@@ -83,7 +85,7 @@ namespace VE2.Core.Player.Internal
             _characterController.includeLayers = movementModeConfig.TraversableLayers | movementModeConfig.CollisionLayers;
 
             _inspectModeIndicator = inspectModeIndicator;
-
+            _playerLocomotor2DInputContainer = playerLocomotor2DInputContainer;
 
             Application.focusChanged += OnFocusChanged;
             if (Application.isFocused)
@@ -99,11 +101,13 @@ namespace VE2.Core.Player.Internal
         public void HandleOnEnable()
         {
             //TODO: listen to input 
+            _playerLocomotor2DInputContainer.Crouch.OnPressed += HandleCrouch;
         }
 
         public void HandleOnDisable()
         {
             //TODO: stop listening to input
+            _playerLocomotor2DInputContainer.Crouch.OnPressed -= HandleCrouch;
         }
 
         public void HandleUpdate() //TODO: Should listen to InputHandler, this should maybe go in FixedUpdate to keep grabbables happy (they are updated in FixedUpdate) 
@@ -112,13 +116,13 @@ namespace VE2.Core.Player.Internal
             //Needs to be injected with UIService, needs to know to not lock cursor when detecting left click if UI is showing
 
             // Handle Escape key to unlock the cursor
-            if (Keyboard.current.escapeKey.wasPressedThisFrame)
+            if (_playerLocomotor2DInputContainer.UnlockCursor.IsPressed)
             {
                 UnlockCursor();
             }
 
             // Check for mouse click to re-lock the cursor
-            if (Mouse.current.leftButton.wasPressedThisFrame && !isCursorLocked)
+            if (_playerLocomotor2DInputContainer.LockCursor.IsPressed && !isCursorLocked)
             {
                 LockCursor();
             }
@@ -128,46 +132,32 @@ namespace VE2.Core.Player.Internal
                 // Mouse look
                 if (!_inspectModeIndicator.IsInspectModeActive)
                 {
-                    float mouseX = Mouse.current.delta.x.ReadValue() * mouseSensitivity;
+                    //float mouseX = Mouse.current.delta.x.ReadValue() * mouseSensitivity;
+                    float mouseX = _playerLocomotor2DInputContainer.MouseDelta.Value.x * mouseSensitivity;
                     _transform.Rotate(Vector3.up * mouseX);
 
-                    float mouseY = Mouse.current.delta.y.ReadValue() * mouseSensitivity;
+                    //float mouseY = Mouse.current.delta.y.ReadValue() * mouseSensitivity;
+                    float mouseY = _playerLocomotor2DInputContainer.MouseDelta.Value.y * mouseSensitivity;
                     verticalRotation -= mouseY;
                     verticalRotation = Mathf.Clamp(verticalRotation, minVerticalAngle, maxVerticalAngle);
                     _cameraTransform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
                 }
 
-                // Movement
-                float moveX = Keyboard.current.dKey.ReadValue() - Keyboard.current.aKey.ReadValue();
-                float moveZ = Keyboard.current.wKey.ReadValue() - Keyboard.current.sKey.ReadValue();
+                float moveX = (_playerLocomotor2DInputContainer.Right?.IsPressed == true ? 1f : 0f)
+                                - (_playerLocomotor2DInputContainer.Left?.IsPressed == true ? 1f : 0f);
+                float moveZ = (_playerLocomotor2DInputContainer.Forward?.IsPressed == true ? 1f : 0f)
+                                - (_playerLocomotor2DInputContainer.Backward?.IsPressed == true ? 1f : 0f);
+
                 Vector3 moveDirection = _transform.TransformDirection(new Vector3(moveX, 0, moveZ));
 
-                float speed = Keyboard.current.leftShiftKey.isPressed ? _walkSpeed * _sprintSpeedMultiplier : _walkSpeed;
+                float speed = _playerLocomotor2DInputContainer.IsSprinting2D.IsPressed ? _walkSpeed * _sprintSpeedMultiplier : _walkSpeed;
                 _characterController.Move(moveDirection * speed * Time.deltaTime);
 
                 // Jump
-                if (Keyboard.current.spaceKey.wasPressedThisFrame && IsGrounded())
+                if (_playerLocomotor2DInputContainer.Jump.IsPressed && IsGrounded())
                 {
                     verticalVelocity = jumpForce;
                     _movementModeConfig.OnJump2D?.Invoke();
-                }
-
-                // Crouch
-                if (Keyboard.current.cKey.wasReleasedThisFrame)
-                {
-                    if (isCrouching)
-                    {
-                        _characterController.Move(Vector3.up * (_originalControllerHeight - _characterController.height)); //Bodge so we don't fall through the floor
-                        _characterController.height = _originalControllerHeight;
-                    }
-                    else
-                    {
-                        _characterController.height = crouchHeight;
-                        _movementModeConfig.OnCrouch2D?.Invoke();
-                    }
-
-
-                    isCrouching = !isCrouching;
                 }
             }
 
@@ -176,6 +166,22 @@ namespace VE2.Core.Player.Internal
             _characterController.Move(Vector3.up * verticalVelocity * Time.deltaTime);
         }
 
+        private void HandleCrouch()
+        {
+            if (isCrouching)
+            {
+                _characterController.Move(Vector3.up * (_originalControllerHeight - _characterController.height)); //Bodge so we don't fall through the floor
+                _characterController.height = _originalControllerHeight;
+            }
+            else
+            {
+                _characterController.height = crouchHeight;
+                _movementModeConfig.OnCrouch2D?.Invoke();
+            }
+
+
+            isCrouching = !isCrouching;
+        }
         private void LockCursor()
         {
             Cursor.visible = false;
