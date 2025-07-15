@@ -56,6 +56,12 @@ namespace VE2.Core.VComponents.Internal
             CommonUtils.InstantiateResource("GrabbableShooter");
         }
 
+        [MenuItem("/GameObject/VE2/Interactables/VirtualKeyboardSpawner", priority = 6)]
+        private static void CreateVirtualKeyboardSpawner()
+        {
+            CommonUtils.InstantiateResource("VirtualKeyboardSpawner");
+        }
+
         [MenuItem("/GameObject/VE2/UIs/CustomInfoPoint", priority = 6)]
         private static void CreateCustomInfoPoint()
         {

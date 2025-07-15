@@ -10,17 +10,20 @@ namespace VE2.Core.VComponents.Internal
         [Header("Open/Close Tween Settings")]
         [SerializeField] private float _tweenTime = 0.4f;
         [SerializeField] private Ease _tweenEase = Ease.InOutSine;
+        [SerializeField] private CanvasGroup _canvasGroup;
 
         private Tween _animationTween;
         private Vector3 _originalCanvasScale;
-        private CanvasGroup _canvasGroup;
+        
 
         private void Awake()
         {
             _originalCanvasScale = gameObject.transform.localScale;
 
             gameObject.transform.localScale = Vector3.zero;
-            _canvasGroup = gameObject.GetComponent<CanvasGroup>();
+
+            if (_canvasGroup == null)
+                Debug.LogWarning("InfoPointCanvasAnimationHandler: CanvasGroup is not assigned.", this);
         }
 
         public void ToggleShowCanvas(bool canvasActive) => ToggleShowCanvas(canvasActive, false);
