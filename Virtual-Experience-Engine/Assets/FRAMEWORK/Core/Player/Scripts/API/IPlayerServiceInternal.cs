@@ -16,7 +16,7 @@ namespace VE2.Core.Player.API
         /// call MarkPlayerSettingsUpdated after modifying this property
         /// </summary>
         public InstancedAvatarAppearance InstancedAvatarAppearance { get; }
-        public void MarkPlayerAvatarChanged() { }
+        //public void MarkPlayerAvatarChanged() { }
         public event Action<InstancedAvatarAppearance> OnInstancedAvatarAppearanceChanged;
 
         public PlayerGameObjectPrefabs BuiltInGameObjectPrefabs { get; }
@@ -28,6 +28,11 @@ namespace VE2.Core.Player.API
         public AndroidJavaObject AddArgsToIntent(AndroidJavaObject intent);
 
         public void AddPanelTo2DOverlayUI(RectTransform rect);
+
+
+        public void SetBuiltInHeadIndex(ushort type);
+        public void SetBuiltInTorsoIndex(ushort type);
+        public void SetBuiltInColor(Color color);
     }
     
     [Serializable]

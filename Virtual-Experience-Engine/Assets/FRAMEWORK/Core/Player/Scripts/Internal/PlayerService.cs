@@ -35,17 +35,7 @@ namespace VE2.Core.Player.Internal
 
     internal class PlayerService : IPlayerService, IPlayerServiceInternal
     {
-        #region Interfaces  
-        public PlayerTransformData PlayerTransformData {get; private set;}
-
-        public event Action<InstancedAvatarAppearance> OnInstancedAvatarAppearanceChanged;
-        public InstancedAvatarAppearance InstancedAvatarAppearance => new(_playerSettingsHandler.BuiltInPlayerGameObjectConfig, _config.PlayerGameObjectSelections);
-
-        public bool RememberPlayerSettings { get => _playerSettingsHandler.RememberPlayerSettings; set => _playerSettingsHandler.RememberPlayerSettings = value; }
-
-        public TransmissionProtocol TransmissionProtocol => _config.RepeatedTransmissionConfig.TransmissionType;
-        public float TransmissionFrequency => _config.RepeatedTransmissionConfig.TransmissionFrequency;
-
+        #region Plugin Interfaces  
         public bool IsVRMode => PlayerTransformData.IsVRMode;
         public UnityEvent OnChangeToVRMode => _config.PlayerModeConfig.OnChangeToVRMode;
         public UnityEvent OnChangeTo2DMode => _config.PlayerModeConfig.OnChangeTo2DMode;
@@ -56,9 +46,6 @@ namespace VE2.Core.Player.Internal
         public UnityEvent OnJump2D => _config.MovementModeConfig.OnJump2D;
         public UnityEvent OnCrouch2D => _config.MovementModeConfig.OnCrouch2D;
         public UnityEvent OnResetViewVR => _config.CameraConfig.OnResetViewVR;
-
-        public PlayerGameObjectPrefabs BuiltInGameObjectPrefabs { get; private set; }
-        public PlayerGameObjectPrefabs CustomGameObjectPrefabs => _config.PlayerCustomGameObjectPrefabs;
 
         public Camera ActiveCamera
         {
@@ -73,41 +60,41 @@ namespace VE2.Core.Player.Internal
         
         public void SetBuiltInHeadEnabled(bool isEnabled)
         {
-            InstancedAvatarAppearance.PlayerGameObjectSelections.HeadGameObjectConfig.BuiltInGameObjectEnabled = isEnabled;
+            _config.PlayerGameObjectSelections.HeadGameObjectConfig.BuiltInGameObjectEnabled = isEnabled;
             MarkPlayerAvatarChanged();
         }
 
         public void SetCustomHeadEnabled(bool isEnabled)
         {
-            InstancedAvatarAppearance.PlayerGameObjectSelections.HeadGameObjectConfig.CustomGameObjectEnabled = isEnabled;
+            _config.PlayerGameObjectSelections.HeadGameObjectConfig.CustomGameObjectEnabled = isEnabled;
             MarkPlayerAvatarChanged();
         }
 
         public void SetCustomHeadIndex(ushort type)
         {
-            InstancedAvatarAppearance.PlayerGameObjectSelections.HeadGameObjectConfig.CustomGameObjectIndex = type;
+            _config.PlayerGameObjectSelections.HeadGameObjectConfig.CustomGameObjectIndex = type;
             MarkPlayerAvatarChanged();
         }
 
         public void SetBuiltInTorsoEnabled(bool isEnabled)
         {
-            InstancedAvatarAppearance.PlayerGameObjectSelections.TorsoGameObjectConfig.BuiltInGameObjectEnabled = isEnabled;
+            _config.PlayerGameObjectSelections.TorsoGameObjectConfig.BuiltInGameObjectEnabled = isEnabled;
             MarkPlayerAvatarChanged();
         }
 
         public void SetCustomTorsoEnabled(bool isEnabled)
         {
-            InstancedAvatarAppearance.PlayerGameObjectSelections.TorsoGameObjectConfig.CustomGameObjectEnabled = isEnabled;
+            _config.PlayerGameObjectSelections.TorsoGameObjectConfig.CustomGameObjectEnabled = isEnabled;
             MarkPlayerAvatarChanged();
         }
 
         public void SetCustomTorsoIndex(ushort type)
         {
-            InstancedAvatarAppearance.PlayerGameObjectSelections.TorsoGameObjectConfig.CustomGameObjectIndex = type;
+            _config.PlayerGameObjectSelections.TorsoGameObjectConfig.CustomGameObjectIndex = type;
             MarkPlayerAvatarChanged();
         }
 
-        public void MarkPlayerAvatarChanged()
+        private void MarkPlayerAvatarChanged()
         {
             _playerSettingsHandler.SaveAppearance();
             _activeAvatarHandler.UpdateInstancedAvatarAppearance(InstancedAvatarAppearance);
@@ -132,7 +119,41 @@ namespace VE2.Core.Player.Internal
             else
                 _player2D.SetPlayerRotation(rotation);
         }
-        
+        #endregion
+
+        #region Internal Interface
+
+        public PlayerTransformData PlayerTransformData {get; private set;}
+
+        public event Action<InstancedAvatarAppearance> OnInstancedAvatarAppearanceChanged;
+        public InstancedAvatarAppearance InstancedAvatarAppearance => new(_playerSettingsHandler.BuiltInPlayerGameObjectConfig, _config.PlayerGameObjectSelections);
+
+        public bool RememberPlayerSettings { get => _playerSettingsHandler.RememberPlayerSettings; set => _playerSettingsHandler.RememberPlayerSettings = value; }
+
+        public TransmissionProtocol TransmissionProtocol => _config.RepeatedTransmissionConfig.TransmissionType;
+        public float TransmissionFrequency => _config.RepeatedTransmissionConfig.TransmissionFrequency;
+
+        public void SetBuiltInHeadIndex(ushort type)
+        {
+            _playerSettingsHandler.BuiltInPlayerGameObjectConfig.AvatarHeadIndex = type;
+            MarkPlayerAvatarChanged();
+        }
+
+        public void SetBuiltInTorsoIndex(ushort type)
+        {
+            _playerSettingsHandler.BuiltInPlayerGameObjectConfig.AvatarTorsoIndex = type;
+            MarkPlayerAvatarChanged();
+        }
+
+        public void SetBuiltInColor(Color color)
+        {
+            _playerSettingsHandler.BuiltInPlayerGameObjectConfig.AvatarColor = color;
+            MarkPlayerAvatarChanged();
+        }
+
+        public PlayerGameObjectPrefabs BuiltInGameObjectPrefabs { get; private set; }
+        public PlayerGameObjectPrefabs CustomGameObjectPrefabs => _config.PlayerCustomGameObjectPrefabs;
+
         public AndroidJavaObject AddArgsToIntent(AndroidJavaObject intent) => _playerSettingsHandler.AddArgsToIntent(intent);
 
         public void AddPanelTo2DOverlayUI(RectTransform rect) => _player2D.MoveRectToOverlayUI(rect);
@@ -169,6 +190,7 @@ namespace VE2.Core.Player.Internal
             List<GameObject> builtInTorsoGameObjectPrefabs = new List<GameObject>()
             {
                 Resources.Load<GameObject>("Avatars/Torsos/V_Avatar_Torso_Default_1"),
+                Resources.Load<GameObject>("Avatars/Torsos/V_Avatar_Torso_Default_2")
             };
 
             BuiltInGameObjectPrefabs = new(builtInHeadGameObjectPrefabs, builtInTorsoGameObjectPrefabs, new List<GameObject>(), new List<GameObject>());
