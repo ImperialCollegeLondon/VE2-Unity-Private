@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.InputSystem;
 using VE2.Core.Player.API;
 
 namespace VE2.Core.Player.Internal
@@ -100,13 +99,13 @@ namespace VE2.Core.Player.Internal
 
         public void HandleOnEnable()
         {
-            //TODO: listen to input 
+            //Listen to input 
             _playerLocomotor2DInputContainer.Crouch.OnPressed += HandleCrouch;
         }
 
         public void HandleOnDisable()
         {
-            //TODO: stop listening to input
+            //Stop listening to input
             _playerLocomotor2DInputContainer.Crouch.OnPressed -= HandleCrouch;
         }
 
@@ -132,11 +131,9 @@ namespace VE2.Core.Player.Internal
                 // Mouse look
                 if (!_inspectModeIndicator.IsInspectModeActive)
                 {
-                    //float mouseX = Mouse.current.delta.x.ReadValue() * mouseSensitivity;
                     float mouseX = _playerLocomotor2DInputContainer.MouseDelta.Value.x * mouseSensitivity;
                     _transform.Rotate(Vector3.up * mouseX);
 
-                    //float mouseY = Mouse.current.delta.y.ReadValue() * mouseSensitivity;
                     float mouseY = _playerLocomotor2DInputContainer.MouseDelta.Value.y * mouseSensitivity;
                     verticalRotation -= mouseY;
                     verticalRotation = Mathf.Clamp(verticalRotation, minVerticalAngle, maxVerticalAngle);
@@ -178,7 +175,6 @@ namespace VE2.Core.Player.Internal
                 _characterController.height = crouchHeight;
                 _movementModeConfig.OnCrouch2D?.Invoke();
             }
-
 
             isCrouching = !isCrouching;
         }
