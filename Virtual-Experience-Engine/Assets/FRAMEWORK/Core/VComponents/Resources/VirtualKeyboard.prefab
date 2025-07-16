@@ -4180,6 +4180,9 @@ GameObject:
   - component: {fileID: 25163573949654771}
   - component: {fileID: 8412309253298787284}
   - component: {fileID: 4012300496675936947}
+  - component: {fileID: 7217289958284707176}
+  - component: {fileID: 8065578424328912691}
+  - component: {fileID: 8724083947455823436}
   m_Layer: 11
   m_Name: VirtualKeyboard
   m_TagString: Untagged
@@ -4250,8 +4253,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.33154243, y: 0.26045275, z: 0}
-  m_Center: {x: 0.0012804344, y: 0.00049090385, z: 0}
+  m_Size: {x: 0.033333898, y: 0.26045275, z: 0}
+  m_Center: {x: -0.14782384, y: 0.00049090385, z: 0}
 --- !u!225 &4012300496675936947
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -4264,6 +4267,147 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &7217289958284707176
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 901364635038866304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 798ea06aad185d24ebd00082726ac30e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _config:
+    StateConfig:
+      InspectorDebug:
+        IsGrabbed: 0
+        ClientID: 65535
+      OnGrab:
+        m_PersistentCalls:
+          m_Calls: []
+      OnDrop:
+        m_PersistentCalls:
+          m_Calls: []
+    RangedFreeGrabInteractionConfig:
+      InteractionRange: 50
+      OnLocalHoverEnter:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 6601293843876300217}
+            m_TargetAssemblyTypeName: VE2.Core.VComponents.Internal.VirtualKeyboard,
+              VE2.Core.VComponents.Internal
+            m_MethodName: SetVisualMesh
+            m_Mode: 6
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 1
+            m_CallState: 2
+      OnLocalHoverExit:
+        m_PersistentCalls:
+          m_Calls:
+          - m_Target: {fileID: 6601293843876300217}
+            m_TargetAssemblyTypeName: VE2.Core.VComponents.Internal.VirtualKeyboard,
+              VE2.Core.VComponents.Internal
+            m_MethodName: SetVisualMesh
+            m_Mode: 6
+            m_Arguments:
+              m_ObjectArgument: {fileID: 0}
+              m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+              m_IntArgument: 0
+              m_FloatArgument: 0
+              m_StringArgument: 
+              m_BoolArgument: 0
+            m_CallState: 2
+      _attachPoint: {fileID: 4766454720146295899}
+      VRRaySnap: 0
+      VRRaySnapRangeFrontOfHand: 0.15
+      VRRaySnapRangeBackOfHand: 0.1
+      VRFailsafeGrab: 0
+      VRFailsafeGrabMultiplier: 1.2
+      DropBehaviour: 1
+      AlignOrientationOnGrab: 0
+      PreserveInspectModeOrientation: 0
+      OnLocalInspectModeEnter:
+        m_PersistentCalls:
+          m_Calls: []
+      OnLocalInspectModeExit:
+        m_PersistentCalls:
+          m_Calls: []
+    GeneralInteractionConfig:
+      AdminOnly: 0
+      EnableControllerVibrations: 1
+      ShowTooltipsAndHighlight: 1
+      IsInteractable: 0
+    SyncConfig:
+      IsNetworked: 0
+      TransmissionFrequency: 1
+      TransmissionType: 0
+  _collider: {fileID: 8412309253298787284}
+  _rigidbody: {fileID: 25163573949654771}
+--- !u!114 &8065578424328912691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 901364635038866304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 788648ad552e832428bdca9fb2549643, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _config:
+    StateConfig:
+      InspectorDebug:
+        Value: 0
+        ClientID: 65535
+        _newOutputValue: 0
+      OnValueAdjusted:
+        m_PersistentCalls:
+          m_Calls: []
+      MinimumOutputValue: 0
+      MaximumOutputValue: 1
+      StartingOutputValue: 0
+      EmitValueOnStart: 1
+      IncrementPerScrollTick: 0.1
+    HandheldAdjustableServiceConfig:
+      LoopValues: 0
+    GeneralInteractionConfig:
+      AdminOnly: 0
+      EnableControllerVibrations: 1
+      ShowTooltipsAndHighlight: 1
+      IsInteractable: 1
+    SyncConfig:
+      IsNetworked: 0
+      TransmissionFrequency: 1
+      TransmissionType: 0
+--- !u!65 &8724083947455823436
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 901364635038866304}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.035650566, y: 0.26045275, z: 0}
+  m_Center: {x: 0.14356738, y: 0.00049090385, z: 0}
 --- !u!1 &901890639278329502
 GameObject:
   m_ObjectHideFlags: 0
@@ -24595,7 +24739,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 1.1203749, y: 1.0866516, z: 1}
   m_Center: {x: -0.00069688086, y: 0.5059324, z: 0}
@@ -34683,6 +34827,8 @@ MonoBehaviour:
   - {fileID: 7977749517770428328}
   - {fileID: 553901828004442818}
   fullKeyBoardAltCharActionButtons: []
+  freeGrabbable:
+    _gameObject: {fileID: 901364635038866304}
   OnSubmitted:
     m_PersistentCalls:
       m_Calls: []

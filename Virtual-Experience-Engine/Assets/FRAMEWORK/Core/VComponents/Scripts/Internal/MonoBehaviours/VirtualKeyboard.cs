@@ -9,12 +9,14 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using VE2;
 using VE2.Common.API;
+using VE2.Common.Shared;
 using VE2.Core.Player.API;
+using VE2.Core.VComponents.API;
 
 
 namespace VE2.Core.VComponents.Internal
 {
-    [AddComponentMenu("")] //Unlikely to be useful outside the infopoint context, so hide it from the menu
+    [AddComponentMenu("")] //Unlikely to be useful outside the virtual keyboard context, so hide it from the menu
     public class VirtualKeyboard : MonoBehaviour
     {
 
@@ -44,6 +46,8 @@ namespace VE2.Core.VComponents.Internal
         public Button[] fullKeyBoardNumbersActionButtons;
         public Button[] fullKeyBoardAltCharActionButtons;
 
+        [SerializeField] private InterfaceReference<IV_FreeGrabbable> freeGrabbable;
+
         private bool isLookAtActive = true;
 
         private Button[] currentFullKeyboardActionButtons;
@@ -57,10 +61,11 @@ namespace VE2.Core.VComponents.Internal
         private Vector3 visualMeshObjectScale;
         private CanvasGroup sepCG, inputCG, bodyCG, parentCG;
 
+        private bool isKeyboardActive = false; //this is to cater for hover
         public UnityEvent<string> OnSubmitted;
         public UnityEvent<string> OnTextUpdate;
 
-        //public V_GrabbableAdjustable grabbableAdjustable;
+
 
         private void OnEnable()
         {
@@ -145,11 +150,6 @@ namespace VE2.Core.VComponents.Internal
                 Vector3 directionToPlayer = playerTransform.position - transform.position;
                 transform.rotation = Quaternion.LookRotation(-directionToPlayer);
             }
-
-
-
-
-
         }
 
         public void SetLookAtStatus(bool status)
@@ -161,6 +161,13 @@ namespace VE2.Core.VComponents.Internal
                 transform.localRotation = Quaternion.identity;
             }
         }
+
+        private void DelayGrabbableInteraction()
+        {
+            freeGrabbable.Interface.IsInteractable = false;
+            DOVirtual.DelayedCall(2f, () => freeGrabbable.Interface.IsInteractable = true);
+        }
+
         public void SetParentPosition()
         {
             parentObject.position = transform.position;
@@ -201,6 +208,8 @@ namespace VE2.Core.VComponents.Internal
                 keyboardOutput = keyboardConfig.inputField.text;
                 OnTextUpdate.Invoke(keyboardOutput);
             }
+
+            DelayGrabbableInteraction();
         }
         private void ShowKeyBoard(GameObject keyBoard, bool state, TMP_Text currentOutputTextUI, Transform currentResultPromptTransform, CanvasGroup currentresultPromptGroup)
         {
@@ -212,7 +221,6 @@ namespace VE2.Core.VComponents.Internal
             resultPromptGroup.alpha = 0;
             keyBoard.SetActive(state);
             FadeIn();
-
         }
         public void FadeIn()
         {
@@ -270,6 +278,7 @@ namespace VE2.Core.VComponents.Internal
 
             fadeOutSequence.Play();
         }
+
         public void RegisterInput(string key)
         {
             ProcessInput(key);
@@ -316,7 +325,6 @@ namespace VE2.Core.VComponents.Internal
                     ChangeFullKeyboard(fullKeyBoardActionButtons);
                     isKeyBoardUpperCase = true;
                 }
-
             }
             else
             {
@@ -331,7 +339,6 @@ namespace VE2.Core.VComponents.Internal
 
             if (keyboardConfig.inputField != null)
                 keyboardConfig.inputField.text = text;
-
         }
 
         public void OnConfirmClicked()
@@ -399,7 +406,6 @@ namespace VE2.Core.VComponents.Internal
                 default:
                     break;
             }
-
         }
 
         public void ShowResultPrompt(bool isUserEntryCorrect)
@@ -429,7 +435,6 @@ namespace VE2.Core.VComponents.Internal
             //sequence.Join(resultPromptGroup.DOFade(1.0f, 0.3f));
 
             sequence.OnComplete(InvokeSubmitEvent);
-
         }
 
         public void HideResultPrompt()
@@ -476,31 +481,54 @@ namespace VE2.Core.VComponents.Internal
 
         }
 
+        //public void SetVisualMeshInactive(bool status)
+        //{
+        //    if (status)
+        //    {
+        //        visualMeshObject.SetActive(true);
+        //        visualMeshObject.transform.localScale = Vector3.zero;
+        //        visualMeshObject.transform.DOScale(visualMeshObjectScale, 0.5f).SetEase(Ease.OutBack).OnComplete(() =>
+        //        {
+        //            DOVirtual.DelayedCall(5f, () => SetVisualMeshInactive());
+        //        });
+        //    }
+        //    else
+        //    {
+        //        if (!visualMeshObject.activeSelf) return;
+
+        //        visualMeshObject.transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.InBack).OnComplete(() =>
+        //        {
+        //            visualMeshObject.SetActive(false);
+        //        });
+        //    }
+        //}
+
         public void SetVisualMesh(bool status)
         {
             if (status)
             {
-                visualMeshObject.SetActive(true);
-                visualMeshObject.transform.localScale = Vector3.zero;
-                visualMeshObject.transform.DOScale(visualMeshObjectScale, 0.5f).SetEase(Ease.OutBack).OnComplete(() =>
+                if (!isKeyboardActive)
                 {
-                    DOVirtual.DelayedCall(5f, () => SetVisualMesh());
-                });
+                    isKeyboardActive = true;
+                }
+                else
+                {
+                    SetVisualMeshActive();
+                }
             }
             else
             {
-                if (!visualMeshObject.activeSelf) return;
-
-                visualMeshObject.transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.InBack).OnComplete(() =>
-                {
-                    visualMeshObject.SetActive(false);
-                });
+                SetVisualMeshInactive();
             }
         }
-
-        public void SetVisualMesh()
+        public void SetVisualMeshInactive()
         {
             visualMeshObject.SetActive(false);
+        }
+
+        public void SetVisualMeshActive()
+        {
+            visualMeshObject.SetActive(true);
         }
 
         public void DestroyKeyboard()
