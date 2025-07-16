@@ -281,7 +281,7 @@ MonoBehaviour:
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
-      _attachPoint: {fileID: 0}
+      _attachPoint: {fileID: 8949190156522825374}
       VRRaySnap: 1
       VRRaySnapRangeFrontOfHand: 0.15
       VRRaySnapRangeBackOfHand: 0.1
