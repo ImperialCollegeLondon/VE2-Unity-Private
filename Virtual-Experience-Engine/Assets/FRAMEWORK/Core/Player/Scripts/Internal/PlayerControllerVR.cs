@@ -113,8 +113,12 @@ namespace VE2.Core.Player.Internal
             ConfigureCamera(cameraConfig);
             
             AvatarHandler = new(
-                avatarHandlerBuilderContext.PlayerBuiltInGameObjectPrefabs, avatarHandlerBuilderContext.PlayerCustomGameObjectPrefabs, avatarHandlerBuilderContext.CurrentInstancedAvatarAppearance,
-                playerVRReferences.HeadTransform, playerVRReferences.TorsoTransform, _handControllerRight.Transform, _handControllerLeft.Transform);
+                avatarHandlerBuilderContext.PlayerBuiltInGameObjectPrefabs,
+                avatarHandlerBuilderContext.PlayerCustomGameObjectPrefabs,
+                avatarHandlerBuilderContext.CurrentInstancedAvatarAppearance,
+                true,
+                playerVRReferences.HeadTransform, playerVRReferences.TorsoTransform,
+                _handControllerRight.Transform, _handControllerLeft.Transform);
         }
 
 

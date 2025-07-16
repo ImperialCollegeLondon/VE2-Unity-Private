@@ -16,7 +16,7 @@ using static VE2.Core.Player.API.PlayerSerializables;
 namespace VE2.Core.Player.Internal
 {
     //TODO - refactor this to be reusable between built in and custom, should just deal with one or the other
-    internal class PlayerGameObjectHandler //: IPlayerGameObjectHandler
+    internal class PlayerAvatarGameObjectHandler //: IPlayerGameObjectHandler
     {
         private readonly Transform _holderTransform;
 
@@ -31,9 +31,11 @@ namespace VE2.Core.Player.Internal
         private GameObject _activeCustomGameObject;
         private int _customGameObjectIndex;
 
-        public PlayerGameObjectHandler(Transform holderTransform,
+        private readonly int _layerIndex;
+
+        public PlayerAvatarGameObjectHandler(Transform holderTransform,
             List<GameObject> builtInGameObjectPrefabs, ushort builtInGameObjectIndex, Color builtInColor,
-            List<GameObject> customGameObjectPrefabs, PlayerGameObjectSelection gameObjectSelection)
+            List<GameObject> customGameObjectPrefabs, AvatarGameObjectSelection gameObjectSelection, int layerIndex)
         {
             _holderTransform = holderTransform;
 
@@ -45,9 +47,16 @@ namespace VE2.Core.Player.Internal
             _customGameObjectPrefabs = customGameObjectPrefabs;
             SetCustomGameObjectEnabled(gameObjectSelection.CustomGameObjectEnabled);
             SetCustomGameObjectIndex(gameObjectSelection.CustomGameObjectIndex);
+
+            _layerIndex = layerIndex;
+            
+            if (_activeBuiltInGameObject != null)
+                SetGameObjectLayer(_layerIndex, _activeBuiltInGameObject);
+            if (_activeCustomGameObject != null)
+                SetGameObjectLayer(_layerIndex, _activeCustomGameObject);
         }
 
-        public void SetGameObjectSelections(PlayerGameObjectSelection gameObjectSelection)
+        public void SetGameObjectSelections(AvatarGameObjectSelection gameObjectSelection)
         {
             SetBuiltInGameObjectEnabled(gameObjectSelection.BuiltInGameObjectEnabled);
             SetCustomGameObjectEnabled(gameObjectSelection.CustomGameObjectEnabled);
@@ -69,6 +78,7 @@ namespace VE2.Core.Player.Internal
                     _holderTransform.rotation,
                     _holderTransform);
                 SetBuiltInColor(_builtInColor);
+                SetGameObjectLayer(_layerIndex, _activeBuiltInGameObject);
             }
         }
 
@@ -87,6 +97,7 @@ namespace VE2.Core.Player.Internal
                 _holderTransform.rotation,
                 _holderTransform);
             SetBuiltInColor(_builtInColor);
+            SetGameObjectLayer(_layerIndex, _activeBuiltInGameObject);
         }
 
         public void SetCustomGameObjectEnabled(bool isEnabled)
@@ -103,7 +114,7 @@ namespace VE2.Core.Player.Internal
                     _holderTransform.position,
                     _holderTransform.rotation,
                     _holderTransform);
-                //SetBuiltInColor(_builtInColor);
+                SetGameObjectLayer(_layerIndex, _activeCustomGameObject);
             }
         }
 
@@ -122,6 +133,7 @@ namespace VE2.Core.Player.Internal
                 _holderTransform.position,
                 _holderTransform.rotation,
                 _holderTransform);
+            SetGameObjectLayer(_layerIndex, _activeCustomGameObject);
         }
 
         internal void SetBuiltInColor(Color color)
@@ -130,6 +142,28 @@ namespace VE2.Core.Player.Internal
                 material.color = color / 255f;
 
             _builtInColor = color;
+
+            _activeBuiltInGameObject.layer = LayerMask.NameToLayer("V_LocalPlayerVisible"); // Ensure the layer is set correctly
+        }
+
+        internal void SetGameObjectLayer(int layerIndex, GameObject gameObject)
+        {
+            if (gameObject == null)
+            {
+                Debug.LogError("SetGameObjectLayer: GameObject is null.");
+                return;
+            }
+
+            gameObject.layer = layerIndex;
+
+            foreach (Transform child in gameObject.transform.GetComponentInChildren<Transform>())
+            {
+                if (child.gameObject == gameObject) // Skip the parent gameObject itself
+                    continue;
+
+                // Recursively set the layer for all child GameObjects
+                SetGameObjectLayer(layerIndex, child.gameObject);
+            }
         }
 
         // private Dictionary<(Renderer, int), (Material originalMaterial, Shader originalShader, Color originalColor)> originalMaterials = new();
@@ -207,11 +241,11 @@ namespace VE2.Core.Player.Internal
 
     internal class AvatarHandlerBuilderContext
     {
-        public PlayerGameObjectPrefabs PlayerBuiltInGameObjectPrefabs;
-        public PlayerGameObjectPrefabs PlayerCustomGameObjectPrefabs;
+        public AvatarPrefabs PlayerBuiltInGameObjectPrefabs;
+        public AvatarPrefabs PlayerCustomGameObjectPrefabs;
         public InstancedAvatarAppearance CurrentInstancedAvatarAppearance;
 
-        public AvatarHandlerBuilderContext(PlayerGameObjectPrefabs playerBuiltInGameObjectPrefabs, PlayerGameObjectPrefabs playerCustomGameObjectPrefabs, InstancedAvatarAppearance currentInstancedAvatarAppearance)
+        public AvatarHandlerBuilderContext(AvatarPrefabs playerBuiltInGameObjectPrefabs, AvatarPrefabs playerCustomGameObjectPrefabs, InstancedAvatarAppearance currentInstancedAvatarAppearance)
         {
             PlayerBuiltInGameObjectPrefabs = playerBuiltInGameObjectPrefabs;
             PlayerCustomGameObjectPrefabs = playerCustomGameObjectPrefabs;
@@ -220,17 +254,17 @@ namespace VE2.Core.Player.Internal
     }
 
     //[AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
-    internal class PlayerGameObjectsHandler //: MonoBehaviour//, IPlayerGameObjectsHandler
+    internal class PlayerAvatarHandler //: MonoBehaviour//, IPlayerGameObjectsHandler
     {
         private readonly Transform _headHolder;
         private readonly Transform _torsoHolder;
         private readonly Transform _handVRRightHolder;
         private readonly Transform _handVRLeftHolder;
 
-        public readonly PlayerGameObjectHandler HeadHandler;
-        public readonly PlayerGameObjectHandler TorsoHandler;
-        public readonly PlayerGameObjectHandler HandVRRightHandler;
-        public readonly PlayerGameObjectHandler HandVRLeftHandler;
+        public readonly PlayerAvatarGameObjectHandler HeadHandler;
+        public readonly PlayerAvatarGameObjectHandler TorsoHandler;
+        public readonly PlayerAvatarGameObjectHandler HandVRRightHandler;
+        public readonly PlayerAvatarGameObjectHandler HandVRLeftHandler;
 
         private float _torsoYOffsetFromHead = -0.42f;
 
@@ -246,7 +280,7 @@ namespace VE2.Core.Player.Internal
         /// <summary>
         /// Note, this WON'T set the initial appearance, HandleReceiveAvatarAppearance should be called after initialization
         /// </summary>
-        public PlayerGameObjectsHandler(PlayerGameObjectPrefabs BuiltInGameObjectPrefabs, PlayerGameObjectPrefabs playerGameObjectPrefabs, InstancedAvatarAppearance avatarAppearance,
+        public PlayerAvatarHandler(AvatarPrefabs BuiltInGameObjectPrefabs, AvatarPrefabs playerGameObjectPrefabs, InstancedAvatarAppearance avatarAppearance, bool isLocalPlayer,
             Transform headHolder, Transform torsoHolder, Transform handVRRightHolder = null, Transform handVRLeftHolder = null)
         {
             _headHolder = headHolder;
@@ -256,30 +290,46 @@ namespace VE2.Core.Player.Internal
 
             Color avatarColor = avatarAppearance.BuiltInPresentationConfig.AvatarColor;
 
-            HeadHandler = new PlayerGameObjectHandler(_headHolder,
+            int headAndTorsoLayer = !isLocalPlayer ? CommonUtils.RemotePlayerLayer : CommonUtils.PlayerInvisibleLayer;
+
+            HeadHandler = new PlayerAvatarGameObjectHandler(_headHolder,
                 BuiltInGameObjectPrefabs.Heads,
                 avatarAppearance.BuiltInPresentationConfig.AvatarHeadIndex,
                 avatarColor,
                 playerGameObjectPrefabs.Heads,
-                avatarAppearance.PlayerGameObjectSelections.HeadGameObjectConfig);
+                avatarAppearance.PlayerGameObjectSelections.HeadGameObjectSelection, headAndTorsoLayer);
 
-            TorsoHandler = new PlayerGameObjectHandler(_torsoHolder,
+            TorsoHandler = new PlayerAvatarGameObjectHandler(_torsoHolder,
                 BuiltInGameObjectPrefabs.Torsos,
                 avatarAppearance.BuiltInPresentationConfig.AvatarTorsoIndex,
                 avatarColor,
                 playerGameObjectPrefabs.Torsos,
-                avatarAppearance.PlayerGameObjectSelections.TorsoGameObjectConfig);
+                avatarAppearance.PlayerGameObjectSelections.TorsoGameObjectSelection, headAndTorsoLayer);
 
-            //TODO: left and right hands, need prefabbing too
+            int handLayer = !isLocalPlayer ? CommonUtils.RemotePlayerLayer : CommonUtils.PlayerVisibleLayer;
+
+            // HandVRRightHandler = new PlayerAvatarGameObjectHandler(_handVRRightHolder,
+            //     BuiltInGameObjectPrefabs.Hands,
+            //     avatarAppearance.BuiltInPresentationConfig.AvatarHandVRRightIndex,
+            //     avatarColor,
+            //     playerGameObjectPrefabs.Hands,
+            //     avatarAppearance.PlayerGameObjectSelections.HandVRRightGameObjectSelection, handLayer);
+
+            // HandVRLeftHandler = new PlayerAvatarGameObjectHandler(_handVRLeftHolder,
+            //     BuiltInGameObjectPrefabs.Hands,
+            //     avatarAppearance.BuiltInPresentationConfig.AvatarHandVRLeftIndex,
+            //     avatarColor,
+            //     playerGameObjectPrefabs.Hands,
+            //     avatarAppearance.PlayerGameObjectSelections.HandVRLeftGameObjectSelection, handLayer);
         }
 
         public void UpdateInstancedAvatarAppearance(InstancedAvatarAppearance newAvatarAppearance)
         {
-            HeadHandler.SetGameObjectSelections(newAvatarAppearance.PlayerGameObjectSelections.HeadGameObjectConfig);
+            HeadHandler.SetGameObjectSelections(newAvatarAppearance.PlayerGameObjectSelections.HeadGameObjectSelection);
             HeadHandler.SetBuiltInGameObjectIndex(newAvatarAppearance.BuiltInPresentationConfig.AvatarHeadIndex);
             HeadHandler.SetBuiltInColor(newAvatarAppearance.BuiltInPresentationConfig.AvatarColor);
 
-            TorsoHandler.SetGameObjectSelections(newAvatarAppearance.PlayerGameObjectSelections.TorsoGameObjectConfig);
+            TorsoHandler.SetGameObjectSelections(newAvatarAppearance.PlayerGameObjectSelections.TorsoGameObjectSelection);
             TorsoHandler.SetBuiltInGameObjectIndex(newAvatarAppearance.BuiltInPresentationConfig.AvatarTorsoIndex);
             TorsoHandler.SetBuiltInColor(newAvatarAppearance.BuiltInPresentationConfig.AvatarColor);
 

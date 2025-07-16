@@ -25,7 +25,7 @@ namespace VE2.NonCore.Instancing.Internal
         [SerializeField] private GameObject _interactorVRLeftGameObject;
         [SerializeField] private GameObject _interactorVRRightGameObject;
         [SerializeField] private GameObject _interactorFeetGameObject;
-        [SerializeField] private PlayerGameObjectsHandler _avatarHandler;
+        [SerializeField] private PlayerAvatarHandler _avatarHandler;
         [SerializeField] private bool _isAdmin;
 
         /// <summary>
@@ -43,8 +43,15 @@ namespace VE2.NonCore.Instancing.Internal
             _interactor2DGameObject.GetComponent<RemoteInteractor>().Initialize(clientID, InteractorType.Mouse2D, interactorContainer);
             _interactorFeetGameObject.GetComponent<RemoteInteractor>().Initialize(clientID, InteractorType.Feet, interactorContainer);
 
-            _avatarHandler = new(avatarHandlerBuilderContext.PlayerBuiltInGameObjectPrefabs, avatarHandlerBuilderContext.PlayerCustomGameObjectPrefabs, avatarHandlerBuilderContext.CurrentInstancedAvatarAppearance,
-            _headHolder, _torsoHolder, _rightHandHolder, _leftHandHolder);
+            _avatarHandler = new(
+                avatarHandlerBuilderContext.PlayerBuiltInGameObjectPrefabs,
+                avatarHandlerBuilderContext.PlayerCustomGameObjectPrefabs,
+                avatarHandlerBuilderContext.CurrentInstancedAvatarAppearance,
+                false,
+                _headHolder,
+                _torsoHolder,
+                _rightHandHolder,
+                _leftHandHolder);
         }
 
         //public void ToggleAvatarsTransparent(bool isTransparent) => _avatarHandler.SetTransparent(isTransparent);

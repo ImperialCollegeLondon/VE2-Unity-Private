@@ -60,37 +60,37 @@ namespace VE2.Core.Player.Internal
         
         public void SetBuiltInHeadEnabled(bool isEnabled)
         {
-            _config.PlayerGameObjectSelections.HeadGameObjectConfig.BuiltInGameObjectEnabled = isEnabled;
+            _config.PluginAvatarSelections.HeadGameObjectSelection.BuiltInGameObjectEnabled = isEnabled;
             MarkPlayerAvatarChanged();
         }
 
         public void SetCustomHeadEnabled(bool isEnabled)
         {
-            _config.PlayerGameObjectSelections.HeadGameObjectConfig.CustomGameObjectEnabled = isEnabled;
+            _config.PluginAvatarSelections.HeadGameObjectSelection.CustomGameObjectEnabled = isEnabled;
             MarkPlayerAvatarChanged();
         }
 
         public void SetCustomHeadIndex(ushort type)
         {
-            _config.PlayerGameObjectSelections.HeadGameObjectConfig.CustomGameObjectIndex = type;
+            _config.PluginAvatarSelections.HeadGameObjectSelection.CustomGameObjectIndex = type;
             MarkPlayerAvatarChanged();
         }
 
         public void SetBuiltInTorsoEnabled(bool isEnabled)
         {
-            _config.PlayerGameObjectSelections.TorsoGameObjectConfig.BuiltInGameObjectEnabled = isEnabled;
+            _config.PluginAvatarSelections.TorsoGameObjectSelection.BuiltInGameObjectEnabled = isEnabled;
             MarkPlayerAvatarChanged();
         }
 
         public void SetCustomTorsoEnabled(bool isEnabled)
         {
-            _config.PlayerGameObjectSelections.TorsoGameObjectConfig.CustomGameObjectEnabled = isEnabled;
+            _config.PluginAvatarSelections.TorsoGameObjectSelection.CustomGameObjectEnabled = isEnabled;
             MarkPlayerAvatarChanged();
         }
 
         public void SetCustomTorsoIndex(ushort type)
         {
-            _config.PlayerGameObjectSelections.TorsoGameObjectConfig.CustomGameObjectIndex = type;
+            _config.PluginAvatarSelections.TorsoGameObjectSelection.CustomGameObjectIndex = type;
             MarkPlayerAvatarChanged();
         }
 
@@ -126,7 +126,7 @@ namespace VE2.Core.Player.Internal
         public PlayerTransformData PlayerTransformData {get; private set;}
 
         public event Action<InstancedAvatarAppearance> OnInstancedAvatarAppearanceChanged;
-        public InstancedAvatarAppearance InstancedAvatarAppearance => new(_playerSettingsHandler.BuiltInPlayerGameObjectConfig, _config.PlayerGameObjectSelections);
+        public InstancedAvatarAppearance InstancedAvatarAppearance => new(_playerSettingsHandler.BuiltInPlayerGameObjectConfig, _config.PluginAvatarSelections);
 
         public bool RememberPlayerSettings { get => _playerSettingsHandler.RememberPlayerSettings; set => _playerSettingsHandler.RememberPlayerSettings = value; }
 
@@ -151,8 +151,8 @@ namespace VE2.Core.Player.Internal
             MarkPlayerAvatarChanged();
         }
 
-        public PlayerGameObjectPrefabs BuiltInGameObjectPrefabs { get; private set; }
-        public PlayerGameObjectPrefabs CustomGameObjectPrefabs => _config.PlayerCustomGameObjectPrefabs;
+        public AvatarPrefabs BuiltInGameObjectPrefabs { get; private set; }
+        public AvatarPrefabs CustomGameObjectPrefabs => _config.PluginCustomAvatarPrefabs;
 
         public AndroidJavaObject AddArgsToIntent(AndroidJavaObject intent) => _playerSettingsHandler.AddArgsToIntent(intent);
 
@@ -163,7 +163,7 @@ namespace VE2.Core.Player.Internal
         private readonly PlayerController2D _player2D;
         private readonly PlayerControllerVR _playerVR;
 
-        private PlayerGameObjectsHandler _activeAvatarHandler => PlayerTransformData.IsVRMode ? _playerVR.AvatarHandler : _player2D.AvatarHandler;
+        private PlayerAvatarHandler _activeAvatarHandler => PlayerTransformData.IsVRMode ? _playerVR.AvatarHandler : _player2D.AvatarHandler;
 
         private readonly PlayerInputContainer _playerInputContainer;
         private readonly IPlayerPersistentDataHandler _playerSettingsHandler;
@@ -194,7 +194,7 @@ namespace VE2.Core.Player.Internal
             };
 
             BuiltInGameObjectPrefabs = new(builtInHeadGameObjectPrefabs, builtInTorsoGameObjectPrefabs, new List<GameObject>(), new List<GameObject>());
-            AvatarHandlerBuilderContext avatarHandlerBuilderContext = new(BuiltInGameObjectPrefabs, config.PlayerCustomGameObjectPrefabs, InstancedAvatarAppearance);
+            AvatarHandlerBuilderContext avatarHandlerBuilderContext = new(BuiltInGameObjectPrefabs, config.PluginCustomAvatarPrefabs, InstancedAvatarAppearance);
 
             _playerSyncContainer = playerSyncContainer;
             _playerSyncContainer.RegisterLocalPlayer(this);

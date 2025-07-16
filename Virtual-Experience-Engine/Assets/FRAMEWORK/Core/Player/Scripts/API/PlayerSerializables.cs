@@ -2,6 +2,8 @@ using System;
 using System.IO;
 using static VE2.Common.Shared.CommonSerializables;
 using System.Collections.Generic;
+using VE2.Common.Shared;
+
 
 #if UNITY_EDITOR
 using UnityEngine;
@@ -154,10 +156,18 @@ namespace VE2.Core.Player.API
                         public ushort AvatarTorsoIndex;
 
 #if UNITY_EDITOR
-                        [EndIndent, SerializeField]
+                        [SerializeField]
 #endif
                         public ushort AvatarColorR = 0;
+
+                        #if UNITY_EDITOR
+                        [SerializeField]
+#endif
                         public ushort AvatarColorG = 0;
+
+                        #if UNITY_EDITOR
+                        [EndIndent, SerializeField]
+#endif
                         public ushort AvatarColorB = 0;
 
 #if UNITY_EDITOR
@@ -239,54 +249,66 @@ namespace VE2.Core.Player.API
                 }
 
                 [Serializable]
-                internal class PlayerGameObjectSelections : VE2Serializable
+                internal class PluginAvatarSelections : VE2Serializable
                 {
 #if UNITY_EDITOR
-                        [Title("Head GameObject Config")]
-                        [SerializeField]
+                        [Title("Head GameObject Selection")]
+                        [SerializeField, IgnoreParent, PropertyOrder(0)]
 #endif
-                        internal PlayerGameObjectSelection HeadGameObjectConfig = new();
+                        internal AvatarGameObjectSelection HeadGameObjectSelection = new();
 
 #if UNITY_EDITOR
-                        [Title("Torso GameObject Config")]
-                        [SerializeField]
+                        [Title("Torso GameObject Selection")]
+                        [SerializeField, IgnoreParent, PropertyOrder(2)]
 #endif
-                        internal PlayerGameObjectSelection TorsoGameObjectConfig = new();
+                        internal AvatarGameObjectSelection TorsoGameObjectSelection = new();
 
 #if UNITY_EDITOR
-                        [Title("VR Hand Right GameObject Config")]
-                        [SerializeField]
+                        [Title("VR Hand Right GameObject Selection")]
+                        [SerializeField, IgnoreParent, PropertyOrder(3)]
 #endif
-                        internal PlayerGameObjectSelection VRHandRightGameObjectConfig = new();
+                        internal AvatarGameObjectSelection VRHandRightGameObjectSelection = new();
 
 #if UNITY_EDITOR
-                        [Title("VR Hand Left GameObject Config")]
-                        [SerializeField]
+                        [Title("VR Hand Left GameObject Selection")]
+                        [SerializeField, IgnoreParent, PropertyOrder(4)]
 #endif
-                        internal PlayerGameObjectSelection VRHandLeftGameObjectConfig = new();
+                        internal AvatarGameObjectSelection VRHandLeftGameObjectSelection = new();
 
-                        public PlayerGameObjectSelections() { }
+                        public PluginAvatarSelections(
+                                AvatarGameObjectSelection headGameObjectSelection,
+                                AvatarGameObjectSelection torsoGameObjectSelection,
+                                AvatarGameObjectSelection vrHandRightGameObjectSelection,
+                                AvatarGameObjectSelection vrHandLeftGameObjectSelection)
+                        {
+                                HeadGameObjectSelection = headGameObjectSelection;
+                                TorsoGameObjectSelection = torsoGameObjectSelection;
+                                VRHandRightGameObjectSelection = vrHandRightGameObjectSelection;
+                                VRHandLeftGameObjectSelection = vrHandLeftGameObjectSelection;
+                        }
 
-                        public PlayerGameObjectSelections(byte[] bytes) : base(bytes) { }
+                        public PluginAvatarSelections() { }
+
+                        public PluginAvatarSelections(byte[] bytes) : base(bytes) { }
 
                         protected override byte[] ConvertToBytes()
                         {
                                 using MemoryStream stream = new();
                                 using BinaryWriter writer = new(stream);
 
-                                byte[] headConfigBytes = HeadGameObjectConfig.Bytes;
+                                byte[] headConfigBytes = HeadGameObjectSelection.Bytes;
                                 writer.Write((ushort)headConfigBytes.Length);
                                 writer.Write(headConfigBytes);
 
-                                byte[] torsoConfigBytes = TorsoGameObjectConfig.Bytes;
+                                byte[] torsoConfigBytes = TorsoGameObjectSelection.Bytes;
                                 writer.Write((ushort)torsoConfigBytes.Length);
                                 writer.Write(torsoConfigBytes);
 
-                                byte[] vrHandRightConfigBytes = VRHandRightGameObjectConfig.Bytes;
+                                byte[] vrHandRightConfigBytes = VRHandRightGameObjectSelection.Bytes;
                                 writer.Write((ushort)vrHandRightConfigBytes.Length);
                                 writer.Write(vrHandRightConfigBytes);
 
-                                byte[] vrHandLeftConfigBytes = VRHandLeftGameObjectConfig.Bytes;
+                                byte[] vrHandLeftConfigBytes = VRHandLeftGameObjectSelection.Bytes;
                                 writer.Write((ushort)vrHandLeftConfigBytes.Length);
                                 writer.Write(vrHandLeftConfigBytes);
 
@@ -300,29 +322,29 @@ namespace VE2.Core.Player.API
 
                                 ushort headConfigLength = reader.ReadUInt16();
                                 byte[] headConfigBytes = reader.ReadBytes(headConfigLength);
-                                HeadGameObjectConfig = new PlayerGameObjectSelection(headConfigBytes);
+                                HeadGameObjectSelection = new AvatarGameObjectSelection(headConfigBytes);
 
                                 ushort torsoConfigLength = reader.ReadUInt16();
                                 byte[] torsoConfigBytes = reader.ReadBytes(torsoConfigLength);
-                                TorsoGameObjectConfig = new PlayerGameObjectSelection(torsoConfigBytes);
+                                TorsoGameObjectSelection = new AvatarGameObjectSelection(torsoConfigBytes);
 
                                 ushort vrHandRightConfigLength = reader.ReadUInt16();
                                 byte[] vrHandRightConfigBytes = reader.ReadBytes(vrHandRightConfigLength);
-                                VRHandRightGameObjectConfig = new PlayerGameObjectSelection(vrHandRightConfigBytes);
+                                VRHandRightGameObjectSelection = new AvatarGameObjectSelection(vrHandRightConfigBytes);
 
                                 ushort vrHandLeftConfigLength = reader.ReadUInt16();
                                 byte[] vrHandLeftConfigBytes = reader.ReadBytes(vrHandLeftConfigLength);
-                                VRHandLeftGameObjectConfig = new PlayerGameObjectSelection(vrHandLeftConfigBytes);
+                                VRHandLeftGameObjectSelection = new AvatarGameObjectSelection(vrHandLeftConfigBytes);
                         }
                         
                         public override bool Equals(object obj)
                         {
-                                if (obj is PlayerGameObjectSelections other)
+                                if (obj is PluginAvatarSelections other)
                                 {
-                                        return HeadGameObjectConfig.Equals(other.HeadGameObjectConfig) &&
-                                               TorsoGameObjectConfig.Equals(other.TorsoGameObjectConfig) &&
-                                               VRHandRightGameObjectConfig.Equals(other.VRHandRightGameObjectConfig) &&
-                                               VRHandLeftGameObjectConfig.Equals(other.VRHandLeftGameObjectConfig);
+                                        return HeadGameObjectSelection.Equals(other.HeadGameObjectSelection) &&
+                                               TorsoGameObjectSelection.Equals(other.TorsoGameObjectSelection) &&
+                                               VRHandRightGameObjectSelection.Equals(other.VRHandRightGameObjectSelection) &&
+                                               VRHandLeftGameObjectSelection.Equals(other.VRHandLeftGameObjectSelection);
                                 }
                                 return false;
                         }
@@ -330,7 +352,7 @@ namespace VE2.Core.Player.API
 
 
                 [Serializable]
-                internal class PlayerGameObjectSelection : VE2Serializable
+                internal class AvatarGameObjectSelection : VE2Serializable
                 {
 #if UNITY_EDITOR
                         [SerializeField]
@@ -347,9 +369,9 @@ namespace VE2.Core.Player.API
 #endif
                         internal ushort CustomGameObjectIndex = 0;
 
-                        public PlayerGameObjectSelection() { }
+                        public AvatarGameObjectSelection() { }
 
-                        public PlayerGameObjectSelection(byte[] bytes) : base(bytes) { }
+                        public AvatarGameObjectSelection(byte[] bytes) : base(bytes) { }
 
                         protected override byte[] ConvertToBytes()
                         {
@@ -379,13 +401,13 @@ namespace VE2.Core.Player.API
                 internal class InstancedAvatarAppearance : VE2Serializable
                 {
                         public BuiltInPlayerPresentationConfig BuiltInPresentationConfig { get; set; }
-                        public PlayerGameObjectSelections PlayerGameObjectSelections { get; set; }
+                        public PluginAvatarSelections PlayerGameObjectSelections { get; set; }
 
                         public InstancedAvatarAppearance() { }
 
                         public InstancedAvatarAppearance(byte[] bytes) : base(bytes) { }
 
-                        public InstancedAvatarAppearance(BuiltInPlayerPresentationConfig presentationConfig, PlayerGameObjectSelections playerGameObjectSelections)
+                        public InstancedAvatarAppearance(BuiltInPlayerPresentationConfig presentationConfig, PluginAvatarSelections playerGameObjectSelections)
                         {
                                 BuiltInPresentationConfig = presentationConfig;
                                 PlayerGameObjectSelections = playerGameObjectSelections;
@@ -420,7 +442,7 @@ namespace VE2.Core.Player.API
 
                                 ushort playerGameObjectSelectionsLength = reader.ReadUInt16();
                                 byte[] playerGameObjectSelectionsBytes = reader.ReadBytes(playerGameObjectSelectionsLength);
-                                PlayerGameObjectSelections = new PlayerGameObjectSelections(playerGameObjectSelectionsBytes);
+                                PlayerGameObjectSelections = new PluginAvatarSelections(playerGameObjectSelectionsBytes);
                         }
 
                         public override bool Equals(object obj)

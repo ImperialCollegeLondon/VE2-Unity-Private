@@ -19,8 +19,8 @@ namespace VE2.Core.Player.API
         //public void MarkPlayerAvatarChanged() { }
         public event Action<InstancedAvatarAppearance> OnInstancedAvatarAppearanceChanged;
 
-        public PlayerGameObjectPrefabs BuiltInGameObjectPrefabs { get; }
-        public PlayerGameObjectPrefabs CustomGameObjectPrefabs { get; }
+        public AvatarPrefabs BuiltInGameObjectPrefabs { get; }
+        public AvatarPrefabs CustomGameObjectPrefabs { get; }
 
         public TransmissionProtocol TransmissionProtocol { get; }
         public float TransmissionFrequency { get; }
@@ -36,14 +36,14 @@ namespace VE2.Core.Player.API
     }
     
     [Serializable]
-    internal class PlayerGameObjectPrefabs
+    internal class AvatarPrefabs
     {
-        [SerializeField, ReorderableList] internal List<GameObject> Heads = new();
-        [SerializeField, ReorderableList] internal List<GameObject> Torsos = new();
-        [SerializeField, ReorderableList] internal List<GameObject> VRRightHands = new();
-        [SerializeField, ReorderableList] internal List<GameObject> VRLefthands = new();
+        [SerializeField, ReorderableList, PropertyOrder(1)] internal List<GameObject> Heads = new();
+        [SerializeField, ReorderableList, PropertyOrder(3)] internal List<GameObject> Torsos = new();
+        [SerializeField, ReorderableList, PropertyOrder(5)] internal List<GameObject> VRRightHands = new();
+        [SerializeField, ReorderableList, PropertyOrder(-7)] internal List<GameObject> VRLefthands = new();
 
-        public PlayerGameObjectPrefabs(List<GameObject> heads, List<GameObject> torsos, List<GameObject> vrRightHands, List<GameObject> vrLeftHands)
+        public AvatarPrefabs(List<GameObject> heads, List<GameObject> torsos, List<GameObject> vrRightHands, List<GameObject> vrLeftHands)
         {
             Heads = heads;
             Torsos = torsos;
@@ -51,6 +51,6 @@ namespace VE2.Core.Player.API
             VRLefthands = vrLeftHands;
         }
 
-        public PlayerGameObjectPrefabs() { }
+        public AvatarPrefabs() { }
     }
 }

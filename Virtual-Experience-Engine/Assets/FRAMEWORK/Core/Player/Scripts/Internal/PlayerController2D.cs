@@ -53,7 +53,7 @@ namespace VE2.Core.Player.Internal
         private readonly Player2DLocomotor _playerLocomotor2D;
         private readonly Interactor2D _interactor2D;
         private readonly FeetInteractor _feetInteractor2D;
-        private readonly PlayerGameObjectsHandler _localAvatarHandler;
+        private readonly PlayerAvatarHandler _localAvatarHandler;
 
         private readonly IPrimaryUIServiceInternal _primaryUIService;
         private readonly RectTransform _primaryUIHolderRect;
@@ -101,8 +101,12 @@ namespace VE2.Core.Player.Internal
             ConfigureCamera(cameraConfig);
 
             AvatarHandler = new(
-                avatarHandlerBuilderContext.PlayerBuiltInGameObjectPrefabs, avatarHandlerBuilderContext.PlayerCustomGameObjectPrefabs, avatarHandlerBuilderContext.CurrentInstancedAvatarAppearance,
-                player2DReferences.HeadTransform, player2DReferences.TorsoTransform);
+                avatarHandlerBuilderContext.PlayerBuiltInGameObjectPrefabs,
+                avatarHandlerBuilderContext.PlayerCustomGameObjectPrefabs,
+                avatarHandlerBuilderContext.CurrentInstancedAvatarAppearance,
+                true,
+                player2DReferences.HeadTransform,
+                player2DReferences.TorsoTransform);
 
             //TODO: think about inspect mode, does that live in the interactor, or the player controller?
             //If interactor, will need to make the interactor2d constructor take a this as a param, and forward the other params to the base constructor

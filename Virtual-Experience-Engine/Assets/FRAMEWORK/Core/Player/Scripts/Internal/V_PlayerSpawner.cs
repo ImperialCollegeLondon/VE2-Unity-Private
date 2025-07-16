@@ -45,12 +45,10 @@ namespace VE2.Core.Player.Internal
         [Title("Camera Config")]
         [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public CameraConfig CameraConfig = new();
 
-        //[Title("Avatar Appearance Overrides")]
-        //[BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public PlayerGameObjectSelections AvatarAppearanceOverrideConfig = new();
-
-        [Title("Player GameObject Config")]
-        [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent] public PlayerGameObjectSelections PlayerGameObjectSelections = new();
-        [SerializeField, IgnoreParent, EndGroup] public PlayerGameObjectPrefabs PlayerCustomGameObjectPrefabs = new();
+        [Title("Plugin Avatar Config")]
+        [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, SpaceArea(spaceAfter:5)] public PluginAvatarSelections PluginAvatarSelections = new();
+        [Title("Custom Avatar Prefabs")]
+        [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup, EndGroup] public AvatarPrefabs PluginCustomAvatarPrefabs = new();
 
         [Title("Transmission Settings", ApplyCondition = true)]
         [HideIf(nameof(_hasMultiplayerSupport), false)]
@@ -108,63 +106,32 @@ namespace VE2.Core.Player.Internal
     }
 
     // [Serializable]
-    // internal class PlayerGameObjectSelections
+    // internal class PluginAvatarConfig
     // {
-    //     [Title("Head GameObject Config")]
-    //     [SerializeField] internal PlayerGameObjectSelection _headGameObjectConfig = new();
+    //     public PluginAvatarSelections PluginAvatarSelections => new(
+    //         HeadGameObjectSelection,
+    //         TorsoGameObjectSelection,
+    //         VRHandsGameObjectSelection,
+    //         VRLeftHandsGameObjectSelection
+    //     );
 
-    //     [Title("Torso GameObject Config")]
-    //     [SerializeField] internal PlayerGameObjectSelection _torsoGameObjectConfig = new();
+    //     public AvatarPrefabs PluginCustomAvatarPrefabs => new(
+    //         _customHeadPrefabs,
+    //         _customTorsoPrefabs,
+    //         _customRightHandVRPrefabs,
+    //         _customLeftHandVRPrefabs);
 
-    //     [Title("VR Hand Right GameObject Config")]
-    //     [SerializeField] internal PlayerGameObjectSelection _vrHandRightGameObjectConfig = new();
+    //     [BeginGroup("Head"), SerializeField, IgnoreParent] private AvatarGameObjectSelection HeadGameObjectSelection = new();
+    //     [SerializeField, IgnoreParent, EndGroup] private List<GameObject> _customHeadPrefabs = new();
 
-    //     [Title("VR Hand Left GameObject Config")]
-    //     [SerializeField] internal PlayerGameObjectSelection _vrHandLeftGameObjectConfig = new();
-    // }
+    //     [BeginGroup("Torso"), SerializeField, IgnoreParent] private AvatarGameObjectSelection TorsoGameObjectSelection = new();
+    //     [SerializeField, IgnoreParent, EndGroup] private List<GameObject> _customTorsoPrefabs = new();
 
-    // [Serializable]
-    // internal class PlayerGameObjectSelection
-    // {
-    //     [SerializeField] internal bool BuiltInGameObjectEnabled = true;
-    //     [SerializeField] internal bool CustomGameObjectEnabled = false;
-    //     [EditorButton(nameof(Refresh), "Refresh", ButtonActivityType.OnPlayMode, PositionType = ButtonPositionType.Below)]
-    //     [SerializeField, EnableIf(nameof(CustomGameObjectEnabled), true)] internal ushort CustomGameObjectIndex = 0;
+    //     [BeginGroup("VR Right Hand"), SerializeField, IgnoreParent] private AvatarGameObjectSelection VRHandsGameObjectSelection = new();
+    //     [SerializeField, IgnoreParent, EndGroup] private List<GameObject> _customRightHandVRPrefabs = new();
 
-    //     private void Refresh() => OnGameObjectConfigChanged?.Invoke();
-    //     internal event Action OnGameObjectConfigChanged;
-
-    //     // [Serializable]
-    //     // internal class PlayerGameObjectConfigWrapper : VE2Serializable
-    //     // {
-    //     //         //private readonly PlayerGameObjectConfigWrapper _gameObjectConfig;
-
-    //     //         public PlayerGameObjectConfigWrapper() { }
-
-    //     //         public PlayerGameObjectConfigWrapper(byte[] bytes) : base(bytes)
-    //     //         {
-    //     //                 PlayerGameObjectConfig _gameObjectConfig = new PlayerGameObjectConfigWrapper(bytes);
-    //     //         }
-    //     // }
-    // }
-
-    // [Serializable]
-    // internal class PlayerGameObjectPrefabs
-    // {
-    //     [SerializeField, ReorderableList] internal List<GameObject> Heads = new();
-    //     [SerializeField, ReorderableList] internal List<GameObject> Torsos = new();
-    //     [SerializeField, ReorderableList] internal List<GameObject> VRRightHands = new();
-    //     [SerializeField, ReorderableList] internal List<GameObject> VRLefthands = new();
-
-    //     public PlayerGameObjectPrefabs(List<GameObject> heads, List<GameObject> torsos, List<GameObject> vrRightHands, List<GameObject> vrLeftHands)
-    //     {
-    //         Heads = heads;
-    //         Torsos = torsos;
-    //         VRRightHands = vrRightHands;
-    //         VRLefthands = vrLeftHands;
-    //     }
-
-    //     public PlayerGameObjectPrefabs() { }
+    //     [BeginGroup("VR Left Hand"), SerializeField, IgnoreParent] private AvatarGameObjectSelection VRLeftHandsGameObjectSelection = new();
+    //     [SerializeField, IgnoreParent, EndGroup] private List<GameObject> _customLeftHandVRPrefabs = new();
     // }
 
     [Serializable]
@@ -197,7 +164,7 @@ namespace VE2.Core.Player.Internal
         [SerializeField, IgnoreParent] internal PlayerConfig _playerConfig = new();
 
         [SpaceArea(spaceBefore: 10), Help("If running standalone, this presentation config will be used, if integrated with the VE2 platform, the platform will provide the presentation config.")]
-        [BeginGroup("Debug settings"), SerializeField, DisableInPlayMode, IgnoreParent, EndGroup] private BuiltInPlayerPresentationConfig _defaultPlayerPresentationConfig = new();
+        [BeginGroup("Debug Built-in avatar config"), SerializeField, DisableInPlayMode, IgnoreParent, EndGroup] private BuiltInPlayerPresentationConfig _defaultBuiltInAvatarConfig = new();
 
         #region Provider Interfaces
         private PlayerService _playerService;
@@ -259,7 +226,7 @@ namespace VE2.Core.Player.Internal
             if (playerPersistentDataHandler == null)
             {
                 playerPersistentDataHandler = new GameObject("PlayerPersisentDataHandler").AddComponent<PlayerPersistentDataHandler>();
-                playerPersistentDataHandler.SetDefaults(_defaultPlayerPresentationConfig);
+                playerPersistentDataHandler.SetDefaults(_defaultBuiltInAvatarConfig);
             }
 
             if (!_transformDataSetup)

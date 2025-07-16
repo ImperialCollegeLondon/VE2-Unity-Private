@@ -5166,7 +5166,7 @@ MonoBehaviour:
     PlayerInteractionConfig:
       InteractableLayers:
         serializedVersion: 2
-        m_Bits: 130985
+        m_Bits: 524073
     MovementModeConfig:
       TraversableLayers:
         serializedVersion: 2
@@ -5200,7 +5200,7 @@ MonoBehaviour:
       FarClippingPlane: 1000
       CullingMask:
         serializedVersion: 2
-        m_Bits: 4294967295
+        m_Bits: 524159
       AntiAliasing: 1
       AntiAliasingQuality: 1
       EnablePostProcessing: 1
@@ -5208,23 +5208,38 @@ MonoBehaviour:
       OnResetViewVR:
         m_PersistentCalls:
           m_Calls: []
-    AvatarAppearanceOverrideConfig:
-      OverrideHead: 0
-      HeadOverrideIndex: 0
-      HeadOverrideGameObjects: []
-      OverrideTorso: 0
-      TorsoOverrideIndex: 0
-      TorsoOverrideGameObjects: []
+    PluginAvatarSelections:
+      HeadGameObjectSelection:
+        BuiltInGameObjectEnabled: 1
+        CustomGameObjectEnabled: 0
+        CustomGameObjectIndex: 0
+      TorsoGameObjectSelection:
+        BuiltInGameObjectEnabled: 1
+        CustomGameObjectEnabled: 0
+        CustomGameObjectIndex: 0
+      VRHandRightGameObjectSelection:
+        BuiltInGameObjectEnabled: 1
+        CustomGameObjectEnabled: 0
+        CustomGameObjectIndex: 0
+      VRHandLeftGameObjectSelection:
+        BuiltInGameObjectEnabled: 1
+        CustomGameObjectEnabled: 0
+        CustomGameObjectIndex: 0
+    PluginCustomAvatarPrefabs:
+      Heads: []
+      Torsos: []
+      VRRightHands: []
+      VRLefthands: []
     RepeatedTransmissionConfig:
       TransmissionFrequency: 35
       TransmissionType: 0
-  _defaultPlayerPresentationConfig:
+  _defaultBuiltInAvatarConfig:
     PlayerName: Unknown
-    AvatarHeadType: 0
-    AvatarTorsoType: 0
-    AvatarRed: 255
-    AvatarGreen: 60
-    AvatarBlue: 60
+    AvatarHeadIndex: 0
+    AvatarTorsoIndex: 0
+    AvatarColorR: 0
+    AvatarColorG: 0
+    AvatarColorB: 0
   _transformDataSetup: 0
   _playerTransformData:
     IsVRMode: 0

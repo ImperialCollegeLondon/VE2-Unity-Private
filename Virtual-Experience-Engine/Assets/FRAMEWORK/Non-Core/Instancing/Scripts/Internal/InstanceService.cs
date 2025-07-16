@@ -242,7 +242,7 @@ namespace VE2.NonCore.Instancing.Internal
             Debug.LogWarning("Reg request created, sending to server");
 
             ServerRegistrationRequest serverRegistrationRequest2 = new(serverRegistrationRequestBytes);
-            Debug.Log($"ServerRegistrationRequest: InstanceCode: {serverRegistrationRequest2.InstanceCode}, LocalClientID: {serverRegistrationRequest2.IDToRestore}, UsingFrameworkAvatar: {serverRegistrationRequest2.AvatarAppearanceWrapper.UsingFrameworkPlayer} built-in head enabled? {serverRegistrationRequest2.AvatarAppearanceWrapper.InstancedAvatarAppearance.PlayerGameObjectSelections.HeadGameObjectConfig.BuiltInGameObjectEnabled}");
+            Debug.Log($"ServerRegistrationRequest: InstanceCode: {serverRegistrationRequest2.InstanceCode}, LocalClientID: {serverRegistrationRequest2.IDToRestore}, UsingFrameworkAvatar: {serverRegistrationRequest2.AvatarAppearanceWrapper.UsingFrameworkPlayer} built-in head enabled? {serverRegistrationRequest2.AvatarAppearanceWrapper.InstancedAvatarAppearance.PlayerGameObjectSelections.HeadGameObjectSelection.BuiltInGameObjectEnabled}");
         }
 
         private void HandleReceiveServerRegistrationConfirmation(byte[] bytes)
