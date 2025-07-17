@@ -30,7 +30,7 @@ namespace VE2.Core.Player.Internal
             InteractorVRReferences interactorVRReferences = interactorReferences as InteractorVRReferences;
 
             _handVisualGO = interactorVRReferences.HandVisualGO;
-            _collisionDetector = collisionDetectorFactory.CreateCollisionDetector(interactorVRReferences.HandCollider, colliderType, playerInteractionConfig.InteractableLayers);
+            _collisionDetector = collisionDetectorFactory.CreateCollisionDetector(interactorVRReferences.HandCollider, colliderType, playerInteractionConfig);
 
             _xrHapticsWrapper = xRHapticsWrapper;
             _lineRenderer = interactorVRReferences.LineRenderer;

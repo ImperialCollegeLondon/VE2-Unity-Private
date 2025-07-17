@@ -68,7 +68,7 @@ namespace VE2.Core.Player.Internal
         private readonly IGrabInteractablesContainer _grabInteractablesContainer;
         private readonly InteractorInputContainer _interactorInputContainer;
 
-        private readonly LayerMask _raycastLayerMask;
+        private readonly PlayerInteractionConfig _interactionConfig;
 
         protected readonly Transform _interactorParentTransform;
         protected readonly Transform _GrabberTransform;
@@ -101,7 +101,7 @@ namespace VE2.Core.Player.Internal
             _interactorContainer = interactorContainer;
             _grabInteractablesContainer = grabInteractablesContainer;
             _interactorInputContainer = interactorInputContainer;
-            _raycastLayerMask = interactionConfig.InteractableLayers;
+            _interactionConfig = interactionConfig;
 
             _interactorParentTransform = interactorReferences.InteractorParentTransform;
             _GrabberTransform = interactorReferences.GrabberTransform;
@@ -385,7 +385,7 @@ namespace VE2.Core.Player.Internal
             if (_RayOrigin == null)
                 return null;
 
-            return _RaycastProvider.Raycast(_RayOrigin.position, _RayOrigin.forward, MAX_RAYCAST_DISTANCE, _raycastLayerMask);
+            return _RaycastProvider.Raycast(_RayOrigin.position, _RayOrigin.forward, MAX_RAYCAST_DISTANCE, _interactionConfig.InteractableLayers);
         }
 
         private RaycastResultWrapper GetSphereCastResult(bool failsafeGrab = false)
@@ -393,12 +393,14 @@ namespace VE2.Core.Player.Internal
             if (_GrabberTransform == null || this is Interactor2D)
                 return null;
 
+                LayerMask raycastLayerMask = _interactionConfig.InteractableLayers;
+
             if (_InteractorType == InteractorType.LeftHandVR)
-                return _RaycastProvider.SphereCastAll(_GrabberTransform.position, MAX_SPHERECAST_RADIUS, _GrabberTransform.up, 0f, _raycastLayerMask, failsafeGrab, _GrabberTransform.right);
+                return _RaycastProvider.SphereCastAll(_GrabberTransform.position, MAX_SPHERECAST_RADIUS, _GrabberTransform.up, 0f, raycastLayerMask, failsafeGrab, _GrabberTransform.right);
             if (_InteractorType == InteractorType.RightHandVR)
-                return _RaycastProvider.SphereCastAll(_GrabberTransform.position, MAX_SPHERECAST_RADIUS, _GrabberTransform.up, 0f, _raycastLayerMask, failsafeGrab, -_GrabberTransform.right);
+                return _RaycastProvider.SphereCastAll(_GrabberTransform.position, MAX_SPHERECAST_RADIUS, _GrabberTransform.up, 0f, raycastLayerMask, failsafeGrab, -_GrabberTransform.right);
             else
-                return _RaycastProvider.SphereCastAll(_GrabberTransform.position, MAX_SPHERECAST_RADIUS, _GrabberTransform.up, 0f, _raycastLayerMask);
+                return _RaycastProvider.SphereCastAll(_GrabberTransform.position, MAX_SPHERECAST_RADIUS, _GrabberTransform.up, 0f, raycastLayerMask);
         }
 
         private void HandleRangedClickPressed()

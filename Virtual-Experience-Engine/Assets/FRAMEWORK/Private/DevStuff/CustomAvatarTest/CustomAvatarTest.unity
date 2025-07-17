@@ -6929,7 +6929,7 @@ MonoBehaviour:
     PlayerInteractionConfig:
       InteractableLayers:
         serializedVersion: 2
-        m_Bits: 131049
+        m_Bits: 130921
     MovementModeConfig:
       TraversableLayers:
         serializedVersion: 2

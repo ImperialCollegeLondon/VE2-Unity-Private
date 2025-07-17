@@ -120,10 +120,9 @@ namespace VE2.Core.Tests
     {
         internal Dictionary<ColliderType, ICollisionDetector> CollisionDetectorStubs { get; } = new();
 
-        ICollisionDetector ICollisionDetectorFactory.CreateCollisionDetector(Collider collider, ColliderType colliderType, LayerMask collisionLayers)
+        ICollisionDetector ICollisionDetectorFactory.CreateCollisionDetector(Collider collider, ColliderType colliderType, PlayerInteractionConfig interactionConfig)
         {
             ICollisionDetector collisionDetector = Substitute.For<ICollisionDetector>();
-            collisionDetector.ColliderType.Returns(colliderType);
             CollisionDetectorStubs.Add(colliderType, collisionDetector);
 
             return collisionDetector;

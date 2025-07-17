@@ -51,6 +51,7 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField, HideInInspector] private SingleInteractorActivatableState _state = new();
 
         #region Player Interfaces
+        int ICollideInteractionModuleProvider.Layer => gameObject.layer;
         ICollideInteractionModule ICollideInteractionModuleProvider.CollideInteractionModule => _Service.ColliderInteractionModule;
         IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _Service.RangedClickInteractionModule;
         #endregion
@@ -78,6 +79,7 @@ namespace VE2.Core.VComponents.Internal
                 return _service;
             }
         }
+
 
         private void Awake()
         {

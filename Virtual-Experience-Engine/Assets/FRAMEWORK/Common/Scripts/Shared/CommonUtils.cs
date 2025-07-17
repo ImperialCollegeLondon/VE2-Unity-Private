@@ -126,5 +126,6 @@ namespace VE2.Common.Shared
         public static int PlayerVisibleLayer => LayerMask.NameToLayer("V_LocalPlayerVisible");
         public static int PlayerInvisibleLayer => LayerMask.NameToLayer("V_LocalPlayerInvisible");
         public static int RemotePlayerLayer => LayerMask.NameToLayer("V_RemotePlayer");
+        public static int DefaultLayer => LayerMask.NameToLayer("Default");
     }
 }
