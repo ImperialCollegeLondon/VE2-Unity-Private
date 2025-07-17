@@ -36,6 +36,14 @@ namespace VE2.Core.Player.API
         public void SetCustomTorsoEnabled(bool isEnabled);
         public void SetCustomTorsoIndex(ushort type);
 
+        public void SetBuiltInRightHandVREnabled(bool isEnabled);
+        public void SetCustomRightHandVREnabled(bool isEnabled);
+        public void SetCustomRightHandVRIndex(ushort type);
+
+        public void SetBuiltInLeftHandVREnabled(bool isEnabled);
+        public void SetCustomLeftHandVREnabled(bool isEnabled);
+        public void SetCustomLeftHandVRIndex(ushort type);
+
         public Camera ActiveCamera { get; }
 
         public UnityEvent OnTeleport { get; }

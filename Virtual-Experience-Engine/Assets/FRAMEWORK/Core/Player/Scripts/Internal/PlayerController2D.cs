@@ -53,7 +53,6 @@ namespace VE2.Core.Player.Internal
         private readonly Player2DLocomotor _playerLocomotor2D;
         private readonly Interactor2D _interactor2D;
         private readonly FeetInteractor _feetInteractor2D;
-        private readonly PlayerAvatarHandler _localAvatarHandler;
 
         private readonly IPrimaryUIServiceInternal _primaryUIService;
         private readonly RectTransform _primaryUIHolderRect;

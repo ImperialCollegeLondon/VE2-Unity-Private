@@ -43,6 +43,46 @@ public class CustomAvatarTest : MonoBehaviour
         VE2API.Player.SetCustomTorsoIndex(1);
     }
 
+    public void OnToggleBuiltInRightHandVREnabled(bool isEnabled)
+    {
+        VE2API.Player.SetBuiltInRightHandVREnabled(isEnabled);
+    }
+
+    public void OnToggleCustomRightHandVREnabled(bool isEnabled)
+    {
+        VE2API.Player.SetCustomRightHandVREnabled(isEnabled);
+    }
+
+    public void OnRightHandVRPushed()
+    {
+        VE2API.Player.SetCustomRightHandVRIndex(0);
+    }
+
+    public void OnRightHandVR2Pushed()
+    {
+        VE2API.Player.SetCustomRightHandVRIndex(1);
+    }
+
+    public void OnToggleBuiltInLeftHandVREnabled(bool isEnabled)
+    {
+        VE2API.Player.SetBuiltInLeftHandVREnabled(isEnabled);
+    }
+
+    public void OnToggleCustomLeftHandVREnabled(bool isEnabled)
+    {
+        VE2API.Player.SetCustomLeftHandVREnabled(isEnabled);
+    }
+
+    public void OnLeftHandVRPushed()
+    {
+        VE2API.Player.SetCustomLeftHandVRIndex(0);
+    }
+
+    public void OnLeftHandVR2Pushed()
+    {
+        VE2API.Player.SetCustomLeftHandVRIndex(1);
+    }
+
     public void OnClearButtonPushed()
     {
         VE2API.Player.SetCustomHeadEnabled(false);

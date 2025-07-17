@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.Core.Player.Internal
 {
@@ -11,6 +12,7 @@ namespace VE2.Core.Player.Internal
         public virtual void SetPlayerRotation(Quaternion rotation) => _rootTransform.rotation = rotation;
 
         internal PlayerAvatarHandler AvatarHandler;
+
         internal Camera Camera;
         protected CollisionDetector _FeetCollisionDetector;
         protected Transform _PlayerHeadTransform;

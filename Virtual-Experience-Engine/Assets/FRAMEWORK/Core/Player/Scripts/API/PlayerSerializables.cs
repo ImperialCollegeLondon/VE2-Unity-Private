@@ -267,13 +267,13 @@ namespace VE2.Core.Player.API
                         [Title("VR Hand Right GameObject Selection")]
                         [SerializeField, IgnoreParent, PropertyOrder(3)]
 #endif
-                        internal AvatarGameObjectSelection VRHandRightGameObjectSelection = new();
+                        internal AvatarGameObjectSelection RightHandVRGameObjectSelection = new();
 
 #if UNITY_EDITOR
                         [Title("VR Hand Left GameObject Selection")]
                         [SerializeField, IgnoreParent, PropertyOrder(4)]
 #endif
-                        internal AvatarGameObjectSelection VRHandLeftGameObjectSelection = new();
+                        internal AvatarGameObjectSelection LeftHandVRGameObjectSelection = new();
 
                         public PluginAvatarSelections(
                                 AvatarGameObjectSelection headGameObjectSelection,
@@ -283,8 +283,8 @@ namespace VE2.Core.Player.API
                         {
                                 HeadGameObjectSelection = headGameObjectSelection;
                                 TorsoGameObjectSelection = torsoGameObjectSelection;
-                                VRHandRightGameObjectSelection = vrHandRightGameObjectSelection;
-                                VRHandLeftGameObjectSelection = vrHandLeftGameObjectSelection;
+                                RightHandVRGameObjectSelection = vrHandRightGameObjectSelection;
+                                LeftHandVRGameObjectSelection = vrHandLeftGameObjectSelection;
                         }
 
                         public PluginAvatarSelections() { }
@@ -304,11 +304,11 @@ namespace VE2.Core.Player.API
                                 writer.Write((ushort)torsoConfigBytes.Length);
                                 writer.Write(torsoConfigBytes);
 
-                                byte[] vrHandRightConfigBytes = VRHandRightGameObjectSelection.Bytes;
+                                byte[] vrHandRightConfigBytes = RightHandVRGameObjectSelection.Bytes;
                                 writer.Write((ushort)vrHandRightConfigBytes.Length);
                                 writer.Write(vrHandRightConfigBytes);
 
-                                byte[] vrHandLeftConfigBytes = VRHandLeftGameObjectSelection.Bytes;
+                                byte[] vrHandLeftConfigBytes = LeftHandVRGameObjectSelection.Bytes;
                                 writer.Write((ushort)vrHandLeftConfigBytes.Length);
                                 writer.Write(vrHandLeftConfigBytes);
 
@@ -330,11 +330,11 @@ namespace VE2.Core.Player.API
 
                                 ushort vrHandRightConfigLength = reader.ReadUInt16();
                                 byte[] vrHandRightConfigBytes = reader.ReadBytes(vrHandRightConfigLength);
-                                VRHandRightGameObjectSelection = new AvatarGameObjectSelection(vrHandRightConfigBytes);
+                                RightHandVRGameObjectSelection = new AvatarGameObjectSelection(vrHandRightConfigBytes);
 
                                 ushort vrHandLeftConfigLength = reader.ReadUInt16();
                                 byte[] vrHandLeftConfigBytes = reader.ReadBytes(vrHandLeftConfigLength);
-                                VRHandLeftGameObjectSelection = new AvatarGameObjectSelection(vrHandLeftConfigBytes);
+                                LeftHandVRGameObjectSelection = new AvatarGameObjectSelection(vrHandLeftConfigBytes);
                         }
                         
                         public override bool Equals(object obj)
@@ -343,8 +343,8 @@ namespace VE2.Core.Player.API
                                 {
                                         return HeadGameObjectSelection.Equals(other.HeadGameObjectSelection) &&
                                                TorsoGameObjectSelection.Equals(other.TorsoGameObjectSelection) &&
-                                               VRHandRightGameObjectSelection.Equals(other.VRHandRightGameObjectSelection) &&
-                                               VRHandLeftGameObjectSelection.Equals(other.VRHandLeftGameObjectSelection);
+                                               RightHandVRGameObjectSelection.Equals(other.RightHandVRGameObjectSelection) &&
+                                               LeftHandVRGameObjectSelection.Equals(other.LeftHandVRGameObjectSelection);
                                 }
                                 return false;
                         }

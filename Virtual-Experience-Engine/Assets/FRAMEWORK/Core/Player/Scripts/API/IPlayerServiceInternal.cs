@@ -40,15 +40,15 @@ namespace VE2.Core.Player.API
     {
         [SerializeField, ReorderableList, PropertyOrder(1)] internal List<GameObject> Heads = new();
         [SerializeField, ReorderableList, PropertyOrder(3)] internal List<GameObject> Torsos = new();
-        [SerializeField, ReorderableList, PropertyOrder(5)] internal List<GameObject> VRRightHands = new();
-        [SerializeField, ReorderableList, PropertyOrder(-7)] internal List<GameObject> VRLefthands = new();
 
-        public AvatarPrefabs(List<GameObject> heads, List<GameObject> torsos, List<GameObject> vrRightHands, List<GameObject> vrLeftHands)
+        [Help("The left hand should be supplied, this will be mirrored at runtime for the right hand.")]
+        [SerializeField, ReorderableList, PropertyOrder(5)] internal List<GameObject> VRHands = new();
+
+        public AvatarPrefabs(List<GameObject> heads, List<GameObject> torsos, List<GameObject> vrHands)
         {
             Heads = heads;
             Torsos = torsos;
-            VRRightHands = vrRightHands;
-            VRLefthands = vrLeftHands;
+            VRHands = vrHands;
         }
 
         public AvatarPrefabs() { }

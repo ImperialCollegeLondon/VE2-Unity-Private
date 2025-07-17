@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using VE2.Common.Shared;
@@ -74,13 +75,27 @@ namespace VE2.Core.Player.Internal
             }
             else if (newIsEnabled && !_builtInGameObjectEnabled)
             {
-                _activeBuiltInGameObject = GameObject.Instantiate(
-                    _builtInGameObjectPrefabs[_builtInGameObjectIndex],
-                    _holderTransform.position,
-                    _holderTransform.rotation,
-                    _holderTransform);
-                SetBuiltInColor(_builtInColor);
-                SetGameObjectLayer(_layerIndex, _activeBuiltInGameObject);
+                try
+                {
+                    _activeBuiltInGameObject = GameObject.Instantiate(
+                        _builtInGameObjectPrefabs[_builtInGameObjectIndex],
+                        _holderTransform.position,
+                        _holderTransform.rotation,
+                        _holderTransform);
+                    SetBuiltInColor(_builtInColor);
+                    SetGameObjectLayer(_layerIndex, _activeBuiltInGameObject);
+                }
+                catch (Exception ex)
+                {
+                    //Debug.LogError("ERROR: " + ex.StackTrace);
+                    Debug.LogError("Error - index " + _builtInGameObjectIndex + " there are only " + _builtInGameObjectPrefabs.Count + " prefabs available. holder null? " + (_holderTransform == null) + " Exception: " + ex.Message);
+                    foreach (GameObject prefab in _builtInGameObjectPrefabs)
+                    {
+                        Debug.LogError("prefab null? " + (prefab == null));
+                        Debug.LogError("prefab name: " + prefab.name);
+                    }
+                    return;
+                }
             }
 
             _builtInGameObjectEnabled = newIsEnabled;
@@ -324,19 +339,22 @@ namespace VE2.Core.Player.Internal
 
             int handLayer = !isLocalPlayer ? CommonUtils.RemotePlayerLayer : CommonUtils.PlayerVisibleLayer;
 
-            // HandVRRightHandler = new PlayerAvatarGameObjectHandler(_handVRRightHolder,
-            //     BuiltInGameObjectPrefabs.Hands,
-            //     avatarAppearance.BuiltInPresentationConfig.AvatarHandVRRightIndex,
-            //     avatarColor,
-            //     playerGameObjectPrefabs.Hands,
-            //     avatarAppearance.PlayerGameObjectSelections.HandVRRightGameObjectSelection, handLayer);
+            if (handVRRightHolder == null || handVRLeftHolder == null)
+                return;
 
-            // HandVRLeftHandler = new PlayerAvatarGameObjectHandler(_handVRLeftHolder,
-            //     BuiltInGameObjectPrefabs.Hands,
-            //     avatarAppearance.BuiltInPresentationConfig.AvatarHandVRLeftIndex,
-            //     avatarColor,
-            //     playerGameObjectPrefabs.Hands,
-            //     avatarAppearance.PlayerGameObjectSelections.HandVRLeftGameObjectSelection, handLayer);
+            HandVRRightHandler = new PlayerAvatarGameObjectHandler(_handVRRightHolder,
+                BuiltInGameObjectPrefabs.VRHands,
+                0,
+                avatarColor,
+                playerGameObjectPrefabs.VRHands,
+                avatarAppearance.PlayerGameObjectSelections.RightHandVRGameObjectSelection, handLayer);
+
+            HandVRLeftHandler = new PlayerAvatarGameObjectHandler(_handVRLeftHolder,
+                BuiltInGameObjectPrefabs.VRHands,
+                0,
+                avatarColor,
+                playerGameObjectPrefabs.VRHands,
+                avatarAppearance.PlayerGameObjectSelections.LeftHandVRGameObjectSelection, handLayer);
         }
 
         public void UpdateInstancedAvatarAppearance(InstancedAvatarAppearance newAvatarAppearance)
@@ -348,6 +366,17 @@ namespace VE2.Core.Player.Internal
             TorsoHandler.SetGameObjectSelections(newAvatarAppearance.PlayerGameObjectSelections.TorsoGameObjectSelection);
             TorsoHandler.SetBuiltInGameObjectIndex(newAvatarAppearance.BuiltInPresentationConfig.AvatarTorsoIndex);
             TorsoHandler.SetBuiltInColor(newAvatarAppearance.BuiltInPresentationConfig.AvatarColor);
+
+            if (HandVRRightHandler == null || HandVRLeftHandler == null)
+                return;
+
+            HandVRRightHandler.SetGameObjectSelections(newAvatarAppearance.PlayerGameObjectSelections.RightHandVRGameObjectSelection);
+            HandVRRightHandler.SetBuiltInGameObjectIndex(0); 
+            HandVRRightHandler.SetBuiltInColor(newAvatarAppearance.BuiltInPresentationConfig.AvatarColor);
+
+            HandVRLeftHandler.SetGameObjectSelections(newAvatarAppearance.PlayerGameObjectSelections.LeftHandVRGameObjectSelection);
+            HandVRLeftHandler.SetBuiltInGameObjectIndex(0); 
+            HandVRLeftHandler.SetBuiltInColor(newAvatarAppearance.BuiltInPresentationConfig.AvatarColor);
 
             //_currentRemoteAvatarAppearance = newAvatarAppearance;
         }

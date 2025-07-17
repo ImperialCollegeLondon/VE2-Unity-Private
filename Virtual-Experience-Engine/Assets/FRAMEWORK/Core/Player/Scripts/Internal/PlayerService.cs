@@ -94,6 +94,42 @@ namespace VE2.Core.Player.Internal
             MarkPlayerAvatarChanged();
         }
 
+        public void SetBuiltInRightHandVREnabled(bool isEnabled)
+        {
+            _config.PluginAvatarSelections.RightHandVRGameObjectSelection.BuiltInGameObjectEnabled = isEnabled;
+            MarkPlayerAvatarChanged();
+        }
+
+        public void SetCustomRightHandVREnabled(bool isEnabled)
+        {
+            _config.PluginAvatarSelections.RightHandVRGameObjectSelection.CustomGameObjectEnabled = isEnabled;
+            MarkPlayerAvatarChanged();
+        }
+
+        public void SetCustomRightHandVRIndex(ushort type)
+        {
+            _config.PluginAvatarSelections.RightHandVRGameObjectSelection.CustomGameObjectIndex = type;
+            MarkPlayerAvatarChanged();
+        }
+
+        public void SetBuiltInLeftHandVREnabled(bool isEnabled)
+        {
+            _config.PluginAvatarSelections.LeftHandVRGameObjectSelection.BuiltInGameObjectEnabled = isEnabled;
+            MarkPlayerAvatarChanged();
+        }
+
+        public void SetCustomLeftHandVREnabled(bool isEnabled)
+        {
+            _config.PluginAvatarSelections.LeftHandVRGameObjectSelection.CustomGameObjectEnabled = isEnabled;
+            MarkPlayerAvatarChanged();
+        }
+
+        public void SetCustomLeftHandVRIndex(ushort type)
+        {
+            _config.PluginAvatarSelections.LeftHandVRGameObjectSelection.CustomGameObjectIndex = type;
+            MarkPlayerAvatarChanged();
+        }
+
         private void MarkPlayerAvatarChanged()
         {
             _playerSettingsHandler.SaveAppearance();
@@ -193,7 +229,15 @@ namespace VE2.Core.Player.Internal
                 Resources.Load<GameObject>("Avatars/Torsos/V_Avatar_Torso_Default_2")
             };
 
-            BuiltInGameObjectPrefabs = new(builtInHeadGameObjectPrefabs, builtInTorsoGameObjectPrefabs, new List<GameObject>(), new List<GameObject>());
+            List<GameObject> builtInHandVRGameObjectPrefabs = new List<GameObject>()
+            {
+                Resources.Load<GameObject>("Avatars/VRHands/V_Avatar_VRLeftHand_Default_1"),
+            };
+
+            Debug.LogWarning("built in hands found: " + builtInHandVRGameObjectPrefabs.Count);
+            Debug.LogWarning("Built in hand null? " + (builtInHandVRGameObjectPrefabs[0] == null));
+
+            BuiltInGameObjectPrefabs = new(builtInHeadGameObjectPrefabs, builtInTorsoGameObjectPrefabs, builtInHandVRGameObjectPrefabs);
             AvatarHandlerBuilderContext avatarHandlerBuilderContext = new(BuiltInGameObjectPrefabs, config.PluginCustomAvatarPrefabs, InstancedAvatarAppearance);
 
             _playerSyncContainer = playerSyncContainer;

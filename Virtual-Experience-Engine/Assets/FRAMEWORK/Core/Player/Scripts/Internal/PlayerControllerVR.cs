@@ -111,6 +111,8 @@ namespace VE2.Core.Player.Internal
                 rightHandGrabbableWrapper, leftHandGrabbableWrapper, secondaryUIService, movementModeConfig, true, xRHapticsWrapperRight);
 
             ConfigureCamera(cameraConfig);
+
+            Debug.LogWarning("Create avatar handler, built in hands? " + avatarHandlerBuilderContext.PlayerBuiltInGameObjectPrefabs.VRHands.Count);
             
             AvatarHandler = new(
                 avatarHandlerBuilderContext.PlayerBuiltInGameObjectPrefabs,
@@ -118,7 +120,7 @@ namespace VE2.Core.Player.Internal
                 avatarHandlerBuilderContext.CurrentInstancedAvatarAppearance,
                 true,
                 playerVRReferences.HeadTransform, playerVRReferences.TorsoTransform,
-                _handControllerRight.Transform, _handControllerLeft.Transform);
+                _handControllerRight.HandVisualHolderTransform, _handControllerLeft.HandVisualHolderTransform);
         }
 
 
@@ -157,7 +159,7 @@ namespace VE2.Core.Player.Internal
             WristUIHandler wristUIHandler = new(
                 secondaryUIService, thisHandVRReferences.WristUIReferences.WristUIHolder, _headTransform, thisHandVRReferences.WristUIReferences.Indicator, needsToFlip);
 
-            return new HandController(handGO, handVRInputContainer, interactor, dragLocomotor, snapTurn, teleport, wristUIHandler);
+            return new HandController(thisHandVRReferences.InteractorVRReferences.NonGrabbingHandGO, handVRInputContainer, interactor, dragLocomotor, snapTurn, teleport, wristUIHandler);
         }
 
         public void ActivatePlayer(PlayerTransformData initTransformData)
@@ -205,12 +207,6 @@ namespace VE2.Core.Player.Internal
         {
             _xrManagerSettingsWrapper.OnLoaderInitialized -= HandleXRInitComplete;
             _xrManagerSettingsWrapper.StartSubsystems();
-        }
-
-        internal void HandleLocalAvatarColorChanged(Color newColor)
-        {
-            _handControllerLeft.HandleLocalAvatarColorChanged(newColor);
-            _handControllerRight.HandleLocalAvatarColorChanged(newColor);
         }
 
         internal override void HandleUpdate()
