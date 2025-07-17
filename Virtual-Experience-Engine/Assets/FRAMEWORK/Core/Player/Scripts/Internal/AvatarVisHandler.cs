@@ -24,12 +24,14 @@ namespace VE2.Core.Player.Internal
 
         private readonly List<GameObject> _builtInGameObjectPrefabs;
         private GameObject _activeBuiltInGameObject;
-        private int _builtInGameObjectIndex;
+        private bool _builtInGameObjectEnabled = false;
+        private int _builtInGameObjectIndex = 0;
         private Color _builtInColor;
 
         private readonly List<GameObject> _customGameObjectPrefabs;
         private GameObject _activeCustomGameObject;
-        private int _customGameObjectIndex;
+        private bool _customGameObjectEnabled = false;
+        private int _customGameObjectIndex = 0;
 
         private readonly int _layerIndex;
 
@@ -63,14 +65,14 @@ namespace VE2.Core.Player.Internal
             SetCustomGameObjectIndex(gameObjectSelection.CustomGameObjectIndex);
         }
 
-        public void SetBuiltInGameObjectEnabled(bool isEnabled)
+        public void SetBuiltInGameObjectEnabled(bool newIsEnabled)
         {
-            if (!isEnabled && _activeBuiltInGameObject != null)
+            if (!newIsEnabled && _builtInGameObjectEnabled)
             {
                 GameObject.Destroy(_activeBuiltInGameObject);
                 _activeBuiltInGameObject = null;
             }
-            else if (isEnabled && _activeBuiltInGameObject == null)
+            else if (newIsEnabled && !_builtInGameObjectEnabled)
             {
                 _activeBuiltInGameObject = GameObject.Instantiate(
                     _builtInGameObjectPrefabs[_builtInGameObjectIndex],
@@ -80,6 +82,8 @@ namespace VE2.Core.Player.Internal
                 SetBuiltInColor(_builtInColor);
                 SetGameObjectLayer(_layerIndex, _activeBuiltInGameObject);
             }
+
+            _builtInGameObjectEnabled = newIsEnabled;
         }
 
         internal void SetBuiltInGameObjectIndex(ushort index)
@@ -87,9 +91,12 @@ namespace VE2.Core.Player.Internal
             if (_builtInGameObjectIndex == index)
                 return;
 
-            GameObject.Destroy(_activeBuiltInGameObject);
-
             _builtInGameObjectIndex = index;
+
+            if (!_builtInGameObjectEnabled)
+                return;
+
+            GameObject.Destroy(_activeBuiltInGameObject);
 
             _activeBuiltInGameObject = GameObject.Instantiate(
                 _builtInGameObjectPrefabs[_builtInGameObjectIndex],
@@ -100,14 +107,14 @@ namespace VE2.Core.Player.Internal
             SetGameObjectLayer(_layerIndex, _activeBuiltInGameObject);
         }
 
-        public void SetCustomGameObjectEnabled(bool isEnabled)
+        public void SetCustomGameObjectEnabled(bool newIsEnabled)
         {
-            if (!isEnabled && _activeCustomGameObject != null)
+            if (!newIsEnabled && _customGameObjectEnabled)
             {
                 GameObject.Destroy(_activeCustomGameObject);
                 _activeCustomGameObject = null;
             }
-            else if (isEnabled && _activeCustomGameObject == null)
+            else if (newIsEnabled && !_customGameObjectEnabled!)
             {
                 _activeCustomGameObject = GameObject.Instantiate(
                     _customGameObjectPrefabs[_customGameObjectIndex],
@@ -116,17 +123,21 @@ namespace VE2.Core.Player.Internal
                     _holderTransform);
                 SetGameObjectLayer(_layerIndex, _activeCustomGameObject);
             }
+
+            _customGameObjectEnabled = newIsEnabled;
         }
 
-        public void SetCustomGameObjectIndex(ushort index)
+        public void SetCustomGameObjectIndex(ushort newIndex)
         {
-            if (_customGameObjectIndex == index)
+            if (_customGameObjectIndex == newIndex)
                 return;
 
+            _customGameObjectIndex = newIndex;
+
+            if (!_customGameObjectEnabled)
+                return;
 
             GameObject.Destroy(_activeCustomGameObject);
-
-            _customGameObjectIndex = index;
 
             _activeCustomGameObject = GameObject.Instantiate(
                 _customGameObjectPrefabs[_customGameObjectIndex],
@@ -138,6 +149,11 @@ namespace VE2.Core.Player.Internal
 
         internal void SetBuiltInColor(Color color)
         {
+            if (_activeBuiltInGameObject == null)
+            {
+                return;
+            }
+
             foreach (Material material in CommonUtils.GetAvatarColorMaterialsForGameObject(_activeBuiltInGameObject))
                 material.color = color;
 
