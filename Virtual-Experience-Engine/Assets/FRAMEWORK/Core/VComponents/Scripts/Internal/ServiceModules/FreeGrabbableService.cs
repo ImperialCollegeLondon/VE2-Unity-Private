@@ -54,11 +54,11 @@ namespace VE2.Core.VComponents.Internal
 
         public FreeGrabbableService(List<IHandheldInteractionModule> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id,
             IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer,
-            IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants, IGrabbableRigidbody grabbableRigidbodyInterface, IClientIDWrapper localClientIdWrapper)
+            IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants, IGrabbableRigidbody grabbableRigidbodyInterface, IClientIDWrapper localClientIdWrapper, IColliderWrapper colliderWrapper)
         {
             _config = config;
 
-            _RangedGrabInteractionModule = new(id, grabInteractablesContainer, handheldInteractions, config.RangedFreeGrabInteractionConfig, config.GeneralInteractionConfig);
+            _RangedGrabInteractionModule = new(id, grabInteractablesContainer, handheldInteractions, config.RangedFreeGrabInteractionConfig, config.GeneralInteractionConfig, colliderWrapper);
             _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, interactorContainer, localClientIdWrapper);
 
             _rigidbody = rigidbody;
@@ -99,15 +99,6 @@ namespace VE2.Core.VComponents.Internal
             Quaternion grabberRotation = _StateModule.CurrentGrabbingInteractor.GrabberTransformWrapper.rotation;
             _initialGrabberToObjectRotation = Quaternion.Inverse(grabberRotation) * _rigidbody.rotation;
 
-            //Stop the grabbed object interacting with the player character collider
-            //There's an argument this is better off living in the player
-            //That way, VCs don't need any visibility of player API
-            Collider characterCollider2d = ((IPlayerServiceInternal)VE2API.Player).CharacterCollider2D;
-            if (characterCollider2d != null)
-                Physics.IgnoreCollision(characterCollider2d, _rigidbody.collider, true);
-
-            Debug.Log("Ignore collisions between " + characterCollider2d.name + " and " + _rigidbody.collider.name);
-
             OnGrabConfirmed?.Invoke(grabberClientID);
         }
 
@@ -132,13 +123,6 @@ namespace VE2.Core.VComponents.Internal
             {
                 _rigidbody.isKinematic = _isKinematicOnGrab;
             }
-
-            //Reenable the grabbed object interacting with the player character collider
-            //There's an argument this is better off living in the player
-            //That way, VCs don't need any visibility of player API
-            Collider characterCollider2d = ((IPlayerServiceInternal)VE2API.Player).CharacterCollider2D;
-            if (characterCollider2d != null)
-                Physics.IgnoreCollision(characterCollider2d, _rigidbody.collider, false);
         }
 
         public void HandleFixedUpdate()

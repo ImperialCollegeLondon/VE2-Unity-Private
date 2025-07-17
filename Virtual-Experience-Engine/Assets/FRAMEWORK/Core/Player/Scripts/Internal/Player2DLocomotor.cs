@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
+using VE2.Core.VComponents.API;
 
 namespace VE2.Core.Player.Internal
 {
@@ -22,6 +23,7 @@ namespace VE2.Core.Player.Internal
 
         private readonly MovementModeConfig _movementModeConfig;
         private readonly InspectModeIndicator _inspectModeIndicator;
+        private readonly FreeGrabbingIndicator _grabbingIndicator;
 
         private LayerMask _traversableLayers => _movementModeConfig.TraversableLayers;
         private float _originalControllerHeight;
@@ -72,7 +74,7 @@ namespace VE2.Core.Player.Internal
             }    
         }
 
-        internal Player2DLocomotor(Locomotor2DReferences locomotor2DReferences, MovementModeConfig movementModeConfig, InspectModeIndicator inspectModeIndicator)
+        internal Player2DLocomotor(Locomotor2DReferences locomotor2DReferences, MovementModeConfig movementModeConfig, InspectModeIndicator inspectModeIndicator, FreeGrabbingIndicator grabbingIndicator)
         {
             _characterController = locomotor2DReferences.Controller;
             _verticalOffsetTransform = locomotor2DReferences.VerticalOffsetTransform;
@@ -83,17 +85,31 @@ namespace VE2.Core.Player.Internal
             _characterController.includeLayers = movementModeConfig.TraversableLayers | movementModeConfig.CollisionLayers;
 
             _inspectModeIndicator = inspectModeIndicator;
+            _grabbingIndicator = grabbingIndicator;
 
-            //On grab, we need to disable collision between that grabbable and the player
-            //Where does that live? In the grabbable, or the player? 
-            //grabbable could get reference to player collider out of API, and do it that way 
-            //Probably makes the most sense
-            //VC doesn't have visibility over the player though, that's quite a thick line to draw for this one thing 
-
+            //TODO tear down and unsubscribe
+            grabbingIndicator.OnGrabStarted += HandleGrabStarted;
+            grabbingIndicator.OnGrabEnded += HandleGrabEnded;
 
             Application.focusChanged += OnFocusChanged;
             if (Application.isFocused)
                 LockCursor();
+        }
+
+        private void HandleGrabStarted(IRangedFreeGrabInteractionModule freeGrabbable)
+        {
+            Collider collider = freeGrabbable.ColliderWrapper.Collider;
+
+            if (collider != null) //Bit of a code smell, would be null in tests since we can't stub it out
+                Physics.IgnoreCollision(_characterController, freeGrabbable.ColliderWrapper.Collider, true);
+        }
+
+        private void HandleGrabEnded(IRangedFreeGrabInteractionModule freeGrabbable)
+        {
+             Collider collider = freeGrabbable.ColliderWrapper.Collider;
+
+            if (collider != null) //Bit of a code smell, would be null in tests since we can't stub it out
+                Physics.IgnoreCollision(_characterController, freeGrabbable.ColliderWrapper.Collider, false);
         }
 
         private void OnFocusChanged(bool focus)

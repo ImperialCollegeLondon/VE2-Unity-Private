@@ -169,7 +169,8 @@ namespace VE2.Core.VComponents.Internal
                 _rigidbodyWrapper,
                 Resources.Load<PhysicsConstants>("PhysicsConstants"),
                 (IGrabbableRigidbody)this,
-                VE2API.LocalClientIdWrapper);
+                VE2API.LocalClientIdWrapper,
+                new ColliderWrapper(Collider));
 
             _service.OnGrabConfirmed += HandleGrabConfirmed;
             _service.OnDropConfirmed += HandleDropConfirmed;

@@ -30,16 +30,18 @@ namespace VE2.Core.Player.Internal
 
     internal class PlayerController2D : BasePlayerController
     {
-        public PlayerTransformData PlayerTransformData {
-            get {
-                return new PlayerTransformData (
+        public PlayerTransformData PlayerTransformData
+        {
+            get
+            {
+                return new PlayerTransformData(
                     IsVRMode: false,
-                    rootPosition: _playerLocomotor2D.RootPosition, 
+                    rootPosition: _playerLocomotor2D.RootPosition,
                     rootRotation: _playerLocomotor2D.RootRotation,
                     verticalOffset: _playerLocomotor2D.VerticalOffset,
                     headPosition: _playerLocomotor2D.HeadLocalPosition,
                     headRotation: _playerLocomotor2D.HeadLocalRotation,
-                    hand2DPosition: _interactor2D.GrabberTransformWrapper.localPosition, 
+                    hand2DPosition: _interactor2D.GrabberTransformWrapper.localPosition,
                     hand2DRotation: _interactor2D.GrabberTransformWrapper.localRotation,
                     activatableIDs2D: (List<string>)_interactor2D.HeldNetworkedActivatableIDs,
                     activatableIDsFeet: (List<string>)_feetInteractor2D.HeldNetworkedActivatableIDs
@@ -48,7 +50,7 @@ namespace VE2.Core.Player.Internal
         }
 
         public readonly Collider CharacterCollider;
-        
+
         private readonly GameObject _playerGO;
         private readonly Player2DControlConfig _controlConfig;
         private readonly Player2DInputContainer _player2DInputContainer;
@@ -89,12 +91,14 @@ namespace VE2.Core.Player.Internal
             _inspectModeIndicator = new InspectModeIndicator();
             CharacterCollider = player2DReferences.CharacterCollider;
 
+            FreeGrabbingIndicator grabbingIndicator = new();
+
             _interactor2D = new(
                 interactorContainer, grabInteractablesContainer, player2DInputContainer.InteractorInputContainer2D, interactionConfig,
-                player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, localClientIDWrapper, localAdminIndicator, _inspectModeIndicator);
+                player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, localClientIDWrapper, localAdminIndicator, _inspectModeIndicator, grabbingIndicator);
 
             _feetInteractor2D = new(collisionDetectorFactory, ColliderType.Feet2D, player2DReferences.Interactor2DReferences.FeetCollider, InteractorType.Feet, localClientIDWrapper, localAdminIndicator, interactionConfig);
-            _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences, movementModeConfig, _inspectModeIndicator);
+            _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences, movementModeConfig, _inspectModeIndicator, grabbingIndicator);
             _rootTransform = player2DReferences.Locomotor2DReferences.Controller.transform;
 
             base._PlayerHeadTransform = _playerLocomotor2D.HeadTransform;
@@ -170,18 +174,18 @@ namespace VE2.Core.Player.Internal
             _feetInteractor2D.HandleUpdate();
         }
 
-        internal void HandlePrimaryUIActivated() 
+        internal void HandlePrimaryUIActivated()
         {
             _overlayUIRect.gameObject.SetActive(false);
-            _playerLocomotor2D.HandleOnDisable(); 
+            _playerLocomotor2D.HandleOnDisable();
             _interactor2D.HandleOnDisable(); //TODO - we don't want to drop grabbables 
         }
 
-        internal void HandlePrimaryUIDeactivated() 
+        internal void HandlePrimaryUIDeactivated()
         {
             _overlayUIRect.gameObject.SetActive(true);
             _playerLocomotor2D.HandleOnEnable();
-            _interactor2D.HandleOnEnable(); 
+            _interactor2D.HandleOnEnable();
         }
 
         // internal void HandleReceiveAvatarAppearance(InstancedAvatarAppearance newAvatarAppearance) 
@@ -219,5 +223,25 @@ namespace VE2.Core.Player.Internal
     internal class InspectModeIndicator
     {
         public bool IsInspectModeActive = false;
+    }
+
+    internal class FreeGrabbingIndicator
+    {
+        public event Action<IRangedFreeGrabInteractionModule> OnGrabStarted;
+        public event Action<IRangedFreeGrabInteractionModule> OnGrabEnded;
+
+        public bool IsGrabbing = false;
+        public void SetIsGrabbing(bool toggle, IRangedFreeGrabInteractionModule freeGrabbable)
+        {
+            if (IsGrabbing == toggle)
+                return;
+
+            IsGrabbing = toggle;
+
+            if (IsGrabbing)
+                OnGrabStarted?.Invoke(freeGrabbable);
+            else
+                OnGrabEnded?.Invoke(freeGrabbable);
+        }
     }
 }

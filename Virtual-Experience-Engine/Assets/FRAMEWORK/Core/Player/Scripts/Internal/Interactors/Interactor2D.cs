@@ -19,22 +19,24 @@ namespace VE2.Core.Player.Internal
         private ColorConfiguration _colorConfig => ColorConfiguration.Instance;
         private readonly Image _reticuleImage;
         private readonly PlayerConnectionPromptHandler _connectionPromptHandler;
-        private Interactor2DInputContainer _interactor2DInputContainer;
-        private InspectModeIndicator _inspectModeIndicator;
-        private Transform _grabberInspectGuideTransform;
+        private readonly Interactor2DInputContainer _interactor2DInputContainer;
+        private readonly InspectModeIndicator _inspectModeIndicator;
+        private readonly Transform _grabberInspectGuideTransform;
         private Tween _inspectModeTween = null;
+        private readonly FreeGrabbingIndicator _grabbingIndicator;
 
         private IRangedFreeGrabInteractionModule _rangedFreeGrabbingGrabbable => _CurrentGrabbingGrabbable as IRangedFreeGrabInteractionModule;
 
         internal Interactor2D(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, Interactor2DInputContainer interactor2DInputContainer,
             PlayerInteractionConfig interactionConfig, InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider,
-            ILocalClientIDWrapper localClientIDWrapper, ILocalAdminIndicator localAdminIndicator, InspectModeIndicator inspectModeIndicator) :
+            ILocalClientIDWrapper localClientIDWrapper, ILocalAdminIndicator localAdminIndicator, InspectModeIndicator inspectModeIndicator, FreeGrabbingIndicator grabbingIndicator) :
             base(interactorContainer, grabInteractablesContainer, interactor2DInputContainer, interactionConfig,
                 interactorReferences, interactorType, raycastProvider, localClientIDWrapper, localAdminIndicator, null, new HoveringOverScrollableIndicator())
         {
             Interactor2DReferences interactor2DReferences = interactorReferences as Interactor2DReferences;
             _reticuleImage = interactor2DReferences.ReticuleImage;
             _inspectModeIndicator = inspectModeIndicator;
+            _grabbingIndicator = grabbingIndicator;
 
             _connectionPromptHandler = interactor2DReferences.ConnectionPromptHandler;
             _grabberInspectGuideTransform = interactor2DReferences.GrabberInspectTransform;
@@ -128,6 +130,22 @@ namespace VE2.Core.Player.Internal
                     AdjustZoom(true);
                 return;
             }
+        }
+
+        public override void ConfirmGrab(string id)
+        {
+            base.ConfirmGrab(id);
+
+            if (_CurrentGrabbingGrabbable is IRangedFreeGrabInteractionModule rangedFreeGrabbable)
+                _grabbingIndicator.SetIsGrabbing(true, rangedFreeGrabbable);
+        }
+
+        public override void ConfirmDrop()
+        {
+            if (_CurrentGrabbingGrabbable is IRangedFreeGrabInteractionModule rangedFreeGrabbable)
+                _grabbingIndicator.SetIsGrabbing(false, rangedFreeGrabbable);
+
+            base.ConfirmDrop();
         }
 
         private void HandleInspectModePressed()

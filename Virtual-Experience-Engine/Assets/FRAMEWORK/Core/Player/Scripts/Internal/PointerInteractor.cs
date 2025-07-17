@@ -515,7 +515,7 @@ namespace VE2.Core.Player.Internal
 
         protected virtual void CheckForExitInspectMode() { } //Do nothing, unless overridden by 2d interactor
 
-        public void ConfirmGrab(string id)
+        public virtual void ConfirmGrab(string id)
         {
             if (!_grabInteractablesContainer.GrabInteractables.TryGetValue(id, out IRangedGrabInteractionModule rangedGrabInteractable))
             {
@@ -540,7 +540,7 @@ namespace VE2.Core.Player.Internal
 
         protected abstract void HandleStartGrabbingAdjustable(IRangedAdjustableInteractionModule rangedAdjustableInteraction);
 
-        public void ConfirmDrop()
+        public virtual void ConfirmDrop()
         {
             SetInteractorState(InteractorState.Idle);
 
