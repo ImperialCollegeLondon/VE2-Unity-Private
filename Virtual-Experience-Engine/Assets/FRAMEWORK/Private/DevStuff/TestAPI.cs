@@ -13,12 +13,15 @@ public class TestAPI : MonoBehaviour
         VE2API.Player.OnVerticalDrag.AddListener(CallOnVerticalDrag);
         VE2API.Player.OnJump2D.AddListener(CallOnJump2D);
         VE2API.Player.OnCrouch2D.AddListener(CallOnCrouch2D);
+        VE2API.Player.OnFreeFlyModeEnter2D.AddListener(() => Debug.Log("OnFreeFlyModeEnter called"));
+        VE2API.Player.OnFreeFlyModeExit2D.AddListener(() => Debug.Log("OnFreeFlyModeExit called"));
         VE2API.Player.OnChangeToVRMode.AddListener(CallOnChangeToVRMode);
         VE2API.Player.OnChangeTo2DMode.AddListener(CallOnChangeTo2DMode);
+        VE2API.Player.OnFreeFlyModeEnter.AddListener(() => Debug.Log("OnFreeFlyModeEnter called"));
+        VE2API.Player.OnFreeFlyModeExit.AddListener(() => Debug.Log("OnFreeFlyModeExit called"));
         VE2API.Player.OnResetViewVR.AddListener(CallOnResetViewVR);
         VE2API.PrimaryUIService.OnUIShow.AddListener(OnActivateMainMenu);
         VE2API.PrimaryUIService.OnUIHide.AddListener(OnDeactivateMainMenu);
-
     }
 
     // Update is called once per frame
