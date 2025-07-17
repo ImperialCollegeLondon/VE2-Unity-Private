@@ -6,6 +6,7 @@ using Unity.Collections;
 using VE2.Common.API;
 using UnityEngine.Events;
 using VE2.Common.Shared;
+using VE2.Core.Player.API;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -169,7 +170,8 @@ namespace VE2.Core.VComponents.Internal
                 _rigidbodyWrapper,
                 Resources.Load<PhysicsConstants>("PhysicsConstants"),
                 (IGrabbableRigidbody)this,
-                VE2API.LocalClientIdWrapper);
+                VE2API.LocalClientIdWrapper,
+                VE2API.Player as IPlayerServiceInternal);
 
             _service.OnGrabConfirmed += HandleGrabConfirmed;
             _service.OnDropConfirmed += HandleDropConfirmed;

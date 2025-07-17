@@ -3,6 +3,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using VE2.Common.Shared;
+using VE2.Core.Player.API;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
 using VE2.Core.VComponents.Tests;
@@ -54,7 +55,8 @@ namespace VE2.Core.Tests
                 Substitute.For<IRigidbodyWrapper>(),
                 new PhysicsConstants(),
                 new V_FreeGrabbable(),
-                LocalClientIDWrapperSetup.LocalClientIDWrapper);
+                LocalClientIDWrapperSetup.LocalClientIDWrapper,
+                PlayerService as IPlayerServiceInternal);
 
 
             //Stub out the VC (provider layer) with the grabbable

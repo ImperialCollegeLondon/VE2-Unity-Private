@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using VE2.Common.API;
 using VE2.Common.Shared;
+using VE2.Core.Player.API;
 using VE2.Core.Player.Internal;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
@@ -72,7 +73,8 @@ namespace VE2.Core.Tests
                 Substitute.For<IRigidbodyWrapper>(),
                 new PhysicsConstants(),
                 new V_FreeGrabbable(),
-                LocalClientIDWrapperSetup.LocalClientIDWrapper);
+                LocalClientIDWrapperSetup.LocalClientIDWrapper,
+                PlayerService as IPlayerServiceInternal);
 
             _v_freeGrabbableProviderStub.Service = freeGrabbable;
 
@@ -116,7 +118,8 @@ namespace VE2.Core.Tests
                 Substitute.For<IRigidbodyWrapper>(),
                 new PhysicsConstants(),
                 new V_FreeGrabbable(),
-                LocalClientIDWrapperSetup.LocalClientIDWrapper);
+                LocalClientIDWrapperSetup.LocalClientIDWrapper,
+                PlayerService as IPlayerServiceInternal);
 
             _v_freeGrabbable2ProviderStub.Service = freeGrabbable2;
 

@@ -8,6 +8,7 @@ using VE2.Core.Player.Internal;
 using System.Collections.Generic;
 using VE2.Common.Shared;
 using VE2.Common.API;
+using VE2.Core.Player.API;
 
 
 namespace VE2.Core.Tests
@@ -35,7 +36,8 @@ namespace VE2.Core.Tests
                 Substitute.For<IRigidbodyWrapper>(), 
                 new PhysicsConstants(),
                 new V_FreeGrabbable(),
-                LocalClientIDWrapperSetup.LocalClientIDWrapper);
+                LocalClientIDWrapperSetup.LocalClientIDWrapper,
+                PlayerService as IPlayerServiceInternal);
 
             //Stub out provider layer
             _v_freeGrabbableProviderStub = new(freeGrabbable);
