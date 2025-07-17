@@ -1890,6 +1890,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _tweenTime: 0.4
   _tweenEase: 4
+  _canvasGroup: {fileID: 0}
 --- !u!114 &3894390898065690075
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2089,6 +2090,7 @@ GameObject:
   - component: {fileID: 2479932082735169927}
   - component: {fileID: 7206916667843493607}
   - component: {fileID: 8778756065692390629}
+  - component: {fileID: 6061263807383549072}
   m_Layer: 8
   m_Name: CustomInfoPoint_Trigger
   m_TagString: Untagged
@@ -2221,6 +2223,18 @@ MonoBehaviour:
   _lightMaxIntensity: 6
   _openCloseTweenTime: 0.4
   _openCloseTweenEase: 4
+--- !u!225 &6061263807383549072
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7705595373208193911}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &7731439953368740567
 GameObject:
   m_ObjectHideFlags: 0
