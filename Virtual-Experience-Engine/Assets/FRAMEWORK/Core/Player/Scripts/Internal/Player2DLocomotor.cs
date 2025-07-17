@@ -5,16 +5,6 @@ namespace VE2.Core.Player.Internal
 {
     internal class Player2DLocomotor
     {
-        //TODO: make private, could be wired in via scriptable object?
-        // Public variables
-        public float _walkSpeed = 5f;
-        private float _sprintSpeedMultiplier = 1.4f; 
-        public float mouseSensitivity = 0.3f;
-        public float jumpForce = 5f;
-        public float crouchHeight = 0.7f;
-        public float minVerticalAngle = -90f; // Minimum vertical angle (looking down)
-        public float maxVerticalAngle = 90f;  // Maximum vertical angle (looking up)
-
         private Transform _transform => _characterController.transform;
         private readonly CharacterController _characterController;
         private readonly Transform _verticalOffsetTransform;
@@ -24,6 +14,7 @@ namespace VE2.Core.Player.Internal
         private readonly InspectModeIndicator _inspectModeIndicator;
 
         private PlayerLocomotor2DInputContainer _playerLocomotor2DInputContainer;
+        private readonly Player2DMovementConfig _player2DMovementConfig;
         private LayerMask _traversableLayers => _movementModeConfig.TraversableLayers;
         private float _originalControllerHeight;
         private float verticalVelocity = 0f;
@@ -73,7 +64,7 @@ namespace VE2.Core.Player.Internal
             }    
         }
 
-        internal Player2DLocomotor(Locomotor2DReferences locomotor2DReferences, MovementModeConfig movementModeConfig, InspectModeIndicator inspectModeIndicator, PlayerLocomotor2DInputContainer playerLocomotor2DInputContainer)
+        internal Player2DLocomotor(Locomotor2DReferences locomotor2DReferences, MovementModeConfig movementModeConfig, InspectModeIndicator inspectModeIndicator, PlayerLocomotor2DInputContainer playerLocomotor2DInputContainer, Player2DMovementConfig player2DMovementConfig)
         {
             _characterController = locomotor2DReferences.Controller;
             _verticalOffsetTransform = locomotor2DReferences.VerticalOffsetTransform;
@@ -82,6 +73,7 @@ namespace VE2.Core.Player.Internal
 
             _movementModeConfig = movementModeConfig;
             _characterController.includeLayers = movementModeConfig.TraversableLayers | movementModeConfig.CollisionLayers;
+            _player2DMovementConfig = player2DMovementConfig;
 
             _inspectModeIndicator = inspectModeIndicator;
             _playerLocomotor2DInputContainer = playerLocomotor2DInputContainer;
@@ -131,12 +123,12 @@ namespace VE2.Core.Player.Internal
                 // Mouse look
                 if (!_inspectModeIndicator.IsInspectModeActive)
                 {
-                    float mouseX = _playerLocomotor2DInputContainer.MouseDelta.Value.x * mouseSensitivity;
+                    float mouseX = _playerLocomotor2DInputContainer.MouseDelta.Value.x * _player2DMovementConfig.mouseSensitivity;
                     _transform.Rotate(Vector3.up * mouseX);
 
-                    float mouseY = _playerLocomotor2DInputContainer.MouseDelta.Value.y * mouseSensitivity;
+                    float mouseY = _playerLocomotor2DInputContainer.MouseDelta.Value.y * _player2DMovementConfig.mouseSensitivity;
                     verticalRotation -= mouseY;
-                    verticalRotation = Mathf.Clamp(verticalRotation, minVerticalAngle, maxVerticalAngle);
+                    verticalRotation = Mathf.Clamp(verticalRotation, _player2DMovementConfig.minVerticalAngle, _player2DMovementConfig.maxVerticalAngle);
                     _cameraTransform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
                 }
 
@@ -147,13 +139,13 @@ namespace VE2.Core.Player.Internal
 
                 Vector3 moveDirection = _transform.TransformDirection(new Vector3(moveX, 0, moveZ));
 
-                float speed = _playerLocomotor2DInputContainer.IsSprinting2D.IsPressed ? _walkSpeed * _sprintSpeedMultiplier : _walkSpeed;
+                float speed = _playerLocomotor2DInputContainer.IsSprinting2D.IsPressed ? _player2DMovementConfig.walkSpeed * _player2DMovementConfig.sprintSpeedMultiplier : _player2DMovementConfig.walkSpeed;
                 _characterController.Move(moveDirection * speed * Time.deltaTime);
 
                 // Jump
                 if (_playerLocomotor2DInputContainer.Jump.IsPressed && IsGrounded())
                 {
-                    verticalVelocity = jumpForce;
+                    verticalVelocity = _player2DMovementConfig.jumpForce;
                     _movementModeConfig.OnJump2D?.Invoke();
                 }
             }
@@ -172,7 +164,7 @@ namespace VE2.Core.Player.Internal
             }
             else
             {
-                _characterController.height = crouchHeight;
+                _characterController.height = _player2DMovementConfig.crouchHeight;
                 _movementModeConfig.OnCrouch2D?.Invoke();
             }
 
