@@ -7,6 +7,12 @@ namespace VE2.Common.Shared
     {
         public static List<Material> GetAvatarColorMaterialsForGameObject(GameObject go) //TODO, move to player?
         {
+            if (go == null)
+            {
+                //Debug.LogError("GetAvatarColorMaterialsForGameObject: GameObject is null.");
+                return new List<Material>();
+            }
+
             List<Material> colorMaterials = new();
 
             //If we're in edit mode (i.e, a test) just return empty list

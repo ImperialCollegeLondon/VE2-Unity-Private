@@ -3,6 +3,11 @@ using VE2.Common.API;
 
 public class CustomAvatarTest : MonoBehaviour
 {
+    public void OnToggleBuiltInHeadEnabled(bool isEnabled)
+    {
+        VE2API.Player.SetBuiltInHeadEnabled(isEnabled);
+    }
+
     public void OnToggleCustomHeadEnabled(bool isEnabled)
     {
         VE2API.Player.SetCustomHeadEnabled(isEnabled);
@@ -16,6 +21,26 @@ public class CustomAvatarTest : MonoBehaviour
     public void OnHead2ButtonPushed()
     {
         VE2API.Player.SetCustomHeadIndex(1);
+    }
+
+    public void OnToggleBuiltInTorsoEnabled(bool isEnabled)
+    {
+        VE2API.Player.SetBuiltInTorsoEnabled(isEnabled);
+    }
+
+    public void OnToggleCustomTorsoEnabled(bool isEnabled)
+    {
+        VE2API.Player.SetCustomTorsoEnabled(isEnabled);
+    }
+
+    public void OnTorso1ButtonPushed()
+    {
+        VE2API.Player.SetCustomTorsoIndex(0);
+    }
+
+    public void OnTorso2ButtonPushed()
+    {
+        VE2API.Player.SetCustomTorsoIndex(1);
     }
 
     public void OnClearButtonPushed()
