@@ -46,6 +46,8 @@ namespace VE2.Core.Player.Internal
                 );
             }
         }
+
+        public readonly Collider CharacterCollider;
         
         private readonly GameObject _playerGO;
         private readonly Player2DControlConfig _controlConfig;
@@ -85,6 +87,7 @@ namespace VE2.Core.Player.Internal
             _secondaryUIHolder = player2DReferences.SecondaryUIHolderRect;
             _overlayUIRect = player2DReferences.OverlayUIRect;
             _inspectModeIndicator = new InspectModeIndicator();
+            CharacterCollider = player2DReferences.CharacterCollider;
 
             _interactor2D = new(
                 interactorContainer, grabInteractablesContainer, player2DInputContainer.InteractorInputContainer2D, interactionConfig,

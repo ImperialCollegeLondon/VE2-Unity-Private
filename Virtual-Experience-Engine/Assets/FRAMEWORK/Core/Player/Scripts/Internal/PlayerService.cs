@@ -193,6 +193,8 @@ namespace VE2.Core.Player.Internal
         public AndroidJavaObject AddArgsToIntent(AndroidJavaObject intent) => _playerSettingsHandler.AddArgsToIntent(intent);
 
         public void AddPanelTo2DOverlayUI(RectTransform rect) => _player2D.MoveRectToOverlayUI(rect);
+
+        public Collider CharacterCollider2D => _player2D != null? _player2D.CharacterCollider : null;
         #endregion
 
         private readonly PlayerConfig _config;

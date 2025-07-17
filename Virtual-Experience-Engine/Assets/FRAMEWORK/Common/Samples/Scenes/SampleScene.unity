@@ -1165,7 +1165,7 @@ GameObject:
   - component: {fileID: 63489046}
   - component: {fileID: 63489045}
   - component: {fileID: 63489044}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8652,7 +8652,7 @@ GameObject:
   - component: {fileID: 758950305}
   - component: {fileID: 758950304}
   - component: {fileID: 758950303}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11396,7 +11396,7 @@ GameObject:
   - component: {fileID: 950575026}
   - component: {fileID: 950575025}
   - component: {fileID: 950575024}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14337,6 +14337,104 @@ Transform:
   - {fileID: 1473376566}
   m_Father: {fileID: 1400309882}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1284324607
+GameObject:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1284324609}
+  - component: {fileID: 1284324608}
+  m_Layer: 0
+  m_Name: VE2APISampleScene
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1284324608
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1284324607}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42c71687d1b78b848b78a9a33d60f5dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _preferVRMode: 0
+  _localClientIdWrapper:
+    _ClientID: 0
+  _uiProviderGOName: 
+  platformProviderGOName: PlatformIntegration
+--- !u!4 &1284324609
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1284324607}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1293076044
+GameObject:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1293076046}
+  - component: {fileID: 1293076045}
+  m_Layer: 0
+  m_Name: VE2APISampleScene
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1293076045
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1293076044}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42c71687d1b78b848b78a9a33d60f5dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _preferVRMode: 0
+  _localClientIdWrapper:
+    _ClientID: 0
+  _uiProviderGOName: 
+  platformProviderGOName: PlatformIntegration
+--- !u!4 &1293076046
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1293076044}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1305163852
 GameObject:
   m_ObjectHideFlags: 0
@@ -16567,6 +16665,55 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1537463951}
   m_Mesh: {fileID: 1475192979978612309, guid: f3cd08f05c8201b49b007343bf5d27a0, type: 3}
+--- !u!1 &1555786107
+GameObject:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1555786109}
+  - component: {fileID: 1555786108}
+  m_Layer: 0
+  m_Name: VE2APISampleScene
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1555786108
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1555786107}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42c71687d1b78b848b78a9a33d60f5dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _preferVRMode: 0
+  _localClientIdWrapper:
+    _ClientID: 0
+  _uiProviderGOName: 
+  platformProviderGOName: PlatformIntegration
+--- !u!4 &1555786109
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1555786107}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1570322908
 GameObject:
   m_ObjectHideFlags: 0
@@ -18315,6 +18462,55 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1393440528}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1751925885
+GameObject:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1751925887}
+  - component: {fileID: 1751925886}
+  m_Layer: 0
+  m_Name: VE2APISampleScene
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1751925886
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1751925885}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42c71687d1b78b848b78a9a33d60f5dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _preferVRMode: 0
+  _localClientIdWrapper:
+    _ClientID: 0
+  _uiProviderGOName: 
+  platformProviderGOName: PlatformIntegration
+--- !u!4 &1751925887
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1751925885}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1754337404
 GameObject:
   m_ObjectHideFlags: 0
@@ -18917,7 +19113,7 @@ GameObject:
   - component: {fileID: 1846455101}
   - component: {fileID: 1846455100}
   - component: {fileID: 1846455099}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19499,14 +19695,14 @@ MonoBehaviour:
     PlayerInteractionConfig:
       InteractableLayers:
         serializedVersion: 2
-        m_Bits: 524137
+        m_Bits: 524073
     MovementModeConfig:
       TraversableLayers:
         serializedVersion: 2
         m_Bits: 8
       CollisionLayers:
         serializedVersion: 2
-        m_Bits: 130945
+        m_Bits: 524041
       FreeFlyMode: 0
       TeleportRangeMultiplier: 1
       OnTeleport:
@@ -19533,7 +19729,7 @@ MonoBehaviour:
       FarClippingPlane: 1000
       CullingMask:
         serializedVersion: 2
-        m_Bits: 4294967295
+        m_Bits: 524159
       AntiAliasing: 1
       AntiAliasingQuality: 1
       EnablePostProcessing: 1
@@ -19550,19 +19746,18 @@ MonoBehaviour:
         BuiltInGameObjectEnabled: 1
         CustomGameObjectEnabled: 0
         CustomGameObjectIndex: 0
-      VRHandRightGameObjectSelection:
+      RightHandVRGameObjectSelection:
         BuiltInGameObjectEnabled: 1
         CustomGameObjectEnabled: 0
         CustomGameObjectIndex: 0
-      VRHandLeftGameObjectSelection:
+      LeftHandVRGameObjectSelection:
         BuiltInGameObjectEnabled: 1
         CustomGameObjectEnabled: 0
         CustomGameObjectIndex: 0
     PluginCustomAvatarPrefabs:
       Heads: []
       Torsos: []
-      VRRightHands: []
-      VRLefthands: []
+      VRHands: []
     RepeatedTransmissionConfig:
       TransmissionFrequency: 20
       TransmissionType: 0
@@ -23028,7 +23223,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0.6887409, y: -0.16011257, z: -0.16011254, w: 0.68874085}
   m_LocalPosition: {x: 0, y: 0.853, z: 0}
-  m_LocalScale: {x: 85.05058, y: 85.05057, z: 85.05055}
+  m_LocalScale: {x: 85.05058, y: 85.05058, z: 85.05058}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 738647864}
@@ -30174,3 +30369,7 @@ SceneRoots:
   - {fileID: 1990765011}
   - {fileID: 9027138968998213357}
   - {fileID: 878036154}
+  - {fileID: 1293076046}
+  - {fileID: 1751925887}
+  - {fileID: 1555786109}
+  - {fileID: 1284324609}

@@ -1816,6 +1816,7 @@ MonoBehaviour:
     _verticalOffsetTransform: {fileID: 1315542387580672916}
   _secondaryUIHolderRect: {fileID: 3725422685131005934}
   _overlayUIRect: {fileID: 6683190537447941536}
+  _characterCollider: {fileID: 4438877719408431009}
 --- !u!143 &4438877719408431009
 CharacterController:
   m_ObjectHideFlags: 0

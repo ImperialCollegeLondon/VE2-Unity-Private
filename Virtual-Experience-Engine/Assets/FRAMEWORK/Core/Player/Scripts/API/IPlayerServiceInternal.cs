@@ -29,10 +29,11 @@ namespace VE2.Core.Player.API
 
         public void AddPanelTo2DOverlayUI(RectTransform rect);
 
-
         public void SetBuiltInHeadIndex(ushort type);
         public void SetBuiltInTorsoIndex(ushort type);
         public void SetBuiltInColor(Color color);
+
+        public Collider CharacterCollider2D { get; }
     }
     
     [Serializable]

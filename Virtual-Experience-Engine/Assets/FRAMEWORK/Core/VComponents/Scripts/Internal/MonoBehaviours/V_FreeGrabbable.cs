@@ -102,6 +102,9 @@ namespace VE2.Core.VComponents.Internal
         void Reset()
         {
             TryAddRigidBodySyncable();
+
+            if (TryGetComponent(out Rigidbody rigidbody))
+                rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
         }
 
         private void TryAddRigidBodySyncable()
@@ -190,6 +193,10 @@ namespace VE2.Core.VComponents.Internal
             _service = null;
 
         }
+
+        //TODO - these don't seem to have any listeners, 
+        //rewire RBSyncables and HandHeldActivatable to use these events
+        //Also, maybe these events should live in the service, and should be proxied in the MB?
 
         private void HandleGrabConfirmed(ushort grabberID)
         {

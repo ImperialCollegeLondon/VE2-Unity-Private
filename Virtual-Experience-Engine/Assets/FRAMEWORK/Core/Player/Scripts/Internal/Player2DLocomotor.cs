@@ -84,6 +84,12 @@ namespace VE2.Core.Player.Internal
 
             _inspectModeIndicator = inspectModeIndicator;
 
+            //On grab, we need to disable collision between that grabbable and the player
+            //Where does that live? In the grabbable, or the player? 
+            //grabbable could get reference to player collider out of API, and do it that way 
+            //Probably makes the most sense
+            //VC doesn't have visibility over the player though, that's quite a thick line to draw for this one thing 
+
 
             Application.focusChanged += OnFocusChanged;
             if (Application.isFocused)

@@ -17,6 +17,9 @@ namespace VE2.Core.Player.Internal
 
         public RectTransform OverlayUIRect => _overlayUIRect;
         [SerializeField, IgnoreParent] private RectTransform _overlayUIRect;
+
+        public Collider CharacterCollider => _characterCollider;
+        [SerializeField, IgnoreParent] private Collider _characterCollider;
     }
 
     [Serializable]
