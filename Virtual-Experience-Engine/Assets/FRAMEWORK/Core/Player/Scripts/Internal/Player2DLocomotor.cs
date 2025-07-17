@@ -22,6 +22,9 @@ namespace VE2.Core.Player.Internal
         private float verticalRotation = 0f; // To keep track of vertical rotation
         private bool isCursorLocked = true;  // Flag to control camera movement
 
+        private Vector3 _originalControllerCenter;
+        private bool _wasFreeFlyMode;
+
         public Vector3 RootPosition
         {
             get => _transform.position;
@@ -69,6 +72,7 @@ namespace VE2.Core.Player.Internal
             _characterController = locomotor2DReferences.Controller;
             _verticalOffsetTransform = locomotor2DReferences.VerticalOffsetTransform;
             _originalControllerHeight = locomotor2DReferences.Controller.height;
+            _originalControllerCenter = locomotor2DReferences.Controller.center;
             _cameraTransform = locomotor2DReferences.CameraTransform;
 
             _movementModeConfig = movementModeConfig;
@@ -118,6 +122,17 @@ namespace VE2.Core.Player.Internal
                 LockCursor();
             }
 
+            // Detect FreeFlyMode changes
+            if (_movementModeConfig.FreeFlyMode != _wasFreeFlyMode)
+            {
+                if (_movementModeConfig.FreeFlyMode)
+                    EnterFreeFlyMode();
+                else
+                    ExitFreeFlyMode();
+
+                _wasFreeFlyMode = _movementModeConfig.FreeFlyMode;
+            }
+
             if (Application.isFocused && isCursorLocked)
             {
                 // Mouse look
@@ -142,6 +157,23 @@ namespace VE2.Core.Player.Internal
                 float speed = _playerLocomotor2DInputContainer.IsSprinting2D.IsPressed ? _player2DMovementConfig.walkSpeed * _player2DMovementConfig.sprintSpeedMultiplier : _player2DMovementConfig.walkSpeed;
                 _characterController.Move(moveDirection * speed * Time.deltaTime);
 
+                // FreeFlyMode movement
+                if (_movementModeConfig.FreeFlyMode)
+                {
+                    Vector3 freeFlyMove = moveDirection * speed * Time.deltaTime;
+
+                    // Move up when Jump is pressed
+                    if (_playerLocomotor2DInputContainer.Jump.IsPressed)
+                        freeFlyMove += Vector3.up * speed * Time.deltaTime;
+
+                    // Move down when Crouch is pressed
+                    if (_playerLocomotor2DInputContainer.Crouch.IsPressed)
+                        freeFlyMove += Vector3.down * speed * Time.deltaTime;
+
+                    _characterController.Move(freeFlyMove);
+                    return; // Skip normal jump logic in free fly mode
+                }
+
                 // Jump
                 if (_playerLocomotor2DInputContainer.Jump.IsPressed && IsGrounded())
                 {
@@ -150,13 +182,59 @@ namespace VE2.Core.Player.Internal
                 }
             }
 
+            if (_movementModeConfig.FreeFlyMode)
+                return; // No gravity in free fly mode
             // Apply gravity
             verticalVelocity += Physics.gravity.y * Time.deltaTime;
             _characterController.Move(Vector3.up * verticalVelocity * Time.deltaTime);
         }
 
+        private void EnterFreeFlyMode()
+        {
+            _characterController.height = 0.1f;
+            _characterController.center = new Vector3(0, 1.7f, 0);
+        }
+
+        private void ExitFreeFlyMode()
+        {
+            // Check for ground below the player using traversable layers
+            Vector3 rayOrigin = _transform.position + Vector3.up * 0.1f; // Slightly above to avoid self-collision
+            float rayDistance = 100f; // Large enough to reach the ground
+
+            if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, rayDistance, _traversableLayers))
+            {
+                // Ground found, snap player to ground and exit free fly mode
+                Vector3 groundedPosition = _transform.position;
+                groundedPosition.y = hit.point.y + (_originalControllerHeight / 2f);
+                _characterController.enabled = false;
+                _transform.position = groundedPosition;
+                _characterController.enabled = true;
+
+                _characterController.height = _originalControllerHeight;
+                _characterController.center = _originalControllerCenter;
+                _wasFreeFlyMode = false;
+                _movementModeConfig.FreeFlyMode = false;
+            }
+            else
+            {
+                // No ground found, move to spawn and stay in free fly mode
+                Vector3 spawnPosition = GetSpawnPosition();
+                _characterController.enabled = false;
+                _transform.position = spawnPosition;
+                _characterController.enabled = true;
+
+                Debug.LogError("No valid traversible layer found in the scene. Cannot exit free fly mode. Player moved to spawn position.");
+                // Remain in free fly mode
+                _wasFreeFlyMode = true;
+                _movementModeConfig.FreeFlyMode = true;
+            }
+        }
+
         private void HandleCrouch()
         {
+            if (_movementModeConfig.FreeFlyMode)
+                return; // No crouch toggle in free fly mode
+
             if (isCrouching)
             {
                 _characterController.Move(Vector3.up * (_originalControllerHeight - _characterController.height)); //Bodge so we don't fall through the floor
@@ -169,6 +247,12 @@ namespace VE2.Core.Player.Internal
             }
 
             isCrouching = !isCrouching;
+        }
+        private Vector3 GetSpawnPosition()
+        {
+            // TODO: Replace with your actual spawn position logic
+            // Example: return VE2API.Player.PlayerSpawnPoint;
+            return Vector3.zero;
         }
         private void LockCursor()
         {
