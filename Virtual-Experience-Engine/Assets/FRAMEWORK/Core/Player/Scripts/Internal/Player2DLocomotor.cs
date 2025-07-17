@@ -193,7 +193,8 @@ namespace VE2.Core.Player.Internal
         {
             _characterController.height = 0.1f;
             _characterController.center = new Vector3(0, 1.7f, 0);
-            _movementModeConfig.OnFreeFlyModeEnter2D?.Invoke();
+
+            //_movementModeConfig.OnFreeFlyModeEnter2D?.Invoke(); //NOTE: FreeFlyMode is mostly changed by Plugin so we might not need events for this but it lives here for now
         }
 
         private void ExitFreeFlyMode()
@@ -215,7 +216,7 @@ namespace VE2.Core.Player.Internal
                 _characterController.center = _originalControllerCenter;
                 _wasFreeFlyMode = false;
                 _movementModeConfig.FreeFlyMode = false;
-                _movementModeConfig.OnFreeFlyModeExit2D?.Invoke();
+                //_movementModeConfig.OnFreeFlyModeExit2D?.Invoke(); //NOTE: FreeFlyMode is mostly changed by Plugin so we might not need events for this but it lives here for now
             }
             else
             {

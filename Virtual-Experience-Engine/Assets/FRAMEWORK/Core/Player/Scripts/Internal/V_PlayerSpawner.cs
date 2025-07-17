@@ -83,12 +83,12 @@ namespace VE2.Core.Player.Internal
         [SerializeField] internal UnityEvent OnSnapTurn = new UnityEvent();
         [SerializeField] internal UnityEvent OnHorizontalDrag = new UnityEvent();
         [SerializeField] internal UnityEvent OnVerticalDrag = new UnityEvent();
-        [SerializeField] internal UnityEvent OnFreeFlyModeEnter = new UnityEvent();
-        [SerializeField] internal UnityEvent OnFreeFlyModeExit = new UnityEvent();
+        //[SerializeField] internal UnityEvent OnFreeFlyModeEnter = new UnityEvent();
+        //[SerializeField] internal UnityEvent OnFreeFlyModeExit = new UnityEvent();
         [SerializeField] internal UnityEvent OnJump2D = new UnityEvent();
         [SerializeField] internal UnityEvent OnCrouch2D = new UnityEvent();
-        [SerializeField] internal UnityEvent OnFreeFlyModeEnter2D = new UnityEvent();
-        [SerializeField] internal UnityEvent OnFreeFlyModeExit2D = new UnityEvent();
+        //[SerializeField] internal UnityEvent OnFreeFlyModeEnter2D = new UnityEvent();
+        //[SerializeField] internal UnityEvent OnFreeFlyModeExit2D = new UnityEvent();
     }
 
     [Serializable]
