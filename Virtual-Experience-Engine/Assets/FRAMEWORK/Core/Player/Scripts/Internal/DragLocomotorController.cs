@@ -83,15 +83,13 @@ namespace VE2.Core.Player.Internal
         private void EnterFreeFlyMode()
         {
             // Save the current head offset position
-            _savedHeadOffset = _headOffsetTransform.localPosition;
+            _savedHeadOffset = _headTransform.localPosition;
             // Collapse the rig
             _headTransform.localPosition = Vector3.zero;
         }
 
         private void ExitFreeFlyMode()
         {
-            //Restore the head offset position
-            _headOffsetTransform.localPosition = _savedHeadOffset;
             // Raycast down to find the ground
             if (Physics.Raycast(_rootTransform.position, Vector3.down, out RaycastHit hit, Mathf.Infinity, _movementModeConfig.TraversableLayers))
             {
@@ -103,6 +101,9 @@ namespace VE2.Core.Player.Internal
                 // Ground not found, move to spawn position
                 _rootTransform.position = GetSpawnPosition();
             }
+
+            //Restore the head offset position
+            _headTransform.localPosition = _savedHeadOffset;
         }
 
         private Vector3 GetSpawnPosition()

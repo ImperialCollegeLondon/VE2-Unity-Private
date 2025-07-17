@@ -175,8 +175,17 @@ namespace VE2.Core.Player.Internal
                     ...this approach might not work as well for drag though, maybe collapsing the rig is simpler after all*/
                     Vector3 delta = teleportDestination - _headTransform.position;
                     Vector3 newRootPosition = _rootTransform.position + delta;
-                    // Force y to remain unchanged (no elevation change)
-                    newRootPosition.y = _rootTransform.position.y;
+
+                    // Allow y to change only if the angle of elevation is above 45 degrees  
+                    float angleOfElevation = Vector3.Angle(Vector3.forward, delta.normalized);
+                    if (angleOfElevation > 45f)
+                    {
+                        newRootPosition.y = _rootTransform.position.y + delta.y;
+                    }
+                    else
+                    {
+                        newRootPosition.y = _rootTransform.position.y; // Keep y unchanged  
+                    }
 
                     _hitPoint = newRootPosition;
 
