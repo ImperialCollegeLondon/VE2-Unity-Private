@@ -40,8 +40,8 @@ namespace VE2.Common.API
             {
                 if (FindObjectsByType<VE2API>(FindObjectsSortMode.None).Length > 1)
                 {
-                    Debug.LogError("There should only be one VE2API in the scene");
-                    Destroy(gameObject);
+                    //Debug.LogError("There should only be one VE2API in the scene");
+                    DestroyImmediate(gameObject);
                 }
 
                 _instance = this;

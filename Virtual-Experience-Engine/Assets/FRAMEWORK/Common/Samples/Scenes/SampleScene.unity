@@ -10204,55 +10204,6 @@ MonoBehaviour:
   m_PointerBehavior: 0
   m_CursorLockBehavior: 0
   m_ScrollDeltaPerTick: 6
---- !u!1 &878036152
-GameObject:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 878036154}
-  - component: {fileID: 878036153}
-  m_Layer: 0
-  m_Name: VE2APISampleScene
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &878036153
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 878036152}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 42c71687d1b78b848b78a9a33d60f5dc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _preferVRMode: 0
-  _localClientIdWrapper:
-    _ClientID: 65535
-  _uiProviderGOName: 
-  platformProviderGOName: PlatformIntegration
---- !u!4 &878036154
-Transform:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 878036152}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &889208497
 GameObject:
   m_ObjectHideFlags: 0
@@ -14337,55 +14288,6 @@ Transform:
   - {fileID: 1473376566}
   m_Father: {fileID: 1400309882}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1284324607
-GameObject:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1284324609}
-  - component: {fileID: 1284324608}
-  m_Layer: 0
-  m_Name: VE2APISampleScene
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1284324608
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1284324607}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 42c71687d1b78b848b78a9a33d60f5dc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _preferVRMode: 0
-  _localClientIdWrapper:
-    _ClientID: 0
-  _uiProviderGOName: 
-  platformProviderGOName: PlatformIntegration
---- !u!4 &1284324609
-Transform:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1284324607}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1293076044
 GameObject:
   m_ObjectHideFlags: 1
@@ -14415,7 +14317,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42c71687d1b78b848b78a9a33d60f5dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _preferVRMode: 0
+  _preferVRMode: 1
   _localClientIdWrapper:
     _ClientID: 0
   _uiProviderGOName: 
@@ -16665,55 +16567,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1537463951}
   m_Mesh: {fileID: 1475192979978612309, guid: f3cd08f05c8201b49b007343bf5d27a0, type: 3}
---- !u!1 &1555786107
-GameObject:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1555786109}
-  - component: {fileID: 1555786108}
-  m_Layer: 0
-  m_Name: VE2APISampleScene
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1555786108
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1555786107}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 42c71687d1b78b848b78a9a33d60f5dc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _preferVRMode: 0
-  _localClientIdWrapper:
-    _ClientID: 0
-  _uiProviderGOName: 
-  platformProviderGOName: PlatformIntegration
---- !u!4 &1555786109
-Transform:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1555786107}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1570322908
 GameObject:
   m_ObjectHideFlags: 0
@@ -18462,55 +18315,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1393440528}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1751925885
-GameObject:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1751925887}
-  - component: {fileID: 1751925886}
-  m_Layer: 0
-  m_Name: VE2APISampleScene
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1751925886
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1751925885}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 42c71687d1b78b848b78a9a33d60f5dc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _preferVRMode: 0
-  _localClientIdWrapper:
-    _ClientID: 0
-  _uiProviderGOName: 
-  platformProviderGOName: PlatformIntegration
---- !u!4 &1751925887
-Transform:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1751925885}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1754337404
 GameObject:
   m_ObjectHideFlags: 0
@@ -19765,9 +19569,9 @@ MonoBehaviour:
     PlayerName: Unknown
     AvatarHeadIndex: 0
     AvatarTorsoIndex: 0
-    AvatarColorR: 0
-    AvatarColorG: 0
-    AvatarColorB: 0
+    AvatarColorR: 255
+    AvatarColorG: 70
+    AvatarColorB: 70
   _transformDataSetup: 0
   _playerTransformData:
     IsVRMode: 0
@@ -30179,7 +29983,7 @@ MonoBehaviour:
       IncrementPerScrollTick: 0.1
     RotationalAdjustableServiceConfig:
       AdjustmentAxis: 0
-      AdjustmentType: 1
+      AdjustmentType: 0
       NumberOfDiscreteValues: 3
       MinimumSpatialValue: -47.687
       MaximumSpatialValue: 47.687
@@ -30368,8 +30172,4 @@ SceneRoots:
   - {fileID: 1979020586}
   - {fileID: 1990765011}
   - {fileID: 9027138968998213357}
-  - {fileID: 878036154}
   - {fileID: 1293076046}
-  - {fileID: 1751925887}
-  - {fileID: 1555786109}
-  - {fileID: 1284324609}
