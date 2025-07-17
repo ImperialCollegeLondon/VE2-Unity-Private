@@ -173,12 +173,12 @@ namespace VE2.Core.Player.API
 #if UNITY_EDITOR
                         public Color AvatarColor
                         {
-                                get => new Color(AvatarColorR, AvatarColorG, AvatarColorB);
+                                get => new Color(AvatarColorR, AvatarColorG, AvatarColorB) / 255;
                                 set
                                 {
-                                        AvatarColorR = (ushort)(value.r);
-                                        AvatarColorG = (ushort)(value.g);
-                                        AvatarColorB = (ushort)(value.b);
+                                        AvatarColorR = (ushort)(value.r * 255);
+                                        AvatarColorG = (ushort)(value.g * 255);
+                                        AvatarColorB = (ushort)(value.b * 255);
                                 }
                         }       
                         #endif

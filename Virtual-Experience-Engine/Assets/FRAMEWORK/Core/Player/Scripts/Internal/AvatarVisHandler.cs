@@ -139,7 +139,7 @@ namespace VE2.Core.Player.Internal
         internal void SetBuiltInColor(Color color)
         {
             foreach (Material material in CommonUtils.GetAvatarColorMaterialsForGameObject(_activeBuiltInGameObject))
-                material.color = color / 255f;
+                material.color = color;
 
             _builtInColor = color;
 

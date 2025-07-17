@@ -13,7 +13,7 @@ namespace VE2.Core.Player.API
         public PlayerTransformData PlayerTransformData { get; }
 
         /// <summary>
-        /// call MarkPlayerSettingsUpdated after modifying this property
+        /// Note - this shouldn't be changed directly, use the SetBuiltInHead/Torso methods instead.
         /// </summary>
         public InstancedAvatarAppearance InstancedAvatarAppearance { get; }
         //public void MarkPlayerAvatarChanged() { }
