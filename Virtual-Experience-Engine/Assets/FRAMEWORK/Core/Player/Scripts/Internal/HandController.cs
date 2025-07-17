@@ -62,6 +62,7 @@ namespace VE2.Core.Player.Internal
             Transform.localRotation = _rotationInput.Value;
 
             //Only show the hand if its actually tracking
+            
             _nonGrabbingHandGO.SetActive(Transform.localPosition != Vector3.zero);
 
             //Rotate the hand 90 degrees along its local x axis to match the controller 

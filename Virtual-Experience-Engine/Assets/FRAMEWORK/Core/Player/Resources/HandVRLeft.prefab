@@ -914,7 +914,7 @@ GameObject:
   - component: {fileID: 5854277485910502104}
   - component: {fileID: 5370606987438688461}
   m_Layer: 6
-  m_Name: CollisionDetector
+  m_Name: Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -945,7 +945,7 @@ SphereCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4294967295
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0

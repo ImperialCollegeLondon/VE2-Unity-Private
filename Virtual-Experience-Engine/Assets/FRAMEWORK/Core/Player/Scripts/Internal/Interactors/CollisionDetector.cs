@@ -18,6 +18,7 @@ namespace VE2.Core.Player.Internal
         public event Action<ICollideInteractionModule> OnCollideStart;
         public event Action<ICollideInteractionModule> OnCollideEnd;
 
+        //TODO: Why do we have this?
         private ColliderType _colliderType { get; set; }
         private PlayerInteractionConfig _interactionConfig;
 

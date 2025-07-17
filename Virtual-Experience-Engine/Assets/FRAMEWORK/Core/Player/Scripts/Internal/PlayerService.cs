@@ -234,9 +234,6 @@ namespace VE2.Core.Player.Internal
                 Resources.Load<GameObject>("Avatars/VRHands/V_Avatar_VRLeftHand_Default_1"),
             };
 
-            Debug.LogWarning("built in hands found: " + builtInHandVRGameObjectPrefabs.Count);
-            Debug.LogWarning("Built in hand null? " + (builtInHandVRGameObjectPrefabs[0] == null));
-
             BuiltInGameObjectPrefabs = new(builtInHeadGameObjectPrefabs, builtInTorsoGameObjectPrefabs, builtInHandVRGameObjectPrefabs);
             AvatarHandlerBuilderContext avatarHandlerBuilderContext = new(BuiltInGameObjectPrefabs, config.PluginCustomAvatarPrefabs, InstancedAvatarAppearance);
 

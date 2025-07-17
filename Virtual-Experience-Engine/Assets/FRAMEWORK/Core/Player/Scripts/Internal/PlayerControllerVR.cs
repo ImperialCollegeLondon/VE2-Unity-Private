@@ -111,8 +111,6 @@ namespace VE2.Core.Player.Internal
                 rightHandGrabbableWrapper, leftHandGrabbableWrapper, secondaryUIService, movementModeConfig, true, xRHapticsWrapperRight);
 
             ConfigureCamera(cameraConfig);
-
-            Debug.LogWarning("Create avatar handler, built in hands? " + avatarHandlerBuilderContext.PlayerBuiltInGameObjectPrefabs.VRHands.Count);
             
             AvatarHandler = new(
                 avatarHandlerBuilderContext.PlayerBuiltInGameObjectPrefabs,
