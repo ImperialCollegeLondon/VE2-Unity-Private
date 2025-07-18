@@ -22,7 +22,7 @@ namespace VE2.Common.Shared
     }
 
     [Serializable] 
-    public class LocalClientIDWrapper : ClientIDWrapper, ILocalClientIDWrapperWritable
+    internal class LocalClientIDWrapper : ClientIDWrapper, ILocalClientIDWrapperWritable
     {         
         public event Action<ushort> OnClientIDReady;
         public bool IsClientIDReady => _ClientID != ushort.MaxValue;
@@ -37,7 +37,7 @@ namespace VE2.Common.Shared
     }
 
     [Serializable] 
-    public class ClientIDWrapper : IClientIDWrapper
+    internal class ClientIDWrapper : IClientIDWrapper
     { 
         [SerializeField] protected ushort _ClientID = ushort.MaxValue;
         public ushort Value => _ClientID;

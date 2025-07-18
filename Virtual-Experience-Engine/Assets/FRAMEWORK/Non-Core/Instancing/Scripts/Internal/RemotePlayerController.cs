@@ -52,6 +52,8 @@ namespace VE2.NonCore.Instancing.Internal
                 _torsoHolder,
                 _rightHandHolder,
                 _leftHandHolder);
+
+            _avatarHandler.Enable(clientID);
         }
 
         //public void ToggleAvatarsTransparent(bool isTransparent) => _avatarHandler.SetTransparent(isTransparent);
