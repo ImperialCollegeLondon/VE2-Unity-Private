@@ -83,6 +83,7 @@ namespace VE2.Core.Player.Internal
         {
             // Collapse the rig: Move the vertical offset to zero
             _headOffsetTransform.localPosition = Vector3.zero;
+            //_movementModeConfig.OnFreeFlyModeEnter?.Invoke(); //NOTE: FreeFlyMode is mostly changed by Plugin so we might not need events for this but it lives here for now
         }
 
         private void ExitFreeFlyMode()
@@ -98,6 +99,8 @@ namespace VE2.Core.Player.Internal
                 // Ground not found, move to spawn position
                 _rootTransform.position = GetSpawnPosition();
             }
+
+            //_movementModeConfig.OnFreeFlyModeExit?.Invoke(); //NOTE: FreeFlyMode is mostly changed by Plugin so we might not need events for this but it lives here for now
         }
 
         private Vector3 GetSpawnPosition()
