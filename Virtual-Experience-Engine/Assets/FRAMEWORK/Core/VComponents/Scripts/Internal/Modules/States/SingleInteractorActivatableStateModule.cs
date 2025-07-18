@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Events;
+using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Shared;
@@ -18,14 +19,13 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField, IgnoreParent] internal SingleInteractorActivatableStateDebug InspectorDebug = new();
         [SerializeField] public bool ActivateOnStart = false;
 
-        [SpaceArea(spaceAfter: 5, Order = -1), SerializeField] public UnityEvent OnActivate = new();
-        [SpaceArea(spaceAfter: 10, Order = -2), SerializeField] public UnityEvent OnDeactivate = new();
+        [SpaceArea(Order = -1), SerializeField] public UnityEvent OnActivate = new();
+        [SpaceArea(spaceAfter: 5 , Order = -2), SerializeField] public UnityEvent OnDeactivate = new();
 
-        [SpaceArea(spaceAfter: 10, Order = -3), SerializeField] public bool UseActivationGroup = false;
+        [SpaceArea(Order = -3), SerializeField] public bool UseActivationGroup = false;
 
         [EndGroup(ApplyCondition = false, Order = 50)]
         [SpaceArea(spaceAfter: 5, Order = -4), ShowIf("UseActivationGroup", true), DisableInPlayMode(), SerializeField] public string ActivationGroupID = "None";
-
     }
 
     [Serializable]
@@ -59,7 +59,7 @@ namespace VE2.Core.VComponents.Internal
         public void SetActivated(bool newIsActivated)
         {
             if (newIsActivated != _state.IsActivated)
-                SetNewState(ushort.MaxValue);
+                UpdateActivationState(ushort.MaxValue, newIsActivated);
             else
                 Debug.LogWarning($"Tried to set activated state on {ID} to {newIsActivated} but state is already {_state.IsActivated}");
         }
@@ -94,23 +94,14 @@ namespace VE2.Core.VComponents.Internal
             toggleActivatableStateConfig.InspectorDebug.OnDebugUpdateStatePressed += (bool newState) => SetActivated(newState);
         }
 
-        public void SetNewState(ushort clientID)
+        //Can't be called in the constructor, as this will emit events, that may trigger the plugin to access the state module before it is fully initialized.
+        public void InitializeStateWithStartingValue()
         {
-            // If this module belongs to an activation group, deactivate others.
-            if (_isInActivationGroup)
-            {
-                List<ISingleInteractorActivatableStateModule> groupModules = _activatableGroupsContainer.GetSingleInteractorActivatableStateModule(_activationGroupID);
-                foreach (ISingleInteractorActivatableStateModule module in groupModules)
-                {
-                    if (module != this && module.IsActivated)
-                        module.Deactivate();
-                }
-            }
-
-            UpdateActivationState(clientID, !_state.IsActivated);
+            if (_toggleActivatableStateConfig.ActivateOnStart)
+                UpdateActivationState(ushort.MaxValue, true);
         }
 
-        private void UpdateActivationState(ushort clientID, bool newIsActivated)
+        public void UpdateActivationState(ushort clientID, bool newIsActivated)
         {
             // Only update if the state is actually changing.
             if (_state.IsActivated == newIsActivated)
@@ -126,9 +117,24 @@ namespace VE2.Core.VComponents.Internal
             _state.StateChangeNumber++;
 
             if (newIsActivated)
+            {
+                // If this module belongs to an activation group, deactivate others.
+                if (_isInActivationGroup)
+                {
+                    List<ISingleInteractorActivatableStateModule> groupModules = _activatableGroupsContainer.GetSingleInteractorActivatableStateModule(_activationGroupID);
+                    foreach (ISingleInteractorActivatableStateModule module in groupModules)
+                    {
+                        if (module != this && module.IsActivated)
+                            module.Deactivate();
+                    }
+                }
+
                 InvokeCustomerOnActivateEvent();
+            }
             else
+            {
                 InvokeCustomerOnDeactivateEvent();
+            }
         }
 
         private void InvokeCustomerOnActivateEvent()
@@ -139,7 +145,7 @@ namespace VE2.Core.VComponents.Internal
             }
             catch (Exception e)
             {
-                Debug.Log($"Error when emitting OnActivate from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
+                Debug.LogError($"Error when emitting OnActivate from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
             }
         }
 
@@ -151,7 +157,7 @@ namespace VE2.Core.VComponents.Internal
             }
             catch (Exception e)
             {
-                Debug.Log($"Error when emitting OnDeactivate from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
+                Debug.LogError($"Error when emitting OnDeactivate from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
             }
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
+using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 
 namespace VE2.Core.VComponents.Internal
@@ -18,7 +19,8 @@ namespace VE2.Core.VComponents.Internal
         [Space(5)]
         [SerializeField, PropertyOrder(1)] public UnityEvent OnLocalHoverEnter = new();
 
-        [EndGroup, SerializeField, PropertyOrder(2)] public UnityEvent OnLocalHoverExit = new();
+        [EndGroup]
+        [SerializeField, PropertyOrder(2)] public UnityEvent OnLocalHoverExit = new();
     }
 
     internal class RangedInteractionModule : GeneralInteractionModule, IRangedInteractionModule

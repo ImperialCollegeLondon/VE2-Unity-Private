@@ -64,7 +64,7 @@ namespace VE2.Core.Player.Internal
             };
 
             _avatarHeadOverrideGameObjects = playerServiceInternal.HeadOverrideGOs;
-            _avatarTorsoOverrideGameObjects = playerServiceInternal.HeadOverrideGOs;
+            _avatarTorsoOverrideGameObjects = playerServiceInternal.TorsoOverrideGOs;
         }
 
         public void HandleReceiveAvatarAppearance(OverridableAvatarAppearance newAvatarAppearance)

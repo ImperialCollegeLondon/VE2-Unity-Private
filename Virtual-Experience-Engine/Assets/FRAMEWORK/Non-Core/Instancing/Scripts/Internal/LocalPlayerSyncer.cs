@@ -15,17 +15,20 @@ namespace VE2.NonCore.Instancing.Internal
         private readonly IPluginSyncCommsHandler _commsHandler;
         private readonly InstanceInfoContainer _instanceInfoContainer;
         private readonly ILocalPlayerSyncableContainer _localPlayerSyncableContainer;
+        private readonly ILocalAdminIndicator _localAdminIndicatorWrapper;
 
         private int _cycleNumber = 0;
 
-        public LocalPlayerSyncer(IPluginSyncCommsHandler commsHandler, InstanceInfoContainer instanceInfoContainer, ILocalPlayerSyncableContainer localPlayerSyncableContainer)
+        public LocalPlayerSyncer(IPluginSyncCommsHandler commsHandler, InstanceInfoContainer instanceInfoContainer, ILocalPlayerSyncableContainer localPlayerSyncableContainer, ILocalAdminIndicator localAdminIndicatorWrapper)
         {
             _commsHandler = commsHandler;
             _instanceInfoContainer = instanceInfoContainer;
             _localPlayerSyncableContainer = localPlayerSyncableContainer;
+            _localAdminIndicatorWrapper = localAdminIndicatorWrapper;
 
             _localPlayerSyncableContainer.OnPlayerRegistered += HandleLocalPlayerRegistered;
             _localPlayerSyncableContainer.OnPlayerDeregistered += HandleLocalPlayerDeregistered;
+            _localAdminIndicatorWrapper.OnLocalAdminStatusChanged += HandleLocalAdminStatusChanged;
 
             if (_localPlayerSyncableContainer.LocalPlayerSyncable != null)
                 HandleLocalPlayerRegistered(_localPlayerSyncableContainer.LocalPlayerSyncable);
@@ -50,6 +53,13 @@ namespace VE2.NonCore.Instancing.Internal
             _commsHandler.SendMessage(avatarAppearanceWrapper.Bytes, InstanceNetworkingMessageCodes.UpdateAvatarPresentation, TransmissionProtocol.TCP);
         }
 
+        public void HandleLocalAdminStatusChanged(bool newIsAdmin)
+        {
+            AdminUpdateNotice adminUpdateNotice = new(newIsAdmin);
+            _commsHandler.SendMessage(adminUpdateNotice.Bytes, InstanceNetworkingMessageCodes.AdminUpdateNotice, TransmissionProtocol.TCP);
+            Debug.Log($"Local admin status changed to {newIsAdmin}");
+        }
+
         public void NetworkUpdate() 
         {
             if (_playerSyncable == null)
@@ -70,6 +80,8 @@ namespace VE2.NonCore.Instancing.Internal
         {
             if (_playerSyncable != null)
                 _playerSyncable.OnOverridableAvatarAppearanceChanged -= HandleLocalAppearanceChanged;
+
+            _localAdminIndicatorWrapper.OnLocalAdminStatusChanged -= HandleLocalAdminStatusChanged;
         }
     }
 }

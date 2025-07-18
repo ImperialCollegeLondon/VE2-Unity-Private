@@ -1,10 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using Org.BouncyCastle.Asn1.Misc;
 using UnityEngine;
 using UnityEngine.Events;
 using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
+using VE2.Core.VComponents.Shared;
+using static VE2.Common.Shared.CommonSerializables;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -35,7 +39,7 @@ namespace VE2.Core.VComponents.Internal
             IsNetworked = isNetworked;
         }
 
-        public HoldActivatablePlayerSyncIndicator() {}
+        public HoldActivatablePlayerSyncIndicator() { }
 
         //Note, if we want this to be configurable at runtime, we'll need to add an event for the player to listen to 
         //The player will need to remove the activatable from its list when becoming not networked, and vice versa
@@ -50,79 +54,96 @@ namespace VE2.Core.VComponents.Internal
         protected bool IsInPlayMode => Application.isPlaying;
     }
 
-    internal class MultiInteractorActivatableStateModule : IMultiInteractorActivatableStateModule
+    internal class MultiInteractorActivatableStateModule : BaseWorldStateModule, IMultiInteractorActivatableStateModule
     {
         public UnityEvent OnActivate => _config.OnActivate;
         public UnityEvent OnDeactivate => _config.OnDeactivate;
-        public bool IsActivated => _state.IsActivated;
-        public IClientIDWrapper MostRecentInteractingClientID => _mostRecentInteractingInteractorID.ClientID == ushort.MaxValue ? null : 
+        public bool IsActivated => _localState.IsActivated || _sycnedState.IsProgrammaticallyActivated;
+
+        public void ToggleAlwaysActivated(bool toggle)
+        {
+            bool wasActivated = IsActivated;
+
+            _sycnedState.StateChangeNumber++;
+            _sycnedState.IsProgrammaticallyActivated = toggle;
+
+            if (IsActivated && ! wasActivated)
+                InvokeCustomerOnActivateEvent();
+            else if (!IsActivated && wasActivated)
+                InvokeCustomerOnDeactivateEvent();
+        }
+
+        public IClientIDWrapper MostRecentInteractingClientID => _mostRecentInteractingInteractorID.ClientID == ushort.MaxValue ? null :
             new ClientIDWrapper(_mostRecentInteractingInteractorID.ClientID, _mostRecentInteractingInteractorID.ClientID == _localClientIdWrapper.Value);
-            
-        public List<IClientIDWrapper> CurrentlyInteractingClientIDs {
-            get 
+
+        public List<IClientIDWrapper> CurrentlyInteractingClientIDs
+        {
+            get
             {
                 List<IClientIDWrapper> clientIDs = new List<IClientIDWrapper>();
-                foreach (InteractorID id in _state.InteractingInteractorIds)
+                foreach (InteractorID id in _localState.InteractingInteractorIds)
                     clientIDs.Add(new ClientIDWrapper(id.ClientID, id.ClientID == _localClientIdWrapper.Value));
-                    
+
                 return clientIDs;
             }
         }
 
-        private MultiInteractorActivatableState _state = null;
-        private HoldActivatableStateConfig _config = null;
-        private string _id = null;
-
         private InteractorID _mostRecentInteractingInteractorID = new(ushort.MaxValue, InteractorType.None);
+        // private bool IsInteractorIDProgrammatic(InteractorID interactorId) => interactorId.ClientID == PROGRAMMATIC_INTERACTOR_ID && interactorId.InteractorType == PROGRAMMATIC_INTERACTOR_TYPE;
+        // private const ushort PROGRAMMATIC_INTERACTOR_ID = ushort.MaxValue;
+        // //TODO: Can probably remove this whole programmatic interactor thing, it can just live in the remote state instead
+        // private const InteractorType PROGRAMMATIC_INTERACTOR_TYPE = InteractorType.None;
 
+        private readonly MultiInteractorActivatableLocalState _localState = new();
+        private readonly MultiInteractorActivatableSyncedState _sycnedState;
+        private readonly HoldActivatableStateConfig _config;
+        private readonly string _id;
         private readonly IClientIDWrapper _localClientIdWrapper;
 
-        public MultiInteractorActivatableStateModule(MultiInteractorActivatableState state, HoldActivatableStateConfig config, string id, IClientIDWrapper localClientIdWrapper)
+        public MultiInteractorActivatableStateModule(MultiInteractorActivatableSyncedState remoteState, HoldActivatableStateConfig config,
+            string id, IClientIDWrapper localClientIdWrapper, WorldStateSyncConfig syncConfig, IWorldStateSyncableContainer worldStateSyncableContainer)
+            : base(remoteState, syncConfig, id, worldStateSyncableContainer)
         {
-            _state = state;
             _config = config;
             _id = id;
             _localClientIdWrapper = localClientIdWrapper;
+            _sycnedState = remoteState;
         }
 
         public void AddInteractorToState(InteractorID interactorId)
         {
-            _state.InteractingInteractorIds.Add(interactorId);
+            if (_localState.InteractingInteractorIds.Contains(interactorId))
+            {
+                Debug.LogWarning($"Tried to add interactor ID {interactorId.ClientID} to state of activatable with ID {_id} but it is already in the state");
+                return;
+            }
+
+            _localState.InteractingInteractorIds.Add(interactorId);
             _mostRecentInteractingInteractorID = interactorId;
 
-            if (_state.InteractingInteractorIds.Count > 0 && !_state.IsActivated)
-            {
-                _state.IsActivated = true;
+            if (_localState.InteractingInteractorIds.Count == 1)
                 InvokeCustomerOnActivateEvent();
-            }
-            else if (_state.IsActivated && _state.InteractingInteractorIds.Count == 0)
-            {
-                _state.IsActivated = false;
-                InvokeCustomerOnDeactivateEvent();
-            }
 
-            _config.InspectorDebug.IsActivated = _state.IsActivated;
-            _config.InspectorDebug.ClientIDs = _state.GetInteractingClientIDs();
+            _config.InspectorDebug.IsActivated = _localState.IsActivated;
+            _config.InspectorDebug.ClientIDs = _localState.GetInteractingClientIDs();
         }
 
         public void RemoveInteractorFromState(InteractorID interactorId)
         {
-            _state.InteractingInteractorIds.Remove(interactorId);
+            if (!_localState.InteractingInteractorIds.Contains(interactorId))
+            {
+                Debug.LogWarning($"Tried to remove interactor ID {interactorId.ClientID} from state of activatable with ID {_id} but it is not in the state");
+                return;
+            }
+
+            _localState.InteractingInteractorIds.Remove(interactorId);
             _mostRecentInteractingInteractorID = interactorId;
 
-            if (_state.InteractingInteractorIds.Count > 0 && !_state.IsActivated)
-            {
-                _state.IsActivated = true;
-                InvokeCustomerOnActivateEvent();
-            }
-            else if (_state.IsActivated && _state.InteractingInteractorIds.Count == 0)
-            {
-                _state.IsActivated = false;
+            if (_localState.InteractingInteractorIds.Count == 0)
                 InvokeCustomerOnDeactivateEvent();
-            }
 
-            _config.InspectorDebug.IsActivated = _state.IsActivated;
-            _config.InspectorDebug.ClientIDs = _state.GetInteractingClientIDs();
+            _config.InspectorDebug.IsActivated = _localState.IsActivated;
+            _config.InspectorDebug.ClientIDs = _localState.GetInteractingClientIDs();
         }
 
         private void InvokeCustomerOnActivateEvent()
@@ -133,7 +154,7 @@ namespace VE2.Core.VComponents.Internal
             }
             catch (Exception e)
             {
-                Debug.Log($"Error when emitting OnActivate from activatable with ID {_mostRecentInteractingInteractorID.ClientID} \n{e.Message}\n{e.StackTrace}");
+                Debug.LogError($"Error when emitting OnActivate from activatable with ID {_id} \n{e.Message}\n{e.StackTrace}");
             }
         }
 
@@ -145,30 +166,25 @@ namespace VE2.Core.VComponents.Internal
             }
             catch (Exception e)
             {
-                Debug.Log($"Error when emitting OnDeactivate from activatable with ID {_mostRecentInteractingInteractorID.ClientID} \n{e.Message}\n{e.StackTrace}");
+                Debug.LogError($"Error when emitting OnDeactivate from activatable with ID {_id} \n{e.Message}\n{e.StackTrace}");
             }
         }
 
-        public void TearDown()
+        protected override void UpdateBytes(byte[] newBytes)
         {
-
-        }
-
-        public void HandleFixedUpdate()
-        {
-
+            MultiInteractorActivatableSyncedState receivedRemoteState = new(newBytes);
+            ToggleAlwaysActivated(receivedRemoteState.IsProgrammaticallyActivated);
         }
     }
 
     [Serializable]
-    internal class MultiInteractorActivatableState
+    internal class MultiInteractorActivatableLocalState
     {
-        public bool IsActivated { get; set; }
+        public bool IsActivated => InteractingInteractorIds.Count > 0;
         public HashSet<InteractorID> InteractingInteractorIds { get; set; }
 
-        public MultiInteractorActivatableState()
+        public MultiInteractorActivatableLocalState()
         {
-            IsActivated = false;
             InteractingInteractorIds = new HashSet<InteractorID>();
         }
 
@@ -182,6 +198,40 @@ namespace VE2.Core.VComponents.Internal
             }
 
             return clientIDs;
+        }
+    }
+
+    [Serializable]
+    internal class MultiInteractorActivatableSyncedState : VE2Serializable
+    {
+        public ushort StateChangeNumber { get; set; } = 0;
+        public bool IsProgrammaticallyActivated { get; set; } = false;
+
+        public MultiInteractorActivatableSyncedState() {}
+
+        public MultiInteractorActivatableSyncedState(byte[] bytes)
+        {
+            PopulateFromBytes(bytes);
+        }
+
+        protected override byte[] ConvertToBytes()
+        {
+            using MemoryStream stream = new();
+            using BinaryWriter writer = new(stream);
+
+            writer.Write(StateChangeNumber);
+            writer.Write(IsProgrammaticallyActivated);
+
+            return stream.ToArray();
+        }
+
+        protected override void PopulateFromBytes(byte[] bytes)
+        {
+            using MemoryStream stream = new(bytes);
+            using BinaryReader reader = new(stream);
+
+            StateChangeNumber = reader.ReadUInt16();
+            IsProgrammaticallyActivated = reader.ReadBoolean();
         }
     }
 }

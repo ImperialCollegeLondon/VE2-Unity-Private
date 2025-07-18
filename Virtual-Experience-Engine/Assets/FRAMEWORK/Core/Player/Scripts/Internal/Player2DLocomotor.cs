@@ -7,7 +7,8 @@ namespace VE2.Core.Player.Internal
     {
         //TODO: make private, could be wired in via scriptable object?
         // Public variables
-        public float moveSpeed = 5f;
+        public float _walkSpeed = 5f;
+        private float _sprintSpeedMultiplier = 1.4f; 
         public float mouseSensitivity = 0.3f;
         public float jumpForce = 5f;
         public float crouchHeight = 0.7f;
@@ -140,7 +141,9 @@ namespace VE2.Core.Player.Internal
                 float moveX = Keyboard.current.dKey.ReadValue() - Keyboard.current.aKey.ReadValue();
                 float moveZ = Keyboard.current.wKey.ReadValue() - Keyboard.current.sKey.ReadValue();
                 Vector3 moveDirection = _transform.TransformDirection(new Vector3(moveX, 0, moveZ));
-                _characterController.Move(moveDirection * moveSpeed * Time.deltaTime);
+
+                float speed = Keyboard.current.leftShiftKey.isPressed ? _walkSpeed * _sprintSpeedMultiplier : _walkSpeed;
+                _characterController.Move(moveDirection * speed * Time.deltaTime);
 
                 // Jump
                 if (Keyboard.current.spaceKey.wasPressedThisFrame && IsGrounded())

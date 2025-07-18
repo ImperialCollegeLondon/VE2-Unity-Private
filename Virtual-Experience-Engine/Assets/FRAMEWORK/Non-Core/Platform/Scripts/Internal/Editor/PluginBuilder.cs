@@ -40,7 +40,7 @@ namespace VE2.NonCore.Platform.Internal
 
     public class VE2PluginBuilder
     {
-        [MenuItem("VE2/Build VE2 plugin...", priority = 2)]
+        [MenuItem("VE2/Build VE2 plugin...", priority = 3)]
         internal static void ShowWindow()
         {
             var window = ScriptableObject.CreateInstance<VE2PluginBuilderWindow>();
@@ -72,25 +72,13 @@ namespace VE2.NonCore.Platform.Internal
         Assembly[] locatedAssemblies = new Assembly[0];
         bool compressBundles = false;
 
-        public enum WorldCategory
-        {
-            ESE,
-            Aero, 
-            MechEng, 
-            Misc,
-            Undefined
-        }
-
-        private WorldCategory _lastWorldCategory = WorldCategory.Undefined;
-        private WorldCategory _worldCategory = WorldCategory.Undefined;
-
         string studentPassword = "";
         string staffPassword = "";
 
         bool passwordsWereIllegal = false;
 
         private Scene _sceneToExport;
-        private string _worldFolderName => $"{_worldCategory}-{_sceneToExport.name}";
+        private string _worldFolderName => $"{_sceneToExport.name}";
         private EnvironmentType _environmentType = EnvironmentType.Undefined;
         private EnvironmentType _lastEnvironmentType = EnvironmentType.Undefined;
 
@@ -110,7 +98,9 @@ namespace VE2.NonCore.Platform.Internal
             ServerConnectionSettings ftpNetworkSettings = new("ViRSE", "fwf3f3j21r3ed", "13.87.84.200", 22); //TODO: Load in from SO
 
             //TODO: maybe just the factory can move to the internal interface asmdef?
-            _fileSystem = FileSystemServiceFactory.CreateFileStorageService(ftpNetworkSettings, $"VE2/Worlds/{_environmentType}");
+            string remotePath = $"VE2/Worlds/{_environmentType}";
+            string localPath = Application.persistentDataPath + "/files/" + remotePath;
+            _fileSystem = FileSystemServiceFactory.CreateFileStorageService(ftpNetworkSettings, remotePath, localPath);
 
             IRemoteFolderSearchInfo worldsSearch = _fileSystem.GetRemoteFoldersAtPath("");
             worldsSearch.OnSearchComplete += HandleWorldsSearchComplete;
@@ -236,10 +226,15 @@ namespace VE2.NonCore.Platform.Internal
             else
             {
                 string assemblyDiagnostics = "";
+                bool noAssemblies = false;
+
                 if (locatedAssemblies != null && locatedAssemblies.Length > 0)
                     assemblyDiagnostics = $"{locatedAssemblies.Length} code assemblies will be included in the build : {string.Join("\r\n,", locatedAssemblies.Select(ExtractFileName))}";
                 else
+                {
                     assemblyDiagnostics = $"No code assemblies will be included in the build.";
+                    noAssemblies = true;
+                }
 
                 if (assemblyDiagnostics.Contains("YourPluginNameHere"))
                 {
@@ -247,7 +242,7 @@ namespace VE2.NonCore.Platform.Internal
                     return;
                 }
 
-                EditorGUILayout.HelpBox(assemblyDiagnostics, (UnityEditor.MessageType)MessageType.Info);
+                EditorGUILayout.HelpBox(assemblyDiagnostics, noAssemblies? MessageType.Error : MessageType.Info);
             }
 
             EditorGUI.BeginDisabledGroup(!assembliesValid);
@@ -275,20 +270,6 @@ namespace VE2.NonCore.Platform.Internal
 
             //WORLD VERSION ##################################################################
             //################################################################################
-
-            _worldCategory = (WorldCategory)EditorGUILayout.EnumPopup("World Category", _worldCategory);
-
-            if (_worldCategory != _lastWorldCategory)
-                _highestRemoteVersionFound = -1;
-
-            _lastWorldCategory = _worldCategory;
-
-            if (_worldCategory == WorldCategory.Undefined)
-            {
-                EditorGUILayout.HelpBox("Please enter a world category", (UnityEditor.MessageType)MessageType.Info);
-                EditorGUI.EndDisabledGroup();
-                return;
-            }
 
             if (!_searchingForVersion && _highestRemoteVersionFound == -1)
             {
@@ -676,10 +657,24 @@ namespace VE2.NonCore.Platform.Internal
         {
             foreach (var component in go.GetComponents<MonoBehaviour>())
             {
-                if (component == null || component.GetType() == null || component.GetType().Assembly == null)
+                bool isValid = true;
+
+                try
                 {
-                    Debug.LogWarning("Missing assemblies encountered on Gameobject: " + go.name);
+                    if (component == null || ReferenceEquals(component, null) || component.GetType() == null || component.GetType().Assembly == null)
+                    {
+                        isValid = false;
+                        Debug.LogWarning("Missing assemblies encountered on Gameobject: " + go.name);
+                    }
                 }
+                catch
+                {
+                    Debug.LogWarning("Error while checking assemblies on Gameobject: " + go.name);
+                    isValid = false;
+                }
+
+                if (!isValid)
+                    continue;   
 
                 yield return component.GetType().Assembly;
             }

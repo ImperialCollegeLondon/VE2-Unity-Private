@@ -46,7 +46,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6295291012240691879}
-  m_Mesh: {fileID: 8374443667465106047, guid: 26dd2801b508a1b46bde3ceb472fcc7c, type: 3}
+  m_Mesh: {fileID: -913831071814562905, guid: 26dd2801b508a1b46bde3ceb472fcc7c, type: 3}
 --- !u!23 &2414085963535508039
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -235,6 +235,8 @@ MonoBehaviour:
       IsNetworked: 1
       TransmissionFrequency: 1
       TransmissionType: 0
+  _state:
+    IsInitialised: 0
   _collider: {fileID: 3275372340644864633}
 --- !u!65 &3275372340644864633
 BoxCollider:

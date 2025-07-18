@@ -3,6 +3,7 @@
 using UnityEditor;
 using UnityEngine;
 using System;
+using System.Reflection;
 
 namespace VE2.Common.Shared
 {
@@ -14,8 +15,7 @@ namespace VE2.Common.Shared
             SerializedProperty gameObjectProp = property.FindPropertyRelative("_gameObject");
 
             // Get the interface type T
-            Type referenceType = fieldInfo.FieldType;
-            Type interfaceType = referenceType.IsGenericType ? referenceType.GetGenericArguments()[0] : null;
+            Type interfaceType = GetInterfaceTypeFromProperty(property);
 
             // Begin property block
             EditorGUI.BeginProperty(position, label, property);
@@ -61,15 +61,53 @@ namespace VE2.Common.Shared
             }
         }
 
+        private Type GetInterfaceTypeFromProperty(SerializedProperty property)
+        {
+            // Try to get the target object of the serialized property
+            object targetObject = property.serializedObject.targetObject;
+
+            // Use reflection to get the field from the serialized object
+            string[] fieldPath = property.propertyPath.Replace(".Array.data[", "[").Split('.');
+            object currentObject = targetObject;
+
+            for (int i = 0; i < fieldPath.Length; i++)
+            {
+                string fieldName = fieldPath[i];
+
+                if (fieldName.Contains("["))
+                {
+                    int start = fieldName.IndexOf("[") + 1;
+                    int end = fieldName.IndexOf("]");
+                    int index = int.Parse(fieldName.Substring(start, end - start));
+                    string arrayFieldName = fieldName.Substring(0, fieldName.IndexOf("["));
+
+                    FieldInfo listField = currentObject.GetType().GetField(arrayFieldName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+                    var list = listField?.GetValue(currentObject) as System.Collections.IList;
+                    currentObject = list?[index];
+                }
+                else
+                {
+                    FieldInfo field = currentObject.GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+                    currentObject = field?.GetValue(currentObject);
+                }
+
+                if (currentObject == null)
+                    return null;
+            }
+
+            Type referenceType = currentObject.GetType();
+            return referenceType.IsGenericType ? referenceType.GetGenericArguments()[0] : null;
+        }
+
+
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             SerializedProperty gameObjectProp = property.FindPropertyRelative("_gameObject");
             GameObject go = gameObjectProp.objectReferenceValue as GameObject;
 
-            Type referenceType = fieldInfo.FieldType;
-            Type interfaceType = referenceType.IsGenericType ? referenceType.GetGenericArguments()[0] : null;
+            Type interfaceType = GetInterfaceTypeFromProperty(property);
 
-            if (go != null && interfaceType != null && go.GetComponent(interfaceType) == null)
+            if (go != null && interfaceType != null && go.GetComponent(interfaceType) == null) //ArgumentException: GetComponent requires that the requested component 'InterfaceReference`1' derives from MonoBehaviour or Component or is an interface.
                 return EditorGUIUtility.singleLineHeight * 2.5f;
 
             return EditorGUIUtility.singleLineHeight;

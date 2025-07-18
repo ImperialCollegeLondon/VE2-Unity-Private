@@ -12,6 +12,8 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class HandheldActivatableConfig
     {
+        public void OpenDocs() => Application.OpenURL("https://www.notion.so/V_HandHeldActivatable-20f0e4d8ed4d815fadabedf507722d44?source=copy_link");
+        [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above)]
         [SerializeField, IgnoreParent] public ToggleActivatableStateConfig StateConfig = new();
 
         [SerializeField, IgnoreParent] public HandHeldClickInteractionConfig HandheldClickInteractionConfig = new();
@@ -25,62 +27,76 @@ namespace VE2.Core.VComponents.Internal
     internal class HandheldActivatableService
     {
         #region Interfaces
-        public ISingleInteractorActivatableStateModule StateModule => _StateModule;
-        public IHandheldClickInteractionModule HandheldClickInteractionModule => _HandheldClickInteractionModule;
+        public ISingleInteractorActivatableStateModule StateModule => _stateModule;
+        public IHandheldClickInteractionModule HandheldClickInteractionModule => _handheldClickInteractionModule;
         public IV_FreeGrabbable Grabbable;
         #endregion
 
         #region Modules
-        private readonly SingleInteractorActivatableStateModule _StateModule;
-        private readonly HandheldClickInteractionModule _HandheldClickInteractionModule;
+        private readonly SingleInteractorActivatableStateModule _stateModule;
+        private readonly HandheldClickInteractionModule _handheldClickInteractionModule;
         #endregion
 
-        public HandheldActivatableService(IV_FreeGrabbable grabbable, HandheldActivatableConfig config, VE2Serializable state, string id, IWorldStateSyncableContainer worldStateSyncableContainer, 
+        public HandheldActivatableService(IV_FreeGrabbable grabbable, HandheldActivatableConfig config, SingleInteractorActivatableState state, string id, IWorldStateSyncableContainer worldStateSyncableContainer,
             ActivatableGroupsContainer activatableGroupsContainer, IClientIDWrapper localClientIdWrapper)
         {
-            _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, activatableGroupsContainer, localClientIdWrapper);
-            _HandheldClickInteractionModule = new(grabbable, config.HandheldClickInteractionConfig, config.GeneralInteractionConfig);
+            _stateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, activatableGroupsContainer, localClientIdWrapper);
+            _handheldClickInteractionModule = new(grabbable, config.HandheldClickInteractionConfig, config.GeneralInteractionConfig);
             Grabbable = grabbable;
 
-            _HandheldClickInteractionModule.OnClickDown += HandleClickDown;
-            _HandheldClickInteractionModule.OnClickUp += HandleClickUp;
+            _handheldClickInteractionModule.OnClickDown += HandleClickDown;
+            _handheldClickInteractionModule.OnClickUp += HandleClickUp;
         }
 
-        public void HandleFixedUpdate()
+        public void HandleStart()
         {
-            _StateModule.HandleFixedUpdate();
+            _stateModule.InitializeStateWithStartingValue();
+
+            //This needs to be done here, after the grabbable has been initialized
+            //TODO - should be using an internal interface here?
+            Grabbable.OnDrop.AddListener(HandleGrabbableDropped);
+        }
+
+        public void HandleFixedUpdate() => _stateModule.HandleFixedUpdate();
+
+        private void HandleGrabbableDropped()
+        {
+            if (_handheldClickInteractionModule.DeactivateOnDrop)
+                _stateModule.UpdateActivationState(Grabbable.MostRecentInteractingClientID.Value, false);
         }
 
         private void HandleClickDown(ushort clientID)
         {
-            _StateModule.SetNewState(clientID);
-
-            if (_HandheldClickInteractionModule.DeactivateOnDrop)
-                Grabbable.OnDrop.AddListener(HandleExternalClickUp);
+            if (_handheldClickInteractionModule.IsHoldMode)
+            {
+                _stateModule.UpdateActivationState(clientID, true);
+            }
+            else
+            {
+                _stateModule.UpdateActivationState(clientID, !_stateModule.IsActivated);
+            }
         }
 
         private void HandleClickUp(ushort clientID)
         {
-            if (_HandheldClickInteractionModule.IsHoldMode)
+            if (_handheldClickInteractionModule.IsHoldMode)
             {
-                if (_StateModule.IsActivated)
-                {
-                    _StateModule.SetNewState(clientID);
-                }
-            }
+                _stateModule.UpdateActivationState(clientID, false);
+            }  //Otherwise, do nothing
         }
 
-        private void HandleExternalClickUp()
-        {
-            if (_HandheldClickInteractionModule.IsHoldMode)
-                HandleClickUp(Grabbable.MostRecentInteractingClientID.Value);
-            else
-                HandleClickDown(Grabbable.MostRecentInteractingClientID.Value);
-        }
+        // private void HandleExternalClickUp()
+        // {
+        //     if (_handheldClickInteractionModule.IsHoldMode)
+        //         HandleClickUp(Grabbable.MostRecentInteractingClientID.Value);
+        //     else
+        //         HandleClickDown(Grabbable.MostRecentInteractingClientID.Value);
+        // }
 
         public void TearDown()
         {
-            _StateModule.TearDown();
+            Grabbable.OnDrop.RemoveListener(HandleGrabbableDropped);
+            _stateModule.TearDown();
         }
     }
 

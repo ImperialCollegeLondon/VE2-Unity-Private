@@ -9,14 +9,17 @@ namespace VE2.NonCore.Instancing.Internal
     [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     internal class RemoteInteractor : MonoBehaviour, IInteractor //TODO: Maybe doesn't need to be a mononbehaviour?
     {
-        public Transform GrabberTransform => transform;
+        public ITransformWrapper GrabberTransformWrapper { get; private set; }
         public List<string> HeldActivatableIDs => _heldActivatableIDs;
+
         private HandInteractorContainer _interactorContainer;
         private InteractorID _interactorID;
         private List<string> _heldActivatableIDs;
 
         public void Initialize(ushort clientID, InteractorType interactorType, HandInteractorContainer interactorContainer)
         {
+            GrabberTransformWrapper = new TransformWrapper(transform);
+
             _interactorID = new InteractorID(clientID, interactorType);
 
             _interactorContainer = interactorContainer;

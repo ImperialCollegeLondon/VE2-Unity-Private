@@ -6,11 +6,11 @@ using DG.Tweening;
 namespace VE2.Common.Shared
 {
     [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
-    internal class V_RadialProgressBar : MonoBehaviour
+    internal class RadialProgressBar : MonoBehaviour
     {
         [SerializeField] private float _maxValue = 100;
 
-        [SerializeField, Disable] private float _currentPercent;
+        [SerializeField, Disable] private float _currentValue;
 
         [SerializeField] public Image _loadingBar;
         [SerializeField] private TextMeshProUGUI _loadingText;
@@ -23,7 +23,7 @@ namespace VE2.Common.Shared
 
         private void Awake()
         {
-            _loadingBar.fillAmount = _currentPercent / _maxValue;
+            _loadingBar.fillAmount = _currentValue / _maxValue;
             SetLoadingText();
         }
         private void UpdateBarAndText()
@@ -36,7 +36,7 @@ namespace VE2.Common.Shared
             // {
             //     _loadingBar.DOFillAmount(_currentPercent / _maxValue, tweenDuration);
             // }
-            _loadingBar.fillAmount = _currentPercent / _maxValue;
+            _loadingBar.fillAmount = _currentValue / _maxValue;
             SetLoadingText();
         }
 
@@ -46,18 +46,18 @@ namespace VE2.Common.Shared
             {
                 if (_addSuffix)
                 {
-                    _loadingText.text = _currentPercent.ToString() + suffix;
+                    _loadingText.text = _currentValue.ToString() + suffix;
                 }
                 else
                 {
-                    _loadingText.text = _currentPercent.ToString();
+                    _loadingText.text = _currentValue.ToString();
                 }
             }
         }
 
-        public void ChangeValue(float value)
+        public void SetValue(float value)
         {
-            _currentPercent = value;
+            _currentValue = value;
             UpdateBarAndText();
         }
     }

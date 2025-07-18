@@ -3,6 +3,7 @@ using DarkRift.Client;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading.Tasks;
 using UnityEngine;
 using VE2.Common.Shared;
 using DRMessageReader = DarkRift.DarkRiftReader;
@@ -22,10 +23,10 @@ namespace VE2.NonCore.Platform.Internal
         public event Action<byte[]> OnReceiveGlobalInfoUpdate;
         public event Action OnDisconnectedFromServer;
 
-        public void ConnectToServer(IPAddress ipAddress, int port)
+        public async Task ConnectToServerAsync(IPAddress ipAddress, int port)
         {
-            Debug.Log($"Try connect to {ipAddress}:{port}");
-            _drClient.Connect(ipAddress, port, false);
+            Debug.Log($"Try connect to platform on {ipAddress}:{port}");
+            await Task.Run(() => _drClient.Connect(ipAddress, port, false));
         }
 
         public void SendMessage(byte[] messageAsBytes, PlatformSerializables.PlatformNetworkingMessageCodes messageCode, TransmissionProtocol transmissionProtocol)
@@ -72,9 +73,7 @@ namespace VE2.NonCore.Platform.Internal
             PlatformSerializables.PlatformNetworkingMessageCodes receivedMessageCode = (PlatformSerializables.PlatformNetworkingMessageCodes)messageWrapper.Tag;
 
             using DRMessageReader reader = e.GetMessage().GetReader();
-            byte[] bytes = reader.ReadBytes(); //Null ref exception here
-
-            //Debug.Log("Rec platform code " + receivedMessageCode.ToString());
+            byte[] bytes = reader.ReadBytes();
 
             lock (executionQueue)
             {

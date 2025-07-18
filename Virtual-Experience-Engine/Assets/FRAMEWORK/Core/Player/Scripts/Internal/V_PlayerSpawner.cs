@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.SceneManagement;
 using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.Player.API;
@@ -28,6 +29,9 @@ namespace VE2.Core.Player.Internal
     [Serializable]
     internal class PlayerConfig
     {
+        public void OpenDocs() => Application.OpenURL("https://www.notion.so/The-VE2-Player-Rig-2140e4d8ed4d809dbd6cd0e97073998f?source=copy_link");
+        [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above)]
+
         [Title("Player Mode Config")]
         [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public PlayerModeConfig PlayerModeConfig = new();
 
@@ -38,7 +42,7 @@ namespace VE2.Core.Player.Internal
         [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public MovementModeConfig MovementModeConfig = new();
 
         [Title("Camera Config")]
-        [BeginGroup(Style = GroupStyle.Round), SerializeField, EndGroup] public CameraConfig CameraConfig = new();
+        [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public CameraConfig CameraConfig = new();
 
         [Title("Avatar Appearance Overrides")]
         [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public AvatarAppearanceOverrideConfig AvatarAppearanceOverrideConfig = new();
@@ -133,18 +137,20 @@ namespace VE2.Core.Player.Internal
     }
 
     [ExecuteAlways]
+    [DisallowMultipleComponent]
     internal class V_PlayerSpawner : MonoBehaviour, IPlayerServiceProvider
     {
         //TODO, configs for each player, OnTeleport, DragHeight, FreeFlyMode, etc
         [SerializeField, IgnoreParent] internal PlayerConfig _playerConfig = new();
 
         [SpaceArea(spaceBefore: 10), Help("If running standalone, this presentation config will be used, if integrated with the VE2 platform, the platform will provide the presentation config.")]
-        [BeginGroup("Debug settings"), SerializeField, DisableInPlayMode, EndGroup]  private PlayerPresentationConfig _defaultPlayerPresentationConfig = new();
+        [BeginGroup("Debug settings"), SerializeField, DisableInPlayMode, IgnoreParent, EndGroup] private PlayerPresentationConfig _defaultPlayerPresentationConfig = new();
 
         #region Provider Interfaces
         private PlayerService _playerService;
-        public IPlayerService PlayerService { 
-            get 
+        public IPlayerService PlayerService
+        {
+            get
             {
                 if (_playerService == null)
                     OnEnable();
@@ -169,25 +175,25 @@ namespace VE2.Core.Player.Internal
             //Can't set LayerMask in serialization, so we do it here
             _playerConfig.PlayerInteractionConfig.InteractableLayers = -1;
             _playerConfig.MovementModeConfig.TraversableLayers = LayerMask.GetMask("Ground");
-            _playerConfig.MovementModeConfig.CollisionLayers = LayerMask.GetMask("Default"); 
+            _playerConfig.MovementModeConfig.CollisionLayers = LayerMask.GetMask("Default");
             _playerConfig.CameraConfig.CullingMask = -1;
 
             //Debug.Log("Resetting - " + (_playerPreview != null));
             if (_playerPreview != null)
                 DestroyImmediate(_playerPreview);
-                
+
             CreatePlayerPreview();
         }
 
-        private void OnEnable() 
+        private void OnEnable()
         {
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             if (!Application.isPlaying && !_editorListenersSetup)
             {
                 _editorListenersSetup = true;
                 UnityEditor.Selection.selectionChanged += OnSelectionChanged;
             }
-            #endif
+#endif
 
             VE2API.PlayerServiceProvider = this;
 
@@ -210,10 +216,10 @@ namespace VE2.Core.Player.Internal
                 _playerTransformData.VerticalOffset = 1.7f;
                 _transformDataSetup = true;
 
-                #if UNITY_EDITOR
+#if UNITY_EDITOR
                 if (_playerConfig.PlayerModeConfig.SupportedPlayerModes == SupportedPlayerModes.Both)
                     _playerTransformData.IsVRMode = VE2API.PreferVRMode;
-                #endif
+#endif
             }
 
             if (Application.platform == RuntimePlatform.Android && !Application.isEditor)
@@ -231,8 +237,8 @@ namespace VE2.Core.Player.Internal
             ISecondaryUIServiceInternal secondaryUIService = VE2API.SecondaryUIService as ISecondaryUIServiceInternal;
 
             _playerService = VE2PlayerServiceFactory.Create(
-                _playerTransformData, 
-                _playerConfig, 
+                _playerTransformData,
+                _playerConfig,
                 playerPersistentDataHandler,
                 xrManagerWrapper,
                 primaryUIService,
@@ -241,31 +247,35 @@ namespace VE2.Core.Player.Internal
                 xRHapticsWrapperRight);
         }
 
-        private void FixedUpdate() 
+        private void FixedUpdate()
         {
             if (!Application.isPlaying)
                 return;
 
             _playerService?.HandleFixedUpdate();
+
+            //Note - unlike VCs, player service creates new instances of the state each frame. 
+            //This means we have to assign it into our serialized field manually, rather than relying on the reference to persist between the MB and the service
+            _playerTransformData = _playerService.PlayerTransformData;
         }
 
-        private void Update() 
+        private void Update()
         {
             if (!Application.isPlaying)
                 return;
 
             _playerService?.HandleUpdate();
-        }   
+        }
 
-        private void OnDisable() 
+        private void OnDisable()
         {
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             if (!Application.isPlaying && _editorListenersSetup)
             {
                 _editorListenersSetup = false;
                 UnityEditor.Selection.selectionChanged -= OnSelectionChanged;
             }
-            #endif
+#endif
 
             if (!Application.isPlaying)
                 return;
@@ -286,13 +296,13 @@ namespace VE2.Core.Player.Internal
                 child.hideFlags = HideFlags.HideInHierarchy; // Keep it hidden
                 UnityEditor.SceneVisibilityManager.instance.EnablePicking(child.gameObject, true); // Allow clicking in Scene view   
             }
-            #endif
-        }   
+#endif
+        }
 
 #if UNITY_EDITOR
         private void OnSelectionChanged()
         {
-            if (_playerPreview == null) 
+            if (_playerPreview == null)
                 return;
 
             // Check if the selected object is the target or a child of it

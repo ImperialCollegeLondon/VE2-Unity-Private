@@ -18,8 +18,8 @@ namespace VE2.NonCore.Instancing.Internal
         #region PluginSyncService interface
         public bool IsReadyToTransmit { get; private set; }
 
-        private InstanceCommsHandlerConfig _instanceConfig;
-        InstanceCommsHandlerConfig IPluginSyncCommsHandler.InstanceConfig { get => _instanceConfig; set => _instanceConfig = value; }
+        private ArtificialLatencySettings _instanceConfig;
+        ArtificialLatencySettings IPluginSyncCommsHandler.ArtificialLatencySettings { get => _instanceConfig; set => _instanceConfig = value; }
 
         public event Action<byte[]> OnReceiveWorldStateSyncableBundle;
         public event Action<byte[]> OnReceiveNetcodeConfirmation;

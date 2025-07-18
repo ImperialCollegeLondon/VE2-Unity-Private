@@ -14,6 +14,8 @@ namespace VE2.NonCore.Instancing.Internal
 
     internal partial class V_RigidbodySyncable : MonoBehaviour
     {
+        public void OpenDocs() => Application.OpenURL("https://www.notion.so/V_RigidBodySyncable-20f0e4d8ed4d816fa5a6ebfb41761ffb?source=copy_link");
+        [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above)]
         [SerializeField, HideLabel, IgnoreParent] private RigidbodySyncableStateConfig _config = new();
         [SerializeField, HideInInspector] private RigidbodySyncableState _state = new();
 
@@ -43,11 +45,12 @@ namespace VE2.NonCore.Instancing.Internal
 
             if (VE2API.InstanceService == null)
             {
-                Debug.LogError("Instance service is null, cannot initialise RigidbodySyncable, please add a V_InstanceIntegration component to the scene.");
+                //TODO, log this if logging level is set to verbose (once we actually have a logging system)
+                //Debug.LogWarning("Instance service is null, cannot initialise RigidbodySyncable, please add a V_InstanceIntegration component to the scene.");
                 return;
             }
 
-            _service = new RigidbodySyncableService(_config, _state, id, VE2API.WorldStateSyncableContainer, VE2API.InstanceService, rigidbodyWrapper, grabbableRigidbody);
+            _service = new RigidbodySyncableService(_config, _state, id, VE2API.WorldStateSyncableContainer, VE2API.InstanceService as IInstanceServiceInternal, rigidbodyWrapper, grabbableRigidbody);
         }
 
 

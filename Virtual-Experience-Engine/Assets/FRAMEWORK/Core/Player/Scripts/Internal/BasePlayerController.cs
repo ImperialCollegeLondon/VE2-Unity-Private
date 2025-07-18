@@ -5,6 +5,11 @@ namespace VE2.Core.Player.Internal
 {
     internal class BasePlayerController
     {
+        public Vector3 PlayerPosition => _rootTransform.position;
+        public virtual void SetPlayerPosition(Vector3 position) => _rootTransform.position = position;
+        public Quaternion PlayerRotation => _rootTransform.rotation;
+        public virtual void SetPlayerRotation(Quaternion rotation) => _rootTransform.rotation = rotation;
+
         internal Camera Camera;
         protected CollisionDetector _FeetCollisionDetector;
         protected Transform _PlayerHeadTransform;
@@ -23,21 +28,11 @@ namespace VE2.Core.Player.Internal
             Camera.farClipPlane = cameraConfig.FarClippingPlane;
             Camera.cullingMask = cameraConfig.CullingMask;
             Camera.useOcclusionCulling = cameraConfig.OcclusionCulling;
-            
+
             UniversalAdditionalCameraData cameraData = Camera.GetUniversalAdditionalCameraData();
             cameraData.antialiasing = cameraConfig.AntiAliasing;
-            cameraData.antialiasingQuality = cameraConfig.AntiAliasingQuality;;
+            cameraData.antialiasingQuality = cameraConfig.AntiAliasingQuality; ;
             cameraData.renderPostProcessing = cameraConfig.EnablePostProcessing;
-        }
-
-        public virtual void SetPlayerPosition(Vector3 position)
-        {
-            _rootTransform.position = position;
-        }
-
-        public Vector3 GetPlayerPosition()
-        {
-            return _rootTransform.position;
         }
     }
 }

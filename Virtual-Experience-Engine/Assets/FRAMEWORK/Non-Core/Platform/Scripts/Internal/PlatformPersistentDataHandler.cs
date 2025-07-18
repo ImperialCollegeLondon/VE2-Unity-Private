@@ -13,7 +13,7 @@ namespace VE2.NonCore.Platform.Internal
         public string PlatformCustomerName {get; set;}
         public string PlatformCustomerPassword {get; set;}
         public ushort PlatformClientID {get; set;}
-        public string InstanceCode {get; set;}
+        public InstanceCode InstanceCode {get; set;}
 
         public Dictionary<string, WorldDetails> ActiveWorlds {get; set;}
         public ServerConnectionSettings WorldBuildsFTPServerSettings {get; set;}
@@ -223,8 +223,8 @@ namespace VE2.NonCore.Platform.Internal
 
         //[SerializeField, Disable] private string _defaultInstanceCode;
         [SerializeField, Disable] private bool _instanceCodeSetup = false;
-        [SerializeField, Disable] private string _instanceCode;
-        public string InstanceCode 
+        [SerializeField, Disable] private InstanceCode _instanceCode;
+        public InstanceCode InstanceCode 
         {
             get 
             {
@@ -240,7 +240,7 @@ namespace VE2.NonCore.Platform.Internal
 
                             if (hasArgs)
                             {
-                                _instanceCode = intent.Call<string>("getStringExtra", InstanceCodeArgName);
+                                _instanceCode = new(intent.Call<string>("getStringExtra", InstanceCodeArgName));
                             }
                             else 
                             {

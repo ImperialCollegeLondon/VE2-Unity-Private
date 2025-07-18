@@ -30,13 +30,15 @@ namespace VE2.Core.VComponents.Internal
         public bool AdminOnly { get => _RangedHoldClickModule.AdminOnly; set => _RangedHoldClickModule.AdminOnly = value; }
         public bool EnableControllerVibrations { get => _RangedHoldClickModule.EnableControllerVibrations; set => _RangedHoldClickModule.EnableControllerVibrations = value; }
         public bool ShowTooltipsAndHighlight { get => _RangedHoldClickModule.ShowTooltipsAndHighlight; set => _RangedHoldClickModule.ShowTooltipsAndHighlight = value; }
+        public bool IsInteractable { get => _RangedHoldClickModule.IsInteractable; set => _RangedHoldClickModule.IsInteractable = value; }
         #endregion
     }
 
+    [DisallowMultipleComponent]
     internal partial class V_HoldActivatable : MonoBehaviour, IRangedInteractionModuleProvider, ICollideInteractionModuleProvider
     {
         [SerializeField, IgnoreParent] private HoldActivatableConfig _config = new();
-        [SerializeField, HideInInspector] private MultiInteractorActivatableState _state = new();
+        [SerializeField, HideInInspector] private MultiInteractorActivatableSyncedState _state = new();
 
         #region Player Interfaces
         ICollideInteractionModule ICollideInteractionModuleProvider.CollideInteractionModule => _Service.ColliderInteractionModule;
@@ -73,7 +75,7 @@ namespace VE2.Core.VComponents.Internal
                 return;
 
             string id = "HoldActivatable-" + gameObject.name;
-            _service = new HoldActivatableService(_config, _state, id, VE2API.LocalClientIdWrapper);
+            _service = new HoldActivatableService(_config, _state, id, VE2API.LocalClientIdWrapper, VE2API.WorldStateSyncableContainer);
         }
 
         private void FixedUpdate()

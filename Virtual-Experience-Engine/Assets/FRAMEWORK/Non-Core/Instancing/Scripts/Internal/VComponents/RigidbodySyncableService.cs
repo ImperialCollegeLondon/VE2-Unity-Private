@@ -14,7 +14,7 @@ namespace VE2.NonCore.Instancing.Internal
         public IRigidbodySyncableStateModule StateModule => _stateModule;
         private IGrabbableRigidbody _grabbableRigidbody;
         private IRigidbodyWrapper _rigidbody;
-        private IInstanceService _instanceService;
+        private IInstanceServiceInternal _instanceService;
         private bool _isHost => _instanceService.IsHost;
         #endregion
 
@@ -56,7 +56,7 @@ namespace VE2.NonCore.Instancing.Internal
         #endregion
 
         public RigidbodySyncableService(RigidbodySyncableStateConfig config, VE2Serializable state, string id, IWorldStateSyncableContainer worldStateSyncableContainer, 
-            IInstanceService instanceService, IRigidbodyWrapper rigidbodyWrapper, IGrabbableRigidbody grabbableRigidbody)
+            IInstanceServiceInternal instanceService, IRigidbodyWrapper rigidbodyWrapper, IGrabbableRigidbody grabbableRigidbody)
         {
             _config = config;
             _stateModule = new(state, config, id, worldStateSyncableContainer);
@@ -75,8 +75,8 @@ namespace VE2.NonCore.Instancing.Internal
             _receivedRigidbodyStates = new();
 
             _stateModule.OnReceiveState?.AddListener(HandleReceiveRigidbodyState);
-            _instanceService.OnBecomeHost += HandleBecomeHost;
-            _instanceService.OnLoseHost += HandleBecomeNonHost;
+            _instanceService.OnBecomeHostInternal += HandleBecomeHost;
+            _instanceService.OnBecomeNonHostInternal += HandleBecomeNonHost;
         }
 
         private void HandleOnGrab(ushort grabberClientID)
@@ -128,7 +128,7 @@ namespace VE2.NonCore.Instancing.Internal
         {
 
             // Make all rigidbodys in the scene, apart from this one, kinematic
-            Dictionary<IRigidbodyWrapper, bool> kinematicStates = new();
+            Dictionary<IRigidbodyWrapper, (bool isKinematic, Vector3 linearVelocity, Vector3 angularVelocity)> kinematicStates = new();
 
             foreach (Rigidbody rigidbodyInScene in GameObject.FindObjectsByType<Rigidbody>(FindObjectsSortMode.None))
             {
@@ -138,7 +138,7 @@ namespace VE2.NonCore.Instancing.Internal
                 }
 
                 IRigidbodyWrapper rigidbodyInSceneWrapper = new RigidbodyWrapper(rigidbodyInScene);
-                kinematicStates.Add(rigidbodyInSceneWrapper, rigidbodyInSceneWrapper.isKinematic);
+                kinematicStates.Add(rigidbodyInSceneWrapper, (rigidbodyInSceneWrapper.isKinematic, rigidbodyInSceneWrapper.linearVelocity, rigidbodyInSceneWrapper.angularVelocity));
                 rigidbodyInSceneWrapper.isKinematic = true;
             }
 
@@ -160,8 +160,16 @@ namespace VE2.NonCore.Instancing.Internal
             // Return physics and the locked rigidbodies back to normal
             Physics.simulationMode = SimulationMode.FixedUpdate;
 
-            foreach (KeyValuePair<IRigidbodyWrapper, bool> kinematicState in kinematicStates)
-                kinematicState.Key.isKinematic = kinematicState.Value;
+            foreach (KeyValuePair<IRigidbodyWrapper, (bool isKinematic, Vector3 linearVelocity, Vector3 angularVelocity)> kinematicState in kinematicStates)
+            {
+                kinematicState.Key.isKinematic = kinematicState.Value.isKinematic;
+
+                if (!kinematicState.Key.isKinematic)
+                {
+                    kinematicState.Key.linearVelocity = kinematicState.Value.linearVelocity;
+                    kinematicState.Key.angularVelocity = kinematicState.Value.angularVelocity;
+                }
+            }
 
             // Set a > 0 value for host smoothing frames, which are then handled in FixedUpdate
             _hostSmoothingFramesLeft = LAG_COMP_SMOOTHING_FRAMES;
@@ -223,7 +231,6 @@ namespace VE2.NonCore.Instancing.Internal
 
         public void HandleUpdate()
         {
-
             // Non host interpolates on Update when not simulating for themselves
             if (_instanceService.IsConnectedToServer && !_isHost && !_nonHostSimulating)
             {
@@ -235,8 +242,8 @@ namespace VE2.NonCore.Instancing.Internal
         public void TearDown()
         {
             _stateModule.OnReceiveState?.RemoveListener(HandleReceiveRigidbodyState);
-            _instanceService.OnBecomeHost -= HandleBecomeHost;
-            _instanceService.OnLoseHost -= HandleBecomeNonHost;
+            _instanceService.OnBecomeHostInternal -= HandleBecomeHost;
+            _instanceService.OnBecomeNonHostInternal -= HandleBecomeNonHost;
             _stateModule.TearDown();
         }
 
@@ -510,7 +517,6 @@ namespace VE2.NonCore.Instancing.Internal
             _rigidbody.linearVelocity = velocity;
             _rigidbody.angularVelocity = angularVelocity;
         }
-
 
         #endregion
 

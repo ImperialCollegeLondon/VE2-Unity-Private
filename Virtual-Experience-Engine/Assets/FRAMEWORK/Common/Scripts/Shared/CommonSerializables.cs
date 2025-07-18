@@ -7,7 +7,7 @@ namespace VE2.Common.Shared
     internal class CommonSerializables
     {
         [Serializable]
-        public abstract class VE2Serializable
+        internal abstract class VE2Serializable
         {
             public byte[] Bytes { get => ConvertToBytes(); set => PopulateFromBytes(value); }
 

@@ -12,48 +12,52 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class FreeGrabbableConfig
     {
+        public void OpenDocs() => Application.OpenURL("https://www.notion.so/V_FreeGrabbable-20f0e4d8ed4d813eb325e03e0c0da701?source=copy_link");
+        [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above)]
         [SerializeField, IgnoreParent] public GrabbableStateConfig StateConfig = new();
 
         [SerializeField, IndentArea(-1)] public RangedFreeGrabInteractionConfig RangedFreeGrabInteractionConfig = new();
         [SpaceArea(spaceAfter: 10), SerializeField, IgnoreParent] public GeneralInteractionConfig GeneralInteractionConfig = new();
-        
+
         [HideIf(nameof(MultiplayerSupportPresent), false)]
         [SerializeField, IgnoreParent] public WorldStateSyncConfig SyncConfig = new();
 
         private bool MultiplayerSupportPresent => VE2API.HasMultiPlayerSupport;
+
+        public FreeGrabbableConfig(ITransformWrapper attachPointWrapper) { RangedFreeGrabInteractionConfig.AttachPointWrapper = attachPointWrapper; }
+        public FreeGrabbableConfig() {}
     }
 
     internal class FreeGrabbableService
     {
-        #region Interfacess
         public IGrabbableStateModule StateModule => _StateModule;
         public IRangedFreeGrabInteractionModule RangedGrabInteractionModule => _RangedGrabInteractionModule;
-        #endregion
 
-        #region Modules
         private readonly GrabbableStateModule _StateModule;
         private readonly RangedFreeGrabInteractionModule _RangedGrabInteractionModule;
-        #endregion
-
-        private IRigidbodyWrapper _rigidbody;
-        private ITransformWrapper _transform;
-        private bool _isKinematicOnGrab;
-        private PhysicsConstants _physicsConstants;
-        private IGrabbableRigidbody _grabbableRigidbodyInterface;
 
         public event Action<ushort> OnGrabConfirmed;
         public event Action<ushort> OnDropConfirmed;
 
-        private Vector3 positionOnGrab = new();
-        private Quaternion rotationOnGrab = new();
+        private readonly IRigidbodyWrapper _rigidbody;
+        private readonly PhysicsConstants _physicsConstants;
+        private ITransformWrapper _transform => _config.RangedFreeGrabInteractionConfig.AttachPointWrapper;
+        private IGrabbableRigidbody _grabbableRigidbodyInterface;
+
+        private Vector3 _positionOnGrab = new();
+        private Quaternion _rotationOnGrab = new();
+        private Quaternion _initialGrabberToObjectRotation = Quaternion.identity;
+        private bool _isKinematicOnGrab;
+
+        private readonly FreeGrabbableConfig _config;
 
         public FreeGrabbableService(List<IHandheldInteractionModule> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id,
             IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer,
             IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants, IGrabbableRigidbody grabbableRigidbodyInterface, IClientIDWrapper localClientIdWrapper)
         {
-            //even though this is never null in theory, done so to satisfy the tests
-            _transform = config.RangedFreeGrabInteractionConfig.AttachPoint != null ? new TransformWrapper(config.RangedFreeGrabInteractionConfig.AttachPoint) : _rigidbody != null ? _rigidbody.transform : null;
-            _RangedGrabInteractionModule = new(id, grabInteractablesContainer, _transform, handheldInteractions, config.RangedFreeGrabInteractionConfig, config.GeneralInteractionConfig);
+            _config = config;
+
+            _RangedGrabInteractionModule = new(id, grabInteractablesContainer, handheldInteractions, config.RangedFreeGrabInteractionConfig, config.GeneralInteractionConfig);
             _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, grabInteractablesContainer, interactorContainer, localClientIdWrapper);
 
             _rigidbody = rigidbody;
@@ -61,8 +65,8 @@ namespace VE2.Core.VComponents.Internal
             _isKinematicOnGrab = _rigidbody.isKinematic;
             _grabbableRigidbodyInterface = grabbableRigidbodyInterface;
 
-            _RangedGrabInteractionModule.OnLocalInteractorRequestGrab += (InteractorID interactorID) => _StateModule.SetGrabbed(interactorID);
-            _RangedGrabInteractionModule.OnLocalInteractorRequestDrop += (InteractorID interactorID) => _StateModule.SetDropped(interactorID);
+            _RangedGrabInteractionModule.OnLocalInteractorRequestGrab += interactorID => _StateModule.SetGrabbed(interactorID);
+            _RangedGrabInteractionModule.OnLocalInteractorRequestDrop += interactorID => _StateModule.SetDropped(interactorID);
             _RangedGrabInteractionModule.OnGrabDeltaApplied += ApplyDeltaWhenGrabbed;
 
             _StateModule.OnGrabConfirmed += HandleGrabConfirmed;
@@ -73,7 +77,6 @@ namespace VE2.Core.VComponents.Internal
         //This is for teleporting the grabbed object along with the player - TODO: Tweak names for clarity 
         private void ApplyDeltaWhenGrabbed(Vector3 deltaPosition, Quaternion deltaRotation)
         {
-            Debug.Log("Applying delta when grabbed");
             _rigidbody.isKinematic = true;
 
             _rigidbody.position += deltaPosition;
@@ -82,9 +85,6 @@ namespace VE2.Core.VComponents.Internal
             _rigidbody.linearVelocity = Vector3.zero;
             _rigidbody.isKinematic = false;
         }
-        // private void HandleLocalInteractorRequestGrab(InteractorID interactorID) =>  _StateModule.SetGrabbed(interactorID);
-
-        // private void HandleLocalInteractorRequestDrop(InteractorID interactorID) => _StateModule.SetDropped(interactorID);
 
         private void HandleGrabConfirmed(ushort grabberClientID)
         {
@@ -93,25 +93,28 @@ namespace VE2.Core.VComponents.Internal
                 _isKinematicOnGrab = _rigidbody.isKinematic;
                 _rigidbody.isKinematic = false;
             }
-            positionOnGrab = _rigidbody.position;
-            rotationOnGrab = _rigidbody.rotation;
+            _positionOnGrab = _rigidbody.position;
+            _rotationOnGrab = _rigidbody.rotation;
+
+            Quaternion grabberRotation = _StateModule.CurrentGrabbingInteractor.GrabberTransformWrapper.rotation;
+            _initialGrabberToObjectRotation = Quaternion.Inverse(grabberRotation) * _rigidbody.rotation;
+
             OnGrabConfirmed?.Invoke(grabberClientID);
         }
 
         private void HandleDropConfirmed(ushort dropperClientID)
         {
-            // Handle drop behaviours
-            if (_RangedGrabInteractionModule.DropBehaviour == DropBehaviour.IgnoreMomentum)
+            switch (_RangedGrabInteractionModule.DropBehaviour)
             {
-                _rigidbody.linearVelocity = Vector3.zero;
-                _rigidbody.angularVelocity = Vector3.zero;
-            }
-            else if (_RangedGrabInteractionModule.DropBehaviour == DropBehaviour.ReturnToPositionBeforeGrab)
-            {
-                _rigidbody.position = positionOnGrab;
-                _rigidbody.rotation = rotationOnGrab;
-                _rigidbody.linearVelocity = Vector3.zero;
-                _rigidbody.angularVelocity = Vector3.zero;
+                case DropBehaviour.IgnoreMomentum:
+                    _rigidbody.linearVelocity = Vector3.zero;
+                    _rigidbody.angularVelocity = Vector3.zero;
+                    break;
+                case DropBehaviour.ReturnToPositionBeforeGrab:
+                    _rigidbody.SetPositionAndRotationOnRBAndGO(_positionOnGrab, _rotationOnGrab);
+                    _rigidbody.linearVelocity = Vector3.zero;
+                    _rigidbody.angularVelocity = Vector3.zero;
+                    break;
             }
 
             OnDropConfirmed?.Invoke(dropperClientID);
@@ -132,37 +135,29 @@ namespace VE2.Core.VComponents.Internal
             _StateModule.HandleFixedUpdate();
             if (_StateModule.IsGrabbed)
             {
-                TrackPosition(_StateModule.CurrentGrabbingInteractor.GrabberTransform.position);
-
-                Quaternion rotationDelta = Quaternion.Inverse(rotationOnGrab) * _StateModule.CurrentGrabbingInteractor.GrabberTransform.rotation;
-
-                if (RangedGrabInteractionModule.AlignOrientationOnGrab)
-                {
-                    TrackRotation(rotationDelta);
-                    // Debug.Log("Using attach point orientation on grab");
-                }
-                else
-                {
-                    TrackRotation(_StateModule.CurrentGrabbingInteractor.GrabberTransform.rotation);
-                    // Debug.Log("Using grabber orientation on grab");
-                }
+                TrackPosition(_StateModule.CurrentGrabbingInteractor.GrabberTransformWrapper.position);
+                TrackRotation(_StateModule.CurrentGrabbingInteractor.GrabberTransformWrapper.rotation);
             }
         }
 
         private void TrackPosition(Vector3 targetPosition)
         {
             Vector3 directionToGrabber = targetPosition - _rigidbody.position;
-            float directionToGrabberMaxVelocityMagnitudeRatio = directionToGrabber.magnitude / _physicsConstants.DefaultMaxVelocity;
+            float magnitudeRatio = directionToGrabber.magnitude / _physicsConstants.DefaultMaxVelocity;
 
-            if (directionToGrabberMaxVelocityMagnitudeRatio > 1)
-                directionToGrabber /= directionToGrabberMaxVelocityMagnitudeRatio;
+            if (magnitudeRatio > 1)
+                directionToGrabber /= magnitudeRatio;
 
             _rigidbody.linearVelocity *= _physicsConstants.VelocityDamping;
             _rigidbody.linearVelocity += (directionToGrabber / Time.fixedDeltaTime) * _physicsConstants.VelocityScale;
         }
 
-        private void TrackRotation(Quaternion targetRotation)
+        private void TrackRotation(Quaternion grabberRotation)
         {
+            Quaternion targetRotation = RangedGrabInteractionModule.AlignOrientationOnGrab ?
+                grabberRotation :
+                grabberRotation * _initialGrabberToObjectRotation;
+
             var rotationDelta = targetRotation * Quaternion.Inverse(_transform.rotation);
             rotationDelta.ToAngleAxis(out var angleInDegrees, out var rotationAxis);
 

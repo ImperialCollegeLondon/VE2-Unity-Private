@@ -80,7 +80,7 @@ GameObject:
   - component: {fileID: 1924557315638327936}
   - component: {fileID: 295431133941835490}
   - component: {fileID: 480382811255692076}
-  m_Layer: 6
+  m_Layer: 5
   m_Name: VRPrimaryUICanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1171,7 +1171,7 @@ GameObject:
   - component: {fileID: 1062566083736049780}
   - component: {fileID: 8146344643760390737}
   - component: {fileID: 3173034397703600308}
-  m_Layer: 6
+  m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1307,7 +1307,7 @@ GameObject:
   - component: {fileID: 4208752524855385993}
   - component: {fileID: 6058943870870948400}
   - component: {fileID: 2894159248786041051}
-  m_Layer: 6
+  m_Layer: 5
   m_Name: TestPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1422,7 +1422,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _maxValue: 100
-  _currentPercent: 0
+  _currentValue: 0
   _loadingBar: {fileID: 7137367690354920918}
   _loadingText: {fileID: 0}
   _addSuffix: 0

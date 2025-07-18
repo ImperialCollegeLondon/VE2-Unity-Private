@@ -7,9 +7,9 @@ namespace VE2.Core.VComponents.API
     {
         public ITransformWrapper Transform { get; }
 
-        public void ScrollUp();
+        public void ScrollUp(ushort clientID);
 
-        public void ScrollDown();
+        public void ScrollDown(ushort clientID);
 
         public event Action OnValueChanged;
     }

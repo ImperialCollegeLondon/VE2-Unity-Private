@@ -3,55 +3,78 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Events;
 using VE2.Core.Player.API;
-using VE2.Core.VComponents.API;
 using VE2.NonCore.Instancing.API;
 using VE2.NonCore.Platform.API;
 using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
-using System.Collections.Generic;
 using VE2.Common.API;
+using NUnit.Framework;
 
 namespace VE2.NonCore.Instancing.Internal
 {
     [Serializable]
-    internal class InstanceCommsHandlerConfig
+    internal class InstancingConfig
     {
-        [Min(0), Tooltip("Artifical delay added to *sending* all instance networking messages from this player, in ms.")]
-        [SerializeField] private float _artificialAddedPingMs;
-        public float ArtificialAddedPing { get => _artificialAddedPingMs; private set => _artificialAddedPingMs = value >= 0 ? value : 0; }
+        [SerializeField, IgnoreParent] internal InstanceServiceConfig InstanceServiceConfig = new();
+        [SerializeField, IgnoreParent] internal DebugInstancingSettings DebugInstancingSettings = new();
+    }
+
+    [Serializable]
+    internal class InstanceServiceConfig
+    {
+        [Title("Instance Events", Order = -2)]
+        [Help("Events for connecting to and disconnecting from the instance will emit the client ID of the local player", Order = 10)]
+        [BeginGroup(Order = -1), SerializeField] internal UnityEvent<ushort> OnConnectedToInstance = new();
+        [SerializeField, SpaceArea(spaceAfter: 10)] internal UnityEvent<ushort> OnDisconnectedFromInstance = new();
+
+        [Help("Events for remote clients joining and leaving the instance will emit the client ID of the remote player in question", Order = 12)]
+        [SerializeField] internal  UnityEvent<ushort> OnRemoteClientJoinedInstance = new();
+        [SerializeField] internal  UnityEvent<ushort> OnRemoteClientLeftInstance = new();
+        [Space(10)]
+        [SerializeField] internal  UnityEvent OnBecomeHost = new();
+        [EndGroup, SerializeField] internal  UnityEvent OnBecomeNonHost = new();
+    }
+
+    [Serializable]
+    internal class DebugInstancingSettings
+    {
+        [Title("Debug Settings", Order = -2)]
+        [Help("These settings will be used when testing in editor. In build, the platform service will provide the correct settings.", Order = 10)]
+        [SerializeField, BeginGroup(Order = -1), DisableInPlayMode] internal string IpAddress = "127.0.0.1";
+        [SerializeField, DisableInPlayMode] internal ushort Port = 4297;
+        [SerializeField, DisableInPlayMode] internal string InstanceNumber = "00";
+
+        [SerializeField, IgnoreParent, EndGroup] public ArtificialLatencySettings ArtificialLatencySettings = new();
+    }
+
+    [Serializable]
+    public class ArtificialLatencySettings
+    {
+        [Tooltip("Artifical delay added to *sending* all instance networking messages from this player, in ms.")]
+        [Min(0), SerializeField] public float ArtificialAddedPing = 0f;
     }
 
     [ExecuteAlways]
-    internal class V_InstanceIntegration : MonoBehaviour, IInstanceProvider 
+    [DisallowMultipleComponent]
+    internal class V_InstanceIntegration : MonoBehaviour, IInstanceProvider
     {
         #region Inspector frontend
         private void DebugConnect() => _instanceService.ConnectToInstance();
         private void DebugDisconnect() => _instanceService.DisconnectFromInstance();
-        [EditorButton(nameof(DebugConnect), "Connect", activityType: ButtonActivityType.OnPlayMode)] 
-        [EditorButton(nameof(DebugDisconnect), "Disconnect", activityType: ButtonActivityType.OnPlayMode)] 
+        [EditorButton(nameof(DebugConnect), "Connect", activityType: ButtonActivityType.OnPlayMode)]
+        [EditorButton(nameof(DebugDisconnect), "Disconnect", activityType: ButtonActivityType.OnPlayMode)]
         [SerializeField, DisableInPlayMode] private bool _connectOnStart = true;
         [SerializeField, Disable, HideLabel, IgnoreParent] private ConnectionStateWrapper _connectionStateDebug;
 
-        [SerializeField, IgnoreParent, DisableInPlayMode] private DebugInstancingSettings _debugServerSettings = new();
-
-        [Serializable]
-        private class DebugInstancingSettings
-        {
-            [Help("These settings will be used when testing in editor. In build, the platform service will provide the correct settings.")]
-            [SerializeField, BeginGroup("Debug Settings"), DisableInPlayMode] internal string IpAddress = "127.0.0.1";
-            [SerializeField, DisableInPlayMode] internal ushort Port = 4297;
-            [SerializeField, EndGroup, DisableInPlayMode] internal string InstanceCode = "00";
-        }
-        [Space(10)]
-        [SerializeField, HideLabel, IgnoreParent] private InstanceCommsHandlerConfig _config = new();
-
+        [SerializeField, IgnoreParent, DisableInPlayMode] private InstancingConfig _instancingConfig = new();
         #endregion
 
         //We do this wiring here rather than the interface as the interface file needs to live in the VE2.common package
         #region provider Interfaces
         public bool IsEnabled => this != null && gameObject != null && enabled && gameObject.activeInHierarchy;
         private InstanceService _instanceService;
-        public IInstanceService InstanceService {
-            get 
+        public IInstanceService InstanceService
+        {
+            get
             {
                 if (_instanceService == null)
                     OnEnable();
@@ -61,7 +84,7 @@ namespace VE2.NonCore.Instancing.Internal
         }
 
         public ushort LocalClientID => VE2API.LocalClientIdWrapper.Value;
-        public event Action<ushort> OnClientIDReady {add => VE2API.LocalClientIdWrapper.OnClientIDReady += value; remove => VE2API.LocalClientIdWrapper.OnClientIDReady -= value; }
+        public event Action<ushort> OnClientIDReady { add => VE2API.LocalClientIdWrapper.OnClientIDReady += value; remove => VE2API.LocalClientIdWrapper.OnClientIDReady -= value; }
         #endregion
 
         private bool _bootErrorLogged = false;
@@ -74,7 +97,7 @@ namespace VE2.NonCore.Instancing.Internal
             if (!Application.isPlaying)
                 return;
 
-            if (PlatformAPI.PlatformService == null) //TODO - should point to VE2API
+            if (VE2API.PlatformService == null) //TODO - should point to VE2API
             {
                 if (!_bootErrorLogged)
                 {
@@ -84,19 +107,22 @@ namespace VE2.NonCore.Instancing.Internal
                 return;
             }
 
-            ServerConnectionSettings instancingSettings = ((IPlatformServiceInternal)PlatformAPI.PlatformService).GetInstanceServerSettingsForCurrentWorld();
-            string instanceCode;
+            ServerConnectionSettings instancingSettings = ((IPlatformServiceInternal)VE2API.PlatformService).GetInstanceServerSettingsForCurrentWorld();
+            InstanceCode instanceCode;
+            ArtificialLatencySettings artificialLatencySettingsToUse;
 
             if (instancingSettings != null)
             {
-                instanceCode = PlatformAPI.PlatformService.CurrentInstanceCode;
+                instanceCode = ((IPlatformServiceInternal)VE2API.PlatformService).CurrentInstanceCode;
+                artificialLatencySettingsToUse = new() { ArtificialAddedPing = 0 };
             }
-            else 
+            else
             {
                 if (Application.isEditor)
                 {
-                    instancingSettings = new ServerConnectionSettings("username", "pass", _debugServerSettings.IpAddress, _debugServerSettings.Port);
-                    instanceCode = $"NoCat-{SceneManager.GetActiveScene().name}-{_debugServerSettings.InstanceCode}-NoVersion";
+                    instancingSettings = new ServerConnectionSettings("username", "pass", _instancingConfig.DebugInstancingSettings.IpAddress, _instancingConfig.DebugInstancingSettings.Port);
+                    instanceCode = new InstanceCode(SceneManager.GetActiveScene().name, _instancingConfig.DebugInstancingSettings.InstanceNumber, 0);
+                    artificialLatencySettingsToUse = _instancingConfig.DebugInstancingSettings.ArtificialLatencySettings;
                 }
                 else
                 {
@@ -106,13 +132,13 @@ namespace VE2.NonCore.Instancing.Internal
                         Debug.LogError("Can't boot instance integration, no instancing settings found - cannot use debug instance settings in Build");
                     }
                     return;
-                }   
+                }
             }
 
             if (instancingSettings.ServerAddress == "127.0.0.1" && Application.isEditor)
                 InstancingUtils.BootLocalServerIfNotAlreadyRunning();
 
-            _instanceService = InstanceServiceFactory.Create(_connectOnStart, _connectionStateDebug, instancingSettings, instanceCode, _config);
+            _instanceService = InstanceServiceFactory.Create(_connectOnStart, _connectionStateDebug, instancingSettings, _instancingConfig.InstanceServiceConfig, instanceCode, artificialLatencySettingsToUse);
 
             if (Application.isEditor)
             {

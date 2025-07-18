@@ -2,6 +2,7 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using VE2.Common.Shared;
 
@@ -50,7 +51,12 @@ namespace VE2.NonCore.Platform.Internal
 
         private void Start()
         {
-            _backToHubButton.onClick.AddListener(HandleBackToHubButtonClicked);
+            if (SceneManager.GetActiveScene().name.ToUpper().Equals("HUB"))
+                _backToHubButton.interactable = false; // Disable the button in the Hub scene, as it is not needed
+            else
+                _backToHubButton.onClick.AddListener(HandleBackToHubButtonClicked);
+
+
             _toggleVoiceChatButton.onClick.AddListener(HandleToggleVoiceChatButtonClicked);
 
             _handler = new(this);

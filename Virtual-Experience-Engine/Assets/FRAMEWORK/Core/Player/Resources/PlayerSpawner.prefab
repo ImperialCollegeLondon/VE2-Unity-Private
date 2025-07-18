@@ -5157,10 +5157,16 @@ MonoBehaviour:
   _playerConfig:
     PlayerModeConfig:
       SupportedPlayerModes: 2
+      OnChangeToVRMode:
+        m_PersistentCalls:
+          m_Calls: []
+      OnChangeTo2DMode:
+        m_PersistentCalls:
+          m_Calls: []
     PlayerInteractionConfig:
       InteractableLayers:
         serializedVersion: 2
-        m_Bits: 0
+        m_Bits: 130985
     MovementModeConfig:
       TraversableLayers:
         serializedVersion: 2
@@ -5170,6 +5176,24 @@ MonoBehaviour:
         m_Bits: 130945
       FreeFlyMode: 0
       TeleportRangeMultiplier: 1
+      OnTeleport:
+        m_PersistentCalls:
+          m_Calls: []
+      OnSnapTurn:
+        m_PersistentCalls:
+          m_Calls: []
+      OnHorizontalDrag:
+        m_PersistentCalls:
+          m_Calls: []
+      OnVerticalDrag:
+        m_PersistentCalls:
+          m_Calls: []
+      OnJump2D:
+        m_PersistentCalls:
+          m_Calls: []
+      OnCrouch2D:
+        m_PersistentCalls:
+          m_Calls: []
     CameraConfig:
       FieldOfView2D: 60
       NearClippingPlane: 0.15
@@ -5181,6 +5205,9 @@ MonoBehaviour:
       AntiAliasingQuality: 1
       EnablePostProcessing: 1
       OcclusionCulling: 1
+      OnResetViewVR:
+        m_PersistentCalls:
+          m_Calls: []
     AvatarAppearanceOverrideConfig:
       OverrideHead: 0
       HeadOverrideIndex: 0
@@ -5189,8 +5216,8 @@ MonoBehaviour:
       TorsoOverrideIndex: 0
       TorsoOverrideGameObjects: []
     RepeatedTransmissionConfig:
-      TransmissionType: 0
       TransmissionFrequency: 35
+      TransmissionType: 0
   _defaultPlayerPresentationConfig:
     PlayerName: Unknown
     AvatarHeadType: 0
@@ -5218,6 +5245,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _lastUseSecondaryUI: 1
   _useCustomSecondaryUI: 1
+  _menuUIConfig:
+    OnActivateMainMenu:
+      m_PersistentCalls:
+        m_Calls: []
+    OnDeactivateMainMenu:
+      m_PersistentCalls:
+        m_Calls: []
+  _uiPanelsSetup: 0
 --- !u!1 &5652376412452648834
 GameObject:
   m_ObjectHideFlags: 0

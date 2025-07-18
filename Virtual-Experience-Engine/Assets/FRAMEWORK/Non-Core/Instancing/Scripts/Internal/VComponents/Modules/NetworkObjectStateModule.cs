@@ -13,14 +13,20 @@ namespace VE2.NonCore.Instancing.Internal
     [Serializable]
     internal class NetworkObjectStateConfig : WorldStateSyncConfig
     {
-        [SerializeField] public UnityEvent<object> OnStateChange = new();
+        [Title("Network Object State Settings")]
+        [BeginGroup, SerializeField, PropertyOrder(-10)] public UnityEvent<object> OnStateChange = new();
+
+        /// <summary>
+        /// If ticked, OnStateChange will not be invoked locally when the NetworkObject is set.
+        /// </summary>
+        [EndGroup, SerializeField, PropertyOrder(-9)] public bool NoLocalCallback = false;
     }
 
     internal class NetworkObjectStateModule : BaseWorldStateModule, INetworkObjectStateModule
     {
         public UnityEvent<object> OnStateChange => _config.OnStateChange;
 
-        public object NetworkObject { get => DeserializedNetworkObject(); set => SerializeNetworkObject(value); }
+        public object NetworkObject { get => DeserializedNetworkObject();}
 
         private NetworkObjectState _state => (NetworkObjectState)State;
         private NetworkObjectStateConfig _config => (NetworkObjectStateConfig)_SyncConfig;
@@ -28,21 +34,23 @@ namespace VE2.NonCore.Instancing.Internal
         public NetworkObjectStateModule(VE2Serializable state, WorldStateSyncConfig config, string id, IWorldStateSyncableContainer worldStateSyncableContainer) 
             : base(state, config, id, worldStateSyncableContainer) {}
 
-        private void SerializeNetworkObject(object unserializedNetworkObject)
+        public void UpdateDataFromPlugin(object unserializedNetworkObject)
         {
             try
             {
                 BinaryFormatter binaryFormatter = new();
                 _state.SerializedNetworkObject.SetLength(0);
                 binaryFormatter.Serialize(_state.SerializedNetworkObject, unserializedNetworkObject);
+                _state.StateChangeNumber++;
             }
             catch (Exception e)
             {
-                Debug.Log($"Error encountered when trying to serialize NetworkObject with ID {ID} \n{e.Message}\n{e.StackTrace}");
+                Debug.LogError($"Error encountered when trying to serialize NetworkObject with ID {ID} \n{e.Message}\n{e.StackTrace}");
                 return;
             }
 
-            InvokeCustomerOnStateChangeEvent();
+            if (!_config.NoLocalCallback)
+                InvokeCustomerOnStateChangeEvent();
         }
 
         private object DeserializedNetworkObject()
@@ -61,7 +69,7 @@ namespace VE2.NonCore.Instancing.Internal
             }
             catch (Exception e)
             {
-                Debug.Log($"Error when emitting OnStateChange from NetworkObject with ID {ID} \n{e.Message}\n{e.StackTrace}");
+                Debug.LogError($"Error when emitting OnStateChange from NetworkObject with ID {ID} \n{e.Message}\n{e.StackTrace}");
             }
         }
 

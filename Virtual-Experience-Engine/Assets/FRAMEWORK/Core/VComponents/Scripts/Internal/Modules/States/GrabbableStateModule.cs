@@ -110,7 +110,7 @@ namespace VE2.Core.VComponents.Internal
                     }
                     catch (Exception e)
                     {
-                        Debug.Log($"Error when emitting OnLocalInteractorGrab from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
+                        Debug.LogError($"Error when emitting OnLocalInteractorGrab from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
                     }
                 }
                 else
@@ -144,7 +144,7 @@ namespace VE2.Core.VComponents.Internal
             }
             catch (Exception e)
             {
-                Debug.Log($"Error when emitting OnLocalInteractorDrop from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
+                Debug.LogError($"Error when emitting OnLocalInteractorDrop from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
             }
         }
 
@@ -195,7 +195,7 @@ namespace VE2.Core.VComponents.Internal
                     if (interactorLocal.TryLocalDrop())
                     {
                         // Teleport grabbable to be at interactor to avoid anything in the way 
-                        OnRequestTeleportRigidbody?.Invoke(interactor.GrabberTransform.position);
+                        OnRequestTeleportRigidbody?.Invoke(interactor.GrabberTransformWrapper.position);
 
                         // Set grabbed in normal way
                         SetGrabbed(interactorID);

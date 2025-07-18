@@ -19,6 +19,7 @@ namespace VE2.Core.Player.Internal
                 VE2API.InteractorContainer,
                 playerPersistentDataHandler,
                 VE2API.LocalClientIdWrapper,
+                VE2API.LocalAdminIndicator,
                 VE2API.LocalPlayerSyncableContainer,
                 VE2API.GrabInteractablesContainer,
                 VE2API.InputHandler.PlayerInputContainer,
@@ -113,23 +114,25 @@ namespace VE2.Core.Player.Internal
             OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
         }
 
-        public Vector3 PlayerPosition
+        public Vector3 PlayerPosition => PlayerTransformData.IsVRMode ? _playerVR.PlayerPosition : _player2D.PlayerPosition;
+
+        public void SetPlayerPosition(Vector3 position)
         {
-            get
-            {
-                if (PlayerTransformData.IsVRMode)
-                    return _playerVR.GetPlayerPosition();
-                else
-                    return _player2D.GetPlayerPosition();
-            }
-            set
-            {
-                if (PlayerTransformData.IsVRMode)
-                    _playerVR.SetPlayerPosition(value);
-                else
-                    _player2D.SetPlayerPosition(value);
-            }
+            if (PlayerTransformData.IsVRMode)
+                _playerVR.SetPlayerPosition(position);
+            else
+                _player2D.SetPlayerPosition(position);
         }
+
+        public Quaternion PlayerRotation => PlayerTransformData.IsVRMode ? _playerVR.PlayerRotation : _player2D.PlayerRotation;
+        public void SetPlayerRotation(Quaternion rotation)
+        {
+            if (PlayerTransformData.IsVRMode)
+                _playerVR.SetPlayerRotation(rotation);
+            else
+                _player2D.SetPlayerRotation(rotation);
+        }
+        
         public AndroidJavaObject AddArgsToIntent(AndroidJavaObject intent) => _playerSettingsHandler.AddArgsToIntent(intent);
 
         public void AddPanelTo2DOverlayUI(RectTransform rect) => _player2D.MoveRectToOverlayUI(rect);
@@ -141,13 +144,11 @@ namespace VE2.Core.Player.Internal
 
         private readonly PlayerInputContainer _playerInputContainer;
         private readonly IPlayerPersistentDataHandler _playerSettingsHandler;
-        private readonly ILocalClientIDWrapper _localClientIDWrapper;
         private readonly ILocalPlayerSyncableContainer _playerSyncContainer;
-
         private readonly IPrimaryUIServiceInternal _primaryUIService;
 
         internal PlayerService(PlayerTransformData transformData, PlayerConfig config, HandInteractorContainer interactorContainer, IPlayerPersistentDataHandler playerSettingsHandler, 
-            ILocalClientIDWrapper localClientIDWrapper, ILocalPlayerSyncableContainer playerSyncContainer, IGrabInteractablesContainer grabInteractablesContainer, 
+            ILocalClientIDWrapper localClientIDWrapper, ILocalAdminIndicator localAdminIndicator, ILocalPlayerSyncableContainer playerSyncContainer, IGrabInteractablesContainer grabInteractablesContainer, 
             PlayerInputContainer playerInputContainer, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, IXRManagerWrapper xrManagerWrapper, 
             IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IXRHapticsWrapper xRHapticsWrapperLeft, IXRHapticsWrapper xRHapticsWrapperRight)
         {
@@ -156,18 +157,18 @@ namespace VE2.Core.Player.Internal
 
             _playerInputContainer = playerInputContainer;
             _playerSettingsHandler = playerSettingsHandler;
-            _localClientIDWrapper = localClientIDWrapper;
+
             _playerSyncContainer = playerSyncContainer;
             _playerSyncContainer.RegisterLocalPlayer(this);
 
             if (_config.PlayerModeConfig.EnableVR)
             {
-                xrManagerWrapper.InitializeLoader(); 
+                xrManagerWrapper.InitializeLoader(); //TODO: might not need to do this if its already been init? E.G, don't do again on domain reload - could just put a flag in the wrapper?
 
                 _playerVR = new PlayerControllerVR(
                     interactorContainer, grabInteractablesContainer, _playerInputContainer.PlayerVRInputContainer,
                     playerSettingsHandler, new PlayerVRControlConfig(), _config.PlayerInteractionConfig, _config.MovementModeConfig, _config.CameraConfig,
-                    raycastProvider, collisionDetectorFactory, xrManagerWrapper, localClientIDWrapper, primaryUIService, secondaryUIService, xRHapticsWrapperLeft, xRHapticsWrapperRight);
+                    raycastProvider, collisionDetectorFactory, xrManagerWrapper, localClientIDWrapper, localAdminIndicator, primaryUIService, secondaryUIService, xRHapticsWrapperLeft, xRHapticsWrapperRight);
             }
 
             if (_config.PlayerModeConfig.Enable2D)
@@ -175,7 +176,7 @@ namespace VE2.Core.Player.Internal
                 _player2D = new PlayerController2D(
                     interactorContainer, grabInteractablesContainer, _playerInputContainer.Player2DInputContainer,
                     playerSettingsHandler, new Player2DControlConfig(), _config.PlayerInteractionConfig, _config.MovementModeConfig, _config.CameraConfig,
-                    raycastProvider, collisionDetectorFactory, localClientIDWrapper, primaryUIService, secondaryUIService, this);
+                    raycastProvider, collisionDetectorFactory, localClientIDWrapper, localAdminIndicator, primaryUIService, secondaryUIService, this);
             }
 
             _playerSettingsHandler.OnDebugSaveAppearance += HandlePlayerPresentationChanged;
@@ -185,11 +186,14 @@ namespace VE2.Core.Player.Internal
                 PlayerTransformData.IsVRMode = true;
             else if (_config.PlayerModeConfig.Enable2D && !_config.PlayerModeConfig.EnableVR)
                 PlayerTransformData.IsVRMode = false;
+            else if (Application.isPlaying && playerSettingsHandler.PersistentPlayerMode != PersistentPlayerMode.NotInitialized) //Only if playing, so we don't break tests
+                PlayerTransformData.IsVRMode = playerSettingsHandler.PersistentPlayerMode == PersistentPlayerMode.VR;
 
-            //TODO, figure out what mode to start in? Maybe we need some persistent data to remember the mode in the last scene??
+            _playerSettingsHandler.PersistentPlayerMode = PlayerTransformData.IsVRMode ? PersistentPlayerMode.VR : PersistentPlayerMode.TwoD;
+
             if (PlayerTransformData.IsVRMode)
                 _playerVR.ActivatePlayer(PlayerTransformData);
-            else 
+            else
                 _player2D.ActivatePlayer(PlayerTransformData);
 
             _playerInputContainer.ChangeMode.OnPressed += HandleChangeModePressed;
@@ -232,7 +236,7 @@ namespace VE2.Core.Player.Internal
             if (!_config.PlayerModeConfig.Enable2D || !_config.PlayerModeConfig.EnableVR)
                 return; //Can't change modes if both aren't enabled!
 
-            try 
+            try
             {
                 if (PlayerTransformData.IsVRMode) //switch to 2d
                 {
@@ -252,6 +256,7 @@ namespace VE2.Core.Player.Internal
                 }
 
                 PlayerTransformData.IsVRMode = !PlayerTransformData.IsVRMode;
+                _playerSettingsHandler.PersistentPlayerMode = PlayerTransformData.IsVRMode ? PersistentPlayerMode.VR : PersistentPlayerMode.TwoD;
             }
             catch (System.Exception e)
             {
@@ -288,18 +293,21 @@ namespace VE2.Core.Player.Internal
 
         public void HandleFixedUpdate()
         {
+            //Note: Subcontrollers return new instances of PTD, breaking the reference to the one serialized at the MB level 
+            //This means the MB has to manually update its serialized field with the new data
             if (PlayerTransformData.IsVRMode)
                 PlayerTransformData = _playerVR.PlayerTransformData;
-            else 
-                PlayerTransformData = _player2D.PlayerTransformData;
+            else
+                PlayerTransformData = _player2D.PlayerTransformData;                
         }
 
-        public void HandleUpdate() 
+        public void HandleUpdate()
         {
             if (PlayerTransformData.IsVRMode)
                 _playerVR.HandleUpdate();
-            else 
+            else
                 _player2D.HandleUpdate();
+
         }
         
         public void TearDown() 
@@ -326,11 +334,5 @@ namespace VE2.Core.Player.Internal
 
             _playerInputContainer.ChangeMode.OnPressed -= HandleChangeModePressed;
         }
-    }
-
-    public enum LocalPlayerMode
-    {
-        TwoD, 
-        VR
     }
 }

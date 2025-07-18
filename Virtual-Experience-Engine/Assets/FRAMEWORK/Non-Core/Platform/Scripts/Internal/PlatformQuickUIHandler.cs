@@ -19,18 +19,20 @@ namespace VE2.NonCore.Platform.Internal
             _quickUIView = quickUIView;
 
             //These are done here, called by awake from the view, so we only fetch these services once they are ready
-            _platformService = PlatformAPI.PlatformService as IPlatformServiceInternal;
+            _platformService = VE2API.PlatformService as IPlatformServiceInternal;
             _instanceService = VE2API.InstanceService;
 
             _quickUIView.SetPlayerNameText(_platformService.PlayerDisplayName);
             _quickUIView.SetPingTextMS(0);
 
+            _quickUIView.OnBackToHubClicked += HandleBackToHubButtonClicked;
+
             if (_instanceService != null)
             {
-                _instanceService.OnConnectedToInstance += HandlePlatformConnected;
-                _instanceService.OnDisconnectedFromInstance += HandlePlatformDisconnected;
-                _instanceService.OnBecomeHost += HandleBecomeHost;
-                _instanceService.OnLoseHost += HandleBecomeNonHost;
+                _instanceService.OnConnectedToInstance.AddListener(HandlePlatformConnected);
+                _instanceService.OnDisconnectedFromInstance.AddListener(HandlePlatformDisconnected);
+                _instanceService.OnBecomeHost.AddListener(HandleBecomeHost);
+                _instanceService.OnBecomeNonHost.AddListener(HandleBecomeNonHost);
 
                 _quickUIView.SetConnectedText(_instanceService.IsConnectedToServer);
 
@@ -39,7 +41,7 @@ namespace VE2.NonCore.Platform.Internal
                 else
                     _quickUIView.SetNonHost();
             }
-            else 
+            else
             {
                 _quickUIView.SetHostNA();
                 _quickUIView.SetConnectionNA();
@@ -65,11 +67,16 @@ namespace VE2.NonCore.Platform.Internal
                 _quickUIView.SetPingTextNA();
         }
 
-        private void HandlePlatformConnected() => _quickUIView.SetConnectedText(true);
-        private void HandlePlatformDisconnected() 
+        private void HandlePlatformConnected(ushort localID) => _quickUIView.SetConnectedText(true);
+        private void HandlePlatformDisconnected(ushort localID) 
         {
             _quickUIView.SetConnectedText(false);
             _quickUIView.SetHostNA();
+        }
+
+        private void HandleBackToHubButtonClicked()
+        {
+            _platformService?.ReturnToHub();
         }
 
         private void HandleBecomeHost() => _quickUIView.SetHost();

@@ -18,7 +18,8 @@ namespace VE2.NonCore.FileSystem.Internal
         #region Interfaces 
         public bool IsFileSystemReady {get; private set;} = false;
         public event Action OnFileSystemReady;
-        public abstract string LocalWorkingPath { get; }
+        public abstract string RemoteWorkingPath { get; }
+        public string LocalAbsoluteWorkingPath => Application.persistentDataPath + "/files/" + RemoteWorkingPath;
 
         public Dictionary<string, LocalFileDetails> GetLocalFilesAtPath(string path) => _FileStorageService.GetLocalFilesAtPath(path);
         public List<string> GetLocalFoldersAtPath(string path) => _FileStorageService.GetLocalFoldersAtPath(path);
@@ -42,7 +43,7 @@ namespace VE2.NonCore.FileSystem.Internal
 
         public void OpenLocalWorkingFolder()
         {
-            string path = Application.persistentDataPath + "/files/" + LocalWorkingPath;
+            string path = LocalAbsoluteWorkingPath;
             path = path.Replace("/", "\\"); //Systen.IO works with backslashes
             UnityEngine.Debug.Log("Try open " + path);
             try
@@ -66,7 +67,7 @@ namespace VE2.NonCore.FileSystem.Internal
                 return;
             }
 
-            _FileStorageService = FileSystemServiceFactory.CreateFileStorageService(serverSettings, LocalWorkingPath);
+            _FileStorageService = FileSystemServiceFactory.CreateFileStorageService(serverSettings, RemoteWorkingPath, LocalAbsoluteWorkingPath);
 
             IsFileSystemReady = true;
             try
