@@ -405,6 +405,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8662499831763823472}
+  - component: {fileID: 4278163392861387188}
+  - component: {fileID: 1091729548430132184}
   m_Layer: 0
   m_Name: Torso2
   m_TagString: Untagged
@@ -429,6 +431,39 @@ Transform:
   - {fileID: 6923884093218059192}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4278163392861387188
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6462531968508600052}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 687d52e0e212909488788dee903a9456, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _timerText: {fileID: 6266107065434804609}
+--- !u!114 &1091729548430132184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6462531968508600052}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7766a4443b3653f4fa2ece6cf070d8bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _config:
+    IsNetworked: 1
+    TransmissionFrequency: 1
+    TransmissionType: 0
+    OnStateChange:
+      m_PersistentCalls:
+        m_Calls: []
+    NoLocalCallback: 0
 --- !u!1 &6779977573923228838
 GameObject:
   m_ObjectHideFlags: 0

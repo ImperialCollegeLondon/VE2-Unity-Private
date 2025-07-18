@@ -53,11 +53,6 @@ namespace VE2.Core.Player.Internal
             _customGameObjectPrefabs = customGameObjectPrefabs;
             SetCustomGameObjectEnabled(gameObjectSelection.CustomGameObjectEnabled);
             SetCustomGameObjectIndex(gameObjectSelection.CustomGameObjectIndex);
-
-            if (_activeBuiltInGameObject != null)
-                SetGameObjectLayerAndName(_activeBuiltInGameObject);
-            if (_activeCustomGameObject != null)
-                SetGameObjectLayerAndName(_activeCustomGameObject);
         }
 
         public void SetGameObjectSelections(AvatarGameObjectSelection gameObjectSelection)
@@ -78,13 +73,12 @@ namespace VE2.Core.Player.Internal
             {
                 try
                 {
-                    _activeBuiltInGameObject = GameObject.Instantiate(
+                    _activeBuiltInGameObject = InstantiatePrefabAfterRenaming(
                         _builtInGameObjectPrefabs[_builtInGameObjectIndex],
                         _holderTransform.position,
                         _holderTransform.rotation,
                         _holderTransform);
                     SetBuiltInColor(_builtInColor);
-                    SetGameObjectLayerAndName(_activeBuiltInGameObject);
                 }
                 catch (Exception ex)
                 {
@@ -114,13 +108,12 @@ namespace VE2.Core.Player.Internal
 
             GameObject.Destroy(_activeBuiltInGameObject);
 
-            _activeBuiltInGameObject = GameObject.Instantiate(
+            _activeBuiltInGameObject = InstantiatePrefabAfterRenaming(
                 _builtInGameObjectPrefabs[_builtInGameObjectIndex],
                 _holderTransform.position,
                 _holderTransform.rotation,
                 _holderTransform);
             SetBuiltInColor(_builtInColor);
-            SetGameObjectLayerAndName(_activeBuiltInGameObject);
         }
 
         public void SetCustomGameObjectEnabled(bool newIsEnabled)
@@ -132,12 +125,11 @@ namespace VE2.Core.Player.Internal
             }
             else if (newIsEnabled && !_customGameObjectEnabled!)
             {
-                _activeCustomGameObject = GameObject.Instantiate(
+                _activeCustomGameObject = InstantiatePrefabAfterRenaming(
                     _customGameObjectPrefabs[_customGameObjectIndex],
                     _holderTransform.position,
                     _holderTransform.rotation,
                     _holderTransform);
-                SetGameObjectLayerAndName(_activeCustomGameObject);
             }
 
             _customGameObjectEnabled = newIsEnabled;
@@ -155,12 +147,11 @@ namespace VE2.Core.Player.Internal
 
             GameObject.Destroy(_activeCustomGameObject);
 
-            _activeCustomGameObject = GameObject.Instantiate(
+            _activeCustomGameObject = InstantiatePrefabAfterRenaming(
                 _customGameObjectPrefabs[_customGameObjectIndex],
                 _holderTransform.position,
                 _holderTransform.rotation,
                 _holderTransform);
-            SetGameObjectLayerAndName(_activeCustomGameObject);
         }
 
         internal void SetBuiltInColor(Color color)
@@ -174,6 +165,17 @@ namespace VE2.Core.Player.Internal
                 material.color = color;
 
             _builtInColor = color;
+        }
+
+        private GameObject InstantiatePrefabAfterRenaming(GameObject prefab, Vector3 position, Quaternion rotation, Transform parentTransform)
+        {
+            GameObject boot = new GameObject("temp");
+            boot.SetActive(false);
+            GameObject newGO = GameObject.Instantiate(prefab, position, rotation, boot.transform);
+            SetGameObjectLayerAndName(newGO);
+            newGO.transform.SetParent(parentTransform);
+            GameObject.Destroy(boot);
+            return newGO;
         }
 
         internal void SetGameObjectLayerAndName(GameObject gameObject)
