@@ -58,7 +58,7 @@ namespace VE2.Core.VComponents.Internal
             _config = config;
 
             _RangedGrabInteractionModule = new(id, grabInteractablesContainer, handheldInteractions, config.RangedFreeGrabInteractionConfig, config.GeneralInteractionConfig);
-            _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, interactorContainer, localClientIdWrapper);
+            _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, grabInteractablesContainer, interactorContainer, localClientIdWrapper);
 
             _rigidbody = rigidbody;
             _physicsConstants = physicsConstants;
@@ -71,6 +71,7 @@ namespace VE2.Core.VComponents.Internal
 
             _StateModule.OnGrabConfirmed += HandleGrabConfirmed;
             _StateModule.OnDropConfirmed += HandleDropConfirmed;
+            _StateModule.OnRequestTeleportRigidbody += HandleTeleportRigidbody;
         }
 
         //This is for teleporting the grabbed object along with the player - TODO: Tweak names for clarity 
@@ -122,6 +123,11 @@ namespace VE2.Core.VComponents.Internal
             {
                 _rigidbody.isKinematic = _isKinematicOnGrab;
             }
+        }
+
+        private void HandleTeleportRigidbody(Vector3 position)
+        {
+            _rigidbody.position = position;
         }
 
         public void HandleFixedUpdate()

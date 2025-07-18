@@ -44,12 +44,12 @@ namespace VE2.Core.Player.Internal
         public IRangedFreeGrabInteractionModule RangedFreeGrabInteraction { get; internal set; }
     }
 
-    internal abstract class PointerInteractor : IInteractor
+    internal abstract class PointerInteractor : ILocalInteractor
     {
         public ITransformWrapper GrabberTransformWrapper { get; }
         public IReadOnlyList<string> HeldNetworkedActivatableIDs => _heldActivatableIDsAgainstNetworkFlags.Where(kvp => kvp.Value).Select(kvp => kvp.Key).ToList();
 
-        protected bool IsCurrentlyGrabbing => _CurrentGrabbingGrabbable != null;
+        public bool IsCurrentlyGrabbing { get => _CurrentGrabbingGrabbable != null; }
         protected InteractorID _InteractorID => _LocalClientIDWrapper.IsClientIDReady ? new InteractorID(_LocalClientIDWrapper.Value, _InteractorType) : null;
         protected readonly Dictionary<string, bool> _heldActivatableIDsAgainstNetworkFlags = new();
         protected const float MAX_RAYCAST_DISTANCE = 30;
@@ -512,6 +512,18 @@ namespace VE2.Core.Player.Internal
         }
 
         protected virtual void CheckForExitInspectMode() { } //Do nothing, unless overridden by 2d interactor
+
+        // Try to do a local drop - notably doesn't override **locked** grab
+        // Returns true if interactor is not grabbing (which may be the case if it wasn't grabbing in the first place)
+        public bool TryLocalDrop()
+        {
+            if (IsCurrentlyGrabbing)
+            {
+                _CurrentGrabbingGrabbable.RequestLocalDrop(_InteractorID);
+            }
+            
+            return !IsCurrentlyGrabbing;
+        }
 
         public void ConfirmGrab(string id)
 
