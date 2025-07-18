@@ -18794,7 +18794,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8995ff54d324b04ea0f50966b2be213, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _connectOnStart: 0
+  _connectOnStart: 1
   _connectionStateDebug:
     ConnectionState: 0
   _instancingConfig:
@@ -19152,7 +19152,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1880152095
 GameObject:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -19169,7 +19169,7 @@ GameObject:
   m_IsActive: 1
 --- !u!114 &1880152096
 MonoBehaviour:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -19186,7 +19186,7 @@ MonoBehaviour:
   platformProviderGOName: PlatformIntegration
 --- !u!4 &1880152097
 Transform:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -19569,9 +19569,9 @@ MonoBehaviour:
     PlayerName: Unknown
     AvatarHeadIndex: 0
     AvatarTorsoIndex: 0
-    AvatarColorR: 255
-    AvatarColorG: 70
-    AvatarColorB: 70
+    AvatarColorR: 0
+    AvatarColorG: 0
+    AvatarColorB: 0
   _transformDataSetup: 0
   _playerTransformData:
     IsVRMode: 0
