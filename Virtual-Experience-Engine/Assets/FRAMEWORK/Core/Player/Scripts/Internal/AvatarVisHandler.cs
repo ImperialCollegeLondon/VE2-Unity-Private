@@ -324,7 +324,6 @@ namespace VE2.Core.Player.Internal
 
         public void Enable(ushort id)
         {
-            Debug.Log("Enabling PlayerAvatarHandler for client ID: " + id);
             IsEnabled = true;
             _clientID = id;
 

@@ -154,7 +154,9 @@ namespace VE2.Core.Player.Internal
             _heldActivatableIDsAgainstNetworkFlags.Clear();
 
             _LocalClientIDWrapper.OnClientIDReady -= HandleLocalClientIDReady;
-            _interactorContainer?.DeregisterInteractor(_InteractorID.ToString());
+
+            if (_InteractorID != null)
+                _interactorContainer?.DeregisterInteractor(_InteractorID.ToString());
         }
 
         // Only allow interactable if not admin only, or if local player is admin

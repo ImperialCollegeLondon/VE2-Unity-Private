@@ -93,9 +93,12 @@ namespace VE2.Core.VComponents.Internal
         //         HandleClickDown(Grabbable.MostRecentInteractingClientID.Value);
         // }
 
-        public void TearDown()
+        public void TearDown(bool applicationIsQuitting)
         {
-            Grabbable.OnDrop.RemoveListener(HandleGrabbableDropped);
+            //If we're quitting, referencing the grabbable will cause it to reinitialize, which we don't want!
+            if (!applicationIsQuitting)
+                Grabbable?.OnDrop?.RemoveListener(HandleGrabbableDropped);
+
             _stateModule.TearDown();
         }
     }

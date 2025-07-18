@@ -75,8 +75,14 @@ namespace VE2.Core.VComponents.Internal
 
         private void OnDisable()
         {
-            _service.TearDown();
+            _service.TearDown(_isApplicationQuitting);
             _service = null;
+        }
+
+        private bool _isApplicationQuitting = false;
+        private void OnApplicationQuit()
+        {
+            _isApplicationQuitting = true;
         }
     }
 }
