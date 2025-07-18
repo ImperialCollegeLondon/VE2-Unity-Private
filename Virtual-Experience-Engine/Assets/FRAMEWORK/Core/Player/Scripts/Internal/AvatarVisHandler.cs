@@ -169,12 +169,17 @@ namespace VE2.Core.Player.Internal
 
         private GameObject InstantiatePrefabAfterRenaming(GameObject prefab, Vector3 position, Quaternion rotation, Transform parentTransform)
         {
-            GameObject boot = new GameObject("temp");
-            boot.SetActive(false);
-            GameObject newGO = GameObject.Instantiate(prefab, position, rotation, boot.transform);
+            GameObject temp = new GameObject("temp");
+            temp.SetActive(false);
+            GameObject newGO = GameObject.Instantiate(prefab, position, rotation, temp.transform);
             SetGameObjectLayerAndName(newGO);
             newGO.transform.SetParent(parentTransform);
-            GameObject.Destroy(boot);
+
+            if (Application.isPlaying)
+                GameObject.Destroy(temp);
+            else
+                GameObject.DestroyImmediate(temp);
+
             return newGO;
         }
 
