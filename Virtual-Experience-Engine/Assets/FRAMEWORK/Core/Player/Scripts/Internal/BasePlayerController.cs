@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+using VE2.Common.Shared;
 using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.Core.Player.Internal
@@ -38,6 +39,11 @@ namespace VE2.Core.Player.Internal
             cameraData.antialiasing = cameraConfig.AntiAliasing;
             cameraData.antialiasingQuality = cameraConfig.AntiAliasingQuality; ;
             cameraData.renderPostProcessing = cameraConfig.EnablePostProcessing;
+        }
+
+        protected void OnClientIDReady(ushort clientID)
+        {
+            AvatarHandler.Enable(clientID);
         }
     }
 }

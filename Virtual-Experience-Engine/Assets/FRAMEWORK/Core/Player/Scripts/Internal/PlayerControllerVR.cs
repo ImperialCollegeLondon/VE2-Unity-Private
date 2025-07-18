@@ -111,7 +111,7 @@ namespace VE2.Core.Player.Internal
                 rightHandGrabbableWrapper, leftHandGrabbableWrapper, secondaryUIService, movementModeConfig, true, xRHapticsWrapperRight);
 
             ConfigureCamera(cameraConfig);
-            
+
             AvatarHandler = new(
                 avatarHandlerBuilderContext.PlayerBuiltInGameObjectPrefabs,
                 avatarHandlerBuilderContext.PlayerCustomGameObjectPrefabs,
@@ -119,6 +119,11 @@ namespace VE2.Core.Player.Internal
                 true,
                 playerVRReferences.HeadTransform, playerVRReferences.TorsoTransform,
                 _handControllerRight.HandVisualHolderTransform, _handControllerLeft.HandVisualHolderTransform);
+                
+            if (localClientIDWrapper.IsClientIDReady)
+                OnClientIDReady(localClientIDWrapper.Value);
+            else
+                localClientIDWrapper.OnClientIDReady += OnClientIDReady;
         }
 
 

@@ -114,6 +114,11 @@ namespace VE2.Core.Player.Internal
                 player2DReferences.HeadTransform,
                 player2DReferences.TorsoTransform);
 
+            if (localClientIDWrapper.IsClientIDReady)
+                OnClientIDReady(localClientIDWrapper.Value);
+            else
+                localClientIDWrapper.OnClientIDReady += OnClientIDReady;
+
             //TODO: think about inspect mode, does that live in the interactor, or the player controller?
             //If interactor, will need to make the interactor2d constructor take a this as a param, and forward the other params to the base constructor
         }

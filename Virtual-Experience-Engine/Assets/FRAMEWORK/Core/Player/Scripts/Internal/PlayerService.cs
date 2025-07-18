@@ -15,7 +15,7 @@ namespace VE2.Core.Player.Internal
         internal static PlayerService Create(PlayerTransformData state, PlayerConfig config, IPlayerPersistentDataHandler playerPersistentDataHandler, 
             IXRManagerWrapper xrManagerWrapper, IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IXRHapticsWrapper xRHapticsWrapperLeft, IXRHapticsWrapper xRHapticsWrapperRight)
         {
-            return new PlayerService(state, config, 
+            return new PlayerService(state, config,
                 VE2API.InteractorContainer,
                 playerPersistentDataHandler,
                 VE2API.LocalClientIdWrapper,
