@@ -71,8 +71,12 @@ namespace VE2.Core.Player.Internal
         public UnityEvent OnSnapTurn => _config.MovementModeConfig.OnSnapTurn;
         public UnityEvent OnHorizontalDrag => _config.MovementModeConfig.OnHorizontalDrag;
         public UnityEvent OnVerticalDrag => _config.MovementModeConfig.OnVerticalDrag;
+        //public UnityEvent OnFreeFlyModeEnter => _config.MovementModeConfig.OnFreeFlyModeEnter;
+        //public UnityEvent OnFreeFlyModeExit => _config.MovementModeConfig.OnFreeFlyModeExit;
         public UnityEvent OnJump2D => _config.MovementModeConfig.OnJump2D;
         public UnityEvent OnCrouch2D => _config.MovementModeConfig.OnCrouch2D;
+        //public UnityEvent OnFreeFlyModeEnter2D => _config.MovementModeConfig.OnFreeFlyModeEnter2D;
+        //public UnityEvent OnFreeFlyModeExit2D => _config.MovementModeConfig.OnFreeFlyModeExit2D;
         public UnityEvent OnResetViewVR => _config.CameraConfig.OnResetViewVR;
 
         public List<GameObject> HeadOverrideGOs => _config.AvatarAppearanceOverrideConfig.HeadOverrideGameObjects;

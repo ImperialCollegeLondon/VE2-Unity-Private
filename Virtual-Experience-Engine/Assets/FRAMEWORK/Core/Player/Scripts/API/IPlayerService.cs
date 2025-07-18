@@ -23,8 +23,12 @@ namespace VE2.Core.Player.API
         public UnityEvent OnSnapTurn { get; }
         public UnityEvent OnHorizontalDrag { get; }
         public UnityEvent OnVerticalDrag { get; }
+        //public UnityEvent OnFreeFlyModeEnter { get; }
+        //public UnityEvent OnFreeFlyModeExit { get; }
         public UnityEvent OnJump2D { get; }
         public UnityEvent OnCrouch2D { get; }
+        //public UnityEvent OnFreeFlyModeEnter2D { get; }
+        //public UnityEvent OnFreeFlyModeExit2D { get; }
         public UnityEvent OnResetViewVR { get; }
 
         public Vector3 PlayerPosition { get; }
