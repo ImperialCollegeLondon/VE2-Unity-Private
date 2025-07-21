@@ -4182,7 +4182,7 @@ GameObject:
   - component: {fileID: 4012300496675936947}
   - component: {fileID: 7217289958284707176}
   - component: {fileID: 8065578424328912691}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: VirtualKeyboard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14389,7 +14389,7 @@ GameObject:
   - component: {fileID: 3958724925034453501}
   - component: {fileID: 3544288272148971158}
   - component: {fileID: 358059642674790922}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: VisualMesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24664,7 +24664,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4766454720146295899}
   - component: {fileID: 3447984491375807564}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: AttachPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34482,7 +34482,7 @@ Canvas:
   m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
-  m_SortingLayerID: -937240865
+  m_SortingLayerID: 1680170405
   m_SortingOrder: 0
   m_TargetDisplay: 0
 --- !u!114 &406663061061204214
@@ -34542,10 +34542,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_IgnoreReversedGraphics: 1
-  m_BlockingObjects: 2
+  m_BlockingObjects: 0
   m_BlockingMask:
     serializedVersion: 2
-    m_Bits: 1024
+    m_Bits: 4294967295
 --- !u!82 &6500269789829988483
 AudioSource:
   m_ObjectHideFlags: 0

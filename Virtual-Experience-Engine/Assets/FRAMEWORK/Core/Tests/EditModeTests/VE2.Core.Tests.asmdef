@@ -15,7 +15,8 @@
         "VE2.Core.UI.API",
         "VE2.Common.Shared",
         "VE2.Core.UI.Internal",
-        "VE2.Core.VComponents.Shared"
+        "VE2.Core.VComponents.Shared",
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": [
         "Editor"
