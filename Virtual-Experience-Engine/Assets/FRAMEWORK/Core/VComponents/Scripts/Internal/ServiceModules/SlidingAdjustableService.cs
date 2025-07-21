@@ -58,7 +58,8 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField] public SpatialAdjustmentType AdjustmentType = SpatialAdjustmentType.Continuous;
         [SerializeField, ShowIf(nameof(AdjustmentType), SpatialAdjustmentType.Discrete)] public int NumberOfDiscreteValues = 1;
         [SerializeField] public float MinimumSpatialValue = 0f;
-        [SerializeField, EndGroup] public float MaximumSpatialValue = 1f;
+        [SerializeField] public float MaximumSpatialValue = 1f;
+        [SerializeField, EndGroup] public GameObject AdjustableVisual = null;
 
         // [SerializeField] public bool SinglePressScroll = false;
         // [ShowIf("SinglePressScroll", false)]

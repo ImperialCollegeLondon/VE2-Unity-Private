@@ -67,6 +67,7 @@ namespace VE2.Core.VComponents.Internal
         private Vector3 _transformToAdjustVectorUp = Vector3.zero;
         private Vector3 _transformToAdjustVectorRight = Vector3.zero;
         private Vector3 _transformToAdjustVectorForward = Vector3.zero;
+        private GameObject _adjustableVisual = null;
 
         private float _signedAngle = 0;
         private float _oldRotationalValue = 0;
@@ -81,6 +82,8 @@ namespace VE2.Core.VComponents.Internal
 
             //needs the vector to the attachpoint at 0,0,0
             _initialVectorToHandle = _attachPointTransform.position - _transformToAdjust.position;
+
+            _adjustableVisual = _config.RotationalAdjustableServiceConfig.AdjustableVisual;
 
             _rangedAdjustableInteractionModule = new(id, grabInteractablesContainer, handheldInteractions, config.RangedAdjustableInteractionConfig, config.GeneralInteractionConfig);
 
@@ -138,11 +141,22 @@ namespace VE2.Core.VComponents.Internal
             _transformToAdjustVectorRight = _transformToAdjust.right;
             _transformToAdjustVectorForward = _transformToAdjust.forward;
 
+            if (_adjustableVisual != null)
+            {
+                _adjustableVisual.SetActive(true);
+                _adjustableVisual.transform.position = _transformToAdjust.position;
+            }
+
             _oldRotationalValue = (_spatialValue % 360 + 360) % 360; //this is to make sure the value is always positive
             _numberOfRevolutions = Mathf.FloorToInt(_spatialValue / 360); //get the nth revolution of the starting value
         }
 
-        private void HandleDropConfirmed(ushort id) { }
+        private void HandleDropConfirmed(ushort id)
+        {
+            if (_adjustableVisual != null)
+                _adjustableVisual.SetActive(false);
+
+        }
 
         private void SetSpatialValue(float spatialValue)
         {

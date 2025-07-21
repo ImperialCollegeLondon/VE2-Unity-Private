@@ -123,16 +123,19 @@ namespace VE2.Core.VComponents.Internal
                 _config.RangedAdjustableInteractionConfig.AttachPointWrapper = new TransformWrapper(transform);
                 Debug.LogWarning($"The adjustable on {gameObject.name} does not have an assigned AttachPoint, and so may not behave as intended");
             }
+            
+            if(_config.RotationalAdjustableServiceConfig.AdjustableVisual != null)
+                _config.RotationalAdjustableServiceConfig.AdjustableVisual.SetActive(false);
 
             List<IHandheldInteractionModule> handheldInteractions = new();
 
             //TODO: THINK ABOUT THIS
-            // if(TryGetComponent(out V_HandheldActivatable handheldActivatable))
-            //     handheldInteractions.Add(handheldActivatable.HandheldClickInteractionModule);
-            // if (TryGetComponent(out V_HandheldAdjustable handheldAdjustable))
-            //     handheldInteractions.Add(handheldAdjustable.HandheldScrollInteractionModule);
+                // if(TryGetComponent(out V_HandheldActivatable handheldActivatable))
+                //     handheldInteractions.Add(handheldActivatable.HandheldClickInteractionModule);
+                // if (TryGetComponent(out V_HandheldAdjustable handheldAdjustable))
+                //     handheldInteractions.Add(handheldAdjustable.HandheldScrollInteractionModule);
 
-            _service = new RotatingAdjustableService(
+                _service = new RotatingAdjustableService(
                 handheldInteractions,
                 _config,
                 _adjustableState,
