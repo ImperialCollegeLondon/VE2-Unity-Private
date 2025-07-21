@@ -21,7 +21,8 @@ namespace VE2.NonCore.Platform.Internal
     }
 
     [ExecuteInEditMode]
-    internal class V_PlatformIntegration : MonoBehaviour, IPlatformProvider 
+    [DisallowMultipleComponent]
+    internal class V_PlatformIntegration : MonoBehaviour, IPlatformProvider
     {
         [SerializeField, IgnoreParent] private PlatformServiceConfig _config = new();
 
@@ -41,8 +42,9 @@ namespace VE2.NonCore.Platform.Internal
 
         #region Provider Interfaces
         private IPlatformServiceInternal _platformService;
-        IPlatformService IPlatformProvider.PlatformService { 
-            get 
+        IPlatformService IPlatformProvider.PlatformService
+        {
+            get
             {
                 if (_platformService == null)
                     OnEnable();

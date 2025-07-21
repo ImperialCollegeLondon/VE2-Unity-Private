@@ -6,6 +6,7 @@ using VE2.Common.API;
 using VE2.Common.Shared;
 using static VE2.Common.Shared.CommonSerializables;
 using VE2.Core.VComponents.Shared;
+using VE2.Core.Player.API;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -53,12 +54,12 @@ namespace VE2.Core.VComponents.Internal
 
         public FreeGrabbableService(List<IHandheldInteractionModule> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id,
             IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer,
-            IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants, IGrabbableRigidbody grabbableRigidbodyInterface, IClientIDWrapper localClientIdWrapper)
+            IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants, IGrabbableRigidbody grabbableRigidbodyInterface, IClientIDWrapper localClientIdWrapper, IColliderWrapper colliderWrapper)
         {
             _config = config;
 
-            _RangedGrabInteractionModule = new(id, grabInteractablesContainer, handheldInteractions, config.RangedFreeGrabInteractionConfig, config.GeneralInteractionConfig);
-            _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, interactorContainer, localClientIdWrapper);
+            _RangedGrabInteractionModule = new(id, grabInteractablesContainer, handheldInteractions, config.RangedFreeGrabInteractionConfig, config.GeneralInteractionConfig, colliderWrapper);
+            _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, grabInteractablesContainer, interactorContainer, localClientIdWrapper);
 
             _rigidbody = rigidbody;
             _physicsConstants = physicsConstants;
@@ -71,6 +72,7 @@ namespace VE2.Core.VComponents.Internal
 
             _StateModule.OnGrabConfirmed += HandleGrabConfirmed;
             _StateModule.OnDropConfirmed += HandleDropConfirmed;
+            _StateModule.OnRequestTeleportRigidbody += HandleTeleportRigidbody;
         }
 
         //This is for teleporting the grabbed object along with the player - TODO: Tweak names for clarity 
@@ -122,6 +124,11 @@ namespace VE2.Core.VComponents.Internal
             {
                 _rigidbody.isKinematic = _isKinematicOnGrab;
             }
+        }
+
+        private void HandleTeleportRigidbody(Vector3 position)
+        {
+            _rigidbody.position = position;
         }
 
         public void HandleFixedUpdate()

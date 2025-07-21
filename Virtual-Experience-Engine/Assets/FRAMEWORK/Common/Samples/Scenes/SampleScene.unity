@@ -225,7 +225,7 @@ GameObject:
   - component: {fileID: 23840099}
   - component: {fileID: 23840098}
   - component: {fileID: 23840097}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: PushButtonGrouped1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1165,7 +1165,7 @@ GameObject:
   - component: {fileID: 63489046}
   - component: {fileID: 63489045}
   - component: {fileID: 63489044}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2508,7 +2508,7 @@ GameObject:
   - component: {fileID: 211890558}
   - component: {fileID: 211890557}
   - component: {fileID: 211890559}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: HandDecal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2621,7 +2621,7 @@ GameObject:
   - component: {fileID: 226527652}
   - component: {fileID: 226527651}
   - component: {fileID: 226527653}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: HandDecal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4519,7 +4519,7 @@ GameObject:
   - component: {fileID: 412665953}
   - component: {fileID: 412665952}
   - component: {fileID: 412665951}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: HandButtonPad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5531,7 +5531,7 @@ GameObject:
   - component: {fileID: 539028772}
   - component: {fileID: 539028771}
   - component: {fileID: 539028770}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: PushButtonGrouped3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7002,7 +7002,7 @@ GameObject:
   - component: {fileID: 618853151}
   - component: {fileID: 618853150}
   - component: {fileID: 618853152}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: HandButtonPad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7865,7 +7865,7 @@ GameObject:
   - component: {fileID: 728370818}
   - component: {fileID: 728370817}
   - component: {fileID: 728370816}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: HandButtonPad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8130,7 +8130,7 @@ GameObject:
   - component: {fileID: 756509174}
   - component: {fileID: 756509176}
   - component: {fileID: 756509175}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: PushButtonToggle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8652,7 +8652,7 @@ GameObject:
   - component: {fileID: 758950305}
   - component: {fileID: 758950304}
   - component: {fileID: 758950303}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10204,55 +10204,6 @@ MonoBehaviour:
   m_PointerBehavior: 0
   m_CursorLockBehavior: 0
   m_ScrollDeltaPerTick: 6
---- !u!1 &878036152
-GameObject:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 878036154}
-  - component: {fileID: 878036153}
-  m_Layer: 0
-  m_Name: VE2APISampleScene
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &878036153
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 878036152}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 42c71687d1b78b848b78a9a33d60f5dc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _preferVRMode: 0
-  _localClientIdWrapper:
-    _ClientID: 65535
-  _uiProviderGOName: 
-  platformProviderGOName: PlatformIntegration
---- !u!4 &878036154
-Transform:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 878036152}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &889208497
 GameObject:
   m_ObjectHideFlags: 0
@@ -11396,7 +11347,7 @@ GameObject:
   - component: {fileID: 950575026}
   - component: {fileID: 950575025}
   - component: {fileID: 950575024}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12228,7 +12179,7 @@ GameObject:
   - component: {fileID: 1064730503}
   - component: {fileID: 1064730502}
   - component: {fileID: 1064730501}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: PushButtonGrouped2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13551,7 +13502,7 @@ GameObject:
   - component: {fileID: 1168230250}
   - component: {fileID: 1168230249}
   - component: {fileID: 1168230251}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: HandDecal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14922,7 +14873,7 @@ GameObject:
   - component: {fileID: 1366212375}
   - component: {fileID: 1366212374}
   - component: {fileID: 1366212373}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: HandButtonPad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -15470,7 +15421,7 @@ GameObject:
   - component: {fileID: 1421719645}
   - component: {fileID: 1421719644}
   - component: {fileID: 1421719646}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: HandDecal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16849,7 +16800,7 @@ GameObject:
   - component: {fileID: 1622514583}
   - component: {fileID: 1622514582}
   - component: {fileID: 1622514581}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: HandButtonPad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -18435,7 +18386,7 @@ GameObject:
   - component: {fileID: 1755558202}
   - component: {fileID: 1755558201}
   - component: {fileID: 1755558203}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: HandDecal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -18917,7 +18868,7 @@ GameObject:
   - component: {fileID: 1846455101}
   - component: {fileID: 1846455100}
   - component: {fileID: 1846455099}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19198,6 +19149,55 @@ Transform:
   - {fileID: 871318919}
   - {fileID: 543450652039882906}
   m_Father: {fileID: 601354898}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1880152095
+GameObject:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1880152097}
+  - component: {fileID: 1880152096}
+  m_Layer: 0
+  m_Name: VE2APISampleScene
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1880152096
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1880152095}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42c71687d1b78b848b78a9a33d60f5dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _preferVRMode: 0
+  _localClientIdWrapper:
+    _ClientID: 65535
+  _uiProviderGOName: 
+  platformProviderGOName: PlatformIntegration
+--- !u!4 &1880152097
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1880152095}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1891020289
 GameObject:
@@ -19499,14 +19499,14 @@ MonoBehaviour:
     PlayerInteractionConfig:
       InteractableLayers:
         serializedVersion: 2
-        m_Bits: 131049
+        m_Bits: 524073
     MovementModeConfig:
       TraversableLayers:
         serializedVersion: 2
         m_Bits: 8
       CollisionLayers:
         serializedVersion: 2
-        m_Bits: 130945
+        m_Bits: 524041
       FreeFlyMode: 0
       TeleportRangeMultiplier: 1
       OnTeleport:
@@ -19533,7 +19533,7 @@ MonoBehaviour:
       FarClippingPlane: 1000
       CullingMask:
         serializedVersion: 2
-        m_Bits: 4294967295
+        m_Bits: 524159
       AntiAliasing: 1
       AntiAliasingQuality: 1
       EnablePostProcessing: 1
@@ -19541,23 +19541,37 @@ MonoBehaviour:
       OnResetViewVR:
         m_PersistentCalls:
           m_Calls: []
-    AvatarAppearanceOverrideConfig:
-      OverrideHead: 0
-      HeadOverrideIndex: 0
-      HeadOverrideGameObjects: []
-      OverrideTorso: 0
-      TorsoOverrideIndex: 0
-      TorsoOverrideGameObjects: []
+    PluginAvatarSelections:
+      HeadGameObjectSelection:
+        BuiltInGameObjectEnabled: 1
+        CustomGameObjectEnabled: 0
+        CustomGameObjectIndex: 0
+      TorsoGameObjectSelection:
+        BuiltInGameObjectEnabled: 1
+        CustomGameObjectEnabled: 0
+        CustomGameObjectIndex: 0
+      RightHandVRGameObjectSelection:
+        BuiltInGameObjectEnabled: 1
+        CustomGameObjectEnabled: 0
+        CustomGameObjectIndex: 0
+      LeftHandVRGameObjectSelection:
+        BuiltInGameObjectEnabled: 1
+        CustomGameObjectEnabled: 0
+        CustomGameObjectIndex: 0
+    PluginCustomAvatarPrefabs:
+      Heads: []
+      Torsos: []
+      VRHands: []
     RepeatedTransmissionConfig:
       TransmissionFrequency: 20
       TransmissionType: 0
-  _defaultPlayerPresentationConfig:
-    PlayerName: DebugName
-    AvatarHeadType: 0
-    AvatarTorsoType: 0
-    AvatarRed: 255
-    AvatarGreen: 0
-    AvatarBlue: 0
+  _defaultBuiltInAvatarConfig:
+    PlayerName: Unknown
+    AvatarHeadIndex: 0
+    AvatarTorsoIndex: 0
+    AvatarColorR: 0
+    AvatarColorG: 0
+    AvatarColorB: 0
   _transformDataSetup: 0
   _playerTransformData:
     IsVRMode: 0
@@ -21960,7 +21974,7 @@ GameObject:
   - component: {fileID: 2137345506}
   - component: {fileID: 2137345505}
   - component: {fileID: 2137345504}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: PushButtonHold
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -23013,7 +23027,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0.6887409, y: -0.16011257, z: -0.16011254, w: 0.68874085}
   m_LocalPosition: {x: 0, y: 0.853, z: 0}
-  m_LocalScale: {x: 85.05058, y: 85.05057, z: 85.05055}
+  m_LocalScale: {x: 85.05058, y: 85.05058, z: 85.05058}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 738647864}
@@ -28166,6 +28180,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _tweenTime: 0.4
   _tweenEase: 4
+  _canvasGroup: {fileID: 0}
 --- !u!65 &7461879187398791955
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -29969,7 +29984,7 @@ MonoBehaviour:
       IncrementPerScrollTick: 0.1
     RotationalAdjustableServiceConfig:
       AdjustmentAxis: 0
-      AdjustmentType: 1
+      AdjustmentType: 0
       NumberOfDiscreteValues: 3
       MinimumSpatialValue: -47.687
       MaximumSpatialValue: 47.687
@@ -30158,4 +30173,4 @@ SceneRoots:
   - {fileID: 1979020586}
   - {fileID: 1990765011}
   - {fileID: 9027138968998213357}
-  - {fileID: 878036154}
+  - {fileID: 1880152097}

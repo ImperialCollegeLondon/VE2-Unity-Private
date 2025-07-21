@@ -38,15 +38,21 @@ namespace VE2.Common.API
         {
             if (!Application.isPlaying)
             {
-                if (FindObjectsByType<VE2API>(FindObjectsSortMode.None).Length > 1)
+                VE2API[] apis = FindObjectsByType<VE2API>(FindObjectsSortMode.None);
+                if (apis.Length > 1)
                 {
-                    Debug.LogError("There should only be one VE2API in the scene");
-                    Destroy(gameObject);
+                    Debug.LogError("Multiple VE2API instances found in the scene. Only one instance is allowed.");
+                    // foreach (VE2API api in apis)
+                    // {
+                    //     Debug.LogWarning("Found API on " + api.gameObject.name + ", is this? " + (api == this));
+                    // }
+                    //Debug.LogError("There should only be one VE2API in the scene");
+                    DestroyImmediate(gameObject);
                 }
 
                 _instance = this;
                 gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
-                //gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
+               // gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
             }
             else
             {
@@ -90,7 +96,7 @@ namespace VE2.Common.API
         public static bool PreferVRMode { get => Instance._preferVRMode; set => Instance._preferVRMode = value; }
 
         //ID value will be assigned at runtime, ushort.MaxValue is used to indicate that the ID is not set yet
-        [SerializeField, HideInInspector] private LocalClientIDWrapper _localClientIdWrapper = new(ushort.MaxValue);
+        [SerializeField] private LocalClientIDWrapper _localClientIdWrapper = new(ushort.MaxValue);
         public static ILocalClientIDWrapper LocalClientIdWrapper => Instance._localClientIdWrapper;
 
         #endregion

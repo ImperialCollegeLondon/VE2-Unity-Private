@@ -13,9 +13,9 @@ namespace VE2.Core.Player.Internal
     internal static class VE2PlayerServiceFactory
     {
         internal static PlayerService Create(PlayerTransformData state, PlayerConfig config, IPlayerPersistentDataHandler playerPersistentDataHandler, 
-            IXRManagerWrapper xrManagerWrapper, IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IXRHapticsWrapper xRHapticsWrapperLeft, IXRHapticsWrapper xRHapticsWrapperRight)
+            IXRManagerWrapper xrManagerWrapper, IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IXRHapticsWrapper xRHapticsWrapperLeft, IXRHapticsWrapper xRHapticsWrapperRight, ITransformWrapper playerSpawnTransform)
         {
-            return new PlayerService(state, config, 
+            return new PlayerService(state, config,
                 VE2API.InteractorContainer,
                 playerPersistentDataHandler,
                 VE2API.LocalClientIdWrapper,
@@ -29,41 +29,14 @@ namespace VE2.Core.Player.Internal
                 primaryUIService,
                 secondaryUIService,
                 xRHapticsWrapperLeft,
-                xRHapticsWrapperRight); //TODO: reorder these?
+                xRHapticsWrapperRight,
+                playerSpawnTransform); //TODO: reorder these?
         }
     }
 
     internal class PlayerService : IPlayerService, IPlayerServiceInternal
     {
-        #region Interfaces  
-        public PlayerTransformData PlayerTransformData {get; private set;}
-
-        public event Action<OverridableAvatarAppearance> OnOverridableAvatarAppearanceChanged;
-
-        public void MarkPlayerSettingsUpdated() 
-        {
-            _playerSettingsHandler.MarkAppearanceChanged();
-            //OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
-        }
-
-        public OverridableAvatarAppearance OverridableAvatarAppearance { 
-            get 
-            {
-                return new OverridableAvatarAppearance(
-                    _playerSettingsHandler.PlayerPresentationConfig,
-                    _config.AvatarAppearanceOverrideConfig.OverrideHead,
-                    _config.AvatarAppearanceOverrideConfig.HeadOverrideIndex, 
-                    _config.AvatarAppearanceOverrideConfig.OverrideTorso,
-                    _config.AvatarAppearanceOverrideConfig.TorsoOverrideIndex);
-            } 
-        }
-
-
-        public bool RememberPlayerSettings { get => _playerSettingsHandler.RememberPlayerSettings; set => _playerSettingsHandler.RememberPlayerSettings = value; }
-
-        public TransmissionProtocol TransmissionProtocol => _config.RepeatedTransmissionConfig.TransmissionType;
-        public float TransmissionFrequency => _config.RepeatedTransmissionConfig.TransmissionFrequency;
-
+        #region Plugin Interfaces  
         public bool IsVRMode => PlayerTransformData.IsVRMode;
         public UnityEvent OnChangeToVRMode => _config.PlayerModeConfig.OnChangeToVRMode;
         public UnityEvent OnChangeTo2DMode => _config.PlayerModeConfig.OnChangeTo2DMode;
@@ -71,47 +44,105 @@ namespace VE2.Core.Player.Internal
         public UnityEvent OnSnapTurn => _config.MovementModeConfig.OnSnapTurn;
         public UnityEvent OnHorizontalDrag => _config.MovementModeConfig.OnHorizontalDrag;
         public UnityEvent OnVerticalDrag => _config.MovementModeConfig.OnVerticalDrag;
+        //public UnityEvent OnFreeFlyModeEnter => _config.MovementModeConfig.OnFreeFlyModeEnter;
+        //public UnityEvent OnFreeFlyModeExit => _config.MovementModeConfig.OnFreeFlyModeExit;
         public UnityEvent OnJump2D => _config.MovementModeConfig.OnJump2D;
         public UnityEvent OnCrouch2D => _config.MovementModeConfig.OnCrouch2D;
+        //public UnityEvent OnFreeFlyModeEnter2D => _config.MovementModeConfig.OnFreeFlyModeEnter2D;
+        //public UnityEvent OnFreeFlyModeExit2D => _config.MovementModeConfig.OnFreeFlyModeExit2D;
         public UnityEvent OnResetViewVR => _config.CameraConfig.OnResetViewVR;
 
-        public List<GameObject> HeadOverrideGOs => _config.AvatarAppearanceOverrideConfig.HeadOverrideGameObjects;
-        public List<GameObject> TorsoOverrideGOs => _config.AvatarAppearanceOverrideConfig.TorsoOverrideGameObjects;
-
-        public Camera ActiveCamera 
+        public Camera ActiveCamera
         {
-            get 
+            get
             {
                 if (PlayerTransformData.IsVRMode)
                     return _playerVR.Camera;
-                else 
+                else
                     return _player2D.Camera;
             }
         }
 
-        public void SetAvatarHeadOverride(ushort index) 
+        public Vector3 PlayerSpawnPoint => _playerSpawnTransform.position;
+
+        
+        public void SetBuiltInHeadEnabled(bool isEnabled)
         {
-            _config.AvatarAppearanceOverrideConfig.OverrideHead = true;
-            _config.AvatarAppearanceOverrideConfig.HeadOverrideIndex = index;
-            OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
-        }
-            
-        public void SetAvatarTorsoOverride(ushort index) 
-        {
-            _config.AvatarAppearanceOverrideConfig.OverrideTorso = true;
-            _config.AvatarAppearanceOverrideConfig.TorsoOverrideIndex = index;
-            OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
+            _config.PluginAvatarSelections.HeadGameObjectSelection.BuiltInGameObjectEnabled = isEnabled;
+            MarkPlayerAvatarChanged();
         }
 
-        public void ClearAvatarHeadOverride() 
+        public void SetCustomHeadEnabled(bool isEnabled)
         {
-            _config.AvatarAppearanceOverrideConfig.OverrideHead = false;
-            OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
+            _config.PluginAvatarSelections.HeadGameObjectSelection.CustomGameObjectEnabled = isEnabled;
+            MarkPlayerAvatarChanged();
         }
-        public void ClearAvatarTorsoOverride()
+
+        public void SetCustomHeadIndex(ushort type)
         {
-            _config.AvatarAppearanceOverrideConfig.OverrideTorso = false;
-            OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
+            _config.PluginAvatarSelections.HeadGameObjectSelection.CustomGameObjectIndex = type;
+            MarkPlayerAvatarChanged();
+        }
+
+        public void SetBuiltInTorsoEnabled(bool isEnabled)
+        {
+            _config.PluginAvatarSelections.TorsoGameObjectSelection.BuiltInGameObjectEnabled = isEnabled;
+            MarkPlayerAvatarChanged();
+        }
+
+        public void SetCustomTorsoEnabled(bool isEnabled)
+        {
+            _config.PluginAvatarSelections.TorsoGameObjectSelection.CustomGameObjectEnabled = isEnabled;
+            MarkPlayerAvatarChanged();
+        }
+
+        public void SetCustomTorsoIndex(ushort type)
+        {
+            _config.PluginAvatarSelections.TorsoGameObjectSelection.CustomGameObjectIndex = type;
+            MarkPlayerAvatarChanged();
+        }
+
+        public void SetBuiltInRightHandVREnabled(bool isEnabled)
+        {
+            _config.PluginAvatarSelections.RightHandVRGameObjectSelection.BuiltInGameObjectEnabled = isEnabled;
+            MarkPlayerAvatarChanged();
+        }
+
+        public void SetCustomRightHandVREnabled(bool isEnabled)
+        {
+            _config.PluginAvatarSelections.RightHandVRGameObjectSelection.CustomGameObjectEnabled = isEnabled;
+            MarkPlayerAvatarChanged();
+        }
+
+        public void SetCustomRightHandVRIndex(ushort type)
+        {
+            _config.PluginAvatarSelections.RightHandVRGameObjectSelection.CustomGameObjectIndex = type;
+            MarkPlayerAvatarChanged();
+        }
+
+        public void SetBuiltInLeftHandVREnabled(bool isEnabled)
+        {
+            _config.PluginAvatarSelections.LeftHandVRGameObjectSelection.BuiltInGameObjectEnabled = isEnabled;
+            MarkPlayerAvatarChanged();
+        }
+
+        public void SetCustomLeftHandVREnabled(bool isEnabled)
+        {
+            _config.PluginAvatarSelections.LeftHandVRGameObjectSelection.CustomGameObjectEnabled = isEnabled;
+            MarkPlayerAvatarChanged();
+        }
+
+        public void SetCustomLeftHandVRIndex(ushort type)
+        {
+            _config.PluginAvatarSelections.LeftHandVRGameObjectSelection.CustomGameObjectIndex = type;
+            MarkPlayerAvatarChanged();
+        }
+
+        private void MarkPlayerAvatarChanged()
+        {
+            _playerSettingsHandler.SaveAppearance();
+            _activeAvatarHandler.UpdateInstancedAvatarAppearance(InstancedAvatarAppearance);
+            OnInstancedAvatarAppearanceChanged?.Invoke(InstancedAvatarAppearance);
         }
 
         public Vector3 PlayerPosition => PlayerTransformData.IsVRMode ? _playerVR.PlayerPosition : _player2D.PlayerPosition;
@@ -132,25 +163,65 @@ namespace VE2.Core.Player.Internal
             else
                 _player2D.SetPlayerRotation(rotation);
         }
-        
+        public void ToggleFreeFlyMode(bool toggle) => _config.MovementModeConfig.FreeFlyMode = toggle;
+        #endregion
+
+        #region Internal Interface
+
+        public PlayerTransformData PlayerTransformData {get; private set;}
+
+        public event Action<InstancedAvatarAppearance> OnInstancedAvatarAppearanceChanged;
+        public InstancedAvatarAppearance InstancedAvatarAppearance => new(_playerSettingsHandler.BuiltInPlayerGameObjectConfig, _config.PluginAvatarSelections);
+
+        public bool RememberPlayerSettings { get => _playerSettingsHandler.RememberPlayerSettings; set => _playerSettingsHandler.RememberPlayerSettings = value; }
+
+        public TransmissionProtocol TransmissionProtocol => _config.RepeatedTransmissionConfig.TransmissionType;
+        public float TransmissionFrequency => _config.RepeatedTransmissionConfig.TransmissionFrequency;
+
+        public void SetBuiltInHeadIndex(ushort type)
+        {
+            _playerSettingsHandler.BuiltInPlayerGameObjectConfig.AvatarHeadIndex = type;
+            MarkPlayerAvatarChanged();
+        }
+
+        public void SetBuiltInTorsoIndex(ushort type)
+        {
+            _playerSettingsHandler.BuiltInPlayerGameObjectConfig.AvatarTorsoIndex = type;
+            MarkPlayerAvatarChanged();
+        }
+
+        public void SetBuiltInColor(Color color)
+        {
+            _playerSettingsHandler.BuiltInPlayerGameObjectConfig.AvatarColor = color;
+            MarkPlayerAvatarChanged();
+        }
+
+        public AvatarPrefabs BuiltInGameObjectPrefabs { get; private set; }
+        public AvatarPrefabs CustomGameObjectPrefabs => _config.PluginCustomAvatarPrefabs;
+
         public AndroidJavaObject AddArgsToIntent(AndroidJavaObject intent) => _playerSettingsHandler.AddArgsToIntent(intent);
 
         public void AddPanelTo2DOverlayUI(RectTransform rect) => _player2D.MoveRectToOverlayUI(rect);
+
+        public Collider CharacterCollider2D => _player2D != null? _player2D.CharacterCollider : null;
         #endregion
 
         private readonly PlayerConfig _config;
         private readonly PlayerController2D _player2D;
         private readonly PlayerControllerVR _playerVR;
 
+        private PlayerAvatarHandler _activeAvatarHandler => PlayerTransformData.IsVRMode ? _playerVR.AvatarHandler : _player2D.AvatarHandler;
+
         private readonly PlayerInputContainer _playerInputContainer;
         private readonly IPlayerPersistentDataHandler _playerSettingsHandler;
         private readonly ILocalPlayerSyncableContainer _playerSyncContainer;
         private readonly IPrimaryUIServiceInternal _primaryUIService;
+        private readonly ITransformWrapper _playerSpawnTransform;
 
         internal PlayerService(PlayerTransformData transformData, PlayerConfig config, HandInteractorContainer interactorContainer, IPlayerPersistentDataHandler playerSettingsHandler, 
             ILocalClientIDWrapper localClientIDWrapper, ILocalAdminIndicator localAdminIndicator, ILocalPlayerSyncableContainer playerSyncContainer, IGrabInteractablesContainer grabInteractablesContainer, 
             PlayerInputContainer playerInputContainer, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, IXRManagerWrapper xrManagerWrapper, 
-            IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IXRHapticsWrapper xRHapticsWrapperLeft, IXRHapticsWrapper xRHapticsWrapperRight)
+            IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IXRHapticsWrapper xRHapticsWrapperLeft, IXRHapticsWrapper xRHapticsWrapperRight, ITransformWrapper playerSpawnTransform)
         {
             PlayerTransformData = transformData;
             _config = config;
@@ -158,8 +229,30 @@ namespace VE2.Core.Player.Internal
             _playerInputContainer = playerInputContainer;
             _playerSettingsHandler = playerSettingsHandler;
 
+            List<GameObject> builtInHeadGameObjectPrefabs = new List<GameObject>()
+            {
+                Resources.Load<GameObject>("Avatars/Heads/V_Avatar_Head_Default_1"),
+                Resources.Load<GameObject>("Avatars/Heads/V_Avatar_Head_Default_2"),
+            };
+
+            List<GameObject> builtInTorsoGameObjectPrefabs = new List<GameObject>()
+            {
+                Resources.Load<GameObject>("Avatars/Torsos/V_Avatar_Torso_Default_1"),
+                Resources.Load<GameObject>("Avatars/Torsos/V_Avatar_Torso_Default_2")
+            };
+
+            List<GameObject> builtInHandVRGameObjectPrefabs = new List<GameObject>()
+            {
+                Resources.Load<GameObject>("Avatars/VRHands/V_Avatar_VRLeftHand_Default_1"),
+            };
+
+            BuiltInGameObjectPrefabs = new(builtInHeadGameObjectPrefabs, builtInTorsoGameObjectPrefabs, builtInHandVRGameObjectPrefabs);
+            AvatarHandlerBuilderContext avatarHandlerBuilderContext = new(BuiltInGameObjectPrefabs, config.PluginCustomAvatarPrefabs, InstancedAvatarAppearance);
+
             _playerSyncContainer = playerSyncContainer;
             _playerSyncContainer.RegisterLocalPlayer(this);
+
+            _playerSpawnTransform = playerSpawnTransform;
 
             if (_config.PlayerModeConfig.EnableVR)
             {
@@ -167,7 +260,7 @@ namespace VE2.Core.Player.Internal
 
                 _playerVR = new PlayerControllerVR(
                     interactorContainer, grabInteractablesContainer, _playerInputContainer.PlayerVRInputContainer,
-                    playerSettingsHandler, new PlayerVRControlConfig(), _config.PlayerInteractionConfig, _config.MovementModeConfig, _config.CameraConfig,
+                    playerSettingsHandler, avatarHandlerBuilderContext, new PlayerVRControlConfig(), _config.PlayerInteractionConfig, _config.MovementModeConfig, _config.CameraConfig,
                     raycastProvider, collisionDetectorFactory, xrManagerWrapper, localClientIDWrapper, localAdminIndicator, primaryUIService, secondaryUIService, xRHapticsWrapperLeft, xRHapticsWrapperRight);
             }
 
@@ -175,12 +268,9 @@ namespace VE2.Core.Player.Internal
             {
                 _player2D = new PlayerController2D(
                     interactorContainer, grabInteractablesContainer, _playerInputContainer.Player2DInputContainer,
-                    playerSettingsHandler, new Player2DControlConfig(), _config.PlayerInteractionConfig, _config.MovementModeConfig, _config.CameraConfig,
+                    playerSettingsHandler, avatarHandlerBuilderContext, new Player2DControlConfig(), _config.PlayerInteractionConfig, _config.MovementModeConfig, _config.CameraConfig,
                     raycastProvider, collisionDetectorFactory, localClientIDWrapper, localAdminIndicator, primaryUIService, secondaryUIService, this);
             }
-
-            _playerSettingsHandler.OnDebugSaveAppearance += HandlePlayerPresentationChanged;
-            HandlePlayerPresentationChanged(_playerSettingsHandler.PlayerPresentationConfig); //Do this now to set the initial appearance
 
             if (_config.PlayerModeConfig.EnableVR && !_config.PlayerModeConfig.Enable2D)
                 PlayerTransformData.IsVRMode = true;
@@ -274,21 +364,6 @@ namespace VE2.Core.Player.Internal
             {
                 Debug.LogError("Error emitting OnChangeToVRMode or OnChangeTo2DMode: " + e.Message + " - " + e.StackTrace);
             }
-        }
-
-        private void HandlePlayerPresentationChanged(PlayerPresentationConfig presentationConfig)
-        {
-            OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
-
-            Color newCol = new Color(
-                presentationConfig.AvatarRed,
-                presentationConfig.AvatarGreen,
-                presentationConfig.AvatarBlue) / 255f;
-
-            //TODO - should the individual player controllers be in charge of this? 
-            //We need to emit the event just from a single place, though
-            _playerVR?.HandleLocalAvatarColorChanged(newCol);
-            _player2D?.HandleReceiveAvatarAppearance(OverridableAvatarAppearance);
         }
 
         public void HandleFixedUpdate()

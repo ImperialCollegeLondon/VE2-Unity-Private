@@ -17,7 +17,7 @@ namespace VE2.Core.VComponents.Internal
 {
     public class V_VirtualKeyboardSpawner : MonoBehaviour
     {
-        [SerializeField, HideLabel]
+        [SerializeField, HideLabel, IgnoreParent]
         KeyboardConfig keyboardConfig;
 
         [Range(0f, 1.0f)]

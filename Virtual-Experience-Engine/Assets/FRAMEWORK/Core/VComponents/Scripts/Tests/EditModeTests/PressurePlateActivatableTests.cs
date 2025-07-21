@@ -34,6 +34,7 @@ namespace VE2.Core.VComponents.Tests
     internal partial class V_PressurePlateActivatableStub : ICollideInteractionModuleProvider
     {
         #region Player Interfaces
+        int ICollideInteractionModuleProvider.Layer => CommonUtils.DefaultLayer;
         ICollideInteractionModule ICollideInteractionModuleProvider.CollideInteractionModule => _Service.ColliderInteractionModule;
         #endregion
 

@@ -56,10 +56,11 @@ namespace VE2.Core.VComponents.Internal
             CommonUtils.InstantiateResource("GrabbableShooter");
         }
 
-        [MenuItem("/GameObject/VE2/Interactables/VirtualKeyboardSpawner", priority = 6)]
-        private static void CreateVirtualKeyboardSpawner()
+        [MenuItem("/GameObject/VE2/Interactables/LaserPointer", priority = 7)]
+        private static void CreateLaserPointer()
         {
-            CommonUtils.InstantiateResource("VirtualKeyboardSpawner");
+            CommonUtils.InstantiateResource("LaserPointer");
+
         }
 
         [MenuItem("/GameObject/VE2/UIs/CustomInfoPoint", priority = 6)]
@@ -72,6 +73,12 @@ namespace VE2.Core.VComponents.Internal
 
             GameObject canvas = infoPoint.GetComponentInChildren<InfoPointCanvasAnimationHandler>().gameObject;
             canvas.name = $"{infoPoint.name}_Canvas"; //May as well do the same to the canvas, for consistency
+        }
+
+        [MenuItem("/GameObject/VE2/UIs/VirtualKeyboardSpawner", priority = 7)]
+        private static void CreateVirtualKeyboardSpawner()
+        {
+            CommonUtils.InstantiateResource("VirtualKeyboardSpawner");
         }
 
         [MenuItem("/GameObject/VE2/Models/TableA", priority = 0)]

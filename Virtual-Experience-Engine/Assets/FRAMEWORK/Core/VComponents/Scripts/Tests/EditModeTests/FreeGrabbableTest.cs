@@ -36,7 +36,8 @@ namespace VE2.Core.VComponents.Tests
                 Substitute.For<IRigidbodyWrapper>(), 
                 new PhysicsConstants(),
                 new V_FreeGrabbable(),
-                Substitute.For<IClientIDWrapper>());
+                Substitute.For<IClientIDWrapper>(),
+                Substitute.For<IColliderWrapper>());
 
             //Stub out the VC (integration layer) with the grabbable
             V_FreeGrabbableProviderStub v_freeGrabbableStub = new(freeGrabbable);
@@ -82,6 +83,14 @@ namespace VE2.Core.VComponents.Tests
 
         public bool IsGrabbed { get { return _StateModule.IsGrabbed; } }
         public IClientIDWrapper MostRecentInteractingClientID => _StateModule.MostRecentInteractingClientID;
+
+        public bool TryLocalGrab(bool lockGrab, VRHandInteractorType priorityHandToGrabWith) => _StateModule.TryLocalGrab(lockGrab, priorityHandToGrabWith);
+
+        public void ForceLocalGrab(bool lockGrab, VRHandInteractorType handToGrabWith) => _StateModule.ForceLocalGrab(lockGrab, handToGrabWith);
+
+        public void UnlockLocalGrab() => _StateModule.UnlockLocalGrab();
+
+        public void ForceLocalDrop() => _StateModule.ForceLocalDrop();
         #endregion
 
         #region Ranged Interaction Module Interface
@@ -95,6 +104,7 @@ namespace VE2.Core.VComponents.Tests
         public bool EnableControllerVibrations { get => _RangedGrabModule.EnableControllerVibrations; set => _RangedGrabModule.EnableControllerVibrations = value; }
         public bool ShowTooltipsAndHighlight { get => _RangedGrabModule.ShowTooltipsAndHighlight; set => _RangedGrabModule.ShowTooltipsAndHighlight = value; }
         public bool IsInteractable { get => _RangedGrabModule.IsInteractable; set => _RangedGrabModule.IsInteractable = value; }
+
         #endregion
     }
 

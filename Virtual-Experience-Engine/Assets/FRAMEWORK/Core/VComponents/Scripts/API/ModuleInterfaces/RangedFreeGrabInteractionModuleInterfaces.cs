@@ -14,6 +14,8 @@ namespace VE2.Core.VComponents.API
         public void NotifyInspectModeEnter();
         public void SetInspectModeExit();
         public void ApplyDeltaWhenGrabbed(Vector3 deltaPostion, Quaternion deltaRotation);
+
+        public IColliderWrapper ColliderWrapper { get; }
     }
 
 }

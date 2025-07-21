@@ -14,7 +14,6 @@ namespace VE2.Core.VComponents.Internal
 
         private Tween _animationTween;
         private Vector3 _originalCanvasScale;
-        
 
         private void Awake()
         {
@@ -32,6 +31,8 @@ namespace VE2.Core.VComponents.Internal
         {
             Vector3 canvasStartScale = gameObject.transform.localScale;
             Vector3 canvasTargetScale = canvasActive ? _originalCanvasScale : Vector3.zero;
+
+            CanvasGroup _canvasGroup = GetComponent<CanvasGroup>();
 
             float canvasStartAlpha = _canvasGroup.alpha;
             float canvasTargetAlpha = canvasActive ? 1f : 0f;

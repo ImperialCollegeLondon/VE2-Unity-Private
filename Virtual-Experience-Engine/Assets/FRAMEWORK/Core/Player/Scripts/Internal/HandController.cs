@@ -8,10 +8,11 @@ namespace VE2.Core.Player.Internal
 {
     internal class HandController 
     {
-        internal Transform Transform => _handGO.transform;
+        internal Transform Transform => _nonGrabbingHandGO.transform.parent;
+        internal Transform HandVisualHolderTransform => _nonGrabbingHandGO.transform;
         internal IReadOnlyList<string> HeldActivatableIDs => _interactor.HeldNetworkedActivatableIDs;
 
-        private readonly GameObject _handGO;
+        private readonly GameObject _nonGrabbingHandGO;
         private readonly IValueInput<Vector3> _positionInput;
         private readonly IValueInput<Quaternion> _rotationInput;
         private readonly InteractorVR _interactor;
@@ -22,12 +23,12 @@ namespace VE2.Core.Player.Internal
 
         private List<Material> _colorMaterials = new();
 
-        public HandController(GameObject handGO, HandVRInputContainer handVRInputContainer, InteractorVR interactor, 
+        public HandController(GameObject nonGrabbingHandTransform, HandVRInputContainer handVRInputContainer, InteractorVR interactor, 
             DragLocomotorController dragLocomotor, SnapTurnController snapTurn, TeleportController teleport, WristUIHandler wristUIHandler)
         {
-            _handGO = handGO;
+            _nonGrabbingHandGO = nonGrabbingHandTransform;
 
-            _colorMaterials = CommonUtils.GetAvatarColorMaterialsForGameObject(handGO);
+            _colorMaterials = CommonUtils.GetAvatarColorMaterialsForGameObject(nonGrabbingHandTransform);
 
             _positionInput = handVRInputContainer.HandPosition;
             _rotationInput = handVRInputContainer.HandRotation;
@@ -57,26 +58,21 @@ namespace VE2.Core.Player.Internal
 
         public void HandleUpdate()
         {
-            _handGO.transform.localPosition = _positionInput.Value;
-            _handGO.transform.localRotation = _rotationInput.Value;
+            Transform.localPosition = _positionInput.Value;
+            Transform.localRotation = _rotationInput.Value;
 
             //Only show the hand if its actually tracking
-            _handGO.SetActive(_handGO.transform.localPosition != Vector3.zero);
+            
+            _nonGrabbingHandGO.SetActive(Transform.localPosition != Vector3.zero);
 
             //Rotate the hand 90 degrees along its local x axis to match the controller 
-            _handGO.transform.Rotate(Vector3.right, 90, Space.Self);
+            Transform.Rotate(Vector3.right, 90, Space.Self);
 
             _interactor.HandleUpdate();
             _dragLocomotor.HandleUpdate();
             _snapTurn.HandleUpdate();
             _teleport.HandleUpdate();
             _wristUIHandler.HandleUpdate();
-        }
-
-        public void HandleLocalAvatarColorChanged(Color newColor)
-        {
-            foreach (Material material in _colorMaterials)
-                material.color = newColor;
         }
 
         //TODO:
