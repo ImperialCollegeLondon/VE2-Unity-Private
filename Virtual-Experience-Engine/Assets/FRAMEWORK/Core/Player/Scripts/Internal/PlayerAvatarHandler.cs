@@ -27,14 +27,16 @@ namespace VE2.Core.Player.Internal
 
         private readonly int _layerIndex;
         private readonly ushort _clientID;
+        private readonly bool _prefabNeedsMirroring;
 
         public PlayerAvatarGameObjectHandler(Transform holderTransform,
             List<GameObject> builtInGameObjectPrefabs, ushort builtInGameObjectIndex, Color builtInColor,
-            List<GameObject> customGameObjectPrefabs, AvatarGameObjectSelection gameObjectSelection, int layerIndex, ushort clientID)
+            List<GameObject> customGameObjectPrefabs, AvatarGameObjectSelection gameObjectSelection, int layerIndex, ushort clientID, bool prefabNeedsMirroring = false)
         {
             _holderTransform = holderTransform;
             _layerIndex = layerIndex;
             _clientID = clientID;
+            _prefabNeedsMirroring = prefabNeedsMirroring;
 
             _builtInGameObjectPrefabs = builtInGameObjectPrefabs;
             SetBuiltInGameObjectEnabled(gameObjectSelection.BuiltInGameObjectEnabled);
@@ -164,6 +166,10 @@ namespace VE2.Core.Player.Internal
             temp.SetActive(false);
             GameObject newGO = GameObject.Instantiate(prefab, position, rotation, temp.transform);
             SetGameObjectLayerAndName(newGO);
+
+            if (_prefabNeedsMirroring)
+                newGO.transform.localScale = new Vector3(-1, 1, 1);
+
             newGO.transform.SetParent(parentTransform);
 
             if (Application.isPlaying)
@@ -353,7 +359,7 @@ namespace VE2.Core.Player.Internal
                 0,
                 avatarColor,
                 _playerGameObjectPrefabs.VRHands,
-                _avatarAppearance.PlayerGameObjectSelections.RightHandVRGameObjectSelection, handLayer, _clientID);
+                _avatarAppearance.PlayerGameObjectSelections.RightHandVRGameObjectSelection, handLayer, _clientID, true);
 
             HandVRLeftHandler = new PlayerAvatarGameObjectHandler(_handVRLeftHolder,
                 _builtInGameObjectPrefabs.VRHands,
