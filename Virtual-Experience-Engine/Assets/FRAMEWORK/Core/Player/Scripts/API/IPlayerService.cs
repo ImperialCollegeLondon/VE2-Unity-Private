@@ -5,7 +5,7 @@ using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.Core.Player.API
 {
-    public interface IPlayerService 
+    public interface IPlayerService
     {
         public bool IsVRMode { get; }
         public UnityEvent OnChangeToVRMode { get; }
@@ -33,5 +33,7 @@ namespace VE2.Core.Player.API
         public void SetPlayerRotation(Quaternion rotation);
 
         public Vector3 PlayerSpawnPoint { get; }
+
+        public void ToggleFreeFlyMode(bool toggle);
     }
 }

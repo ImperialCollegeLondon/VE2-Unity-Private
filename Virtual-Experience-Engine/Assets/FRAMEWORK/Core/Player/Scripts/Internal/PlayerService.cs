@@ -135,6 +135,8 @@ namespace VE2.Core.Player.Internal
             else
                 _player2D.SetPlayerRotation(rotation);
         }
+
+        public void ToggleFreeFlyMode(bool toggle) => _config.MovementModeConfig.FreeFlyMode = toggle;
         
         public AndroidJavaObject AddArgsToIntent(AndroidJavaObject intent) => _playerSettingsHandler.AddArgsToIntent(intent);
 
