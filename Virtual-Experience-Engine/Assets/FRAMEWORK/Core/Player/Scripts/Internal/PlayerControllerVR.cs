@@ -72,10 +72,6 @@ namespace VE2.Core.Player.Internal
             _primaryUIService = primaryUIService;
             _secondaryUIService = secondaryUIService;
 
-            //How is all this going to work with the VR hands? 
-            //The hands need to be lined up with the ray origin point
-            //Ok, so the visual needs to be separate from the actual transforms in some way
-
             PlayerVRReferences playerVRReferences = _playerGO.GetComponent<PlayerVRReferences>();
             Camera = playerVRReferences.Camera;
             _rootTransform = playerVRReferences.RootTransform;

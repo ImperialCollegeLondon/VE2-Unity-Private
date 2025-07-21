@@ -264,11 +264,6 @@ namespace VE2.Core.Player.Internal
                     raycastProvider, collisionDetectorFactory, localClientIDWrapper, localAdminIndicator, primaryUIService, secondaryUIService, this);
             }
 
-            // _activeAvatarHandler.UpdateInstancedAvatarAppearance(InstancedAvatarAppearance);
-
-            // _playerSettingsHandler.OnDebugSaveAppearance += HandlePlayerPresentationChanged;
-            // HandlePlayerPresentationChanged(_playerSettingsHandler.BuiltInPlayerGameObjectConfig); //Do this now to set the initial appearance
-
             if (_config.PlayerModeConfig.EnableVR && !_config.PlayerModeConfig.Enable2D)
                 PlayerTransformData.IsVRMode = true;
             else if (_config.PlayerModeConfig.Enable2D && !_config.PlayerModeConfig.EnableVR)
@@ -362,21 +357,6 @@ namespace VE2.Core.Player.Internal
                 Debug.LogError("Error emitting OnChangeToVRMode or OnChangeTo2DMode: " + e.Message + " - " + e.StackTrace);
             }
         }
-
-        // private void HandlePlayerPresentationChanged(BuiltInPlayerPresentationConfig presentationConfig)
-        // {
-        //     OnOverridableAvatarAppearanceChanged?.Invoke(OverridableAvatarAppearance);
-
-        //     Color newCol = new Color(
-        //         presentationConfig.AvatarRed,
-        //         presentationConfig.AvatarGreen,
-        //         presentationConfig.AvatarBlue) / 255f;
-
-        //     //TODO - should the individual player controllers be in charge of this? 
-        //     //We need to emit the event just from a single place, though
-        //     _playerVR?.HandleLocalAvatarColorChanged(newCol);
-        //     _player2D?.HandleReceiveAvatarAppearance(OverridableAvatarAppearance);
-        // }
 
         public void HandleFixedUpdate()
         {

@@ -5,15 +5,6 @@ using VE2.Common.Shared;
 using VE2.Core.Player.API;
 using static VE2.Core.Player.API.PlayerSerializables;
 
-//Would be good if this was also used for the local avatar?
-//Local player can be injected with GO list, and the selections config 
-//Player service can be in charge of managing changes to these, calling a "InvokeOnChange" method 
-//AvatarVishandler listens to that, and uses it to configure 
-
-//Mmm, thing is, we don't want to deactivate and reactivate gameobjects when we don't need to be 
-//Even the remote avatar needs to work out what changed, and call the method 
-//Well, that bit can be done from inside RemotePlayerController
-
 namespace VE2.Core.Player.Internal
 {
     //TODO - refactor this to be reusable between built in and custom, should just deal with one or the other

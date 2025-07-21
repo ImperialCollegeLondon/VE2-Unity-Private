@@ -95,7 +95,7 @@ namespace VE2.Core.Player.Internal
     }
 
     [Serializable]
-    internal class CameraConfig 
+    internal class CameraConfig
     {
         [SerializeField] internal float FieldOfView2D = 60f;
         [SerializeField] internal float NearClippingPlane = 0.15f;
@@ -108,35 +108,6 @@ namespace VE2.Core.Player.Internal
         [SerializeField] internal bool OcclusionCulling = true;
         [SerializeField] internal UnityEvent OnResetViewVR = new UnityEvent();
     }
-
-    // [Serializable]
-    // internal class PluginAvatarConfig
-    // {
-    //     public PluginAvatarSelections PluginAvatarSelections => new(
-    //         HeadGameObjectSelection,
-    //         TorsoGameObjectSelection,
-    //         VRHandsGameObjectSelection,
-    //         VRLeftHandsGameObjectSelection
-    //     );
-
-    //     public AvatarPrefabs PluginCustomAvatarPrefabs => new(
-    //         _customHeadPrefabs,
-    //         _customTorsoPrefabs,
-    //         _customRightHandVRPrefabs,
-    //         _customLeftHandVRPrefabs);
-
-    //     [BeginGroup("Head"), SerializeField, IgnoreParent] private AvatarGameObjectSelection HeadGameObjectSelection = new();
-    //     [SerializeField, IgnoreParent, EndGroup] private List<GameObject> _customHeadPrefabs = new();
-
-    //     [BeginGroup("Torso"), SerializeField, IgnoreParent] private AvatarGameObjectSelection TorsoGameObjectSelection = new();
-    //     [SerializeField, IgnoreParent, EndGroup] private List<GameObject> _customTorsoPrefabs = new();
-
-    //     [BeginGroup("VR Right Hand"), SerializeField, IgnoreParent] private AvatarGameObjectSelection VRHandsGameObjectSelection = new();
-    //     [SerializeField, IgnoreParent, EndGroup] private List<GameObject> _customRightHandVRPrefabs = new();
-
-    //     [BeginGroup("VR Left Hand"), SerializeField, IgnoreParent] private AvatarGameObjectSelection VRLeftHandsGameObjectSelection = new();
-    //     [SerializeField, IgnoreParent, EndGroup] private List<GameObject> _customLeftHandVRPrefabs = new();
-    // }
 
     [Serializable]
     internal class PlayerTransmissionConfig 
