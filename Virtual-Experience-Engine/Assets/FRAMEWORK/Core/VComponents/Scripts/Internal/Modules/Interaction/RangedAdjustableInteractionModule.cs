@@ -39,11 +39,18 @@ namespace VE2.Core.VComponents.Internal
         //TODO - parent class exposes this, likely don't need this here
         public ITransformWrapper Transform { get; }
 
+        public ITransformWrapper TransformToPointRayTo { get; }
+
         public RangedAdjustableInteractionModule(string id, IGrabInteractablesContainer grabInteractablesContainer,
-            List<IHandheldInteractionModule> handheldModules, RangedGrabInteractionConfig rangedGrabInteractionConfig, GeneralInteractionConfig generalInteractionConfig)
+            List<IHandheldInteractionModule> handheldModules, RangedGrabInteractionConfig rangedGrabInteractionConfig, GeneralInteractionConfig generalInteractionConfig, ITransformWrapper transformToPointRayTo = null)
                 : base(id, grabInteractablesContainer, handheldModules, rangedGrabInteractionConfig, generalInteractionConfig)
         {
             Transform = rangedGrabInteractionConfig.AttachPointWrapper;
+
+            if(transformToPointRayTo == null)
+                TransformToPointRayTo = Transform;
+            else
+                TransformToPointRayTo = transformToPointRayTo;
         }
 
         public void ScrollUp(ushort clientID) => OnScrollUp?.Invoke(clientID);

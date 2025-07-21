@@ -7,6 +7,8 @@ namespace VE2.Core.VComponents.API
     {
         public ITransformWrapper Transform { get; }
 
+        public ITransformWrapper TransformToPointRayTo { get; }
+
         public void ScrollUp(ushort clientID);
 
         public void ScrollDown(ushort clientID);
