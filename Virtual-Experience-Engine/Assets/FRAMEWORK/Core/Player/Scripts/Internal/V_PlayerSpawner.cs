@@ -227,6 +227,9 @@ namespace VE2.Core.Player.Internal
             XRHapticsWrapper xRHapticsWrapperLeft = new(true);
             XRHapticsWrapper xRHapticsWrapperRight = new(false);
 
+            //Getting PlayerSpawner to serve as spawn point reference
+            TransformWrapper playerTransformWrapper = new(transform);
+
             //May be null if UIs aren't available
             IPrimaryUIServiceInternal primaryUIService = VE2API.PrimaryUIService as IPrimaryUIServiceInternal;
             ISecondaryUIServiceInternal secondaryUIService = VE2API.SecondaryUIService as ISecondaryUIServiceInternal;
@@ -239,7 +242,8 @@ namespace VE2.Core.Player.Internal
                 primaryUIService,
                 secondaryUIService,
                 xRHapticsWrapperLeft,
-                xRHapticsWrapperRight);
+                xRHapticsWrapperRight,
+                playerTransformWrapper);
         }
 
         private void FixedUpdate()

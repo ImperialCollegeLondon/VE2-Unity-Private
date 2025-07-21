@@ -6,21 +6,6 @@ using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.Core.Player.API
 {
-    // public interface IPlayerGameObjectHandler
-    // {
-    //     public void SetBuiltInGameObjectEnabled(bool isEnabled);
-    //     public void SetCustomGameObjectEnabled(bool isEnabled);
-    //     public void SetCustomGameObjectIndex(ushort type);
-    // }
-
-    // public interface IPlayerGameObjectsHandler
-    // {
-    //     public IPlayerGameObjectHandler HeadHandler { get; }
-    //     public IPlayerGameObjectHandler TorsoHandler { get; }
-    //     // public IPlayerGameObjectsHandler HandVRRightHandler { get; }
-    //     // public IPlayerGameObjectsHandler HandVRLeftHandler { get; }
-    // }
-
     public interface IPlayerService
     {
         public bool IsVRMode { get; }
@@ -62,5 +47,9 @@ namespace VE2.Core.Player.API
         public void SetPlayerPosition(Vector3 position);
         public Quaternion PlayerRotation { get; }
         public void SetPlayerRotation(Quaternion rotation);
+
+        public Vector3 PlayerSpawnPoint { get; }
+
+        public void ToggleFreeFlyMode(bool toggle);
     }
 }
