@@ -12,17 +12,19 @@ namespace VE2.Common.Shared
         public static readonly (string name, int index)[] RequiredLayers = new[]
         {
             ("Ground", 3),
-            ("V_Player", 6),
-            ("V_Layer0", 7),
-            ("V_Layer1", 8),
-            ("V_Layer2", 9),
-            ("V_Layer3", 10),
-            ("V_Layer4", 11),
-            ("V_Layer5", 12),
-            ("V_Layer6", 13),
-            ("V_Layer7", 14),
-            ("V_Layer8", 15),
-            ("V_Layer9", 16),
+            ("V_LocalPlayerVisible", 6),
+            ("V_LocalPlayerInvisible", 7),
+            ("V_RemotePlayer", 8),
+            ("V_Layer0", 9),
+            ("V_Layer1", 10),
+            ("V_Layer2", 11),
+            ("V_Layer3", 12),
+            ("V_Layer4", 13),
+            ("V_Layer5", 14),
+            ("V_Layer6", 15),
+            ("V_Layer7", 16),
+            ("V_Layer8", 17),
+            ("V_Layer9", 18),
         };
 
         public const int BuiltInLayerLimit = 6;
@@ -45,14 +47,14 @@ namespace VE2.Common.Shared
 
     internal class LayerAutoConfig
     {
-        [MenuItem("VE2/Configure Layers and Tags", priority = 0)]
-        internal static void ShowWindow()
-        {
-            var window = ScriptableObject.CreateInstance<VE2LayerAutoConfig>();
-            window.position = new Rect(Screen.width / 2, Screen.height / 2, 300, 120);
-            window.titleContent = new GUIContent("Configure Layers & Tags");
-            window.Show();
-        }
+        // [MenuItem("VE2/Configure Layers and Tags", priority = -998)]
+        // internal static void ShowWindow()
+        // {
+        //     var window = ScriptableObject.CreateInstance<VE2LayerAutoConfig>();
+        //     window.position = new Rect(Screen.width / 2, Screen.height / 2, 300, 120);
+        //     window.titleContent = new GUIContent("Configure Layers & Tags");
+        //     window.Show();
+        // }
     }
 
     internal class VE2LayerAutoConfig : EditorWindow
@@ -66,11 +68,11 @@ namespace VE2.Common.Shared
 
             if (GUILayout.Button("Configure VE2 Layers & Tags"))
             {
-                SetupScene();
+                ConfigureLayersAndTags();
             }
         }
 
-        private void SetupScene()
+        internal static void ConfigureLayersAndTags()
         {
             var tagManagerAsset = AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset")[0];
             var tagManager = new SerializedObject(tagManagerAsset);

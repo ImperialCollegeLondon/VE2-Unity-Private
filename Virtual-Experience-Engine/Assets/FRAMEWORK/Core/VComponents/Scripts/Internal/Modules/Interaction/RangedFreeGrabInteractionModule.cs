@@ -16,7 +16,7 @@ namespace VE2.Core.VComponents.Internal
         [Space(5)]
         [Title("Ranged Free Grab Interaction Settings")]
         [SerializeField, PropertyOrder(-100)] public DropBehaviour DropBehaviour = DropBehaviour.KeepMomentum;
-        [SerializeField, PropertyOrder(-99)] public bool AlignOrientationOnGrab = false;
+        [SerializeField, PropertyOrder(-99)] public bool AlignOrientationOnGrab = true;
 
         [SerializeField, PropertyOrder(-98)] public bool PreserveInspectModeOrientation = false;
 
@@ -39,6 +39,9 @@ namespace VE2.Core.VComponents.Internal
         public bool AlignOrientationOnGrab { get => _rangedFreeGrabInteractionConfig.AlignOrientationOnGrab; set => _rangedFreeGrabInteractionConfig.AlignOrientationOnGrab = value; }
         public DropBehaviour DropBehaviour { get => _rangedFreeGrabInteractionConfig.DropBehaviour; set => _rangedFreeGrabInteractionConfig.DropBehaviour = value; }
 
+        IColliderWrapper IRangedFreeGrabInteractionModule.ColliderWrapper => ColliderWrapper;
+
+        public readonly IColliderWrapper ColliderWrapper; 
         private readonly RangedFreeGrabInteractionConfig _rangedFreeGrabInteractionConfig;
 
         public void NotifyInspectModeEnter()
@@ -52,10 +55,11 @@ namespace VE2.Core.VComponents.Internal
         }
 
         public RangedFreeGrabInteractionModule(string id, IGrabInteractablesContainer grabInteractablesContainer, List<IHandheldInteractionModule> handheldInteractions,
-            RangedFreeGrabInteractionConfig rangedFreeGrabInteractionConfig, GeneralInteractionConfig generalInteractionConfig)
+            RangedFreeGrabInteractionConfig rangedFreeGrabInteractionConfig, GeneralInteractionConfig generalInteractionConfig, IColliderWrapper colliderWrapper)
             : base(id, grabInteractablesContainer, handheldInteractions, rangedFreeGrabInteractionConfig, generalInteractionConfig)
         {
             _rangedFreeGrabInteractionConfig = rangedFreeGrabInteractionConfig;
+            ColliderWrapper = colliderWrapper;
         }
 
         public void ApplyDeltaWhenGrabbed(Vector3 deltaPostion, Quaternion deltaRotation)

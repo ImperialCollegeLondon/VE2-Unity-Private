@@ -1,36 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &73873681373282211
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2860861352685153444}
-  m_Layer: 0
-  m_Name: InteractorVRRight
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2860861352685153444
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 73873681373282211}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.6062601, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 447392441967709921}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &140828180242747271
 GameObject:
   m_ObjectHideFlags: 0
@@ -132,7 +101,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8772907310240090598
 Transform:
   m_ObjectHideFlags: 0
@@ -1197,7 +1166,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6543205093360763102
 Transform:
   m_ObjectHideFlags: 0
@@ -3189,10 +3158,6 @@ Transform:
   m_Children:
   - {fileID: 3390235951253090660}
   - {fileID: 239686385899314633}
-  - {fileID: 639465888347864237}
-  - {fileID: 3873235100419239308}
-  - {fileID: 5410099844071915973}
-  - {fileID: 2860861352685153444}
   - {fileID: 5665946001610465812}
   - {fileID: 8473840053617823969}
   - {fileID: 6802004769895050863}
@@ -4552,37 +4517,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!1 &6153931519084452521
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 5410099844071915973}
-  m_Layer: 0
-  m_Name: InteractorVRRightHolder
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &5410099844071915973
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6153931519084452521}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.6062601, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 447392441967709921}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6174054189808624476
 GameObject:
   m_ObjectHideFlags: 0
@@ -4981,7 +4915,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1129183618200338586
 Transform:
   m_ObjectHideFlags: 0
@@ -6322,37 +6256,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 8551590199906517762}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &8138069957320603926
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 3873235100419239308}
-  m_Layer: 0
-  m_Name: InteractorVRLeft
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &3873235100419239308
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8138069957320603926}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.6062601, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 447392441967709921}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8140952436229972246
 GameObject:
   m_ObjectHideFlags: 0
@@ -6800,7 +6703,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7848924481621521591
 Transform:
   m_ObjectHideFlags: 0
@@ -7306,7 +7209,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1668494007563671424}
   - component: {fileID: 6498460620545972080}
-  - component: {fileID: 3623029543306159528}
   m_Layer: 0
   m_Name: RemoteAvatar
   m_TagString: Untagged
@@ -7343,59 +7245,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _headHolder: {fileID: 3390235951253090660}
+  _torsoHolder: {fileID: 239686385899314633}
   _verticalOffsetTransform: {fileID: 447392441967709921}
+  _leftHandHolder: {fileID: 5665946001610465812}
+  _rightHandHolder: {fileID: 8473840053617823969}
   _playerNameText: {fileID: 4005611094915045051}
   _namePlateTransform: {fileID: 6802004769895050863}
   _interactor2DGameObject: {fileID: 8140952436229972246}
   _interactorVRLeftGameObject: {fileID: 5864581236906259765}
   _interactorVRRightGameObject: {fileID: 547645932810410104}
   _interactorFeetGameObject: {fileID: 1607372436580782194}
-  _avatarHandler: {fileID: 3623029543306159528}
---- !u!114 &3623029543306159528
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8890935028787704109}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3a80d1dec71e34d44bef3cbedadabad1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _headHolder: {fileID: 3390235951253090660}
-  _torsoHolder: {fileID: 239686385899314633}
---- !u!1 &8893887085767688282
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 639465888347864237}
-  m_Layer: 0
-  m_Name: InteractorVRLeftHolder
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!4 &639465888347864237
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8893887085767688282}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.6062601, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 447392441967709921}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  _isAdmin: 0
 --- !u!1 &8901283479686798902
 GameObject:
   m_ObjectHideFlags: 0

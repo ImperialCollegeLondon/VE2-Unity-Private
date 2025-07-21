@@ -72,6 +72,8 @@ internal class HubController : MonoBehaviour
             _hubWorldPageView.UpdateInstances(GetInstancesForWorldName(_viewingWorldDetails.Name));
     }
 
+    private int _logNotInstalledCounter = 0;
+
     private void Update()
     {
         if (_curentFileDownloadIndex != -1)
@@ -88,6 +90,43 @@ internal class HubController : MonoBehaviour
 
             int progressPercent = Mathf.FloorToInt(totalDownloaded * 100 / totalSize);
             _hubWorldPageView.UpdateDownloadingWorldProgress(progressPercent);
+        }
+
+        if (_currentInstallingPackageName != "none")
+        {
+            Debug.Log("Checking if APK is installed: " + _currentInstallingPackageName);
+            if (_viewingWorldDetails.AndroidPackageName != _currentInstallingPackageName)
+            {
+                // If the world details have changed, reset the current installing package name
+                _currentInstallingPackageName = "none";
+                return;
+            }
+
+            //TODO - need to factor in correct world version
+            using (AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+            using (AndroidJavaObject currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
+            {
+
+                AndroidJavaObject packageManager = currentActivity.Call<AndroidJavaObject>("getPackageManager");
+                try
+                {
+                    AndroidJavaObject packageInfo = packageManager.Call<AndroidJavaObject>("getPackageInfo", _currentInstallingPackageName, 0);
+                    string versionName = packageInfo.Get<string>("versionName");
+
+                    _currentInstallingPackageName = "none";
+                    Debug.Log($"APK {_currentInstallingPackageName} successfully installed. Version: {versionName}");
+
+                    _hubWorldPageView.ShowEnterWorldButton();
+                }
+                catch (AndroidJavaException e)
+                {
+                    if (_logNotInstalledCounter % 100 == 0)
+                    {
+                        Debug.Log($"APK {_currentInstallingPackageName} not installed yet.");
+                    }
+                    _logNotInstalledCounter++;
+                }
+            }
         }
     } 
 
@@ -189,6 +228,7 @@ internal class HubController : MonoBehaviour
     private List<HubFileDownloadInfo> _filesToDownload;
     private int _curentFileDownloadIndex = -1;
     private IRemoteFileTaskInfo _currentDownloadTask;
+    private string _currentInstallingPackageName = "none";
 
     private void HandleStartDownloadClicked()
     {
@@ -288,7 +328,30 @@ internal class HubController : MonoBehaviour
 
     private void HandleInstallWorldClicked()
     {
-        //Start polling for successful instal of package
+        string versionString = _selectedWorldVersion.ToString("D3");
+        string filePath = $"{_fileSystem.LocalAbsoluteWorkingPath}/{_viewingWorldDetails.Name}/{versionString}/{_viewingWorldDetails.Name}.apk";
+        Debug.Log("Installing APK: " + filePath);
+
+        using (AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+        using (AndroidJavaObject currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
+        using (AndroidJavaObject fileProvider = new AndroidJavaClass("androidx.core.content.FileProvider"))
+        {
+            string authority = "com.ImperialCollegeLondon.VirtualExperienceEngine.fileprovider";
+            using (AndroidJavaObject file = new AndroidJavaObject("java.io.File", filePath))
+            using (AndroidJavaObject uri = fileProvider.CallStatic<AndroidJavaObject>("getUriForFile", currentActivity, authority, file))
+            using (AndroidJavaObject intent = new AndroidJavaObject("android.content.Intent", "android.intent.action.VIEW"))
+            {
+                intent.Call<AndroidJavaObject>("setDataAndType", uri, "application/vnd.android.package-archive");
+                intent.Call<AndroidJavaObject>("addFlags", 268435456); // FLAG_ACTIVITY_NEW_TASK
+                intent.Call<AndroidJavaObject>("addFlags", 1); // FLAG_GRANT_READ_URI_PERMISSION
+                intent.Call<AndroidJavaObject>("addFlags", 1073741824); // FLAG_ACTIVITY_NO_HISTORY
+                intent.Call<AndroidJavaObject>("addFlags", 8388608); // FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+
+                currentActivity.Call("startActivity", intent);
+            }
+        }
+
+        _currentInstallingPackageName = _viewingWorldDetails.AndroidPackageName;
     }
 
     private void HandleInstanceSelected(InstanceCode instanceCode)
@@ -496,6 +559,8 @@ internal class HubWorldDetails
 {
     public string Name;
     public string Category;
+
+    public string AndroidPackageName => $"com.ImperialCollegeLondon.{Name}";
 
     public bool IsExperimental;
 

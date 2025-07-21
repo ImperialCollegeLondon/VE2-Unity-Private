@@ -30,8 +30,10 @@ namespace VE2.Core.VComponents.Internal
 
     internal class RangedAdjustableInteractionModule : RangedGrabInteractionModule, IRangedAdjustableInteractionModule
     {
-        public event Action OnScrollUp;
-        public event Action OnScrollDown;
+        public event Action<ushort> OnScrollUp;
+        public event Action<ushort> OnScrollDown;
+
+        //This one is ready by the interactor to handle haptics
         public event Action OnValueChanged;
 
         //TODO - parent class exposes this, likely don't need this here
@@ -44,12 +46,9 @@ namespace VE2.Core.VComponents.Internal
             Transform = rangedGrabInteractionConfig.AttachPointWrapper;
         }
 
-        public void ScrollUp() => OnScrollUp?.Invoke();
-        public void ScrollDown() => OnScrollDown?.Invoke();
+        public void ScrollUp(ushort clientID) => OnScrollUp?.Invoke(clientID);
+        public void ScrollDown(ushort clientID) => OnScrollDown?.Invoke(clientID);
 
-        public void NotifyValueChanged()
-        {
-            OnValueChanged?.Invoke();
-        }
+        public void NotifyValueChanged() => OnValueChanged?.Invoke();
     }
 }

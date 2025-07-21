@@ -55,7 +55,7 @@ public class AdminTestTuesday : MonoBehaviour
         _generalInteractable.Interface.AdminOnly = true;
     }
 
-    [SerializeField] private InterfaceReference<IV_PressurePlate> _pressurePlate;
+    [SerializeField] private InterfaceReference<IV_PressurePlateActivatable> _pressurePlate;
 
     private void OnBecomeHost()
     {

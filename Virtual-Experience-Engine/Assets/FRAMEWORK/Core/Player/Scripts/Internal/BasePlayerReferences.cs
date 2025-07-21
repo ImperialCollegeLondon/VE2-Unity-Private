@@ -10,5 +10,14 @@ namespace VE2.Core.Player.Internal
 
         public RectTransform PrimaryUIHolderRect => _primaryUIHolderRect;
         [SerializeField, IgnoreParent] private RectTransform _primaryUIHolderRect;
+
+        internal Transform HeadTransform => _headTransform;
+        [SerializeField] private Transform _headTransform;   
+
+        internal Transform TorsoTransform => _torsoTransform;
+        [SerializeField] private Transform _torsoTransform;
+
+        internal Collider FeetCollider => _feetCollider;
+        [SerializeField] private Collider _feetCollider;
     }
 }

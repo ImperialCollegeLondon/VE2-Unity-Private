@@ -34,25 +34,32 @@ namespace VE2.Core.VComponents.Internal
         public bool AdminOnly {get => _RangedToggleClickModule.AdminOnly; set => _RangedToggleClickModule.AdminOnly = value; }
         public bool EnableControllerVibrations { get => _RangedToggleClickModule.EnableControllerVibrations; set => _RangedToggleClickModule.EnableControllerVibrations = value; }
         public bool ShowTooltipsAndHighlight { get => _RangedToggleClickModule.ShowTooltipsAndHighlight; set => _RangedToggleClickModule.ShowTooltipsAndHighlight = value; }
+        public bool IsInteractable { get => _RangedToggleClickModule.IsInteractable; set => _RangedToggleClickModule.IsInteractable = value; }
         #endregion
     }
 
     [ExecuteAlways]
+    [DisallowMultipleComponent]
     internal partial class V_ToggleActivatable : MonoBehaviour, IRangedInteractionModuleProvider, ICollideInteractionModuleProvider
     {
         internal ToggleActivatableConfig Config { get => _config; set { _config = value; } }
+
+        //Docs button lives in the monobehaviour so it doesn't also appear in the info point inspector
+        public void OpenDocs() => Application.OpenURL("https://www.notion.so/V_ToggleActivatable-2130e4d8ed4d80fcb471cc08f80acc56?source=copy_link");
+        [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above)]
         [SerializeField, IgnoreParent] private ToggleActivatableConfig _config = new();
         [SerializeField, HideInInspector] private SingleInteractorActivatableState _state = new();
 
         #region Player Interfaces
+        int ICollideInteractionModuleProvider.Layer => gameObject.layer;
         ICollideInteractionModule ICollideInteractionModuleProvider.CollideInteractionModule => _Service.ColliderInteractionModule;
         IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _Service.RangedClickInteractionModule;
         #endregion
 
         #region Inspector Utils
-        internal Collider Collider 
+        internal Collider Collider
         {
-            get 
+            get
             {
                 if (_collider == null)
                     _collider = GetComponent<Collider>();
@@ -61,7 +68,7 @@ namespace VE2.Core.VComponents.Internal
         }
         [SerializeField, HideInInspector] private Collider _collider = null;
         #endregion
-        
+
         private ToggleActivatableService _service = null;
         private ToggleActivatableService _Service
         {
@@ -72,6 +79,7 @@ namespace VE2.Core.VComponents.Internal
                 return _service;
             }
         }
+
 
         private void Awake()
         {
@@ -91,10 +99,8 @@ namespace VE2.Core.VComponents.Internal
             _service = new ToggleActivatableService(_config, _state, id, VE2API.WorldStateSyncableContainer, VE2API.ActivatableGroupsContainer, VE2API.LocalClientIdWrapper);
         }
 
-        private void FixedUpdate()
-        {
-            _service?.HandleFixedUpdate();
-        }
+        private void Start() => _service?.HandleStart();
+        private void FixedUpdate() => _service?.HandleFixedUpdate();
 
         private void OnDisable()
         {

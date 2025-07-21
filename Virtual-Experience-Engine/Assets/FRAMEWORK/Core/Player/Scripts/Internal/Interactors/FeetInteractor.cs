@@ -31,15 +31,15 @@ namespace VE2.Core.Player.Internal
         internal FeetInteractor(ICollisionDetectorFactory collisionDetectorFactory, ColliderType colliderType, Collider collider, InteractorType interactorType,
             ILocalClientIDWrapper localClientIDWrapper, ILocalAdminIndicator localAdminIndicator, PlayerInteractionConfig interactionConfig)
         {
-            _collisionDetector = collisionDetectorFactory.CreateCollisionDetector(collider, colliderType, interactionConfig.InteractableLayers);
+            _collisionDetector = collisionDetectorFactory.CreateCollisionDetector(collider, colliderType, interactionConfig);
             _InteractorType = interactorType;
             _localClientIDWrapper = localClientIDWrapper;
             _localAdminIndicator = localAdminIndicator;
         }
 
-        protected bool IsInteractableAllowed(IGeneralInteractionModule interactable)
+        protected bool IsInteractionAllowed(IGeneralInteractionModule interactable)
         {
-            return interactable != null && (!interactable.AdminOnly || _localAdminIndicator.IsLocalAdmin);
+            return interactable != null && interactable.IsInteractable && (!interactable.AdminOnly || _localAdminIndicator.IsLocalAdmin);
         }
 
         public virtual void HandleOnEnable()
@@ -75,7 +75,7 @@ namespace VE2.Core.Player.Internal
             if (collideInteractionModule.CollideInteractionType != CollideInteractionType.Feet)
                 return;
 
-            bool canInteract = _localClientIDWrapper.IsClientIDReady && IsInteractableAllowed(collideInteractionModule);
+            bool canInteract = _localClientIDWrapper.IsClientIDReady && IsInteractionAllowed(collideInteractionModule);
 
             if (canInteract)
                 StartInteractingWithModule(collideInteractionModule);
@@ -96,7 +96,7 @@ namespace VE2.Core.Player.Internal
             if (collideInteractionModule.CollideInteractionType != CollideInteractionType.Feet)
                 return;
 
-            bool canInteract = _localClientIDWrapper.IsClientIDReady && IsInteractableAllowed(collideInteractionModule);
+            bool canInteract = _localClientIDWrapper.IsClientIDReady && IsInteractionAllowed(collideInteractionModule);
 
             if (canInteract)
             StopInteractingWithModule(collideInteractionModule);
@@ -114,19 +114,22 @@ namespace VE2.Core.Player.Internal
 
         internal void HandleUpdate()
         {
+            if (!_localClientIDWrapper.IsClientIDReady)
+                return;
+
             foreach (var kvp in _currentCollidingInteractionModules.ToList())
             {
                 ICollideInteractionModule interactionModule = kvp.Key;
                 bool isCurrentlyInteracting = kvp.Value;
 
                 //If we are colliding with the interaction module, but not interacting with it, and we are admin, we should start interacting
-                if (!isCurrentlyInteracting && IsInteractableAllowed(interactionModule) && _localAdminIndicator.IsLocalAdmin)
+                if (!isCurrentlyInteracting && IsInteractionAllowed(interactionModule))
                 {
                     StartInteractingWithModule(interactionModule);
                     _currentCollidingInteractionModules[interactionModule] = true;
                 }
                 //If we are colliding with the interaction module, and we are interacting with it, but we are not admin, we should stop interacting
-                else if (isCurrentlyInteracting && !IsInteractableAllowed(interactionModule))
+                else if (isCurrentlyInteracting && !IsInteractionAllowed(interactionModule))
                 {
                     StopInteractingWithModule(interactionModule);
                     _currentCollidingInteractionModules[interactionModule] = false;

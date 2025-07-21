@@ -30,15 +30,18 @@ namespace VE2.Core.VComponents.Internal
         public bool AdminOnly { get => _RangedHoldClickModule.AdminOnly; set => _RangedHoldClickModule.AdminOnly = value; }
         public bool EnableControllerVibrations { get => _RangedHoldClickModule.EnableControllerVibrations; set => _RangedHoldClickModule.EnableControllerVibrations = value; }
         public bool ShowTooltipsAndHighlight { get => _RangedHoldClickModule.ShowTooltipsAndHighlight; set => _RangedHoldClickModule.ShowTooltipsAndHighlight = value; }
+        public bool IsInteractable { get => _RangedHoldClickModule.IsInteractable; set => _RangedHoldClickModule.IsInteractable = value; }
         #endregion
     }
 
+    [DisallowMultipleComponent]
     internal partial class V_HoldActivatable : MonoBehaviour, IRangedInteractionModuleProvider, ICollideInteractionModuleProvider
     {
         [SerializeField, IgnoreParent] private HoldActivatableConfig _config = new();
         [SerializeField, HideInInspector] private MultiInteractorActivatableSyncedState _state = new();
 
         #region Player Interfaces
+        int ICollideInteractionModuleProvider.Layer => gameObject.layer;
         ICollideInteractionModule ICollideInteractionModuleProvider.CollideInteractionModule => _Service.ColliderInteractionModule;
         IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _Service.RangedClickInteractionModule;
         #endregion

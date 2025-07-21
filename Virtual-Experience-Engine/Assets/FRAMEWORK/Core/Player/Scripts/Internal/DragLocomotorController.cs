@@ -2,6 +2,7 @@
 using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.Player.API;
+using VE2.Core.VComponents.API;
 
 namespace VE2.Core.Player.Internal
 {
@@ -86,6 +87,9 @@ namespace VE2.Core.Player.Internal
             _savedHeadOffset = _headTransform.localPosition;
             // Collapse the rig
             _headTransform.localPosition = Vector3.zero;
+            // Collapse the rig: Move the vertical offset to zero
+            _headOffsetTransform.localPosition = Vector3.zero;
+            //_movementModeConfig.OnFreeFlyModeEnter?.Invoke(); //NOTE: FreeFlyMode is mostly changed by Plugin so we might not need events for this but it lives here for now
         }
 
         private void ExitFreeFlyMode()
@@ -101,9 +105,10 @@ namespace VE2.Core.Player.Internal
                 // Ground not found, move to spawn position
                 _rootTransform.position = GetSpawnPosition();
             }
-
+            
             //Restore the head offset position
             _headTransform.localPosition = _savedHeadOffset;
+            //_movementModeConfig.OnFreeFlyModeExit?.Invoke(); //NOTE: FreeFlyMode is mostly changed by Plugin so we might not need events for this but it lives here for now>>>>>>> origin/develop
         }
 
         private Vector3 GetSpawnPosition()
@@ -280,9 +285,27 @@ namespace VE2.Core.Player.Internal
                     return;
                 }
 
+
                 Vector3 finalPosition = _rootTransform.position + moveVector;
                 finalPosition.y = targetGroundHeight;
                 _rootTransform.position = finalPosition;
+
+                //Raycast from where we are, to where we are trying to be, to check for objects in our way
+                //If we hit something in the collision layers, abort movement
+                RaycastHit[] collisionHits = Physics.RaycastAll(currentRaycastPosition, moveVector.normalized, moveVector.magnitude + collisionOffset, _movementModeConfig.CollisionLayers);
+                foreach (RaycastHit hit in collisionHits)
+                {
+                    //If the thing we hit was within our layermask ^ and it is not a grabbable object that is currently grabbed by the local player, abort movement
+                    if (!(hit.collider.gameObject.TryGetComponent(out IV_FreeGrabbable grabbable) && grabbable.IsGrabbed && grabbable.MostRecentInteractingClientID.IsLocal))
+                    {
+                        Debug.Log($"Movement aborted: {hit.collider.name} is blocking player movement.");
+                        return;
+                    }
+                }    
+
+                // Move the root transform to the target position, adjusting for ground height
+                float newRootPositionY= targetGroundHeight + (currentRaycastPosition.y - maxStepHeight - currentGroundHeight);
+                _rootTransform.position = new(targetRaycastPosition.x, newRootPositionY, targetRaycastPosition.z);
             }
 
             _movementModeConfig.OnHorizontalDrag?.Invoke();

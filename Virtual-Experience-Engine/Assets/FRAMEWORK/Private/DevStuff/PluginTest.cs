@@ -29,8 +29,8 @@ public class PluginTest : MonoBehaviour
     private IV_NetworkObject _networkObject => _networkObjectGO.GetComponent<IV_NetworkObject>();
     private IV_RigidbodySyncable _rbSyncable => _rbSyncableGO.GetComponent<IV_RigidbodySyncable>();
 
-    private IV_LinearAdjustable _linearAdjustable => _linearAdjustableGO.GetComponent<IV_LinearAdjustable>();
-    private IV_RotationalAdjustable _rotationalAdjustable => _rotationalAdjustableGO.GetComponent<IV_RotationalAdjustable>();
+    private IV_SlidingAdjustable _linearAdjustable => _linearAdjustableGO.GetComponent<IV_SlidingAdjustable>();
+    private IV_RotatingAdjustable _rotationalAdjustable => _rotationalAdjustableGO.GetComponent<IV_RotatingAdjustable>();
 
     private int _counter = 0;
 

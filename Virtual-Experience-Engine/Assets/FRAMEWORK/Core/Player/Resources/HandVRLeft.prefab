@@ -118,9 +118,7 @@ Transform:
   m_LocalPosition: {x: 7.4505804e-11, y: 1.8626451e-11, z: -3.7252902e-11}
   m_LocalScale: {x: 1.0000001, y: 1, z: 1.0000001}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 4664831131562171241}
-  - {fileID: 3134071031740443096}
+  m_Children: []
   m_Father: {fileID: 1997845156553877143}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -1.976}
 --- !u!33 &8640126008542367911
@@ -916,7 +914,7 @@ GameObject:
   - component: {fileID: 5854277485910502104}
   - component: {fileID: 5370606987438688461}
   m_Layer: 6
-  m_Name: CollisionDetector
+  m_Name: Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -947,7 +945,7 @@ SphereCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4294967295
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -1251,6 +1249,39 @@ Transform:
   - {fileID: 5086342411336909666}
   - {fileID: 7858794478346619923}
   m_Father: {fileID: 8502074758521189451}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2253040320395422053
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2061974547901998059}
+  m_Layer: 6
+  m_Name: GOToDisableWhileGrabbing
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2061974547901998059
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2253040320395422053}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 5986430768577062033}
+  - {fileID: 5277714460972968099}
+  m_Father: {fileID: 7167164542793246743}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2358845461042667435
 GameObject:
@@ -1722,7 +1753,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 627727185274979275}
-  - {fileID: 5986430768577062033}
+  - {fileID: 2061974547901998059}
   - {fileID: 5854277485910502104}
   - {fileID: 742450809453224291}
   m_Father: {fileID: 0}
@@ -1749,7 +1780,7 @@ MonoBehaviour:
       Value: 
     _lineRenderer: {fileID: 5038925955700674028}
     _handCollider: {fileID: 5370606987438688461}
-    _handVisualGO: {fileID: 6319543161447741280}
+    _nonGrabbingHandGO: {fileID: 2253040320395422053}
   _locomotorVRReferences:
     _dragIconHolder: {fileID: 2358845461042667435}
     _horizontalDragIndicator: {fileID: 6488816530592188318}
@@ -2214,6 +2245,39 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &4943104568498549365
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5277714460972968099}
+  m_Layer: 6
+  m_Name: RayOrigins
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5277714460972968099
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4943104568498549365}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 4664831131562171241}
+  - {fileID: 3134071031740443096}
+  m_Father: {fileID: 2061974547901998059}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5237997580350001146
 GameObject:
   m_ObjectHideFlags: 0
@@ -2870,7 +2934,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &5986430768577062033
 Transform:
   m_ObjectHideFlags: 0
@@ -2879,14 +2943,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6319543161447741280}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7789640834712850056}
   - {fileID: 4735673878131364002}
-  m_Father: {fileID: 7167164542793246743}
+  m_Father: {fileID: 2061974547901998059}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6488816530592188318
 GameObject:
@@ -3746,12 +3810,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8310508992839540299}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -0.0000326, y: 0.0001172, z: -0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: 0.02687352, y: -0.12571307, z: -0.98499644, w: 0.115135394}
+  m_LocalPosition: {x: -0.06370523, y: -0.021074533, z: 0.009148548}
+  m_LocalScale: {x: -100, y: -100, z: -100.00002}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 5086342411336909666}
+  m_Father: {fileID: 5277714460972968099}
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!120 &5108563817324797096
 LineRenderer:
@@ -4093,12 +4157,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8654533678602878474}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -0.0000326, y: 0.0001172, z: -0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: 0.02687352, y: -0.12571307, z: -0.98499644, w: 0.115135394}
+  m_LocalPosition: {x: -0.06370523, y: -0.021074533, z: 0.009148548}
+  m_LocalScale: {x: -100, y: -100, z: -100.00002}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 5086342411336909666}
+  m_Father: {fileID: 5277714460972968099}
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!120 &5038925955700674028
 LineRenderer:

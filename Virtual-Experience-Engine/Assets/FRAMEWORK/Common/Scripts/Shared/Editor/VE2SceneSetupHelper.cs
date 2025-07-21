@@ -1,62 +1,83 @@
 #if UNITY_EDITOR
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-namespace VE2.Core.Common
+namespace VE2.Common.Shared
 {
     internal class VE2SceneSetupHelper
     {
-        [MenuItem("VE2/Setup Scene", priority = 1)]
-        internal static void ShowWindow()
-        {
-            // Create a new window instance
-            var window = ScriptableObject.CreateInstance<VE2SceneSetupWindow>();
-            window.position = new Rect(Screen.width / 2, Screen.height / 2, 200, 100);
-            window.titleContent = new GUIContent("VE2 Scene Setup");
-            
-            // Show the window
-            window.Show();
-        }
-    }
+        private static string _sceneName => "MyVE2QuickStartScene";
 
-    internal class VE2SceneSetupWindow : EditorWindow
-    {
-        private void OnGUI()
+        internal static void CreateQuickStartScene()
         {
-            EditorGUILayout.HelpBox("This will remove ALL GameObjects in the scene and instantiate the basic VE2 utilities", (UnityEditor.MessageType)MessageType.Info);
+            // Ensure Scenes folder exists
+            string scenesFolder = "Assets/Scenes";
+            if (!AssetDatabase.IsValidFolder(scenesFolder))
+                AssetDatabase.CreateFolder("Assets", "Scenes");
 
-            if (GUILayout.Button("Setup Scene"))
-            {
-                SetupScene();
-            }
-        }
+            // Make scene name unique
+            string safeSceneName = _sceneName.Trim();
+            if (string.IsNullOrWhiteSpace(safeSceneName))
+                safeSceneName = "VE2Scene";
 
-        private void SetupScene()
-        {
+            string scenePath = $"{scenesFolder}/{safeSceneName}.unity";
+            scenePath = AssetDatabase.GenerateUniqueAssetPath(scenePath);
+
+            // Create new scene and save it
+            var newScene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            EditorSceneManager.SaveScene(newScene, scenePath);
+            EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
+
+            Debug.Log($"Created and opened new scene at {scenePath}");
+
+            // Load and instantiate the VE2 setup prefab
             GameObject sceneSetupPrefab = Resources.Load<GameObject>("VE2SetupSceneHolder");
             if (sceneSetupPrefab == null)
             {
-                Debug.LogError("Could not find scene setup resource");
+                Debug.LogError("Could not find VE2SetupSceneHolder in Resources.");
                 return;
             }
 
-            // Destroy all GameObjects in the scene
-            foreach (var go in GameObject.FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-                GameObject.DestroyImmediate(go);
-
-            // Instantiate the scene setup prefab, remove the holder
             GameObject instantiatedSceneSetup = GameObject.Instantiate(sceneSetupPrefab);
 
-            // Iterate backward to avoid skipping elements
+            // Unpack children of holder
             for (int i = instantiatedSceneSetup.transform.childCount - 1; i >= 0; i--)
             {
                 Transform child = instantiatedSceneSetup.transform.GetChild(i);
                 child.SetParent(null);
             }
 
-            //No longer need the holder, destroy it
-            DestroyImmediate(instantiatedSceneSetup);
+            GameObject.DestroyImmediate(instantiatedSceneSetup);
+
+            EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
+            EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
+            Debug.Log("VE2 scene setup complete.");
+
+            // Highlight the new scene asset in the Project window
+            var sceneAsset = AssetDatabase.LoadAssetAtPath<SceneAsset>(scenePath);
+            if (sceneAsset != null)
+            {
+                Selection.activeObject = sceneAsset;
+                EditorGUIUtility.PingObject(sceneAsset);
+            }
+
+            int result = EditorUtility.DisplayDialogComplex(
+                "VE2 Quickstart Scene Setup Complete",
+                "A quickstart scene has been created and opened in the editor, ready for you to begin using VE2.\n\n" +
+                "⚠️ Remember to RENAME THIS SCENE to something unique before exporting it to the VE2 platform.",
+                "Got it!",
+                "Show me docs for this scene",
+                null
+            );
+
+            if (result == 1) // "Show me docs for this scene"
+            {
+                Application.OpenURL("https://www.notion.so/Understanding-the-VE2-Quickstart-Scene-2290e4d8ed4d80c4a0dcceda148f51ef"); 
+            }
         }
     }
 }
+
 #endif

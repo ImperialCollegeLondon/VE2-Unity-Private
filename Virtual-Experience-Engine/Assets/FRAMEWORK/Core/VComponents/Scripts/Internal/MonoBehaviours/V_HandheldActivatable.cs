@@ -30,10 +30,12 @@ namespace VE2.Core.VComponents.Internal
         public bool AdminOnly {get => _HandheldClickModule.AdminOnly; set => _HandheldClickModule.AdminOnly = value; }
         public bool EnableControllerVibrations { get => _HandheldClickModule.EnableControllerVibrations; set => _HandheldClickModule.EnableControllerVibrations = value; }
         public bool ShowTooltipsAndHighlight { get => _HandheldClickModule.ShowTooltipsAndHighlight; set => _HandheldClickModule.ShowTooltipsAndHighlight = value; }
+        public bool IsInteractable { get => _HandheldClickModule.IsInteractable; set => _HandheldClickModule.IsInteractable = value; }
         #endregion
     }
 
     [RequireComponent(typeof(V_FreeGrabbable))]
+    [DisallowMultipleComponent]
     internal partial class V_HandheldActivatable : MonoBehaviour
     {
         [SerializeField, HideLabel, IgnoreParent] private HandheldActivatableConfig _config = new();
@@ -68,15 +70,19 @@ namespace VE2.Core.VComponents.Internal
             _service = new(grabbable, _config, _state, id, VE2API.WorldStateSyncableContainer, VE2API.ActivatableGroupsContainer, VE2API.LocalClientIdWrapper);
         }
 
-        private void FixedUpdate()
-        {
-            _service?.HandleFixedUpdate();
-        }
+        private void Start() => _service?.HandleStart();
+        private void FixedUpdate() => _service?.HandleFixedUpdate();
 
         private void OnDisable()
         {
-            _service.TearDown();
+            _service.TearDown(_isApplicationQuitting);
             _service = null;
+        }
+
+        private bool _isApplicationQuitting = false;
+        private void OnApplicationQuit()
+        {
+            _isApplicationQuitting = true;
         }
     }
 }

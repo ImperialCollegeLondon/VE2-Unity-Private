@@ -367,6 +367,8 @@ namespace VE2.Core.Player.API
 
         public PlayerInputContainer(
             IPressableInput changeMode2D,
+            IPressableInput jump2D, IPressableInput crouch2D, IPressableInput unlockCursor, IPressableInput isSprinting2D, IPressableInput forward2D, IPressableInput backward2D, IPressableInput left2D, 
+            IPressableInput right2D, IValueInput<Vector2> mouseDelta2D, IPressableInput lockCursor,
             IPressableInput rangedClick2D, IPressableInput grab2D, IPressableInput handheldClick2D, IPressableInput inspectModeInput, IScrollInput scrollTickUp2D, IScrollInput scrollTickDown2D, IValueInput<Vector2> mouseDeltaInput,
             IDelayedChargableInput resetViewVR,
             IValueInput<Vector3> handVRLeftPosition, IValueInput<Quaternion> handVRLeftRotation,
@@ -382,7 +384,8 @@ namespace VE2.Core.Player.API
             ChangeMode = changeMode2D;
 
             Player2DInputContainer = new(
-                new Interactor2DInputContainer(rangedClick2D, grab2D, handheldClick2D,inspectModeInput, scrollTickUp2D, scrollTickDown2D, mouseDeltaInput)
+                new Interactor2DInputContainer(rangedClick2D, grab2D, handheldClick2D, inspectModeInput, scrollTickUp2D, scrollTickDown2D, mouseDeltaInput),
+                new PlayerLocomotor2DInputContainer(jump2D, crouch2D, unlockCursor, isSprinting2D, forward2D, backward2D, left2D, right2D, mouseDelta2D, lockCursor)
             );
 
             PlayerVRInputContainer = new(
@@ -409,10 +412,12 @@ namespace VE2.Core.Player.API
     internal class Player2DInputContainer
     {
         public Interactor2DInputContainer InteractorInputContainer2D { get; private set; }
+        public PlayerLocomotor2DInputContainer PlayerLocomotor2DInputContainer { get; private set; }
 
-        public Player2DInputContainer(Interactor2DInputContainer interactorInputContainer2D)
+        public Player2DInputContainer(Interactor2DInputContainer interactorInputContainer2D, PlayerLocomotor2DInputContainer playerLocomotor2DInputContainer)
         {
             InteractorInputContainer2D = interactorInputContainer2D;
+            PlayerLocomotor2DInputContainer = playerLocomotor2DInputContainer;
         }
     }
 
@@ -513,6 +518,34 @@ namespace VE2.Core.Player.API
         }
     }
 
+    internal class PlayerLocomotor2DInputContainer
+    {
+        public IPressableInput Jump { get; private set; }
+        public IPressableInput Crouch { get; private set; }
+        public IPressableInput UnlockCursor { get; private set; }
+        public IPressableInput IsSprinting2D { get; private set; }
+        public IPressableInput Forward { get; private set; }
+        public IPressableInput Backward { get; private set; }
+        public IPressableInput Left { get; private set; }
+        public IPressableInput Right { get; private set; }
+        public IValueInput<Vector2> MouseDelta { get; private set; }
+        public IPressableInput LockCursor { get; private set; }
+
+        public PlayerLocomotor2DInputContainer(IPressableInput jump, IPressableInput crouch, IPressableInput unlockCursor, IPressableInput isSprinting2D, 
+            IPressableInput forward, IPressableInput backward, IPressableInput left, IPressableInput right, IValueInput<Vector2> mouseDelta, IPressableInput lockCursor)
+        {
+            Jump = jump;
+            Crouch = crouch;
+            UnlockCursor = unlockCursor;
+            IsSprinting2D = isSprinting2D;
+            Forward = forward;
+            Backward = backward;
+            Left = left;
+            Right = right;
+            MouseDelta = mouseDelta;
+            LockCursor = lockCursor;
+        }
+    }
     #endregion
 
     internal interface IInputHandler
@@ -586,6 +619,20 @@ namespace VE2.Core.Player.API
             InputActionMap actionMapPlayer = inputActionAsset.FindActionMap("InputPlayer");
             PressableInput changeMode2D = new(actionMapPlayer.FindAction("ToggleMode"));
 
+            // 2D Locomotor Action Map
+            InputActionMap actionMapLocomotor2D = inputActionAsset.FindActionMap("InputLocomotor2D");
+            PressableInput jump2D = new(actionMapLocomotor2D.FindAction("Jump"));
+            PressableInput crouch2D = new(actionMapLocomotor2D.FindAction("Crouch"));
+            PressableInput unlockCursor = new(actionMapLocomotor2D.FindAction("UnlockCursor"));
+            PressableInput isSprinting2D = new(actionMapLocomotor2D.FindAction("IsSprinting2D"));
+            PressableInput forward2D = new(actionMapLocomotor2D.FindAction("Forward2D"));
+            PressableInput backward2D = new(actionMapLocomotor2D.FindAction("Backward2D"));
+            PressableInput left2D = new(actionMapLocomotor2D.FindAction("Left2D"));
+            PressableInput right2D = new(actionMapLocomotor2D.FindAction("Right2D"));
+            ValueInput<Vector2> mouseDelta2D = new(actionMapLocomotor2D.FindAction("MouseDelta2D"));
+            PressableInput lockCursor = new(actionMapLocomotor2D.FindAction("LockCursor"));
+
+
             // 2D Interactor Action Map
             InputActionMap actionMapInteractor2D = inputActionAsset.FindActionMap("InputInteractor2D");
             PressableInput rangedClick2D = new(actionMapInteractor2D.FindAction("RangedClick"));
@@ -652,9 +699,20 @@ namespace VE2.Core.Player.API
             StickPressInput stickPressHorizontalLeftDirectionVRRight = new(actionMapStickPressVRRight.FindAction("StickPress"), MIN_STICKPRESS_THRESHOLD, true, true);
             StickPressInput stickPressHorizontalRightDirectionVRRight = new(actionMapStickPressVRRight.FindAction("StickPress"), MIN_STICKPRESS_THRESHOLD, true, false);
             TeleportInput stickPressVerticalVRRight = new(actionMapStickPressVRRight.FindAction("StickPress"), MIN_TELEPORT_STICKPRESS_THRESHOLD, MAX_TELEPORT_NEUTRAL_THRESHOLD);
+
             // Initialize the PlayerInputContainer
             PlayerInputContainer = new(
                 changeMode2D: changeMode2D,
+                jump2D: jump2D,
+                crouch2D: crouch2D,
+                unlockCursor: unlockCursor,
+                isSprinting2D: isSprinting2D,
+                forward2D: forward2D,
+                backward2D: backward2D,
+                left2D: left2D,
+                right2D: right2D,
+                mouseDelta2D: mouseDelta2D,
+                lockCursor: lockCursor,
                 rangedClick2D: rangedClick2D,
                 grab2D: grab2D,
                 handheldClick2D: handheldClick2D,

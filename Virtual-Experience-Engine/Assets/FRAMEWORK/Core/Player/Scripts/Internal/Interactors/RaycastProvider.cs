@@ -26,14 +26,10 @@ namespace VE2.Core.Player.Internal
                 //ProcessUIHover(raycastHit.collider.gameObject);
                 Button button = GetUIButton(raycastHit);
                 IScrollableUI scrollableUI = GetScrollableUI(raycastHit);
-
-                if (button != null)
+            
+                if (button != null || scrollableUI != null)
                 {
-                    result = new(null, button, null, raycastHit.distance, true, raycastHit.point);
-                }
-                else if (scrollableUI != null)
-                {
-                    result = new(null, null, scrollableUI, raycastHit.distance, true, raycastHit.point);
+                    result = new(null, button, scrollableUI, raycastHit.distance, true, raycastHit.point);
                 }
                 else //Search up through the heirarchy looking for 
                 {

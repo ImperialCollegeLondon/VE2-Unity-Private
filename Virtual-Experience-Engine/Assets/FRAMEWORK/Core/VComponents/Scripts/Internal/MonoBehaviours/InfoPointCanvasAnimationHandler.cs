@@ -13,14 +13,12 @@ namespace VE2.Core.VComponents.Internal
 
         private Tween _animationTween;
         private Vector3 _originalCanvasScale;
-        private CanvasGroup _canvasGroup;
 
         private void Awake()
         {
             _originalCanvasScale = gameObject.transform.localScale;
 
             gameObject.transform.localScale = Vector3.zero;
-            _canvasGroup = gameObject.GetComponent<CanvasGroup>();
         }
 
         public void ToggleShowCanvas(bool canvasActive) => ToggleShowCanvas(canvasActive, false);
@@ -29,6 +27,8 @@ namespace VE2.Core.VComponents.Internal
         {
             Vector3 canvasStartScale = gameObject.transform.localScale;
             Vector3 canvasTargetScale = canvasActive ? _originalCanvasScale : Vector3.zero;
+
+            CanvasGroup _canvasGroup = GetComponent<CanvasGroup>();
 
             float canvasStartAlpha = _canvasGroup.alpha;
             float canvasTargetAlpha = canvasActive ? 1f : 0f;

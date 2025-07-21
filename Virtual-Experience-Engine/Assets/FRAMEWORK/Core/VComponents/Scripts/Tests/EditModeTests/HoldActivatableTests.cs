@@ -30,12 +30,14 @@ namespace VE2.Core.VComponents.Tests
         public bool AdminOnly { get => _RangedHoldClickModule.AdminOnly; set => _RangedHoldClickModule.AdminOnly = value; }
         public bool EnableControllerVibrations { get => _RangedHoldClickModule.EnableControllerVibrations; set => _RangedHoldClickModule.EnableControllerVibrations = value; }
         public bool ShowTooltipsAndHighlight { get => _RangedHoldClickModule.ShowTooltipsAndHighlight; set => _RangedHoldClickModule.ShowTooltipsAndHighlight = value; }
+        public bool IsInteractable { get => _RangedHoldClickModule.IsInteractable; set => _RangedHoldClickModule.IsInteractable = value; }
         #endregion
     }
 
     internal partial class V_HoldActivatableProviderStub : IRangedHoldClickInteractionModuleProvider, ICollideInteractionModuleProvider
     {
         #region Player Interfaces
+        int ICollideInteractionModuleProvider.Layer => CommonUtils.DefaultLayer;
         ICollideInteractionModule ICollideInteractionModuleProvider.CollideInteractionModule => _Service.ColliderInteractionModule;
         IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _Service.RangedClickInteractionModule;
         #endregion

@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 63032533009092570}
-  m_Layer: 29
+  m_Layer: 6
   m_Name: TeleportationCursor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41,7 +41,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3097778540624228831}
-  m_Layer: 29
+  m_Layer: 6
   m_Name: TeleportationParticles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -73,7 +73,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2259985421866095365}
   - component: {fileID: 3058716072828364594}
-  m_Layer: 29
+  m_Layer: 6
   m_Name: TeleportationCursorChild
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -117,7 +117,7 @@ GameObject:
   - component: {fileID: 4936965982402339194}
   - component: {fileID: 1321887720870275605}
   - component: {fileID: 4230408954852901914}
-  m_Layer: 29
+  m_Layer: 6
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -203,7 +203,7 @@ GameObject:
   - component: {fileID: 1954829172896964554}
   - component: {fileID: 7346474146102225903}
   - component: {fileID: 1885283298389812715}
-  m_Layer: 29
+  m_Layer: 6
   m_Name: Cylinder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -289,7 +289,7 @@ GameObject:
   - component: {fileID: 1768938265392678509}
   - component: {fileID: 5803617691530999920}
   - component: {fileID: 6894809411554495959}
-  m_Layer: 29
+  m_Layer: 6
   m_Name: Circle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -375,7 +375,7 @@ GameObject:
   - component: {fileID: 5414089126294113138}
   - component: {fileID: 5381154765285999980}
   - component: {fileID: 4905241268487778906}
-  m_Layer: 29
+  m_Layer: 6
   m_Name: TeleportationArrow
   m_TagString: Untagged
   m_Icon: {fileID: 0}

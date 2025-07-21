@@ -11,7 +11,7 @@ namespace VE2.Core.Player.Internal
         private Vector3 _grabberTransformOffset;
 
         private readonly ICollisionDetector _collisionDetector;
-        private readonly GameObject _handVisualGO;
+        private readonly GameObject _goToDisableWhileGrabbing;
         private readonly LineRenderer _lineRenderer;
         private readonly Material _lineMaterial;
 
@@ -29,8 +29,8 @@ namespace VE2.Core.Player.Internal
         {
             InteractorVRReferences interactorVRReferences = interactorReferences as InteractorVRReferences;
 
-            _handVisualGO = interactorVRReferences.HandVisualGO;
-            _collisionDetector = collisionDetectorFactory.CreateCollisionDetector(interactorVRReferences.HandCollider, colliderType, playerInteractionConfig.InteractableLayers);
+            _goToDisableWhileGrabbing = interactorVRReferences.NonGrabbingHandGO;
+            _collisionDetector = collisionDetectorFactory.CreateCollisionDetector(interactorVRReferences.HandCollider, colliderType, playerInteractionConfig);
 
             _xrHapticsWrapper = xRHapticsWrapper;
             _lineRenderer = interactorVRReferences.LineRenderer;
@@ -91,7 +91,7 @@ namespace VE2.Core.Player.Internal
 
         protected override void SetInteractorState(InteractorState newState)
         {
-            _handVisualGO.SetActive(newState != InteractorState.Grabbing);
+            _goToDisableWhileGrabbing.SetActive(newState != InteractorState.Grabbing);
 
             if (_lineMaterial == null)
                 return;

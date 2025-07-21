@@ -30,30 +30,33 @@ namespace VE2.Core.Player.Internal
 
     internal class PlayerController2D : BasePlayerController
     {
-        public PlayerTransformData PlayerTransformData {
-            get {
-                return new PlayerTransformData (
+        public PlayerTransformData PlayerTransformData
+        {
+            get
+            {
+                return new PlayerTransformData(
                     IsVRMode: false,
-                    rootPosition: _playerLocomotor2D.RootPosition, 
+                    rootPosition: _playerLocomotor2D.RootPosition,
                     rootRotation: _playerLocomotor2D.RootRotation,
                     verticalOffset: _playerLocomotor2D.VerticalOffset,
                     headPosition: _playerLocomotor2D.HeadLocalPosition,
                     headRotation: _playerLocomotor2D.HeadLocalRotation,
-                    hand2DPosition: _interactor2D.GrabberTransformWrapper.localPosition, 
+                    hand2DPosition: _interactor2D.GrabberTransformWrapper.localPosition,
                     hand2DRotation: _interactor2D.GrabberTransformWrapper.localRotation,
                     activatableIDs2D: (List<string>)_interactor2D.HeldNetworkedActivatableIDs,
                     activatableIDsFeet: (List<string>)_feetInteractor2D.HeldNetworkedActivatableIDs
                 );
             }
         }
-        
+
+        public readonly Collider CharacterCollider;
+
         private readonly GameObject _playerGO;
         private readonly Player2DControlConfig _controlConfig;
         private readonly Player2DInputContainer _player2DInputContainer;
         private readonly Player2DLocomotor _playerLocomotor2D;
         private readonly Interactor2D _interactor2D;
         private readonly FeetInteractor _feetInteractor2D;
-        private readonly AvatarVisHandler _localAvatarHandler;
 
         private readonly IPrimaryUIServiceInternal _primaryUIService;
         private readonly RectTransform _primaryUIHolderRect;
@@ -63,10 +66,11 @@ namespace VE2.Core.Player.Internal
         private readonly RectTransform _overlayUIRect;
         private readonly InspectModeIndicator _inspectModeIndicator;
 
-        internal PlayerController2D(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, Player2DInputContainer player2DInputContainer, 
-            IPlayerPersistentDataHandler playerPersistentDataHandler, Player2DControlConfig controlConfig, PlayerInteractionConfig interactionConfig, MovementModeConfig movementModeConfig, 
+        internal PlayerController2D(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, Player2DInputContainer player2DInputContainer,
+            IPlayerPersistentDataHandler playerPersistentDataHandler, AvatarHandlerBuilderContext avatarHandlerBuilderContext,
+            Player2DControlConfig controlConfig, PlayerInteractionConfig interactionConfig, MovementModeConfig movementModeConfig,
             CameraConfig cameraConfig, IRaycastProvider raycastProvider, ICollisionDetectorFactory collisionDetectorFactory, ILocalClientIDWrapper localClientIDWrapper, ILocalAdminIndicator localAdminIndicator,
-            IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IPlayerServiceInternal playerService) 
+            IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IPlayerServiceInternal playerService)
         {
             GameObject player2DPrefab = Resources.Load("2dPlayer") as GameObject;
             _playerGO = GameObject.Instantiate(player2DPrefab, null, false);
@@ -80,27 +84,42 @@ namespace VE2.Core.Player.Internal
 
             Player2DReferences player2DReferences = _playerGO.GetComponent<Player2DReferences>();
             Camera = player2DReferences.Camera;
-            _localAvatarHandler = player2DReferences.LocalAvatarHandler;
-            _localAvatarHandler.Initialize(playerService);
 
             _primaryUIHolderRect = player2DReferences.PrimaryUIHolderRect;
             _secondaryUIHolder = player2DReferences.SecondaryUIHolderRect;
             _overlayUIRect = player2DReferences.OverlayUIRect;
             _inspectModeIndicator = new InspectModeIndicator();
+            CharacterCollider = player2DReferences.CharacterCollider;
+
+            FreeGrabbingIndicator grabbingIndicator = new();
 
             _interactor2D = new(
                 interactorContainer, grabInteractablesContainer, player2DInputContainer.InteractorInputContainer2D, interactionConfig,
-                player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, localClientIDWrapper, localAdminIndicator, _inspectModeIndicator);
+                player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, localClientIDWrapper, localAdminIndicator, _inspectModeIndicator, grabbingIndicator);
 
             _feetInteractor2D = new(collisionDetectorFactory, ColliderType.Feet2D, player2DReferences.Interactor2DReferences.FeetCollider, InteractorType.Feet, localClientIDWrapper, localAdminIndicator, interactionConfig);
-            _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences, movementModeConfig, _inspectModeIndicator);
+            _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences, movementModeConfig, _inspectModeIndicator, player2DInputContainer.PlayerLocomotor2DInputContainer, Resources.Load<Player2DMovementConfig>("Player2DMovementConfig"), grabbingIndicator);
+
             _rootTransform = player2DReferences.Locomotor2DReferences.Controller.transform;
 
             base._PlayerHeadTransform = _playerLocomotor2D.HeadTransform;
             base._FeetCollisionDetector = _feetInteractor2D._collisionDetector as CollisionDetector;
 
-            ConfigureCamera(cameraConfig);  
-            
+            ConfigureCamera(cameraConfig);
+
+            AvatarHandler = new(
+                avatarHandlerBuilderContext.PlayerBuiltInGameObjectPrefabs,
+                avatarHandlerBuilderContext.PlayerCustomGameObjectPrefabs,
+                avatarHandlerBuilderContext.CurrentInstancedAvatarAppearance,
+                true,
+                player2DReferences.HeadTransform,
+                player2DReferences.TorsoTransform);
+
+            if (localClientIDWrapper.IsClientIDReady)
+                OnClientIDReady(localClientIDWrapper.Value);
+            else
+                localClientIDWrapper.OnClientIDReady += OnClientIDReady;
+
             //TODO: think about inspect mode, does that live in the interactor, or the player controller?
             //If interactor, will need to make the interactor2d constructor take a this as a param, and forward the other params to the base constructor
         }
@@ -144,7 +163,8 @@ namespace VE2.Core.Player.Internal
             if (_primaryUIService != null)
             {
                 _primaryUIService.OnUIShowInternal -= HandlePrimaryUIActivated;
-                _primaryUIService.OnUIHideInternal -= HandlePrimaryUIDeactivated;            }
+                _primaryUIService.OnUIHideInternal -= HandlePrimaryUIDeactivated;
+            }
         }
 
         internal override void HandleUpdate()
@@ -160,24 +180,24 @@ namespace VE2.Core.Player.Internal
             _feetInteractor2D.HandleUpdate();
         }
 
-        internal void HandlePrimaryUIActivated() 
+        internal void HandlePrimaryUIActivated()
         {
             _overlayUIRect.gameObject.SetActive(false);
-            _playerLocomotor2D.HandleOnDisable(); 
+            _playerLocomotor2D.HandleOnDisable();
             _interactor2D.HandleOnDisable(); //TODO - we don't want to drop grabbables 
         }
 
-        internal void HandlePrimaryUIDeactivated() 
+        internal void HandlePrimaryUIDeactivated()
         {
             _overlayUIRect.gameObject.SetActive(true);
             _playerLocomotor2D.HandleOnEnable();
-            _interactor2D.HandleOnEnable(); 
+            _interactor2D.HandleOnEnable();
         }
 
-        internal void HandleReceiveAvatarAppearance(OverridableAvatarAppearance newAvatarAppearance) 
-        {
-            _localAvatarHandler.HandleReceiveAvatarAppearance(newAvatarAppearance);
-        }
+        // internal void HandleReceiveAvatarAppearance(InstancedAvatarAppearance newAvatarAppearance) 
+        // {
+        //     _localAvatarHandler.HandleReceiveAvatarAppearance(newAvatarAppearance);
+        // }
 
         internal void MoveRectToOverlayUI(RectTransform newRect)
         {
@@ -209,5 +229,25 @@ namespace VE2.Core.Player.Internal
     internal class InspectModeIndicator
     {
         public bool IsInspectModeActive = false;
+    }
+
+    internal class FreeGrabbingIndicator
+    {
+        public event Action<IRangedFreeGrabInteractionModule> OnGrabStarted;
+        public event Action<IRangedFreeGrabInteractionModule> OnGrabEnded;
+
+        public bool IsGrabbing = false;
+        public void SetIsGrabbing(bool toggle, IRangedFreeGrabInteractionModule freeGrabbable)
+        {
+            if (IsGrabbing == toggle)
+                return;
+
+            IsGrabbing = toggle;
+
+            if (IsGrabbing)
+                OnGrabStarted?.Invoke(freeGrabbable);
+            else
+                OnGrabEnded?.Invoke(freeGrabbable);
+        }
     }
 }

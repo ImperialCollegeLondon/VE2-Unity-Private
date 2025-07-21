@@ -135,6 +135,7 @@ namespace VE2.Core.VComponents.Tests
         public bool AdminOnly {get => _HandheldClickModule.AdminOnly; set => _HandheldClickModule.AdminOnly = value; }
         public bool EnableControllerVibrations { get => _HandheldClickModule.EnableControllerVibrations; set => _HandheldClickModule.EnableControllerVibrations = value; }
         public bool ShowTooltipsAndHighlight { get => _HandheldClickModule.ShowTooltipsAndHighlight; set => _HandheldClickModule.ShowTooltipsAndHighlight = value; }
+        public bool IsInteractable { get => _HandheldClickModule.IsInteractable; set => _HandheldClickModule.IsInteractable = value; }
         #endregion
     }
 
@@ -155,7 +156,7 @@ namespace VE2.Core.VComponents.Tests
 
         public void TearDown()
         {
-            Service.TearDown();
+            Service.TearDown(true);
         }
     }
 }

@@ -66,7 +66,7 @@ namespace VE2.Common.Shared
         public void DeregisterWorldStateSyncable(IWorldStateModule worldStateSyncable)
         {
             WorldStateSyncables.Remove(worldStateSyncable.ID);
-            OnWorldStateSyncableDeregistered?.Invoke(null);
+            OnWorldStateSyncableDeregistered?.Invoke(worldStateSyncable);
         }
     }
 }
