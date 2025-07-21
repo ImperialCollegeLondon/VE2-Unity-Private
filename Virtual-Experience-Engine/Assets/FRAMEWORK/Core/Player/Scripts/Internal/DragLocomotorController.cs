@@ -1,6 +1,7 @@
 using UnityEngine;
 using VE2.Common.Shared;
 using VE2.Core.Player.API;
+using VE2.Core.VComponents.API;
 
 namespace VE2.Core.Player.Internal
 {
@@ -266,11 +267,16 @@ namespace VE2.Core.Player.Internal
 
                 //Raycast from where we are, to where we are trying to be, to check for objects in our way
                 //If we hit something in the collision layers, abort movement
-                if (Physics.Raycast(currentRaycastPosition, moveVector.normalized, out RaycastHit obstacleHit, moveVector.magnitude + collisionOffset, _movementModeConfig.CollisionLayers)) 
+                RaycastHit[] collisionHits = Physics.RaycastAll(currentRaycastPosition, moveVector.normalized, moveVector.magnitude + collisionOffset, _movementModeConfig.CollisionLayers);
+                foreach (RaycastHit hit in collisionHits)
                 {
-                    Debug.Log($"Movement aborted: {obstacleHit.collider.name} is blocking player movement.");
-                    return;
-                }
+                    //If the thing we hit was within our layermask ^ and it is not a grabbable object that is currently grabbed by the local player, abort movement
+                    if (!(hit.collider.gameObject.TryGetComponent(out IV_FreeGrabbable grabbable) && grabbable.IsGrabbed && grabbable.MostRecentInteractingClientID.IsLocal))
+                    {
+                        Debug.Log($"Movement aborted: {hit.collider.name} is blocking player movement.");
+                        return;
+                    }
+                }    
 
                 // Move the root transform to the target position, adjusting for ground height
                 float newRootPositionY= targetGroundHeight + (currentRaycastPosition.y - maxStepHeight - currentGroundHeight);

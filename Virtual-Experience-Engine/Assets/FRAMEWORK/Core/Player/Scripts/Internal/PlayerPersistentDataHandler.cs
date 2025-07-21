@@ -15,18 +15,18 @@ namespace VE2.Core.Player.Internal
     {
         public bool RememberPlayerSettings { get; set; }
 
-        public PlayerPresentationConfig PlayerPresentationConfig { get; set; }
+        public BuiltInPlayerPresentationConfig BuiltInPlayerGameObjectConfig { get; set; }
 
         public PersistentPlayerMode PersistentPlayerMode { get; set; }
 
-        public event Action<PlayerPresentationConfig> OnDebugSaveAppearance;
+        //public event Action<BuiltInPlayerPresentationConfig> OnDebugSaveAppearance;
 
         /// <summary>
         /// Will save to playerprefs if RememberPlayerSettings is true
         /// </summary>
-        public void MarkAppearanceChanged();
+        public void SaveAppearance();
 
-        public void SetDefaults(PlayerPresentationConfig defaultPlayerPresentationConfig);
+        public void SetDefaults(BuiltInPlayerPresentationConfig defaultPlayerPresentationConfig);
 
         public AndroidJavaObject AddArgsToIntent(AndroidJavaObject intent);
     }
@@ -73,15 +73,15 @@ namespace VE2.Core.Player.Internal
             }
         }
 
-        [EditorButton("MarkAppearanceChanged", nameof(MarkAppearanceChanged), ApplyCondition = false)] //TODO - just for debug, remove once proper customisation UI is working
+        [EditorButton("MarkAppearanceChanged", nameof(SaveAppearance), ApplyCondition = false)] //TODO - just for debug, remove once proper customisation UI is working
         [SerializeField, Disable] private bool _playerPresentationSetup = false;
-        [SerializeField, Disable] private PlayerPresentationConfig _defaultPlayerPresentationConfig;
-        [SerializeField, DisableIf(nameof(_isPlaying), false), EndGroup] private PlayerPresentationConfig _playerPresentationConfig = new();
+        [SerializeField, Disable] private BuiltInPlayerPresentationConfig _defaultPlayerPresentationConfig;
+        [SerializeField, DisableIf(nameof(_isPlaying), false), EndGroup] private BuiltInPlayerPresentationConfig _playerPresentationConfig = new();
 
         /// <summary>
         /// call MarkPlayerSettingsUpdated after modifying this property
         /// </summary>
-        public PlayerPresentationConfig PlayerPresentationConfig 
+        public BuiltInPlayerPresentationConfig BuiltInPlayerGameObjectConfig 
         {
             get
             {
@@ -101,7 +101,7 @@ namespace VE2.Core.Player.Internal
                                 string playerPresentationConfigBytesAsString = intent.Call<string>("getStringExtra", PlayerPresentationConfigArgName);
                                 byte[] playerPresentationConfigBytes = System.Convert.FromBase64String(playerPresentationConfigBytesAsString);
                                 _playerPresentationConfig = new(playerPresentationConfigBytes);
-                                Debug.Log("set new color to " + _playerPresentationConfig.AvatarRed + "-" + _playerPresentationConfig.AvatarGreen + "-" + _playerPresentationConfig.AvatarBlue);
+                                Debug.Log("set new color to " + _playerPresentationConfig.AvatarColor.r + "-" + _playerPresentationConfig.AvatarColor.g + "-" + _playerPresentationConfig.AvatarColor.b);
                             }
                             else if (_rememberPlayerSettings)
                                 _playerPresentationConfig = GetPlayerPresentationFromPlayerPrefs();
@@ -126,22 +126,22 @@ namespace VE2.Core.Player.Internal
             {
                 _playerPresentationSetup = true;
                 _playerPresentationConfig = value;
-                MarkAppearanceChanged();
+                SaveAppearance();
             }
         }
 
-        private PlayerPresentationConfig GetPlayerPresentationFromPlayerPrefs()
+        private BuiltInPlayerPresentationConfig GetPlayerPresentationFromPlayerPrefs()
         {
             string playerPresentationConfigBytesAsString = PlayerPrefs.GetString(PlayerPresentationConfigArgName);
             byte[] playerPresentationConfigBytes = System.Convert.FromBase64String(playerPresentationConfigBytesAsString);
             return new(playerPresentationConfigBytes);
         }
 
-        public event Action<PlayerPresentationConfig> OnDebugSaveAppearance;
+        //public event Action<BuiltInPlayerPresentationConfig> OnDebugSaveAppearance;
 
-        public void MarkAppearanceChanged()
+        public void SaveAppearance()
         {
-            OnDebugSaveAppearance?.Invoke(_playerPresentationConfig); //TODO remove
+            //OnDebugSaveAppearance?.Invoke(_playerPresentationConfig); //TODO remove
 
             PlayerPrefs.SetInt(RememberPlayerSettingsArgName, _rememberPlayerSettings ? 1 : 0);
             
@@ -151,7 +151,7 @@ namespace VE2.Core.Player.Internal
             }
         }
 
-        public void SetDefaults(PlayerPresentationConfig defaultPlayerPresentationConfig)
+        public void SetDefaults(BuiltInPlayerPresentationConfig defaultPlayerPresentationConfig)
         {
             _defaultPlayerPresentationConfig = defaultPlayerPresentationConfig;
         }
@@ -182,7 +182,7 @@ namespace VE2.Core.Player.Internal
             }
             else
             {
-                _playerPresentationConfig = new PlayerPresentationConfig();
+                _playerPresentationConfig = new BuiltInPlayerPresentationConfig();
             }
 
             //gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide

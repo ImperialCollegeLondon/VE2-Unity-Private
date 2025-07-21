@@ -176,6 +176,7 @@ namespace VE2.Core.VComponents.Tests
         #endregion
 
         #region Player Interfaces
+        int ICollideInteractionModuleProvider.Layer => CommonUtils.DefaultLayer;
         ICollideInteractionModule ICollideInteractionModuleProvider.CollideInteractionModule => _ToggleActivatable.ColliderInteractionModule;
         IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _ToggleActivatable.RangedClickInteractionModule;
         #endregion

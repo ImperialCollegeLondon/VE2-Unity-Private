@@ -6,6 +6,7 @@ using VE2.Common.API;
 using VE2.Common.Shared;
 using static VE2.Common.Shared.CommonSerializables;
 using VE2.Core.VComponents.Shared;
+using VE2.Core.Player.API;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -53,11 +54,11 @@ namespace VE2.Core.VComponents.Internal
 
         public FreeGrabbableService(List<IHandheldInteractionModule> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id,
             IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer,
-            IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants, IGrabbableRigidbody grabbableRigidbodyInterface, IClientIDWrapper localClientIdWrapper)
+            IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants, IGrabbableRigidbody grabbableRigidbodyInterface, IClientIDWrapper localClientIdWrapper, IColliderWrapper colliderWrapper)
         {
             _config = config;
 
-            _RangedGrabInteractionModule = new(id, grabInteractablesContainer, handheldInteractions, config.RangedFreeGrabInteractionConfig, config.GeneralInteractionConfig);
+            _RangedGrabInteractionModule = new(id, grabInteractablesContainer, handheldInteractions, config.RangedFreeGrabInteractionConfig, config.GeneralInteractionConfig, colliderWrapper);
             _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, grabInteractablesContainer, interactorContainer, localClientIdWrapper);
 
             _rigidbody = rigidbody;

@@ -54,7 +54,8 @@ namespace VE2.Core.Tests
                 Substitute.For<IRigidbodyWrapper>(),
                 new PhysicsConstants(),
                 new V_FreeGrabbable(),
-                LocalClientIDWrapperSetup.LocalClientIDWrapper);
+                LocalClientIDWrapperSetup.LocalClientIDWrapper,
+                Substitute.For<IColliderWrapper>());
 
 
             //Stub out the VC (provider layer) with the grabbable

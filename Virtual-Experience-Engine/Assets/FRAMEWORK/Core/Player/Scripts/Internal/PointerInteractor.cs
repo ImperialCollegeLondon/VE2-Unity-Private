@@ -68,7 +68,7 @@ namespace VE2.Core.Player.Internal
         private readonly IGrabInteractablesContainer _grabInteractablesContainer;
         private readonly InteractorInputContainer _interactorInputContainer;
 
-        private readonly LayerMask _raycastLayerMask;
+        private readonly PlayerInteractionConfig _interactionConfig;
 
         protected readonly Transform _interactorParentTransform;
         protected readonly Transform _GrabberTransform;
@@ -101,7 +101,7 @@ namespace VE2.Core.Player.Internal
             _interactorContainer = interactorContainer;
             _grabInteractablesContainer = grabInteractablesContainer;
             _interactorInputContainer = interactorInputContainer;
-            _raycastLayerMask = interactionConfig.InteractableLayers;
+            _interactionConfig = interactionConfig;
 
             _interactorParentTransform = interactorReferences.InteractorParentTransform;
             _GrabberTransform = interactorReferences.GrabberTransform;
@@ -154,7 +154,9 @@ namespace VE2.Core.Player.Internal
             _heldActivatableIDsAgainstNetworkFlags.Clear();
 
             _LocalClientIDWrapper.OnClientIDReady -= HandleLocalClientIDReady;
-            _interactorContainer?.DeregisterInteractor(_InteractorID.ToString());
+
+            if (_InteractorID != null)
+                _interactorContainer?.DeregisterInteractor(_InteractorID.ToString());
         }
 
         // Only allow interactable if not admin only, or if local player is admin
@@ -385,7 +387,7 @@ namespace VE2.Core.Player.Internal
             if (_RayOrigin == null)
                 return null;
 
-            return _RaycastProvider.Raycast(_RayOrigin.position, _RayOrigin.forward, MAX_RAYCAST_DISTANCE, _raycastLayerMask);
+            return _RaycastProvider.Raycast(_RayOrigin.position, _RayOrigin.forward, MAX_RAYCAST_DISTANCE, _interactionConfig.InteractableLayers);
         }
 
         private RaycastResultWrapper GetSphereCastResult(bool failsafeGrab = false)
@@ -393,12 +395,14 @@ namespace VE2.Core.Player.Internal
             if (_GrabberTransform == null || this is Interactor2D)
                 return null;
 
+                LayerMask raycastLayerMask = _interactionConfig.InteractableLayers;
+
             if (_InteractorType == InteractorType.LeftHandVR)
-                return _RaycastProvider.SphereCastAll(_GrabberTransform.position, MAX_SPHERECAST_RADIUS, _GrabberTransform.up, 0f, _raycastLayerMask, failsafeGrab, _GrabberTransform.right);
+                return _RaycastProvider.SphereCastAll(_GrabberTransform.position, MAX_SPHERECAST_RADIUS, _GrabberTransform.up, 0f, raycastLayerMask, failsafeGrab, _GrabberTransform.right);
             if (_InteractorType == InteractorType.RightHandVR)
-                return _RaycastProvider.SphereCastAll(_GrabberTransform.position, MAX_SPHERECAST_RADIUS, _GrabberTransform.up, 0f, _raycastLayerMask, failsafeGrab, -_GrabberTransform.right);
+                return _RaycastProvider.SphereCastAll(_GrabberTransform.position, MAX_SPHERECAST_RADIUS, _GrabberTransform.up, 0f, raycastLayerMask, failsafeGrab, -_GrabberTransform.right);
             else
-                return _RaycastProvider.SphereCastAll(_GrabberTransform.position, MAX_SPHERECAST_RADIUS, _GrabberTransform.up, 0f, _raycastLayerMask);
+                return _RaycastProvider.SphereCastAll(_GrabberTransform.position, MAX_SPHERECAST_RADIUS, _GrabberTransform.up, 0f, raycastLayerMask);
         }
 
         private void HandleRangedClickPressed()
@@ -513,10 +517,10 @@ namespace VE2.Core.Player.Internal
 
         protected virtual void CheckForExitInspectMode() { } //Do nothing, unless overridden by 2d interactor
 
-        // Try to do a local drop - notably doesn't override **locked** grab
-        // Returns true if interactor is not grabbing (which may be the case if it wasn't grabbing in the first place)
         public bool TryLocalDrop()
         {
+            // Try to do a local drop - notably doesn't override **locked** grab
+            // Returns true if interactor is not grabbing (which may be the case if it wasn't grabbing in the first place)
             if (IsCurrentlyGrabbing)
             {
                 _CurrentGrabbingGrabbable.RequestLocalDrop(_InteractorID);
@@ -525,8 +529,7 @@ namespace VE2.Core.Player.Internal
             return !IsCurrentlyGrabbing;
         }
 
-        public void ConfirmGrab(string id)
-
+        public virtual void ConfirmGrab(string id)
         {
             if (!_grabInteractablesContainer.GrabInteractables.TryGetValue(id, out IRangedGrabInteractionModule rangedGrabInteractable))
             {
@@ -551,7 +554,7 @@ namespace VE2.Core.Player.Internal
 
         protected abstract void HandleStartGrabbingAdjustable(IRangedAdjustableInteractionModule rangedAdjustableInteraction);
 
-        public void ConfirmDrop()
+        public virtual void ConfirmDrop()
         {
             SetInteractorState(InteractorState.Idle);
 
