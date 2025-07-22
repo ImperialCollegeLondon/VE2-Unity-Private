@@ -7311,19 +7311,18 @@ MonoBehaviour:
         BuiltInGameObjectEnabled: 1
         CustomGameObjectEnabled: 0
         CustomGameObjectIndex: 0
-      VRHandRightGameObjectSelection:
+      RightHandVRGameObjectSelection:
         BuiltInGameObjectEnabled: 1
         CustomGameObjectEnabled: 0
         CustomGameObjectIndex: 0
-      VRHandLeftGameObjectSelection:
+      LeftHandVRGameObjectSelection:
         BuiltInGameObjectEnabled: 1
         CustomGameObjectEnabled: 0
         CustomGameObjectIndex: 0
     PluginCustomAvatarPrefabs:
       Heads: []
       Torsos: []
-      VRRightHands: []
-      VRLefthands: []
+      VRHands: []
     RepeatedTransmissionConfig:
       TransmissionFrequency: 35
       TransmissionType: 0
@@ -7331,9 +7330,9 @@ MonoBehaviour:
     PlayerName: Unknown
     AvatarHeadIndex: 0
     AvatarTorsoIndex: 0
-    AvatarColorR: 0
-    AvatarColorG: 0
-    AvatarColorB: 0
+    AvatarColorR: 70
+    AvatarColorG: 255
+    AvatarColorB: 255
   _transformDataSetup: 0
   _playerTransformData:
     IsVRMode: 0

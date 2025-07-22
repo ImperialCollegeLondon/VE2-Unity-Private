@@ -19179,7 +19179,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42c71687d1b78b848b78a9a33d60f5dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _preferVRMode: 1
+  _preferVRMode: 0
   _localClientIdWrapper:
     _ClientID: 65535
   _uiProviderGOName: 
@@ -19569,9 +19569,9 @@ MonoBehaviour:
     PlayerName: Unknown
     AvatarHeadIndex: 0
     AvatarTorsoIndex: 0
-    AvatarColorR: 255
-    AvatarColorG: 70
-    AvatarColorB: 70
+    AvatarColorR: 0
+    AvatarColorG: 0
+    AvatarColorB: 0
   _transformDataSetup: 0
   _playerTransformData:
     IsVRMode: 0
