@@ -61,9 +61,9 @@ namespace VE2.Core.Player.Internal
             Transform.localPosition = _positionInput.Value;
             Transform.localRotation = _rotationInput.Value;
 
-            //Only show the hand if its actually tracking
-            
-            _nonGrabbingHandGO.SetActive(Transform.localPosition != Vector3.zero);
+            //TODO - this GO active state is also controlled by InteractorVR.SetInteractorState
+            //It should probably only dissapear due to non tracking after x seconds of non tracking
+            _nonGrabbingHandGO.SetActive(!_interactor.IsCurrentlyGrabbing && Transform.localPosition == Vector3.zero);
 
             //Rotate the hand 90 degrees along its local x axis to match the controller 
             Transform.Rotate(Vector3.right, 90, Space.Self);

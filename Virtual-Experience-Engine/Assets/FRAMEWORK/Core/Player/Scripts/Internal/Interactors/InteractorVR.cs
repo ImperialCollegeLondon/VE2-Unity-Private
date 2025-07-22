@@ -91,7 +91,8 @@ namespace VE2.Core.Player.Internal
 
         protected override void SetInteractorState(InteractorState newState)
         {
-            _goToDisableWhileGrabbing.SetActive(newState != InteractorState.Grabbing);
+            //TODO - this GO active state is also controlled by HandController.HandleUpdate
+            _goToDisableWhileGrabbing.SetActive(_goToDisableWhileGrabbing.transform.parent.localPosition != Vector3.zero && newState != InteractorState.Grabbing);
 
             if (_lineMaterial == null)
                 return;
