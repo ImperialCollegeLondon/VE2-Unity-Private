@@ -7,6 +7,12 @@ namespace VE2.Common.Shared
     {
         public static List<Material> GetAvatarColorMaterialsForGameObject(GameObject go) //TODO, move to player?
         {
+            if (go == null)
+            {
+                //Debug.LogError("GetAvatarColorMaterialsForGameObject: GameObject is null.");
+                return new List<Material>();
+            }
+
             List<Material> colorMaterials = new();
 
             //If we're in edit mode (i.e, a test) just return empty list
@@ -95,7 +101,7 @@ namespace VE2.Common.Shared
             UnityEditor.Undo.RegisterCreatedObjectUndo(instantiatedGO, "Create " + instantiatedGO.name);
 
             return instantiatedGO;
-            #endif
+#endif
 
             return null;
         }
@@ -116,5 +122,10 @@ namespace VE2.Common.Shared
         }
 
         public static bool IsGameObjectInLayerMask(GameObject go, LayerMask layerMask) => (layerMask.value & (1 << go.layer)) != 0;
+
+        public static int PlayerVisibleLayer => LayerMask.NameToLayer("V_LocalPlayerVisible");
+        public static int PlayerInvisibleLayer => LayerMask.NameToLayer("V_LocalPlayerInvisible");
+        public static int RemotePlayerLayer => LayerMask.NameToLayer("V_RemotePlayer");
+        public static int DefaultLayer => LayerMask.NameToLayer("Default");
     }
 }

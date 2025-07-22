@@ -35,8 +35,8 @@ namespace VE2.Core.Player.Internal
         public Collider HandCollider => _handCollider;
         [SerializeField, IgnoreParent] private Collider _handCollider;
 
-        public GameObject HandVisualGO => _handVisualGO;
-        [SerializeField, IgnoreParent] private GameObject _handVisualGO;
+        public GameObject NonGrabbingHandGO => _nonGrabbingHandGO;
+        [SerializeField, IgnoreParent] private GameObject _nonGrabbingHandGO;
     }
 
     [Serializable]

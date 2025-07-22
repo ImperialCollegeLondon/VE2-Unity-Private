@@ -102,9 +102,9 @@ namespace VE2.NonCore.Platform.Internal
             public string CustomerID;
             private string CustomerKey;
             public InstanceCode StartingInstanceCode { get; private set; }
-            public PlayerPresentationConfig PlayerPresentationConfig;
+            public BuiltInPlayerPresentationConfig PlayerPresentationConfig;
 
-            public ServerRegistrationRequest(string customerID, string customerKey, InstanceCode startingInstanceCode, PlayerPresentationConfig playerPresentationConfig)
+            public ServerRegistrationRequest(string customerID, string customerKey, InstanceCode startingInstanceCode, BuiltInPlayerPresentationConfig playerPresentationConfig)
             {
                 CustomerID = customerID;
                 CustomerKey = customerKey;
@@ -142,7 +142,7 @@ namespace VE2.NonCore.Platform.Internal
 
                 ushort playerPresentationConfigLength = reader.ReadUInt16();
                 byte[] playerPresentationConfigBytes = reader.ReadBytes(playerPresentationConfigLength);
-                PlayerPresentationConfig = new PlayerPresentationConfig(playerPresentationConfigBytes);
+                PlayerPresentationConfig = new BuiltInPlayerPresentationConfig(playerPresentationConfigBytes);
             }
         }
 

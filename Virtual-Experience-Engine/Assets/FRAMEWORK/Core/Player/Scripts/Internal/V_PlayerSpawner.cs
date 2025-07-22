@@ -8,6 +8,7 @@ using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.Player.API;
 using VE2.Core.UI.API;
+using static VE2.Common.Shared.CommonSerializables;
 using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.Core.Player.Internal
@@ -44,8 +45,10 @@ namespace VE2.Core.Player.Internal
         [Title("Camera Config")]
         [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public CameraConfig CameraConfig = new();
 
-        [Title("Avatar Appearance Overrides")]
-        [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup] public AvatarAppearanceOverrideConfig AvatarAppearanceOverrideConfig = new();
+        [Title("Plugin Avatar Config")]
+        [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, SpaceArea(spaceAfter:5)] public PluginAvatarSelections PluginAvatarSelections = new();
+        [Title("Custom Avatar Prefabs")]
+        [BeginGroup(Style = GroupStyle.Round), SerializeField, IgnoreParent, EndGroup, EndGroup] public AvatarPrefabs PluginCustomAvatarPrefabs = new();
 
         [Title("Transmission Settings", ApplyCondition = true)]
         [HideIf(nameof(_hasMultiplayerSupport), false)]
@@ -92,7 +95,7 @@ namespace VE2.Core.Player.Internal
     }
 
     [Serializable]
-    internal class CameraConfig 
+    internal class CameraConfig
     {
         [SerializeField] internal float FieldOfView2D = 60f;
         [SerializeField] internal float NearClippingPlane = 0.15f;
@@ -104,18 +107,6 @@ namespace VE2.Core.Player.Internal
         [SerializeField] internal bool EnablePostProcessing = true;
         [SerializeField] internal bool OcclusionCulling = true;
         [SerializeField] internal UnityEvent OnResetViewVR = new UnityEvent();
-    }
-
-    [Serializable]
-    internal class AvatarAppearanceOverrideConfig
-    {
-        [SerializeField] internal bool OverrideHead = false;
-        [SerializeField, EnableIf(nameof(OverrideHead), true)] internal ushort HeadOverrideIndex = 0;
-        [SerializeField, ReorderableList] internal List<GameObject> HeadOverrideGameObjects = new();
-
-        [SerializeField] internal bool OverrideTorso = false;
-        [SerializeField, EnableIf(nameof(OverrideTorso), true)] internal ushort TorsoOverrideIndex = 0;
-        [SerializeField, ReorderableList] internal List<GameObject> TorsoOverrideGameObjects = new();
     }
 
     [Serializable]
@@ -148,7 +139,7 @@ namespace VE2.Core.Player.Internal
         [SerializeField, IgnoreParent] internal PlayerConfig _playerConfig = new();
 
         [SpaceArea(spaceBefore: 10), Help("If running standalone, this presentation config will be used, if integrated with the VE2 platform, the platform will provide the presentation config.")]
-        [BeginGroup("Debug settings"), SerializeField, DisableInPlayMode, IgnoreParent, EndGroup] private PlayerPresentationConfig _defaultPlayerPresentationConfig = new();
+        [BeginGroup("Debug Built-in avatar config"), SerializeField, DisableInPlayMode, IgnoreParent, EndGroup] private BuiltInPlayerPresentationConfig _defaultBuiltInAvatarConfig = new();
 
         #region Provider Interfaces
         private PlayerService _playerService;
@@ -210,7 +201,7 @@ namespace VE2.Core.Player.Internal
             if (playerPersistentDataHandler == null)
             {
                 playerPersistentDataHandler = new GameObject("PlayerPersisentDataHandler").AddComponent<PlayerPersistentDataHandler>();
-                playerPersistentDataHandler.SetDefaults(_defaultPlayerPresentationConfig);
+                playerPersistentDataHandler.SetDefaults(_defaultBuiltInAvatarConfig);
             }
 
             if (!_transformDataSetup)
@@ -236,6 +227,9 @@ namespace VE2.Core.Player.Internal
             XRHapticsWrapper xRHapticsWrapperLeft = new(true);
             XRHapticsWrapper xRHapticsWrapperRight = new(false);
 
+            //Getting PlayerSpawner to serve as spawn point reference
+            TransformWrapper playerTransformWrapper = new(transform);
+
             //May be null if UIs aren't available
             IPrimaryUIServiceInternal primaryUIService = VE2API.PrimaryUIService as IPrimaryUIServiceInternal;
             ISecondaryUIServiceInternal secondaryUIService = VE2API.SecondaryUIService as ISecondaryUIServiceInternal;
@@ -248,7 +242,8 @@ namespace VE2.Core.Player.Internal
                 primaryUIService,
                 secondaryUIService,
                 xRHapticsWrapperLeft,
-                xRHapticsWrapperRight);
+                xRHapticsWrapperRight,
+                playerTransformWrapper);
         }
 
         private void FixedUpdate()

@@ -21,7 +21,9 @@ TagManager:
   - Ground
   - Water
   - UI
-  - V_Player
+  - V_LocalPlayerVisible
+  - V_LocalPlayerInvisible
+  - V_RemotePlayer
   - V_Layer0
   - V_Layer1
   - V_Layer2

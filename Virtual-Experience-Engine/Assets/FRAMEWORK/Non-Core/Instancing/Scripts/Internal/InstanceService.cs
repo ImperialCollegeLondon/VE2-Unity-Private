@@ -66,6 +66,29 @@ namespace VE2.NonCore.Instancing.Internal
         public float Ping => _pingSyncer.Ping;
         public int SmoothPing => _pingSyncer.SmoothPing;
         //public event Action<int> OnPingUpdate { add => _pingSyncer.OnPingUpdate += value; remove => _pingSyncer.OnPingUpdate -= value; }
+
+        public IClientIDWrapper GetClientIDForAvatarGameObject(GameObject avatarGameObject)
+        {
+            if (avatarGameObject == null)
+            {
+                Debug.LogError("GetClientIDForAvatarGameObject: GameObject is null.");
+                return null;
+            }
+
+            //We could search upwards, or we could just look at the name?
+
+            //gameobject names will end in _clientID
+            if (avatarGameObject.name.LastIndexOf('_') >= 0 &&
+                ushort.TryParse(avatarGameObject.name[(avatarGameObject.name.LastIndexOf('_') + 1)..], out ushort clientID))
+            {
+                return new ClientIDWrapper(clientID, clientID == LocalClientID);
+            }
+            else
+            {
+                Debug.LogError($"Tried to get client ID for avatar GameObject, but given GameObject ({avatarGameObject.name}) does not appear to be an avatar. Please note, VE2 must control the avatar GameObject names, please do not change them.");
+                return null;
+            }
+        }
         #endregion
 
         #region Internal interfaces
@@ -188,18 +211,17 @@ namespace VE2.NonCore.Instancing.Internal
             }
         }
 
-        private void SendServerRegistration() 
+        private void SendServerRegistration()
         {
-            //Debug.Log("<color=green> Try register to server pop'n with instance code - " + _instanceCode);
-
-            bool usingFrameworkAvatar = _playerService != null; 
-            OverridableAvatarAppearance overridableAvatarAppearance = usingFrameworkAvatar? _playerService.OverridableAvatarAppearance : new();
+            bool usingFrameworkAvatar = _playerService != null;
+            InstancedAvatarAppearance overridableAvatarAppearance = usingFrameworkAvatar ? _playerService.InstancedAvatarAppearance : new();
             AvatarAppearanceWrapper avatarAppearanceWrapper = new(usingFrameworkAvatar, overridableAvatarAppearance);
 
             //We also send the LocalClientID here, this will either be maxvalue (if this is our first time connecting, the server will give us a new ID)..
             //..or it'll be the ID we we're restored after a disconnect (if we're reconnecting, the server will use the ID we provide)
             ServerRegistrationRequest serverRegistrationRequest = new(_instanceCode, _instanceInfoContainer.LocalClientID, avatarAppearanceWrapper);
-            _commsHandler.SendMessage(serverRegistrationRequest.Bytes, InstanceNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
+            byte[] serverRegistrationRequestBytes = serverRegistrationRequest.Bytes;
+            _commsHandler.SendMessage(serverRegistrationRequestBytes, InstanceNetworkingMessageCodes.ServerRegistrationRequest, TransmissionProtocol.TCP);
         }
 
         private void HandleReceiveServerRegistrationConfirmation(byte[] bytes)

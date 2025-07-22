@@ -286,13 +286,13 @@ namespace VE2.NonCore.Platform.API
 
         public class PlatformClientInfo : ClientInfoBase
         {
-            public PlayerPresentationConfig PlayerPresentationConfig;
+            public BuiltInPlayerPresentationConfig PlayerPresentationConfig;
 
             public PlatformClientInfo() { }
 
             public PlatformClientInfo(byte[] bytes) : base(bytes) { }
 
-            public PlatformClientInfo(ushort id, bool isAdmin, string machineName, PlayerPresentationConfig playerPresentationConfig) : base(id, isAdmin, machineName)
+            public PlatformClientInfo(ushort id, bool isAdmin, string machineName, BuiltInPlayerPresentationConfig playerPresentationConfig) : base(id, isAdmin, machineName)
             {
                 PlayerPresentationConfig = playerPresentationConfig;
             }
@@ -324,7 +324,7 @@ namespace VE2.NonCore.Platform.API
 
                 ushort playerPresentationConfigLength = reader.ReadUInt16();
                 byte[] playerPresentationConfigBytes = reader.ReadBytes(playerPresentationConfigLength);
-                PlayerPresentationConfig = new PlayerPresentationConfig(playerPresentationConfigBytes);
+                PlayerPresentationConfig = new BuiltInPlayerPresentationConfig(playerPresentationConfigBytes);
             }
         }
 

@@ -12,17 +12,19 @@ namespace VE2.Common.Shared
         public static readonly (string name, int index)[] RequiredLayers = new[]
         {
             ("Ground", 3),
-            ("V_Player", 6),
-            ("V_Layer0", 7),
-            ("V_Layer1", 8),
-            ("V_Layer2", 9),
-            ("V_Layer3", 10),
-            ("V_Layer4", 11),
-            ("V_Layer5", 12),
-            ("V_Layer6", 13),
-            ("V_Layer7", 14),
-            ("V_Layer8", 15),
-            ("V_Layer9", 16),
+            ("V_LocalPlayerVisible", 6),
+            ("V_LocalPlayerInvisible", 7),
+            ("V_RemotePlayer", 8),
+            ("V_Layer0", 9),
+            ("V_Layer1", 10),
+            ("V_Layer2", 11),
+            ("V_Layer3", 12),
+            ("V_Layer4", 13),
+            ("V_Layer5", 14),
+            ("V_Layer6", 15),
+            ("V_Layer7", 16),
+            ("V_Layer8", 17),
+            ("V_Layer9", 18),
         };
 
         public const int BuiltInLayerLimit = 6;
