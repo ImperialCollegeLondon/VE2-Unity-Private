@@ -1,8 +1,7 @@
 using System;
 using UnityEngine;
-using VE2.NonCore.Instancing.API;
 
-namespace VE2.NonCore.Instancing.Internal
+namespace VE2.NonCore.Instancing.API
 {
     internal interface IInstanceServiceInternal : IInstanceService
     {

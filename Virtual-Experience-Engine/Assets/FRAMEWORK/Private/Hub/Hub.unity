@@ -66862,23 +66862,37 @@ MonoBehaviour:
       OnResetViewVR:
         m_PersistentCalls:
           m_Calls: []
-    AvatarAppearanceOverrideConfig:
-      OverrideHead: 0
-      HeadOverrideIndex: 0
-      HeadOverrideGameObjects: []
-      OverrideTorso: 0
-      TorsoOverrideIndex: 0
-      TorsoOverrideGameObjects: []
+    PluginAvatarSelections:
+      HeadGameObjectSelection:
+        BuiltInGameObjectEnabled: 1
+        CustomGameObjectEnabled: 0
+        CustomGameObjectIndex: 0
+      TorsoGameObjectSelection:
+        BuiltInGameObjectEnabled: 1
+        CustomGameObjectEnabled: 0
+        CustomGameObjectIndex: 0
+      RightHandVRGameObjectSelection:
+        BuiltInGameObjectEnabled: 1
+        CustomGameObjectEnabled: 0
+        CustomGameObjectIndex: 0
+      LeftHandVRGameObjectSelection:
+        BuiltInGameObjectEnabled: 1
+        CustomGameObjectEnabled: 0
+        CustomGameObjectIndex: 0
+    PluginCustomAvatarPrefabs:
+      Heads: []
+      Torsos: []
+      VRHands: []
     RepeatedTransmissionConfig:
       TransmissionFrequency: 35
       TransmissionType: 0
-  _defaultPlayerPresentationConfig:
+  _defaultBuiltInAvatarConfig:
     PlayerName: Unknown
-    AvatarHeadType: 0
-    AvatarTorsoType: 0
-    AvatarRed: 255
-    AvatarGreen: 60
-    AvatarBlue: 60
+    AvatarHeadIndex: 0
+    AvatarTorsoIndex: 0
+    AvatarColorR: 0
+    AvatarColorG: 0
+    AvatarColorB: 0
   _transformDataSetup: 0
   _playerTransformData:
     IsVRMode: 0
