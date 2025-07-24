@@ -4,6 +4,7 @@ using VE2.Core.VComponents.API;
 using VE2.Common.API;
 using VE2.Common.Shared;
 using UnityEngine.Events;
+using VE2.Core.VComponents.Shared;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -111,6 +112,8 @@ namespace VE2.Core.VComponents.Internal
 
             string id = "LinearAdjustable-" + gameObject.name;
 
+            V_GrabbableOutline grabbableOutline = gameObject.AddComponent<V_GrabbableOutline>();
+
             if (_config.RangedAdjustableInteractionConfig.TransformToAdjust == null || ((TransformWrapper)_config.RangedAdjustableInteractionConfig.TransformToAdjust).Transform == null)
             {
                 _config.RangedAdjustableInteractionConfig.TransformToAdjust = new TransformWrapper(transform);
@@ -136,6 +139,7 @@ namespace VE2.Core.VComponents.Internal
                 _config,
                 _adjustableState,
                 _freeGrabbableState,
+                grabbableOutline,
                 id,
                 VE2API.WorldStateSyncableContainer,
                 VE2API.GrabInteractablesContainer,

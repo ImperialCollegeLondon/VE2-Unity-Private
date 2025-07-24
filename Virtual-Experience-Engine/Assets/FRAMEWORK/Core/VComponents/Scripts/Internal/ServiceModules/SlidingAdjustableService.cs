@@ -88,11 +88,13 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         private readonly SlidingAdjustableConfig _config;
+        private readonly V_GrabbableOutline _grabbableOutline;
 
-        public SlidingAdjustableService(List<IHandheldInteractionModule> handheldInteractions, SlidingAdjustableConfig config, AdjustableState adjustableState, VE2Serializable grabbableState, string id,
+        public SlidingAdjustableService(List<IHandheldInteractionModule> handheldInteractions, SlidingAdjustableConfig config, AdjustableState adjustableState, VE2Serializable grabbableState, V_GrabbableOutline grabbableOutline, string id,
             IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer, IClientIDWrapper localClientIdWrapper)
         {
             _config = config;
+            _grabbableOutline = grabbableOutline;
 
             _rangedAdjustableInteractionModule = new(id, grabInteractablesContainer, handheldInteractions, config.RangedAdjustableInteractionConfig, config.GeneralInteractionConfig);
 
@@ -100,6 +102,9 @@ namespace VE2.Core.VComponents.Internal
             //The Grabbable state module needs the same ID that is passed to the ranged adjustable interaction module, so the interactor can pull the module from the grab interactable container
             _adjustableStateModule = new(adjustableState, config.AdjustableStateConfig, config.SyncConfig, $"ADJ-{id}", worldStateSyncableContainer, localClientIdWrapper);
             _grabbableStateModule = new(grabbableState, config.GrabbableStateConfig, config.SyncConfig, $"{id}", worldStateSyncableContainer, grabInteractablesContainer, interactorContainer, localClientIdWrapper);
+
+            _rangedAdjustableInteractionModule.OnLocalInteractorEnterHover += OnHoverEnter;
+            _rangedAdjustableInteractionModule.OnLocalInteractorExitHover += OnHoverExit;
 
             _rangedAdjustableInteractionModule.OnLocalInteractorRequestGrab += (InteractorID interactorID) => _grabbableStateModule.SetGrabbed(interactorID);
             _rangedAdjustableInteractionModule.OnLocalInteractorRequestDrop += (InteractorID interactorID) => _grabbableStateModule.SetDropped(interactorID);
@@ -112,6 +117,20 @@ namespace VE2.Core.VComponents.Internal
 
             _adjustableStateModule.OnValueChangedInternal += (float value) => HandleStateValueChanged(value);
         }
+
+        private void OnHoverEnter()
+        {
+            if (!_grabbableStateModule.IsGrabbed)
+                _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.HoveredOutlineColor;
+            else
+                _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.DefaultOutlineColor;
+        }
+
+        private void OnHoverExit()
+        {
+            _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.DefaultOutlineColor;
+        }
+
 
         public void HandleStart() => _adjustableStateModule.InitializeStateWithStartingValue();
 
@@ -131,9 +150,18 @@ namespace VE2.Core.VComponents.Internal
             SetValueOnStateModule(targetValue, clientID);
         }
 
-        private void HandleGrabConfirmed(ushort id) { }
+        private void HandleGrabConfirmed(ushort id)
+        {
+            if (_grabbableOutline != null) //null check so tests dont fail
+                _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.GrabbedOutlineColor;
+        }
 
-        private void HandleDropConfirmed(ushort id) { }
+        private void HandleDropConfirmed(ushort id)
+        {
+            if (_grabbableOutline != null) //null check so tests dont fail
+                _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.DefaultOutlineColor;
+
+        }
 
         private void SetSpatialValue(float spatialValue)
         {

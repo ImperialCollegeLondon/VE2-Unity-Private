@@ -83,7 +83,6 @@ namespace VE2.Core.VComponents.Internal
 
         private void OnHoverEnter()
         {
-
             if (!_StateModule.IsGrabbed)
                 _grabbableOutline.OutlineColor = _rangedFreeGrabInteractionConfig.HoveredOutlineColor;
             else
