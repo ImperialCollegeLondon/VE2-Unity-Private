@@ -6,6 +6,7 @@ using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
+using VE2.Core.VComponents.Shared;
 
 namespace VE2.Core.VComponents.Tests
 {
@@ -33,6 +34,7 @@ namespace VE2.Core.VComponents.Tests
                 Substitute.For<IWorldStateSyncableContainer>(),
                 Substitute.For<IGrabInteractablesContainer>(),
                 interactorContainerStub,
+                null,
                 Substitute.For<IRigidbodyWrapper>(), 
                 new PhysicsConstants(),
                 new V_FreeGrabbable(),

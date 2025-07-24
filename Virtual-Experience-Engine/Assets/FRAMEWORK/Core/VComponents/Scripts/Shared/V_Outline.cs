@@ -92,7 +92,6 @@ public class V_GrabbableOutline : MonoBehaviour
 
   void Awake()
   {
-
     // Cache renderers
     renderers = GetComponentsInChildren<Renderer>();
 
@@ -108,8 +107,8 @@ public class V_GrabbableOutline : MonoBehaviour
       Debug.LogError("Outline materials not found. Ensure they are placed in a Resources folder and the path is correct.");
     }
 
-    outlineMaskMaterial.name = "OutlineMask (Instance)";
-    outlineFillMaterial.name = "OutlineFill (Instance)";
+    outlineMaskMaterial.name = "OutlineMask";
+    outlineFillMaterial.name = "OutlineFill";
 
     // Retrieve or generate smooth normals
     LoadSmoothNormals();
@@ -327,44 +326,33 @@ public class V_GrabbableOutline : MonoBehaviour
     mesh.subMeshCount++;
     mesh.SetTriangles(mesh.triangles, mesh.subMeshCount - 1);
   }
+  static readonly int OutlineColorProp = Shader.PropertyToID("_OutlineColor");
+  static readonly int OutlineWidthProp = Shader.PropertyToID("_OutlineWidth");
 
   void UpdateMaterialProperties()
   {
-
-    // Apply properties according to mode
-    outlineFillMaterial.SetColor("_OutlineColor", outlineColor);
-
-    switch (outlineMode)
+    foreach (var r in renderers)
     {
-      case Mode.OutlineAll:
-        outlineMaskMaterial.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.Always);
-        outlineFillMaterial.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.Always);
-        outlineFillMaterial.SetFloat("_OutlineWidth", outlineWidth);
-        break;
+      if (r == null) continue;
 
-      case Mode.OutlineVisible:
-        outlineMaskMaterial.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.Always);
-        outlineFillMaterial.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.LessEqual);
-        outlineFillMaterial.SetFloat("_OutlineWidth", outlineWidth);
-        break;
+      var mats = r.materials; // per-renderer instances
+      for (int i = 0; i < mats.Length; i++)
+      {
+        // Find the outline fill by comparing shader or name
+        if (mats[i].shader == outlineFillMaterial.shader || mats[i].name.Contains("OutlineFill"))
+        {
+          if (mats[i].HasProperty(OutlineColorProp))
+            mats[i].SetColor(OutlineColorProp, outlineColor);
 
-      case Mode.OutlineHidden:
-        outlineMaskMaterial.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.Always);
-        outlineFillMaterial.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.Greater);
-        outlineFillMaterial.SetFloat("_OutlineWidth", outlineWidth);
-        break;
+          if (mats[i].HasProperty(OutlineWidthProp))
+            mats[i].SetFloat(OutlineWidthProp, outlineWidth);
+        }
+      }
 
-      case Mode.OutlineAndSilhouette:
-        outlineMaskMaterial.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.LessEqual);
-        outlineFillMaterial.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.Always);
-        outlineFillMaterial.SetFloat("_OutlineWidth", outlineWidth);
-        break;
-
-      case Mode.SilhouetteOnly:
-        outlineMaskMaterial.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.LessEqual);
-        outlineFillMaterial.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.Greater);
-        outlineFillMaterial.SetFloat("_OutlineWidth", 0f);
-        break;
+      // Assign back only if you changed the array structure (here we didn’t),
+      // but do it anyway if you want to be explicit:
+      r.materials = mats;
     }
   }
+
 }

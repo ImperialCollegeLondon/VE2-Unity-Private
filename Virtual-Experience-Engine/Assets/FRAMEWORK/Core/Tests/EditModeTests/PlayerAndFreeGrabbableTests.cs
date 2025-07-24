@@ -32,6 +32,7 @@ namespace VE2.Core.Tests
                 Substitute.For<IWorldStateSyncableContainer>(),
                 GrabInteractableContainerSetup.GrabInteractableContainer,
                 InteractorContainerSetup.InteractorContainer,
+                null,
                 Substitute.For<IRigidbodyWrapper>(), 
                 new PhysicsConstants(),
                 new V_FreeGrabbable(),

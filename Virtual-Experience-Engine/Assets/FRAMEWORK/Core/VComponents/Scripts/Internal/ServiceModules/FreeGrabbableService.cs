@@ -26,7 +26,7 @@ namespace VE2.Core.VComponents.Internal
         private bool MultiplayerSupportPresent => VE2API.HasMultiPlayerSupport;
 
         public FreeGrabbableConfig(ITransformWrapper attachPointWrapper) { RangedFreeGrabInteractionConfig.AttachPointWrapper = attachPointWrapper; }
-        public FreeGrabbableConfig() {}
+        public FreeGrabbableConfig() { }
     }
 
     internal class FreeGrabbableService
@@ -41,6 +41,7 @@ namespace VE2.Core.VComponents.Internal
         public event Action<ushort> OnDropConfirmed;
 
         private readonly IRigidbodyWrapper _rigidbody;
+        private readonly V_GrabbableOutline _grabbableOutline;
         private readonly PhysicsConstants _physicsConstants;
         private ITransformWrapper _transform => _config.RangedFreeGrabInteractionConfig.AttachPointWrapper;
         private IGrabbableRigidbody _grabbableRigidbodyInterface;
@@ -53,7 +54,7 @@ namespace VE2.Core.VComponents.Internal
         private readonly FreeGrabbableConfig _config;
 
         public FreeGrabbableService(List<IHandheldInteractionModule> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id,
-            IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer,
+            IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer, V_GrabbableOutline grabbableOutline,
             IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants, IGrabbableRigidbody grabbableRigidbodyInterface, IClientIDWrapper localClientIdWrapper, IColliderWrapper colliderWrapper)
         {
             _config = config;
@@ -61,10 +62,14 @@ namespace VE2.Core.VComponents.Internal
             _RangedGrabInteractionModule = new(id, grabInteractablesContainer, handheldInteractions, config.RangedFreeGrabInteractionConfig, config.GeneralInteractionConfig, colliderWrapper);
             _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, grabInteractablesContainer, interactorContainer, localClientIdWrapper);
 
+            _grabbableOutline = grabbableOutline;
             _rigidbody = rigidbody;
             _physicsConstants = physicsConstants;
             _isKinematicOnGrab = _rigidbody.isKinematic;
             _grabbableRigidbodyInterface = grabbableRigidbodyInterface;
+
+            _RangedGrabInteractionModule.OnLocalInteractorEnterHover += OnHoverEnter;
+            _RangedGrabInteractionModule.OnLocalInteractorExitHover += OnHoverExit;
 
             _RangedGrabInteractionModule.OnLocalInteractorRequestGrab += interactorID => _StateModule.SetGrabbed(interactorID);
             _RangedGrabInteractionModule.OnLocalInteractorRequestDrop += interactorID => _StateModule.SetDropped(interactorID);
@@ -73,6 +78,20 @@ namespace VE2.Core.VComponents.Internal
             _StateModule.OnGrabConfirmed += HandleGrabConfirmed;
             _StateModule.OnDropConfirmed += HandleDropConfirmed;
             _StateModule.OnRequestTeleportRigidbody += HandleTeleportRigidbody;
+        }
+
+        private void OnHoverEnter()
+        {
+
+            if (!_StateModule.IsGrabbed)
+                _grabbableOutline.OutlineColor = Color.yellow;
+            else
+                _grabbableOutline.OutlineColor = Color.white;
+        }
+
+        private void OnHoverExit()
+        {
+            _grabbableOutline.OutlineColor = Color.white;
         }
 
         //This is for teleporting the grabbed object along with the player - TODO: Tweak names for clarity 
@@ -100,6 +119,9 @@ namespace VE2.Core.VComponents.Internal
             Quaternion grabberRotation = _StateModule.CurrentGrabbingInteractor.GrabberTransformWrapper.rotation;
             _initialGrabberToObjectRotation = Quaternion.Inverse(grabberRotation) * _rigidbody.rotation;
 
+            if (_grabbableOutline != null) //null check so tests dont fail
+                _grabbableOutline.OutlineColor = new Color(1f, 0.5f, 0f, 1f);
+
             OnGrabConfirmed?.Invoke(grabberClientID);
         }
 
@@ -119,6 +141,9 @@ namespace VE2.Core.VComponents.Internal
             }
 
             OnDropConfirmed?.Invoke(dropperClientID);
+
+            if (_grabbableOutline != null) //null check so tests dont fail
+                _grabbableOutline.OutlineColor = Color.white;
 
             if (_grabbableRigidbodyInterface.FreeGrabbableHandlesKinematics)
             {

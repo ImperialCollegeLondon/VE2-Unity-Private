@@ -30,6 +30,9 @@ namespace VE2.Core.VComponents.Internal
         private readonly RangedInteractionConfig _rangedConfig;
         private List<InteractorID> _hoveringInteractors = new();
 
+        internal event Action OnLocalInteractorEnterHover;
+        internal event Action OnLocalInteractorExitHover;
+
         public RangedInteractionModule(RangedInteractionConfig config, GeneralInteractionConfig generalInteractionConfig) : base(generalInteractionConfig)
         {
             _rangedConfig = config;
@@ -47,6 +50,7 @@ namespace VE2.Core.VComponents.Internal
                 try
                 {
                     _rangedConfig.OnLocalHoverEnter?.Invoke();
+                    OnLocalInteractorEnterHover?.Invoke();
                 }
                 catch (Exception e)
                 {
@@ -67,6 +71,7 @@ namespace VE2.Core.VComponents.Internal
                 try
                 {
                     _rangedConfig.OnLocalHoverExit?.Invoke();
+                    OnLocalInteractorExitHover?.Invoke();
                 }
                 catch (Exception e)
                 {

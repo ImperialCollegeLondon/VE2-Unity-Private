@@ -154,7 +154,7 @@ namespace VE2.Core.VComponents.Internal
 
             string id = "FreeGrabbable-" + gameObject.name;
             
-            gameObject.AddComponent<V_GrabbableOutline>();
+            V_GrabbableOutline grabbableOutline = gameObject.AddComponent<V_GrabbableOutline>();
 
             if (_config.RangedFreeGrabInteractionConfig.AttachPointWrapper == null || ((TransformWrapper)_config.RangedFreeGrabInteractionConfig.AttachPointWrapper).Transform == null)
             {
@@ -179,6 +179,7 @@ namespace VE2.Core.VComponents.Internal
                 VE2API.WorldStateSyncableContainer,
                 VE2API.GrabInteractablesContainer,
                 VE2API.InteractorContainer,
+                grabbableOutline,
                 _rigidbodyWrapper,
                 Resources.Load<PhysicsConstants>("PhysicsConstants"),
                 (IGrabbableRigidbody)this,

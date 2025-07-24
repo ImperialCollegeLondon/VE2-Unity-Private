@@ -9,7 +9,8 @@
         "VE2.Core.VComponents.Internal",
         "VE2.Core.Player.API",
         "VE2.Common.API",
-        "VE2.Common.Shared"
+        "VE2.Common.Shared",
+        "VE2.Core.VComponents.Shared"
     ],
     "includePlatforms": [
         "Editor"
