@@ -64,10 +64,9 @@ namespace VE2.Core.VComponents.Internal
         //needs to be the attach point at the start (0 not starting position) to get the correct angle
         private Vector3 _initialVectorToHandle = Vector3.zero;
         private Vector3 _positionBeforeGrab = Vector3.zero;
-        private Vector3 _transformToAdjustVectorUp = Vector3.zero;
-        private Vector3 _transformToAdjustVectorRight = Vector3.zero;
-        private Vector3 _transformToAdjustVectorForward = Vector3.zero;
-        private GameObject _adjustableVisual = null;
+        private Vector3 _transformToAdjustVectorUpOnGrab = Vector3.zero;
+        private Vector3 _transformToAdjustVectorRightOnGrab = Vector3.zero;
+        private Vector3 _transformToAdjustVectorForwardOnGrab = Vector3.zero;
 
         private float _signedAngle = 0;
         private float _oldRotationalValue = 0;
@@ -83,11 +82,7 @@ namespace VE2.Core.VComponents.Internal
             //needs the vector to the attachpoint at 0,0,0
             _initialVectorToHandle = _attachPointTransform.position - _transformToAdjust.position;
 
-            _adjustableVisual = _config.RotationalAdjustableServiceConfig.AdjustableVisual;
-
-
-            _rangedAdjustableInteractionModule = new(id, grabInteractablesContainer, handheldInteractions, config.RangedAdjustableInteractionConfig, config.GeneralInteractionConfig,
-                                                        _adjustableVisual != null ? new TransformWrapper(_adjustableVisual.transform) : null);
+            _rangedAdjustableInteractionModule = new(id, grabInteractablesContainer, handheldInteractions, config.RangedAdjustableInteractionConfig, config.GeneralInteractionConfig);
 
             //seperate modules for adjustable state and free grabbable state. Give the adjustable state module a different ID so it doesn't clash in the syncer with the grabbable state module
             //The Grabbable state module needs the same ID that is passed to the ranged adjustable interaction module, so the interactor can pull the module from the grab interactable container
@@ -139,15 +134,9 @@ namespace VE2.Core.VComponents.Internal
         private void HandleGrabConfirmed(ushort id)
         {
             _positionBeforeGrab = _transformToAdjust.position;
-            _transformToAdjustVectorUp = _transformToAdjust.up;
-            _transformToAdjustVectorRight = _transformToAdjust.right;
-            _transformToAdjustVectorForward = _transformToAdjust.forward;
-
-            if (_adjustableVisual != null)
-            {
-                _adjustableVisual.SetActive(true);
-                _adjustableVisual.transform.position = _transformToAdjust.position;
-            }
+            _transformToAdjustVectorUpOnGrab = _transformToAdjust.up;
+            _transformToAdjustVectorRightOnGrab = _transformToAdjust.right;
+            _transformToAdjustVectorForwardOnGrab = _transformToAdjust.forward;
 
             _oldRotationalValue = (_spatialValue % 360 + 360) % 360; //this is to make sure the value is always positive
             _numberOfRevolutions = Mathf.FloorToInt(_spatialValue / 360); //get the nth revolution of the starting value
@@ -155,8 +144,6 @@ namespace VE2.Core.VComponents.Internal
 
         private void HandleDropConfirmed(ushort id)
         {
-            if (_adjustableVisual != null)
-                _adjustableVisual.SetActive(false);
 
         }
 
@@ -207,18 +194,18 @@ namespace VE2.Core.VComponents.Internal
             //get the direction from the object to the grabber
             Vector3 directionToGrabber = grabberPosition - _positionBeforeGrab;
             Vector3 localDirectionToGrabber, localDirectionToHandle;
-            Vector3 axisOfRotation = _transformToAdjustVectorUp;
+            Vector3 axisOfRotation = _transformToAdjustVectorUpOnGrab;
 
             switch (_config.RotationalAdjustableServiceConfig.AdjustmentAxis)
             {
                 case SpatialAdjustmentAxis.XAxis:
-                    axisOfRotation = _transformToAdjustVectorRight;
+                    axisOfRotation = _transformToAdjustVectorRightOnGrab;
                     break;
                 case SpatialAdjustmentAxis.YAxis:
-                    axisOfRotation = _transformToAdjustVectorUp;
+                    axisOfRotation = _transformToAdjustVectorUpOnGrab;
                     break;
                 case SpatialAdjustmentAxis.ZAxis:
-                    axisOfRotation = _transformToAdjustVectorForward;
+                    axisOfRotation = _transformToAdjustVectorForwardOnGrab;
                     break;
             }
 

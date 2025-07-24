@@ -124,8 +124,6 @@ namespace VE2.Core.VComponents.Internal
                 Debug.LogWarning($"The adjustable on {gameObject.name} does not have an assigned AttachPoint, and so may not behave as intended");
             }
             
-            if(_config.RotationalAdjustableServiceConfig.AdjustableVisual != null)
-                _config.RotationalAdjustableServiceConfig.AdjustableVisual.SetActive(false);
 
             List<IHandheldInteractionModule> handheldInteractions = new();
 
