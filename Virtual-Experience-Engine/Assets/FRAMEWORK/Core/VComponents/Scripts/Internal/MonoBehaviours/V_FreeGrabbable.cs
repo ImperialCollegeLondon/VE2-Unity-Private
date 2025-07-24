@@ -153,6 +153,8 @@ namespace VE2.Core.VComponents.Internal
                 return;
 
             string id = "FreeGrabbable-" + gameObject.name;
+            
+            gameObject.AddComponent<V_GrabbableOutline>();
 
             if (_config.RangedFreeGrabInteractionConfig.AttachPointWrapper == null || ((TransformWrapper)_config.RangedFreeGrabInteractionConfig.AttachPointWrapper).Transform == null)
             {
