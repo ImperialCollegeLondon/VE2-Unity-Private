@@ -28,6 +28,7 @@ namespace VE2.Core.Tests
                 new RotatingAdjustableConfig(Substitute.For<ITransformWrapper>(), Substitute.For<ITransformWrapper>()),
                 new AdjustableState(),
                 new GrabbableState(),
+                null, //grabbable outline is not needed for this test
                 "debug",
                 Substitute.For<IWorldStateSyncableContainer>(),
                 GrabInteractableContainerSetup.GrabInteractableContainer,

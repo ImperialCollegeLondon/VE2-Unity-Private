@@ -32,7 +32,7 @@ namespace VE2.Core.VComponents.Internal
             RangedAdjustableInteractionConfig.AttachPointWrapper = attachPointWrapper;
             RangedAdjustableInteractionConfig.TransformToAdjust = transformToMove;
         }
-        public RotatingAdjustableConfig() {}
+        public RotatingAdjustableConfig() { }
     }
 
     internal class RotatingAdjustableService
@@ -60,6 +60,7 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         private readonly RotatingAdjustableConfig _config;
+        private readonly V_GrabbableOutline _grabbableOutline;
 
         //gets the vector from the object to the attach point, this will serve as the starting point for any angle created
         //needs to be the attach point at the start (0 not starting position) to get the correct angle
@@ -71,10 +72,11 @@ namespace VE2.Core.VComponents.Internal
         private int _minRevs => (int)MinimumSpatialValue / 360;
         private int _maxRevs => (int)MaximumSpatialValue / 360;
 
-        public RotatingAdjustableService(List<IHandheldInteractionModule> handheldInteractions, RotatingAdjustableConfig config, AdjustableState adjustableState, VE2Serializable grabbableState, string id,
+        public RotatingAdjustableService(List<IHandheldInteractionModule> handheldInteractions, RotatingAdjustableConfig config, AdjustableState adjustableState, VE2Serializable grabbableState, V_GrabbableOutline grabbableOutline, string id,
             IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer, IClientIDWrapper localClientIdWrapper)
         {
             _config = config;
+            _grabbableOutline = grabbableOutline;
 
             //needs the vector to the attachpoint at 0,0,0
             _initialVectorToHandle = _attachPointTransform.position - _transformToAdjust.position;
@@ -85,6 +87,9 @@ namespace VE2.Core.VComponents.Internal
             //The Grabbable state module needs the same ID that is passed to the ranged adjustable interaction module, so the interactor can pull the module from the grab interactable container
             _adjustableStateModule = new(adjustableState, config.AdjustableStateConfig, config.SyncConfig, $"ADJ-{id}", worldStateSyncableContainer, localClientIdWrapper);
             _grabbableStateModule = new(grabbableState, config.GrabbableStateConfig, config.SyncConfig, $"{id}", worldStateSyncableContainer, grabInteractablesContainer, interactorContainer, localClientIdWrapper);
+
+            _rangedAdjustableInteractionModule.OnLocalInteractorEnterHover += OnHoverEnter;
+            _rangedAdjustableInteractionModule.OnLocalInteractorExitHover += OnHoverExit;
 
             _rangedAdjustableInteractionModule.OnLocalInteractorRequestGrab += (InteractorID interactorID) => _grabbableStateModule.SetGrabbed(interactorID);
             _rangedAdjustableInteractionModule.OnLocalInteractorRequestDrop += (InteractorID interactorID) => _grabbableStateModule.SetDropped(interactorID);
@@ -100,6 +105,19 @@ namespace VE2.Core.VComponents.Internal
             //get the nth revolution of the starting value
             _numberOfRevolutions = Mathf.FloorToInt(ConvertToSpatialValue(config.AdjustableStateConfig.StartingOutputValue) / 360);
             _oldRotationalValue = ConvertToSpatialValue(config.AdjustableStateConfig.StartingOutputValue) - (_numberOfRevolutions * 360);
+        }
+
+        private void OnHoverEnter()
+        {
+            if (!_grabbableStateModule.IsGrabbed)
+                _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.HoveredOutlineColor;
+            else
+                _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.DefaultOutlineColor;
+        }
+
+        private void OnHoverExit()
+        {
+            _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.DefaultOutlineColor;
         }
 
         public void HandleStart() => _adjustableStateModule.InitializeStateWithStartingValue();
@@ -132,9 +150,16 @@ namespace VE2.Core.VComponents.Internal
         {
             _oldRotationalValue = (_spatialValue % 360 + 360) % 360; //this is to make sure the value is always positive
             _numberOfRevolutions = Mathf.FloorToInt(_spatialValue / 360); //get the nth revolution of the starting value
+
+            if (_grabbableOutline != null) //null check so tests dont fail
+                _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.GrabbedOutlineColor;
         }
 
-        private void HandleDropConfirmed(ushort id) { }
+        private void HandleDropConfirmed(ushort id)
+        {
+            if (_grabbableOutline != null) //null check so tests dont fail
+                _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.DefaultOutlineColor;
+        }
 
         private void SetSpatialValue(float spatialValue)
         {
