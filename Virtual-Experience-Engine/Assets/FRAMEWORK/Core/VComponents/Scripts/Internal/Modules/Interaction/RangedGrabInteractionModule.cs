@@ -14,7 +14,7 @@ namespace VE2.Core.VComponents.Internal
         [BeginGroup(Style = GroupStyle.Round)]
 
         //Ideally this would be private, but the custom property drawer can't see the PropertyOrder value if it is. 
-        [SerializeField, PropertyOrder(-10)] public Transform _attachPoint = null; 
+        [SerializeField, PropertyOrder(-10)] public Transform _attachPoint = null;
         private ITransformWrapper _attachPointWrapper;
         public ITransformWrapper AttachPointWrapper
         {
@@ -28,12 +28,19 @@ namespace VE2.Core.VComponents.Internal
             set => _attachPointWrapper = value; //TODO: Maybe try and also set _attachPoint if its castable to Transform?
         }
 
+
         [SerializeField, PropertyOrder(-9)] public bool VRRaySnap = true;
         [SerializeField, PropertyOrder(-8), ShowIf(nameof(VRFailsafeGrab), true)] public float VRRaySnapRangeFrontOfHand = 0.15f;
         [SerializeField, PropertyOrder(-7), ShowIf(nameof(VRFailsafeGrab), true)] public float VRRaySnapRangeBackOfHand = 0.1f;
         [SerializeField, PropertyOrder(-6)] public bool VRFailsafeGrab = true;
-        [EndGroup]
         [SerializeField, PropertyOrder(-5), ShowIf(nameof(VRFailsafeGrab), true), Range(1f, 2f)] public float VRFailsafeGrabMultiplier = 1.2f;
+
+        [Space(15)]
+
+        [SerializeField, PropertyOrder(-4)] public Color DefaultOutlineColor = Color.white;
+        [SerializeField, PropertyOrder(-3)] public Color GrabbedOutlineColor = new Color(1f, 0.5f, 0f, 1f);
+        [EndGroup]
+        [SerializeField, PropertyOrder(-2),] public Color HoveredOutlineColor = Color.yellow; 
 
         //TODO - VR raysnap should be allowed even if failsafe grab is disabled
         //Maybe we want a separate toggle to define whether we also allow ray snapping?

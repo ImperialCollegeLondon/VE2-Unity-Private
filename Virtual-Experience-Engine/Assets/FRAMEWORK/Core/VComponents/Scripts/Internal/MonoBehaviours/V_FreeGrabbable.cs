@@ -7,6 +7,7 @@ using VE2.Common.API;
 using UnityEngine.Events;
 using VE2.Common.Shared;
 using static UnityEngine.ParticleSystem;
+using VE2.Core.VComponents.Shared;
 
 namespace VE2.Core.VComponents.Internal
 {
