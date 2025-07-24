@@ -170,9 +170,7 @@ namespace VE2.Core.VComponents.Internal
             using BinaryReader reader = new(stream);
 
             StateChangeNumber = reader.ReadUInt16();
-            var valueX = reader.ReadSingle();
-            var valueY = reader.ReadSingle();
-            Value = new Vector2(valueX, valueY);
+            Value = new Vector2(reader.ReadSingle(), reader.ReadSingle());
 
             MostRecentInteractingClientID = reader.ReadUInt16();
         }

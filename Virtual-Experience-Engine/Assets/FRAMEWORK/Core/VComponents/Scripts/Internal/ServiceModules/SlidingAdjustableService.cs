@@ -210,7 +210,7 @@ namespace VE2.Core.VComponents.Internal
         and sets it to tthe state module */
         private void SetValueOnStateModule(float value, ushort clientID = ushort.MaxValue)
         {
-            //UnityEngine.Debug.Log($"value = {value}, AdjustableStateModule.OutputValue = {_AdjustableStateModule.OutputValue}");
+            //UnityEngine.Debug.Log($"value = {value}, Adjustable2DStateModule.OutputValue = {_AdjustableStateModule.OutputValue}");
 
             if (value == _adjustableStateModule.OutputValue)
                 return;

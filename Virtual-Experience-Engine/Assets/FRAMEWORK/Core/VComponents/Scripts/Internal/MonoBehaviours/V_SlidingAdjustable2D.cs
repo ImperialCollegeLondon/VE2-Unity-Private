@@ -10,7 +10,7 @@ namespace VE2.Core.VComponents.Internal
     internal partial class V_SlidingAdjustable2D : IV_SlidingAdjustable2D
     {
         #region State Module Interface
-        internal IAdjustableStateModule _AdjustableStateModule => _Service.AdjustableStateModule;
+        internal IAdjustable2DStateModule _AdjustableStateModule => _Service.Adjustable2DStateModule;
         internal IGrabbableStateModule _GrabbableStateModule => _Service.FreeGrabbableStateModule;
 
         public UnityEvent<Vector2> OnValueAdjusted { get; }/* => _AdjustableStateModule.OnValueAdjusted*/
@@ -46,7 +46,7 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         #region Ranged Interaction Module Interface
-        internal IRangedAdjustableInteractionModule _RangedAdjustableModule => _Service.RangedAdjustableInteractionModule;
+        internal IRangedAdjustable2DInteractionModule _RangedAdjustableModule => _Service.RangedAdjustable2DInteractionModule;
         public float InteractRange { get => _RangedAdjustableModule.InteractRange; set => _RangedAdjustableModule.InteractRange = value; }
         #endregion
 
@@ -63,11 +63,11 @@ namespace VE2.Core.VComponents.Internal
     internal partial class V_SlidingAdjustable2D : MonoBehaviour, IRangedGrabInteractionModuleProvider
     {
         [SerializeField, IgnoreParent] private SlidingAdjustable2DConfig _config = new();
-        [SerializeField, HideInInspector] private AdjustableState _adjustableState = new();
+        [SerializeField, HideInInspector] private Adjustable2DState _adjustable2DState = new();
         [SerializeField, HideInInspector] private GrabbableState _freeGrabbableState = new();
 
         #region Player Interfaces
-        IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _Service.RangedAdjustableInteractionModule;
+        IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _Service.RangedAdjustable2DInteractionModule;
         #endregion
 
         #region Inspector Utils
@@ -145,7 +145,7 @@ namespace VE2.Core.VComponents.Internal
             _service = new SlidingAdjustable2DService(
                 handheldInteractions,
                 _config,
-                _adjustableState,
+                _adjustable2DState,
                 _freeGrabbableState,
                 id,
                 VE2API.WorldStateSyncableContainer,
