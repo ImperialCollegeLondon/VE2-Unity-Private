@@ -78,6 +78,11 @@ namespace VE2.NonCore.Platform.Internal
             if (!inHub)
                 _platformService.ConnectToPlatform();
             //If we're in hub, don't connect. The hub will give us connection settings and fire off the connection.... unless those connection settings instead come from an "Intro" scene.
+
+            if (VE2API.PrimaryUIService != null)
+            {
+                PlayerBrowserHandler playerBrowserHandler = new PlayerBrowserHandler();
+            }
         }
 
         private void FixedUpdate()

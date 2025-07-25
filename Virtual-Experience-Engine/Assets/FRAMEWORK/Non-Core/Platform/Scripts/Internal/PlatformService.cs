@@ -225,12 +225,12 @@ namespace VE2.NonCore.Platform.Internal
             if (primaryUIService != null)
             {
                 //Player browser=====
-                GameObject playerBrowserUIHolder = GameObject.Instantiate(Resources.Load<GameObject>("PlatformPlayerBrowserUIHolder"));
-                GameObject playerBrowserUI = playerBrowserUIHolder.transform.GetChild(0).gameObject;
-                playerBrowserUI.SetActive(false);
+                // GameObject playerBrowserUIHolder = GameObject.Instantiate(Resources.Load<GameObject>("PlatformPlayerBrowserUIHolder"));
+                // GameObject playerBrowserUI = playerBrowserUIHolder.transform.GetChild(0).gameObject;
+                // playerBrowserUI.SetActive(false);
 
-                primaryUIService.AddNewTab("Players", playerBrowserUI, Resources.Load<Sprite>("PlatformPlayerBrowserUIICon"), 1);
-                GameObject.Destroy(playerBrowserUIHolder);
+                // primaryUIService.AddNewTab("Players", playerBrowserUI, Resources.Load<Sprite>("PlatformPlayerBrowserUIICon"), 1);
+                // GameObject.Destroy(playerBrowserUIHolder);
 
                 //Quick panel=====
                 GameObject platformQuickPanelUIHolder = GameObject.Instantiate(Resources.Load<GameObject>("PlatformQuickUIPanelHolder"));

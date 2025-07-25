@@ -1,9 +1,19 @@
+using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace VE2.NonCore.Platform.Internal
 {
     public class PlayerBrowserView : MonoBehaviour
     {
-        //Has the list of Worlds
+        [SerializeField] private Button _refreshButton;
+        [SerializeField] public VerticalLayoutGroup WorldLayoutGroup;
+
+        public event Action OnRefreshButtonClicked;
+
+        private void Awake()
+        {
+            _refreshButton.onClick.AddListener(() => OnRefreshButtonClicked?.Invoke());
+        }
     }
 }

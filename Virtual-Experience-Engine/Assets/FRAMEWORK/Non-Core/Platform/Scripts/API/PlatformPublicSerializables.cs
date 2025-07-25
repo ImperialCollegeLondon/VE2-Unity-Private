@@ -181,7 +181,8 @@ namespace VE2.NonCore.Platform.API
             }
         }
 
-
+        //TODO: Why cant the base contain the built-in presentation config?
+        //Both child classes do...
         internal abstract class ClientInfoBase : VE2Serializable
         {
             public ushort ClientID;
