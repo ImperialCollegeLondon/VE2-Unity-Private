@@ -11,6 +11,7 @@ using VE2.Common.API;
 using static VE2.Core.Player.API.PlayerSerializables;
 using UnityEngine.Events;
 using System.Collections.Generic;
+using static VE2.NonCore.Instancing.API.InstancePublicSerializables;
 
 namespace VE2.NonCore.Instancing.Internal
 {

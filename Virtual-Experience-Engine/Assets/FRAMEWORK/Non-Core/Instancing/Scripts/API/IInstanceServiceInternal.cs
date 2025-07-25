@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using static VE2.NonCore.Instancing.API.InstancePublicSerializables;
 
 namespace VE2.NonCore.Instancing.API
 {
@@ -12,5 +13,9 @@ namespace VE2.NonCore.Instancing.API
 
         public event Action OnBecomeHostInternal;
         public event Action OnBecomeNonHostInternal;
+
+        public InstancedInstanceInfo InstanceInfo { get; }
+
+        public event Action<InstancedInstanceInfo> OnInstanceInfoChanged;
     }
 }
