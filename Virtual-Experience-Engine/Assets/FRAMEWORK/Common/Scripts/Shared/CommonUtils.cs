@@ -121,6 +121,12 @@ namespace VE2.Common.Shared
             return null; // Not found
         }
 
+        public static GameObject SpawnUIPanelFromResourcesAndMoveToParent(string resourcePath, Transform parent)
+        {
+            GameObject prefab = Resources.Load<GameObject>(resourcePath);
+            return GameObject.Instantiate(prefab, parent);
+        }
+
         public static bool IsGameObjectInLayerMask(GameObject go, LayerMask layerMask) => (layerMask.value & (1 << go.layer)) != 0;
 
         public static int PlayerVisibleLayer => LayerMask.NameToLayer("V_LocalPlayerVisible");

@@ -11,6 +11,7 @@ using VE2.Common.API;
 using static VE2.Core.Player.API.PlayerSerializables;
 using UnityEngine.Events;
 using System.Collections.Generic;
+using static VE2.NonCore.Instancing.API.InstancePublicSerializables;
 
 namespace VE2.NonCore.Instancing.Internal
 {
@@ -131,7 +132,7 @@ namespace VE2.NonCore.Instancing.Internal
 
         public InstanceService(IPluginSyncCommsHandler commsHandler, ILocalClientIDWrapperWritable localClientIDWrapper, ILocalAdminIndicator localAdminIndicatorWrapper, ConnectionStateWrapper connectionStateDebugWrapper,
             HandInteractorContainer interactorContainer, IPlayerServiceInternal playerServiceInternal, IPrimaryUIServiceInternal primaryUIService,
-            bool connectAutomatically, ServerConnectionSettings serverSettings, InstanceCode instanceCode, InstanceServiceConfig config, ArtificialLatencySettings artificialLatencySettings, 
+            bool connectAutomatically, ServerConnectionSettings serverSettings, InstanceCode instanceCode, InstanceServiceConfig config, ArtificialLatencySettings artificialLatencySettings,
             IWorldStateSyncableContainer worldStateSyncableContainer, ILocalPlayerSyncableContainer localPlayerSyncableContainer)
 
         {

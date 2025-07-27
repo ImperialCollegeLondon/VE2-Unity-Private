@@ -102,7 +102,7 @@ MonoBehaviour:
   m_Colors:
     m_NormalColor: {r: 0, g: 0.5686275, b: 0.82745105, a: 1}
     m_HighlightedColor: {r: 0.9215687, g: 0.45098042, b: 0, a: 1}
-    m_PressedColor: {r: 0.737255, g: 0.36078435, b: 0, a: 0.8}
+    m_PressedColor: {r: 0.737255, g: 0.36078435, b: 0, a: 1}
     m_SelectedColor: {r: 0, g: 0.97647065, b: 0.79215693, a: 1}
     m_DisabledColor: {r: 0.31719467, g: 0.3848606, b: 0.41509432, a: 1}
     m_ColorMultiplier: 1
@@ -136,6 +136,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _colorType: 0
+  _colorAlpha: 1
   _buttonType: 0
 --- !u!1 &809435546119706668
 GameObject:
@@ -356,6 +357,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _colorType: 2
+  _colorAlpha: 1
   _buttonType: 0
 --- !u!1 &2151108330794715298
 GameObject:
@@ -583,6 +585,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _colorType: 2
+  _colorAlpha: 1
   _buttonType: 0
 --- !u!1 &5029159226775517985
 GameObject:
@@ -735,6 +738,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _colorType: 1
+  _colorAlpha: 1
   _buttonType: 0
 --- !u!1 &5194020131744647853
 GameObject:
@@ -832,6 +836,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _colorType: 3
+  _colorAlpha: 1
   _buttonType: 0
 --- !u!1 &5275389369087881023
 GameObject:
@@ -1121,6 +1126,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _colorType: 4
+  _colorAlpha: 1
   _buttonType: 0
 --- !u!1 &5979438470721123681
 GameObject:
@@ -1273,6 +1279,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _colorType: 1
+  _colorAlpha: 1
   _buttonType: 0
 --- !u!1 &6648322056719611749
 GameObject:
@@ -1425,6 +1432,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _colorType: 2
+  _colorAlpha: 1
   _buttonType: 0
 --- !u!1 &6748892304121314656
 GameObject:
@@ -1779,7 +1787,7 @@ MonoBehaviour:
   m_Colors:
     m_NormalColor: {r: 0, g: 0.5686275, b: 0.82745105, a: 1}
     m_HighlightedColor: {r: 0.9215687, g: 0.45098042, b: 0, a: 1}
-    m_PressedColor: {r: 0.737255, g: 0.36078435, b: 0, a: 0.8}
+    m_PressedColor: {r: 0.737255, g: 0.36078435, b: 0, a: 1}
     m_SelectedColor: {r: 0, g: 0.97647065, b: 0.79215693, a: 1}
     m_DisabledColor: {r: 0.31719467, g: 0.3848606, b: 0.41509432, a: 1}
     m_ColorMultiplier: 1
@@ -1813,6 +1821,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _colorType: 0
+  _colorAlpha: 1
   _buttonType: 0
 --- !u!1 &7623646126797538633
 GameObject:
@@ -1875,6 +1884,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _colorType: 3
+  _colorAlpha: 1
   _buttonType: 0
 --- !u!1 &7705139527091383366
 GameObject:
@@ -2027,6 +2037,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _colorType: 1
+  _colorAlpha: 1
   _buttonType: 0
 --- !u!1 &7802098048041371331
 GameObject:
@@ -2118,6 +2129,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _colorType: 3
+  _colorAlpha: 1
   _buttonType: 0
 --- !u!1 &8088240659706639677
 GameObject:
@@ -2270,6 +2282,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _colorType: 2
+  _colorAlpha: 1
   _buttonType: 0
 --- !u!1 &8118566921670350601
 GameObject:
@@ -2360,4 +2373,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _colorType: 3
+  _colorAlpha: 1
   _buttonType: 0

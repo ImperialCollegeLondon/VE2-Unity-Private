@@ -1,8 +1,8 @@
 using System;
 using UnityEngine;
-using VE2.NonCore.Instancing.API;
+using static VE2.NonCore.Instancing.API.InstancePublicSerializables;
 
-namespace VE2.NonCore.Instancing.Internal
+namespace VE2.NonCore.Instancing.API
 {
     internal interface IInstanceServiceInternal : IInstanceService
     {
@@ -13,5 +13,9 @@ namespace VE2.NonCore.Instancing.Internal
 
         public event Action OnBecomeHostInternal;
         public event Action OnBecomeNonHostInternal;
+
+        public InstancedInstanceInfo InstanceInfo { get; }
+
+        public event Action<InstancedInstanceInfo> OnInstanceInfoChanged;
     }
 }
