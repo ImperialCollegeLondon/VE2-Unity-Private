@@ -70,7 +70,7 @@ namespace VE2.NonCore.Platform.Internal
 
                 if (kvp.Key.WorldName == localInstanceCode.WorldName)
                 {
-                    localWorldInfo.RemoteInstanceInfo.Add(kvp.Key, kvp.Value);
+                    localWorldInfo.RemoteInstanceInfo.Add(kvp.Key.ToString(), kvp.Value);
                 }
                 else
                 {
@@ -83,7 +83,7 @@ namespace VE2.NonCore.Platform.Internal
                         };
                     }
 
-                    newRemoteWorldInfos[kvp.Key.WorldName].RemoteInstanceInfo.Add(kvp.Key, kvp.Value);
+                    newRemoteWorldInfos[kvp.Key.WorldName].RemoteInstanceInfo.Add(kvp.Key.ToString(), kvp.Value);
                 }
             }
 
@@ -125,6 +125,6 @@ namespace VE2.NonCore.Platform.Internal
         public string WorldName { get; set; }
 
         public InstancedInstanceInfo LocalInstanceInfo { get; set; } //May be null if local instance is not in this world.
-        public Dictionary<InstanceCode, PlatformInstanceInfo> RemoteInstanceInfo { get; set; } = new();
+        public Dictionary<string, PlatformInstanceInfo> RemoteInstanceInfo { get; set; } = new();
     }
 }

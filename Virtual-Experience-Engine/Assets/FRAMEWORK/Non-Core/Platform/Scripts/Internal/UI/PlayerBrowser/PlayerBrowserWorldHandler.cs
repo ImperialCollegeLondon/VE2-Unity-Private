@@ -1,42 +1,43 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using VE2.Common.Shared;
 using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 
 namespace VE2.NonCore.Platform.Internal
 {
     internal class PlayerBrowserWorldHandler
     {
-        public PlayerBrowserWorldInfo WorldInfo { get; private set; }
-        private PlayerBrowserWorldView _worldView;
+        public event Action<string> OnWorldButtonClicked;
 
-        private PlayerBrowserInstanceHandler _localInstanceHandler;
+        //Note, key needs to be the stringified instance code (val type) rather than the InstanceCode obj itself (ref type)
         private Dictionary<string, PlayerBrowserInstanceHandler> _remoteInstanceHandlers = new();
+        private PlayerBrowserInstanceHandler _localInstanceHandler; //Null if no local instance in this world
+
+        private readonly PlayerBrowserWorldView _worldView;
 
         public PlayerBrowserWorldHandler(VerticalLayoutGroup worldLayoutGroup, PlayerBrowserWorldInfo worldInfo)
         {
-            //Instantiates the prefab, adds it as a tab to the primary UI service, and destroys the holder.
-            GameObject worldInfoUIHolder = GameObject.Instantiate(Resources.Load<GameObject>("PlayerBrowserWorldInfoUIHolder"));
-            GameObject worldInfoUI = worldInfoUIHolder.transform.GetChild(0).gameObject;
-            worldInfoUI.SetActive(false);
+            GameObject worldUI = CommonUtils.SpawnUIPanelFromResourcesAndMoveToParent("PlayerBrowserWorldInfo", worldLayoutGroup.transform);
+            _worldView = worldUI.GetComponent<PlayerBrowserWorldView>();
 
-            worldInfoUI.transform.SetParent(worldLayoutGroup.transform, false);
-            GameObject.Destroy(worldInfoUIHolder);
-
-           // WorldInfo = worldInfo;
-
-            _worldView.SetName(worldInfo.WorldName);
+            _worldView.Setup(worldInfo.WorldName);
+            _worldView.OnWorldButtonClicked += () => OnWorldButtonClicked?.Invoke(worldInfo.WorldName);
             UpdateWorldInfo(worldInfo);
         }
 
         public void UpdateWorldInfo(PlayerBrowserWorldInfo newWorldInfo)
         {
-            //WorldInfo = newWorldInfo;
-
+            //Create/update/remove local instance info================================
             if (newWorldInfo.LocalInstanceInfo != null && _localInstanceHandler == null)
             {
                 // Create local instance handler
                 _localInstanceHandler = new PlayerBrowserInstanceHandler(_worldView.InstancesLayoutGroup, newWorldInfo.LocalInstanceInfo);
+            }
+            else if (newWorldInfo.LocalInstanceInfo != null && _localInstanceHandler != null)
+            {
+                _localInstanceHandler.UpdateInstanceInfo(newWorldInfo.LocalInstanceInfo);
             }
             else if (newWorldInfo.LocalInstanceInfo == null && _localInstanceHandler != null)
             {
@@ -45,29 +46,29 @@ namespace VE2.NonCore.Platform.Internal
                 _localInstanceHandler = null;
             }
 
-            //Create/update worlds===============================
-            foreach (KeyValuePair<InstanceCode, PlatformInstanceInfo> newKVP in newWorldInfo.ins)
+            //Create/update remote instances===========================================
+            foreach (KeyValuePair<string, PlatformInstanceInfo> newKVP in newWorldInfo.RemoteInstanceInfo)
             {
-                if (_worldHandlers.ContainsKey(newKVP.Key))
+                if (_remoteInstanceHandlers.ContainsKey(newKVP.Key))
                 {
-                    // Update existing world handler
-                    _worldHandlers[newKVP.Key].UpdateWorldInfo(newKVP.Value);
+                    // Update existing instance handler
+                    _remoteInstanceHandlers[newKVP.Key].UpdateInstanceInfo(newKVP.Value);
                 }
                 else
                 {
-                    // Create new world handler
-                    PlayerBrowserWorldHandler newWorldHandler = new(_playerBrowserView.WorldLayoutGroup, newKVP.Value);
-                    _worldHandlers.Add(newKVP.Key, newWorldHandler);
+                    // Create new instance handler
+                    PlayerBrowserInstanceHandler newInstanceHandler = new(_worldView.InstancesLayoutGroup, newKVP.Value);
+                    _remoteInstanceHandlers.Add(newKVP.Key.ToString(), newInstanceHandler);
                 }
             }
 
-            //Remove worlds that no longer exist===============================
-            foreach (KeyValuePair<string, PlayerBrowserWorldHandler> existingKVP in _worldHandlers)
+            //Remove remote instances that no longer exist===============================
+            foreach (KeyValuePair<string, PlayerBrowserInstanceHandler> existingKVP in _remoteInstanceHandlers)
             {
-                if (!newWorldInfos.ContainsKey(existingKVP.Key))
+                if (!newWorldInfo.RemoteInstanceInfo.ContainsKey(existingKVP.Key.ToString()))
                 {
                     existingKVP.Value.Destroy();
-                    _worldHandlers.Remove(existingKVP.Key);
+                    _remoteInstanceHandlers.Remove(existingKVP.Key);
                 }
             }
         }

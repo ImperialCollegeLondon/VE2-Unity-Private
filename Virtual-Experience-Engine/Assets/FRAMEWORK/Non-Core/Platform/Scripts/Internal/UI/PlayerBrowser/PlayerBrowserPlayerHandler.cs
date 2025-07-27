@@ -1,26 +1,27 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using VE2.Common.Shared;
 using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 
 namespace VE2.NonCore.Platform.Internal
 {
     internal class PlayerBrowserPlayerHandler
     {
-        private PlayerBrowserPlayerView _playerView;
+        public event Action<ushort> OnPlayerInfoButtonClicked;
+
+        private readonly PlayerBrowserPlayerView _playerView;
 
         public PlayerBrowserPlayerHandler(VerticalLayoutGroup instanceLayoutGroup, ClientInfoBase clientInfo, bool isHost)
         {
             //Instantiates the prefab, adds it as a tab to the primary UI service, and destroys the holder.
-            GameObject worldInfoUIHolder = GameObject.Instantiate(Resources.Load<GameObject>("PlayerBrowserWorldInfoUIHolder"));
-            GameObject worldInfoUI = worldInfoUIHolder.transform.GetChild(0).gameObject;
-            worldInfoUI.SetActive(false);
-
-            worldInfoUI.transform.SetParent(instanceLayoutGroup.transform, false);
-            GameObject.Destroy(worldInfoUIHolder);
-
+            GameObject playerInfoUIHolder = CommonUtils.SpawnUIPanelFromResourcesAndMoveToParent("PlayerBrowserPlayerInfo", instanceLayoutGroup.transform);
+            _playerView = playerInfoUIHolder.GetComponent<PlayerBrowserPlayerView>();
 
             _playerView.Setup(clientInfo, isHost);
+            UpdatePlayerInfo(clientInfo, isHost);
+            _playerView.OnPlayerInfoButtonClicked += () => OnPlayerInfoButtonClicked?.Invoke(clientInfo.ClientID);
         }
 
         public void UpdatePlayerInfo(ClientInfoBase clientInfo, bool isHost)
