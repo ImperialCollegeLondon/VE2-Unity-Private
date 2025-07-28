@@ -161,12 +161,24 @@ namespace VE2.Core.VComponents.Internal
 
         private void HandleGrabConfirmed(ushort id)
         {
-            _rangedAdjustableInteractionModule.HandleInteraction(true);
+            if (_grabbableOutline != null)
+            {
+                if (id == VE2API.LocalClientIdWrapper.Value)
+                    _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.InteractedOutlineColor;
+                else
+                    _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.DefaultOutlineColor;
+            }
         }
 
         private void HandleDropConfirmed(ushort id)
         {
-            _rangedAdjustableInteractionModule.HandleInteraction(false);
+            if (_grabbableOutline != null)
+            {
+                if (id == VE2API.LocalClientIdWrapper.Value)
+                    _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.HoveredOutlineColor;
+                else
+                    _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.DefaultOutlineColor;
+            }
         }
 
         private void SetSpatialValue(float spatialValue)

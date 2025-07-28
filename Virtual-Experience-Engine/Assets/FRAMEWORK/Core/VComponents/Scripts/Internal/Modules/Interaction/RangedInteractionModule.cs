@@ -41,8 +41,6 @@ namespace VE2.Core.VComponents.Internal
         internal event Action OnLocalInteractorEnterHover;
         internal event Action OnLocalInteractorExitHover;
 
-        private bool _isCurrentlyInteractedWith = false;
-
         public RangedInteractionModule(RangedInteractionConfig config, IInteractableOutline interactableOutline, GeneralInteractionConfig generalInteractionConfig) : base(generalInteractionConfig)
         {
             _rangedConfig = config;
@@ -64,12 +62,8 @@ namespace VE2.Core.VComponents.Internal
                     OnLocalInteractorEnterHover?.Invoke();
 
                     if (_grabbableOutline != null)
-                    {
-                        if (!_isCurrentlyInteractedWith)
                             _grabbableOutline.OutlineColor = _rangedConfig.HoveredOutlineColor;
-                        else
-                            _grabbableOutline.OutlineColor = _rangedConfig.DefaultOutlineColor;
-                    }
+
                 }
                 catch (Exception e)
                 {
@@ -100,19 +94,6 @@ namespace VE2.Core.VComponents.Internal
                     Debug.LogError($"Error invoking OnHoverExit event - {e.Message} - {e.StackTrace}");
                 }
             }
-        }
-        
-        public void HandleInteraction(bool isBeingInteractedWith)
-        {
-            _isCurrentlyInteractedWith = isBeingInteractedWith;
-
-            if (_grabbableOutline == null)
-                return;
-
-            if (isBeingInteractedWith)
-                _grabbableOutline.OutlineColor = _rangedConfig.InteractedOutlineColor;
-            else
-                _grabbableOutline.OutlineColor = _rangedConfig.HoveredOutlineColor;
         }
     }
 }

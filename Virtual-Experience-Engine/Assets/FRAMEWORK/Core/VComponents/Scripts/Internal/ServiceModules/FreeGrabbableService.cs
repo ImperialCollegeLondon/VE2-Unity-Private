@@ -64,7 +64,7 @@ namespace VE2.Core.VComponents.Internal
             _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, grabInteractablesContainer, interactorContainer, localClientIdWrapper);
 
             _grabbableOutline = grabbableOutline;
-            
+
             if (_grabbableOutline != null) //to avoid null reference exceptions in tests
                 _grabbableOutline.OutlineWidth = _rangedFreeGrabInteractionConfig.OutlineThickness;
 
@@ -130,7 +130,14 @@ namespace VE2.Core.VComponents.Internal
             _initialGrabberToObjectRotation = Quaternion.Inverse(grabberRotation) * _rigidbody.rotation;
 
             OnGrabConfirmed?.Invoke(grabberClientID);
-            _RangedGrabInteractionModule.HandleInteraction(true);
+
+            if (_grabbableOutline != null)
+            {
+                if (grabberClientID == VE2API.LocalClientIdWrapper.Value)
+                    _grabbableOutline.OutlineColor = _rangedFreeGrabInteractionConfig.InteractedOutlineColor;
+                else
+                    _grabbableOutline.OutlineColor = _rangedFreeGrabInteractionConfig.DefaultOutlineColor;
+            }
         }
 
         private void HandleDropConfirmed(ushort dropperClientID)
@@ -149,7 +156,14 @@ namespace VE2.Core.VComponents.Internal
             }
 
             OnDropConfirmed?.Invoke(dropperClientID);
-            _RangedGrabInteractionModule.HandleInteraction(false);
+
+            if (_grabbableOutline != null)
+            {
+                if (dropperClientID == VE2API.LocalClientIdWrapper.Value)
+                    _grabbableOutline.OutlineColor = _rangedFreeGrabInteractionConfig.HoveredOutlineColor;
+                else
+                    _grabbableOutline.OutlineColor = _rangedFreeGrabInteractionConfig.DefaultOutlineColor;
+            }
 
             if (_grabbableRigidbodyInterface.FreeGrabbableHandlesKinematics)
             {

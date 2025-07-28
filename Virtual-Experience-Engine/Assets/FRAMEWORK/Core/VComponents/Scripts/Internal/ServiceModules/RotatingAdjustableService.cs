@@ -77,7 +77,7 @@ namespace VE2.Core.VComponents.Internal
         {
             _config = config;
             _grabbableOutline = grabbableOutline;
-            
+
             if (_grabbableOutline != null) //to avoid null reference exceptions in tests
                 _grabbableOutline.OutlineWidth = _config.RangedAdjustableInteractionConfig.OutlineThickness;
 
@@ -160,12 +160,24 @@ namespace VE2.Core.VComponents.Internal
             _oldRotationalValue = (_spatialValue % 360 + 360) % 360; //this is to make sure the value is always positive
             _numberOfRevolutions = Mathf.FloorToInt(_spatialValue / 360); //get the nth revolution of the starting value
 
-            _rangedAdjustableInteractionModule.HandleInteraction(true);
+            if (_grabbableOutline != null)
+            {
+                if (id == VE2API.LocalClientIdWrapper.Value)
+                    _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.InteractedOutlineColor;
+                else
+                    _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.DefaultOutlineColor;
+            }
         }
 
         private void HandleDropConfirmed(ushort id)
         {
-            _rangedAdjustableInteractionModule.HandleInteraction(false);
+            if (_grabbableOutline != null)
+            {
+                if (id == VE2API.LocalClientIdWrapper.Value)
+                    _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.HoveredOutlineColor;
+                else
+                    _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.DefaultOutlineColor;
+            }
         }
 
         private void SetSpatialValue(float spatialValue)
