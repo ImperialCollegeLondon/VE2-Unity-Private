@@ -6,6 +6,7 @@ namespace VE2.Common.Shared
 {
     internal static class HiddenGORevealerMenu
     {
+#if UNITY_EDITOR
         [MenuItem("VE2/Misc/Reveal Hidden GameObjects")]
         private static void RevealHiddenGameObjects()
         {
@@ -36,5 +37,6 @@ namespace VE2.Common.Shared
                 Debug.Log("No hidden GameObjects found.");
             }
         }
+#endif
     }
 }
