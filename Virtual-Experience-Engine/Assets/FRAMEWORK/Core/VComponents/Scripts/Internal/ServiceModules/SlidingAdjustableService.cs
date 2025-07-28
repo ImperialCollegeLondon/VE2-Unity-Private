@@ -95,6 +95,9 @@ namespace VE2.Core.VComponents.Internal
         {
             _config = config;
             _grabbableOutline = grabbableOutline;
+            
+            if (_grabbableOutline != null)
+                _grabbableOutline.OutlineWidth = _config.RangedAdjustableInteractionConfig.OutlineThickness;
 
             _rangedAdjustableInteractionModule = new(id, grabInteractablesContainer, handheldInteractions, config.RangedAdjustableInteractionConfig, config.GeneralInteractionConfig);
 

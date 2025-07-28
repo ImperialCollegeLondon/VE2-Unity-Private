@@ -64,6 +64,10 @@ namespace VE2.Core.VComponents.Internal
             _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, grabInteractablesContainer, interactorContainer, localClientIdWrapper);
 
             _grabbableOutline = grabbableOutline;
+            
+            if (_grabbableOutline != null)
+                _grabbableOutline.OutlineWidth = _rangedFreeGrabInteractionConfig.OutlineThickness;
+
             _rigidbody = rigidbody;
             _physicsConstants = physicsConstants;
             _isKinematicOnGrab = _rigidbody.isKinematic;

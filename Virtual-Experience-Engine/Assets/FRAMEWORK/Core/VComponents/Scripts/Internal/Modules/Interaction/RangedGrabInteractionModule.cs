@@ -37,6 +37,7 @@ namespace VE2.Core.VComponents.Internal
 
         [Space(15)]
 
+        [SerializeField, PropertyOrder(-5)] public float OutlineThickness = 2.5f;
         [SerializeField, PropertyOrder(-4)] public Color DefaultOutlineColor = Color.white;
         [SerializeField, PropertyOrder(-3)] public Color GrabbedOutlineColor = new Color(1f, 0.5f, 0f, 1f);
         [EndGroup]
