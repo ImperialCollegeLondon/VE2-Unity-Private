@@ -112,7 +112,7 @@ namespace VE2.Core.VComponents.Internal
 
             string id = "LinearAdjustable-" + gameObject.name;
 
-            V_GrabbableOutline grabbableOutline = _config.RangedAdjustableInteractionConfig.EnableOutline ? gameObject.AddComponent<V_GrabbableOutline>() : null;
+            IGrabbableOutline grabbableOutline = _config.RangedAdjustableInteractionConfig.EnableOutline ? gameObject.AddComponent<V_GrabbableOutline>() : null;
 
             if (_config.RangedAdjustableInteractionConfig.TransformToAdjust == null || ((TransformWrapper)_config.RangedAdjustableInteractionConfig.TransformToAdjust).Transform == null)
             {

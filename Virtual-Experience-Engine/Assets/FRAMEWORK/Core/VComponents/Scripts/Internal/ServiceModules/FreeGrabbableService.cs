@@ -41,7 +41,7 @@ namespace VE2.Core.VComponents.Internal
         public event Action<ushort> OnDropConfirmed;
 
         private readonly IRigidbodyWrapper _rigidbody;
-        private readonly V_GrabbableOutline _grabbableOutline;
+        private readonly IGrabbableOutline _grabbableOutline;
         private readonly PhysicsConstants _physicsConstants;
 
         private RangedGrabInteractionConfig _rangedFreeGrabInteractionConfig => _config.RangedFreeGrabInteractionConfig;
@@ -56,7 +56,7 @@ namespace VE2.Core.VComponents.Internal
         private readonly FreeGrabbableConfig _config;
 
         public FreeGrabbableService(List<IHandheldInteractionModule> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id,
-            IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer, V_GrabbableOutline grabbableOutline,
+            IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer, IGrabbableOutline grabbableOutline,
             IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants, IGrabbableRigidbody grabbableRigidbodyInterface, IClientIDWrapper localClientIdWrapper, IColliderWrapper colliderWrapper)
         {
             _config = config;
@@ -100,7 +100,7 @@ namespace VE2.Core.VComponents.Internal
         {
             if (_grabbableOutline == null)
                 return;
-                
+
             _grabbableOutline.OutlineColor = _rangedFreeGrabInteractionConfig.DefaultOutlineColor;
         }
 

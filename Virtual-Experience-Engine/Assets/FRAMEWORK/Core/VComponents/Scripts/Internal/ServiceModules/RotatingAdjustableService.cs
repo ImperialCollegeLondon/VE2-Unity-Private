@@ -60,7 +60,7 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         private readonly RotatingAdjustableConfig _config;
-        private readonly V_GrabbableOutline _grabbableOutline;
+        private readonly IGrabbableOutline _grabbableOutline;
 
         //gets the vector from the object to the attach point, this will serve as the starting point for any angle created
         //needs to be the attach point at the start (0 not starting position) to get the correct angle
@@ -72,7 +72,7 @@ namespace VE2.Core.VComponents.Internal
         private int _minRevs => (int)MinimumSpatialValue / 360;
         private int _maxRevs => (int)MaximumSpatialValue / 360;
 
-        public RotatingAdjustableService(List<IHandheldInteractionModule> handheldInteractions, RotatingAdjustableConfig config, AdjustableState adjustableState, VE2Serializable grabbableState, V_GrabbableOutline grabbableOutline, string id,
+        public RotatingAdjustableService(List<IHandheldInteractionModule> handheldInteractions, RotatingAdjustableConfig config, AdjustableState adjustableState, VE2Serializable grabbableState, IGrabbableOutline grabbableOutline, string id,
             IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer, IClientIDWrapper localClientIdWrapper)
         {
             _config = config;
@@ -125,8 +125,8 @@ namespace VE2.Core.VComponents.Internal
         {
             if (_grabbableOutline == null) //null check so tests dont fail
                 return;
-                
-            _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.DefaultOutlineColor;
+
+            _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.HoveredOutlineColor;
         }
 
         public void HandleStart() => _adjustableStateModule.InitializeStateWithStartingValue();

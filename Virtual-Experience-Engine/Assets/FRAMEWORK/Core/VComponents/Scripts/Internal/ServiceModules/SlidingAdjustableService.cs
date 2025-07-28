@@ -88,9 +88,9 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         private readonly SlidingAdjustableConfig _config;
-        private readonly V_GrabbableOutline _grabbableOutline;
+        private readonly IGrabbableOutline _grabbableOutline;
 
-        public SlidingAdjustableService(List<IHandheldInteractionModule> handheldInteractions, SlidingAdjustableConfig config, AdjustableState adjustableState, VE2Serializable grabbableState, V_GrabbableOutline grabbableOutline, string id,
+        public SlidingAdjustableService(List<IHandheldInteractionModule> handheldInteractions, SlidingAdjustableConfig config, AdjustableState adjustableState, VE2Serializable grabbableState, IGrabbableOutline grabbableOutline, string id,
             IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer, IClientIDWrapper localClientIdWrapper)
         {
             _config = config;
@@ -136,8 +136,8 @@ namespace VE2.Core.VComponents.Internal
         {
             if (_grabbableOutline == null) //null check so tests dont fail
                 return;
-                
-            _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.DefaultOutlineColor;
+
+            _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.HoveredOutlineColor;
         }
 
 

@@ -14,8 +14,15 @@ using UnityEngine.VFX;
 
 namespace VE2.Core.VComponents.Shared
 {
+  internal interface IGrabbableOutline
+  {
+    V_GrabbableOutline.Mode OutlineMode { get; set; }
+    Color OutlineColor { get; set; }
+    float OutlineWidth { get; set; }
+  }
+
   [DisallowMultipleComponent]
-  internal class V_GrabbableOutline : MonoBehaviour
+  internal class V_GrabbableOutline : MonoBehaviour, IGrabbableOutline
   {
     private static HashSet<Mesh> registeredMeshes = new HashSet<Mesh>();
 
