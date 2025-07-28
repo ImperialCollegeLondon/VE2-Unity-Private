@@ -147,7 +147,7 @@ namespace VE2.Core.VComponents.Internal
             OnDropConfirmed?.Invoke(dropperClientID);
 
             if (_grabbableOutline != null) //null check so tests dont fail
-                _grabbableOutline.OutlineColor = _rangedFreeGrabInteractionConfig.DefaultOutlineColor;
+                _grabbableOutline.OutlineColor = _rangedFreeGrabInteractionConfig.HoveredOutlineColor; 
 
             if (_grabbableRigidbodyInterface.FreeGrabbableHandlesKinematics)
             {
