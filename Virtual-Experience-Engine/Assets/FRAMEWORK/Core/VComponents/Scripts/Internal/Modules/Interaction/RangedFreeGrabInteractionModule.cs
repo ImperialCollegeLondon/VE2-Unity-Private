@@ -6,6 +6,7 @@ using VE2.Core.VComponents.API;
 using UnityEngine.Events;
 using VE2.Common.API;
 using VE2.Common.Shared;
+using VE2.Core.VComponents.Shared;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -55,8 +56,8 @@ namespace VE2.Core.VComponents.Internal
         }
 
         public RangedFreeGrabInteractionModule(string id, IGrabInteractablesContainer grabInteractablesContainer, List<IHandheldInteractionModule> handheldInteractions,
-            RangedFreeGrabInteractionConfig rangedFreeGrabInteractionConfig, GeneralInteractionConfig generalInteractionConfig, IColliderWrapper colliderWrapper)
-            : base(id, grabInteractablesContainer, handheldInteractions, rangedFreeGrabInteractionConfig, generalInteractionConfig)
+            RangedFreeGrabInteractionConfig rangedFreeGrabInteractionConfig, GeneralInteractionConfig generalInteractionConfig, IColliderWrapper colliderWrapper, IInteractableOutline grabbableOutline)
+            : base(id, grabInteractablesContainer, handheldInteractions, rangedFreeGrabInteractionConfig, grabbableOutline, generalInteractionConfig)
         {
             _rangedFreeGrabInteractionConfig = rangedFreeGrabInteractionConfig;
             ColliderWrapper = colliderWrapper;

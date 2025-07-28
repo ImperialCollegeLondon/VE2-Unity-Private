@@ -4,6 +4,7 @@ using UnityEngine.Events;
 using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
+using VE2.Core.VComponents.Shared;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -95,8 +96,10 @@ namespace VE2.Core.VComponents.Internal
             if (!Application.isPlaying || _service != null)
                 return;
 
+            IInteractableOutline interactableOutline = _config.RangedClickInteractionConfig.EnableOutline ? gameObject.AddComponent<V_InteractableOutline>() : null;
+
             string id = "Activatable-" + gameObject.name;
-            _service = new ToggleActivatableService(_config, _state, id, VE2API.WorldStateSyncableContainer, VE2API.ActivatableGroupsContainer, VE2API.LocalClientIdWrapper);
+            _service = new ToggleActivatableService(_config, _state, id, interactableOutline, VE2API.WorldStateSyncableContainer, VE2API.ActivatableGroupsContainer, VE2API.LocalClientIdWrapper);
         }
 
         private void Start() => _service?.HandleStart();

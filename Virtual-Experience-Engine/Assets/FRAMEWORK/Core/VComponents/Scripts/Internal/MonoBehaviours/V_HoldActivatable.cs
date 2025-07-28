@@ -4,6 +4,7 @@ using UnityEngine.Events;
 using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
+using VE2.Core.VComponents.Shared;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -75,8 +76,10 @@ namespace VE2.Core.VComponents.Internal
             if (!Application.isPlaying || _service != null)
                 return;
 
+            IInteractableOutline interactableOutline = _config.ActivatableRangedInteractionConfig.EnableOutline ? gameObject.AddComponent<V_InteractableOutline>() : null;
+
             string id = "HoldActivatable-" + gameObject.name;
-            _service = new HoldActivatableService(_config, _state, id, VE2API.LocalClientIdWrapper, VE2API.WorldStateSyncableContainer);
+            _service = new HoldActivatableService(_config, _state, id, interactableOutline, VE2API.LocalClientIdWrapper, VE2API.WorldStateSyncableContainer);
         }
 
         private void FixedUpdate()

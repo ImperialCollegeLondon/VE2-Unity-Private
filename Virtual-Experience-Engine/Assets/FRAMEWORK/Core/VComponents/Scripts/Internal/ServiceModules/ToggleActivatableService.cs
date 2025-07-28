@@ -39,12 +39,12 @@ namespace VE2.Core.VComponents.Internal
         private readonly ColliderInteractionModule _colliderInteractionModule;
         #endregion
 
-        public ToggleActivatableService(ToggleActivatableConfig config, SingleInteractorActivatableState state, string id, IWorldStateSyncableContainer worldStateSyncableContainer,
+        public ToggleActivatableService(ToggleActivatableConfig config, SingleInteractorActivatableState state, string id, IInteractableOutline grabbableOutline, IWorldStateSyncableContainer worldStateSyncableContainer,
             ActivatableGroupsContainer activatableGroupsContainer, IClientIDWrapper localClientIdWrapper)
         {
             _stateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, activatableGroupsContainer, localClientIdWrapper);
 
-            _rangedClickInteractionModule = new(config.RangedClickInteractionConfig, config.GeneralInteractionConfig, id, config.RangedClickInteractionConfig.ClickAtRangeInVR);
+            _rangedClickInteractionModule = new(config.RangedClickInteractionConfig, config.GeneralInteractionConfig, id, config.RangedClickInteractionConfig.ClickAtRangeInVR, grabbableOutline);
 
             //Note - yes, this null seems strange on first glance
             //Toggle activatables will sync only via the state module, for hold activatables, interactions are synced via the interactor

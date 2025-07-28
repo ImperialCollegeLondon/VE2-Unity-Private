@@ -3,6 +3,7 @@ using System;
 using UnityEngine;
 using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
+using VE2.Core.VComponents.Shared;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -27,7 +28,8 @@ namespace VE2.Core.VComponents.Internal
 
         public event Action<InteractorID> OnClickDown;
 
-        public RangedToggleClickInteractionModule(RangedInteractionConfig rangedConfig, GeneralInteractionConfig generalConfig, string id, bool activateAtRangeInVR) : base(rangedConfig, generalConfig)
+        public RangedToggleClickInteractionModule(RangedInteractionConfig rangedConfig, GeneralInteractionConfig generalConfig, string id, bool activateAtRangeInVR, IInteractableOutline interactableOutline)
+         : base(rangedConfig, interactableOutline, generalConfig)
         {
             ID = id;
             ActivateAtRangeInVR = activateAtRangeInVR;

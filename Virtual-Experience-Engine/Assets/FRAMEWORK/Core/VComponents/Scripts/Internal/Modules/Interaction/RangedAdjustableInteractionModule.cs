@@ -4,6 +4,7 @@ using UnityEngine;
 using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
+using VE2.Core.VComponents.Shared;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -40,8 +41,8 @@ namespace VE2.Core.VComponents.Internal
         public ITransformWrapper Transform { get; }
 
         public RangedAdjustableInteractionModule(string id, IGrabInteractablesContainer grabInteractablesContainer,
-            List<IHandheldInteractionModule> handheldModules, RangedGrabInteractionConfig rangedGrabInteractionConfig, GeneralInteractionConfig generalInteractionConfig)
-                : base(id, grabInteractablesContainer, handheldModules, rangedGrabInteractionConfig, generalInteractionConfig)
+            List<IHandheldInteractionModule> handheldModules, RangedGrabInteractionConfig rangedGrabInteractionConfig, GeneralInteractionConfig generalInteractionConfig, IInteractableOutline grabbableOutline)
+                : base(id, grabInteractablesContainer, handheldModules, rangedGrabInteractionConfig, grabbableOutline, generalInteractionConfig)
         {
             Transform = rangedGrabInteractionConfig.AttachPointWrapper;
         }

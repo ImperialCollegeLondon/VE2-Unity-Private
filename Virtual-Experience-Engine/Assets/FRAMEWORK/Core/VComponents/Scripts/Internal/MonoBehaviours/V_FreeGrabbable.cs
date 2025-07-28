@@ -155,7 +155,7 @@ namespace VE2.Core.VComponents.Internal
 
             string id = "FreeGrabbable-" + gameObject.name;
             
-            IGrabbableOutline grabbableOutline = _config.RangedFreeGrabInteractionConfig.EnableOutline ? gameObject.AddComponent<V_GrabbableOutline>() : null;
+            IInteractableOutline grabbableOutline = _config.RangedFreeGrabInteractionConfig.EnableOutline ? gameObject.AddComponent<V_InteractableOutline>() : null;
 
             if (_config.RangedFreeGrabInteractionConfig.AttachPointWrapper == null || ((TransformWrapper)_config.RangedFreeGrabInteractionConfig.AttachPointWrapper).Transform == null)
             {
