@@ -126,7 +126,7 @@ namespace VE2.Core.VComponents.Internal
             if (_grabbableOutline == null) //null check so tests dont fail
                 return;
 
-            _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.HoveredOutlineColor;
+            _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.DefaultOutlineColor;
         }
 
         public void HandleStart() => _adjustableStateModule.InitializeStateWithStartingValue();
@@ -167,7 +167,7 @@ namespace VE2.Core.VComponents.Internal
         private void HandleDropConfirmed(ushort id)
         {
             if (_grabbableOutline != null) //null check so tests dont fail
-                _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.DefaultOutlineColor;
+                _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.HoveredOutlineColor;
         }
 
         private void SetSpatialValue(float spatialValue)
