@@ -78,7 +78,7 @@ namespace VE2.Core.VComponents.Internal
             _config = config;
             _grabbableOutline = grabbableOutline;
             
-            if (_grabbableOutline != null)
+            if (_grabbableOutline != null) //to avoid null reference exceptions in tests
                 _grabbableOutline.OutlineWidth = _config.RangedAdjustableInteractionConfig.OutlineThickness;
 
             //needs the vector to the attachpoint at 0,0,0

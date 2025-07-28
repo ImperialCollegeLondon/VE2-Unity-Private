@@ -65,7 +65,7 @@ namespace VE2.Core.VComponents.Internal
 
             _grabbableOutline = grabbableOutline;
             
-            if (_grabbableOutline != null)
+            if (_grabbableOutline != null) //to avoid null reference exceptions in tests
                 _grabbableOutline.OutlineWidth = _rangedFreeGrabInteractionConfig.OutlineThickness;
 
             _rigidbody = rigidbody;
