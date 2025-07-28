@@ -113,7 +113,7 @@ namespace VE2.Core.VComponents.Internal
 
             string id = "RotationalAdjustable-" + gameObject.name;
 
-            V_GrabbableOutline grabbableOutline = gameObject.AddComponent<V_GrabbableOutline>();
+            V_GrabbableOutline grabbableOutline = _config.RangedAdjustableInteractionConfig.EnableOutline ? gameObject.AddComponent<V_GrabbableOutline>() : null;
 
             if (_config.RangedAdjustableInteractionConfig.TransformToAdjust == null || ((TransformWrapper)_config.RangedAdjustableInteractionConfig.TransformToAdjust).Transform == null)
             {

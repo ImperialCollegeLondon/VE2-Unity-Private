@@ -87,6 +87,9 @@ namespace VE2.Core.VComponents.Internal
 
         private void OnHoverEnter()
         {
+            if (_grabbableOutline == null)
+                return;
+
             if (!_StateModule.IsGrabbed)
                 _grabbableOutline.OutlineColor = _rangedFreeGrabInteractionConfig.HoveredOutlineColor;
             else
@@ -95,6 +98,9 @@ namespace VE2.Core.VComponents.Internal
 
         private void OnHoverExit()
         {
+            if (_grabbableOutline == null)
+                return;
+                
             _grabbableOutline.OutlineColor = _rangedFreeGrabInteractionConfig.DefaultOutlineColor;
         }
 

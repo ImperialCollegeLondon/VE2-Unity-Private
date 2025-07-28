@@ -123,6 +123,9 @@ namespace VE2.Core.VComponents.Internal
 
         private void OnHoverEnter()
         {
+            if (_grabbableOutline == null) //null check so tests dont fail
+                return;
+
             if (!_grabbableStateModule.IsGrabbed)
                 _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.HoveredOutlineColor;
             else
@@ -131,6 +134,9 @@ namespace VE2.Core.VComponents.Internal
 
         private void OnHoverExit()
         {
+            if (_grabbableOutline == null) //null check so tests dont fail
+                return;
+                
             _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.DefaultOutlineColor;
         }
 

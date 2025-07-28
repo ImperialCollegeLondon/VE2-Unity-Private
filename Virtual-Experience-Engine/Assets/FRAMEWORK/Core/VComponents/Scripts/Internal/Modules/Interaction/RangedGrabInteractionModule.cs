@@ -36,12 +36,12 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField, PropertyOrder(-5), ShowIf(nameof(VRFailsafeGrab), true), Range(1f, 2f)] public float VRFailsafeGrabMultiplier = 1.2f;
 
         [Space(15)]
-
-        [SerializeField, PropertyOrder(-5)] public float OutlineThickness = 2.5f;
-        [SerializeField, PropertyOrder(-4)] public Color DefaultOutlineColor = Color.white;
-        [SerializeField, PropertyOrder(-3)] public Color GrabbedOutlineColor = new Color(1f, 0.5f, 0f, 1f);
+        [SerializeField, PropertyOrder(-5)] public bool EnableOutline = true;
+        [SerializeField, PropertyOrder(-5), ShowIf(nameof(EnableOutline), true)] public float OutlineThickness = 2.5f;
+        [SerializeField, PropertyOrder(-4), ShowIf(nameof(EnableOutline), true)] public Color DefaultOutlineColor = Color.white;
+        [SerializeField, PropertyOrder(-3), ShowIf(nameof(EnableOutline), true)] public Color GrabbedOutlineColor = new Color(1f, 0.5f, 0f, 1f);
         [EndGroup]
-        [SerializeField, PropertyOrder(-2),] public Color HoveredOutlineColor = Color.yellow; 
+        [SerializeField, PropertyOrder(-2), ShowIf(nameof(EnableOutline), true)] public Color HoveredOutlineColor = Color.yellow;
 
         //TODO - VR raysnap should be allowed even if failsafe grab is disabled
         //Maybe we want a separate toggle to define whether we also allow ray snapping?
