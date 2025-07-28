@@ -7,26 +7,26 @@ using UnityEngine.Events;
 
 namespace VE2.Core.VComponents.Internal
 {
-    internal partial class V_SlidingAdjustable2D : IV_SlidingAdjustable2D
+    internal partial class V_Rotating2DAdjustable : IV_Rotating2DAdjustable
     {
         #region State Module Interface
-        internal IAdjustable2DStateModule _AdjustableStateModule => _Service.Adjustable2DStateModule;
-        internal IGrabbableStateModule _GrabbableStateModule => _Service.FreeGrabbableStateModule;
+        internal IAdjustable2DStateModule _Adjustable2DStateModule => _Service.Adjustable2DStateModule;
+        internal IGrabbableStateModule _GrabbableStateModule => _Service.GrabbableStateModule;
 
-        public UnityEvent<Vector2> OnValueAdjusted { get; }/* => _AdjustableStateModule.OnValueAdjusted*/
+        public UnityEvent<Vector2> OnValueAdjusted => _Adjustable2DStateModule.OnValueAdjusted;
         public UnityEvent OnGrab => _GrabbableStateModule.OnGrab;
         public UnityEvent OnDrop => _GrabbableStateModule.OnDrop;
 
         public bool IsGrabbed => _GrabbableStateModule.IsGrabbed;
         public bool IsLocallyGrabbed => _GrabbableStateModule.IsLocalGrabbed;
-        public Vector2 Value { get; } /*=> _AdjustableStateModule.OutputValue*/
-        public void SetValue(Vector2 value) { } /*=> _AdjustableStateModule.SetOutputValue(value);*/
-        public Vector2 MinimumOutputValue { get; set; /*=> _AdjustableStateModule.MinimumOutputValue; set => _AdjustableStateModule.MinimumOutputValue = value;*/ }
-        public Vector2 MaximumOutputValue { get; set; /*=> _AdjustableStateModule.MaximumOutputValue; set => _AdjustableStateModule.MaximumOutputValue = value;*/ }
+        public Vector2 Value => _Adjustable2DStateModule.OutputValue;
+        public void SetValue(Vector2 value) => _Adjustable2DStateModule.SetOutputValue(value);
+        public Vector2 MinimumOutputValue { get => _Adjustable2DStateModule.MinimumOutputValue; set => _Adjustable2DStateModule.MinimumOutputValue = value; }
+        public Vector2 MaximumOutputValue { get => _Adjustable2DStateModule.MaximumOutputValue; set => _Adjustable2DStateModule.MaximumOutputValue = value; }
 
-        public Vector2 MinimumSpatialValue { get; set;/* => _Service.MinimumSpatialValue; set => _Service.MinimumSpatialValue = value;*/ }
-        public Vector2 MaximumSpatialValue { get; set;/* => _Service.MaximumSpatialValue; set => _Service.MaximumSpatialValue = value;*/ }
-        public Vector2 SpatialValue { get; set; /*=> _Service.SpatialValue; set => _Service.SpatialValue = value;*/ }
+        public Vector2 MinimumSpatialValue { get => _Service.MinimumSpatialValue; set => _Service.MinimumSpatialValue = value; }
+        public Vector2 MaximumSpatialValue { get => _Service.MaximumSpatialValue; set => _Service.MaximumSpatialValue = value; }
+        public Vector2 SpatialValue { get => _Service.SpatialValue; set => _Service.SpatialValue = value; }
         public int NumberOfValues { get => _Service.NumberOfValues; set => _Service.NumberOfValues = value; }
 
         public void SetMinimumAndMaximumSpatialValuesRange(Vector2 min, Vector2 max)
@@ -42,11 +42,11 @@ namespace VE2.Core.VComponents.Internal
         }
 
         public IClientIDWrapper MostRecentGrabbingClientID => _GrabbableStateModule.MostRecentInteractingClientID;
-        public IClientIDWrapper MostRecentAdjustingClientID => _AdjustableStateModule.MostRecentInteractingClientID;
+        public IClientIDWrapper MostRecentAdjustingClientID => _Adjustable2DStateModule.MostRecentInteractingClientID;
         #endregion
 
         #region Ranged Interaction Module Interface
-        internal IRangedAdjustable2DInteractionModule _RangedAdjustableModule => _Service.RangedAdjustable2DInteractionModule;
+        internal IRangedAdjustableInteractionModule _RangedAdjustableModule => _Service.RangedAdjustableInteractionModule;
         public float InteractRange { get => _RangedAdjustableModule.InteractRange; set => _RangedAdjustableModule.InteractRange = value; }
         #endregion
 
@@ -60,14 +60,15 @@ namespace VE2.Core.VComponents.Internal
     }
 
     [DisallowMultipleComponent]
-    internal partial class V_SlidingAdjustable2D : MonoBehaviour, IRangedGrabInteractionModuleProvider
+    internal partial class V_Rotating2DAdjustable : MonoBehaviour, IRangedGrabInteractionModuleProvider
     {
-        [SerializeField, IgnoreParent] private SlidingAdjustable2DConfig _config = new();
+        [SerializeField, IgnoreParent] private Rotating2DAdjustableConfig _config = new();
         [SerializeField, HideInInspector] private Adjustable2DState _adjustable2DState = new();
         [SerializeField, HideInInspector] private GrabbableState _freeGrabbableState = new();
 
+
         #region Player Interfaces
-        IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _Service.RangedAdjustable2DInteractionModule;
+        IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _Service.RangedAdjustableInteractionModule;
         #endregion
 
         #region Inspector Utils
@@ -83,8 +84,8 @@ namespace VE2.Core.VComponents.Internal
         internal string AttachPointGOName => ((TransformWrapper)_config.RangedAdjustableInteractionConfig.AttachPointWrapper).GameObject.name;
         #endregion
 
-        private SlidingAdjustable2DService _service = null;
-        private SlidingAdjustable2DService _Service
+        private Rotating2DAdjustableService _service = null;
+        private Rotating2DAdjustableService _Service
         {
             get
             {
@@ -96,23 +97,15 @@ namespace VE2.Core.VComponents.Internal
 
         private void OnValidate()
         {
-            _config.Adjustable2DStateConfig.MinimumOutputValue = new Vector2(
-               Mathf.Min(_config.Adjustable2DStateConfig.MinimumOutputValue.x, _config.Adjustable2DStateConfig.MaximumOutputValue.x),
-               Mathf.Min(_config.Adjustable2DStateConfig.MinimumOutputValue.y, _config.Adjustable2DStateConfig.MaximumOutputValue.y)
+            _config.Adjustable2DStateConfig.MinimumOutputValue = Vector2.Min(_config.Adjustable2DStateConfig.MinimumOutputValue, _config.Adjustable2DStateConfig.MaximumOutputValue);
+            _config.Adjustable2DStateConfig.StartingOutputValue = Vector2.Max(
+                _config.Adjustable2DStateConfig.MinimumOutputValue,
+                Vector2.Min(_config.Adjustable2DStateConfig.StartingOutputValue, _config.Adjustable2DStateConfig.MaximumOutputValue)
             );
+            _config.Adjustable2DStateConfig.MaximumOutputValue = Vector2.Max(_config.Adjustable2DStateConfig.MinimumOutputValue, _config.Adjustable2DStateConfig.MaximumOutputValue);
 
-            _config.Adjustable2DStateConfig.StartingOutputValue = new Vector2(
-               Mathf.Clamp(_config.Adjustable2DStateConfig.StartingOutputValue.x, _config.Adjustable2DStateConfig.MinimumOutputValue.x, _config.Adjustable2DStateConfig.MaximumOutputValue.x),
-               Mathf.Clamp(_config.Adjustable2DStateConfig.StartingOutputValue.y, _config.Adjustable2DStateConfig.MinimumOutputValue.y, _config.Adjustable2DStateConfig.MaximumOutputValue.y)
-            );
-
-            _config.Adjustable2DStateConfig.MaximumOutputValue = new Vector2(
-               Mathf.Max(_config.Adjustable2DStateConfig.MinimumOutputValue.x, _config.Adjustable2DStateConfig.MaximumOutputValue.x),
-               Mathf.Max(_config.Adjustable2DStateConfig.MinimumOutputValue.y, _config.Adjustable2DStateConfig.MaximumOutputValue.y)
-            );
-
-            _config.LinearAdjustableServiceConfig.MinimumSpatialValue = Mathf.Min(_config.LinearAdjustableServiceConfig.MinimumSpatialValue, _config.LinearAdjustableServiceConfig.MaximumSpatialValue);
-            _config.LinearAdjustableServiceConfig.MaximumSpatialValue = Mathf.Max(_config.LinearAdjustableServiceConfig.MinimumSpatialValue, _config.LinearAdjustableServiceConfig.MaximumSpatialValue);
+            _config.RotationalAdjustable2DServiceConfig.MinimumSpatialValue = Vector2.Min(_config.RotationalAdjustable2DServiceConfig.MinimumSpatialValue, _config.RotationalAdjustable2DServiceConfig.MaximumSpatialValue);
+            _config.RotationalAdjustable2DServiceConfig.MaximumSpatialValue = Vector2.Max(_config.RotationalAdjustable2DServiceConfig.MinimumSpatialValue, _config.RotationalAdjustable2DServiceConfig.MaximumSpatialValue);
         }
 
         private void OnEnable()
@@ -120,7 +113,7 @@ namespace VE2.Core.VComponents.Internal
             if (!Application.isPlaying || _service != null)
                 return;
 
-            string id = "LinearAdjustable-" + gameObject.name;
+            string id = "RotationalAdjustable-" + gameObject.name;
 
             if (_config.RangedAdjustableInteractionConfig.TransformToAdjust == null || ((TransformWrapper)_config.RangedAdjustableInteractionConfig.TransformToAdjust).Transform == null)
             {
@@ -136,13 +129,13 @@ namespace VE2.Core.VComponents.Internal
 
             List<IHandheldInteractionModule> handheldInteractions = new();
 
-            //TODO: THINK ABOUT THIS - do we want to allow adjustables to also have activatables on them?
+            //TODO: THINK ABOUT THIS
             // if(TryGetComponent(out V_HandheldActivatable handheldActivatable))
             //     handheldInteractions.Add(handheldActivatable.HandheldClickInteractionModule);
             // if (TryGetComponent(out V_HandheldAdjustable handheldAdjustable))
             //     handheldInteractions.Add(handheldAdjustable.HandheldScrollInteractionModule);
 
-            _service = new SlidingAdjustable2DService(
+            _service = new Rotating2DAdjustableService(
                 handheldInteractions,
                 _config,
                 _adjustable2DState,

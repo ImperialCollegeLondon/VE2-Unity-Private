@@ -4,7 +4,7 @@ using VE2.Common.Shared;
 
 namespace VE2.Core.VComponents.API
 {
-    public interface IV_SlidingAdjustable2D : IV_GeneralInteractable
+    public interface IV_Sliding2DAdjustable : IV_GeneralInteractable
     {
         #region State Module Interface
         public UnityEvent<Vector2> OnValueAdjusted { get; }

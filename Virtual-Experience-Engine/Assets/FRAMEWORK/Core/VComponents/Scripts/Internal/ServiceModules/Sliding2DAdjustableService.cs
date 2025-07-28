@@ -23,7 +23,7 @@ namespace VE2.Core.VComponents.Internal
     }
 
     [Serializable]
-    internal class SlidingAdjustable2DConfig
+    internal class Sliding2DAdjustableConfig
     {
         public void OpenDocs() => Application.OpenURL("https://www.notion.so/V_LinearAdjustable-20f0e4d8ed4d8125b125ea8d031e8aeb?source=copy_link");
         [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above)]
@@ -40,12 +40,12 @@ namespace VE2.Core.VComponents.Internal
         private bool MultiplayerSupportPresent => VE2API.HasMultiPlayerSupport;
 
         //Constructor used for tests
-        public SlidingAdjustable2DConfig(ITransformWrapper attachPointWrapper, ITransformWrapper transformToMove)
+        public Sliding2DAdjustableConfig(ITransformWrapper attachPointWrapper, ITransformWrapper transformToMove)
         {
             RangedAdjustableInteractionConfig.AttachPointWrapper = attachPointWrapper;
             RangedAdjustableInteractionConfig.TransformToAdjust = transformToMove;
         }
-        public SlidingAdjustable2DConfig() { }
+        public Sliding2DAdjustableConfig() { }
     }
 
     [Serializable]
@@ -56,35 +56,33 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField] public SpatialAdjustmentAxis2D AdjustmentAxis = SpatialAdjustmentAxis2D.XZAxis;
         [SerializeField] public SpatialAdjustmentType AdjustmentType = SpatialAdjustmentType.Continuous;
         [SerializeField, ShowIf(nameof(AdjustmentType), SpatialAdjustmentType.Discrete)] public int NumberOfDiscreteValues = 1;
-        [SerializeField] public float MinimumSpatialValue = 0f;
-        [SerializeField, EndGroup] public float MaximumSpatialValue = 1f;
+        [SerializeField] public Vector2 MinimumSpatialValue = new Vector2(0,0);
+        [SerializeField, EndGroup] public Vector2 MaximumSpatialValue = new Vector2(1, 1);
 
         // [SerializeField] public bool SinglePressScroll = false;
         // [ShowIf("SinglePressScroll", false)]
         // [EndGroup, SerializeField] public float IncrementPerSecondVRStickHeld = 4;
     }
 
-    internal class SlidingAdjustable2DService
+    internal class Sliding2DAdjustableService
     {
         private ITransformWrapper _transformToAdjust => _config.RangedAdjustableInteractionConfig.TransformToAdjust;
         private Vector2 _spatialValue;
         public Vector2 SpatialValue { get => _spatialValue; set => SetSpatialValue(value); }
         public Vector2 MinimumSpatialValue
         {
-            get => new Vector2(_config.LinearAdjustableServiceConfig.MinimumSpatialValue, _config.LinearAdjustableServiceConfig.MinimumSpatialValue);
+            get => new Vector2(_config.LinearAdjustableServiceConfig.MinimumSpatialValue.x, _config.LinearAdjustableServiceConfig.MinimumSpatialValue.y);
             set
             {
-                _config.LinearAdjustableServiceConfig.MinimumSpatialValue = value.x;
-                _config.LinearAdjustableServiceConfig.MinimumSpatialValue = value.y;
+                _config.LinearAdjustableServiceConfig.MinimumSpatialValue = value;
             }
         }
         public Vector2 MaximumSpatialValue
         {
-            get => new Vector2(_config.LinearAdjustableServiceConfig.MaximumSpatialValue, _config.LinearAdjustableServiceConfig.MaximumSpatialValue);
+            get => new Vector2(_config.LinearAdjustableServiceConfig.MaximumSpatialValue.x, _config.LinearAdjustableServiceConfig.MaximumSpatialValue.y);
             set
             {
-                _config.LinearAdjustableServiceConfig.MaximumSpatialValue = value.x;
-                _config.LinearAdjustableServiceConfig.MaximumSpatialValue = value.y;
+                _config.LinearAdjustableServiceConfig.MaximumSpatialValue = value;
             }
         }
         private int _numberOfValues => _config.LinearAdjustableServiceConfig.NumberOfDiscreteValues;
@@ -102,9 +100,9 @@ namespace VE2.Core.VComponents.Internal
         private readonly RangedAdjustable2DInteractionModule _rangedAdjustable2DInteractionModule;
         #endregion
 
-        private readonly SlidingAdjustable2DConfig _config;
+        private readonly Sliding2DAdjustableConfig _config;
 
-        public SlidingAdjustable2DService(List<IHandheldInteractionModule> handheldInteractions, SlidingAdjustable2DConfig config, Adjustable2DState adjustableState, VE2Serializable grabbableState, string id,
+        public Sliding2DAdjustableService(List<IHandheldInteractionModule> handheldInteractions, Sliding2DAdjustableConfig config, Adjustable2DState adjustableState, VE2Serializable grabbableState, string id,
             IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer, IClientIDWrapper localClientIdWrapper)
         {
             _config = config;
@@ -119,7 +117,10 @@ namespace VE2.Core.VComponents.Internal
             _rangedAdjustable2DInteractionModule.OnLocalInteractorRequestGrab += (InteractorID interactorID) => _grabbableStateModule.SetGrabbed(interactorID);
             _rangedAdjustable2DInteractionModule.OnLocalInteractorRequestDrop += (InteractorID interactorID) => _grabbableStateModule.SetDropped(interactorID);
 
-            _rangedAdjustable2DInteractionModule.OnScroll += HandleScroll;
+            _rangedAdjustable2DInteractionModule.OnScrollUp += HandleScrollUp;
+            _rangedAdjustable2DInteractionModule.OnScrollDown += HandleScrollDown;
+            _rangedAdjustable2DInteractionModule.OnScrollLeft += HandleScrollLeft;
+            _rangedAdjustable2DInteractionModule.OnScrollRight += HandleScrollRight;
 
             _grabbableStateModule.OnGrabConfirmed += HandleGrabConfirmed;
             _grabbableStateModule.OnDropConfirmed += HandleDropConfirmed;
@@ -129,21 +130,55 @@ namespace VE2.Core.VComponents.Internal
 
         public void HandleStart() => _adjustable2DStateModule.InitializeStateWithStartingValue();
 
-        private void HandleScroll(ushort clientID)
+        private void HandleScrollUp(ushort clientID)
         {
-            Vector2 scrollMultiplier = _config.LinearAdjustableServiceConfig.AdjustmentType == SpatialAdjustmentType.Discrete
-                ? new Vector2(
-                    (_adjustable2DStateModule.MaximumOutputValue.x - _adjustable2DStateModule.MinimumOutputValue.x) / (_numberOfValues - 1),
-                    (_adjustable2DStateModule.MaximumOutputValue.y - _adjustable2DStateModule.MinimumOutputValue.y) / (_numberOfValues - 1)
-                )
-                : new Vector2(_config.Adjustable2DStateConfig.IncrementPerScrollTick, _config.Adjustable2DStateConfig.IncrementPerScrollTick);
+            float scrollMultiplier = _config.LinearAdjustableServiceConfig.AdjustmentType == SpatialAdjustmentType.Discrete
+                ? (_adjustable2DStateModule.MaximumOutputValue.y - _adjustable2DStateModule.MinimumOutputValue.y) / (_numberOfValues - 1)
+                : _config.Adjustable2DStateConfig.IncrementPerScrollTick;
 
-            Vector2 targetValue = _adjustable2DStateModule.OutputValue + scrollMultiplier;
-            targetValue = new Vector2(
-                Mathf.Clamp(targetValue.x, _adjustable2DStateModule.MinimumOutputValue.x, _adjustable2DStateModule.MaximumOutputValue.x),
-                Mathf.Clamp(targetValue.y, _adjustable2DStateModule.MinimumOutputValue.y, _adjustable2DStateModule.MaximumOutputValue.y)
-            );
+            float targetValueY = _adjustable2DStateModule.OutputValue.y + scrollMultiplier;
+            targetValueY = Mathf.Clamp(targetValueY, _adjustable2DStateModule.MinimumOutputValue.y, _adjustable2DStateModule.MaximumOutputValue.y);
 
+            Vector2 targetValue = new Vector2(_adjustable2DStateModule.OutputValue.x, targetValueY);
+            SetValueOnStateModule(targetValue, clientID);
+        }
+
+        private void HandleScrollDown(ushort clientID)
+        {
+            float scrollMultiplier = _config.LinearAdjustableServiceConfig.AdjustmentType == SpatialAdjustmentType.Discrete
+                ? (_adjustable2DStateModule.MaximumOutputValue.y - _adjustable2DStateModule.MinimumOutputValue.y) / (_numberOfValues - 1)
+                : _config.Adjustable2DStateConfig.IncrementPerScrollTick;
+
+            float targetValueY = _adjustable2DStateModule.OutputValue.y - scrollMultiplier;
+            targetValueY = Mathf.Clamp(targetValueY, _adjustable2DStateModule.MinimumOutputValue.y, _adjustable2DStateModule.MaximumOutputValue.y);
+
+            Vector2 targetValue = new Vector2(_adjustable2DStateModule.OutputValue.x, targetValueY);
+            SetValueOnStateModule(targetValue, clientID);
+        }
+
+        private void HandleScrollLeft(ushort clientID)
+        {
+            float scrollMultiplier = _config.LinearAdjustableServiceConfig.AdjustmentType == SpatialAdjustmentType.Discrete
+                ? (_adjustable2DStateModule.MaximumOutputValue.x - _adjustable2DStateModule.MinimumOutputValue.x) / (_numberOfValues - 1)
+                : _config.Adjustable2DStateConfig.IncrementPerScrollTick;
+
+            float targetValueX = _adjustable2DStateModule.OutputValue.x - scrollMultiplier;
+            targetValueX = Mathf.Clamp(targetValueX, _adjustable2DStateModule.MinimumOutputValue.x, _adjustable2DStateModule.MaximumOutputValue.x);
+
+            Vector2 targetValue = new Vector2(targetValueX, _adjustable2DStateModule.OutputValue.y);
+            SetValueOnStateModule(targetValue, clientID);
+        }
+
+        private void HandleScrollRight(ushort clientID)
+        {
+            float scrollMultiplier = _config.LinearAdjustableServiceConfig.AdjustmentType == SpatialAdjustmentType.Discrete
+                ? (_adjustable2DStateModule.MaximumOutputValue.x - _adjustable2DStateModule.MinimumOutputValue.x) / (_numberOfValues - 1)
+                : _config.Adjustable2DStateConfig.IncrementPerScrollTick;
+
+            float targetValueX = _adjustable2DStateModule.OutputValue.x + scrollMultiplier;
+            targetValueX = Mathf.Clamp(targetValueX, _adjustable2DStateModule.MinimumOutputValue.x, _adjustable2DStateModule.MaximumOutputValue.x);
+
+            Vector2 targetValue = new Vector2(targetValueX, _adjustable2DStateModule.OutputValue.y);
             SetValueOnStateModule(targetValue, clientID);
         }
 
@@ -196,34 +231,6 @@ namespace VE2.Core.VComponents.Internal
             _adjustable2DStateModule.HandleFixedUpdate();
         }
 
-        //private void TrackPosition(Vector3 grabberPosition)
-        //{
-        //    // Get the vector position of the grabber in the local space of the object  
-        //    Vector3 localGrabPosition = _transformToAdjust.InverseTransfromPoint(grabberPosition);
-        //    Vector2 adjustment = Vector2.zero;
-
-        //    // Get the grabber value X/Y based on the adjustment axis X/Y  
-        //    switch (_config.LinearAdjustableServiceConfig.AdjustmentAxis)
-        //    {
-        //        case SpatialAdjustmentAxis2D.XZAxis:
-        //            adjustment = new Vector2(
-        //                Mathf.Clamp(localGrabPosition.x, MinimumSpatialValue.x, MaximumSpatialValue.x),
-        //                Mathf.Clamp(localGrabPosition.z, MinimumSpatialValue.y, MaximumSpatialValue.y)
-        //            );
-        //            break;
-        //        case SpatialAdjustmentAxis2D.XYAxis:
-        //            adjustment = new Vector2(
-        //                Mathf.Clamp(localGrabPosition.x, MinimumSpatialValue.x, MaximumSpatialValue.x),
-        //                Mathf.Clamp(localGrabPosition.y, MinimumSpatialValue.y, MaximumSpatialValue.y)
-        //            );
-        //            break;
-        //    }
-
-        //    _spatialValue = adjustment;
-        //    Vector2 outputValue = ConvertToOutputValue(_spatialValue);
-        //    SetValueOnStateModule(outputValue, _grabbableStateModule.MostRecentInteractingClientID.Value);
-        //}
-
         private void TrackPosition(Vector3 grabberPosition)
         {
             // Get the vector position of the grabber in the local space of the object  
@@ -234,20 +241,18 @@ namespace VE2.Core.VComponents.Internal
             switch (_config.LinearAdjustableServiceConfig.AdjustmentAxis)
             {
                 case SpatialAdjustmentAxis2D.XZAxis:
-                    adjustment = new Vector2(localGrabPosition.x, localGrabPosition.z);
+                    adjustment = new Vector2(localGrabPosition.x, localGrabPosition.z); // Allow movement along X and Z
                     break;
                 case SpatialAdjustmentAxis2D.XYAxis:
-                    adjustment = new Vector2(localGrabPosition.x, localGrabPosition.y);
+                    adjustment = new Vector2(localGrabPosition.x, localGrabPosition.y); // Allow movement along X and Y
                     break;
             }
 
-            // Clamp to a circular range instead of rectangular box
-            float maxRadius = Mathf.Min(
-                Mathf.Abs(MaximumSpatialValue.x - MinimumSpatialValue.x) * 0.5f,
-                Mathf.Abs(MaximumSpatialValue.y - MinimumSpatialValue.y) * 0.5f
+            // Clamp the adjustment to the defined spatial range  
+            adjustment = new Vector2(
+                Mathf.Clamp(adjustment.x, MinimumSpatialValue.x, MaximumSpatialValue.x),
+                Mathf.Clamp(adjustment.y, MinimumSpatialValue.y, MaximumSpatialValue.y)
             );
-
-            adjustment = Vector2.ClampMagnitude(adjustment, maxRadius);
 
             _spatialValue = adjustment;
             Vector2 outputValue = ConvertToOutputValue(_spatialValue);
@@ -259,7 +264,7 @@ namespace VE2.Core.VComponents.Internal
         and sets it to tthe state module */
         private void SetValueOnStateModule(Vector2 value, ushort clientID = ushort.MaxValue)
         {
-            //UnityEngine.Debug.Log($"value = {value}, Adjustable2DStateModule.OutputValue = {_AdjustableStateModule.OutputValue}");
+            //UnityEngine.Debug.Log($"value = {value}, Adjustable2DStateModule.OutputValue = {_Adjustable2DStateModule.OutputValue}");
 
             if (value == _adjustable2DStateModule.OutputValue)
                 return;
@@ -305,16 +310,15 @@ namespace VE2.Core.VComponents.Internal
         private Vector2 ConvertToSpatialValue(Vector2 outputValue)
         {
             return new Vector2(
-                Mathf.Lerp(_config.LinearAdjustableServiceConfig.MinimumSpatialValue, _config.LinearAdjustableServiceConfig.MaximumSpatialValue, Mathf.InverseLerp(_adjustable2DStateModule.MinimumOutputValue.x, _adjustable2DStateModule.MaximumOutputValue.x, outputValue.x)),
-                Mathf.Lerp(_config.LinearAdjustableServiceConfig.MinimumSpatialValue, _config.LinearAdjustableServiceConfig.MaximumSpatialValue, Mathf.InverseLerp(_adjustable2DStateModule.MinimumOutputValue.y, _adjustable2DStateModule.MaximumOutputValue.y, outputValue.y))
+               Mathf.Lerp(_config.LinearAdjustableServiceConfig.MinimumSpatialValue.x, _config.LinearAdjustableServiceConfig.MaximumSpatialValue.x, Mathf.InverseLerp(_adjustable2DStateModule.MinimumOutputValue.x, _adjustable2DStateModule.MaximumOutputValue.x, outputValue.x)),
+               Mathf.Lerp(_config.LinearAdjustableServiceConfig.MinimumSpatialValue.y, _config.LinearAdjustableServiceConfig.MaximumSpatialValue.y, Mathf.InverseLerp(_adjustable2DStateModule.MinimumOutputValue.y, _adjustable2DStateModule.MaximumOutputValue.y, outputValue.y))
             );
         }
-
-        private Vector2 ConvertToOutputValue(Vector2 spatialValue)
+         private Vector2 ConvertToOutputValue(Vector2 spatialValue)
         {
             return new Vector2(
-                Mathf.Lerp(_adjustable2DStateModule.MinimumOutputValue.x, _adjustable2DStateModule.MaximumOutputValue.x, Mathf.InverseLerp(_config.LinearAdjustableServiceConfig.MinimumSpatialValue, _config.LinearAdjustableServiceConfig.MaximumSpatialValue, spatialValue.x)),
-                Mathf.Lerp(_adjustable2DStateModule.MinimumOutputValue.y, _adjustable2DStateModule.MaximumOutputValue.y, Mathf.InverseLerp(_config.LinearAdjustableServiceConfig.MinimumSpatialValue, _config.LinearAdjustableServiceConfig.MaximumSpatialValue, spatialValue.y))
+                Mathf.Lerp(_adjustable2DStateModule.MinimumOutputValue.x, _adjustable2DStateModule.MaximumOutputValue.x, Mathf.InverseLerp(_config.LinearAdjustableServiceConfig.MinimumSpatialValue.x, _config.LinearAdjustableServiceConfig.MaximumSpatialValue.x, spatialValue.x)),
+                Mathf.Lerp(_adjustable2DStateModule.MinimumOutputValue.y, _adjustable2DStateModule.MaximumOutputValue.y, Mathf.InverseLerp(_config.LinearAdjustableServiceConfig.MinimumSpatialValue.y, _config.LinearAdjustableServiceConfig.MaximumSpatialValue.y, spatialValue.y))
             );
         }
 

@@ -5,6 +5,7 @@ namespace VE2.Core.VComponents.API
 {
     internal interface IRangedAdjustable2DInteractionModule : IRangedAdjustableInteractionModule
     {
-        public void Scroll(ushort clientID);
+        public void ScrollLeft(ushort clientID);
+        public void ScrollRight(ushort clientID);
     }
 }

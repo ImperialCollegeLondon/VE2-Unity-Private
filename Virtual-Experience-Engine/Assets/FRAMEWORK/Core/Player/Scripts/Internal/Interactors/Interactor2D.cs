@@ -9,7 +9,8 @@ using VE2.Core.VComponents.API;
 
 namespace VE2.Core.Player.Internal
 {
-    internal class Interactor2D : PointerInteractor
+    internal class Interactor2D : 
+        PointerInteractor
     {
         private const float INSPECT_ZOOM_SPEED = 1.0f;
         private const float INSPECT_MIN_ZOOM = 2.0f;

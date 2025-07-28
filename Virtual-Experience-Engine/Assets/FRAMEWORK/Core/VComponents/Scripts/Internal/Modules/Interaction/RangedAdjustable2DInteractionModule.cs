@@ -30,7 +30,10 @@ namespace VE2.Core.VComponents.Internal
 
     internal class RangedAdjustable2DInteractionModule : RangedGrabInteractionModule, IRangedAdjustable2DInteractionModule
     {
-        public event Action<ushort> OnScroll;
+        public event Action<ushort> OnScrollUp;
+        public event Action<ushort> OnScrollDown;
+        public event Action<ushort> OnScrollLeft;
+        public event Action<ushort> OnScrollRight;
 
         //This one is ready by the interactor to handle haptics
         public event Action OnValueChanged;
@@ -45,18 +48,12 @@ namespace VE2.Core.VComponents.Internal
             Transform = rangedGrabInteractionConfig.AttachPointWrapper;
         }
 
-        public void Scroll(ushort clientID) => OnScroll?.Invoke(clientID);
+        public void ScrollUp(ushort clientID) => OnScrollUp?.Invoke(clientID);
+        public void ScrollDown(ushort clientID) => OnScrollDown?.Invoke(clientID);
+        public void ScrollLeft(ushort clientID) => OnScrollLeft?.Invoke(clientID);
+        public void ScrollRight(ushort clientID) => OnScrollRight?.Invoke(clientID);
 
         public void NotifyValueChanged() => OnValueChanged?.Invoke();
 
-        public void ScrollUp(ushort clientID)
-        {
-            //DO NOTHING AS THIS IS A 2D INTERACTION MODULE
-        }
-
-        public void ScrollDown(ushort clientID)
-        {
-            //DO NOTHING AS THIS IS A 2D INTERACTION MODULE
-        }
     }
 }
