@@ -92,13 +92,14 @@ namespace VE2.Core.Player.Internal
             CharacterCollider = player2DReferences.CharacterCollider;
 
             FreeGrabbingIndicator grabbingIndicator = new();
+            AdjustableActiveIndicator adjustableActiveIndicator = new();
 
             _interactor2D = new(
                 interactorContainer, grabInteractablesContainer, player2DInputContainer.InteractorInputContainer2D, interactionConfig,
-                player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, localClientIDWrapper, localAdminIndicator, _inspectModeIndicator, grabbingIndicator);
+                player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, localClientIDWrapper, localAdminIndicator, _inspectModeIndicator, grabbingIndicator, adjustableActiveIndicator);
 
             _feetInteractor2D = new(collisionDetectorFactory, ColliderType.Feet2D, player2DReferences.Interactor2DReferences.FeetCollider, InteractorType.Feet, localClientIDWrapper, localAdminIndicator, interactionConfig);
-            _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences, movementModeConfig, _inspectModeIndicator, player2DInputContainer.PlayerLocomotor2DInputContainer, Resources.Load<Player2DMovementConfig>("Player2DMovementConfig"), grabbingIndicator);
+            _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences, movementModeConfig, _inspectModeIndicator, player2DInputContainer.PlayerLocomotor2DInputContainer, Resources.Load<Player2DMovementConfig>("Player2DMovementConfig"), grabbingIndicator, adjustableActiveIndicator);
 
             _rootTransform = player2DReferences.Locomotor2DReferences.Controller.transform;
 
@@ -249,5 +250,26 @@ namespace VE2.Core.Player.Internal
             else
                 OnGrabEnded?.Invoke(freeGrabbable);
         }
+    }
+
+    internal class AdjustableActiveIndicator : IAdjustableActiveIndicator
+    {
+        public bool IsActive { get; set; } = false;
+        public event Action<bool> OnActiveChanged;
+
+        public void SetActive(bool isActive)
+        {
+            if (IsActive == isActive)
+                return;
+            IsActive = isActive;
+            OnActiveChanged?.Invoke(isActive);
+        }
+    }
+
+    internal interface IAdjustableActiveIndicator
+    {
+        public bool IsActive { get; }
+        public event Action<bool> OnActiveChanged;
+        public void SetActive(bool isActive);
     }
 }

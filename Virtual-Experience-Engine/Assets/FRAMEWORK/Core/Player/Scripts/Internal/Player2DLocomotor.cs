@@ -17,6 +17,7 @@ namespace VE2.Core.Player.Internal
 
         private PlayerLocomotor2DInputContainer _playerLocomotor2DInputContainer;
         private readonly Player2DMovementConfig _player2DMovementConfig;
+        private readonly AdjustableActiveIndicator _adjustableActiveIndicator;
         private LayerMask _traversableLayers => _movementModeConfig.TraversableLayers;
         private float _originalControllerHeight;
         private float verticalVelocity = 0f;
@@ -70,7 +71,7 @@ namespace VE2.Core.Player.Internal
         }
 
 
-        internal Player2DLocomotor(Locomotor2DReferences locomotor2DReferences, MovementModeConfig movementModeConfig, InspectModeIndicator inspectModeIndicator, PlayerLocomotor2DInputContainer playerLocomotor2DInputContainer, Player2DMovementConfig player2DMovementConfig, FreeGrabbingIndicator grabbingIndicator)
+        internal Player2DLocomotor(Locomotor2DReferences locomotor2DReferences, MovementModeConfig movementModeConfig, InspectModeIndicator inspectModeIndicator, PlayerLocomotor2DInputContainer playerLocomotor2DInputContainer, Player2DMovementConfig player2DMovementConfig, FreeGrabbingIndicator grabbingIndicator, AdjustableActiveIndicator adjustableActiveIndicator)
         {
             _characterController = locomotor2DReferences.Controller;
             _verticalOffsetTransform = locomotor2DReferences.VerticalOffsetTransform;
@@ -81,6 +82,7 @@ namespace VE2.Core.Player.Internal
             _movementModeConfig = movementModeConfig;
             _characterController.includeLayers = movementModeConfig.TraversableLayers | movementModeConfig.CollisionLayers;
             _player2DMovementConfig = player2DMovementConfig;
+            _adjustableActiveIndicator = adjustableActiveIndicator;
 
             _inspectModeIndicator = inspectModeIndicator;
             _grabbingIndicator = grabbingIndicator;
@@ -147,6 +149,9 @@ namespace VE2.Core.Player.Internal
             {
                 LockCursor();
             }
+
+            if (_adjustableActiveIndicator.IsActive)
+                return;
 
             // Detect FreeFlyMode changes
             if (_movementModeConfig.FreeFlyMode != _wasFreeFlyMode)

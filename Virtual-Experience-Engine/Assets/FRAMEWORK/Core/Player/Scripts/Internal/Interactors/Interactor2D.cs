@@ -24,12 +24,13 @@ namespace VE2.Core.Player.Internal
         private readonly Transform _grabberInspectGuideTransform;
         private Tween _inspectModeTween = null;
         private readonly FreeGrabbingIndicator _grabbingIndicator;
+        private readonly AdjustableActiveIndicator _adjustableActiveIndicator;
 
         private IRangedFreeGrabInteractionModule _rangedFreeGrabbingGrabbable => _CurrentGrabbingGrabbable as IRangedFreeGrabInteractionModule;
 
         internal Interactor2D(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, Interactor2DInputContainer interactor2DInputContainer,
             PlayerInteractionConfig interactionConfig, InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider,
-            ILocalClientIDWrapper localClientIDWrapper, ILocalAdminIndicator localAdminIndicator, InspectModeIndicator inspectModeIndicator, FreeGrabbingIndicator grabbingIndicator) :
+            ILocalClientIDWrapper localClientIDWrapper, ILocalAdminIndicator localAdminIndicator, InspectModeIndicator inspectModeIndicator, FreeGrabbingIndicator grabbingIndicator, AdjustableActiveIndicator adjustableActiveIndicator) :
             base(interactorContainer, grabInteractablesContainer, interactor2DInputContainer, interactionConfig,
                 interactorReferences, interactorType, raycastProvider, localClientIDWrapper, localAdminIndicator, null, new HoveringOverScrollableIndicator())
         {
@@ -37,6 +38,7 @@ namespace VE2.Core.Player.Internal
             _reticuleImage = interactor2DReferences.ReticuleImage;
             _inspectModeIndicator = inspectModeIndicator;
             _grabbingIndicator = grabbingIndicator;
+            _adjustableActiveIndicator = adjustableActiveIndicator;
 
             _connectionPromptHandler = interactor2DReferences.ConnectionPromptHandler;
             _grabberInspectGuideTransform = interactor2DReferences.GrabberInspectTransform;
@@ -98,6 +100,8 @@ namespace VE2.Core.Player.Internal
             //I.E, it's position is affected by the rotation of its parent 
             Vector3 directionToGrabber = rangedAdjustableInteraction.AttachPointTransform.position - _GrabberTransform.position;
             _GrabberTransform.position += directionToGrabber;
+
+            _adjustableActiveIndicator.SetActive(true);
         }
 
         protected override void HandleUpdateGrabbingAdjustable() { } //Nothing needed here
@@ -105,6 +109,7 @@ namespace VE2.Core.Player.Internal
         protected override void HandleStopGrabbingAdjustable()
         {
             _GrabberTransform.localPosition = Vector3.zero;
+            _adjustableActiveIndicator.SetActive(false);
         }
 
         protected override void HandleLocalClientIDReady(ushort clientID)

@@ -390,8 +390,8 @@ namespace VE2.Common.API
     {
         public void SetLocalAdminStatus(bool isAdmin);
     }
-    
-        internal class ActivatableGroupsContainer
+
+    internal class ActivatableGroupsContainer
     {
         private Dictionary<string, List<ISingleInteractorActivatableStateModule>> _activatableGroups = new();
         public IReadOnlyDictionary<string, List<ISingleInteractorActivatableStateModule>> ActivatableGroups => _activatableGroups;
@@ -421,3 +421,4 @@ namespace VE2.Common.API
         public void Reset() => _activatableGroups.Clear();
     }
 }
+
