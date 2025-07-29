@@ -1,5 +1,6 @@
 using UnityEngine;
 using DG.Tweening;
+using VE2.Common.API;
 
 public class HubMasterView : MonoBehaviour
 {
