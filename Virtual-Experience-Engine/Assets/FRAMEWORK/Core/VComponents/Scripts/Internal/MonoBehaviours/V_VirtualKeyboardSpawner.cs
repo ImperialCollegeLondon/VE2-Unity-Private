@@ -48,7 +48,7 @@ namespace VE2.Core.VComponents.Internal
         }
         public void SpawnKeyBoard(string selectedText = "")
         {
-            //if (!VE2API.Player.IsVRMode) return;
+            if (!VE2API.Player.IsVRMode) return;
 
             Debug.Log("Spawning Keyboard");
 
