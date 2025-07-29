@@ -62,7 +62,6 @@ namespace VE2.Core.VComponents.Internal
         private readonly IGrabInteractablesContainer _grabInteractablesContainer;
         private readonly RangedGrabInteractionConfig _rangedGrabInteractionConfig;
         private bool _isRemotelyGrabbed = false;
-        private IInteractableOutline _interactableOutline;
 
         //TODO: Figure out the attach point, don't really want to inject it as a separate param if it's already in the config...
 
@@ -74,7 +73,6 @@ namespace VE2.Core.VComponents.Internal
             _grabInteractablesContainer = grabInteractablesContainer;
             _grabInteractablesContainer.RegisterGrabInteractable(this, id);
             _rangedGrabInteractionConfig = grabInteractionConfig;
-            _interactableOutline = grabbableOutline;
         }
 
         public void RequestLocalGrab(InteractorID interactorID)
@@ -100,10 +98,16 @@ namespace VE2.Core.VComponents.Internal
             if (_interactableOutline == null)
                 return;
 
+            if (!_isAllowedToInteract)
+            {
+                SetOutlineColor(Color.red);
+                return;
+            }
+
             if (isInteracted)
-                _interactableOutline.OutlineColor = Color.red;
+                SetOutlineColor(Color.red);
             else
-                _interactableOutline.OutlineColor = _rangedGrabInteractionConfig.DefaultOutlineColor;
+                SetOutlineColor(_rangedGrabInteractionConfig.DefaultOutlineColor);
         }
 
         public override void HandleOultineOnHoverEnter(bool ishovering)
@@ -111,8 +115,8 @@ namespace VE2.Core.VComponents.Internal
             if (_interactableOutline == null)
                 return;
 
-            if (_isRemotelyGrabbed)
-                _interactableOutline.OutlineColor = Color.red;
+            if (_isRemotelyGrabbed || !_isAllowedToInteract)
+                SetOutlineColor(Color.red);
             else
                 base.HandleOultineOnHoverEnter(ishovering);
         }

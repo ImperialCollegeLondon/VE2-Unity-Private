@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
+using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Shared;
@@ -34,8 +35,9 @@ namespace VE2.Core.VComponents.Internal
     {
         public float InteractRange { get => _rangedConfig.InteractionRange; set => _rangedConfig.InteractionRange = value; }
 
+        protected bool _isAllowedToInteract => IsInteractable && (!AdminOnly || VE2API.LocalAdminIndicator.IsLocalAdmin);
         private readonly RangedInteractionConfig _rangedConfig;
-        private IInteractableOutline _interactableOutline;
+        public IInteractableOutline _interactableOutline { get; private set; }
         private List<InteractorID> _hoveringInteractors = new();
 
         internal event Action OnLocalInteractorEnterHover;
@@ -46,10 +48,16 @@ namespace VE2.Core.VComponents.Internal
             _rangedConfig = config;
             _interactableOutline = interactableOutline;
 
+            VE2API.LocalAdminIndicator.OnLocalAdminStatusChanged += OnLocalAdminStatusChanged;
+
             if (_interactableOutline != null)
             {
                 _interactableOutline.OutlineWidth = _rangedConfig.OutlineThickness;
-                _interactableOutline.OutlineColor = _rangedConfig.DefaultOutlineColor;
+
+                if (_isAllowedToInteract)
+                    _interactableOutline.OutlineColor = _rangedConfig.DefaultOutlineColor;
+                else
+                    _interactableOutline.OutlineColor = Color.red;
             }
         }
 
@@ -108,10 +116,16 @@ namespace VE2.Core.VComponents.Internal
             if (_interactableOutline == null)
                 return;
 
+            if (!_isAllowedToInteract)
+            {
+                SetOutlineColor(Color.red);
+                return;
+            }
+
             if (isInteracted)
-                _interactableOutline.OutlineColor = _rangedConfig.InteractedOutlineColor;
+                SetOutlineColor(_rangedConfig.InteractedOutlineColor);
             else
-                _interactableOutline.OutlineColor = _rangedConfig.HoveredOutlineColor;
+                SetOutlineColor(_rangedConfig.HoveredOutlineColor);
         }
 
         public virtual void HandleOultineOnHoverEnter(bool ishovering)
@@ -119,10 +133,33 @@ namespace VE2.Core.VComponents.Internal
             if (_interactableOutline == null)
                 return;
 
+            if (!_isAllowedToInteract)
+            {
+                SetOutlineColor(Color.red);
+                return;
+            }
+
             if (ishovering)
-                _interactableOutline.OutlineColor = _rangedConfig.HoveredOutlineColor;
+                SetOutlineColor(_rangedConfig.HoveredOutlineColor);
             else
-                _interactableOutline.OutlineColor = _rangedConfig.DefaultOutlineColor;
+                SetOutlineColor(_rangedConfig.DefaultOutlineColor);
         }
+
+        private void OnLocalAdminStatusChanged(bool isLocalAdmin)
+        {
+            if (_interactableOutline == null)
+                return;
+
+            Debug.Log($"OnLocalAdminStatusChanged - isLocalAdmin: {isLocalAdmin}");
+
+            if (_isAllowedToInteract)
+                SetOutlineColor(_rangedConfig.DefaultOutlineColor);
+            else
+                SetOutlineColor(Color.red);
+
+        }
+
+        public void SetOutlineColor(Color color) => _interactableOutline.OutlineColor = color;
+
     }
 }
