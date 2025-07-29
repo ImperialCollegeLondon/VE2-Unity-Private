@@ -2,6 +2,7 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net.Mime;
 using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
@@ -15,7 +16,7 @@ using VE2.Core.Player.API;
 //"Spawns a virtual keyboard based on Keyboard config.Keyboard input feeds the attached InputField"
 namespace VE2.Core.VComponents.Internal
 {
-    public class V_VirtualKeyboardSpawner : MonoBehaviour
+    public class V_InputFieldHandler : MonoBehaviour
     {
         [SerializeField, HideLabel, IgnoreParent]
         KeyboardConfig keyboardConfig;
@@ -102,14 +103,14 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     public class KeyboardConfig
     {
-        public KeyType KeyType;
+        public TMP_InputField inputField;
 
-        public int maxCharacters = 2;
+        [HideInInspector] public TMP_InputField.ContentType KeyType => inputField.contentType;
+
+        [HideInInspector] public int maxCharacters => inputField.characterLimit;
 
         [Tooltip("Gets and shows the current text in the connected input field when keyboard spawns")]
         public bool inheritCurrentText = false;
-
-        public TMP_InputField inputField;
 
         public string inputPrompt = "Enter Here";
 

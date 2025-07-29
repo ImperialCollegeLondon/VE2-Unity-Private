@@ -189,11 +189,11 @@ namespace VE2.Core.VComponents.Internal
 
             switch (keyboardConfig.KeyType)
             {
-                case KeyType.NumPad:
+                case TMP_InputField.ContentType.IntegerNumber:
 
                     ShowKeyBoard(numPadGameObject, true, outputTextshortUI, resultPromptTransformNumPad, resultPromptGroupNumPad);
                     break;
-                case KeyType.FullKeyboard:
+                case TMP_InputField.ContentType.Standard:
                     ShowKeyBoard(fullKeyBoardGameObject, true, outputTextLongUI, resultPromptTransformFullKeyboard, resultPromptGroupFullKeyboard);
                     currentFullKeyboardActionButtons = fullKeyBoardActionButtons;
                     break;
@@ -389,14 +389,14 @@ namespace VE2.Core.VComponents.Internal
         {
             switch (keyboardConfig.KeyType)
             {
-                case KeyType.NumPad:
+                case TMP_InputField.ContentType.IntegerNumber:
                     foreach (Button button in numPadActionButtons)
                     {
                         button.interactable = status;
                     }
                     break;
 
-                case KeyType.FullKeyboard:
+                case TMP_InputField.ContentType.Standard:
                     foreach (Button button in fullKeyBoardActionButtons)
                     {
                         button.interactable = status;
