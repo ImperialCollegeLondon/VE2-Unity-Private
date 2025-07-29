@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using VE2.Common.Shared;
 using VE2.NonCore.FileSystem.API;
 using VE2.NonCore.Platform.API;
 using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
@@ -8,17 +9,11 @@ using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 internal class HubWorldPageHandler
 {
     private int _selectedWorldVersion = -1;
-    private bool _isWorldInstalled = false;
     private InstanceCode _selectedInstanceCode = null;
 
-    //Download bits - should maybe move into a different module
-    private List<HubFileDownloadInfo> _filesToDownload;
-    private int _curentFileDownloadIndex = -1;
-    private IRemoteFileTaskInfo _currentDownloadTask;
-
-
     private readonly HubWorldPageView _hubWorldPageView;
-    private HubWorldDetails _worldDetails;
+    private readonly Dictionary<InstanceCode, HubInstanceDisplayHandler> _instanceDisplayHandlers = new();
+    private readonly HubWorldDetails _worldDetails;
     private readonly IPlatformServiceInternal _platformService;
     private readonly IFileSystemInternal _fileSystem;
 
@@ -43,36 +38,13 @@ internal class HubWorldPageHandler
         _hubWorldPageView.OnAutoSelectInstanceClicked += HandleChooseInstanceForMeSelected;
         _hubWorldPageView.OnEnterWorldClicked += HandleEnterWorldClicked;
 
-        _hubWorldPageView.SetupView(worldDetails, GetInstancesForWorldName(worldDetails.Name));
+        _hubWorldPageView.SetupView(worldDetails);
+
+        RefreshInstanceDisplays();
 
         //First, we have to search for the versions of that world
         IRemoteFolderSearchInfo searchInfo = _fileSystem.GetRemoteFoldersAtPath($"{worldDetails.Name}");
         searchInfo.OnSearchComplete += HandleWorldVersionSearchComplete;
-    }
-
-    public void HandleUpdate()
-    {
-        if (_curentFileDownloadIndex != -1)
-        {
-            _filesToDownload[_curentFileDownloadIndex].AmountDownloaded = (ulong)(_filesToDownload[_curentFileDownloadIndex].FileSize * _currentDownloadTask.Progress);
-
-            ulong totalDownloaded = 0;
-            foreach (HubFileDownloadInfo file in _filesToDownload)
-                totalDownloaded += file.AmountDownloaded;
-
-            ulong totalSize = 0;
-            foreach (HubFileDownloadInfo file in _filesToDownload)
-                totalSize += file.FileSize;
-
-            int progressPercent = Mathf.FloorToInt(totalDownloaded * 100 / totalSize);
-            _hubWorldPageView.UpdateDownloadingWorldProgress(progressPercent);
-        }
-
-        if (_hubWorldPageView.CurrentUIState == HubWorldPageUIState.NeedToInstallWorld)
-        {
-            Debug.Log("Checking if APK is installed: " + _worldDetails.AndroidPackageName);
-            RefreshWorldUIState(); //Will check if the APK is installed
-        }
     }
 
     private void HandleWorldVersionSearchComplete(IRemoteFolderSearchInfo searchInfo)
@@ -135,44 +107,117 @@ internal class HubWorldPageHandler
         RefreshWorldUIState();
     }
 
-    private void RefreshWorldUIState()
+    //TODO - maybe move to a different module
+    //=======================================================================================================
+    #region INSTANCES 
+
+    private void HandleInstanceSelected(InstanceCode instanceCode)
     {
-        //TODO: Should also handle whether we're downloading
-
-        HubWorldPageUIState newUIState;
-        if (!_worldDetails.IsVersionDownloaded(_selectedWorldVersion))
-            newUIState = HubWorldPageUIState.NeedToDownloadWorld;
-        else if (!_worldDetails.IsVersionInstalled(_selectedWorldVersion))
-            newUIState = HubWorldPageUIState.NeedToInstallWorld;
-        else if (_selectedInstanceCode == null)
-            newUIState = HubWorldPageUIState.NeedToSelectInstance;
-        else
-            newUIState = HubWorldPageUIState.ReadyToEnterWorld;
-
-        _hubWorldPageView.UpdateUIState(newUIState);
+        _selectedInstanceCode = instanceCode;
+        _hubWorldPageView.SetSelectedInstanceCode(instanceCode);
+        RefreshInstanceDisplays();
+        RefreshWorldUIState();
     }
 
-    private List<PlatformInstanceInfo> GetInstancesForWorldName(string worldName)
+    private void HandleChooseInstanceForMeSelected()
     {
-        Dictionary<string, List<PlatformInstanceInfo>> instancesByWorldNames = new();
-        foreach (PlatformInstanceInfo instanceInfo in _platformService.InstanceInfos.Values)
-        {
-            if (!instancesByWorldNames.ContainsKey(instanceInfo.InstanceCode.WorldName))
-                instancesByWorldNames[instanceInfo.InstanceCode.WorldName] = new List<PlatformInstanceInfo>();
+        InstanceCode instanceCode = new(_worldDetails.Name, "00", (ushort)_selectedWorldVersion);
+        HandleInstanceSelected(instanceCode);
+    }
 
-            instancesByWorldNames[instanceInfo.InstanceCode.WorldName].Add(instanceInfo);
+    private void HandleInstanceInfosChanged(Dictionary<InstanceCode, PlatformInstanceInfo> instanceInfos) => RefreshInstanceDisplays();
+
+    private void RefreshInstanceDisplays()
+    {
+        Debug.Log("Refreshing instance displays for world: " + _worldDetails.Name);
+        List<InstanceCode> instancesFromServer = _platformService.GetInstanceCodesForWorldName(_worldDetails.Name);
+
+        //Remove old instances=============================================================================== 
+        List<InstanceCode> instancesToRemove = new();
+        foreach (KeyValuePair<InstanceCode, HubInstanceDisplayHandler> kvp in _instanceDisplayHandlers)
+        {
+            if (!instancesFromServer.Contains(kvp.Key) && !kvp.Key.Equals(_selectedInstanceCode))
+                instancesToRemove.Add(kvp.Key);
         }
 
-        return instancesByWorldNames.ContainsKey(worldName)
-            ? instancesByWorldNames[worldName]
-            : new List<PlatformInstanceInfo>();
+        foreach (InstanceCode instanceCode in instancesToRemove)
+            RemoveInstanceDisplay(instanceCode);
+
+        //Add/update instances=============================================================================== 
+        foreach (InstanceCode instanceCode in instancesFromServer)
+        {
+            PlatformInstanceInfo instanceInfo = _platformService.InstanceInfos[instanceCode];
+            bool isSelected = _selectedInstanceCode != null && instanceCode.Equals(_selectedInstanceCode);
+
+            if (!_instanceDisplayHandlers.ContainsKey(instanceCode))
+                AddInstanceDisplay(instanceInfo);
+            else
+                _instanceDisplayHandlers[instanceCode].UpdateDisplay(instanceInfo, isSelected);
+        }
+
+        if (_selectedInstanceCode != null)
+        {
+            if (!_instanceDisplayHandlers.ContainsKey(_selectedInstanceCode))
+            {
+                PlatformInstanceInfo instanceInfo = new(_selectedInstanceCode, new Dictionary<ushort, PlatformClientInfo>());
+                instanceInfo.ClientInfos.Add(_platformService.LocalClientID, new PlatformClientInfo
+                {
+                    ClientID = _platformService.LocalClientID,
+                    PlayerPresentationConfig = _platformService.LocalPlayerPresentationConfig
+                });
+
+                AddInstanceDisplay(instanceInfo);
+            }
+            else if (!instancesFromServer.Contains(_selectedInstanceCode))
+            {
+                _instanceDisplayHandlers[_selectedInstanceCode].UpdateDisplay(_platformService.InstanceInfos[_selectedInstanceCode], true);
+            }
+            //Otherwise, it will hae been updated already
+        }
+
+        _hubWorldPageView.SetNoInstancesToShow(_instanceDisplayHandlers.Count == 0);
     }
 
-    private void HandleInstanceInfosChanged(Dictionary<InstanceCode, PlatformInstanceInfo> instanceInfos)
+    private void AddInstanceDisplay(PlatformInstanceInfo instanceInfo)
     {
-        if (_worldDetails != null && _hubWorldPageView.gameObject.activeSelf)
-            _hubWorldPageView.UpdateInstances(GetInstancesForWorldName(_worldDetails.Name));
+        HubInstanceDisplayHandler newInstanceDisplayHandler = new(instanceInfo, true, _hubWorldPageView.InstanceButtonPrefab, _hubWorldPageView.InstancesVerticalGroup);
+        _instanceDisplayHandlers.Add(instanceInfo.InstanceCode, newInstanceDisplayHandler);
+        newInstanceDisplayHandler.OnInstanceButtonClicked += HandleInstanceSelected;
     }
+
+    private void RemoveInstanceDisplay(InstanceCode instanceCode)
+    {
+        _instanceDisplayHandlers[instanceCode].Destroy();
+        _instanceDisplayHandlers[instanceCode].OnInstanceButtonClicked -= HandleInstanceSelected;
+        _instanceDisplayHandlers.Remove(instanceCode);
+    }
+
+    #endregion //INSTANCES
+
+    //=======================================================================================================
+    #region WORLD FILES DOWNLOAD 
+
+    //TODO - maybe this can go into a different module
+
+    private class HubFileDownloadInfo
+    {
+        public string FileNameAndPath;
+        public ulong FileSize;
+        public ulong AmountDownloaded;
+
+        public HubFileDownloadInfo(string fileNameAndPath, ulong fileSize, ulong amountDownloaded)
+        {
+            FileNameAndPath = fileNameAndPath;
+            FileSize = fileSize;
+            AmountDownloaded = amountDownloaded;
+        }
+
+        public void MarkComplete() { AmountDownloaded = FileSize; }
+    }
+    
+    private List<HubFileDownloadInfo> _filesToDownload;
+    private int _curentFileDownloadIndex = -1;
+    private IRemoteFileTaskInfo _currentDownloadTask;
 
     private void HandleStartDownloadClicked()
     {
@@ -252,7 +297,6 @@ internal class HubWorldPageHandler
         }
     }
 
-
     private void HandleCancelDownloadClicked()
     {
         _currentDownloadTask?.CancelRemoteFileTask();
@@ -294,19 +338,48 @@ internal class HubWorldPageHandler
         Debug.Log("Current installing package name set to: " + _worldDetails.AndroidPackageName);
     }
 
-    private void HandleInstanceSelected(InstanceCode instanceCode)
+    public void HandleUpdate()
     {
-        _selectedInstanceCode = instanceCode;
-        _hubWorldPageView.SetSelectedInstance(instanceCode);
+        if (_curentFileDownloadIndex != -1)
+        {
+            _filesToDownload[_curentFileDownloadIndex].AmountDownloaded = (ulong)(_filesToDownload[_curentFileDownloadIndex].FileSize * _currentDownloadTask.Progress);
 
-        RefreshWorldUIState();
+            ulong totalDownloaded = 0;
+            foreach (HubFileDownloadInfo file in _filesToDownload)
+                totalDownloaded += file.AmountDownloaded;
+
+            ulong totalSize = 0;
+            foreach (HubFileDownloadInfo file in _filesToDownload)
+                totalSize += file.FileSize;
+
+            int progressPercent = Mathf.FloorToInt(totalDownloaded * 100 / totalSize);
+            _hubWorldPageView.UpdateDownloadingWorldProgress(progressPercent);
+        }
+
+        if (_hubWorldPageView.CurrentUIState == HubWorldPageUIState.NeedToInstallWorld)
+        {
+            Debug.Log("Checking if APK is installed: " + _worldDetails.AndroidPackageName);
+            RefreshWorldUIState(); //Will check if the APK is installed
+        }
     }
 
-    private void HandleChooseInstanceForMeSelected()
-    {
-        InstanceCode instanceCode = new(_worldDetails.Name, "00", (ushort)_selectedWorldVersion);
+    #endregion //WORLD FILES DOWNLOAD AND INSTALL
 
-        HandleInstanceSelected(instanceCode);
+    private void RefreshWorldUIState()
+    {
+        //TODO: Should also handle whether we're downloading
+
+        HubWorldPageUIState newUIState;
+        if (!_worldDetails.IsVersionDownloaded(_selectedWorldVersion))
+            newUIState = HubWorldPageUIState.NeedToDownloadWorld;
+        else if (!_worldDetails.IsVersionInstalled(_selectedWorldVersion))
+            newUIState = HubWorldPageUIState.NeedToInstallWorld;
+        else if (_selectedInstanceCode == null)
+            newUIState = HubWorldPageUIState.NeedToSelectInstance;
+        else
+            newUIState = HubWorldPageUIState.ReadyToEnterWorld;
+
+        _hubWorldPageView.UpdateUIState(newUIState);
     }
 
     private void HandleEnterWorldClicked()
@@ -324,25 +397,17 @@ internal class HubWorldPageHandler
 
     public void TearDown()
     {
-        if (_currentDownloadTask != null)
-        {
-            _currentDownloadTask.CancelRemoteFileTask();
-        }
-    }
-    
-    private class HubFileDownloadInfo
-    {
-        public string FileNameAndPath;
-        public ulong FileSize;
-        public ulong AmountDownloaded;
+        _currentDownloadTask?.CancelRemoteFileTask();
 
-        public HubFileDownloadInfo(string fileNameAndPath, ulong fileSize, ulong amountDownloaded)
-        {
-            FileNameAndPath = fileNameAndPath;
-            FileSize = fileSize;
-            AmountDownloaded = amountDownloaded;
-        }
+        //.ToList() is needed to avoid modifying the dictionary while iterating
+        foreach (InstanceCode instanceCode in _instanceDisplayHandlers.Keys.ToList())
+            RemoveInstanceDisplay(instanceCode);
 
-        public void MarkComplete() { AmountDownloaded = FileSize; }
+        _hubWorldPageView.OnDownloadWorldClicked -= HandleStartDownloadClicked;
+        _hubWorldPageView.OnCancelDownloadClicked -= HandleCancelDownloadClicked;
+        _hubWorldPageView.OnInstallWorldClicked -= HandleInstallWorldClicked;
+        _hubWorldPageView.OnInstanceCodeSelected -= HandleInstanceSelected;
+        _hubWorldPageView.OnAutoSelectInstanceClicked -= HandleChooseInstanceForMeSelected;
+        _hubWorldPageView.OnEnterWorldClicked -= HandleEnterWorldClicked;
     }
 }

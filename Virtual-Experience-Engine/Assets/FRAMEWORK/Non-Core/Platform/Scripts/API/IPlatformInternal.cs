@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using static VE2.Core.Player.API.PlayerSerializables;
 using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 
 namespace VE2.NonCore.Platform.API
@@ -9,6 +10,8 @@ namespace VE2.NonCore.Platform.API
         public void UpdateSettings(ServerConnectionSettings serverConnectionSettings, InstanceCode instanceCode);
         public InstanceCode CurrentInstanceCode { get; }
         public Dictionary<InstanceCode, PlatformInstanceInfo> InstanceInfos { get; }
+        public List<PlatformInstanceInfo> GetInstanceInfosForWorldName(string worldName);
+        public List<InstanceCode> GetInstanceCodesForWorldName(string worldName);
         public event Action<Dictionary<InstanceCode, PlatformInstanceInfo>> OnInstanceInfosChanged;
 
         public void ConnectToPlatform();
@@ -16,6 +19,7 @@ namespace VE2.NonCore.Platform.API
         public string PlayerDisplayName { get; }
 
         public ushort LocalClientID { get; }
+        public BuiltInPlayerPresentationConfig LocalPlayerPresentationConfig { get; }
         public bool IsAuthFailed { get; }
         public event Action OnAuthFailed;
 

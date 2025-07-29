@@ -156,11 +156,8 @@ internal class HubController : MonoBehaviour
 
     private void HandleBackClicked()
     {
-        if (_hubWorldPageHandler != null)
-        {
-            _hubWorldPageHandler.TearDown();
-            _hubWorldPageHandler = null;
-        }
+        _hubWorldPageHandler?.TearDown();
+        _hubWorldPageHandler = null;
 
         _hubHomePageView.gameObject.SetActive(true);
         _hubCategoryPageView.gameObject.SetActive(false);
