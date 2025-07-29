@@ -75,10 +75,10 @@ namespace VE2.Core.VComponents.Internal
             canvas.name = $"{infoPoint.name}_Canvas"; //May as well do the same to the canvas, for consistency
         }
 
-        [MenuItem("/GameObject/VE2/UIs/VirtualKeyboardSpawner", priority = 7)]
+        [MenuItem("/GameObject/VE2/UIs/InputFieldHandler", priority = 7)]
         private static void CreateVirtualKeyboardSpawner()
         {
-            CommonUtils.InstantiateResource("VirtualKeyboardSpawner");
+            CommonUtils.InstantiateResource("InputFieldHandler");
         }
 
         [MenuItem("/GameObject/VE2/Models/TableA", priority = 0)]

@@ -4179,9 +4179,9 @@ GameObject:
   - component: {fileID: 315840234616463127}
   - component: {fileID: 25163573949654771}
   - component: {fileID: 8412309253298787284}
-  - component: {fileID: 4012300496675936947}
   - component: {fileID: 7217289958284707176}
   - component: {fileID: 8065578424328912691}
+  - component: {fileID: 7225297744935241850}
   m_Layer: 5
   m_Name: VirtualKeyboard
   m_TagString: Untagged
@@ -4254,18 +4254,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.33645165, y: 0.26045275, z: 0}
   m_Center: {x: 0.003735043, y: 0.00049090385, z: 0}
---- !u!225 &4012300496675936947
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 901364635038866304}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
 --- !u!114 &7217289958284707176
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4373,6 +4361,18 @@ MonoBehaviour:
       IsNetworked: 0
       TransmissionFrequency: 1
       TransmissionType: 0
+--- !u!225 &7225297744935241850
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 901364635038866304}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &901890639278329502
 GameObject:
   m_ObjectHideFlags: 0
@@ -34435,6 +34435,7 @@ GameObject:
   - component: {fileID: 2884325137484334059}
   - component: {fileID: 6500269789829988483}
   - component: {fileID: 6601293843876300217}
+  - component: {fileID: 6601572861939327282}
   m_Layer: 5
   m_Name: VirtualKeyboard
   m_TagString: Untagged
@@ -34482,7 +34483,7 @@ Canvas:
   m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
-  m_SortingLayerID: 1680170405
+  m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
 --- !u!114 &406663061061204214
@@ -34800,6 +34801,18 @@ MonoBehaviour:
   OnTextUpdate:
     m_PersistentCalls:
       m_Calls: []
+--- !u!225 &6601572861939327282
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8454733812457455531}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &8512842151147760531
 GameObject:
   m_ObjectHideFlags: 0
@@ -35853,8 +35866,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 5618123237d1d3f49a5a6025287065f7, type: 3}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 35707bf9a0ec23a48ba15af558ac0c0c, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4

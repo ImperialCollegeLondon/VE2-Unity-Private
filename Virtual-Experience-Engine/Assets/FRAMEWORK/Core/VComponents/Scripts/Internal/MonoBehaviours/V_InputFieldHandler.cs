@@ -18,6 +18,8 @@ namespace VE2.Core.VComponents.Internal
 {
     public class V_InputFieldHandler : MonoBehaviour
     {
+        private static int _keyboardInstanceCounter = 0;
+
         [SerializeField, HideLabel, IgnoreParent]
         KeyboardConfig keyboardConfig;
 
@@ -25,7 +27,8 @@ namespace VE2.Core.VComponents.Internal
         public float distanceFromPlayer = 0.15f;
 
         private VirtualKeyboard virtualKeyboard;
-
+        private Vector3 spawnPosition;
+        private Quaternion spawnRotation;
         void Start()
         {
 
@@ -66,8 +69,6 @@ namespace VE2.Core.VComponents.Internal
                 //    StaticData.Utils.activeVirtualKeyboard = null;
                 //}
                 Transform playerTransform;
-                Vector3 spawnPosition;
-                Quaternion spawnRotation;
                 GameObject objectToSpawn = Resources.Load<GameObject>("VirtualKeyboard");
 
                 if (VE2API.Player.IsVRMode)
@@ -88,7 +89,8 @@ namespace VE2.Core.VComponents.Internal
 
 
 
-                GameObject spawnedObject = Instantiate(objectToSpawn, spawnPosition, spawnRotation);
+                //GameObject spawnedObject = Instantiate(objectToSpawn, spawnPosition, spawnRotation);
+                GameObject spawnedObject = SpawnVirtualKeyboardObject(objectToSpawn, spawnPosition, spawnRotation);
 
                 //virtualKeyboard = spawnedObject.GetComponent<VirtualKeyboard>();
                 virtualKeyboard = spawnedObject.GetComponentInChildren<VirtualKeyboard>();
@@ -97,6 +99,20 @@ namespace VE2.Core.VComponents.Internal
                 //StaticData.Utils.activeVirtualKeyboard = virtualKeyboard;
             }
 
+        }
+
+        private GameObject SpawnVirtualKeyboardObject(GameObject gameObjectToSpawn, Vector3 position, Quaternion rotation)
+        {
+            GameObject boot = new GameObject(name + "_boot");
+            boot.SetActive(false);
+            _keyboardInstanceCounter++;
+            GameObject newGO = Instantiate(gameObjectToSpawn, position, rotation, boot.transform);
+            newGO.name = $"{gameObjectToSpawn.name}_{_keyboardInstanceCounter}";
+            newGO.transform.SetParent(null);
+            Destroy(boot);
+            newGO.SetActive(true);
+
+            return newGO;
         }
     }
 
