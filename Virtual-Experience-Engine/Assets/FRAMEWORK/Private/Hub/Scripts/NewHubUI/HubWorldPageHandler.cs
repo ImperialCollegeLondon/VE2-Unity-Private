@@ -12,7 +12,7 @@ internal class HubWorldPageHandler
     private InstanceCode _selectedInstanceCode = null;
 
     private readonly HubWorldPageView _hubWorldPageView;
-    private readonly Dictionary<InstanceCode, HubInstanceDisplayHandler> _instanceDisplayHandlers = new();
+    private readonly Dictionary<string, HubInstanceDisplayHandler> _instanceDisplayHandlers = new();
     private readonly HubWorldDetails _worldDetails;
     private readonly IPlatformServiceInternal _platformService;
     private readonly IFileSystemInternal _fileSystem;
@@ -28,7 +28,7 @@ internal class HubWorldPageHandler
 
         //We don't want to update the after we've already left the instance, otherwise we'll see a new instance pop up with our avatar 
         //The UI is currently setup to show OTHER players in instances, not the local player themselves
-        _platformService.OnLeavingInstance += () => _platformService.OnInstanceInfosChanged -= HandleInstanceInfosChanged;
+        _platformService.OnLeavingInstance += HandleLeaveInstance;
 
         //_hubWorldPageView.OnBackClicked += HandleBackClicked;
         _hubWorldPageView.OnDownloadWorldClicked += HandleStartDownloadClicked;
@@ -45,6 +45,8 @@ internal class HubWorldPageHandler
         //First, we have to search for the versions of that world
         IRemoteFolderSearchInfo searchInfo = _fileSystem.GetRemoteFoldersAtPath($"{worldDetails.Name}");
         searchInfo.OnSearchComplete += HandleWorldVersionSearchComplete;
+
+        Debug.LogError("HubWorldPageHandler set up for world: " + _worldDetails.Name);
     }
 
     private void HandleWorldVersionSearchComplete(IRemoteFolderSearchInfo searchInfo)
@@ -130,21 +132,22 @@ internal class HubWorldPageHandler
     private void RefreshInstanceDisplays()
     {
         Debug.Log("Refreshing instance displays for world: " + _worldDetails.Name);
-        List<InstanceCode> instancesFromServer = _platformService.GetInstanceCodesForWorldName(_worldDetails.Name);
+        List<InstanceCode> instanceCodesFromServer = _platformService.GetInstanceCodesForWorldName(_worldDetails.Name);
+        List<string> instancesFromServer = instanceCodesFromServer.Select(ic => ic.ToString()).ToList();
 
         //Remove old instances=============================================================================== 
-        List<InstanceCode> instancesToRemove = new();
-        foreach (KeyValuePair<InstanceCode, HubInstanceDisplayHandler> kvp in _instanceDisplayHandlers)
+        List<string> instancesToRemove = new();
+        foreach (KeyValuePair<string, HubInstanceDisplayHandler> kvp in _instanceDisplayHandlers)
         {
             if (!instancesFromServer.Contains(kvp.Key) && !kvp.Key.Equals(_selectedInstanceCode))
                 instancesToRemove.Add(kvp.Key);
         }
 
-        foreach (InstanceCode instanceCode in instancesToRemove)
+        foreach (string instanceCode in instancesToRemove)
             RemoveInstanceDisplay(instanceCode);
 
         //Add/update instances=============================================================================== 
-        foreach (InstanceCode instanceCode in instancesFromServer)
+        foreach (string instanceCode in instancesFromServer)
         {
             PlatformInstanceInfo instanceInfo = _platformService.InstanceInfos[instanceCode.ToString()];
             bool isSelected = _selectedInstanceCode != null && instanceCode.Equals(_selectedInstanceCode);
@@ -152,13 +155,16 @@ internal class HubWorldPageHandler
             if (!_instanceDisplayHandlers.ContainsKey(instanceCode))
                 AddInstanceDisplay(instanceInfo);
             else
-                _instanceDisplayHandlers[instanceCode].UpdateDisplay(instanceInfo, isSelected);
+                _instanceDisplayHandlers[instanceCode.ToString()].UpdateDisplay(instanceInfo, isSelected);
         }
 
         if (_selectedInstanceCode != null)
         {
-            if (!_instanceDisplayHandlers.ContainsKey(_selectedInstanceCode))
+            if (!_instanceDisplayHandlers.ContainsKey(_selectedInstanceCode.ToString()))
             {
+                //If the selected instance is not in the list, we need to add it
+                Debug.LogWarning($"Selected instance {_selectedInstanceCode} not found in instance display handlers. Adding it.");
+
                 PlatformInstanceInfo instanceInfo = new(_selectedInstanceCode, new Dictionary<ushort, PlatformClientInfo>());
                 instanceInfo.ClientInfos.Add(_platformService.LocalClientID, new PlatformClientInfo
                 {
@@ -168,9 +174,9 @@ internal class HubWorldPageHandler
 
                 AddInstanceDisplay(instanceInfo);
             }
-            else if (!instancesFromServer.Contains(_selectedInstanceCode))
+            else if (!instancesFromServer.Contains(_selectedInstanceCode.ToString()))
             {
-                _instanceDisplayHandlers[_selectedInstanceCode].UpdateDisplay(_platformService.InstanceInfos[_selectedInstanceCode.ToString()], true);
+                _instanceDisplayHandlers[_selectedInstanceCode.ToString()].UpdateDisplay(_platformService.InstanceInfos[_selectedInstanceCode.ToString()], true);
             }
             //Otherwise, it will hae been updated already
         }
@@ -181,16 +187,18 @@ internal class HubWorldPageHandler
     private void AddInstanceDisplay(PlatformInstanceInfo instanceInfo)
     {
         HubInstanceDisplayHandler newInstanceDisplayHandler = new(instanceInfo, true, _hubWorldPageView.InstanceButtonPrefab, _hubWorldPageView.InstancesVerticalGroup);
-        _instanceDisplayHandlers.Add(instanceInfo.InstanceCode, newInstanceDisplayHandler);
+        _instanceDisplayHandlers.Add(instanceInfo.InstanceCode.ToString(), newInstanceDisplayHandler);
         newInstanceDisplayHandler.OnInstanceButtonClicked += HandleInstanceSelected;
     }
 
-    private void RemoveInstanceDisplay(InstanceCode instanceCode)
+    private void RemoveInstanceDisplay(string instanceCode)
     {
         _instanceDisplayHandlers[instanceCode].Destroy();
         _instanceDisplayHandlers[instanceCode].OnInstanceButtonClicked -= HandleInstanceSelected;
         _instanceDisplayHandlers.Remove(instanceCode);
     }
+
+    private void HandleLeaveInstance() => _platformService.OnInstanceInfosChanged -= HandleInstanceInfosChanged;
 
     #endregion //INSTANCES
 
@@ -400,8 +408,11 @@ internal class HubWorldPageHandler
         _currentDownloadTask?.CancelRemoteFileTask();
 
         //.ToList() is needed to avoid modifying the dictionary while iterating
-        foreach (InstanceCode instanceCode in _instanceDisplayHandlers.Keys.ToList())
+        foreach (string instanceCode in _instanceDisplayHandlers.Keys.ToList())
             RemoveInstanceDisplay(instanceCode);
+
+        _platformService.OnInstanceInfosChanged -= HandleInstanceInfosChanged;
+        _platformService.OnLeavingInstance -= HandleLeaveInstance;
 
         _hubWorldPageView.OnDownloadWorldClicked -= HandleStartDownloadClicked;
         _hubWorldPageView.OnCancelDownloadClicked -= HandleCancelDownloadClicked;
@@ -409,5 +420,7 @@ internal class HubWorldPageHandler
         _hubWorldPageView.OnInstanceCodeSelected -= HandleInstanceSelected;
         _hubWorldPageView.OnAutoSelectInstanceClicked -= HandleChooseInstanceForMeSelected;
         _hubWorldPageView.OnEnterWorldClicked -= HandleEnterWorldClicked;
+
+        Debug.LogError("HubWorldPageHandler torn down for world: " + _worldDetails.Name);
     }
 }

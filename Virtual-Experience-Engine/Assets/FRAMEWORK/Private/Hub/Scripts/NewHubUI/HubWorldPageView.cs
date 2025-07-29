@@ -58,6 +58,19 @@ internal class HubWorldPageView : MonoBehaviour
     public event Action OnInstallWorldClicked;
     public event Action OnEnterWorldClicked;
 
+    private void Awake()
+    {
+        _backButton.onClick.AddListener(() => OnBackClicked?.Invoke());
+
+        _autoSelectInstanceButton.onClick.AddListener(() => OnAutoSelectInstanceClicked?.Invoke());
+        _enterInstanceCodeButton.onClick.AddListener(() => OnEnterInstanceCodeClicked?.Invoke());
+
+        _downloadWorldButton.onClick.AddListener(() => OnDownloadWorldClicked?.Invoke());
+        _cancelDownloadButton.onClick.AddListener(() => OnCancelDownloadClicked?.Invoke());
+        _installWorldButton.onClick.AddListener(() => OnInstallWorldClicked?.Invoke());
+        _enterWorldButton.onClick.AddListener(() => OnEnterWorldClicked?.Invoke());
+    }
+
     //private HubWorldDetails _worldDetails;
 
     //TODO - also pass in some world state to tell us if we need to download, or install?
@@ -67,12 +80,8 @@ internal class HubWorldPageView : MonoBehaviour
     public void SetupView(HubWorldDetails worldDetails)
     {
         // _worldDetails = worldDetails;
-
-        _backButton.onClick.AddListener(() => OnBackClicked?.Invoke());
         _worldTitle.text = worldDetails.Name;
 
-        _autoSelectInstanceButton.onClick.AddListener(() => OnAutoSelectInstanceClicked?.Invoke());
-        _enterInstanceCodeButton.onClick.AddListener(() => OnEnterInstanceCodeClicked?.Invoke());
 
         //TODO=======
         //_worldBanner.sprite = _worldDetails.Banner;
@@ -88,10 +97,7 @@ internal class HubWorldPageView : MonoBehaviour
         _switchToVrButton.gameObject.SetActive(!isVrMode);
         //===========
 
-        _downloadWorldButton.onClick.AddListener(() => OnDownloadWorldClicked?.Invoke());
-        _cancelDownloadButton.onClick.AddListener(() => OnCancelDownloadClicked?.Invoke());
-        _installWorldButton.onClick.AddListener(() => OnInstallWorldClicked?.Invoke());
-        _enterWorldButton.onClick.AddListener(() => OnEnterWorldClicked?.Invoke());
+
     }
 
     public void ShowAvailableVersions(List<int> versions)
