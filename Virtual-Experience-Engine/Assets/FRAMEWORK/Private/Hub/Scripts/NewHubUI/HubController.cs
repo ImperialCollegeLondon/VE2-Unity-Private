@@ -92,40 +92,27 @@ internal class HubController : MonoBehaviour
             _hubWorldPageView.UpdateDownloadingWorldProgress(progressPercent);
         }
 
-        if (_currentInstallingPackageName != "none")
+        //TODO, only do this if we haven't already got the install button showing 
+        //TODO - also shoudln't show enter button if instance isn't already selected
+        if (Application.platform == RuntimePlatform.Android && _viewingWorldDetails != null)
         {
-            Debug.Log("Checking if APK is installed: " + _currentInstallingPackageName);
-            if (_viewingWorldDetails.AndroidPackageName != _currentInstallingPackageName)
+            bool isWorldInstalled = _viewingWorldDetails.IsVersionInstalled(_selectedWorldVersion);
+
+            Debug.Log("Checking if APK is installed: " + _viewingWorldDetails.AndroidPackageName);
+
+            //TODO: If the install button is currently showing
+
+            if (isWorldInstalled)
             {
-                // If the world details have changed, reset the current installing package name
-                _currentInstallingPackageName = "none";
-                return;
+                _hubWorldPageView.ShowEnterWorldButton();
             }
-
-            //TODO - need to factor in correct world version
-            using (AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
-            using (AndroidJavaObject currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
+            else
             {
-
-                AndroidJavaObject packageManager = currentActivity.Call<AndroidJavaObject>("getPackageManager");
-                try
+                if (_logNotInstalledCounter % 100 == 0)
                 {
-                    AndroidJavaObject packageInfo = packageManager.Call<AndroidJavaObject>("getPackageInfo", _currentInstallingPackageName, 0);
-                    string versionName = packageInfo.Get<string>("versionName");
-
-                    _currentInstallingPackageName = "none";
-                    Debug.Log($"APK {_currentInstallingPackageName} successfully installed. Version: {versionName}");
-
-                    _hubWorldPageView.ShowEnterWorldButton();
+                    Debug.Log($"APK {_viewingWorldDetails.AndroidPackageName} not installed yet.");
                 }
-                catch (AndroidJavaException e)
-                {
-                    if (_logNotInstalledCounter % 100 == 0)
-                    {
-                        Debug.Log($"APK {_currentInstallingPackageName} not installed yet.");
-                    }
-                    _logNotInstalledCounter++;
-                }
+                _logNotInstalledCounter++;
             }
         }
     } 
@@ -228,7 +215,6 @@ internal class HubController : MonoBehaviour
     private List<HubFileDownloadInfo> _filesToDownload;
     private int _curentFileDownloadIndex = -1;
     private IRemoteFileTaskInfo _currentDownloadTask;
-    private string _currentInstallingPackageName = "none";
 
     private void HandleStartDownloadClicked()
     {
@@ -330,7 +316,7 @@ internal class HubController : MonoBehaviour
     {
         string versionString = _selectedWorldVersion.ToString("D3");
         string filePath = $"{_fileSystem.LocalAbsoluteWorkingPath}/{_viewingWorldDetails.Name}/{versionString}/{_viewingWorldDetails.Name}.apk";
-        Debug.Log("Installing APK: " + filePath);
+        Debug.Log("Installing package " + _viewingWorldDetails.AndroidPackageName + " at path " + filePath);
 
         using (AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
         using (AndroidJavaObject currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
@@ -351,7 +337,7 @@ internal class HubController : MonoBehaviour
             }
         }
 
-        _currentInstallingPackageName = _viewingWorldDetails.AndroidPackageName;
+        Debug.Log("Current installing package name set to: " + _viewingWorldDetails.AndroidPackageName);
     }
 
     private void HandleInstanceSelected(InstanceCode instanceCode)
@@ -365,8 +351,6 @@ internal class HubController : MonoBehaviour
 
     private void HandleChooseInstanceForMeSelected()
     {
-        //TODO - version number may change. need to think about how we're handling versions overall really 
-        //Maybe it should just be a bool for "live version" or "experimental version" 
         InstanceCode instanceCode = new(_viewingWorldDetails.Name, "00", (ushort)_selectedWorldVersion);
 
         HandleInstanceSelected(instanceCode);
@@ -387,6 +371,7 @@ internal class HubController : MonoBehaviour
 
     private HubWorldDetails _viewingWorldDetails;
     private int _selectedWorldVersion = -1;
+    private bool _isWorldInstalled = false;
     private InstanceCode _selectedInstanceCode = null;
 
     private void HandleWorldClicked(HubWorldDetails worldDetails)
@@ -426,8 +411,6 @@ internal class HubController : MonoBehaviour
 
         //TODO: This returns DevBlue/002, while the above just returns 002
 
-        //The question is, which do we want??
-        //Maybe it makes sense for there to be an ILocalFolderSearchInfo?? Idk
         _viewingWorldDetails.VersionsAvailableLocally = _fileSystem.GetLocalFoldersAtPath($"{_viewingWorldDetails.Name}")
             .Select(s => int.TryParse(s, out var v) ? (int?)v : null)
             .Where(v => v.HasValue)
@@ -435,14 +418,6 @@ internal class HubController : MonoBehaviour
             .ToList();
 
         List<string> localWorlds = _fileSystem.GetLocalFoldersAtPath($"{_viewingWorldDetails.Name}");
-
-        // Debug.LogWarning("Local world strings found: " + localWorlds.Count);
-        // foreach (string localWorld in localWorlds)
-        //     Debug.Log("Found local world: " + localWorld);
-
-        // Debug.Log("Searched for local versions at " + $"{_viewingWorldDetails.Name}, found " + _viewingWorldDetails.VersionsAvailableLocally.Count + " local versions");
-        // foreach (int version in _viewingWorldDetails.VersionsAvailableLocally)
-        //     Debug.Log("Found local version: " + version);
 
         int targetVersion;
 
@@ -467,21 +442,11 @@ internal class HubController : MonoBehaviour
         _hubWorldPageView.ShowAvailableVersions(_viewingWorldDetails.VersionsAvailableRemotely);
 
         bool needsDownload = !_viewingWorldDetails.VersionsAvailableLocally.Contains(targetVersion);
-        bool downloadedButNotInstalled;
-        if (Application.platform == RuntimePlatform.Android)
-        {
-            downloadedButNotInstalled = false; // TODO: Check if world and version is installed 
-        }
-        else
-        {
-            downloadedButNotInstalled = false; //On windows, no need to install
-        }
+        bool downloadedButNotInstalled = !needsDownload && !_viewingWorldDetails.IsVersionInstalled(targetVersion);
         bool isVersionExperimental = targetVersion != _viewingWorldDetails.LiveVersionNumber;
 
         _hubWorldPageView.ShowSelectedVersion(targetVersion, needsDownload, downloadedButNotInstalled, isVersionExperimental, _selectedInstanceCode != null);
         _selectedWorldVersion = targetVersion;
-
-        //_hubWorldPageView.SupplyVersions
     }
 
     private List<PlatformInstanceInfo> GetInstancesForWorldName(string worldName)
@@ -575,7 +540,7 @@ internal class HubWorldDetails
     public List<int> VersionsAvailableRemotely;
 
     /*
-        So we open the world page, one that happens we search for remote versions, 
+        So we open the world page, once that happens we search for remote versions, 
         Controller then tells the view what the versions are, and which one to be targeting 
     */
 
@@ -588,7 +553,21 @@ internal class HubWorldDetails
     {
         if (Application.platform == RuntimePlatform.Android)
         {
-            return true; //TODO!
+            using (AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+            using (AndroidJavaObject currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
+            {
+                AndroidJavaObject packageManager = currentActivity.Call<AndroidJavaObject>("getPackageManager");
+                try
+                {
+                    AndroidJavaObject packageInfo = packageManager.Call<AndroidJavaObject>("getPackageInfo", AndroidPackageName, 0);
+                    long versionCode = packageInfo.Call<long>("getLongVersionCode");
+                    return versionCode == version;
+                }
+                catch (AndroidJavaException e)
+                {
+                    return false;
+                }
+            }
         }
         else
         {
@@ -597,51 +576,3 @@ internal class HubWorldDetails
         }
     }
 }
-
-/*
-    We start off with a list of strings for folders. 
-    We split these into categories, use that to create category buttons, 
-    and also use that to create world buttons.
-
-    World buttons will need to be setup with world name, and the category they relate to
-
-
-    How are we handling controllers and views? 
-    Probably don't want this HubController script to control everything 
-    So, hub controller should get this list of cats and worlds, and pass that to HubHomePageController
-    HubHomePageController then... idk... screw it, let's bung it all in here for now, it's a prototype
-
-
-
-    We should also pass down if a world is experimental or not, 
-
-
-    ===============================
-    does the FTP server even need to kno about categories? 
-    Maybe not?? 
-    We can get all worlds from FTP 
-    We can match those against what we get from the the platform, who can tell us what category those worlds go into 
-    If a world doesn't have a category, it'll fall under "experimental" or "unknown" 
-    If a world DOES have a category, we show it under that category, but we can still change version numbers on the UI 
-
-    When we click on a worldbutton, the view populates with the world name, doesn't even need the category 
-    When the view opens, if it's experimental, we scan that world folder for versions 
-    If it's NOT experimental... we scan for versions anyway, and confirm the one indicated by the platform is actually there 
-    When we click download, we download that world, at that version. No categories needed.
-    ===============================
-
-    Is there any benefit to having cats in FTP? It means we can categorise worlds without the platform telling us 
-    THAT means, if we're running offline, we can no longer categorise worlds, since the cat isn't encoded in the world folder name...
-    That might ruin it all then... hmmn
-
-    So, if we're offline, and we don't have the list of active worlds from the server... then what? 
-    We just show the most recent version of everything that we have locally?
-
-    Hold on though, aren't we going to need to store metadata about the world anyway? Things beyond just what comes from FTP?
-    E.G image? 
-
-    We could just say "if offline, show a different view entirely"
-    Or just "every time we get info from the platform, store that in a local file, if offline, fall back to that file"
-    Let's just do that I think. 
-
-*/
