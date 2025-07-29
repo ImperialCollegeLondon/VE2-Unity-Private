@@ -28,7 +28,7 @@ namespace VE2.Core.VComponents.Internal
         [EndGroup]
         [SerializeField, PropertyOrder(-96)] public UnityEvent OnLocalInspectModeExit;
     }
-    
+
     internal class RangedFreeGrabInteractionModule : RangedGrabInteractionModule, IRangedFreeGrabInteractionModule
     {
         internal event Action<Vector3, Quaternion> OnGrabDeltaApplied;
@@ -42,7 +42,7 @@ namespace VE2.Core.VComponents.Internal
 
         IColliderWrapper IRangedFreeGrabInteractionModule.ColliderWrapper => ColliderWrapper;
 
-        public readonly IColliderWrapper ColliderWrapper; 
+        public readonly IColliderWrapper ColliderWrapper;
         private readonly RangedFreeGrabInteractionConfig _rangedFreeGrabInteractionConfig;
 
         public void NotifyInspectModeEnter()

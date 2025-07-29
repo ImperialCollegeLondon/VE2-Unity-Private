@@ -60,7 +60,6 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         private readonly RotatingAdjustableConfig _config;
-        private readonly IInteractableOutline _grabbableOutline;
 
         //gets the vector from the object to the attach point, this will serve as the starting point for any angle created
         //needs to be the attach point at the start (0 not starting position) to get the correct angle
@@ -76,10 +75,6 @@ namespace VE2.Core.VComponents.Internal
             IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer, IClientIDWrapper localClientIdWrapper)
         {
             _config = config;
-            _grabbableOutline = grabbableOutline;
-
-            if (_grabbableOutline != null) //to avoid null reference exceptions in tests
-                _grabbableOutline.OutlineWidth = _config.RangedAdjustableInteractionConfig.OutlineThickness;
 
             //needs the vector to the attachpoint at 0,0,0
             _initialVectorToHandle = _attachPointTransform.position - _transformToAdjust.position;
@@ -160,24 +155,16 @@ namespace VE2.Core.VComponents.Internal
             _oldRotationalValue = (_spatialValue % 360 + 360) % 360; //this is to make sure the value is always positive
             _numberOfRevolutions = Mathf.FloorToInt(_spatialValue / 360); //get the nth revolution of the starting value
 
-            if (_grabbableOutline != null)
-            {
-                if (id == VE2API.LocalClientIdWrapper.Value)
-                    _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.InteractedOutlineColor;
-                else
-                    _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.DefaultOutlineColor;
-            }
+            if (id == VE2API.LocalClientIdWrapper.Value)
+                _rangedAdjustableInteractionModule.OnInteractedWith(true);
+
         }
 
         private void HandleDropConfirmed(ushort id)
         {
-            if (_grabbableOutline != null)
-            {
-                if (id == VE2API.LocalClientIdWrapper.Value)
-                    _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.HoveredOutlineColor;
-                else
-                    _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.DefaultOutlineColor;
-            }
+            if (id == VE2API.LocalClientIdWrapper.Value)
+                _rangedAdjustableInteractionModule.OnInteractedWith(false);
+
         }
 
         private void SetSpatialValue(float spatialValue)

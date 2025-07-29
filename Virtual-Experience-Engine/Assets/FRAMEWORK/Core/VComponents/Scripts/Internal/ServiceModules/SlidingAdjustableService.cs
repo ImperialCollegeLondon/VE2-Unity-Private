@@ -88,17 +88,11 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         private readonly SlidingAdjustableConfig _config;
-        private readonly IInteractableOutline _grabbableOutline;
 
         public SlidingAdjustableService(List<IHandheldInteractionModule> handheldInteractions, SlidingAdjustableConfig config, AdjustableState adjustableState, VE2Serializable grabbableState, IInteractableOutline grabbableOutline, string id,
             IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer, IClientIDWrapper localClientIdWrapper)
         {
             _config = config;
-            _grabbableOutline = grabbableOutline;
-            
-            if (_grabbableOutline != null) //to avoid null reference exceptions in tests
-                _grabbableOutline.OutlineWidth = _config.RangedAdjustableInteractionConfig.OutlineThickness;
-
             _rangedAdjustableInteractionModule = new(id, grabInteractablesContainer, handheldInteractions, config.RangedAdjustableInteractionConfig, config.GeneralInteractionConfig, grabbableOutline);
 
             //seperate modules for adjustable state and free grabbable state. Give the adjustable state module a different ID so it doesn't clash in the syncer with the grabbable state module
@@ -161,24 +155,16 @@ namespace VE2.Core.VComponents.Internal
 
         private void HandleGrabConfirmed(ushort id)
         {
-            if (_grabbableOutline != null)
-            {
-                if (id == VE2API.LocalClientIdWrapper.Value)
-                    _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.InteractedOutlineColor;
-                else
-                    _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.DefaultOutlineColor;
-            }
+            if (id == VE2API.LocalClientIdWrapper.Value)
+                _rangedAdjustableInteractionModule.OnInteractedWith(true);
+
         }
 
         private void HandleDropConfirmed(ushort id)
         {
-            if (_grabbableOutline != null)
-            {
-                if (id == VE2API.LocalClientIdWrapper.Value)
-                    _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.HoveredOutlineColor;
-                else
-                    _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.DefaultOutlineColor;
-            }
+            if (id == VE2API.LocalClientIdWrapper.Value)
+                _rangedAdjustableInteractionModule.OnInteractedWith(false);
+
         }
 
         private void SetSpatialValue(float spatialValue)

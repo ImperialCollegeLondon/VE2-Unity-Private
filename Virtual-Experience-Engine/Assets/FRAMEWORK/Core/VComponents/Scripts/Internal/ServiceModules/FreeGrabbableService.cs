@@ -41,7 +41,6 @@ namespace VE2.Core.VComponents.Internal
         public event Action<ushort> OnDropConfirmed;
 
         private readonly IRigidbodyWrapper _rigidbody;
-        private readonly IInteractableOutline _grabbableOutline;
         private readonly PhysicsConstants _physicsConstants;
 
         private RangedGrabInteractionConfig _rangedFreeGrabInteractionConfig => _config.RangedFreeGrabInteractionConfig;
@@ -62,11 +61,6 @@ namespace VE2.Core.VComponents.Internal
             _config = config;
             _RangedGrabInteractionModule = new(id, grabInteractablesContainer, handheldInteractions, config.RangedFreeGrabInteractionConfig, config.GeneralInteractionConfig, colliderWrapper, grabbableOutline);
             _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, grabInteractablesContainer, interactorContainer, localClientIdWrapper);
-
-            _grabbableOutline = grabbableOutline;
-
-            if (_grabbableOutline != null) //to avoid null reference exceptions in tests
-                _grabbableOutline.OutlineWidth = _rangedFreeGrabInteractionConfig.OutlineThickness;
 
             _rigidbody = rigidbody;
             _physicsConstants = physicsConstants;
@@ -131,13 +125,10 @@ namespace VE2.Core.VComponents.Internal
 
             OnGrabConfirmed?.Invoke(grabberClientID);
 
-            if (_grabbableOutline != null)
-            {
-                if (grabberClientID == VE2API.LocalClientIdWrapper.Value)
-                    _grabbableOutline.OutlineColor = _rangedFreeGrabInteractionConfig.InteractedOutlineColor;
-                else
-                    _grabbableOutline.OutlineColor = _rangedFreeGrabInteractionConfig.DefaultOutlineColor;
-            }
+            if (grabberClientID == VE2API.LocalClientIdWrapper.Value)
+                _RangedGrabInteractionModule.OnInteractedWith(true);
+            else
+                _RangedGrabInteractionModule.IsInteractedRemotely(true);
         }
 
         private void HandleDropConfirmed(ushort dropperClientID)
@@ -157,13 +148,10 @@ namespace VE2.Core.VComponents.Internal
 
             OnDropConfirmed?.Invoke(dropperClientID);
 
-            if (_grabbableOutline != null)
-            {
-                if (dropperClientID == VE2API.LocalClientIdWrapper.Value)
-                    _grabbableOutline.OutlineColor = _rangedFreeGrabInteractionConfig.HoveredOutlineColor;
-                else
-                    _grabbableOutline.OutlineColor = _rangedFreeGrabInteractionConfig.DefaultOutlineColor;
-            }
+            if (dropperClientID == VE2API.LocalClientIdWrapper.Value)
+                _RangedGrabInteractionModule.OnInteractedWith(false);
+            else
+                _RangedGrabInteractionModule.IsInteractedRemotely(false);
 
             if (_grabbableRigidbodyInterface.FreeGrabbableHandlesKinematics)
             {

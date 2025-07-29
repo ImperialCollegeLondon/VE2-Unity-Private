@@ -35,7 +35,7 @@ namespace VE2.Core.VComponents.Internal
         public float InteractRange { get => _rangedConfig.InteractionRange; set => _rangedConfig.InteractionRange = value; }
 
         private readonly RangedInteractionConfig _rangedConfig;
-        private IInteractableOutline _grabbableOutline;
+        private IInteractableOutline _interactableOutline;
         private List<InteractorID> _hoveringInteractors = new();
 
         internal event Action OnLocalInteractorEnterHover;
@@ -44,7 +44,13 @@ namespace VE2.Core.VComponents.Internal
         public RangedInteractionModule(RangedInteractionConfig config, IInteractableOutline interactableOutline, GeneralInteractionConfig generalInteractionConfig) : base(generalInteractionConfig)
         {
             _rangedConfig = config;
-            _grabbableOutline = interactableOutline;
+            _interactableOutline = interactableOutline;
+
+            if (_interactableOutline != null)
+            {
+                _interactableOutline.OutlineWidth = _rangedConfig.OutlineThickness;
+                _interactableOutline.OutlineColor = _rangedConfig.DefaultOutlineColor;
+            }
         }
 
         public void EnterHover(InteractorID interactorID)
@@ -54,6 +60,8 @@ namespace VE2.Core.VComponents.Internal
 
             _hoveringInteractors.Add(interactorID);
 
+            Debug.Log($"Number of hovering interactors: {_hoveringInteractors.Count}");
+
             if (_hoveringInteractors.Count > 0)
             {
                 try
@@ -61,9 +69,7 @@ namespace VE2.Core.VComponents.Internal
                     _rangedConfig.OnLocalHoverEnter?.Invoke();
                     OnLocalInteractorEnterHover?.Invoke();
 
-                    if (_grabbableOutline != null)
-                            _grabbableOutline.OutlineColor = _rangedConfig.HoveredOutlineColor;
-
+                    HandleOultineOnHoverEnter(true);
                 }
                 catch (Exception e)
                 {
@@ -79,6 +85,8 @@ namespace VE2.Core.VComponents.Internal
             if (_hoveringInteractors.Contains(interactorID))
                 _hoveringInteractors.Remove(interactorID);
 
+            Debug.Log($"Number of hovering interactors: {_hoveringInteractors.Count}");
+
             if (_hoveringInteractors.Count == 0)
             {
                 try
@@ -86,14 +94,35 @@ namespace VE2.Core.VComponents.Internal
                     _rangedConfig.OnLocalHoverExit?.Invoke();
                     OnLocalInteractorExitHover?.Invoke();
 
-                    if (_grabbableOutline != null)
-                        _grabbableOutline.OutlineColor = _rangedConfig.DefaultOutlineColor;
+                    HandleOultineOnHoverEnter(false);
                 }
                 catch (Exception e)
                 {
                     Debug.LogError($"Error invoking OnHoverExit event - {e.Message} - {e.StackTrace}");
                 }
             }
+        }
+
+        public void OnInteractedWith(bool isInteracted)
+        {
+            if (_interactableOutline == null)
+                return;
+
+            if (isInteracted)
+                _interactableOutline.OutlineColor = _rangedConfig.InteractedOutlineColor;
+            else
+                _interactableOutline.OutlineColor = _rangedConfig.HoveredOutlineColor;
+        }
+
+        public virtual void HandleOultineOnHoverEnter(bool ishovering)
+        {
+            if (_interactableOutline == null)
+                return;
+
+            if (ishovering)
+                _interactableOutline.OutlineColor = _rangedConfig.HoveredOutlineColor;
+            else
+                _interactableOutline.OutlineColor = _rangedConfig.DefaultOutlineColor;
         }
     }
 }
