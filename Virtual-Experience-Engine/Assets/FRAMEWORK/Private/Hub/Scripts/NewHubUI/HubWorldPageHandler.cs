@@ -7,7 +7,6 @@ using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 
 internal class HubWorldPageHandler
 {
-    private HubWorldDetails _viewingWorldDetails;
     private int _selectedWorldVersion = -1;
     private bool _isWorldInstalled = false;
     private InstanceCode _selectedInstanceCode = null;
@@ -20,7 +19,7 @@ internal class HubWorldPageHandler
 
 
     private readonly HubWorldPageView _hubWorldPageView;
-    private readonly HubWorldDetails _worldDetails;
+    private HubWorldDetails _worldDetails;
     private readonly IPlatformServiceInternal _platformService;
     private readonly IFileSystemInternal _fileSystem;
 
@@ -72,11 +71,11 @@ internal class HubWorldPageHandler
 
         //TODO, only do this if we haven't already got the install button showing 
         //TODO - also shoudln't show enter button if instance isn't already selected
-        if (Application.platform == RuntimePlatform.Android && _viewingWorldDetails != null)
+        if (Application.platform == RuntimePlatform.Android && _worldDetails != null)
         {
-            bool isWorldInstalled = _viewingWorldDetails.IsVersionInstalled(_selectedWorldVersion);
+            bool isWorldInstalled = _worldDetails.IsVersionInstalled(_selectedWorldVersion);
 
-            Debug.Log("Checking if APK is installed: " + _viewingWorldDetails.AndroidPackageName);
+            Debug.Log("Checking if APK is installed: " + _worldDetails.AndroidPackageName);
 
             //TODO: If the install button is currently showing
 
@@ -88,7 +87,7 @@ internal class HubWorldPageHandler
             {
                 if (_logNotInstalledCounter % 100 == 0)
                 {
-                    Debug.Log($"APK {_viewingWorldDetails.AndroidPackageName} not installed yet.");
+                    Debug.Log($"APK {_worldDetails.AndroidPackageName} not installed yet.");
                 }
                 _logNotInstalledCounter++;
             }
@@ -110,7 +109,7 @@ internal class HubWorldPageHandler
         }
 
         // Version folder names are strings in the format 000, 001, 002, etc. Convert these to integers and populate the list
-        _viewingWorldDetails.VersionsAvailableRemotely = searchInfo.FoldersFound
+        _worldDetails.VersionsAvailableRemotely = searchInfo.FoldersFound
             .Select(s => int.TryParse(s, out var v) ? (int?)v : null)
             .Where(v => v.HasValue)
             .Select(v => v.Value)
@@ -118,39 +117,39 @@ internal class HubWorldPageHandler
 
         //TODO: This returns DevBlue/002, while the above just returns 002
 
-        _viewingWorldDetails.VersionsAvailableLocally = _fileSystem.GetLocalFoldersAtPath($"{_viewingWorldDetails.Name}")
+        _worldDetails.VersionsAvailableLocally = _fileSystem.GetLocalFoldersAtPath($"{_worldDetails.Name}")
             .Select(s => int.TryParse(s, out var v) ? (int?)v : null)
             .Where(v => v.HasValue)
             .Select(v => v.Value)
             .ToList();
 
-        List<string> localWorlds = _fileSystem.GetLocalFoldersAtPath($"{_viewingWorldDetails.Name}");
+        List<string> localWorlds = _fileSystem.GetLocalFoldersAtPath($"{_worldDetails.Name}");
 
         int targetVersion;
 
-        if (_viewingWorldDetails.IsExperimental)
+        if (_worldDetails.IsExperimental)
         {
-            targetVersion = _viewingWorldDetails.VersionsAvailableRemotely.Max();
+            targetVersion = _worldDetails.VersionsAvailableRemotely.Max();
         }
         else
         {
-            if (_viewingWorldDetails.VersionsAvailableRemotely.Contains(_viewingWorldDetails.LiveVersionNumber))
+            if (_worldDetails.VersionsAvailableRemotely.Contains(_worldDetails.LiveVersionNumber))
             {
-                targetVersion = _viewingWorldDetails.LiveVersionNumber;
+                targetVersion = _worldDetails.LiveVersionNumber;
             }
             else
             {
-                Debug.LogError($"Live version {_viewingWorldDetails.LiveVersionNumber} not found for world {_viewingWorldDetails.Name}");
+                Debug.LogError($"Live version {_worldDetails.LiveVersionNumber} not found for world {_worldDetails.Name}");
                 targetVersion = -1; //TODO - show some error on UI  
             }
         }
 
         //TODO: don't show non-live versions if we haven't ticked "show experimental worlds" on the UI somewhere
-        _hubWorldPageView.ShowAvailableVersions(_viewingWorldDetails.VersionsAvailableRemotely);
+        _hubWorldPageView.ShowAvailableVersions(_worldDetails.VersionsAvailableRemotely);
 
-        bool needsDownload = !_viewingWorldDetails.VersionsAvailableLocally.Contains(targetVersion);
-        bool downloadedButNotInstalled = !needsDownload && !_viewingWorldDetails.IsVersionInstalled(targetVersion);
-        bool isVersionExperimental = targetVersion != _viewingWorldDetails.LiveVersionNumber;
+        bool needsDownload = !_worldDetails.VersionsAvailableLocally.Contains(targetVersion);
+        bool downloadedButNotInstalled = !needsDownload && !_worldDetails.IsVersionInstalled(targetVersion);
+        bool isVersionExperimental = targetVersion != _worldDetails.LiveVersionNumber;
 
         _hubWorldPageView.ShowSelectedVersion(targetVersion, needsDownload, downloadedButNotInstalled, isVersionExperimental, _selectedInstanceCode != null);
         _selectedWorldVersion = targetVersion;
@@ -174,18 +173,18 @@ internal class HubWorldPageHandler
 
     private void HandleInstanceInfosChanged(Dictionary<InstanceCode, PlatformInstanceInfo> instanceInfos)
     {
-        if (_viewingWorldDetails != null && _hubWorldPageView.gameObject.activeSelf)
-            _hubWorldPageView.UpdateInstances(GetInstancesForWorldName(_viewingWorldDetails.Name));
+        if (_worldDetails != null && _hubWorldPageView.gameObject.activeSelf)
+            _hubWorldPageView.UpdateInstances(GetInstancesForWorldName(_worldDetails.Name));
     }
 
     private void HandleStartDownloadClicked()
     {
-        Debug.Log("Download world clicked: " + _viewingWorldDetails.Name);
+        Debug.Log("Download world clicked: " + _worldDetails.Name);
         _hubWorldPageView.ShowStartDownloadWorldButton();
 
         _hubWorldPageView.UpdateDownloadingWorldProgress(0);
 
-        IRemoteFileSearchInfo searchInfo = _fileSystem.GetRemoteFilesAtPath($"{_viewingWorldDetails.Name}/{_selectedWorldVersion.ToString("D3")}");
+        IRemoteFileSearchInfo searchInfo = _fileSystem.GetRemoteFilesAtPath($"{_worldDetails.Name}/{_selectedWorldVersion.ToString("D3")}");
         searchInfo.OnSearchComplete += HandleWorldFilesSearchComplete;
     }
 
@@ -193,7 +192,7 @@ internal class HubWorldPageHandler
     {
         if (searchInfo.FilesFound.Count == 0)
         {
-            Debug.LogError("No files found for world: " + _viewingWorldDetails.Name);
+            Debug.LogError("No files found for world: " + _worldDetails.Name);
             return;
         }
 
@@ -277,8 +276,8 @@ internal class HubWorldPageHandler
     private void HandleInstallWorldClicked()
     {
         string versionString = _selectedWorldVersion.ToString("D3");
-        string filePath = $"{_fileSystem.LocalAbsoluteWorkingPath}/{_viewingWorldDetails.Name}/{versionString}/{_viewingWorldDetails.Name}.apk";
-        Debug.Log("Installing package " + _viewingWorldDetails.AndroidPackageName + " at path " + filePath);
+        string filePath = $"{_fileSystem.LocalAbsoluteWorkingPath}/{_worldDetails.Name}/{versionString}/{_worldDetails.Name}.apk";
+        Debug.Log("Installing package " + _worldDetails.AndroidPackageName + " at path " + filePath);
 
         using (AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
         using (AndroidJavaObject currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"))
@@ -299,7 +298,7 @@ internal class HubWorldPageHandler
             }
         }
 
-        Debug.Log("Current installing package name set to: " + _viewingWorldDetails.AndroidPackageName);
+        Debug.Log("Current installing package name set to: " + _worldDetails.AndroidPackageName);
     }
 
     private void HandleInstanceSelected(InstanceCode instanceCode)
@@ -307,28 +306,28 @@ internal class HubWorldPageHandler
         _selectedInstanceCode = instanceCode;
         _hubWorldPageView.SetSelectedInstance(instanceCode);
 
-        if (_viewingWorldDetails.IsVersionDownloaded(_selectedWorldVersion) && _viewingWorldDetails.IsVersionInstalled(_selectedWorldVersion))
+        if (_worldDetails.IsVersionDownloaded(_selectedWorldVersion) && _worldDetails.IsVersionInstalled(_selectedWorldVersion))
             _hubWorldPageView.ShowEnterWorldButton();
     }
 
     private void HandleChooseInstanceForMeSelected()
     {
-        InstanceCode instanceCode = new(_viewingWorldDetails.Name, "00", (ushort)_selectedWorldVersion);
+        InstanceCode instanceCode = new(_worldDetails.Name, "00", (ushort)_selectedWorldVersion);
 
         HandleInstanceSelected(instanceCode);
     }
 
     private void HandleEnterWorldClicked()
     {
-        Debug.Log("Enter world clicked: " + _viewingWorldDetails.Name + " Version: " + _selectedWorldVersion);
+        Debug.Log("Enter world clicked: " + _worldDetails.Name + " Version: " + _selectedWorldVersion);
 
         if (_selectedWorldVersion == -1)
         {
-            Debug.LogError("No version selected for world: " + _viewingWorldDetails.Name);
+            Debug.LogError("No version selected for world: " + _worldDetails.Name);
             return;
         }
 
-        _platformService.RequestInstanceAllocation(new InstanceCode(_viewingWorldDetails.Name, "00", (ushort)_selectedWorldVersion));
+        _platformService.RequestInstanceAllocation(new InstanceCode(_worldDetails.Name, "00", (ushort)_selectedWorldVersion));
     }
 
     public void TearDown()

@@ -52,6 +52,11 @@ internal class HubController : MonoBehaviour
             _fileSystem.OnFileSystemReady += HandleFileSystemReady;
     }
 
+    private void Update()
+    {
+        _hubWorldPageHandler?.HandleUpdate();   
+    }
+
     private void HandleFileSystemReady()
     {
         //If we're here, means we have connected to the platform successfully
