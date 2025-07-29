@@ -43,6 +43,8 @@ internal class HubWorldPageView : MonoBehaviour
 
     [SerializeField] private GameObject instanceButtonPrefab;
 
+    public HubWorldPageUIState CurrentUIState;
+
     public event Action OnBackClicked;
 
     public event Action OnAutoSelectInstanceClicked;
@@ -93,13 +95,6 @@ internal class HubWorldPageView : MonoBehaviour
         _installWorldButton.onClick.AddListener(() => OnInstallWorldClicked?.Invoke());
         _enterWorldButton.onClick.AddListener(() => OnEnterWorldClicked?.Invoke());
 
-        _confirmingVersionsPanel.SetActive(false);
-        _downloadWorldButton.gameObject.SetActive(false);
-        _downloadingWorldPanel.SetActive(false);
-        _installWorldButton.gameObject.SetActive(false);
-        _needToSelectInstancePanel.SetActive(false);
-        _enterWorldButton.gameObject.SetActive(false);
-
         List<PlatformInstanceInfo> instancesToRemove = _instanceViews.Keys.ToList();
 
         foreach (PlatformInstanceInfo instanceToRemove in instancesToRemove)
@@ -118,69 +113,34 @@ internal class HubWorldPageView : MonoBehaviour
         // }
     }
 
-    /// <summary>
-    /// Kind of the second half of Setup.
-    /// </summary>
-    public void ShowSelectedVersion(int version, bool needsDownload, bool downloadedButNotInstalled, bool IsExperimental, bool isInstanceSelected)
+    public void UpdateUIState(HubWorldPageUIState newState)
     {
-        _confirmingVersionsPanel.SetActive(false);
-        _downloadWorldButton.gameObject.SetActive(needsDownload);
-        _installWorldButton.gameObject.SetActive(downloadedButNotInstalled);
-        _needToSelectInstancePanel.SetActive(!needsDownload && !downloadedButNotInstalled &&!isInstanceSelected);
-        _enterWorldButton.gameObject.SetActive(!needsDownload && !downloadedButNotInstalled && isInstanceSelected);
+        if (CurrentUIState == newState)
+            return; // No change, do nothing
 
-        _selectedVersionNumber.text = $"V{version} {(IsExperimental ? "<i>(Experimental)</i>" : "")}";
+        Debug.Log($"Updating HubWorldPageView UI state to: {newState}");
+
+        CurrentUIState = newState;
+
+        _confirmingVersionsPanel.SetActive(newState == HubWorldPageUIState.Loading);
+        _downloadWorldButton.gameObject.SetActive(newState == HubWorldPageUIState.NeedToDownloadWorld);
+        _downloadingWorldPanel.SetActive(newState == HubWorldPageUIState.DownloadingWorld);
+        _installWorldButton.gameObject.SetActive(newState == HubWorldPageUIState.NeedToInstallWorld);
+        _needToSelectInstancePanel.SetActive(newState == HubWorldPageUIState.NeedToSelectInstance);
+        _enterWorldButton.gameObject.SetActive(newState == HubWorldPageUIState.ReadyToEnterWorld);
+
+        if (newState == HubWorldPageUIState.DownloadingWorld)
+        {
+            _downloadingWorldProgressBar.SetValue(0);
+        }
     }
 
-    public void ShowStartDownloadWorldButton()
-    {
-        _downloadWorldButton.gameObject.SetActive(true);
-        _downloadingWorldPanel.SetActive(false);
-        _installWorldButton.gameObject.SetActive(false);
-        _needToSelectInstancePanel.SetActive(false);
-        _enterWorldButton.gameObject.SetActive(false);
-    }
+    public void ShowSelectedVersion(int version, bool IsExperimental) => _selectedVersionNumber.text = $"V{version} {(IsExperimental ? "<i>(Experimental)</i>" : "")}";
 
-    public void ShowDownloadingWorldPanel()
-    {
-        _downloadingWorldProgressBar.SetValue(0);
-
-        _downloadWorldButton.gameObject.SetActive(false);
-        _downloadingWorldPanel.SetActive(true);
-        _installWorldButton.gameObject.SetActive(false);
-        _needToSelectInstancePanel.SetActive(false);
-        _enterWorldButton.gameObject.SetActive(false);
-    }
 
     public void UpdateDownloadingWorldProgress(float progress)
     {
         _downloadingWorldProgressBar.SetValue(progress);
-    }
-
-    public void ShowInstallWorldButton()
-    {
-        _downloadWorldButton.gameObject.SetActive(false);
-        _downloadingWorldPanel.SetActive(false);
-        _installWorldButton.gameObject.SetActive(true);
-        _needToSelectInstancePanel.SetActive(false);
-        _enterWorldButton.gameObject.SetActive(false);
-    }
-
-    public void ShowNeedToSelectInstancePanel()
-    {
-        _downloadWorldButton.gameObject.SetActive(false);
-        _downloadingWorldPanel.SetActive(false);
-        _installWorldButton.gameObject.SetActive(false);
-        _needToSelectInstancePanel.SetActive(true);
-        _enterWorldButton.gameObject.SetActive(false);
-    }
-
-    public void ShowEnterWorldButton()
-    {
-        _downloadWorldButton.gameObject.SetActive(false);
-        _downloadingWorldPanel.SetActive(false);
-        _installWorldButton.gameObject.SetActive(false);
-        _enterWorldButton.gameObject.SetActive(true);
     }
 
     public void SetSelectedInstance(InstanceCode selectedInstanceCode)
@@ -272,4 +232,14 @@ internal class HubWorldPageView : MonoBehaviour
         OnInstanceCodeSelected?.Invoke(instanceInfo.InstanceCode);
     }
 
+}
+
+public enum HubWorldPageUIState
+{
+    Loading,
+    NeedToDownloadWorld,
+    DownloadingWorld,
+    NeedToInstallWorld,
+    NeedToSelectInstance,
+    ReadyToEnterWorld
 }

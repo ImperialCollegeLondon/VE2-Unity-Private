@@ -10,7 +10,6 @@ internal class HubWorldPageHandler
     private int _selectedWorldVersion = -1;
     private bool _isWorldInstalled = false;
     private InstanceCode _selectedInstanceCode = null;
-    private int _logNotInstalledCounter = 0;
 
     //Download bits - should maybe move into a different module
     private List<HubFileDownloadInfo> _filesToDownload;
@@ -69,28 +68,10 @@ internal class HubWorldPageHandler
             _hubWorldPageView.UpdateDownloadingWorldProgress(progressPercent);
         }
 
-        //TODO, only do this if we haven't already got the install button showing 
-        //TODO - also shoudln't show enter button if instance isn't already selected
-        if (Application.platform == RuntimePlatform.Android && _worldDetails != null)
+        if (_hubWorldPageView.CurrentUIState == HubWorldPageUIState.NeedToInstallWorld)
         {
-            bool isWorldInstalled = _worldDetails.IsVersionInstalled(_selectedWorldVersion);
-
             Debug.Log("Checking if APK is installed: " + _worldDetails.AndroidPackageName);
-
-            //TODO: If the install button is currently showing
-
-            if (isWorldInstalled)
-            {
-                _hubWorldPageView.ShowEnterWorldButton();
-            }
-            else
-            {
-                if (_logNotInstalledCounter % 100 == 0)
-                {
-                    Debug.Log($"APK {_worldDetails.AndroidPackageName} not installed yet.");
-                }
-                _logNotInstalledCounter++;
-            }
+            RefreshWorldUIState(); //Will check if the APK is installed
         }
     }
 
@@ -147,12 +128,28 @@ internal class HubWorldPageHandler
         //TODO: don't show non-live versions if we haven't ticked "show experimental worlds" on the UI somewhere
         _hubWorldPageView.ShowAvailableVersions(_worldDetails.VersionsAvailableRemotely);
 
-        bool needsDownload = !_worldDetails.VersionsAvailableLocally.Contains(targetVersion);
-        bool downloadedButNotInstalled = !needsDownload && !_worldDetails.IsVersionInstalled(targetVersion);
         bool isVersionExperimental = targetVersion != _worldDetails.LiveVersionNumber;
-
-        _hubWorldPageView.ShowSelectedVersion(targetVersion, needsDownload, downloadedButNotInstalled, isVersionExperimental, _selectedInstanceCode != null);
+        _hubWorldPageView.ShowSelectedVersion(targetVersion, isVersionExperimental);
         _selectedWorldVersion = targetVersion;
+
+        RefreshWorldUIState();
+    }
+
+    private void RefreshWorldUIState()
+    {
+        //TODO: Should also handle whether we're downloading
+
+        HubWorldPageUIState newUIState;
+        if (!_worldDetails.IsVersionDownloaded(_selectedWorldVersion))
+            newUIState = HubWorldPageUIState.NeedToDownloadWorld;
+        else if (!_worldDetails.IsVersionInstalled(_selectedWorldVersion))
+            newUIState = HubWorldPageUIState.NeedToInstallWorld;
+        else if (_selectedInstanceCode == null)
+            newUIState = HubWorldPageUIState.NeedToSelectInstance;
+        else
+            newUIState = HubWorldPageUIState.ReadyToEnterWorld;
+
+        _hubWorldPageView.UpdateUIState(newUIState);
     }
 
     private List<PlatformInstanceInfo> GetInstancesForWorldName(string worldName)
@@ -180,15 +177,15 @@ internal class HubWorldPageHandler
     private void HandleStartDownloadClicked()
     {
         Debug.Log("Download world clicked: " + _worldDetails.Name);
-        _hubWorldPageView.ShowStartDownloadWorldButton();
+        _hubWorldPageView.UpdateUIState(HubWorldPageUIState.DownloadingWorld); //TODO, could be handled in UpdateUIState
 
         _hubWorldPageView.UpdateDownloadingWorldProgress(0);
 
         IRemoteFileSearchInfo searchInfo = _fileSystem.GetRemoteFilesAtPath($"{_worldDetails.Name}/{_selectedWorldVersion.ToString("D3")}");
-        searchInfo.OnSearchComplete += HandleWorldFilesSearchComplete;
+        searchInfo.OnSearchComplete += HandleCompletedSearchForWorldFilesToDownload;
     }
 
-    private void HandleWorldFilesSearchComplete(IRemoteFileSearchInfo searchInfo)
+    private void HandleCompletedSearchForWorldFilesToDownload(IRemoteFileSearchInfo searchInfo)
     {
         if (searchInfo.FilesFound.Count == 0)
         {
@@ -196,15 +193,16 @@ internal class HubWorldPageHandler
             return;
         }
 
+        Debug.Log("Found " + searchInfo.FilesFound.Count + " files to download for world: " + _worldDetails.Name);
+
         //Check for correct number of files TODO
         _filesToDownload = searchInfo.FilesFound
             .Select(f => new HubFileDownloadInfo(f.Key, f.Value.Size, (ulong)0))
             .ToList();
         _curentFileDownloadIndex = 0;
 
-        searchInfo.OnSearchComplete -= HandleWorldFilesSearchComplete;
+        searchInfo.OnSearchComplete -= HandleCompletedSearchForWorldFilesToDownload;
 
-        _hubWorldPageView.ShowDownloadingWorldPanel();
         BeginDownloadNextFile();
     }
 
@@ -257,20 +255,15 @@ internal class HubWorldPageHandler
 
     private void HandleCancelDownloadClicked()
     {
-        _hubWorldPageView.ShowStartDownloadWorldButton();
+        _currentDownloadTask?.CancelRemoteFileTask();
+        _hubWorldPageView.UpdateUIState(HubWorldPageUIState.NeedToDownloadWorld);
     }
 
     private void HandleAllWorldFilesDownloaded()
     {
         _curentFileDownloadIndex = -1;
-        if (Application.platform == RuntimePlatform.Android)
-        {
-            _hubWorldPageView.ShowInstallWorldButton();
-        }
-        else
-        {
-            _hubWorldPageView.ShowEnterWorldButton();
-        }
+
+        RefreshWorldUIState();
     }
 
     private void HandleInstallWorldClicked()
@@ -306,8 +299,7 @@ internal class HubWorldPageHandler
         _selectedInstanceCode = instanceCode;
         _hubWorldPageView.SetSelectedInstance(instanceCode);
 
-        if (_worldDetails.IsVersionDownloaded(_selectedWorldVersion) && _worldDetails.IsVersionInstalled(_selectedWorldVersion))
-            _hubWorldPageView.ShowEnterWorldButton();
+        RefreshWorldUIState();
     }
 
     private void HandleChooseInstanceForMeSelected()
