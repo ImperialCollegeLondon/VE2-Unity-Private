@@ -48,16 +48,16 @@ namespace VE2.Core.VComponents.Internal
             _rangedConfig = config;
             _interactableOutline = interactableOutline;
 
-            VE2API.LocalAdminIndicator.OnLocalAdminStatusChanged += OnLocalAdminStatusChanged;
+            VE2API.LocalAdminIndicator.OnLocalAdminStatusChanged += OnLocalAdminStatusChanged; //to change our outline color on admin status change
 
             if (_interactableOutline != null)
             {
                 _interactableOutline.OutlineWidth = _rangedConfig.OutlineThickness;
 
                 if (_isAllowedToInteract)
-                    _interactableOutline.OutlineColor = _rangedConfig.DefaultOutlineColor;
+                    SetOutlineColor(_rangedConfig.DefaultOutlineColor);
                 else
-                    _interactableOutline.OutlineColor = Color.red;
+                    SetOutlineColor(Color.red);
             }
         }
 
