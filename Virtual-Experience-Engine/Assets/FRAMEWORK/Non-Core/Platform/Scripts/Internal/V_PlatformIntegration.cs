@@ -113,13 +113,13 @@ namespace VE2.NonCore.Platform.Internal
 
         PlatformPublicSerializables.InstanceCode IPlatformServiceInternal.CurrentInstanceCode => new PlatformPublicSerializables.InstanceCode(CurrentWorldName, CurrentInstanceNumber, 1);
 
-        Dictionary<PlatformPublicSerializables.InstanceCode, PlatformPublicSerializables.PlatformInstanceInfo> IPlatformServiceInternal.InstanceInfos => new();
+        Dictionary<string, PlatformPublicSerializables.PlatformInstanceInfo> IPlatformServiceInternal.InstanceInfos => new();
 
         public event Action OnAuthFailed;
         public event Action OnConnectedToServer;
         public event Action OnLeavingInstance;
 
-        event Action<Dictionary<PlatformPublicSerializables.InstanceCode, PlatformPublicSerializables.PlatformInstanceInfo>> IPlatformServiceInternal.OnInstanceInfosChanged
+        event Action<Dictionary<string, PlatformPublicSerializables.PlatformInstanceInfo>> IPlatformServiceInternal.OnInstanceInfosChanged
         {
             add
             {

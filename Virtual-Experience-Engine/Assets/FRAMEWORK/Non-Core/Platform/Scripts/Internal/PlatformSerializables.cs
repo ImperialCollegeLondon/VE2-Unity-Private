@@ -256,18 +256,18 @@ namespace VE2.NonCore.Platform.Internal
 
         internal class GlobalInfo : VE2Serializable
         {
-            public Dictionary<InstanceCode, PlatformInstanceInfo> InstanceInfos { get; private set; }
+            public Dictionary<string, PlatformInstanceInfo> InstanceInfos { get; private set; }
 
             public GlobalInfo(byte[] bytes) : base(bytes) { }
 
-            public GlobalInfo(Dictionary<InstanceCode, PlatformInstanceInfo> instanceInfos)
+            public GlobalInfo(Dictionary<string, PlatformInstanceInfo> instanceInfos)
             {
                 InstanceInfos = instanceInfos;
             }
 
             public GlobalInfo()
             {
-                InstanceInfos = new Dictionary<InstanceCode, PlatformInstanceInfo>();
+                InstanceInfos = new Dictionary<string, PlatformInstanceInfo>();
             }
 
             protected override byte[] ConvertToBytes()
@@ -294,7 +294,7 @@ namespace VE2.NonCore.Platform.Internal
                 using BinaryReader reader = new(stream);
 
                 ushort instanceInfoCount = reader.ReadUInt16();
-                InstanceInfos = new Dictionary<InstanceCode, PlatformInstanceInfo>();
+                InstanceInfos = new Dictionary<string, PlatformInstanceInfo>();
 
                 for (int i = 0; i < instanceInfoCount; i++)
                 {
@@ -302,7 +302,7 @@ namespace VE2.NonCore.Platform.Internal
                     ushort instanceInfoBytesLength = reader.ReadUInt16();
                     byte[] instanceInfoBytes = reader.ReadBytes(instanceInfoBytesLength);
                     PlatformInstanceInfo instanceInfo = new(instanceInfoBytes);
-                    InstanceInfos[instanceCode] = instanceInfo;
+                    InstanceInfos[instanceCode.ToString()] = instanceInfo;
                 }
             }
 

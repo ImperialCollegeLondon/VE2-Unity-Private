@@ -125,7 +125,7 @@ internal class HubWorldPageHandler
         HandleInstanceSelected(instanceCode);
     }
 
-    private void HandleInstanceInfosChanged(Dictionary<InstanceCode, PlatformInstanceInfo> instanceInfos) => RefreshInstanceDisplays();
+    private void HandleInstanceInfosChanged(Dictionary<string, PlatformInstanceInfo> instanceInfos) => RefreshInstanceDisplays();
 
     private void RefreshInstanceDisplays()
     {
@@ -146,7 +146,7 @@ internal class HubWorldPageHandler
         //Add/update instances=============================================================================== 
         foreach (InstanceCode instanceCode in instancesFromServer)
         {
-            PlatformInstanceInfo instanceInfo = _platformService.InstanceInfos[instanceCode];
+            PlatformInstanceInfo instanceInfo = _platformService.InstanceInfos[instanceCode.ToString()];
             bool isSelected = _selectedInstanceCode != null && instanceCode.Equals(_selectedInstanceCode);
 
             if (!_instanceDisplayHandlers.ContainsKey(instanceCode))
@@ -170,7 +170,7 @@ internal class HubWorldPageHandler
             }
             else if (!instancesFromServer.Contains(_selectedInstanceCode))
             {
-                _instanceDisplayHandlers[_selectedInstanceCode].UpdateDisplay(_platformService.InstanceInfos[_selectedInstanceCode], true);
+                _instanceDisplayHandlers[_selectedInstanceCode].UpdateDisplay(_platformService.InstanceInfos[_selectedInstanceCode.ToString()], true);
             }
             //Otherwise, it will hae been updated already
         }

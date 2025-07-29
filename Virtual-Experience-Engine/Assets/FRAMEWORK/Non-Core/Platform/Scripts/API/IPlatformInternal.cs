@@ -9,10 +9,10 @@ namespace VE2.NonCore.Platform.API
     {
         public void UpdateSettings(ServerConnectionSettings serverConnectionSettings, InstanceCode instanceCode);
         public InstanceCode CurrentInstanceCode { get; }
-        public Dictionary<InstanceCode, PlatformInstanceInfo> InstanceInfos { get; }
+        public Dictionary<string, PlatformInstanceInfo> InstanceInfos { get; }
         public List<PlatformInstanceInfo> GetInstanceInfosForWorldName(string worldName);
         public List<InstanceCode> GetInstanceCodesForWorldName(string worldName);
-        public event Action<Dictionary<InstanceCode, PlatformInstanceInfo>> OnInstanceInfosChanged;
+        public event Action<Dictionary<string, PlatformInstanceInfo>> OnInstanceInfosChanged;
 
         public void ConnectToPlatform();
 

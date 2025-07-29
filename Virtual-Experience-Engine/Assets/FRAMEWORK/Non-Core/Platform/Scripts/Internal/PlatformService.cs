@@ -159,8 +159,8 @@ namespace VE2.NonCore.Platform.Internal
 
         public InstanceCode CurrentInstanceCode { get => _platformSettingsHandler.InstanceCode; private set => _platformSettingsHandler.InstanceCode = value; }
 
-        public Dictionary<InstanceCode, PlatformInstanceInfo> InstanceInfos => GlobalInfo.InstanceInfos;
-        public event Action<Dictionary<InstanceCode, PlatformInstanceInfo>> OnInstanceInfosChanged;
+        public Dictionary<string, PlatformInstanceInfo> InstanceInfos => GlobalInfo.InstanceInfos;
+        public event Action<Dictionary<string, PlatformInstanceInfo>> OnInstanceInfosChanged;
 
         public UnityEvent OnBecomeAdmin => _config.OnBecomeAdmin;
         public UnityEvent OnLoseAdmin => _config.OnLoseAdmin;
