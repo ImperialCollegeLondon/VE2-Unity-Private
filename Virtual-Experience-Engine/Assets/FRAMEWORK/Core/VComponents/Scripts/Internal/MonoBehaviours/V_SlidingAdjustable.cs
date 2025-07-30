@@ -83,7 +83,7 @@ namespace VE2.Core.VComponents.Internal
         internal string AttachPointGOName => ((TransformWrapper)_config.RangedAdjustableInteractionConfig.AttachPointWrapper).GameObject.name;
         #endregion
 
-        private SlidingAdjustableService _service = null;
+        private  SlidingAdjustableService _service = null;
         private SlidingAdjustableService _Service
         {
             get

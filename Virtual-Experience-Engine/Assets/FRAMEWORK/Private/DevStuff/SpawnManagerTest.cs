@@ -22,7 +22,7 @@ public class SpawnManagerTest : MonoBehaviour
     void Update()
     {
         if (Keyboard.current.kKey.wasPressedThisFrame)
-            spawnManagerReference.Interface.SpawnGameObject();
+            spawnManagerReference.Interface.SpawnAndReturnGameObject();
 
         if (Keyboard.current.lKey.wasPressedThisFrame)
             spawnManagerReference.Interface.DespawnGameObject(lastGameObjectSpawnedToReturn);

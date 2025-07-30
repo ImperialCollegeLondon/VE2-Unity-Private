@@ -31,7 +31,7 @@ namespace VE2.Core.Player.Internal
         internal FeetInteractor(ICollisionDetectorFactory collisionDetectorFactory, ColliderType colliderType, Collider collider, InteractorType interactorType,
             ILocalClientIDWrapper localClientIDWrapper, ILocalAdminIndicator localAdminIndicator, PlayerInteractionConfig interactionConfig)
         {
-            _collisionDetector = collisionDetectorFactory.CreateCollisionDetector(collider, colliderType, interactionConfig.InteractableLayers);
+            _collisionDetector = collisionDetectorFactory.CreateCollisionDetector(collider, colliderType, interactionConfig);
             _InteractorType = interactorType;
             _localClientIDWrapper = localClientIDWrapper;
             _localAdminIndicator = localAdminIndicator;

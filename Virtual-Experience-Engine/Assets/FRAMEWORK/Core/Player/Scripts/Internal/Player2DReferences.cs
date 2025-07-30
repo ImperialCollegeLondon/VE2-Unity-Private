@@ -15,11 +15,11 @@ namespace VE2.Core.Player.Internal
         public RectTransform SecondaryUIHolderRect => _secondaryUIHolderRect;
         [SerializeField, IgnoreParent] private RectTransform _secondaryUIHolderRect;
 
-        public AvatarVisHandler LocalAvatarHandler => _localAvatarHandler; //TODO: This isn't in the VR version, shouldn'#t it be? If so, move to base
-        [SerializeField, IgnoreParent] private AvatarVisHandler _localAvatarHandler;
-
         public RectTransform OverlayUIRect => _overlayUIRect;
         [SerializeField, IgnoreParent] private RectTransform _overlayUIRect;
+
+        public Collider CharacterCollider => _characterCollider;
+        [SerializeField, IgnoreParent] private Collider _characterCollider;
     }
 
     [Serializable]

@@ -14,7 +14,10 @@ namespace VE2.NonCore.Instancing.Internal
     internal class RemoteAvatarController : MonoBehaviour
     {
         [SerializeField] private Transform _headHolder;
+        [SerializeField] private Transform _torsoHolder;
         [SerializeField] private Transform _verticalOffsetTransform;
+        [SerializeField] private Transform _leftHandHolder;
+        [SerializeField] private Transform _rightHandHolder;
 
         [SerializeField] private TMP_Text _playerNameText;
         [SerializeField] private Transform _namePlateTransform;
@@ -22,13 +25,13 @@ namespace VE2.NonCore.Instancing.Internal
         [SerializeField] private GameObject _interactorVRLeftGameObject;
         [SerializeField] private GameObject _interactorVRRightGameObject;
         [SerializeField] private GameObject _interactorFeetGameObject;
-        [SerializeField] private AvatarVisHandler _avatarHandler;
+        [SerializeField] private PlayerAvatarHandler _avatarHandler;
         [SerializeField] private bool _isAdmin;
 
         /// <summary>
         /// Note, this WON'T set the initial appearance, HandleReceiveAvatarAppearance should be called after initialization
         /// </summary>
-        public void Initialize(ushort clientID, HandInteractorContainer interactorContainer, IPlayerServiceInternal playerService)
+        public void Initialize(ushort clientID, HandInteractorContainer interactorContainer, AvatarHandlerBuilderContext avatarHandlerBuilderContext)
         {
             _interactorVRLeftGameObject.name = $"Interactor{clientID}-{InteractorType.LeftHandVR}";
             _interactorVRRightGameObject.name = $"Interactor{clientID}-{InteractorType.RightHandVR}";
@@ -40,10 +43,20 @@ namespace VE2.NonCore.Instancing.Internal
             _interactor2DGameObject.GetComponent<RemoteInteractor>().Initialize(clientID, InteractorType.Mouse2D, interactorContainer);
             _interactorFeetGameObject.GetComponent<RemoteInteractor>().Initialize(clientID, InteractorType.Feet, interactorContainer);
 
-            _avatarHandler.Initialize(playerService);
+            _avatarHandler = new(
+                avatarHandlerBuilderContext.PlayerBuiltInGameObjectPrefabs,
+                avatarHandlerBuilderContext.PlayerCustomGameObjectPrefabs,
+                avatarHandlerBuilderContext.CurrentInstancedAvatarAppearance,
+                false,
+                _headHolder,
+                _torsoHolder,
+                _rightHandHolder,
+                _leftHandHolder);
+
+            _avatarHandler.Enable(clientID);
         }
 
-        public void ToggleAvatarsTransparent(bool isTransparent) => _avatarHandler.SetTransparent(isTransparent);
+        //public void ToggleAvatarsTransparent(bool isTransparent) => _avatarHandler.SetTransparent(isTransparent);
 
         public void HandleReceiveRemotePlayerState(PlayerTransformData playerState)
         {
@@ -93,10 +106,10 @@ namespace VE2.NonCore.Instancing.Internal
         }
 
 
-        internal void HandleReceiveAvatarAppearance(OverridableAvatarAppearance newAvatarAppearance)
+        internal void HandleReceiveAvatarAppearance(InstancedAvatarAppearance newAvatarAppearance)
         {
-            _playerNameText.text = newAvatarAppearance.PresentationConfig.PlayerName;
-            _avatarHandler.HandleReceiveAvatarAppearance(newAvatarAppearance);
+            _playerNameText.text = newAvatarAppearance.BuiltInPresentationConfig.PlayerName;
+            _avatarHandler.UpdateInstancedAvatarAppearance(newAvatarAppearance);
         }
 
         internal void HandleReceiveAdminUpdateNotice(bool isNewAdmin)
@@ -119,6 +132,8 @@ namespace VE2.NonCore.Instancing.Internal
             Vector3 dirToCamera = Camera.main.transform.position - _namePlateTransform.position;
             Vector3 lookPosition = _namePlateTransform.position - dirToCamera;
             _namePlateTransform.LookAt(lookPosition);
+
+            _avatarHandler.HandleUpdate();
         }
 
         private void OnDisable()

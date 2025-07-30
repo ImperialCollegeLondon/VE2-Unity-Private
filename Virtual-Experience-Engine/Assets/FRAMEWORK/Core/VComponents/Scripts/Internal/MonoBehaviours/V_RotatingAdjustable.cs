@@ -4,6 +4,7 @@ using VE2.Core.VComponents.API;
 using VE2.Common.API;
 using VE2.Common.Shared;
 using UnityEngine.Events;
+using System;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -67,6 +68,7 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField, HideInInspector] private GrabbableState _freeGrabbableState = new();
 
 
+
         #region Player Interfaces
         IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _Service.RangedAdjustableInteractionModule;
         #endregion
@@ -123,16 +125,17 @@ namespace VE2.Core.VComponents.Internal
                 _config.RangedAdjustableInteractionConfig.AttachPointWrapper = new TransformWrapper(transform);
                 Debug.LogWarning($"The adjustable on {gameObject.name} does not have an assigned AttachPoint, and so may not behave as intended");
             }
+            
 
             List<IHandheldInteractionModule> handheldInteractions = new();
 
             //TODO: THINK ABOUT THIS
-            // if(TryGetComponent(out V_HandheldActivatable handheldActivatable))
-            //     handheldInteractions.Add(handheldActivatable.HandheldClickInteractionModule);
-            // if (TryGetComponent(out V_HandheldAdjustable handheldAdjustable))
-            //     handheldInteractions.Add(handheldAdjustable.HandheldScrollInteractionModule);
+                // if(TryGetComponent(out V_HandheldActivatable handheldActivatable))
+                //     handheldInteractions.Add(handheldActivatable.HandheldClickInteractionModule);
+                // if (TryGetComponent(out V_HandheldAdjustable handheldAdjustable))
+                //     handheldInteractions.Add(handheldAdjustable.HandheldScrollInteractionModule);
 
-            _service = new RotatingAdjustableService(
+                _service = new RotatingAdjustableService(
                 handheldInteractions,
                 _config,
                 _adjustableState,

@@ -13,8 +13,8 @@ namespace VE2.NonCore.Instancing.Internal
         [SerializeField] private GameObject _gameobjectToSpawn;
         [SerializeField] private Transform _spawnPosition;
         [SerializeField] private bool restrictNumberOfObjects = false;
-        [SerializeField] private int maxNumberOfObjects = 15;
-        [SerializeField] private GameObject tooManyObjectsMessage = null;
+        [SerializeField, DisableIf(nameof(restrictNumberOfObjects), false)] private int maxNumberOfObjects = 15;
+        [SerializeField, DisableIf(nameof(restrictNumberOfObjects), false)] private GameObject tooManyObjectsMessage = null;
 
         private Dictionary<string, GameObject> gameobjectsAgainstIDs = new();
         private int numberOfSpawnedgameobjects = 0;
@@ -26,8 +26,11 @@ namespace VE2.NonCore.Instancing.Internal
             tooManyObjectsMessage?.SetActive(false);
         }
 
+        //Invoke this to spawn the GameObject from the inspector
+        public void SpawnGameObject() => SpawnAndReturnGameObject();
+
         //Invoke this to spawn the GameObject
-        public GameObject SpawnGameObject()
+        public GameObject SpawnAndReturnGameObject()
         {
             //As is best practice with modifying network data, we only do so if we are the host of the instance.
             //If this function is called programmatically by the plugin, the plugin should ensure the call occurs on the host machine.

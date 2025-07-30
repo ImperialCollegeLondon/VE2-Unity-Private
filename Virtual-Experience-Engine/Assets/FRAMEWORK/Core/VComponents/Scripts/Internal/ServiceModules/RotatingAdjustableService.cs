@@ -38,7 +38,6 @@ namespace VE2.Core.VComponents.Internal
     internal class RotatingAdjustableService
     {
         private ITransformWrapper _attachPointTransform => _config.RangedAdjustableInteractionConfig.AttachPointWrapper;
-
         private ITransformWrapper _transformToAdjust => _config.RangedAdjustableInteractionConfig.TransformToAdjust;
         private float _spatialValue;
         public float SpatialValue { get => _spatialValue; set => SetSpatialValue(value); }
@@ -64,6 +63,10 @@ namespace VE2.Core.VComponents.Internal
         //gets the vector from the object to the attach point, this will serve as the starting point for any angle created
         //needs to be the attach point at the start (0 not starting position) to get the correct angle
         private Vector3 _initialVectorToHandle = Vector3.zero;
+        private Vector3 _positionBeforeGrab = Vector3.zero;
+        private Vector3 _transformToAdjustVectorUpOnGrab = Vector3.zero;
+        private Vector3 _transformToAdjustVectorRightOnGrab = Vector3.zero;
+        private Vector3 _transformToAdjustVectorForwardOnGrab = Vector3.zero;
 
         private float _signedAngle = 0;
         private float _oldRotationalValue = 0;
@@ -130,11 +133,19 @@ namespace VE2.Core.VComponents.Internal
 
         private void HandleGrabConfirmed(ushort id)
         {
+            _positionBeforeGrab = _transformToAdjust.position;
+            _transformToAdjustVectorUpOnGrab = _transformToAdjust.up;
+            _transformToAdjustVectorRightOnGrab = _transformToAdjust.right;
+            _transformToAdjustVectorForwardOnGrab = _transformToAdjust.forward;
+
             _oldRotationalValue = (_spatialValue % 360 + 360) % 360; //this is to make sure the value is always positive
             _numberOfRevolutions = Mathf.FloorToInt(_spatialValue / 360); //get the nth revolution of the starting value
         }
 
-        private void HandleDropConfirmed(ushort id) { }
+        private void HandleDropConfirmed(ushort id)
+        {
+
+        }
 
         private void SetSpatialValue(float spatialValue)
         {
@@ -176,27 +187,25 @@ namespace VE2.Core.VComponents.Internal
             }
 
             _adjustableStateModule.HandleFixedUpdate();
-
-            Debug.DrawLine(_transformToAdjust.position, _transformToAdjust.position + _initialVectorToHandle, Color.red);
         }
 
         private void TrackPosition(Vector3 grabberPosition)
         {
             //get the direction from the object to the grabber
-            Vector3 directionToGrabber = grabberPosition - _transformToAdjust.position;
+            Vector3 directionToGrabber = grabberPosition - _positionBeforeGrab;
             Vector3 localDirectionToGrabber, localDirectionToHandle;
-            Vector3 axisOfRotation = _transformToAdjust.up;
+            Vector3 axisOfRotation = _transformToAdjustVectorUpOnGrab;
 
             switch (_config.RotationalAdjustableServiceConfig.AdjustmentAxis)
             {
                 case SpatialAdjustmentAxis.XAxis:
-                    axisOfRotation = _transformToAdjust.right;
+                    axisOfRotation = _transformToAdjustVectorRightOnGrab;
                     break;
                 case SpatialAdjustmentAxis.YAxis:
-                    axisOfRotation = _transformToAdjust.up;
+                    axisOfRotation = _transformToAdjustVectorUpOnGrab;
                     break;
                 case SpatialAdjustmentAxis.ZAxis:
-                    axisOfRotation = _transformToAdjust.forward;
+                    axisOfRotation = _transformToAdjustVectorForwardOnGrab;
                     break;
             }
 
@@ -205,6 +214,8 @@ namespace VE2.Core.VComponents.Internal
             localDirectionToGrabber = Vector3.ProjectOnPlane(directionToGrabber, axisOfRotation);
             localDirectionToHandle = Vector3.ProjectOnPlane(_initialVectorToHandle, axisOfRotation);
             _signedAngle = Vector3.SignedAngle(localDirectionToHandle.normalized, localDirectionToGrabber.normalized, axisOfRotation);
+
+            //Debug.Log($"TransformToAdjustBeforeGrab: {_transformToAdjustBeforeGrab.position}");
 
             //signed angle is always between -180 and 180, we need to convert it to 0-360
             if (_signedAngle < 0)

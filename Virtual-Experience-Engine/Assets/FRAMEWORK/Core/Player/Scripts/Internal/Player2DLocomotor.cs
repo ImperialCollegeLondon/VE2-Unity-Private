@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using VE2.Core.Player.API;
+using VE2.Core.VComponents.API;
 
 namespace VE2.Core.Player.Internal
 {
@@ -12,9 +13,11 @@ namespace VE2.Core.Player.Internal
 
         private readonly MovementModeConfig _movementModeConfig;
         private readonly InspectModeIndicator _inspectModeIndicator;
+        private readonly FreeGrabbingIndicator _grabbingIndicator;
 
         private PlayerLocomotor2DInputContainer _playerLocomotor2DInputContainer;
         private readonly Player2DMovementConfig _player2DMovementConfig;
+        private readonly AdjustableActiveIndicator _adjustableActiveIndicator;
         private LayerMask _traversableLayers => _movementModeConfig.TraversableLayers;
         private float _originalControllerHeight;
         private float verticalVelocity = 0f;
@@ -67,7 +70,8 @@ namespace VE2.Core.Player.Internal
             }    
         }
 
-        internal Player2DLocomotor(Locomotor2DReferences locomotor2DReferences, MovementModeConfig movementModeConfig, InspectModeIndicator inspectModeIndicator, PlayerLocomotor2DInputContainer playerLocomotor2DInputContainer, Player2DMovementConfig player2DMovementConfig)
+
+        internal Player2DLocomotor(Locomotor2DReferences locomotor2DReferences, MovementModeConfig movementModeConfig, InspectModeIndicator inspectModeIndicator, PlayerLocomotor2DInputContainer playerLocomotor2DInputContainer, Player2DMovementConfig player2DMovementConfig, FreeGrabbingIndicator grabbingIndicator, AdjustableActiveIndicator adjustableActiveIndicator)
         {
             _characterController = locomotor2DReferences.Controller;
             _verticalOffsetTransform = locomotor2DReferences.VerticalOffsetTransform;
@@ -78,13 +82,37 @@ namespace VE2.Core.Player.Internal
             _movementModeConfig = movementModeConfig;
             _characterController.includeLayers = movementModeConfig.TraversableLayers | movementModeConfig.CollisionLayers;
             _player2DMovementConfig = player2DMovementConfig;
+            _adjustableActiveIndicator = adjustableActiveIndicator;
 
             _inspectModeIndicator = inspectModeIndicator;
+            _grabbingIndicator = grabbingIndicator;
+
+            //TODO tear down and unsubscribe
+            grabbingIndicator.OnGrabStarted += HandleGrabStarted;
+            grabbingIndicator.OnGrabEnded += HandleGrabEnded;
+
             _playerLocomotor2DInputContainer = playerLocomotor2DInputContainer;
+
 
             Application.focusChanged += OnFocusChanged;
             if (Application.isFocused)
                 LockCursor();
+        }
+
+        private void HandleGrabStarted(IRangedFreeGrabInteractionModule freeGrabbable)
+        {
+            Collider collider = freeGrabbable.ColliderWrapper.Collider;
+
+            if (collider != null) //Bit of a code smell, would be null in tests since we can't stub it out
+                Physics.IgnoreCollision(_characterController, freeGrabbable.ColliderWrapper.Collider, true);
+        }
+
+        private void HandleGrabEnded(IRangedFreeGrabInteractionModule freeGrabbable)
+        {
+             Collider collider = freeGrabbable.ColliderWrapper.Collider;
+
+            if (collider != null) //Bit of a code smell, would be null in tests since we can't stub it out
+                Physics.IgnoreCollision(_characterController, freeGrabbable.ColliderWrapper.Collider, false);
         }
 
         private void OnFocusChanged(bool focus)
@@ -121,6 +149,9 @@ namespace VE2.Core.Player.Internal
             {
                 LockCursor();
             }
+
+            if (_adjustableActiveIndicator.IsActive)
+                return;
 
             // Detect FreeFlyMode changes
             if (_movementModeConfig.FreeFlyMode != _wasFreeFlyMode)

@@ -16,26 +16,30 @@ namespace VE2.Core.Player.Internal
         private const float INSPECT_MIN_ZOOM = 2.0f;
         private const float INSPECT_MAX_ZOOM = 5.0f;
         private const float INSPECT_ROTATE_SPEED = 0.1f;
-
+        private const float MOUSE_SPEED = 0.01f;
         private ColorConfiguration _colorConfig => ColorConfiguration.Instance;
         private readonly Image _reticuleImage;
         private readonly PlayerConnectionPromptHandler _connectionPromptHandler;
-        private Interactor2DInputContainer _interactor2DInputContainer;
-        private InspectModeIndicator _inspectModeIndicator;
-        private Transform _grabberInspectGuideTransform;
+        private readonly Interactor2DInputContainer _interactor2DInputContainer;
+        private readonly InspectModeIndicator _inspectModeIndicator;
+        private readonly Transform _grabberInspectGuideTransform;
         private Tween _inspectModeTween = null;
+        private readonly FreeGrabbingIndicator _grabbingIndicator;
+        private readonly AdjustableActiveIndicator _adjustableActiveIndicator;
 
         private IRangedFreeGrabInteractionModule _rangedFreeGrabbingGrabbable => _CurrentGrabbingGrabbable as IRangedFreeGrabInteractionModule;
 
         internal Interactor2D(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, Interactor2DInputContainer interactor2DInputContainer,
             PlayerInteractionConfig interactionConfig, InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider,
-            ILocalClientIDWrapper localClientIDWrapper, ILocalAdminIndicator localAdminIndicator, InspectModeIndicator inspectModeIndicator) :
+            ILocalClientIDWrapper localClientIDWrapper, ILocalAdminIndicator localAdminIndicator, InspectModeIndicator inspectModeIndicator, FreeGrabbingIndicator grabbingIndicator, AdjustableActiveIndicator adjustableActiveIndicator) :
             base(interactorContainer, grabInteractablesContainer, interactor2DInputContainer, interactionConfig,
                 interactorReferences, interactorType, raycastProvider, localClientIDWrapper, localAdminIndicator, null, new HoveringOverScrollableIndicator())
         {
             Interactor2DReferences interactor2DReferences = interactorReferences as Interactor2DReferences;
             _reticuleImage = interactor2DReferences.ReticuleImage;
             _inspectModeIndicator = inspectModeIndicator;
+            _grabbingIndicator = grabbingIndicator;
+            _adjustableActiveIndicator = adjustableActiveIndicator;
 
             _connectionPromptHandler = interactor2DReferences.ConnectionPromptHandler;
             _grabberInspectGuideTransform = interactor2DReferences.GrabberInspectTransform;
@@ -95,15 +99,25 @@ namespace VE2.Core.Player.Internal
         {
             //Unlike VR, we should just apply a one-time offset on grab, and have the grabber behave like its on the end of a stick
             //I.E, it's position is affected by the rotation of its parent 
-            Vector3 directionToGrabber = rangedAdjustableInteraction.Transform.position - _GrabberTransform.position;
+            Vector3 directionToGrabber = rangedAdjustableInteraction.AttachPointTransform.position - _GrabberTransform.position;
             _GrabberTransform.position += directionToGrabber;
+
+            _adjustableActiveIndicator.SetActive(true);
         }
 
-        protected override void HandleUpdateGrabbingAdjustable() { } //Nothing needed here
+        protected override void HandleUpdateGrabbingAdjustable()
+        {
+            Vector2 mouseDelta = _interactor2DInputContainer.MouseInput.Value;
 
+            // Move along camera axes
+            Vector3 move = VE2API.Player.ActiveCamera.transform.right * mouseDelta.x * MOUSE_SPEED + VE2API.Player.ActiveCamera.transform.forward * mouseDelta.y * MOUSE_SPEED;
+
+            _GrabberTransform.position += move;
+        }
         protected override void HandleStopGrabbingAdjustable()
         {
             _GrabberTransform.localPosition = Vector3.zero;
+            _adjustableActiveIndicator.SetActive(false);
         }
 
         protected override void HandleLocalClientIDReady(ushort clientID)
@@ -129,6 +143,22 @@ namespace VE2.Core.Player.Internal
                     AdjustZoom(true);
                 return;
             }
+        }
+
+        public override void ConfirmGrab(string id)
+        {
+            base.ConfirmGrab(id);
+
+            if (_CurrentGrabbingGrabbable is IRangedFreeGrabInteractionModule rangedFreeGrabbable)
+                _grabbingIndicator.SetIsGrabbing(true, rangedFreeGrabbable);
+        }
+
+        public override void ConfirmDrop()
+        {
+            if (_CurrentGrabbingGrabbable is IRangedFreeGrabInteractionModule rangedFreeGrabbable)
+                _grabbingIndicator.SetIsGrabbing(false, rangedFreeGrabbable);
+
+            base.ConfirmDrop();
         }
 
         private void HandleInspectModePressed()

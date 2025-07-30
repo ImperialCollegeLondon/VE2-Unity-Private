@@ -98,6 +98,7 @@ MonoBehaviour:
   - typeReference: Toolbox.Editor.Drawers.ScrollableItemsAttributeDrawer, Toolbox.Editor
   targetTypeDrawerHandlers:
   - typeReference: Toolbox.Editor.Drawers.SerializedDictionaryDrawer, Toolbox.Editor
+  - typeReference: VE2.Core.Player.Internal.PlayerConfigConfigDrawer, VE2.Core.Player.Internal
   - typeReference: VE2.Core.VComponents.Internal.RangedAdjustableInteractionConfigDrawer,
       VE2.Core.VComponents.Internal
   - typeReference: VE2.Core.VComponents.Internal.RangedFreeGrabInteractionConfigDrawer,

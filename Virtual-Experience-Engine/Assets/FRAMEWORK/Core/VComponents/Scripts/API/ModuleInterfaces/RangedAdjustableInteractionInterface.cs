@@ -5,7 +5,9 @@ namespace VE2.Core.VComponents.API
 {
     internal interface IRangedAdjustableInteractionModule : IRangedGrabInteractionModule
     {
-        public ITransformWrapper Transform { get; }
+        public ITransformWrapper AttachPointTransform { get; }
+
+        public ITransformWrapper TransformToPointRayTo { get; }
 
         public void ScrollUp(ushort clientID);
 

@@ -55,8 +55,9 @@ namespace VE2.Core.Player.Internal
         private readonly RectTransform _primaryUIHolderRect;
         private readonly ISecondaryUIServiceInternal _secondaryUIService;
 
-        internal PlayerControllerVR(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, PlayerVRInputContainer playerVRInputContainer, IPlayerPersistentDataHandler playerSettingsHandler, 
-            PlayerVRControlConfig controlConfig, PlayerInteractionConfig interactionConfig, MovementModeConfig movementModeConfig, CameraConfig cameraConfig, IRaycastProvider raycastProvider, 
+        internal PlayerControllerVR(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, PlayerVRInputContainer playerVRInputContainer,
+            IPlayerPersistentDataHandler playerSettingsHandler, AvatarHandlerBuilderContext avatarHandlerBuilderContext,
+            PlayerVRControlConfig controlConfig, PlayerInteractionConfig interactionConfig, MovementModeConfig movementModeConfig, CameraConfig cameraConfig, IRaycastProvider raycastProvider,
             ICollisionDetectorFactory collisionDetectorFactory, IXRManagerWrapper xrManagerSettingsWrapper, ILocalClientIDWrapper localClientIDWrapper, ILocalAdminIndicator localAdminIndicator,
             IPrimaryUIServiceInternal primaryUIService, ISecondaryUIServiceInternal secondaryUIService, IXRHapticsWrapper xRHapticsWrapperLeft, IXRHapticsWrapper xRHapticsWrapperRight)
         {
@@ -95,17 +96,30 @@ namespace VE2.Core.Player.Internal
             FreeGrabbableWrapper leftHandGrabbableWrapper = new FreeGrabbableWrapper();
             FreeGrabbableWrapper rightHandGrabbableWrapper = new FreeGrabbableWrapper();
 
-            _handControllerLeft = CreateHandController(handVRLeftGO, handVRRightGO, interactorContainer, grabInteractablesContainer, 
+            _handControllerLeft = CreateHandController(handVRLeftGO, handVRRightGO, interactorContainer, grabInteractablesContainer,
                 playerVRInputContainer.HandVRLeftInputContainer, playerVRInputContainer.HandVRRightInputContainer.DragLocomotorInputContainer,
-                interactionConfig, InteractorType.LeftHandVR, raycastProvider, collisionDetectorFactory, ColliderType.HandVRLeft, localClientIDWrapper, localAdminIndicator, 
+                interactionConfig, InteractorType.LeftHandVR, raycastProvider, collisionDetectorFactory, ColliderType.HandVRLeft, localClientIDWrapper, localAdminIndicator,
                 leftHandGrabbableWrapper, rightHandGrabbableWrapper, secondaryUIService, movementModeConfig, false, xRHapticsWrapperLeft);
 
-            _handControllerRight = CreateHandController(handVRRightGO, handVRLeftGO, interactorContainer, grabInteractablesContainer, 
+            _handControllerRight = CreateHandController(handVRRightGO, handVRLeftGO, interactorContainer, grabInteractablesContainer,
                 playerVRInputContainer.HandVRRightInputContainer, playerVRInputContainer.HandVRLeftInputContainer.DragLocomotorInputContainer,
                 interactionConfig, InteractorType.RightHandVR, raycastProvider, collisionDetectorFactory, ColliderType.HandVRRight, localClientIDWrapper, localAdminIndicator,
                 rightHandGrabbableWrapper, leftHandGrabbableWrapper, secondaryUIService, movementModeConfig, true, xRHapticsWrapperRight);
-        
+
             ConfigureCamera(cameraConfig);
+
+            AvatarHandler = new(
+                avatarHandlerBuilderContext.PlayerBuiltInGameObjectPrefabs,
+                avatarHandlerBuilderContext.PlayerCustomGameObjectPrefabs,
+                avatarHandlerBuilderContext.CurrentInstancedAvatarAppearance,
+                true,
+                playerVRReferences.HeadTransform, playerVRReferences.TorsoTransform,
+                _handControllerRight.HandVisualHolderTransform, _handControllerLeft.HandVisualHolderTransform);
+                
+            if (localClientIDWrapper.IsClientIDReady)
+                OnClientIDReady(localClientIDWrapper.Value);
+            else
+                localClientIDWrapper.OnClientIDReady += OnClientIDReady;
         }
 
 
@@ -144,7 +158,7 @@ namespace VE2.Core.Player.Internal
             WristUIHandler wristUIHandler = new(
                 secondaryUIService, thisHandVRReferences.WristUIReferences.WristUIHolder, _headTransform, thisHandVRReferences.WristUIReferences.Indicator, needsToFlip);
 
-            return new HandController(handGO, handVRInputContainer, interactor, dragLocomotor, snapTurn, teleport, wristUIHandler);
+            return new HandController(thisHandVRReferences.InteractorVRReferences.NonGrabbingHandGO, handVRInputContainer, interactor, dragLocomotor, snapTurn, teleport, wristUIHandler);
         }
 
         public void ActivatePlayer(PlayerTransformData initTransformData)
@@ -192,12 +206,6 @@ namespace VE2.Core.Player.Internal
         {
             _xrManagerSettingsWrapper.OnLoaderInitialized -= HandleXRInitComplete;
             _xrManagerSettingsWrapper.StartSubsystems();
-        }
-
-        internal void HandleLocalAvatarColorChanged(Color newColor)
-        {
-            _handControllerLeft.HandleLocalAvatarColorChanged(newColor);
-            _handControllerRight.HandleLocalAvatarColorChanged(newColor);
         }
 
         internal override void HandleUpdate()

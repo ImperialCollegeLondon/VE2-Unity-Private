@@ -5931,7 +5931,7 @@ GameObject:
   - component: {fileID: 5508634202452392616}
   - component: {fileID: 7826618101543382671}
   - component: {fileID: 8053693517664462975}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: HandDecal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6332,7 +6332,7 @@ GameObject:
   - component: {fileID: 2740341980589230671}
   - component: {fileID: 9221184712432360525}
   - component: {fileID: 4855877009158782648}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: HandButtonPad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7260,7 +7260,7 @@ MonoBehaviour:
     PlayerInteractionConfig:
       InteractableLayers:
         serializedVersion: 2
-        m_Bits: 131049
+        m_Bits: 524073
     MovementModeConfig:
       TraversableLayers:
         serializedVersion: 2
@@ -7294,7 +7294,7 @@ MonoBehaviour:
       FarClippingPlane: 1000
       CullingMask:
         serializedVersion: 2
-        m_Bits: 4294967295
+        m_Bits: 524159
       AntiAliasing: 1
       AntiAliasingQuality: 1
       EnablePostProcessing: 1
@@ -7302,23 +7302,38 @@ MonoBehaviour:
       OnResetViewVR:
         m_PersistentCalls:
           m_Calls: []
-    AvatarAppearanceOverrideConfig:
-      OverrideHead: 0
-      HeadOverrideIndex: 0
-      HeadOverrideGameObjects: []
-      OverrideTorso: 0
-      TorsoOverrideIndex: 0
-      TorsoOverrideGameObjects: []
+    PluginAvatarSelections:
+      HeadGameObjectSelection:
+        BuiltInGameObjectEnabled: 1
+        CustomGameObjectEnabled: 0
+        CustomGameObjectIndex: 0
+      TorsoGameObjectSelection:
+        BuiltInGameObjectEnabled: 1
+        CustomGameObjectEnabled: 0
+        CustomGameObjectIndex: 0
+      VRHandRightGameObjectSelection:
+        BuiltInGameObjectEnabled: 1
+        CustomGameObjectEnabled: 0
+        CustomGameObjectIndex: 0
+      VRHandLeftGameObjectSelection:
+        BuiltInGameObjectEnabled: 1
+        CustomGameObjectEnabled: 0
+        CustomGameObjectIndex: 0
+    PluginCustomAvatarPrefabs:
+      Heads: []
+      Torsos: []
+      VRRightHands: []
+      VRLefthands: []
     RepeatedTransmissionConfig:
       TransmissionFrequency: 35
       TransmissionType: 0
-  _defaultPlayerPresentationConfig:
-    PlayerName: DebugName
-    AvatarHeadType: 0
-    AvatarTorsoType: 0
-    AvatarRed: 255
-    AvatarGreen: 0
-    AvatarBlue: 0
+  _defaultBuiltInAvatarConfig:
+    PlayerName: Unknown
+    AvatarHeadIndex: 0
+    AvatarTorsoIndex: 0
+    AvatarColorR: 0
+    AvatarColorG: 0
+    AvatarColorB: 0
   _transformDataSetup: 0
   _playerTransformData:
     IsVRMode: 0
@@ -7894,7 +7909,7 @@ GameObject:
   - component: {fileID: 8534679621504385075}
   - component: {fileID: 4523996239576023063}
   - component: {fileID: 2703277684551269728}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: PushButtonHold
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9233,7 +9248,7 @@ GameObject:
   - component: {fileID: 239670145217298377}
   - component: {fileID: 8055856002945607484}
   - component: {fileID: 4745457022155321537}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: HandButtonPad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10382,7 +10397,7 @@ GameObject:
   - component: {fileID: 3105519476609805838}
   - component: {fileID: 2790116623281393269}
   - component: {fileID: 2868694494777224856}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: PushButtonToggle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12205,7 +12220,7 @@ GameObject:
   - component: {fileID: 1121663398237121618}
   - component: {fileID: 1265491166139664577}
   - component: {fileID: 5199957234608523622}
-  m_Layer: 8
+  m_Layer: 10
   m_Name: HandDecal
   m_TagString: Untagged
   m_Icon: {fileID: 0}

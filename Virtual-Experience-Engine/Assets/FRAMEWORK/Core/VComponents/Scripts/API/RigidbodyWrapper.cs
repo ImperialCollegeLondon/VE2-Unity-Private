@@ -25,8 +25,10 @@ namespace VE2.Core.VComponents.API
         }
 
         public Renderer renderer { get => _Rigidbody.GetComponent<Renderer>(); }
+        
+        public Collider collider => _Rigidbody.GetComponent<Collider>();
 
-        public bool Equals (Rigidbody other)
+        public bool Equals(Rigidbody other)
         {
             return _Rigidbody == other;
         }

@@ -11,7 +11,7 @@ namespace VE2.Core.Player.Internal
         private Vector3 _grabberTransformOffset;
 
         private readonly ICollisionDetector _collisionDetector;
-        private readonly GameObject _handVisualGO;
+        private readonly GameObject _goToDisableWhileGrabbing;
         private readonly LineRenderer _lineRenderer;
         private readonly Material _lineMaterial;
 
@@ -29,8 +29,8 @@ namespace VE2.Core.Player.Internal
         {
             InteractorVRReferences interactorVRReferences = interactorReferences as InteractorVRReferences;
 
-            _handVisualGO = interactorVRReferences.HandVisualGO;
-            _collisionDetector = collisionDetectorFactory.CreateCollisionDetector(interactorVRReferences.HandCollider, colliderType, playerInteractionConfig.InteractableLayers);
+            _goToDisableWhileGrabbing = interactorVRReferences.NonGrabbingHandGO;
+            _collisionDetector = collisionDetectorFactory.CreateCollisionDetector(interactorVRReferences.HandCollider, colliderType, playerInteractionConfig);
 
             _xrHapticsWrapper = xRHapticsWrapper;
             _lineRenderer = interactorVRReferences.LineRenderer;
@@ -91,7 +91,8 @@ namespace VE2.Core.Player.Internal
 
         protected override void SetInteractorState(InteractorState newState)
         {
-            _handVisualGO.SetActive(newState != InteractorState.Grabbing);
+            //TODO - this GO active state is also controlled by HandController.HandleUpdate
+            _goToDisableWhileGrabbing.SetActive(_goToDisableWhileGrabbing.transform.parent.localPosition != Vector3.zero && newState != InteractorState.Grabbing);
 
             if (_lineMaterial == null)
                 return;
@@ -121,7 +122,7 @@ namespace VE2.Core.Player.Internal
         {
             //We'll control its position in Update - it needs an offset towards the adjustable, without being affected by the parent transform's rotation
             _GrabberTransform.SetParent(_interactorParentTransform.parent);
-            _grabberTransformOffset = rangedAdjustableInteraction.Transform.position - _GrabberTransform.position;
+            _grabberTransformOffset = rangedAdjustableInteraction.AttachPointTransform.position - _GrabberTransform.position;
 
             //The interactor when grabbing an adjustable should listen to the ranged adjustable interaction module's value changes
             _rangedAdjustableInteractionModule = rangedAdjustableInteraction;
