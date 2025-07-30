@@ -3,6 +3,7 @@ using NUnit.Framework;
 using UnityEngine.Events;
 using VE2.Common.API;
 using VE2.Common.Shared;
+using VE2.Core.VComponents.Shared;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
 
@@ -41,6 +42,7 @@ namespace VE2.Core.VComponents.Tests
                 config,
                 new SingleInteractorActivatableState(),
                 "debug",
+                Substitute.For<IInteractableOutline>(),
                 Substitute.For<IWorldStateSyncableContainer>(),
                 _activatableGroupsContainer,
                 Substitute.For<IClientIDWrapper>());
@@ -105,6 +107,7 @@ namespace VE2.Core.VComponents.Tests
                 config,
                 new SingleInteractorActivatableState(),
                 "debug2",
+                Substitute.For<IInteractableOutline>(),
                 Substitute.For<IWorldStateSyncableContainer>(),
                 _activatableGroupsContainer,
                 Substitute.For<IClientIDWrapper>());
@@ -176,6 +179,7 @@ namespace VE2.Core.VComponents.Tests
         #endregion
 
         #region Player Interfaces
+        int ICollideInteractionModuleProvider.Layer => CommonUtils.DefaultLayer;
         ICollideInteractionModule ICollideInteractionModuleProvider.CollideInteractionModule => _ToggleActivatable.ColliderInteractionModule;
         IRangedInteractionModule IRangedInteractionModuleProvider.RangedInteractionModule => _ToggleActivatable.RangedClickInteractionModule;
         #endregion

@@ -43,7 +43,7 @@ namespace VE2.Core.VComponents.Integration
     internal partial class V_CustomInfoPoint : MonoBehaviour
     {
         public void OpenDocs() => Application.OpenURL("https://www.notion.so/V_CustomInfoPoint-20f0e4d8ed4d81eb8e3eee6377ffa130?source=copy_link");
-        [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above)]
+        [EditorButton(nameof(OpenDocs), "Open Docs", PositionType = ButtonPositionType.Above, Order = -100)]
         [Title("InfoPoint Settings", Order = -50)]
         [SerializeField, BeginGroup] private GameObject _triggerGameObject;
         [SerializeField] private GameObject _canvasGameObject;
@@ -69,6 +69,9 @@ namespace VE2.Core.VComponents.Integration
 
         private void OnEnable()
         {
+            _triggerGameObject.name = $"{gameObject.name}_Trigger";
+            _canvasGameObject.name = $"{gameObject.name}_Canvas";
+
             if (!Application.isPlaying || _triggerActivatable != null)
                 return;
 

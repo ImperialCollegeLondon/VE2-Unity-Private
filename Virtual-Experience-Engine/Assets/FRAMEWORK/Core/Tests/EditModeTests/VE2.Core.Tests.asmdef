@@ -14,7 +14,8 @@
         "VE2.Common.API",
         "VE2.Core.UI.API",
         "VE2.Common.Shared",
-        "VE2.Core.UI.Internal"
+        "VE2.Core.UI.Internal",
+        "VE2.Core.VComponents.Shared"
     ],
     "includePlatforms": [
         "Editor"

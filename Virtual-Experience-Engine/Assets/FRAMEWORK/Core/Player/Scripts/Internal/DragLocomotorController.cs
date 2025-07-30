@@ -1,12 +1,15 @@
-using UnityEngine;
+﻿using UnityEngine;
+using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.Player.API;
+using VE2.Core.VComponents.API;
 
 namespace VE2.Core.Player.Internal
 {
     internal class DragLocomotorController
     {   
         private Vector3 _previousHandPosition;
+        private Vector3 _savedHeadOffset;
         private float _dragSpeed = 4.0f;
         private bool _isDraggingHorizontal = false; //This is used to set the state of the current hand dragging horizontally based on the release/pressed events from the input container.
         private bool _isDraggingVertical = false; //This is used to set the state of the current hand dragging vertically based on the release/pressed events from the input container.
@@ -23,7 +26,7 @@ namespace VE2.Core.Player.Internal
         private readonly Transform _headTransform; //For orienting the drag icons towards the camera
         private readonly Transform _handTransform; //For measuring drag delta 
         private MovementModeConfig _movementModeConfig;
-        private bool _previousFreeFlyMode = false;
+        private bool _previousFreeFlyModeStatus = false;
 
         public DragLocomotorController(DragLocomotorReferences locomotorVRReferences, DragLocomotorInputContainer inputContainer, DragLocomotorInputContainer otherVRHandInputContainer,
             Transform rootTransform, Transform headOffsetTransform, Transform headTransform, Transform handTransform, MovementModeConfig movementModeConfig)
@@ -42,20 +45,20 @@ namespace VE2.Core.Player.Internal
             _handTransform = handTransform;
 
             _movementModeConfig = movementModeConfig;
-            _previousFreeFlyMode = _movementModeConfig.FreeFlyMode;
+            _previousFreeFlyModeStatus = _movementModeConfig.FreeFlyMode;
         }
 
         public void HandleUpdate()
         {
             // Check if FreeFlyMode has changed
-            if (_movementModeConfig.FreeFlyMode != _previousFreeFlyMode)
+            if (_movementModeConfig.FreeFlyMode != _previousFreeFlyModeStatus)
             {
                 if (_movementModeConfig.FreeFlyMode)
                     EnterFreeFlyMode();
                 else
                     ExitFreeFlyMode();
 
-                _previousFreeFlyMode = _movementModeConfig.FreeFlyMode;
+                _previousFreeFlyModeStatus = _movementModeConfig.FreeFlyMode;
             }
 
             Vector3 cameraToIcon = _sphereIcon.transform.position - _headTransform.position;
@@ -80,8 +83,13 @@ namespace VE2.Core.Player.Internal
 
         private void EnterFreeFlyMode()
         {
+            // Save the current head offset position
+            _savedHeadOffset = _headTransform.localPosition;
+            // Collapse the rig
+            _headTransform.localPosition = Vector3.zero;
             // Collapse the rig: Move the vertical offset to zero
             _headOffsetTransform.localPosition = Vector3.zero;
+            //_movementModeConfig.OnFreeFlyModeEnter?.Invoke(); //NOTE: FreeFlyMode is mostly changed by Plugin so we might not need events for this but it lives here for now
         }
 
         private void ExitFreeFlyMode()
@@ -97,12 +105,16 @@ namespace VE2.Core.Player.Internal
                 // Ground not found, move to spawn position
                 _rootTransform.position = GetSpawnPosition();
             }
+            
+            //Restore the head offset position
+            _headTransform.localPosition = _savedHeadOffset;
+            //_movementModeConfig.OnFreeFlyModeExit?.Invoke(); //NOTE: FreeFlyMode is mostly changed by Plugin so we might not need events for this but it lives here for now>>>>>>> origin/develop
         }
 
         private Vector3 GetSpawnPosition()
         {
             // TODO: Replace with actual spawn position retrieval logic
-            return Vector3.zero;
+            return VE2API.Player.PlayerSpawnPoint;
         }
 
         public void HandleOEnable()
@@ -206,38 +218,51 @@ namespace VE2.Core.Player.Internal
         private void PerformHorizontalDragMovement(Vector3 dragVector)
         {
             Vector3 moveVector = dragVector * _dragSpeed;
-            float collisionOffset = 0.05f;
+            float collisionOffset = 0.2f;
 
             if (_movementModeConfig.FreeFlyMode)
             {
-                // In freefly mode, move the root transform directly, but perform collision checks
-                Vector3 targetPosition = _rootTransform.position + moveVector;
+                // In freefly mode, move the head transform directly, but perform collision checks
+                Vector3 targetPosition = _headTransform.position + moveVector;
                 Vector3 direction = moveVector.normalized;
                 float distance = moveVector.magnitude + collisionOffset;
 
-                if (Physics.Raycast(_rootTransform.position, direction, out RaycastHit hitInfo, distance, _movementModeConfig.CollisionLayers))
+                if (Physics.Raycast(_headTransform.position, direction, out RaycastHit hitInfo, distance, _movementModeConfig.CollisionLayers))
                     Debug.Log($"Movement aborted: Collision detected with {hitInfo.collider.name}.");
                 else
-                    _rootTransform.position = targetPosition;
+                    _rootTransform.position += moveVector;
             }
             else
             {
                 // Existing movement logic with ground checks
                 float maxStepHeight = 0.5f;
                 float stepHeight = 0.5f; // TODO: Make configurable
+                float obstacleOffset = 1.0f;
 
                 Vector3 currentRaycastPosition = _rootTransform.position + new Vector3(0, maxStepHeight, 0);
                 Vector3 targetRaycastPosition = currentRaycastPosition + moveVector;
 
+                //Raycast from where we are, to where we are trying to be, to check for objects in our way
+                //If we hit something in the collision layers, abort movement
+                if (Physics.CapsuleCast(
+                       _headTransform.position,
+                       _headTransform.position - new Vector3(0, obstacleOffset, 0),
+                       collisionOffset,
+                       moveVector.normalized,
+                       out RaycastHit obstacleHit,
+                       moveVector.magnitude + collisionOffset,
+                       _movementModeConfig.CollisionLayers))
+                {
+                    Debug.Log($"Movement blocked by {obstacleHit.collider.name}.");
+                    return;
+                }
                 //TODO: There's def a bug here, we're able to get stuck on non-ground objects, and then we can't move away
 
                 //Rayacst down from current position to check how high we are above ground
                 //If we don't hit anything, or if the thing we hit is not within the traversable layers, abort movement
-                if (!Physics.Raycast(currentRaycastPosition, Vector3.down, out RaycastHit groundHitFromCurrentPos, 1000, _movementModeConfig.TraversableLayers | _movementModeConfig.CollisionLayers) ||
-                    !CommonUtils.IsGameObjectInLayerMask(groundHitFromCurrentPos.collider.gameObject, _movementModeConfig.TraversableLayers))
+                if (!Physics.Raycast(currentRaycastPosition, Vector3.down, out RaycastHit groundHitFromCurrentPos, maxStepHeight + collisionOffset, _movementModeConfig.TraversableLayers))
                 {
-                    Debug.LogWarning("Movement aborted: Current position is not above ground.");
-                    Debug.LogWarning($"{groundHitFromCurrentPos.collider.gameObject.name}");
+                    Debug.LogWarning($"Movement aborted: Current position is not above ground.Ground hit {groundHitFromCurrentPos.collider?.gameObject.name}");
                     return;
                 }
 
@@ -245,10 +270,9 @@ namespace VE2.Core.Player.Internal
 
                 //Raycast down from where we are trying to be, to check how high we will _become_ above ground
                 //If we don't hit anything, or if the thing we hit is not within the traversable layers, abort movement
-                if (!Physics.Raycast(targetRaycastPosition, Vector3.down, out RaycastHit groundHitFromTargetPos, 1000, _movementModeConfig.TraversableLayers | _movementModeConfig.CollisionLayers) || 
-                    !CommonUtils.IsGameObjectInLayerMask(groundHitFromCurrentPos.collider.gameObject, _movementModeConfig.TraversableLayers))
+                if (!Physics.Raycast(targetRaycastPosition, Vector3.down, out RaycastHit groundHitFromTargetPos, maxStepHeight + collisionOffset, _movementModeConfig.TraversableLayers))
                 {
-                    Debug.Log("Movement aborted: Target position is not above ground.");
+                    Debug.Log("Movement aborted: No floor at destination.");
                     return;
                 }
                 
@@ -261,13 +285,23 @@ namespace VE2.Core.Player.Internal
                     return;
                 }
 
+
+                Vector3 finalPosition = _rootTransform.position + moveVector;
+                finalPosition.y = targetGroundHeight;
+                _rootTransform.position = finalPosition;
+
                 //Raycast from where we are, to where we are trying to be, to check for objects in our way
                 //If we hit something in the collision layers, abort movement
-                if (Physics.Raycast(currentRaycastPosition, moveVector.normalized, out RaycastHit obstacleHit, moveVector.magnitude + collisionOffset, _movementModeConfig.CollisionLayers)) 
+                RaycastHit[] collisionHits = Physics.RaycastAll(currentRaycastPosition, moveVector.normalized, moveVector.magnitude + collisionOffset, _movementModeConfig.CollisionLayers);
+                foreach (RaycastHit hit in collisionHits)
                 {
-                    Debug.Log($"Movement aborted: {obstacleHit.collider.name} is blocking player movement.");
-                    return;
-                }
+                    //If the thing we hit was within our layermask ^ and it is not a grabbable object that is currently grabbed by the local player, abort movement
+                    if (!(hit.collider.gameObject.TryGetComponent(out IV_FreeGrabbable grabbable) && grabbable.IsGrabbed && grabbable.MostRecentInteractingClientID.IsLocal))
+                    {
+                        Debug.Log($"Movement aborted: {hit.collider.name} is blocking player movement.");
+                        return;
+                    }
+                }    
 
                 // Move the root transform to the target position, adjusting for ground height
                 float newRootPositionY= targetGroundHeight + (currentRaycastPosition.y - maxStepHeight - currentGroundHeight);
@@ -289,7 +323,7 @@ namespace VE2.Core.Player.Internal
                 Vector3 direction = moveVector.normalized;
                 float distance = moveVector.magnitude + collisionOffset;
 
-                if (Physics.Raycast(_rootTransform.position, direction, out RaycastHit hitInfo, distance, _movementModeConfig.CollisionLayers))
+                if (Physics.Raycast(_headTransform.position, direction, out RaycastHit hitInfo, distance, _movementModeConfig.CollisionLayers))
                     Debug.Log($"Vertical movement aborted: Collision detected with {hitInfo.collider.name}.");
                 else
                     _rootTransform.position = targetPosition;

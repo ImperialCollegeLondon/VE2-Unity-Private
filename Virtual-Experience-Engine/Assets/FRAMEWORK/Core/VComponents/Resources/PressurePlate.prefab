@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 7242489993199662243}
   - component: {fileID: 715045875653016387}
   - component: {fileID: 1144136714589646516}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PressurePlate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -216,6 +216,7 @@ MonoBehaviour:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
+      IsInteractable: 1
     SyncConfig:
       IsNetworked: 1
       TransmissionFrequency: 1
@@ -472,7 +473,7 @@ GameObject:
   - component: {fileID: 4708044432096105238}
   - component: {fileID: 1312843260250305578}
   - component: {fileID: 4571766253878495604}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PressurePlatePad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -578,7 +579,7 @@ GameObject:
   - component: {fileID: 2593012619212333314}
   - component: {fileID: 2830016263791240367}
   - component: {fileID: 9024393120457683630}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: FootprintDecal
   m_TagString: Untagged
   m_Icon: {fileID: 0}

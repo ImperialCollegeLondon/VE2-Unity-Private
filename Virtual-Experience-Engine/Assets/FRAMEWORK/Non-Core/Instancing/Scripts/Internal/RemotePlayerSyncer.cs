@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using VE2.Common.API;
 using VE2.Core.Player.API;
+using VE2.Core.Player.Internal;
 using VE2.Core.VComponents.API;
 using static VE2.Core.Player.API.PlayerSerializables;
 using static VE2.NonCore.Instancing.Internal.InstanceSyncSerializables;
@@ -31,8 +32,8 @@ namespace VE2.NonCore.Instancing.Internal
 
         public void ToggleAvatarsTransparent(bool isTransparent)
         {
-            foreach (RemoteAvatarController remotePlayerController in _remoteAvatars.Values)
-                remotePlayerController.ToggleAvatarsTransparent(isTransparent);
+            // foreach (RemoteAvatarController remotePlayerController in _remoteAvatars.Values)
+            //     remotePlayerController.ToggleAvatarsTransparent(isTransparent);
         }
 
         private void HandleInstanceInfoChanged(InstancedInstanceInfo newInstanceInfo)
@@ -42,7 +43,7 @@ namespace VE2.NonCore.Instancing.Internal
             foreach (KeyValuePair<ushort, InstancedClientInfo> kvp in newInstanceInfo.ClientInfos)
             {
                 //Debug.Log("Checking client: " + kvp.Key + " - " + kvp.Value.InstancedAvatarAppearance.UsingFrameworkPlayer);
-                if (kvp.Key != _instanceInfoContainer.LocalClientID && kvp.Value.InstancedAvatarAppearance.UsingFrameworkPlayer)
+                if (kvp.Key != _instanceInfoContainer.LocalClientID && kvp.Value.AvatarAppearanceWrapper.UsingFrameworkPlayer)
                     receivedRemoteClientInfosWithAppearance.Add(kvp.Key, kvp.Value);
             }
 
@@ -50,17 +51,23 @@ namespace VE2.NonCore.Instancing.Internal
             {
                 if (!_remoteAvatars.ContainsKey(receivedRemoteClientInfoWithAppearance.ClientID))
                 {
+                    //TODO: AHBC should live in shared? not internal?
+                    AvatarHandlerBuilderContext avatarHandlerBuilderContext = new(
+                        _playerService.BuiltInGameObjectPrefabs,
+                        _playerService.CustomGameObjectPrefabs,
+                        receivedRemoteClientInfoWithAppearance.AvatarAppearanceWrapper.InstancedAvatarAppearance);
+
                     GameObject remotePlayerPrefab = Resources.Load<GameObject>("RemoteAvatar");
                     GameObject remotePlayerGO = GameObject.Instantiate(remotePlayerPrefab);
                     remotePlayerGO.GetComponent<RemoteAvatarController>().Initialize(
                         receivedRemoteClientInfoWithAppearance.ClientID,
                         _interactorContainer,
-                        _playerService);
+                        avatarHandlerBuilderContext);
 
                     _remoteAvatars.Add(receivedRemoteClientInfoWithAppearance.ClientID, remotePlayerGO.GetComponent<RemoteAvatarController>());
                 }
 
-                _remoteAvatars[receivedRemoteClientInfoWithAppearance.ClientID].HandleReceiveAvatarAppearance(receivedRemoteClientInfoWithAppearance.InstancedAvatarAppearance.OverridableAvatarAppearance);
+                _remoteAvatars[receivedRemoteClientInfoWithAppearance.ClientID].HandleReceiveAvatarAppearance(receivedRemoteClientInfoWithAppearance.AvatarAppearanceWrapper.InstancedAvatarAppearance);
                 _remoteAvatars[receivedRemoteClientInfoWithAppearance.ClientID].HandleReceiveAdminUpdateNotice(receivedRemoteClientInfoWithAppearance.IsAdmin);
             }
 

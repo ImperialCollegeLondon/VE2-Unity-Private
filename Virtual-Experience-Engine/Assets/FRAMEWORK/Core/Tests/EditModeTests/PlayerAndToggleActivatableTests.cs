@@ -8,6 +8,7 @@ using VE2.Core.VComponents.Tests;
 using VE2.Core.Player.Internal;
 using VE2.Common.Shared;
 using VE2.Common.API;
+using VE2.Core.VComponents.Shared;
 
 
 namespace VE2.Core.Tests
@@ -50,6 +51,7 @@ namespace VE2.Core.Tests
                 config,
                 new SingleInteractorActivatableState(),
                 debugLabel,
+                Substitute.For<IInteractableOutline>(),
                 Substitute.For<IWorldStateSyncableContainer>(),
                 _activatableGroupsContainer,
                 LocalClientIDWrapperSetup.LocalClientIDWrapper);

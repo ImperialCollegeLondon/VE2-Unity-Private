@@ -33,6 +33,7 @@ namespace VE2.Core.Tests
 
             //Create the activatable with above random values
             HandheldAdjustableService handheldAdjustable = new(_handheldAdjustableConfig, new AdjustableState(), "debug", Substitute.For<IWorldStateSyncableContainer>(), LocalClientIDWrapperSetup.LocalClientIDWrapper);
+            handheldAdjustable.HandleStart();
 
             //Stub out the VC (provider layer) with the activatable
             _v_handheldAdjustableStub = new(handheldAdjustable);
@@ -50,10 +51,13 @@ namespace VE2.Core.Tests
                 Substitute.For<IWorldStateSyncableContainer>(),
                 GrabInteractableContainerSetup.GrabInteractableContainer,
                 InteractorContainerSetup.InteractorContainer,
+                null,
                 Substitute.For<IRigidbodyWrapper>(),
                 new PhysicsConstants(),
                 new V_FreeGrabbable(),
-                LocalClientIDWrapperSetup.LocalClientIDWrapper);
+                LocalClientIDWrapperSetup.LocalClientIDWrapper,
+                Substitute.For<IColliderWrapper>());
+
 
             //Stub out the VC (provider layer) with the grabbable
             _v_freeGrabbableStub = new(freeGrabbable);

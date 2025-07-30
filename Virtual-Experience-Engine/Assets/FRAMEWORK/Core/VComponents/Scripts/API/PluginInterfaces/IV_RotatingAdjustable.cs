@@ -24,7 +24,8 @@ namespace VE2.Core.VComponents.API
         public float SpatialValue { get; set; }
         public int NumberOfValues { get; set; }
 
-        public IClientIDWrapper MostRecentInteractingClientID { get; }
+        public IClientIDWrapper MostRecentGrabbingClientID { get; }
+        public IClientIDWrapper MostRecentAdjustingClientID { get; }
         #endregion
 
         #region Ranged Interaction Module Interface

@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+using VE2.Common.Shared;
+using static VE2.Core.Player.API.PlayerSerializables;
 
 namespace VE2.Core.Player.Internal
 {
@@ -10,6 +12,8 @@ namespace VE2.Core.Player.Internal
         public Quaternion PlayerRotation => _rootTransform.rotation;
         public virtual void SetPlayerRotation(Quaternion rotation) => _rootTransform.rotation = rotation;
 
+        internal PlayerAvatarHandler AvatarHandler;
+
         internal Camera Camera;
         protected CollisionDetector _FeetCollisionDetector;
         protected Transform _PlayerHeadTransform;
@@ -19,6 +23,8 @@ namespace VE2.Core.Player.Internal
         {
             if (Physics.Raycast(_PlayerHeadTransform.position, Vector3.down, out RaycastHit hit, Mathf.Infinity, LayerMask.GetMask("Ground")))
                 _FeetCollisionDetector.transform.position = hit.point;
+
+            AvatarHandler?.HandleUpdate();
         }
 
         protected void ConfigureCamera(CameraConfig cameraConfig)
@@ -33,6 +39,11 @@ namespace VE2.Core.Player.Internal
             cameraData.antialiasing = cameraConfig.AntiAliasing;
             cameraData.antialiasingQuality = cameraConfig.AntiAliasingQuality; ;
             cameraData.renderPostProcessing = cameraConfig.EnablePostProcessing;
+        }
+
+        protected void OnClientIDReady(ushort clientID)
+        {
+            AvatarHandler.Enable(clientID);
         }
     }
 }

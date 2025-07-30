@@ -9,7 +9,7 @@ namespace VE2.Core.Player.Internal
     {
         public event Action<ICollideInteractionModule> OnCollideStart;
         public event Action<ICollideInteractionModule> OnCollideEnd;
-        public ColliderType ColliderType { get; set; }
+        //public ColliderType ColliderType { get; set; }
     }
 
     [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
@@ -17,13 +17,23 @@ namespace VE2.Core.Player.Internal
     {
         public event Action<ICollideInteractionModule> OnCollideStart;
         public event Action<ICollideInteractionModule> OnCollideEnd;
-        public ColliderType ColliderType { get; set; }
+
+        //TODO: Why do we have this?
+        private ColliderType _colliderType { get; set; }
+        private PlayerInteractionConfig _interactionConfig;
+
+        public void Setup(ColliderType colliderType, PlayerInteractionConfig interactionConfig)
+        {
+            _colliderType = colliderType;
+            _interactionConfig = interactionConfig;
+        }
         
         private void OnTriggerEnter(Collider other)
         {
             if (other.gameObject.TryGetComponent(out ICollideInteractionModuleProvider collidable))
             {
-                OnCollideStart?.Invoke(collidable.CollideInteractionModule);
+                if (((1 << collidable.Layer) & _interactionConfig.InteractableLayers) != 0)
+                    OnCollideStart?.Invoke(collidable.CollideInteractionModule);
             }
         }
 
@@ -31,19 +41,20 @@ namespace VE2.Core.Player.Internal
         {
             if (other.gameObject.TryGetComponent(out ICollideInteractionModuleProvider collidable))
             {
-                OnCollideEnd?.Invoke(collidable.CollideInteractionModule);
+                if (((1 << collidable.Layer) & _interactionConfig.InteractableLayers) != 0)
+                    OnCollideEnd?.Invoke(collidable.CollideInteractionModule);
             }
         }
     }
 
     internal interface ICollisionDetectorFactory
     {
-        internal ICollisionDetector CreateCollisionDetector(Collider collider, ColliderType colliderType, LayerMask collisionLayers);
+        internal ICollisionDetector CreateCollisionDetector(Collider collider, ColliderType colliderType, PlayerInteractionConfig interactionConfig);
     }
 
     internal class CollisionDetectorFactory : ICollisionDetectorFactory
     {
-        ICollisionDetector ICollisionDetectorFactory.CreateCollisionDetector(Collider collider, ColliderType colliderType, LayerMask collisionLayers)
+        ICollisionDetector ICollisionDetectorFactory.CreateCollisionDetector(Collider collider, ColliderType colliderType, PlayerInteractionConfig interactionConfig)
         {
             if (collider == null)
             {
@@ -51,8 +62,9 @@ namespace VE2.Core.Player.Internal
                 return null;
             }
 
-            collider.includeLayers = collisionLayers;
-            return collider.gameObject.AddComponent<CollisionDetector>();
+            CollisionDetector collisionDetector = collider.gameObject.AddComponent<CollisionDetector>();
+            collisionDetector.Setup(colliderType, interactionConfig);
+            return collisionDetector;
         }
     }
 

@@ -32,6 +32,7 @@ namespace VE2.Core.VComponents.Internal
     }
 
     [RequireComponent(typeof(V_FreeGrabbable))]
+    [DisallowMultipleComponent]
     internal partial class V_HandheldAdjustable : MonoBehaviour
     {
         [SerializeField, HideLabel, IgnoreParent] private HandheldAdjustableConfig _config = new();
@@ -64,10 +65,8 @@ namespace VE2.Core.VComponents.Internal
             _service = new(_config, _state, id, VE2API.WorldStateSyncableContainer, VE2API.LocalClientIdWrapper);
         }
 
-        private void FixedUpdate()
-        {
-            _service.HandleFixedUpdate();
-        }
+        private void Start() => _service?.HandleStart();
+        private void FixedUpdate() => _service?.HandleFixedUpdate();
 
         private void OnDisable()
         {

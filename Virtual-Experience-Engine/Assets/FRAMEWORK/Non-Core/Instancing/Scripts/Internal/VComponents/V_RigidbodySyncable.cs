@@ -45,7 +45,8 @@ namespace VE2.NonCore.Instancing.Internal
 
             if (VE2API.InstanceService == null)
             {
-                Debug.LogError("Instance service is null, cannot initialise RigidbodySyncable, please add a V_InstanceIntegration component to the scene.");
+                //TODO, log this if logging level is set to verbose (once we actually have a logging system)
+                //Debug.LogWarning("Instance service is null, cannot initialise RigidbodySyncable, please add a V_InstanceIntegration component to the scene.");
                 return;
             }
 

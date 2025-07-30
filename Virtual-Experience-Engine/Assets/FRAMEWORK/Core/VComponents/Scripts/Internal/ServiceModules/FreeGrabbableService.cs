@@ -6,6 +6,7 @@ using VE2.Common.API;
 using VE2.Common.Shared;
 using static VE2.Common.Shared.CommonSerializables;
 using VE2.Core.VComponents.Shared;
+using VE2.Core.Player.API;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -25,7 +26,7 @@ namespace VE2.Core.VComponents.Internal
         private bool MultiplayerSupportPresent => VE2API.HasMultiPlayerSupport;
 
         public FreeGrabbableConfig(ITransformWrapper attachPointWrapper) { RangedFreeGrabInteractionConfig.AttachPointWrapper = attachPointWrapper; }
-        public FreeGrabbableConfig() {}
+        public FreeGrabbableConfig() { }
     }
 
     internal class FreeGrabbableService
@@ -41,6 +42,8 @@ namespace VE2.Core.VComponents.Internal
 
         private readonly IRigidbodyWrapper _rigidbody;
         private readonly PhysicsConstants _physicsConstants;
+
+        private RangedGrabInteractionConfig _rangedFreeGrabInteractionConfig => _config.RangedFreeGrabInteractionConfig;
         private ITransformWrapper _transform => _config.RangedFreeGrabInteractionConfig.AttachPointWrapper;
         private IGrabbableRigidbody _grabbableRigidbodyInterface;
 
@@ -52,18 +55,20 @@ namespace VE2.Core.VComponents.Internal
         private readonly FreeGrabbableConfig _config;
 
         public FreeGrabbableService(List<IHandheldInteractionModule> handheldInteractions, FreeGrabbableConfig config, VE2Serializable state, string id,
-            IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer,
-            IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants, IGrabbableRigidbody grabbableRigidbodyInterface, IClientIDWrapper localClientIdWrapper)
+            IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer, IInteractableOutline grabbableOutline,
+            IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants, IGrabbableRigidbody grabbableRigidbodyInterface, IClientIDWrapper localClientIdWrapper, IColliderWrapper colliderWrapper)
         {
             _config = config;
-
-            _RangedGrabInteractionModule = new(id, grabInteractablesContainer, handheldInteractions, config.RangedFreeGrabInteractionConfig, config.GeneralInteractionConfig);
-            _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, interactorContainer, localClientIdWrapper);
+            _RangedGrabInteractionModule = new(id, grabInteractablesContainer, handheldInteractions, config.RangedFreeGrabInteractionConfig, config.GeneralInteractionConfig, colliderWrapper, grabbableOutline);
+            _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, grabInteractablesContainer, interactorContainer, localClientIdWrapper);
 
             _rigidbody = rigidbody;
             _physicsConstants = physicsConstants;
             _isKinematicOnGrab = _rigidbody.isKinematic;
             _grabbableRigidbodyInterface = grabbableRigidbodyInterface;
+
+            _RangedGrabInteractionModule.OnLocalInteractorEnterHover += OnHoverEnter;
+            _RangedGrabInteractionModule.OnLocalInteractorExitHover += OnHoverExit;
 
             _RangedGrabInteractionModule.OnLocalInteractorRequestGrab += interactorID => _StateModule.SetGrabbed(interactorID);
             _RangedGrabInteractionModule.OnLocalInteractorRequestDrop += interactorID => _StateModule.SetDropped(interactorID);
@@ -71,6 +76,26 @@ namespace VE2.Core.VComponents.Internal
 
             _StateModule.OnGrabConfirmed += HandleGrabConfirmed;
             _StateModule.OnDropConfirmed += HandleDropConfirmed;
+            _StateModule.OnRequestTeleportRigidbody += HandleTeleportRigidbody;
+        }
+
+        private void OnHoverEnter()
+        {
+            // if (_grabbableOutline == null)
+            //     return;
+
+            // if (!_StateModule.IsGrabbed)
+            //     _grabbableOutline.OutlineColor = _rangedFreeGrabInteractionConfig.HoveredOutlineColor;
+            // else
+            //     _grabbableOutline.OutlineColor = _rangedFreeGrabInteractionConfig.DefaultOutlineColor;
+        }
+
+        private void OnHoverExit()
+        {
+            // if (_grabbableOutline == null)
+            //     return;
+
+            // _grabbableOutline.OutlineColor = _rangedFreeGrabInteractionConfig.DefaultOutlineColor;
         }
 
         //This is for teleporting the grabbed object along with the player - TODO: Tweak names for clarity 
@@ -99,6 +124,11 @@ namespace VE2.Core.VComponents.Internal
             _initialGrabberToObjectRotation = Quaternion.Inverse(grabberRotation) * _rigidbody.rotation;
 
             OnGrabConfirmed?.Invoke(grabberClientID);
+
+            if (grabberClientID == VE2API.LocalClientIdWrapper.Value)
+                _RangedGrabInteractionModule.OnInteractedWith(true);
+            else
+                _RangedGrabInteractionModule.IsInteractedRemotely(true);
         }
 
         private void HandleDropConfirmed(ushort dropperClientID)
@@ -118,10 +148,20 @@ namespace VE2.Core.VComponents.Internal
 
             OnDropConfirmed?.Invoke(dropperClientID);
 
+            if (dropperClientID == VE2API.LocalClientIdWrapper.Value)
+                _RangedGrabInteractionModule.OnInteractedWith(false);
+            else
+                _RangedGrabInteractionModule.IsInteractedRemotely(false);
+
             if (_grabbableRigidbodyInterface.FreeGrabbableHandlesKinematics)
             {
                 _rigidbody.isKinematic = _isKinematicOnGrab;
             }
+        }
+
+        private void HandleTeleportRigidbody(Vector3 position)
+        {
+            _rigidbody.position = position;
         }
 
         public void HandleFixedUpdate()

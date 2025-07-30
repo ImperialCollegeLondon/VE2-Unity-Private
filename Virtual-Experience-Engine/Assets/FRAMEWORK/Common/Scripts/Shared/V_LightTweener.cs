@@ -19,6 +19,7 @@ namespace VE2.Common.Shared
         [SerializeField, HideIf(nameof(_tweenEmission), false)] private int _emissiveMaterialIndex = 0;
         [SerializeField, EndGroup(ApplyCondition = true), HideIf(nameof(_tweenEmission), false)] private Color _emissiveColor = Color.white;
 
+        [Title("Tween Settings")]
         [SerializeField, SpaceArea(spaceBefore: 5)] private float _tweenDuration = 1f;
         [SerializeField] private Ease _easeType = Ease.Linear;
         [SerializeField] private bool _startAtMin = true;

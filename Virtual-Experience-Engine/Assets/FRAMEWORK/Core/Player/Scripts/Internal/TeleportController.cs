@@ -175,19 +175,30 @@ namespace VE2.Core.Player.Internal
                     ...this approach might not work as well for drag though, maybe collapsing the rig is simpler after all*/
                     Vector3 delta = teleportDestination - _headTransform.position;
                     Vector3 newRootPosition = _rootTransform.position + delta;
-                    if (Physics.Raycast(teleportDestination, Vector3.down, out RaycastHit hit, _movementModeConfig.TraversableLayers))
+
+                    // Allow y to change only if the angle of elevation is above 45 degrees  
+                    float angleOfElevation = Vector3.Angle(Vector3.forward, delta.normalized);
+                    if (angleOfElevation > 45f)
                     {
-                        newRootPosition.y = Mathf.Max(newRootPosition.y, hit.point.y);
+                        newRootPosition.y = _rootTransform.position.y + delta.y;
+                    }
+                    else
+                    {
+                        newRootPosition.y = _rootTransform.position.y; // Keep y unchanged  
                     }
 
                     _hitPoint = newRootPosition;
-                    Vector3 arrowDirection = _teleportRayOrigin.forward;
-                    arrowDirection.y = 0;
-                    if (arrowDirection != Vector3.zero)
-                    {
-                        arrowDirection.Normalize();
-                    }
-                    _teleportRotation = Quaternion.LookRotation(arrowDirection, Vector3.up);
+
+                    // Ensure the teleport cursor visual remains flat (no x/z tilt)
+                    Vector3 flatForward = _teleportRayOrigin.forward;
+                    flatForward.y = 0;
+                    if (flatForward.sqrMagnitude > 0.0001f)
+                        flatForward.Normalize();
+                    else
+                        flatForward = Vector3.forward; // fallback
+
+                    _teleportCursor.transform.rotation = Quaternion.LookRotation(flatForward, Vector3.up);
+                    _teleportRotation = _teleportCursor.transform.rotation;
 
                     ToggleTeleportLineVisualShowsValid(true);
 

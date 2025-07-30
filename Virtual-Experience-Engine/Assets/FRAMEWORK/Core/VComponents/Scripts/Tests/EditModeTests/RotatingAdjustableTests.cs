@@ -28,6 +28,7 @@ namespace VE2.Core.VComponents.Tests
                 new RotatingAdjustableConfig(Substitute.For<ITransformWrapper>(), Substitute.For<ITransformWrapper>()),
                 new AdjustableState(),
                 new GrabbableState(),
+                null, //grabbable outline is not needed for this test
                 "debug",
                 Substitute.For<IWorldStateSyncableContainer>(),
                 Substitute.For<IGrabInteractablesContainer>(),
@@ -47,7 +48,7 @@ namespace VE2.Core.VComponents.Tests
             _rotatingAdjustmentPluginInterface.SpatialValue = randomValue;
             _customerScript.Received(1).HandleValueAdjusted(randomValue);
             Assert.IsTrue(_rotatingAdjustmentPluginInterface.Value == randomValue);
-            Assert.AreEqual(_rotatingAdjustmentPluginInterface.MostRecentInteractingClientID, null);
+            Assert.AreEqual(_rotatingAdjustmentPluginInterface.MostRecentGrabbingClientID, null);
         }
 
         [TearDown]
@@ -97,11 +98,12 @@ namespace VE2.Core.VComponents.Tests
             MaximumOutputValue = max;
         }
         
-        public IClientIDWrapper MostRecentInteractingClientID => _GrabbableStateModule.MostRecentInteractingClientID;
+        public IClientIDWrapper MostRecentGrabbingClientID => _GrabbableStateModule.MostRecentInteractingClientID;
+        public IClientIDWrapper MostRecentAdjustingClientID => _AdjustableStateModule.MostRecentInteractingClientID;
         #endregion
 
         #region Ranged Interaction Module Interface
-        internal IRangedAdjustableInteractionModule _RangedAdjustableModule => _Service.RangedAdjustableInteractionModule;
+        internal IRangedAdjustableInteractionModule _RangedAdjustableModule => _Service.RangedAdjustableInteractionModule;    
         public float InteractRange { get => _RangedAdjustableModule.InteractRange; set => _RangedAdjustableModule.InteractRange = value; }
         #endregion
 

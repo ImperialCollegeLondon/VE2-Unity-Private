@@ -6,6 +6,7 @@ using VE2.Core.VComponents.API;
 using UnityEngine.Events;
 using VE2.Common.API;
 using VE2.Common.Shared;
+using VE2.Core.VComponents.Shared;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -27,7 +28,7 @@ namespace VE2.Core.VComponents.Internal
         [EndGroup]
         [SerializeField, PropertyOrder(-96)] public UnityEvent OnLocalInspectModeExit;
     }
-    
+
     internal class RangedFreeGrabInteractionModule : RangedGrabInteractionModule, IRangedFreeGrabInteractionModule
     {
         internal event Action<Vector3, Quaternion> OnGrabDeltaApplied;
@@ -39,6 +40,9 @@ namespace VE2.Core.VComponents.Internal
         public bool AlignOrientationOnGrab { get => _rangedFreeGrabInteractionConfig.AlignOrientationOnGrab; set => _rangedFreeGrabInteractionConfig.AlignOrientationOnGrab = value; }
         public DropBehaviour DropBehaviour { get => _rangedFreeGrabInteractionConfig.DropBehaviour; set => _rangedFreeGrabInteractionConfig.DropBehaviour = value; }
 
+        IColliderWrapper IRangedFreeGrabInteractionModule.ColliderWrapper => ColliderWrapper;
+
+        public readonly IColliderWrapper ColliderWrapper;
         private readonly RangedFreeGrabInteractionConfig _rangedFreeGrabInteractionConfig;
 
         public void NotifyInspectModeEnter()
@@ -52,10 +56,11 @@ namespace VE2.Core.VComponents.Internal
         }
 
         public RangedFreeGrabInteractionModule(string id, IGrabInteractablesContainer grabInteractablesContainer, List<IHandheldInteractionModule> handheldInteractions,
-            RangedFreeGrabInteractionConfig rangedFreeGrabInteractionConfig, GeneralInteractionConfig generalInteractionConfig)
-            : base(id, grabInteractablesContainer, handheldInteractions, rangedFreeGrabInteractionConfig, generalInteractionConfig)
+            RangedFreeGrabInteractionConfig rangedFreeGrabInteractionConfig, GeneralInteractionConfig generalInteractionConfig, IColliderWrapper colliderWrapper, IInteractableOutline grabbableOutline)
+            : base(id, grabInteractablesContainer, handheldInteractions, rangedFreeGrabInteractionConfig, grabbableOutline, generalInteractionConfig)
         {
             _rangedFreeGrabInteractionConfig = rangedFreeGrabInteractionConfig;
+            ColliderWrapper = colliderWrapper;
         }
 
         public void ApplyDeltaWhenGrabbed(Vector3 deltaPostion, Quaternion deltaRotation)

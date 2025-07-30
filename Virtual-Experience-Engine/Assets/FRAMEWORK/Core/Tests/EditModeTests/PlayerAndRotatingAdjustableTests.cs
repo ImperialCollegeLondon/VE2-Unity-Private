@@ -28,6 +28,7 @@ namespace VE2.Core.Tests
                 new RotatingAdjustableConfig(Substitute.For<ITransformWrapper>(), Substitute.For<ITransformWrapper>()),
                 new AdjustableState(),
                 new GrabbableState(),
+                null, //grabbable outline is not needed for this test
                 "debug",
                 Substitute.For<IWorldStateSyncableContainer>(),
                 GrabInteractableContainerSetup.GrabInteractableContainer,
@@ -51,15 +52,15 @@ namespace VE2.Core.Tests
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
             _customerScript.Received(1).HandleGrabReceived();
             Assert.IsTrue(_rotatingAdjustablePluginInterface.IsGrabbed);
-            Assert.AreEqual(_rotatingAdjustablePluginInterface.MostRecentInteractingClientID.Value, LocalClientIDWrapperSetup.LocalClientID);
-            Assert.IsTrue(_rotatingAdjustablePluginInterface.MostRecentInteractingClientID.IsLocal);
+            Assert.AreEqual(_rotatingAdjustablePluginInterface.MostRecentGrabbingClientID.Value, LocalClientIDWrapperSetup.LocalClientID);
+            Assert.IsTrue(_rotatingAdjustablePluginInterface.MostRecentGrabbingClientID.IsLocal);
 
             //Invoke drop, Check customer received the drop, and that the interactorID is set
             PlayerInputContainerSetup.Grab2D.OnPressed += Raise.Event<Action>();
             _customerScript.Received(1).HandleDropReceived();
             Assert.IsFalse(_rotatingAdjustablePluginInterface.IsGrabbed);
-            Assert.AreEqual(_rotatingAdjustablePluginInterface.MostRecentInteractingClientID.Value, LocalClientIDWrapperSetup.LocalClientID);
-            Assert.IsTrue(_rotatingAdjustablePluginInterface.MostRecentInteractingClientID.IsLocal);
+            Assert.AreEqual(_rotatingAdjustablePluginInterface.MostRecentGrabbingClientID.Value, LocalClientIDWrapperSetup.LocalClientID);
+            Assert.IsTrue(_rotatingAdjustablePluginInterface.MostRecentGrabbingClientID.IsLocal);
         }
 
         [TearDown]

@@ -28,6 +28,7 @@ namespace VE2.Core.VComponents.Tests
                 new SlidingAdjustableConfig(Substitute.For<ITransformWrapper>(), Substitute.For<ITransformWrapper>()),
                 new AdjustableState(),
                 new GrabbableState(),
+                null,
                 "debug",
                 Substitute.For<IWorldStateSyncableContainer>(),
                 Substitute.For<IGrabInteractablesContainer>(),
@@ -48,7 +49,7 @@ namespace VE2.Core.VComponents.Tests
             _slidingAdjustablePluginInterface.SpatialValue = randomValue;
             _customerScript.Received(1).HandleValueAdjusted(randomValue);
             Assert.IsTrue(_slidingAdjustablePluginInterface.Value == randomValue);
-            Assert.AreEqual(_slidingAdjustablePluginInterface.MostRecentInteractingClientID, null);
+            Assert.AreEqual(_slidingAdjustablePluginInterface.MostRecentAdjustingClientID, null);
         }
 
         [TearDown]
@@ -98,7 +99,8 @@ namespace VE2.Core.VComponents.Tests
             MaximumOutputValue = max;
         }
 
-        public IClientIDWrapper MostRecentInteractingClientID => _GrabbableStateModule.MostRecentInteractingClientID;
+        public IClientIDWrapper MostRecentGrabbingClientID => _GrabbableStateModule.MostRecentInteractingClientID;
+        public IClientIDWrapper MostRecentAdjustingClientID => _AdjustableStateModule.MostRecentInteractingClientID;
         #endregion
 
         #region Ranged Interaction Module Interface

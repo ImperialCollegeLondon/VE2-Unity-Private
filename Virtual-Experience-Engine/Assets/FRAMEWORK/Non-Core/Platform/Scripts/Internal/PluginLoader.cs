@@ -126,8 +126,9 @@ namespace VE2.NonCore.Platform.Internal
 
         private void LaunchAndroidAPK(string worldFolderName) //TODO: Version number will have to be part of apk name?
         {
-            string apkName = worldFolderName.Split('-')[1]; //Chop off the category
-            string packageName = $"{"com.ImperialCollegeLondon"}.{apkName}";
+            // string apkName = worldFolderName.Split('-')[1]; //Chop off the category
+            // string packageName = $"{"com.ImperialCollegeLondon"}.{apkName}";
+            string packageName = $"com.ImperialCollegeLondon.{worldFolderName}";
 
             Debug.Log($"Try launch {packageName}");
             AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");

@@ -6,6 +6,8 @@ using Unity.Collections;
 using VE2.Common.API;
 using UnityEngine.Events;
 using VE2.Common.Shared;
+using static UnityEngine.ParticleSystem;
+using VE2.Core.VComponents.Shared;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -33,9 +35,20 @@ namespace VE2.Core.VComponents.Internal
         public bool ShowTooltipsAndHighlight { get => _RangedGrabModule.ShowTooltipsAndHighlight; set => _RangedGrabModule.ShowTooltipsAndHighlight = value; }
         public bool IsInteractable { get => _RangedGrabModule.IsInteractable; set => _RangedGrabModule.IsInteractable = value; }
         #endregion
+
+        #region Force Grab and Drop Interface
+        public bool TryLocalGrab(bool lockGrab, VRHandInteractorType priorityHandToGrabWith) => _StateModule.TryLocalGrab(lockGrab, priorityHandToGrabWith);
+
+        public void ForceLocalGrab(bool lockGrab, VRHandInteractorType handToGrabWith) => _StateModule.ForceLocalGrab(lockGrab, handToGrabWith);
+
+        public void UnlockLocalGrab() => _StateModule.UnlockLocalGrab();
+
+        public void ForceLocalDrop() => _StateModule.ForceLocalDrop();
+        #endregion
     }
 
     [ExecuteAlways]
+    [DisallowMultipleComponent]
     internal partial class V_FreeGrabbable : MonoBehaviour, IRangedGrabInteractionModuleProvider, IGrabbableRigidbody
     {
         [SerializeField, IgnoreParent] private FreeGrabbableConfig _config = new();
@@ -46,9 +59,9 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         #region Inspector Utils
-        internal Collider Collider 
+        internal Collider Collider
         {
-            get 
+            get
             {
                 if (_collider == null)
                     _collider = GetComponent<Collider>();
@@ -86,7 +99,7 @@ namespace VE2.Core.VComponents.Internal
         event Action<ushort> IGrabbableRigidbody.InternalOnGrab
         {
             add { _internalOnGrab += value; }
-            remove {  _internalOnGrab -= value; }
+            remove { _internalOnGrab -= value; }
         }
 
         public event Action<ushort> InternalOnDrop;
@@ -95,12 +108,15 @@ namespace VE2.Core.VComponents.Internal
         public bool FreeGrabbableHandlesKinematics { get => _freeGrabbableHandlesKinematics; set => _freeGrabbableHandlesKinematics = value; }
 
         //Bit of a bodge to allow FreeGrabbables to add RigidBodySyncables without tying the 
-        private const string RigidBodySyncableFullName = "VE2.NonCore.Instancing.Internal.V_RigidbodySyncable"; 
-        private const string RigidBodySyncableAssemblyName = "VE2.NonCore.Instancing.Internal"; 
+        private const string RigidBodySyncableFullName = "VE2.NonCore.Instancing.Internal.V_RigidbodySyncable";
+        private const string RigidBodySyncableAssemblyName = "VE2.NonCore.Instancing.Internal";
 
         void Reset()
         {
             TryAddRigidBodySyncable();
+
+            if (TryGetComponent(out Rigidbody rigidbody))
+                rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
         }
 
         private void TryAddRigidBodySyncable()
@@ -138,6 +154,8 @@ namespace VE2.Core.VComponents.Internal
                 return;
 
             string id = "FreeGrabbable-" + gameObject.name;
+            
+            IInteractableOutline grabbableOutline = _config.RangedFreeGrabInteractionConfig.EnableOutline ? gameObject.AddComponent<V_InteractableOutline>() : null;
 
             if (_config.RangedFreeGrabInteractionConfig.AttachPointWrapper == null || ((TransformWrapper)_config.RangedFreeGrabInteractionConfig.AttachPointWrapper).Transform == null)
             {
@@ -147,7 +165,7 @@ namespace VE2.Core.VComponents.Internal
 
             List<IHandheldInteractionModule> handheldInteractions = new();
 
-            if(TryGetComponent(out V_HandheldActivatable handheldActivatable))
+            if (TryGetComponent(out V_HandheldActivatable handheldActivatable))
                 handheldInteractions.Add(handheldActivatable.HandheldClickInteractionModule);
             if (TryGetComponent(out V_HandheldAdjustable handheldAdjustable))
                 handheldInteractions.Add(handheldAdjustable.HandheldScrollInteractionModule);
@@ -156,16 +174,18 @@ namespace VE2.Core.VComponents.Internal
 
             _service = new FreeGrabbableService(
                 handheldInteractions,
-                _config, 
-                _state, 
+                _config,
+                _state,
                 id,
                 VE2API.WorldStateSyncableContainer,
                 VE2API.GrabInteractablesContainer,
                 VE2API.InteractorContainer,
+                grabbableOutline,
                 _rigidbodyWrapper,
                 Resources.Load<PhysicsConstants>("PhysicsConstants"),
                 (IGrabbableRigidbody)this,
-                VE2API.LocalClientIdWrapper);
+                VE2API.LocalClientIdWrapper,
+                new ColliderWrapper(Collider));
 
             _service.OnGrabConfirmed += HandleGrabConfirmed;
             _service.OnDropConfirmed += HandleDropConfirmed;
@@ -173,7 +193,7 @@ namespace VE2.Core.VComponents.Internal
 
         private void FixedUpdate()
         {
-            _service?.HandleFixedUpdate();            
+            _service?.HandleFixedUpdate();
         }
 
         private void OnDisable()
@@ -189,6 +209,10 @@ namespace VE2.Core.VComponents.Internal
             _service = null;
 
         }
+
+        //TODO - these don't seem to have any listeners, 
+        //rewire RBSyncables and HandHeldActivatable to use these events
+        //Also, maybe these events should live in the service, and should be proxied in the MB?
 
         private void HandleGrabConfirmed(ushort grabberID)
         {

@@ -54,13 +54,14 @@ namespace VE2.NonCore.Instancing.Internal
     }
 
     [ExecuteAlways]
-    internal class V_InstanceIntegration : MonoBehaviour, IInstanceProvider 
+    [DisallowMultipleComponent]
+    internal class V_InstanceIntegration : MonoBehaviour, IInstanceProvider
     {
         #region Inspector frontend
         private void DebugConnect() => _instanceService.ConnectToInstance();
         private void DebugDisconnect() => _instanceService.DisconnectFromInstance();
-        [EditorButton(nameof(DebugConnect), "Connect", activityType: ButtonActivityType.OnPlayMode)] 
-        [EditorButton(nameof(DebugDisconnect), "Disconnect", activityType: ButtonActivityType.OnPlayMode)] 
+        [EditorButton(nameof(DebugConnect), "Connect", activityType: ButtonActivityType.OnPlayMode)]
+        [EditorButton(nameof(DebugDisconnect), "Disconnect", activityType: ButtonActivityType.OnPlayMode)]
         [SerializeField, DisableInPlayMode] private bool _connectOnStart = true;
         [SerializeField, Disable, HideLabel, IgnoreParent] private ConnectionStateWrapper _connectionStateDebug;
 
@@ -71,8 +72,9 @@ namespace VE2.NonCore.Instancing.Internal
         #region provider Interfaces
         public bool IsEnabled => this != null && gameObject != null && enabled && gameObject.activeInHierarchy;
         private InstanceService _instanceService;
-        public IInstanceService InstanceService {
-            get 
+        public IInstanceService InstanceService
+        {
+            get
             {
                 if (_instanceService == null)
                     OnEnable();
@@ -82,7 +84,7 @@ namespace VE2.NonCore.Instancing.Internal
         }
 
         public ushort LocalClientID => VE2API.LocalClientIdWrapper.Value;
-        public event Action<ushort> OnClientIDReady {add => VE2API.LocalClientIdWrapper.OnClientIDReady += value; remove => VE2API.LocalClientIdWrapper.OnClientIDReady -= value; }
+        public event Action<ushort> OnClientIDReady { add => VE2API.LocalClientIdWrapper.OnClientIDReady += value; remove => VE2API.LocalClientIdWrapper.OnClientIDReady -= value; }
         #endregion
 
         private bool _bootErrorLogged = false;

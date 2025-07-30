@@ -45,7 +45,7 @@ namespace VE2.Core.VComponents.Internal
     internal class AdjustableStateModule : BaseWorldStateModule, IAdjustableStateModule
     {
         public float OutputValue => _state.Value;
-        public void SetOutputValue(float newValue) => SetValue(newValue, ushort.MaxValue);
+        public void SetOutputValue(float newValue) => SetOutputValueInternal(newValue, ushort.MaxValue);
         public UnityEvent<float> OnValueAdjusted => _adjustableStateConfig.OnValueAdjusted;
         public IClientIDWrapper MostRecentInteractingClientID => _state.MostRecentInteractingClientID == ushort.MaxValue ? null : 
             new ClientIDWrapper(_state.MostRecentInteractingClientID, _state.MostRecentInteractingClientID == _localClientIdWrapper.Value);
@@ -66,9 +66,6 @@ namespace VE2.Core.VComponents.Internal
         {
             _adjustableStateConfig = adjustableStateConfig;
 
-            if (_adjustableStateConfig.EmitValueOnStart)
-                InvokeOnValueAdjustedEvents(_state.Value);
-
             _adjustableStateConfig.InspectorDebug.OnDebugUpdateStatePressed += SetOutputValue;
             _adjustableStateConfig.InspectorDebug.Value = _state.Value;
             _adjustableStateConfig.InspectorDebug.ClientID = _state.MostRecentInteractingClientID;
@@ -76,7 +73,13 @@ namespace VE2.Core.VComponents.Internal
             _localClientIdWrapper = localClientIdWrapper;
         }
 
-        public void SetValue(float value, ushort clientID)
+        //Can't be called in the constructor, as this will emit events, that may trigger the plugin to access the state module before it is fully initialized.
+        internal void InitializeStateWithStartingValue()
+        {
+            SetOutputValueInternal(_adjustableStateConfig.StartingOutputValue, ushort.MaxValue, _adjustableStateConfig.EmitValueOnStart);
+        }
+
+        internal void SetOutputValueInternal(float value, ushort clientID = ushort.MaxValue, bool shouldEmitPluginEvent = true)
         {
             if (_state.Value == value)
                 return;
@@ -97,20 +100,23 @@ namespace VE2.Core.VComponents.Internal
             _adjustableStateConfig.InspectorDebug.Value = _state.Value;
             _adjustableStateConfig.InspectorDebug.ClientID = _state.MostRecentInteractingClientID;
 
-            InvokeOnValueAdjustedEvents(_state.Value);
+            InvokeOnValueAdjustedEvents(_state.Value, shouldEmitPluginEvent);
         }
 
-        private void InvokeOnValueAdjustedEvents(float value)
+        private void InvokeOnValueAdjustedEvents(float value, bool shouldEmitPluginEvent = true)
         {
             OnValueChangedInternal?.Invoke(value);
 
-            try
+            if (shouldEmitPluginEvent)
             {
-                OnValueAdjusted?.Invoke(value);
-            }
-            catch (Exception e)
-            {
-                Debug.Log($"Error when emitting OnValueAdjusted from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
+                try
+                {
+                    OnValueAdjusted?.Invoke(value);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"Error when emitting OnValueAdjusted from activatable with ID {ID} \n{e.Message}\n{e.StackTrace}");
+                }
             }
         }
 
@@ -127,7 +133,6 @@ namespace VE2.Core.VComponents.Internal
     [Serializable]
     internal class AdjustableState : VE2Serializable
     {
-        public bool IsInitialised = false;
         public ushort StateChangeNumber { get; set; }
         public float Value { get; set; }
         public ushort MostRecentInteractingClientID { get; set; }

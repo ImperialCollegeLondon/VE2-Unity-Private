@@ -120,10 +120,9 @@ namespace VE2.Core.Tests
     {
         internal Dictionary<ColliderType, ICollisionDetector> CollisionDetectorStubs { get; } = new();
 
-        ICollisionDetector ICollisionDetectorFactory.CreateCollisionDetector(Collider collider, ColliderType colliderType, LayerMask collisionLayers)
+        ICollisionDetector ICollisionDetectorFactory.CreateCollisionDetector(Collider collider, ColliderType colliderType, PlayerInteractionConfig interactionConfig)
         {
             ICollisionDetector collisionDetector = Substitute.For<ICollisionDetector>();
-            collisionDetector.ColliderType.Returns(colliderType);
             CollisionDetectorStubs.Add(colliderType, collisionDetector);
 
             return collisionDetector;
@@ -137,17 +136,28 @@ namespace VE2.Core.Tests
         public static void PlayerPersistentDataHandlerStubSetupOnce()
         {
             PlayerPersistentDataHandlerStub = Substitute.For<IPlayerPersistentDataHandler>();
-            PlayerPersistentDataHandlerStub.PlayerPresentationConfig.Returns(new PlayerPresentationConfig());
+            PlayerPersistentDataHandlerStub.BuiltInPlayerGameObjectConfig.Returns(new BuiltInPlayerPresentationConfig());
         }
     }
 
     internal class PlayerInputContainerSetup
     {
         public static PlayerInputContainer PlayerInputContainerStub { get; private set; }
-
         public static IPressableInput ChangeMode2D { get; private set; } = Substitute.For<IPressableInput>();
 
-        // 2D player
+        // 2D Player Locomotion
+        public static IPressableInput Jump2D { get; private set; } = Substitute.For<IPressableInput>();
+        public static IPressableInput Crouch2D { get; private set; } = Substitute.For<IPressableInput>();
+        public static IPressableInput UnlockCursor { get; private set; } = Substitute.For<IPressableInput>();
+        public static IPressableInput IsSprinting2D { get; private set; } = Substitute.For<IPressableInput>();
+        public static IPressableInput Forward2D { get; private set; } = Substitute.For<IPressableInput>();
+        public static IPressableInput Backward2D { get; private set; } = Substitute.For<IPressableInput>();
+        public static IPressableInput Left2D { get; private set; } = Substitute.For<IPressableInput>();
+        public static IPressableInput Right2D { get; private set; } = Substitute.For<IPressableInput>();
+        public static IValueInput<Vector2> MouseDelta2D { get; private set; } = Substitute.For<IValueInput<Vector2>>();
+        public static IPressableInput LockCursor { get; private set; } = Substitute.For<IPressableInput>();
+
+        // 2D Player Interaction
         public static IPressableInput RangedClick2D { get; private set; } = Substitute.For<IPressableInput>();
         public static IPressableInput Grab2D { get; private set; } = Substitute.For<IPressableInput>();
         public static IPressableInput HandheldClick2D { get; private set; } = Substitute.For<IPressableInput>();
@@ -194,6 +204,16 @@ namespace VE2.Core.Tests
             PlayerInputContainerStub = new PlayerInputContainer(
                 changeMode2D: ChangeMode2D,
                 rangedClick2D: RangedClick2D,
+                jump2D: Jump2D,
+                crouch2D: Crouch2D,
+                unlockCursor: UnlockCursor,
+                isSprinting2D: IsSprinting2D,
+                forward2D: Forward2D,
+                backward2D: Backward2D,
+                left2D: Left2D,
+                right2D: Right2D,
+                mouseDelta2D: MouseDelta2D,
+                lockCursor: LockCursor,
                 grab2D: Grab2D,
                 handheldClick2D: HandheldClick2D,
                 inspectModeInput: InspectModeInput,
@@ -282,7 +302,8 @@ namespace VE2.Core.Tests
                 Substitute.For<IPrimaryUIServiceInternal>(),
                 Substitute.For<ISecondaryUIServiceInternal>(),
                 Substitute.For<IXRHapticsWrapper>(),
-                Substitute.For<IXRHapticsWrapper>()
+                Substitute.For<IXRHapticsWrapper>(),
+                Substitute.For<ITransformWrapper>()
             );
         }
 

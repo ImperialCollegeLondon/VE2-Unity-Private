@@ -39,11 +39,11 @@ namespace VE2.Core.VComponents.Internal
         private readonly ColliderInteractionModule _ColliderInteractionModule;
         #endregion
 
-        public HoldActivatableService(HoldActivatableConfig config, MultiInteractorActivatableSyncedState state, string id, IClientIDWrapper localClientIdWrapper, IWorldStateSyncableContainer worldStateSyncableContainer)
+        public HoldActivatableService(HoldActivatableConfig config, MultiInteractorActivatableSyncedState state, string id, IInteractableOutline interactableOutline, IClientIDWrapper localClientIdWrapper, IWorldStateSyncableContainer worldStateSyncableContainer)
         {
             _StateModule = new(state, config.StateConfig, id, localClientIdWrapper, config.SyncConfig, worldStateSyncableContainer);
 
-            _RangedHoldClickInteractionModule = new(config.ActivatableRangedInteractionConfig, config.GeneralInteractionConfig, config.SyncConfig, id, config.ActivatableRangedInteractionConfig.ClickAtRangeInVR);
+            _RangedHoldClickInteractionModule = new(config.ActivatableRangedInteractionConfig, config.GeneralInteractionConfig, config.SyncConfig, id, config.ActivatableRangedInteractionConfig.ClickAtRangeInVR, interactableOutline);
             _ColliderInteractionModule = new(config.CollisionClickInteractionConfig, config.GeneralInteractionConfig, config.SyncConfig, id);
 
             _RangedHoldClickInteractionModule.OnClickDown += AddToInteractingInteractors;

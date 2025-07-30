@@ -69,10 +69,12 @@ namespace VE2.Core.Tests
                 Substitute.For<IWorldStateSyncableContainer>(),
                 GrabInteractableContainerSetup.GrabInteractableContainer,
                 InteractorContainerSetup.InteractorContainer,
+                null,
                 Substitute.For<IRigidbodyWrapper>(),
                 new PhysicsConstants(),
                 new V_FreeGrabbable(),
-                LocalClientIDWrapperSetup.LocalClientIDWrapper);
+                LocalClientIDWrapperSetup.LocalClientIDWrapper,
+                Substitute.For<IColliderWrapper>());
 
             _v_freeGrabbableProviderStub.Service = freeGrabbable;
 
@@ -113,10 +115,12 @@ namespace VE2.Core.Tests
                 Substitute.For<IWorldStateSyncableContainer>(),
                 GrabInteractableContainerSetup.GrabInteractableContainer,
                 InteractorContainerSetup.InteractorContainer,
+                null,
                 Substitute.For<IRigidbodyWrapper>(),
                 new PhysicsConstants(),
                 new V_FreeGrabbable(),
-                LocalClientIDWrapperSetup.LocalClientIDWrapper);
+                LocalClientIDWrapperSetup.LocalClientIDWrapper,
+                Substitute.For<IColliderWrapper>());
 
             _v_freeGrabbable2ProviderStub.Service = freeGrabbable2;
 

@@ -156,7 +156,7 @@ namespace VE2.Core.VComponents.Tests
 
         public void TearDown()
         {
-            Service.TearDown();
+            Service.TearDown(true);
         }
     }
 }

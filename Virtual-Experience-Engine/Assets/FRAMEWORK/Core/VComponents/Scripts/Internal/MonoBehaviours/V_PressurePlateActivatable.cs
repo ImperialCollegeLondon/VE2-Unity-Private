@@ -32,12 +32,14 @@ namespace VE2.Core.VComponents.Internal
         #endregion
     }
 
+    [DisallowMultipleComponent]
     internal partial class V_PressurePlateActivatable : MonoBehaviour, IV_PressurePlateActivatable, ICollideInteractionModuleProvider
     {
         [SerializeField, IgnoreParent] private PressurePlateConfig _config = new();
         [SerializeField, HideInInspector] private MultiInteractorActivatableSyncedState _state = new();
 
         #region Player Interfaces
+        int ICollideInteractionModuleProvider.Layer => gameObject.layer;
         ICollideInteractionModule ICollideInteractionModuleProvider.CollideInteractionModule => _Service.ColliderInteractionModule;
         #endregion
 

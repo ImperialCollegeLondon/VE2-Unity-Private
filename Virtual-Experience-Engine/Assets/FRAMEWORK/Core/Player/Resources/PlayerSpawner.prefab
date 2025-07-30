@@ -5157,10 +5157,16 @@ MonoBehaviour:
   _playerConfig:
     PlayerModeConfig:
       SupportedPlayerModes: 2
+      OnChangeToVRMode:
+        m_PersistentCalls:
+          m_Calls: []
+      OnChangeTo2DMode:
+        m_PersistentCalls:
+          m_Calls: []
     PlayerInteractionConfig:
       InteractableLayers:
         serializedVersion: 2
-        m_Bits: 0
+        m_Bits: 524073
     MovementModeConfig:
       TraversableLayers:
         serializedVersion: 2
@@ -5170,34 +5176,70 @@ MonoBehaviour:
         m_Bits: 130945
       FreeFlyMode: 0
       TeleportRangeMultiplier: 1
+      OnTeleport:
+        m_PersistentCalls:
+          m_Calls: []
+      OnSnapTurn:
+        m_PersistentCalls:
+          m_Calls: []
+      OnHorizontalDrag:
+        m_PersistentCalls:
+          m_Calls: []
+      OnVerticalDrag:
+        m_PersistentCalls:
+          m_Calls: []
+      OnJump2D:
+        m_PersistentCalls:
+          m_Calls: []
+      OnCrouch2D:
+        m_PersistentCalls:
+          m_Calls: []
     CameraConfig:
       FieldOfView2D: 60
       NearClippingPlane: 0.15
       FarClippingPlane: 1000
       CullingMask:
         serializedVersion: 2
-        m_Bits: 4294967295
+        m_Bits: 524159
       AntiAliasing: 1
       AntiAliasingQuality: 1
       EnablePostProcessing: 1
       OcclusionCulling: 1
-    AvatarAppearanceOverrideConfig:
-      OverrideHead: 0
-      HeadOverrideIndex: 0
-      HeadOverrideGameObjects: []
-      OverrideTorso: 0
-      TorsoOverrideIndex: 0
-      TorsoOverrideGameObjects: []
+      OnResetViewVR:
+        m_PersistentCalls:
+          m_Calls: []
+    PluginAvatarSelections:
+      HeadGameObjectSelection:
+        BuiltInGameObjectEnabled: 1
+        CustomGameObjectEnabled: 0
+        CustomGameObjectIndex: 0
+      TorsoGameObjectSelection:
+        BuiltInGameObjectEnabled: 1
+        CustomGameObjectEnabled: 0
+        CustomGameObjectIndex: 0
+      VRHandRightGameObjectSelection:
+        BuiltInGameObjectEnabled: 1
+        CustomGameObjectEnabled: 0
+        CustomGameObjectIndex: 0
+      VRHandLeftGameObjectSelection:
+        BuiltInGameObjectEnabled: 1
+        CustomGameObjectEnabled: 0
+        CustomGameObjectIndex: 0
+    PluginCustomAvatarPrefabs:
+      Heads: []
+      Torsos: []
+      VRRightHands: []
+      VRLefthands: []
     RepeatedTransmissionConfig:
-      TransmissionType: 0
       TransmissionFrequency: 35
-  _defaultPlayerPresentationConfig:
+      TransmissionType: 0
+  _defaultBuiltInAvatarConfig:
     PlayerName: Unknown
-    AvatarHeadType: 0
-    AvatarTorsoType: 0
-    AvatarRed: 255
-    AvatarGreen: 60
-    AvatarBlue: 60
+    AvatarHeadIndex: 0
+    AvatarTorsoIndex: 0
+    AvatarColorR: 0
+    AvatarColorG: 0
+    AvatarColorB: 0
   _transformDataSetup: 0
   _playerTransformData:
     IsVRMode: 0
@@ -5218,6 +5260,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _lastUseSecondaryUI: 1
   _useCustomSecondaryUI: 1
+  _menuUIConfig:
+    OnActivateMainMenu:
+      m_PersistentCalls:
+        m_Calls: []
+    OnDeactivateMainMenu:
+      m_PersistentCalls:
+        m_Calls: []
+  _uiPanelsSetup: 0
 --- !u!1 &5652376412452648834
 GameObject:
   m_ObjectHideFlags: 0

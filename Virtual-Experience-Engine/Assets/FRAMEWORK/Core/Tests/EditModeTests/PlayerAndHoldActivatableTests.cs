@@ -7,6 +7,7 @@ using VE2.Core.Player.API;
 using VE2.Core.Player.Internal;
 using VE2.Core.VComponents.API;
 using VE2.Core.VComponents.Internal;
+using VE2.Core.VComponents.Shared;
 using VE2.Core.VComponents.Tests;
 
 namespace VE2.Core.Tests
@@ -28,6 +29,7 @@ namespace VE2.Core.Tests
                 new HoldActivatableConfig(),
                 new MultiInteractorActivatableSyncedState(),
                 "debug",
+                Substitute.For<IInteractableOutline>(),
                 LocalClientIDWrapperSetup.LocalClientIDWrapper,
                 Substitute.For<IWorldStateSyncableContainer>());
 

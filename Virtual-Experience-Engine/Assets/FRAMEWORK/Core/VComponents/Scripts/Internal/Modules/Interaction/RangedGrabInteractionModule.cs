@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using VE2.Core.VComponents.API;
 using VE2.Common.API;
 using VE2.Common.Shared;
+using VE2.Core.VComponents.Shared;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -14,7 +15,7 @@ namespace VE2.Core.VComponents.Internal
         [BeginGroup(Style = GroupStyle.Round)]
 
         //Ideally this would be private, but the custom property drawer can't see the PropertyOrder value if it is. 
-        [SerializeField, PropertyOrder(-10)] public Transform _attachPoint = null; 
+        [SerializeField, PropertyOrder(-10)] public Transform _attachPoint = null;
         private ITransformWrapper _attachPointWrapper;
         public ITransformWrapper AttachPointWrapper
         {
@@ -27,6 +28,7 @@ namespace VE2.Core.VComponents.Internal
             }
             set => _attachPointWrapper = value; //TODO: Maybe try and also set _attachPoint if its castable to Transform?
         }
+
 
         [SerializeField, PropertyOrder(-9)] public bool VRRaySnap = true;
         [SerializeField, PropertyOrder(-8), ShowIf(nameof(VRFailsafeGrab), true)] public float VRRaySnapRangeFrontOfHand = 0.15f;
@@ -59,11 +61,12 @@ namespace VE2.Core.VComponents.Internal
         private readonly string _id;
         private readonly IGrabInteractablesContainer _grabInteractablesContainer;
         private readonly RangedGrabInteractionConfig _rangedGrabInteractionConfig;
+        private bool _isRemotelyGrabbed = false;
 
         //TODO: Figure out the attach point, don't really want to inject it as a separate param if it's already in the config...
 
         public RangedGrabInteractionModule(string id, IGrabInteractablesContainer grabInteractablesContainer, List<IHandheldInteractionModule> handheldInteractions,
-            RangedGrabInteractionConfig grabInteractionConfig, GeneralInteractionConfig generalInteractionConfig) : base(grabInteractionConfig, generalInteractionConfig)
+            RangedGrabInteractionConfig grabInteractionConfig, IInteractableOutline grabbableOutline, GeneralInteractionConfig generalInteractionConfig) : base(grabInteractionConfig, grabbableOutline, generalInteractionConfig)
         {
             _id = id;
             HandheldInteractions = handheldInteractions;
@@ -86,6 +89,36 @@ namespace VE2.Core.VComponents.Internal
         public void TearDown()
         {
             _grabInteractablesContainer.DeregisterGrabInteractable(_id);
+        }
+
+        public void IsInteractedRemotely(bool isInteracted)
+        {
+            _isRemotelyGrabbed = isInteracted;
+
+            if (_interactableOutline == null)
+                return;
+
+            if (!_isAllowedToInteract)
+            {
+                SetOutlineColor(Color.red);
+                return;
+            }
+
+            if (isInteracted)
+                SetOutlineColor(Color.red);
+            else
+                SetOutlineColor(_rangedGrabInteractionConfig.DefaultOutlineColor);
+        }
+
+        public override void HandleOultineOnHoverEnter(bool ishovering)
+        {
+            if (_interactableOutline == null)
+                return;
+
+            if (_isRemotelyGrabbed || !_isAllowedToInteract)
+                SetOutlineColor(Color.red);
+            else
+                base.HandleOultineOnHoverEnter(ishovering);
         }
     }
 }
