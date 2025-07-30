@@ -15,7 +15,7 @@ namespace VE2.Core.Player.Internal
         private const float INSPECT_MIN_ZOOM = 2.0f;
         private const float INSPECT_MAX_ZOOM = 5.0f;
         private const float INSPECT_ROTATE_SPEED = 0.1f;
-
+        private const float MOUSE_SPEED = 0.01f;
         private ColorConfiguration _colorConfig => ColorConfiguration.Instance;
         private readonly Image _reticuleImage;
         private readonly PlayerConnectionPromptHandler _connectionPromptHandler;
@@ -104,8 +104,15 @@ namespace VE2.Core.Player.Internal
             _adjustableActiveIndicator.SetActive(true);
         }
 
-        protected override void HandleUpdateGrabbingAdjustable() { } //Nothing needed here
+        protected override void HandleUpdateGrabbingAdjustable()
+        {
+            Vector2 mouseDelta = _interactor2DInputContainer.MouseInput.Value;
 
+            // Move along camera axes
+            Vector3 move = VE2API.Player.ActiveCamera.transform.right * mouseDelta.x * MOUSE_SPEED + VE2API.Player.ActiveCamera.transform.forward * mouseDelta.y * MOUSE_SPEED;
+
+            _GrabberTransform.position += move;
+        }
         protected override void HandleStopGrabbingAdjustable()
         {
             _GrabberTransform.localPosition = Vector3.zero;
