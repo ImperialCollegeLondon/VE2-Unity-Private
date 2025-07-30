@@ -60,6 +60,7 @@ namespace VE2.Core.VComponents.Internal
         private static void CreateLaserPointer()
         {
             CommonUtils.InstantiateResource("LaserPointer");
+
         }
 
         [MenuItem("/GameObject/VE2/UIs/CustomInfoPoint", priority = 6)]
@@ -72,6 +73,12 @@ namespace VE2.Core.VComponents.Internal
 
             GameObject canvas = infoPoint.GetComponentInChildren<InfoPointCanvasAnimationHandler>().gameObject;
             canvas.name = $"{infoPoint.name}_Canvas"; //May as well do the same to the canvas, for consistency
+        }
+
+        [MenuItem("/GameObject/VE2/UIs/InputFieldHandler", priority = 7)]
+        private static void CreateVirtualKeyboardSpawner()
+        {
+            CommonUtils.InstantiateResource("InputFieldHandler");
         }
 
         [MenuItem("/GameObject/VE2/Models/TableA", priority = 0)]

@@ -229,7 +229,7 @@ namespace VE2.Core.Player.Internal
                 _hoveringOverScrollableIndicator.IsHoveringOverScrollableObject = false;
                 _grabbableLineVisLineRenderer.startWidth = _grabbableLineVisLineRenderer.endWidth = 0.005f;
                 _grabbableLineVisLineRenderer.SetPosition(0, _GrabberVisualisationRayOrigin.position);
-                _grabbableLineVisLineRenderer.SetPosition(1, rangedAdjustableInteraction.Transform.position);
+                _grabbableLineVisLineRenderer.SetPosition(1, rangedAdjustableInteraction.TransformToPointRayTo.position);
 
                 HandleUpdateGrabbingAdjustable();
             }
@@ -238,7 +238,7 @@ namespace VE2.Core.Player.Internal
                 bool isAllowedToInteract = false;
 
                 //If hovering over an interactable, handle interactor and hover=========
-                if (_LocalClientIDWrapper.IsClientIDReady && (raycastResultWrapper.HitScrollableUI || raycastResultWrapper.HitUIButton || raycastResultWrapper.HitInteractableInRange))
+                if (_LocalClientIDWrapper.IsClientIDReady && (raycastResultWrapper.HitScrollableUI || raycastResultWrapper.HitUIButton || raycastResultWrapper.InputField || raycastResultWrapper.HitInteractableInRange))
                 {
                     if (raycastResultWrapper.HitInteractable && _CurrentlySelectedScrollableUI == null)
                     {
@@ -257,6 +257,17 @@ namespace VE2.Core.Player.Internal
 
                         if (isAllowedToInteract)
                             HandleHoverOverUIGameObject(raycastResultWrapper.UIButton.gameObject);
+                        else
+                            HandleNoHoverOverUIGameObject();
+                    }
+                    else if (raycastResultWrapper.InputField && _CurrentlySelectedScrollableUI == null)
+                    {
+                        isAllowedToInteract = raycastResultWrapper.InputField.interactable;
+                        _hoveringOverScrollableIndicator.IsHoveringOverScrollableObject = raycastResultWrapper.HitScrollableUI;
+                        _raycastHitDebug.Value = raycastResultWrapper.HitInteractable ? raycastResultWrapper.RangedInteractable.ToString() : raycastResultWrapper.InputField.name;
+
+                        if (isAllowedToInteract)
+                            HandleHoverOverUIGameObject(raycastResultWrapper.InputField.gameObject);
                         else
                             HandleNoHoverOverUIGameObject();
                     }
@@ -432,7 +443,12 @@ namespace VE2.Core.Player.Internal
                 raycastResultWrapper.UIButton.onClick.Invoke();
                 Vibrate(HIGH_HAPTICS_AMPLITUDE, HIGH_HAPTICS_DURATION); 
             }
-            else if (raycastResultWrapper.HitScrollableUI && !raycastResultWrapper.HitUIButton) //Only drag scroll field if we didn't click on a button within that field
+            else if (raycastResultWrapper.InputField && raycastResultWrapper.InputField.IsInteractable())
+            {
+                raycastResultWrapper.InputField.onSelect.Invoke("");
+                Vibrate(HIGH_HAPTICS_AMPLITUDE, HIGH_HAPTICS_DURATION);
+            }
+            else if (raycastResultWrapper.HitScrollableUI && !raycastResultWrapper.HitUIButton && !raycastResultWrapper.InputField) //Only drag scroll field if we didn't click on a button within that field
             {
                 _CurrentlySelectedScrollableUI = raycastResultWrapper.ScrollableUI;
                 _CurrentlySelectedScrollableUI.OnScrollbarBeginDrag(raycastResultWrapper.HitPosition);

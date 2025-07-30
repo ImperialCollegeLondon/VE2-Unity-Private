@@ -39,6 +39,7 @@ namespace VE2.NonCore.Platform.Internal
     {
         #region Interfaces //TODO - separate this between public and internal interfaces
         public ushort LocalClientID { get => _platformSettingsHandler.PlatformClientID; private set => _platformSettingsHandler.PlatformClientID = value; }
+        public BuiltInPlayerPresentationConfig LocalPlayerPresentationConfig => _playerService.InstancedAvatarAppearance.BuiltInPresentationConfig;
         public Dictionary<string, WorldDetails> ActiveWorlds { get => _platformSettingsHandler.ActiveWorlds; private set => _platformSettingsHandler.ActiveWorlds = value; }
         public string CurrentInstanceNumber => _platformSettingsHandler.InstanceCode.InstanceSuffix;
         public string CurrentWorldName => _platformSettingsHandler.InstanceCode.WorldName;
@@ -49,8 +50,23 @@ namespace VE2.NonCore.Platform.Internal
         public event Action OnAuthFailed;
         public GlobalInfo GlobalInfo { get; private set; }
 
-        public List<(string, int)> ActiveWorldsNamesAndVersions {
-            get 
+        public List<PlatformInstanceInfo> GetInstanceInfosForWorldName(string worldName)
+        {
+            return InstanceInfos.Values
+            .Where(instanceInfo => instanceInfo.InstanceCode.WorldName.Equals(worldName, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        }
+
+        public List<InstanceCode> GetInstanceCodesForWorldName(string worldName)
+        {
+            return GetInstanceInfosForWorldName(worldName)
+            .Select(instanceInfo => instanceInfo.InstanceCode)
+            .ToList();
+        }
+
+        public List<(string, int)> ActiveWorldsNamesAndVersions
+        {
+            get
             {
                 List<(string, int)> activeWorldsNamesAndVersions = new();
 
@@ -143,8 +159,8 @@ namespace VE2.NonCore.Platform.Internal
 
         public InstanceCode CurrentInstanceCode { get => _platformSettingsHandler.InstanceCode; private set => _platformSettingsHandler.InstanceCode = value; }
 
-        public Dictionary<InstanceCode, PlatformInstanceInfo> InstanceInfos => GlobalInfo.InstanceInfos;
-        public event Action<Dictionary<InstanceCode, PlatformInstanceInfo>> OnInstanceInfosChanged;
+        public Dictionary<string, PlatformInstanceInfo> InstanceInfos => GlobalInfo.InstanceInfos;
+        public event Action<Dictionary<string, PlatformInstanceInfo>> OnInstanceInfosChanged;
 
         public UnityEvent OnBecomeAdmin => _config.OnBecomeAdmin;
         public UnityEvent OnLoseAdmin => _config.OnLoseAdmin;

@@ -68,7 +68,7 @@ namespace VE2.Core.VComponents.Internal
 
             _hoveringInteractors.Add(interactorID);
 
-            Debug.Log($"Number of hovering interactors: {_hoveringInteractors.Count}");
+            //Debug.Log($"Number of hovering interactors: {_hoveringInteractors.Count}");
 
             if (_hoveringInteractors.Count > 0)
             {
@@ -93,7 +93,7 @@ namespace VE2.Core.VComponents.Internal
             if (_hoveringInteractors.Contains(interactorID))
                 _hoveringInteractors.Remove(interactorID);
 
-            Debug.Log($"Number of hovering interactors: {_hoveringInteractors.Count}");
+            //Debug.Log($"Number of hovering interactors: {_hoveringInteractors.Count}");
 
             if (_hoveringInteractors.Count == 0)
             {
@@ -150,7 +150,7 @@ namespace VE2.Core.VComponents.Internal
             if (_interactableOutline == null)
                 return;
 
-            Debug.Log($"OnLocalAdminStatusChanged - isLocalAdmin: {isLocalAdmin}");
+            //Debug.Log($"OnLocalAdminStatusChanged - isLocalAdmin: {isLocalAdmin}");
 
             if (_isAllowedToInteract)
                 SetOutlineColor(_rangedConfig.DefaultOutlineColor);

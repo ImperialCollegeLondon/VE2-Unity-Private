@@ -100,9 +100,6 @@ namespace VE2.Core.VComponents.Internal
             _adjustableStateModule = new(adjustableState, config.AdjustableStateConfig, config.SyncConfig, $"ADJ-{id}", worldStateSyncableContainer, localClientIdWrapper);
             _grabbableStateModule = new(grabbableState, config.GrabbableStateConfig, config.SyncConfig, $"{id}", worldStateSyncableContainer, grabInteractablesContainer, interactorContainer, localClientIdWrapper);
 
-            _rangedAdjustableInteractionModule.OnLocalInteractorEnterHover += OnHoverEnter;
-            _rangedAdjustableInteractionModule.OnLocalInteractorExitHover += OnHoverExit;
-
             _rangedAdjustableInteractionModule.OnLocalInteractorRequestGrab += (InteractorID interactorID) => _grabbableStateModule.SetGrabbed(interactorID);
             _rangedAdjustableInteractionModule.OnLocalInteractorRequestDrop += (InteractorID interactorID) => _grabbableStateModule.SetDropped(interactorID);
 
@@ -114,26 +111,6 @@ namespace VE2.Core.VComponents.Internal
 
             _adjustableStateModule.OnValueChangedInternal += (float value) => HandleStateValueChanged(value);
         }
-
-        private void OnHoverEnter()
-        {
-            // if (_grabbableOutline == null) //null check so tests dont fail
-            //     return;
-
-            // if (!_grabbableStateModule.IsGrabbed)
-            //     _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.HoveredOutlineColor;
-            // else
-            //     _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.DefaultOutlineColor;
-        }
-
-        private void OnHoverExit()
-        {
-            // if (_grabbableOutline == null) //null check so tests dont fail
-            //     return;
-
-            // _grabbableOutline.OutlineColor = _config.RangedAdjustableInteractionConfig.DefaultOutlineColor;
-        }
-
 
         public void HandleStart() => _adjustableStateModule.InitializeStateWithStartingValue();
 
@@ -157,6 +134,8 @@ namespace VE2.Core.VComponents.Internal
         {
             if (id == VE2API.LocalClientIdWrapper.Value)
                 _rangedAdjustableInteractionModule.OnInteractedWith(true);
+            else
+                _rangedAdjustableInteractionModule.IsInteractedRemotely(true);
 
         }
 
@@ -164,6 +143,8 @@ namespace VE2.Core.VComponents.Internal
         {
             if (id == VE2API.LocalClientIdWrapper.Value)
                 _rangedAdjustableInteractionModule.OnInteractedWith(false);
+            else
+                _rangedAdjustableInteractionModule.IsInteractedRemotely(false);
 
         }
 

@@ -11,7 +11,12 @@ using VE2.NonCore.Platform.API;
 
 namespace VE2.Common.API
 {
-    [ExecuteAlways]
+    //TODO: If this component doesn't actually need to exist in the scene when we hit play, does it need to be a MonoBehaviour?
+    //Note: This exists as a monobehaviour with serialized fields so that we can persist data through domain reloads
+    //We could remove the serialize fields for the service provider GO names, and just have the getters search all GOs for their interfaces if they're null
+    //But local client ID is useful to serialize, it doesn't belong to any specific service, and it needs to be persisted through domain reloads
+
+    [ExecuteInEditMode]
     [AddComponentMenu("")] // Prevents this MonoBehaviour from showing in the Add Component menu
     /// <summary>
     /// Central service locator for VE2 APIs, such as the player, the UI, and the instancing system.
@@ -34,32 +39,46 @@ namespace VE2.Common.API
             }
         }
 
-        private void OnEnable()
+        //ID value will be assigned at runtime, ushort.MaxValue is used to indicate that the ID is not set yet
+        //Lives here rather than the player, as we may be instanced without a VE2 player service 
+        [SerializeField] private LocalClientIDWrapper _localClientIdWrapper = new(ushort.MaxValue);
+        public static ILocalClientIDWrapper LocalClientIdWrapper
         {
-            if (!Application.isPlaying)
+            get
             {
-                VE2API[] apis = FindObjectsByType<VE2API>(FindObjectsSortMode.None);
-                if (apis.Length > 1)
+                //We don't want to allow anyone to initialise the local id at edit time, as a janky id will then persist into run time
+                if (!Application.isPlaying)
                 {
-                    Debug.LogError("Multiple VE2API instances found in the scene. Only one instance is allowed.");
-                    // foreach (VE2API api in apis)
-                    // {
-                    //     Debug.LogWarning("Found API on " + api.gameObject.name + ", is this? " + (api == this));
-                    // }
-                    //Debug.LogError("There should only be one VE2API in the scene");
-                    DestroyImmediate(gameObject);
+                    Debug.LogError("LocalClientIdWrapper is only available at runtime");
+                    return null;
                 }
 
-                _instance = this;
-                gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
-               // gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
-            }
-            else
-            {
-                if (Instance._instancingServiceProvider == null || !Instance._instancingServiceProvider.IsEnabled)
+                // If the client ID is not set, check if that's because there's no instancing in the scene, in which case, set it to 0
+                // Otherwise, instancing will be in charge of setting the client id, which will emit an event from inside the client id wrapper 
+                if (Instance._localClientIdWrapper.Value == ushort.MaxValue && (Instance._instancingServiceProvider == null || !Instance._instancingServiceProvider.IsEnabled))
                     _instance._localClientIdWrapper.SetValue(0);
-                //Otherwise, instancing will be in charge of setting the client ID
+
+                return Instance._localClientIdWrapper;
             }
+        }
+
+        private void OnEnable()
+        {
+            VE2API[] apis = FindObjectsByType<VE2API>(FindObjectsSortMode.None);
+            if (apis.Length > 1)
+            {
+                Debug.LogError("Multiple VE2API instances found in the scene. Only one instance is allowed.");
+                // foreach (VE2API api in apis)
+                // {
+                //     Debug.LogWarning("Found API on " + api.gameObject.name + ", is this? " + (api == this));
+                // }
+                //Debug.LogError("There should only be one VE2API in the scene");
+                DestroyImmediate(gameObject);
+            }
+
+            _instance = this;
+            gameObject.hideFlags = HideFlags.HideInHierarchy; //To hide
+            // gameObject.hideFlags &= ~HideFlags.HideInHierarchy; //To show
         }
 
         //########################################################################################################
@@ -94,10 +113,6 @@ namespace VE2.Common.API
 
         [SerializeField, HideInInspector] private bool _preferVRMode = false;
         public static bool PreferVRMode { get => Instance._preferVRMode; set => Instance._preferVRMode = value; }
-
-        //ID value will be assigned at runtime, ushort.MaxValue is used to indicate that the ID is not set yet
-        [SerializeField] private LocalClientIDWrapper _localClientIdWrapper = new(ushort.MaxValue);
-        public static ILocalClientIDWrapper LocalClientIdWrapper => Instance._localClientIdWrapper;
 
         #endregion
         //########################################################################################################

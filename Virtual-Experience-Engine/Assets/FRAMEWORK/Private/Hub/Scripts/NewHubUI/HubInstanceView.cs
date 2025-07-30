@@ -18,39 +18,26 @@ internal class HubInstanceView : MonoBehaviour
     [SerializeField] private GameObject _playerPreviewPrefab;
     [SerializeField] V_UIColorHandler _colorHandler;
 
-    public event Action<PlatformInstanceInfo> OnSelectInstance;
-
-    private bool _isSelected;
-    public bool IsSelected
-    {
-        get => _isSelected;
-        set
-        {
-            if (_isSelected == value)
-                return;
-
-            _isSelected = value;
-
-            if (_isSelected)
-                _colorHandler.LockSelectedColor();
-            else
-                _colorHandler.UnlockSelectedColor();
-        }
-    }
+    public event Action OnSelectInstance;
 
     private const int MAX_NUM_PLAYER_ICONS = 10;
 
-    //TODO: Need to rework how we're sharing internal serializables...
-    public void SetupView(PlatformInstanceInfo instanceInfo)
+    //TODO: maybe we should just pass the isntance code, and a list of client infos, rather than the entire isntance info
+    public void SetupView(PlatformInstanceInfo instanceInfo, bool isSelected)
     {
-        _instanceCodeText.text = instanceInfo.InstanceCode.InstanceSuffix;
-        _selectInstanceButton.onClick.AddListener(() => OnSelectInstance?.Invoke(instanceInfo));
+        //Bodge to make sure the color handler is awake... for some reason Awake immediately after instantiation
+        _colorHandler.Setup();
 
-        UpdateInstanceInfo(instanceInfo);
+        _instanceCodeText.text = instanceInfo.InstanceCode.InstanceSuffix;
+        _selectInstanceButton.onClick.AddListener(() => OnSelectInstance?.Invoke());
+
+        UpdateInstanceInfo(instanceInfo, isSelected);
     }
 
-    public void UpdateInstanceInfo(PlatformInstanceInfo instanceInfo)
+    public void UpdateInstanceInfo(PlatformInstanceInfo instanceInfo, bool isSelected)
     {
+        Debug.Log("Updating instance view for: " + instanceInfo.InstanceCode.InstanceSuffix + " | Selected: " + isSelected + " clients: " + instanceInfo.ClientInfos.Count);
+
         //Remove previews of players that are no longer in the instance
         List<ushort> playerPreviewsToRemove = new();
         foreach (KeyValuePair<ushort, GameObject> playerPreview in _playerPreviews)
@@ -76,7 +63,7 @@ internal class HubInstanceView : MonoBehaviour
                 Image playerIcon = playerPreview.GetComponent<Image>();
 
                 BuiltInPlayerPresentationConfig playerPresentationConfig = clientInfo.PlayerPresentationConfig;
-                playerIcon.color = playerPresentationConfig.AvatarColor / 255f; 
+                playerIcon.color = new Color(playerPresentationConfig.AvatarColor.r, playerPresentationConfig.AvatarColor.g, playerPresentationConfig.AvatarColor.b, 1);
 
                 _playerPreviews.Add(clientInfo.ClientID, playerPreview);
             }
@@ -91,5 +78,10 @@ internal class HubInstanceView : MonoBehaviour
         {
             _extraPlayersText.gameObject.SetActive(false);
         }
+        
+        if (isSelected)
+            _colorHandler.LockSelectedColor();
+        else
+            _colorHandler.UnlockSelectedColor();
     }
 }

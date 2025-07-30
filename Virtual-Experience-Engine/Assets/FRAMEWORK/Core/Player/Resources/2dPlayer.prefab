@@ -1895,7 +1895,6 @@ GameObject:
   - component: {fileID: 7281759597208641032}
   - component: {fileID: 1964594760715809577}
   - component: {fileID: 4438877719408431009}
-  - component: {fileID: 314597647813591357}
   - component: {fileID: 4040732124355105169}
   m_Layer: 6
   m_Name: 2dPlayer
@@ -1983,18 +1982,6 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0.95000005, z: 0}
---- !u!114 &314597647813591357
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6500469445354724156}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76c4eee62774ae645bc49283a83bc93d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!54 &4040732124355105169
 Rigidbody:
   m_ObjectHideFlags: 0
