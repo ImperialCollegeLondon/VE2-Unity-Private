@@ -8,6 +8,7 @@ using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using VE2.Common.API;
+using VE2.Core.Player.API;
 using VE2.NonCore.Platform.API;
 
 namespace VE2.NonCore.Platform.Internal
@@ -112,13 +113,13 @@ namespace VE2.NonCore.Platform.Internal
 
         PlatformPublicSerializables.InstanceCode IPlatformServiceInternal.CurrentInstanceCode => new PlatformPublicSerializables.InstanceCode(CurrentWorldName, CurrentInstanceNumber, 1);
 
-        Dictionary<PlatformPublicSerializables.InstanceCode, PlatformPublicSerializables.PlatformInstanceInfo> IPlatformServiceInternal.InstanceInfos => new();
+        Dictionary<string, PlatformPublicSerializables.PlatformInstanceInfo> IPlatformServiceInternal.InstanceInfos => new();
 
         public event Action OnAuthFailed;
         public event Action OnConnectedToServer;
         public event Action OnLeavingInstance;
 
-        event Action<Dictionary<PlatformPublicSerializables.InstanceCode, PlatformPublicSerializables.PlatformInstanceInfo>> IPlatformServiceInternal.OnInstanceInfosChanged
+        event Action<Dictionary<string, PlatformPublicSerializables.PlatformInstanceInfo>> IPlatformServiceInternal.OnInstanceInfosChanged
         {
             add
             {
@@ -202,9 +203,15 @@ namespace VE2.NonCore.Platform.Internal
             }
         }
 
+        public List<PlatformPublicSerializables.PlatformInstanceInfo> GetInstanceInfosForWorldName(string worldName) => new();
+
+        public List<PlatformPublicSerializables.InstanceCode> GetInstanceCodesForWorldName(string worldName) => new();
+        public PlayerSerializables.BuiltInPlayerPresentationConfig LocalPlayerPresentationConfig => new();
+
         public bool IsLocalPlayerAdmin => _localAdminIndicatorWritable.IsLocalAdmin; //TODO: In real service, this comes from client info
         public UnityEvent OnBecomeAdmin => _config.OnBecomeAdmin;
         public UnityEvent OnLoseAdmin => _config.OnLoseAdmin;
+
 
         private readonly PlatformServiceConfig _config;
         private readonly ILocalAdminIndicatorWritable _localAdminIndicatorWritable;

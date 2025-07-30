@@ -14,6 +14,7 @@ namespace VE2.Core.Player.Internal
         private readonly MovementModeConfig _movementModeConfig;
         private readonly InspectModeIndicator _inspectModeIndicator;
         private readonly FreeGrabbingIndicator _grabbingIndicator;
+        private readonly IsKeyboardActiveIndicator _isKeyboardActiveIndicator;
 
         private PlayerLocomotor2DInputContainer _playerLocomotor2DInputContainer;
         private readonly Player2DMovementConfig _player2DMovementConfig;
@@ -70,7 +71,7 @@ namespace VE2.Core.Player.Internal
         }
 
 
-        internal Player2DLocomotor(Locomotor2DReferences locomotor2DReferences, MovementModeConfig movementModeConfig, InspectModeIndicator inspectModeIndicator, PlayerLocomotor2DInputContainer playerLocomotor2DInputContainer, Player2DMovementConfig player2DMovementConfig, FreeGrabbingIndicator grabbingIndicator)
+        internal Player2DLocomotor(Locomotor2DReferences locomotor2DReferences, MovementModeConfig movementModeConfig, InspectModeIndicator inspectModeIndicator, PlayerLocomotor2DInputContainer playerLocomotor2DInputContainer, Player2DMovementConfig player2DMovementConfig, FreeGrabbingIndicator grabbingIndicator, IsKeyboardActiveIndicator isKeyboardActiveIndicator)
         {
             _characterController = locomotor2DReferences.Controller;
             _verticalOffsetTransform = locomotor2DReferences.VerticalOffsetTransform;
@@ -84,6 +85,7 @@ namespace VE2.Core.Player.Internal
 
             _inspectModeIndicator = inspectModeIndicator;
             _grabbingIndicator = grabbingIndicator;
+            _isKeyboardActiveIndicator = isKeyboardActiveIndicator;
 
             //TODO tear down and unsubscribe
             grabbingIndicator.OnGrabStarted += HandleGrabStarted;
@@ -131,24 +133,24 @@ namespace VE2.Core.Player.Internal
             _playerLocomotor2DInputContainer.Crouch.OnPressed -= HandleCrouch;
         }
 
-        public void HandleUpdate() //TODO: Should listen to InputHandler, this should maybe go in FixedUpdate to keep grabbables happy (they are updated in FixedUpdate) 
+        public void HandleUpdate() //TODO: Should listen to InputHandler, this should maybe go in FixedUpdate to keep grabbables happy (they are updated in FixedUpdate)  
         {
-            //TODO: This should be in a separate class, maybe even in the interactor2D? 
-            //Needs to be injected with UIService, needs to know to not lock cursor when detecting left click if UI is showing
+            //TODO: This should be in a separate class, maybe even in the interactor2D?  
+            //Needs to be injected with UIService, needs to know to not lock cursor when detecting left click if UI is showing  
 
-            // Handle Escape key to unlock the cursor
+            // Handle Escape key to unlock the cursor  
             if (_playerLocomotor2DInputContainer.UnlockCursor.IsPressed)
             {
                 UnlockCursor();
             }
 
-            // Check for mouse click to re-lock the cursor
+            // Check for mouse click to re-lock the cursor  
             if (_playerLocomotor2DInputContainer.LockCursor.IsPressed && !isCursorLocked)
             {
                 LockCursor();
             }
 
-            // Detect FreeFlyMode changes
+            // Detect FreeFlyMode changes  
             if (_movementModeConfig.FreeFlyMode != _wasFreeFlyMode)
             {
                 if (_movementModeConfig.FreeFlyMode)
@@ -161,7 +163,7 @@ namespace VE2.Core.Player.Internal
 
             if (Application.isFocused && isCursorLocked)
             {
-                // Mouse look
+                // Mouse look  
                 if (!_inspectModeIndicator.IsInspectModeActive)
                 {
                     float mouseX = _playerLocomotor2DInputContainer.MouseDelta.Value.x * _player2DMovementConfig.mouseSensitivity;
@@ -171,6 +173,12 @@ namespace VE2.Core.Player.Internal
                     verticalRotation -= mouseY;
                     verticalRotation = Mathf.Clamp(verticalRotation, _player2DMovementConfig.minVerticalAngle, _player2DMovementConfig.maxVerticalAngle);
                     _cameraTransform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
+                }
+
+                // Check if keyboard is active  
+                if (_isKeyboardActiveIndicator.IsKeyboardActive)
+                {
+                    return; // Disable movement but allow camera movement  
                 }
 
                 float moveX = (_playerLocomotor2DInputContainer.Right?.IsPressed == true ? 1f : 0f)
@@ -183,24 +191,24 @@ namespace VE2.Core.Player.Internal
                 float speed = _playerLocomotor2DInputContainer.IsSprinting2D.IsPressed ? _player2DMovementConfig.walkSpeed * _player2DMovementConfig.sprintSpeedMultiplier : _player2DMovementConfig.walkSpeed;
                 _characterController.Move(moveDirection * speed * Time.deltaTime);
 
-                // FreeFlyMode movement
+                // FreeFlyMode movement  
                 if (_movementModeConfig.FreeFlyMode)
                 {
                     Vector3 freeFlyMove = moveDirection * speed * Time.deltaTime;
 
-                    // Move up when Jump is pressed
+                    // Move up when Jump is pressed  
                     if (_playerLocomotor2DInputContainer.Jump.IsPressed)
                         freeFlyMove += Vector3.up * speed * Time.deltaTime;
 
-                    // Move down when Crouch is pressed
+                    // Move down when Crouch is pressed  
                     if (_playerLocomotor2DInputContainer.Crouch.IsPressed)
                         freeFlyMove += Vector3.down * speed * Time.deltaTime;
 
                     _characterController.Move(freeFlyMove);
-                    return; // Skip normal jump logic in free fly mode
+                    return; // Skip normal jump logic in free fly mode  
                 }
 
-                // Jump
+                // Jump  
                 if (_playerLocomotor2DInputContainer.Jump.IsPressed && IsGrounded())
                 {
                     verticalVelocity = _player2DMovementConfig.jumpForce;
@@ -209,8 +217,9 @@ namespace VE2.Core.Player.Internal
             }
 
             if (_movementModeConfig.FreeFlyMode)
-                return; // No gravity in free fly mode
-            // Apply gravity
+                return; // No gravity in free fly mode  
+
+            // Apply gravity  
             verticalVelocity += Physics.gravity.y * Time.deltaTime;
             _characterController.Move(Vector3.up * verticalVelocity * Time.deltaTime);
         }

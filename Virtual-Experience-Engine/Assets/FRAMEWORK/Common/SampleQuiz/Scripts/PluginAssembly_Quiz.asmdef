@@ -1,0 +1,26 @@
+{
+    "name": "PluginAssembly_Quiz",
+    "rootNamespace": "",
+    "references": [
+        "Unity.TextMeshPro",
+        "Unity.InputSystem",
+        "VE2.Common.API",
+        "VE2.Common.Shared",
+        "VE2.Core.VComponents.API",
+        "VE2.Core.Player.API",
+        "VE2.Core.UI.API",
+        "VE2.NonCore.Instancing.API",
+        "VE2.NonCore.Platform.API",
+        "Toolbox.Editor",
+        "Toolbox"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

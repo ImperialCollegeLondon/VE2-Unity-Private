@@ -127,5 +127,11 @@ namespace VE2.Common.Shared
         public static int PlayerInvisibleLayer => LayerMask.NameToLayer("V_LocalPlayerInvisible");
         public static int RemotePlayerLayer => LayerMask.NameToLayer("V_RemotePlayer");
         public static int DefaultLayer => LayerMask.NameToLayer("Default");
+
+        public static GameObject SpawnUIPanelFromResourcesAndMoveToParent(string resourcePath, Transform parent)
+        {
+            GameObject prefab = Resources.Load<GameObject>(resourcePath);
+            return GameObject.Instantiate(prefab, parent);
+        }
     }
 }

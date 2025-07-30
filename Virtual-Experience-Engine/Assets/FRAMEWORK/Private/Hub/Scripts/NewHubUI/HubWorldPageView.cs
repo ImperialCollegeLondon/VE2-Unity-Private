@@ -18,8 +18,9 @@ internal class HubWorldPageView : MonoBehaviour
     [SerializeField] private TMP_Text _selectedVersionNumber;
 
     [SerializeField] private Button _autoSelectInstanceButton;
-    [SerializeField] private Button _enterInstanceCodeButton;
-    [SerializeField] private VerticalLayoutGroup _instancesVerticalGroup;
+    //[SerializeField] private Button _enterInstanceCodeButton;
+    //[SerializeField] private V_InputFieldHandler _enterInstanceCodeInputField; //No interface, so this is wired up in the inspector
+    [SerializeField] public VerticalLayoutGroup InstancesVerticalGroup;
     [SerializeField] private GameObject _noInstancesToShowPanel;
 
     [SerializeField] private Image _2dEnabledIcon;
@@ -41,12 +42,15 @@ internal class HubWorldPageView : MonoBehaviour
 
     //TODO - admin button
 
-    [SerializeField] private GameObject instanceButtonPrefab;
+    [SerializeField] public GameObject InstanceButtonPrefab;
+
+    public HubWorldPageUIState CurrentUIState;
 
     public event Action OnBackClicked;
 
     public event Action OnAutoSelectInstanceClicked;
-    public event Action OnEnterInstanceCodeClicked;
+    //public event Action OnEnterInstanceCodeClicked;
+    public event Action<string> OnInstanceCodeManuallyEntered;
 
     //TODO - we still need to figure out what we're doing with version numbers here. 
     public event Action<InstanceCode> OnInstanceCodeSelected;
@@ -56,7 +60,19 @@ internal class HubWorldPageView : MonoBehaviour
     public event Action OnInstallWorldClicked;
     public event Action OnEnterWorldClicked;
 
-    private Dictionary<PlatformInstanceInfo, HubInstanceView> _instanceViews = new();
+    private void Awake()
+    {
+        _backButton.onClick.AddListener(() => OnBackClicked?.Invoke());
+
+        _autoSelectInstanceButton.onClick.AddListener(() => OnAutoSelectInstanceClicked?.Invoke());
+        //_enterInstanceCodeButton.onClick.AddListener(() => OnEnterInstanceCodeClicked?.Invoke());
+        //_enterInstanceCodeInputField.onEndEdit.AddListener((value) => OnInstanceCodeManuallyEntered?.Invoke(value));
+
+        _downloadWorldButton.onClick.AddListener(() => OnDownloadWorldClicked?.Invoke());
+        _cancelDownloadButton.onClick.AddListener(() => OnCancelDownloadClicked?.Invoke());
+        _installWorldButton.onClick.AddListener(() => OnInstallWorldClicked?.Invoke());
+        _enterWorldButton.onClick.AddListener(() => OnEnterWorldClicked?.Invoke());
+    }
 
     //private HubWorldDetails _worldDetails;
 
@@ -64,15 +80,11 @@ internal class HubWorldPageView : MonoBehaviour
     //We probably shouldn't be using the WorldDetails object... maybe LocalWorldDetails, that includes the local state of the world?
     //TODO - also need to pass in instance details
     //TODO - also also need to pass in current play mode (2D/VR) and whether we can switch modes
-    public void SetupView(HubWorldDetails worldDetails, List<PlatformInstanceInfo> instances)
+    public void SetupView(HubWorldDetails worldDetails)
     {
         // _worldDetails = worldDetails;
-
-        _backButton.onClick.AddListener(() => OnBackClicked?.Invoke());
         _worldTitle.text = worldDetails.Name;
 
-        _autoSelectInstanceButton.onClick.AddListener(() => OnAutoSelectInstanceClicked?.Invoke());
-        _enterInstanceCodeButton.onClick.AddListener(() => OnEnterInstanceCodeClicked?.Invoke());
 
         //TODO=======
         //_worldBanner.sprite = _worldDetails.Banner;
@@ -87,25 +99,11 @@ internal class HubWorldPageView : MonoBehaviour
         _switchTo2dButton.gameObject.SetActive(isVrMode);
         _switchToVrButton.gameObject.SetActive(!isVrMode);
         //===========
+    }
 
-        _downloadWorldButton.onClick.AddListener(() => OnDownloadWorldClicked?.Invoke());
-        _cancelDownloadButton.onClick.AddListener(() => OnCancelDownloadClicked?.Invoke());
-        _installWorldButton.onClick.AddListener(() => OnInstallWorldClicked?.Invoke());
-        _enterWorldButton.onClick.AddListener(() => OnEnterWorldClicked?.Invoke());
-
-        _confirmingVersionsPanel.SetActive(false);
-        _downloadWorldButton.gameObject.SetActive(false);
-        _downloadingWorldPanel.SetActive(false);
-        _installWorldButton.gameObject.SetActive(false);
-        _needToSelectInstancePanel.SetActive(false);
-        _enterWorldButton.gameObject.SetActive(false);
-
-        List<PlatformInstanceInfo> instancesToRemove = _instanceViews.Keys.ToList();
-
-        foreach (PlatformInstanceInfo instanceToRemove in instancesToRemove)
-            RemoveInstanceView(instanceToRemove);
-
-        UpdateInstances(instances);
+    public void HandleInstanceCodeManuallyEntered(string instanceCode)
+    {
+        OnInstanceCodeManuallyEntered?.Invoke(instanceCode);
     }
 
     public void ShowAvailableVersions(List<int> versions)
@@ -118,158 +116,44 @@ internal class HubWorldPageView : MonoBehaviour
         // }
     }
 
-    /// <summary>
-    /// Kind of the second half of Setup.
-    /// </summary>
-    public void ShowSelectedVersion(int version, bool needsDownload, bool downloadedButNotInstalled, bool IsExperimental, bool isInstanceSelected)
+    public void UpdateUIState(HubWorldPageUIState newState)
     {
-        _confirmingVersionsPanel.SetActive(false);
-        _downloadWorldButton.gameObject.SetActive(needsDownload);
-        _installWorldButton.gameObject.SetActive(downloadedButNotInstalled);
-        _needToSelectInstancePanel.SetActive(!needsDownload && !downloadedButNotInstalled &&!isInstanceSelected);
-        _enterWorldButton.gameObject.SetActive(!needsDownload && !downloadedButNotInstalled && isInstanceSelected);
+        if (CurrentUIState == newState)
+            return; // No change, do nothing
 
-        _selectedVersionNumber.text = $"V{version} {(IsExperimental ? "<i>(Experimental)</i>" : "")}";
-    }
+        CurrentUIState = newState;
 
-    public void ShowStartDownloadWorldButton()
-    {
-        _downloadWorldButton.gameObject.SetActive(true);
-        _downloadingWorldPanel.SetActive(false);
-        _installWorldButton.gameObject.SetActive(false);
-        _needToSelectInstancePanel.SetActive(false);
-        _enterWorldButton.gameObject.SetActive(false);
-    }
+        _confirmingVersionsPanel.SetActive(newState == HubWorldPageUIState.Loading);
+        _downloadWorldButton.gameObject.SetActive(newState == HubWorldPageUIState.NeedToDownloadWorld);
+        _downloadingWorldPanel.SetActive(newState == HubWorldPageUIState.DownloadingWorld);
+        _installWorldButton.gameObject.SetActive(newState == HubWorldPageUIState.NeedToInstallWorld);
+        _needToSelectInstancePanel.SetActive(newState == HubWorldPageUIState.NeedToSelectInstance);
+        _enterWorldButton.gameObject.SetActive(newState == HubWorldPageUIState.ReadyToEnterWorld);
 
-    public void ShowDownloadingWorldPanel()
-    {
-        _downloadingWorldProgressBar.SetValue(0);
-
-        _downloadWorldButton.gameObject.SetActive(false);
-        _downloadingWorldPanel.SetActive(true);
-        _installWorldButton.gameObject.SetActive(false);
-        _needToSelectInstancePanel.SetActive(false);
-        _enterWorldButton.gameObject.SetActive(false);
-    }
-
-    public void UpdateDownloadingWorldProgress(float progress)
-    {
-        _downloadingWorldProgressBar.SetValue(progress);
-    }
-
-    public void ShowInstallWorldButton()
-    {
-        _downloadWorldButton.gameObject.SetActive(false);
-        _downloadingWorldPanel.SetActive(false);
-        _installWorldButton.gameObject.SetActive(true);
-        _needToSelectInstancePanel.SetActive(false);
-        _enterWorldButton.gameObject.SetActive(false);
-    }
-
-    public void ShowNeedToSelectInstancePanel()
-    {
-        _downloadWorldButton.gameObject.SetActive(false);
-        _downloadingWorldPanel.SetActive(false);
-        _installWorldButton.gameObject.SetActive(false);
-        _needToSelectInstancePanel.SetActive(true);
-        _enterWorldButton.gameObject.SetActive(false);
-    }
-
-    public void ShowEnterWorldButton()
-    {
-        _downloadWorldButton.gameObject.SetActive(false);
-        _downloadingWorldPanel.SetActive(false);
-        _installWorldButton.gameObject.SetActive(false);
-        _enterWorldButton.gameObject.SetActive(true);
-    }
-
-    public void SetSelectedInstance(InstanceCode selectedInstanceCode)
-    {
-        Debug.Log($"Setting selected instance code on view: {selectedInstanceCode} existing codes...");
-        _noInstancesToShowPanel.SetActive(false);
-
-        _selectedInstanceCodeText.text = "Instance #" + selectedInstanceCode.InstanceSuffix;
-
-        bool foundInstance = false;
-        foreach (KeyValuePair<PlatformInstanceInfo, HubInstanceView> kvp in _instanceViews)
+        if (newState == HubWorldPageUIState.DownloadingWorld)
         {
-            if (selectedInstanceCode.Equals(kvp.Key.InstanceCode))
-            {
-                kvp.Value.IsSelected = true;
-                foundInstance = true;
-            }
-            else
-            {
-                if (kvp.Key.ClientInfos.Count == 0)
-                {
-                    RemoveInstanceView(kvp.Key);
-                }
-                else
-                {
-                    kvp.Value.IsSelected = false;
-                }
-            }
-        }
-
-        if (!foundInstance)
-        {
-            // If the instance view is not found, we need to create a new one
-            PlatformInstanceInfo instanceInfo = new(selectedInstanceCode, new Dictionary<ushort, PlatformClientInfo>());
-            AddInstanceView(instanceInfo);
-            _instanceViews[instanceInfo].IsSelected = true;
+            _downloadingWorldProgressBar.SetValue(0);
         }
     }
 
-    public void UpdateInstances(List<PlatformInstanceInfo> instancesFromServer)
+    public void ShowSelectedVersion(int version, bool IsExperimental) => _selectedVersionNumber.text = $"V{version} {(IsExperimental ? "<i>(Experimental)</i>" : "")}";
+
+    public void SetNoInstancesToShow(bool noInstances)
     {
-        //Remove old instances 
-        List<PlatformInstanceInfo> instancesToRemove = new();
-        foreach (KeyValuePair<PlatformInstanceInfo, HubInstanceView> kvp in _instanceViews)
-        {
-            if (!instancesFromServer.Contains(kvp.Key) && !kvp.Value.IsSelected)
-                instancesToRemove.Add(kvp.Key);
-        }
-        foreach (PlatformInstanceInfo instanceInfo in instancesToRemove)
-            RemoveInstanceView(instanceInfo);
-
-        //Add new instances
-        foreach (PlatformInstanceInfo instanceInfo in instancesFromServer)
-        {
-            if (!_instanceViews.ContainsKey(instanceInfo))
-            {
-                AddInstanceView(instanceInfo);
-            }
-            else
-            {
-                _instanceViews[instanceInfo].UpdateInstanceInfo(instanceInfo);
-            }
-        }
-
-        _noInstancesToShowPanel.SetActive(_instanceViews.Count == 0);
+        _noInstancesToShowPanel.SetActive(noInstances);
     }
 
-    private void AddInstanceView(PlatformInstanceInfo instanceInfo)
-    {
-        GameObject instanceButtonObject = Instantiate(instanceButtonPrefab, _instancesVerticalGroup.transform);
-        HubInstanceView instanceView = instanceButtonObject.GetComponent<HubInstanceView>();
-        instanceView.SetupView(instanceInfo);
-        instanceView.OnSelectInstance += (instanceCode) => HandleInstanceButtonClicked(instanceInfo);
-        _instanceViews.Add(instanceInfo, instanceView);
-    }
+    public void SetSelectedInstanceCode(InstanceCode instanceCode) => _selectedInstanceCodeText.text = "Instance #" + instanceCode.InstanceSuffix;
 
-    private void RemoveInstanceView(PlatformInstanceInfo instanceInfo)
-    {
-        if (_instanceViews.TryGetValue(instanceInfo, out HubInstanceView instanceView))
-        {
-            instanceView.OnSelectInstance -= (instanceCode) => OnEnterWorldClicked?.Invoke();
-            Destroy(instanceView.gameObject);
-            _instanceViews.Remove(instanceInfo);
-        }
-    }
+    public void UpdateDownloadingWorldProgress(float progress) => _downloadingWorldProgressBar.SetValue(progress);
+}
 
-    private void HandleInstanceButtonClicked(PlatformInstanceInfo instanceInfo)
-    {
-        OnInstanceCodeSelected?.Invoke(instanceInfo.InstanceCode);
-    }
-
+public enum HubWorldPageUIState
+{
+    Loading,
+    NeedToDownloadWorld,
+    DownloadingWorld,
+    NeedToInstallWorld,
+    NeedToSelectInstance,
+    ReadyToEnterWorld
 }

@@ -669,6 +669,11 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+      EnableOutline: 0
+      OutlineThickness: 2.5
+      DefaultOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+      InteractedOutlineColor: {r: 1, g: 0.5, b: 0, a: 1}
+      HoveredOutlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
       ClickAtRangeInVR: 1
     GeneralInteractionConfig:
       AdminOnly: 0
@@ -6539,6 +6544,11 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+      EnableOutline: 0
+      OutlineThickness: 2.5
+      DefaultOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+      InteractedOutlineColor: {r: 1, g: 0.5, b: 0, a: 1}
+      HoveredOutlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
       ClickAtRangeInVR: 1
     GeneralInteractionConfig:
       AdminOnly: 0
@@ -7717,6 +7727,11 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+      EnableOutline: 0
+      OutlineThickness: 2.5
+      DefaultOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+      InteractedOutlineColor: {r: 1, g: 0.5, b: 0, a: 1}
+      HoveredOutlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
       _attachPoint: {fileID: 908118154}
       VRRaySnap: 1
       VRRaySnapRangeFrontOfHand: 0.15
@@ -7724,8 +7739,8 @@ MonoBehaviour:
       VRFailsafeGrab: 1
       VRFailsafeGrabMultiplier: 1.2
       _transformToAdjust: {fileID: 652932351}
-      PointRayTowardsAttachPoint: 0
-      _rayPointTransformTest: {fileID: 1572037624}
+      PointRayTowardsAttachPoint: 1
+      _rayPointTransformTest: {fileID: 0}
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
@@ -9466,6 +9481,11 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+      EnableOutline: 0
+      OutlineThickness: 2.5
+      DefaultOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+      InteractedOutlineColor: {r: 1, g: 0.5, b: 0, a: 1}
+      HoveredOutlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
       ClickAtRangeInVR: 1
     GeneralInteractionConfig:
       AdminOnly: 0
@@ -13899,6 +13919,11 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+      EnableOutline: 0
+      OutlineThickness: 2.5
+      DefaultOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+      InteractedOutlineColor: {r: 1, g: 0.5, b: 0, a: 1}
+      HoveredOutlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
       ClickAtRangeInVR: 1
     GeneralInteractionConfig:
       AdminOnly: 0
@@ -17796,7 +17821,7 @@ MeshFilter:
   m_Mesh: {fileID: 1475192979978612309, guid: f3cd08f05c8201b49b007343bf5d27a0, type: 3}
 --- !u!1 &1565142807
 GameObject:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -17813,7 +17838,7 @@ GameObject:
   m_IsActive: 1
 --- !u!114 &1565142808
 MonoBehaviour:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -17830,7 +17855,7 @@ MonoBehaviour:
   platformProviderGOName: PlatformIntegration
 --- !u!4 &1565142809
 Transform:
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -20954,9 +20979,9 @@ MonoBehaviour:
     PlayerName: Unknown
     AvatarHeadIndex: 0
     AvatarTorsoIndex: 0
-    AvatarColorR: 0
-    AvatarColorG: 0
-    AvatarColorB: 0
+    AvatarColorR: 255
+    AvatarColorG: 70
+    AvatarColorB: 70
   _transformDataSetup: 0
   _playerTransformData:
     IsVRMode: 0
@@ -22891,6 +22916,11 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+      EnableOutline: 0
+      OutlineThickness: 2.5
+      DefaultOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+      InteractedOutlineColor: {r: 1, g: 0.5, b: 0, a: 1}
+      HoveredOutlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
       _attachPoint: {fileID: 302427551}
       VRRaySnap: 1
       VRRaySnapRangeFrontOfHand: 0.15
@@ -23855,6 +23885,11 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+      EnableOutline: 0
+      OutlineThickness: 2.5
+      DefaultOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+      InteractedOutlineColor: {r: 1, g: 0.5, b: 0, a: 1}
+      HoveredOutlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
       ClickAtRangeInVR: 1
     GeneralInteractionConfig:
       AdminOnly: 0
@@ -26816,6 +26851,11 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+      EnableOutline: 0
+      OutlineThickness: 2.5
+      DefaultOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+      InteractedOutlineColor: {r: 1, g: 0.5, b: 0, a: 1}
+      HoveredOutlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
       _attachPoint: {fileID: 543450651613274442}
       VRRaySnap: 1
       VRRaySnapRangeFrontOfHand: 0.15
@@ -28927,6 +28967,11 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+      EnableOutline: 0
+      OutlineThickness: 2.5
+      DefaultOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+      InteractedOutlineColor: {r: 1, g: 0.5, b: 0, a: 1}
+      HoveredOutlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
       ClickAtRangeInVR: 1
     GeneralInteractionConfig:
       AdminOnly: 0
@@ -29053,6 +29098,11 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+      EnableOutline: 0
+      OutlineThickness: 2.5
+      DefaultOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+      InteractedOutlineColor: {r: 1, g: 0.5, b: 0, a: 1}
+      HoveredOutlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
       _attachPoint: {fileID: 5725511996118978446}
       VRRaySnap: 1
       VRRaySnapRangeFrontOfHand: 0.15
@@ -29566,6 +29616,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _tweenTime: 0.4
   _tweenEase: 4
+  _canvasGroup: {fileID: 0}
 --- !u!65 &7461879187398791955
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -30244,6 +30295,11 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+      EnableOutline: 0
+      OutlineThickness: 2.5
+      DefaultOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+      InteractedOutlineColor: {r: 1, g: 0.5, b: 0, a: 1}
+      HoveredOutlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
       _attachPoint: {fileID: 7630708130437203443}
       VRRaySnap: 1
       VRRaySnapRangeFrontOfHand: 0.15
@@ -30755,6 +30811,11 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+      EnableOutline: 0
+      OutlineThickness: 2.5
+      DefaultOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+      InteractedOutlineColor: {r: 1, g: 0.5, b: 0, a: 1}
+      HoveredOutlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
       _attachPoint: {fileID: 2942569303062809500}
       VRRaySnap: 1
       VRRaySnapRangeFrontOfHand: 0.15
@@ -31074,6 +31135,11 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+      EnableOutline: 0
+      OutlineThickness: 2.5
+      DefaultOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+      InteractedOutlineColor: {r: 1, g: 0.5, b: 0, a: 1}
+      HoveredOutlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
       _attachPoint: {fileID: 676094962736263466}
       VRRaySnap: 1
       VRRaySnapRangeFrontOfHand: 0.15
@@ -31251,7 +31317,7 @@ CanvasRenderer:
 --- !u!73398921 &8983584815972586846
 VFXRenderer:
   serializedVersion: 1
-  m_ObjectHideFlags: 0
+  m_ObjectHideFlags: 2
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -31431,6 +31497,11 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+      EnableOutline: 0
+      OutlineThickness: 2.5
+      DefaultOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+      InteractedOutlineColor: {r: 1, g: 0.5, b: 0, a: 1}
+      HoveredOutlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
       _attachPoint: {fileID: 312694930724920086}
       VRRaySnap: 1
       VRRaySnapRangeFrontOfHand: 0.15

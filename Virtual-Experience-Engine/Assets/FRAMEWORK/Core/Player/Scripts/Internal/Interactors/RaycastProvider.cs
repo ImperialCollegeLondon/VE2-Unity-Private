@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -26,10 +27,11 @@ namespace VE2.Core.Player.Internal
                 //ProcessUIHover(raycastHit.collider.gameObject);
                 Button button = GetUIButton(raycastHit);
                 IScrollableUI scrollableUI = GetScrollableUI(raycastHit);
-            
-                if (button != null || scrollableUI != null)
+                TMP_InputField inputField = GetTMPInputField(raycastHit);
+
+                if (button != null || scrollableUI != null || inputField != null)
                 {
-                    result = new(null, button, scrollableUI, raycastHit.distance, true, raycastHit.point);
+                    result = new(null, button, scrollableUI,inputField, raycastHit.distance, true, raycastHit.point);
                 }
                 else //Search up through the heirarchy looking for 
                 {
@@ -46,17 +48,17 @@ namespace VE2.Core.Player.Internal
 
                     if (rangedInteractionModuleProvider != null)
                     {
-                        result = new(rangedInteractionModuleProvider.RangedInteractionModule, null, null, raycastHit.distance, true, raycastHit.point);
+                        result = new(rangedInteractionModuleProvider.RangedInteractionModule, null, null, null, raycastHit.distance, true, raycastHit.point);
                     }
                     else
                     {
-                        result = new(null, null, null, raycastHit.distance, true, raycastHit.point);
+                        result = new(null, null, null,null, raycastHit.distance, true, raycastHit.point);
                     }
                 }
             }
             else
             {
-                result = new(null, null, null, maxRaycastDistance, false);
+                result = new(null, null, null,null, maxRaycastDistance, false);
             }
 
             return result;
@@ -117,16 +119,16 @@ namespace VE2.Core.Player.Internal
 
                 if (closestRangedGrabInteractionProvider != null)
                 {
-                    result = new(closestRangedGrabInteractionProvider.RangedInteractionModule, null, null, closestDistance, true, closestHitPoint);
+                    result = new(closestRangedGrabInteractionProvider.RangedInteractionModule, null, null,null, closestDistance, true, closestHitPoint);
                 }
                 else
                 {
-                    result = new(null, null, null, maxRaycastDistance, true, closestHitPoint);
+                    result = new(null, null, null,null, maxRaycastDistance, true, closestHitPoint);
                 }
             }
             else
             {
-                result = new(null, null, null, maxRaycastDistance, false);
+                result = new(null, null, null,null, maxRaycastDistance, false);
             }
 
             return result;
@@ -173,6 +175,24 @@ namespace VE2.Core.Player.Internal
 
             return null;
         }
+
+        private TMP_InputField GetTMPInputField(RaycastHit hit)
+        {
+            PointerEventData pointerData = new PointerEventData(EventSystem.current);
+            Camera camera = Camera.main;
+            pointerData.position = camera.WorldToScreenPoint(hit.point);
+
+            List<RaycastResult> results = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(pointerData, results);
+
+            foreach (var result in results)
+            {
+                if (result.gameObject.TryGetComponent(out TMP_InputField inputField))
+                    return inputField;
+            }
+
+            return null;
+        }
     }
 
     internal class RaycastResultWrapper
@@ -181,6 +201,7 @@ namespace VE2.Core.Player.Internal
         public IRangedInteractionModule RangedInteractableInRange => HitInteractableInRange ? RangedInteractable : null;
         public Button UIButton;
         public IScrollableUI ScrollableUI;
+        public TMP_InputField InputField;
         public float HitDistance { get; private set; }
         public Vector3 HitPosition { get; private set; }
         public bool HitAnything { get; private set; }
@@ -192,13 +213,14 @@ namespace VE2.Core.Player.Internal
         public bool HitScrollableAdjustableInteractableInRange => HitInteractableInRange && RangedInteractable is IRangedAdjustableInteractionModule;
         public bool HitScrollableUI => ScrollableUI != null;
 
-        public RaycastResultWrapper(IRangedInteractionModule rangedInteractable, Button uiButton, IScrollableUI scrollableUI, float distance, bool hitAnything, Vector3 hitPosition = default)
+        public RaycastResultWrapper(IRangedInteractionModule rangedInteractable, Button uiButton, IScrollableUI scrollableUI,TMP_InputField inputField, float distance, bool hitAnything, Vector3 hitPosition = default)
         {
             HitPosition = hitPosition;
             RangedInteractable = rangedInteractable;
             HitAnything = hitAnything;
             UIButton = uiButton;
             ScrollableUI = scrollableUI;
+            InputField = inputField;
             HitDistance = distance;
         }
     }

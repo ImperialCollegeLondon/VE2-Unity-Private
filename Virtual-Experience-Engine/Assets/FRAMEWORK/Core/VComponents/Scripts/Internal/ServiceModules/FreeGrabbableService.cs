@@ -67,9 +67,6 @@ namespace VE2.Core.VComponents.Internal
             _isKinematicOnGrab = _rigidbody.isKinematic;
             _grabbableRigidbodyInterface = grabbableRigidbodyInterface;
 
-            _RangedGrabInteractionModule.OnLocalInteractorEnterHover += OnHoverEnter;
-            _RangedGrabInteractionModule.OnLocalInteractorExitHover += OnHoverExit;
-
             _RangedGrabInteractionModule.OnLocalInteractorRequestGrab += interactorID => _StateModule.SetGrabbed(interactorID);
             _RangedGrabInteractionModule.OnLocalInteractorRequestDrop += interactorID => _StateModule.SetDropped(interactorID);
             _RangedGrabInteractionModule.OnGrabDeltaApplied += ApplyDeltaWhenGrabbed;
@@ -77,25 +74,6 @@ namespace VE2.Core.VComponents.Internal
             _StateModule.OnGrabConfirmed += HandleGrabConfirmed;
             _StateModule.OnDropConfirmed += HandleDropConfirmed;
             _StateModule.OnRequestTeleportRigidbody += HandleTeleportRigidbody;
-        }
-
-        private void OnHoverEnter()
-        {
-            // if (_grabbableOutline == null)
-            //     return;
-
-            // if (!_StateModule.IsGrabbed)
-            //     _grabbableOutline.OutlineColor = _rangedFreeGrabInteractionConfig.HoveredOutlineColor;
-            // else
-            //     _grabbableOutline.OutlineColor = _rangedFreeGrabInteractionConfig.DefaultOutlineColor;
-        }
-
-        private void OnHoverExit()
-        {
-            // if (_grabbableOutline == null)
-            //     return;
-
-            // _grabbableOutline.OutlineColor = _rangedFreeGrabInteractionConfig.DefaultOutlineColor;
         }
 
         //This is for teleporting the grabbed object along with the player - TODO: Tweak names for clarity 

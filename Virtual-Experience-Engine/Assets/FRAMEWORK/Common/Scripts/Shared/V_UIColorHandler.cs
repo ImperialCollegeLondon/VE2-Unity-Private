@@ -34,11 +34,12 @@ namespace VE2.Common.Shared
         //[SerializeField, ]
 
 
-        private bool _hasButton => _button != null; 
+        private bool _hasButton => _button != null || _inputField != null; 
 
         private Image _image;
         private TMP_Text _text;
         private Button _button;
+        private TMP_InputField _inputField;
 
         private Image _subImage;
         private bool _hasSubImage => _subImage != null;
@@ -59,6 +60,9 @@ namespace VE2.Common.Shared
 
         private void Awake()
         {
+            if (!enabled)
+                return;
+
             Setup();
         }
 
@@ -76,6 +80,7 @@ namespace VE2.Common.Shared
             _subText = GetComponentInChildren<TMP_Text>();
 
             _button = GetComponent<Button>();
+            _inputField = GetComponent<TMP_InputField>();
 
             UpdateColor();
             AssignButtonColors();
@@ -109,6 +114,9 @@ namespace VE2.Common.Shared
 
         private void OnValidate()
         {
+            if (!enabled)
+                return;
+
             if (!Application.isPlaying)
                 UpdateColor();
         }
@@ -166,6 +174,9 @@ namespace VE2.Common.Shared
 
         public void OnPointerEnter(PointerEventData eventData)
         {
+            if (!enabled)
+                return;
+
             _isHighlighted = true;
 
             if (!_hasButton)
@@ -179,6 +190,9 @@ namespace VE2.Common.Shared
 
         public void OnPointerExit(PointerEventData eventData)
         {
+            if (!enabled)
+                return;
+
             _isHighlighted = false;
 
             if (!_hasButton)
@@ -214,8 +228,11 @@ namespace VE2.Common.Shared
         }
 
         private void SetToNonSelectedColors()
-        {
-            _button.colors = _buttonNonSelectedColors;
+        {   
+            if(_button != null)
+                _button.colors = _buttonNonSelectedColors;
+            if(_inputField != null)
+                _inputField.colors = _buttonNonSelectedColors;
 
             if (_hasSubImage)
                 _subImage.color = _buttonSubElementsNonSelectedColor;

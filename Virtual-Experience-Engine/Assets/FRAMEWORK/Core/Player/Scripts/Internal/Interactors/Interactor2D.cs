@@ -1,6 +1,10 @@
 using DG.Tweening;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using VE2.Common.API;
 using VE2.Common.Shared;
@@ -24,12 +28,14 @@ namespace VE2.Core.Player.Internal
         private readonly Transform _grabberInspectGuideTransform;
         private Tween _inspectModeTween = null;
         private readonly FreeGrabbingIndicator _grabbingIndicator;
+        private IsKeyboardActiveIndicator _isKeyboardActiveIndicator;
 
+        List<TMP_InputField> _inputFields;
         private IRangedFreeGrabInteractionModule _rangedFreeGrabbingGrabbable => _CurrentGrabbingGrabbable as IRangedFreeGrabInteractionModule;
 
         internal Interactor2D(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, Interactor2DInputContainer interactor2DInputContainer,
             PlayerInteractionConfig interactionConfig, InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider,
-            ILocalClientIDWrapper localClientIDWrapper, ILocalAdminIndicator localAdminIndicator, InspectModeIndicator inspectModeIndicator, FreeGrabbingIndicator grabbingIndicator) :
+            ILocalClientIDWrapper localClientIDWrapper, ILocalAdminIndicator localAdminIndicator, InspectModeIndicator inspectModeIndicator, FreeGrabbingIndicator grabbingIndicator, IsKeyboardActiveIndicator isKeyboardActiveIndicator) :
             base(interactorContainer, grabInteractablesContainer, interactor2DInputContainer, interactionConfig,
                 interactorReferences, interactorType, raycastProvider, localClientIDWrapper, localAdminIndicator, null, new HoveringOverScrollableIndicator())
         {
@@ -37,6 +43,7 @@ namespace VE2.Core.Player.Internal
             _reticuleImage = interactor2DReferences.ReticuleImage;
             _inspectModeIndicator = inspectModeIndicator;
             _grabbingIndicator = grabbingIndicator;
+            _isKeyboardActiveIndicator = isKeyboardActiveIndicator;
 
             _connectionPromptHandler = interactor2DReferences.ConnectionPromptHandler;
             _grabberInspectGuideTransform = interactor2DReferences.GrabberInspectTransform;
@@ -67,6 +74,7 @@ namespace VE2.Core.Player.Internal
         {
             base.HandleOnEnable();
             _interactor2DInputContainer.InspectModeInput.OnReleased += HandleInspectModePressed;
+            DetectAllInputFieldsAndRegister();
 
             if (!_LocalClientIDWrapper.IsClientIDReady)
                 _connectionPromptHandler.NotifyWaitingForConnection();
@@ -76,6 +84,7 @@ namespace VE2.Core.Player.Internal
         {
             base.HandleOnDisable();
             _interactor2DInputContainer.InspectModeInput.OnReleased -= HandleInspectModePressed;
+            DeRegister();
         }
 
         public override void HandleUpdate()
@@ -209,6 +218,52 @@ namespace VE2.Core.Player.Internal
         protected override void Vibrate(float amplitude, float duration)
         {
             //Do Nothing
+        }
+
+        private void DetectAllInputFieldsAndRegister()
+        {
+            // Find all InputField components in the scene  
+            TMP_InputField[] allInputs = Resources.FindObjectsOfTypeAll<TMP_InputField>();
+            _inputFields = allInputs
+                .Where(field => field != null && field.gameObject.scene.IsValid())
+                .ToList();
+
+            foreach (var inputField in _inputFields)
+            {
+                // Register to the OnSelect event of each InputField  
+                inputField.onSelect.AddListener((_) => EnableKeyboardActiveIndicator(null, inputField));
+
+                // Optionally, register to the OnDeselect event to reset the indicator  
+                inputField.onEndEdit.AddListener(DisableKeyboardActiveIndicator);
+            }
+        }
+
+        private void EnableKeyboardActiveIndicator(BaseEventData eventData, TMP_InputField inputField)
+        {
+            _isKeyboardActiveIndicator.IsKeyboardActive = true;
+            inputField.ActivateInputField();
+        }
+
+
+        private void DisableKeyboardActiveIndicator(string message)
+        {
+            _isKeyboardActiveIndicator.IsKeyboardActive = false;
+        }
+
+        private void DeRegister()
+        {
+            if (_inputFields == null || _inputFields.Count == 0)
+                return;
+            Debug.Log("De-registering input fields from Interactor2D");
+            foreach (var inputField in _inputFields)
+            {
+                // Unregister from the OnSelect event of each InputField  
+                inputField.onSelect.RemoveListener((_) => EnableKeyboardActiveIndicator(null, inputField));
+
+                // Optionally, unregister from the OnDeselect event to reset the indicator  
+                inputField.onEndEdit.RemoveListener(DisableKeyboardActiveIndicator);
+            }
+            _inputFields.Clear();
         }
     }
 }

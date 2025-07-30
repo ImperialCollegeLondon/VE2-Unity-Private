@@ -23,7 +23,7 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField, PropertyOrder(2)] public UnityEvent OnLocalHoverExit = new();
 
         [Space(15)]
-        [SerializeField, PropertyOrder(3)] public bool EnableOutline = true;
+        [SerializeField, PropertyOrder(3)] public bool EnableOutline = false;
         [SerializeField, PropertyOrder(4), ShowIf(nameof(EnableOutline), true)] public float OutlineThickness = 2.5f;
         [SerializeField, PropertyOrder(5), ShowIf(nameof(EnableOutline), true)] public Color DefaultOutlineColor = Color.white;
         [SerializeField, PropertyOrder(6), ShowIf(nameof(EnableOutline), true)] public Color InteractedOutlineColor = new Color(1f, 0.5f, 0f, 1f);
@@ -68,7 +68,7 @@ namespace VE2.Core.VComponents.Internal
 
             _hoveringInteractors.Add(interactorID);
 
-            Debug.Log($"Number of hovering interactors: {_hoveringInteractors.Count}");
+            //Debug.Log($"Number of hovering interactors: {_hoveringInteractors.Count}");
 
             if (_hoveringInteractors.Count > 0)
             {
@@ -93,7 +93,7 @@ namespace VE2.Core.VComponents.Internal
             if (_hoveringInteractors.Contains(interactorID))
                 _hoveringInteractors.Remove(interactorID);
 
-            Debug.Log($"Number of hovering interactors: {_hoveringInteractors.Count}");
+            //Debug.Log($"Number of hovering interactors: {_hoveringInteractors.Count}");
 
             if (_hoveringInteractors.Count == 0)
             {
@@ -150,7 +150,7 @@ namespace VE2.Core.VComponents.Internal
             if (_interactableOutline == null)
                 return;
 
-            Debug.Log($"OnLocalAdminStatusChanged - isLocalAdmin: {isLocalAdmin}");
+            //Debug.Log($"OnLocalAdminStatusChanged - isLocalAdmin: {isLocalAdmin}");
 
             if (_isAllowedToInteract)
                 SetOutlineColor(_rangedConfig.DefaultOutlineColor);
