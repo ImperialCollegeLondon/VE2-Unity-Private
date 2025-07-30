@@ -32,7 +32,7 @@ namespace VE2.NonCore.Instancing.Internal
 
             limit = queueSize;
             flatBuffer = new NativeList<byte>(Allocator.Persistent);
-            stateOffsets = new NativeList<int>(limit, Allocator.Persistent); //Mem leak here
+            stateOffsets = new NativeList<int>(limit, Allocator.Persistent);
             stateLengths = new NativeList<int>(limit, Allocator.Persistent);
         }
 
@@ -60,8 +60,12 @@ namespace VE2.NonCore.Instancing.Internal
                     newLengths.Add(stateLengths[i]);
                 }
 
-                stateOffsets.Dispose();
-                stateLengths.Dispose();
+                // dispose old lists before replacing
+                if (stateOffsets.IsCreated)
+                    stateOffsets.Dispose();
+                if (stateLengths.IsCreated)
+                    stateLengths.Dispose();
+
                 stateOffsets = newOffsets;
                 stateLengths = newLengths;
             }
@@ -91,12 +95,12 @@ namespace VE2.NonCore.Instancing.Internal
                 for (int i = 1; i < stateOffsets.Length; i++)
                     stateOffsets[i - 1] = stateOffsets[i] - removeLength;
 
-                stateOffsets[stateOffsets.Length - 1] = 0; // Will be replaced
                 for (int i = 1; i < stateLengths.Length; i++)
                     stateLengths[i - 1] = stateLengths[i];
 
-                stateOffsets.Resize(stateOffsets.Length - 1, NativeArrayOptions.UninitializedMemory);
-                stateLengths.Resize(stateLengths.Length - 1, NativeArrayOptions.UninitializedMemory);
+                // Replace Resize(..., UninitializedMemory) with safe RemoveAt()
+                stateOffsets.RemoveAt(stateOffsets.Length - 1);
+                stateLengths.RemoveAt(stateLengths.Length - 1);
             }
 
             int offset = flatBuffer.Length;
