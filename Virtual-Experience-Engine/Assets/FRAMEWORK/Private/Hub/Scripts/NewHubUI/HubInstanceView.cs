@@ -36,8 +36,6 @@ internal class HubInstanceView : MonoBehaviour
 
     public void UpdateInstanceInfo(PlatformInstanceInfo instanceInfo, bool isSelected)
     {
-        Debug.Log("Updating instance view for: " + instanceInfo.InstanceCode.InstanceSuffix + " | Selected: " + isSelected + " clients: " + instanceInfo.ClientInfos.Count);
-
         //Remove previews of players that are no longer in the instance
         List<ushort> playerPreviewsToRemove = new();
         foreach (KeyValuePair<ushort, GameObject> playerPreview in _playerPreviews)

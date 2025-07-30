@@ -114,6 +114,7 @@ internal class HubWorldPageHandler
 
     private void HandleInstanceSelected(InstanceCode instanceCode)
     {
+        Debug.Log($"Instance selected: {instanceCode}");
         _selectedInstanceCode = instanceCode;
         _hubWorldPageView.SetSelectedInstanceCode(instanceCode);
         RefreshInstanceDisplays();
@@ -426,6 +427,7 @@ internal class HubWorldPageHandler
         _hubWorldPageView.OnCancelDownloadClicked -= HandleCancelDownloadClicked;
         _hubWorldPageView.OnInstallWorldClicked -= HandleInstallWorldClicked;
         _hubWorldPageView.OnInstanceCodeSelected -= HandleInstanceSelected;
+        _hubWorldPageView.OnInstanceCodeManuallyEntered -= HandleInstanceManuallyEntered;
         _hubWorldPageView.OnAutoSelectInstanceClicked -= HandleChooseInstanceForMeSelected;
         _hubWorldPageView.OnEnterWorldClicked -= HandleEnterWorldClicked;
     }

@@ -103,6 +103,7 @@ internal class HubWorldPageView : MonoBehaviour
 
     public void HandleInstanceCodeManuallyEntered(string instanceCode)
     {
+        Debug.Log($"Instance code manually entered: {instanceCode}");
         OnInstanceCodeManuallyEntered?.Invoke(instanceCode);
     }
 

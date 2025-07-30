@@ -178,6 +178,7 @@ namespace VE2.Core.Player.Internal
                 // Check if keyboard is active  
                 if (_isKeyboardActiveIndicator.IsKeyboardActive)
                 {
+                    //Debug.LogWarning("Keyboard is active, disabling movement");
                     return; // Disable movement but allow camera movement  
                 }
 

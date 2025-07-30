@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using VE2.Common.API;
@@ -30,7 +31,6 @@ namespace VE2.Core.Player.Internal
         private readonly FreeGrabbingIndicator _grabbingIndicator;
         private IsKeyboardActiveIndicator _isKeyboardActiveIndicator;
 
-        List<TMP_InputField> _inputFields;
         private IRangedFreeGrabInteractionModule _rangedFreeGrabbingGrabbable => _CurrentGrabbingGrabbable as IRangedFreeGrabInteractionModule;
 
         internal Interactor2D(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, Interactor2DInputContainer interactor2DInputContainer,
@@ -84,7 +84,7 @@ namespace VE2.Core.Player.Internal
         {
             base.HandleOnDisable();
             _interactor2DInputContainer.InspectModeInput.OnReleased -= HandleInspectModePressed;
-            DeRegister();
+            UnregisterAllInputFields();
         }
 
         public override void HandleUpdate()
@@ -220,25 +220,48 @@ namespace VE2.Core.Player.Internal
             //Do Nothing
         }
 
+        //TODO - remove all below when we have a better way to wire up to input fields
+        private Dictionary<TMP_InputField, UnityAction<string>> _selectListeners = new();
+        private List<TMP_InputField> _inputFields = new();
+
         private void DetectAllInputFieldsAndRegister()
         {
+            Debug.Log("Detecting all InputFields in the scene and registering to their events===========================");
+
             // Find all InputField components in the scene  
             TMP_InputField[] allInputs = Resources.FindObjectsOfTypeAll<TMP_InputField>();
             _inputFields = allInputs
                 .Where(field => field != null && field.gameObject.scene.IsValid())
                 .ToList();
 
-            foreach (var inputField in _inputFields)
+            foreach (TMP_InputField inputField in _inputFields)
             {
-                // Register to the OnSelect event of each InputField  
-                inputField.onSelect.AddListener((_) => EnableKeyboardActiveIndicator(null, inputField));
+                // Cache a delegate for this specific input field, cache it, and register it
+                UnityAction<string> onSelect = (eventData) => EnableKeyboardActiveIndicator(inputField);
+                _selectListeners[inputField] = onSelect;
+                inputField.onSelect.AddListener(onSelect);
 
-                // Optionally, register to the OnDeselect event to reset the indicator  
+                //This one takes no params, so don't need the above
                 inputField.onEndEdit.AddListener(DisableKeyboardActiveIndicator);
             }
         }
 
-        private void EnableKeyboardActiveIndicator(BaseEventData eventData, TMP_InputField inputField)
+        private void UnregisterAllInputFields()
+        {
+            foreach (KeyValuePair<TMP_InputField, UnityAction<string>> kvp in _selectListeners)
+            {
+                TMP_InputField inputField = kvp.Key;
+                UnityAction<string> onSelect = kvp.Value;
+
+                inputField?.onSelect.RemoveListener(onSelect);
+                inputField?.onEndEdit.RemoveListener(DisableKeyboardActiveIndicator);
+            }
+
+            _selectListeners.Clear();
+            _inputFields.Clear();
+        }
+
+        private void EnableKeyboardActiveIndicator(TMP_InputField inputField)
         {
             _isKeyboardActiveIndicator.IsKeyboardActive = true;
             inputField.ActivateInputField();
@@ -248,22 +271,6 @@ namespace VE2.Core.Player.Internal
         private void DisableKeyboardActiveIndicator(string message)
         {
             _isKeyboardActiveIndicator.IsKeyboardActive = false;
-        }
-
-        private void DeRegister()
-        {
-            if (_inputFields == null || _inputFields.Count == 0)
-                return;
-            Debug.Log("De-registering input fields from Interactor2D");
-            foreach (var inputField in _inputFields)
-            {
-                // Unregister from the OnSelect event of each InputField  
-                inputField.onSelect.RemoveListener((_) => EnableKeyboardActiveIndicator(null, inputField));
-
-                // Optionally, unregister from the OnDeselect event to reset the indicator  
-                inputField.onEndEdit.RemoveListener(DisableKeyboardActiveIndicator);
-            }
-            _inputFields.Clear();
         }
     }
 }
