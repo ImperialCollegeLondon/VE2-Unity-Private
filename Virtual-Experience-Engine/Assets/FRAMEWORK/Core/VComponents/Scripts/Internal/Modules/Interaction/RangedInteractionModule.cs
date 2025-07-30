@@ -23,7 +23,7 @@ namespace VE2.Core.VComponents.Internal
         [SerializeField, PropertyOrder(2)] public UnityEvent OnLocalHoverExit = new();
 
         [Space(15)]
-        [SerializeField, PropertyOrder(3)] public bool EnableOutline = true;
+        [SerializeField, PropertyOrder(3)] public bool EnableOutline = false;
         [SerializeField, PropertyOrder(4), ShowIf(nameof(EnableOutline), true)] public float OutlineThickness = 2.5f;
         [SerializeField, PropertyOrder(5), ShowIf(nameof(EnableOutline), true)] public Color DefaultOutlineColor = Color.white;
         [SerializeField, PropertyOrder(6), ShowIf(nameof(EnableOutline), true)] public Color InteractedOutlineColor = new Color(1f, 0.5f, 0f, 1f);

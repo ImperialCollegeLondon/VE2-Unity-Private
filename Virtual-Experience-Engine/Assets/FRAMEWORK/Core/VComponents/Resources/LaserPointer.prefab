@@ -257,6 +257,11 @@ MonoBehaviour:
       OnLocalHoverExit:
         m_PersistentCalls:
           m_Calls: []
+      EnableOutline: 0
+      OutlineThickness: 2.5
+      DefaultOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+      InteractedOutlineColor: {r: 1, g: 0.5, b: 0, a: 1}
+      HoveredOutlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
       _attachPoint: {fileID: 8949190156522825374}
       VRRaySnap: 1
       VRRaySnapRangeFrontOfHand: 0.15

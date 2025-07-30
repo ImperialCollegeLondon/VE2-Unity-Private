@@ -249,23 +249,27 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+      EnableOutline: 0
+      OutlineThickness: 2.5
+      DefaultOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+      InteractedOutlineColor: {r: 1, g: 0.5, b: 0, a: 1}
+      HoveredOutlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
       _attachPoint: {fileID: 347726672164685230}
       VRRaySnap: 1
       VRRaySnapRangeFrontOfHand: 0.15
       VRRaySnapRangeBackOfHand: 0.1
       VRFailsafeGrab: 1
-      FailsafeGrabMultiplier: 1.2
+      VRFailsafeGrabMultiplier: 1.2
       _transformToAdjust: {fileID: 1451031503474687077}
     GeneralInteractionConfig:
       AdminOnly: 0
       EnableControllerVibrations: 1
       ShowTooltipsAndHighlight: 1
+      IsInteractable: 1
     SyncConfig:
       IsNetworked: 1
       TransmissionFrequency: 1
       TransmissionType: 0
-  _adjustableState:
-    IsInitialised: 0
 --- !u!1 &6153300702953961962
 GameObject:
   m_ObjectHideFlags: 0

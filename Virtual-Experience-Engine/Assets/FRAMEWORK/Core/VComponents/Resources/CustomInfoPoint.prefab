@@ -1262,6 +1262,11 @@ MonoBehaviour:
               m_StringArgument: 
               m_BoolArgument: 0
             m_CallState: 2
+      EnableOutline: 0
+      OutlineThickness: 2.5
+      DefaultOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+      InteractedOutlineColor: {r: 1, g: 0.5, b: 0, a: 1}
+      HoveredOutlineColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
       ClickAtRangeInVR: 1
     GeneralInteractionConfig:
       AdminOnly: 0
