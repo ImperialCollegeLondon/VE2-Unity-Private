@@ -69,7 +69,7 @@ namespace VE2.Core.VComponents.Internal
                 {
                     distanceFromPlayer = 0.5f;
                     playerTransform = VE2API.Player.ActiveCamera.transform;
-                    Vector3 downwardOffset = new Vector3(0, -0.3f, 0);
+                    Vector3 downwardOffset = new Vector3(0, -0.4f, 0);
                     spawnPosition = playerTransform.position + playerTransform.forward * distanceFromPlayer + downwardOffset;
                     spawnRotation = Quaternion.Euler(15f, playerTransform.eulerAngles.y, 0f);
                 }

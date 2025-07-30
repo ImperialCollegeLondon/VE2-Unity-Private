@@ -44,6 +44,7 @@ GameObject:
   - component: {fileID: 6627910549476459483}
   - component: {fileID: 5979683808332070458}
   - component: {fileID: 8304073173733109290}
+  - component: {fileID: 209245103857187811}
   m_Layer: 5
   m_Name: Placeholder
   m_TagString: Untagged
@@ -107,8 +108,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294700755
-  m_fontColor: {r: 0.82745105, g: 0.9333334, b: 0.9843138, a: 1}
+    rgba: 4282785792
+  m_fontColor: {r: 0, g: 0.1254902, b: 0.27450982, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -189,6 +190,21 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!114 &209245103857187811
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1315411468790741649}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 708619ab7d1640b4d9aee80546ffeb1f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _colorType: 3
+  _colorAlpha: 1
+  _buttonType: 0
 --- !u!1 &4123375632261944105
 GameObject:
   m_ObjectHideFlags: 0
@@ -329,6 +345,7 @@ GameObject:
   - component: {fileID: 7997746685771305207}
   - component: {fileID: 156796509446994906}
   - component: {fileID: 3802433645779740742}
+  - component: {fileID: 7175132683286271759}
   m_Layer: 5
   m_Name: Text
   m_TagString: Untagged
@@ -392,8 +409,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4281479730
-  m_fontColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+    rgba: 4282785792
+  m_fontColor: {r: 0, g: 0.1254902, b: 0.27450982, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -454,6 +471,21 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &7175132683286271759
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5705404059367302514}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 708619ab7d1640b4d9aee80546ffeb1f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _colorType: 3
+  _colorAlpha: 1
+  _buttonType: 0
 --- !u!1 &6384523473199761319
 GameObject:
   m_ObjectHideFlags: 0
@@ -540,9 +572,9 @@ GameObject:
   - component: {fileID: 5466722419674856901}
   - component: {fileID: 8085545634013520532}
   - component: {fileID: 7238767835177992608}
+  - component: {fileID: 1207819494948248567}
   - component: {fileID: 1054134591734945809}
   - component: {fileID: 3732624140233504249}
-  - component: {fileID: 1207819494948248567}
   m_Layer: 5
   m_Name: InputField (TMP)
   m_TagString: Untagged
@@ -608,6 +640,30 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &1207819494948248567
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7207537227712836965}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e83ff517c76c54e40823eb558fa1e6ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  keyboardConfig:
+    inputField: {fileID: 1054134591734945809}
+    inheritCurrentText: 0
+    inputPrompt: Enter Here
+    acceptOnlyCorrectAnswer: 0
+    correctAnswer: 
+    correctAnswerPrompt: Correct Answer!
+    incorrectAnswerPrompt: Incorrect Answer!
+    OnSubmission:
+      m_PersistentCalls:
+        m_Calls: []
+  distanceFromPlayer: 0.15
 --- !u!114 &1054134591734945809
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -630,9 +686,9 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 0.82745105, g: 0.9333334, b: 0.9843138, a: 1}
-    m_HighlightedColor: {r: 0.9215687, g: 0.45098042, b: 0, a: 1}
-    m_PressedColor: {r: 0.737255, g: 0.36078435, b: 0, a: 1}
-    m_SelectedColor: {r: 0, g: 0.97647065, b: 0.79215693, a: 1}
+    m_HighlightedColor: {r: 0.7392903, g: 0.8346089, b: 0.8805031, a: 1}
+    m_PressedColor: {r: 0.6039516, g: 0.7502937, b: 0.8207547, a: 1}
+    m_SelectedColor: {r: 0.82745105, g: 0.9333334, b: 0.9843138, a: 1}
     m_DisabledColor: {r: 0.31719467, g: 0.3848606, b: 0.41509432, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -656,17 +712,17 @@ MonoBehaviour:
   m_VerticalScrollbarEventHandler: {fileID: 0}
   m_LayoutGroup: {fileID: 0}
   m_ScrollSensitivity: 1
-  m_ContentType: 2
+  m_ContentType: 0
   m_InputType: 0
   m_AsteriskChar: 42
-  m_KeyboardType: 2
+  m_KeyboardType: 0
   m_LineType: 0
   m_HideMobileInput: 0
   m_HideSoftKeyboard: 0
-  m_CharacterValidation: 2
+  m_CharacterValidation: 0
   m_RegexValue: 
   m_GlobalPointSize: 14
-  m_CharacterLimit: 2
+  m_CharacterLimit: 10
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls: []
@@ -716,7 +772,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7207537227712836965}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 708619ab7d1640b4d9aee80546ffeb1f, type: 3}
   m_Name: 
@@ -724,30 +780,6 @@ MonoBehaviour:
   _colorType: 0
   _colorAlpha: 1
   _buttonType: 1
---- !u!114 &1207819494948248567
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7207537227712836965}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e83ff517c76c54e40823eb558fa1e6ae, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  keyboardConfig:
-    inputField: {fileID: 0}
-    inheritCurrentText: 0
-    inputPrompt: Enter Here
-    acceptOnlyCorrectAnswer: 0
-    correctAnswer: 
-    correctAnswerPrompt: Correct Answer!
-    incorrectAnswerPrompt: Incorrect Answer!
-    OnSubmission:
-      m_PersistentCalls:
-        m_Calls: []
-  distanceFromPlayer: 0.15
 --- !u!1 &8057042141853134585
 GameObject:
   m_ObjectHideFlags: 0

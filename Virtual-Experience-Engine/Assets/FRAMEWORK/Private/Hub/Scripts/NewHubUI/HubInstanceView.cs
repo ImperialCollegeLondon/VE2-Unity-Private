@@ -63,7 +63,7 @@ internal class HubInstanceView : MonoBehaviour
                 Image playerIcon = playerPreview.GetComponent<Image>();
 
                 BuiltInPlayerPresentationConfig playerPresentationConfig = clientInfo.PlayerPresentationConfig;
-                playerIcon.color = new Color(playerPresentationConfig.AvatarColor.r / 255f, playerPresentationConfig.AvatarColor.g / 255f, playerPresentationConfig.AvatarColor.b / 255f, 1);
+                playerIcon.color = new Color(playerPresentationConfig.AvatarColor.r, playerPresentationConfig.AvatarColor.g, playerPresentationConfig.AvatarColor.b, 1);
 
                 _playerPreviews.Add(clientInfo.ClientID, playerPreview);
             }
