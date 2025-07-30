@@ -1,6 +1,7 @@
 using DG.Tweening;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -222,7 +223,10 @@ namespace VE2.Core.Player.Internal
         private void DetectAllInputFieldsAndRegister()
         {
             // Find all InputField components in the scene  
-            _inputFields = new List<TMP_InputField>(GameObject.FindObjectsByType<TMP_InputField>(FindObjectsSortMode.None));
+            TMP_InputField[] allInputs = Resources.FindObjectsOfTypeAll<TMP_InputField>();
+            _inputFields = allInputs
+                .Where(field => field != null && field.gameObject.scene.IsValid())
+                .ToList();
 
             foreach (var inputField in _inputFields)
             {

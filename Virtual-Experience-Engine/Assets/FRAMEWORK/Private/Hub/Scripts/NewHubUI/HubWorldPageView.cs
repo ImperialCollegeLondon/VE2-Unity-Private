@@ -18,7 +18,8 @@ internal class HubWorldPageView : MonoBehaviour
     [SerializeField] private TMP_Text _selectedVersionNumber;
 
     [SerializeField] private Button _autoSelectInstanceButton;
-    [SerializeField] private Button _enterInstanceCodeButton;
+    //[SerializeField] private Button _enterInstanceCodeButton;
+    [SerializeField] private TMP_InputField _enterInstanceCodeInputField;
     [SerializeField] public VerticalLayoutGroup InstancesVerticalGroup;
     [SerializeField] private GameObject _noInstancesToShowPanel;
 
@@ -48,7 +49,8 @@ internal class HubWorldPageView : MonoBehaviour
     public event Action OnBackClicked;
 
     public event Action OnAutoSelectInstanceClicked;
-    public event Action OnEnterInstanceCodeClicked;
+    //public event Action OnEnterInstanceCodeClicked;
+    public event Action<string> OnInstanceCodeManuallyEntered;
 
     //TODO - we still need to figure out what we're doing with version numbers here. 
     public event Action<InstanceCode> OnInstanceCodeSelected;
@@ -63,7 +65,8 @@ internal class HubWorldPageView : MonoBehaviour
         _backButton.onClick.AddListener(() => OnBackClicked?.Invoke());
 
         _autoSelectInstanceButton.onClick.AddListener(() => OnAutoSelectInstanceClicked?.Invoke());
-        _enterInstanceCodeButton.onClick.AddListener(() => OnEnterInstanceCodeClicked?.Invoke());
+        //_enterInstanceCodeButton.onClick.AddListener(() => OnEnterInstanceCodeClicked?.Invoke());
+        _enterInstanceCodeInputField.onEndEdit.AddListener((value) => OnInstanceCodeManuallyEntered?.Invoke(value));
 
         _downloadWorldButton.onClick.AddListener(() => OnDownloadWorldClicked?.Invoke());
         _cancelDownloadButton.onClick.AddListener(() => OnCancelDownloadClicked?.Invoke());

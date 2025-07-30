@@ -36,6 +36,7 @@ internal class HubWorldPageHandler
         _hubWorldPageView.OnInstallWorldClicked += HandleInstallWorldClicked;
         _hubWorldPageView.OnInstanceCodeSelected += HandleInstanceSelected;
         _hubWorldPageView.OnAutoSelectInstanceClicked += HandleChooseInstanceForMeSelected;
+        _hubWorldPageView.OnInstanceCodeManuallyEntered += HandleInstanceManuallyEntered;
         _hubWorldPageView.OnEnterWorldClicked += HandleEnterWorldClicked;
 
         _hubWorldPageView.SetupView(worldDetails);
@@ -45,8 +46,6 @@ internal class HubWorldPageHandler
         //First, we have to search for the versions of that world
         IRemoteFolderSearchInfo searchInfo = _fileSystem.GetRemoteFoldersAtPath($"{worldDetails.Name}");
         searchInfo.OnSearchComplete += HandleWorldVersionSearchComplete;
-
-        Debug.LogError("HubWorldPageHandler set up for world: " + _worldDetails.Name);
     }
 
     private void HandleWorldVersionSearchComplete(IRemoteFolderSearchInfo searchInfo)
@@ -124,6 +123,12 @@ internal class HubWorldPageHandler
     private void HandleChooseInstanceForMeSelected()
     {
         InstanceCode instanceCode = new(_worldDetails.Name, "00", (ushort)_selectedWorldVersion);
+        HandleInstanceSelected(instanceCode);
+    }
+
+    private void HandleInstanceManuallyEntered(string instanceCodeString)
+    {
+        InstanceCode instanceCode = new(_worldDetails.Name, instanceCodeString, (ushort)_selectedWorldVersion);
         HandleInstanceSelected(instanceCode);
     }
 

@@ -1,17 +1,8 @@
-using DG.Tweening;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Net.Mime;
-using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
-using VE2;
 using VE2.Common.API;
-using VE2.Core.Player.API;
 
 //"Spawns a virtual keyboard based on Keyboard config.Keyboard input feeds the attached InputField"
 namespace VE2.Core.VComponents.Internal
@@ -29,9 +20,9 @@ namespace VE2.Core.VComponents.Internal
         private VirtualKeyboard virtualKeyboard;
         private Vector3 spawnPosition;
         private Quaternion spawnRotation;
+
         void Start()
         {
-
             if (keyboardConfig.inputField != null || TryGetComponent(out keyboardConfig.inputField))
             {
                 InitialiseConnectedInputField();
@@ -50,9 +41,11 @@ namespace VE2.Core.VComponents.Internal
         {
             virtualKeyboard.DestroyKeyboard();
         }
+
         public void SpawnKeyBoard(string selectedText = "")
         {
-            if (!VE2API.Player.IsVRMode) return;
+            if (!VE2API.Player.IsVRMode)
+                return;
 
             Debug.Log("Spawning Keyboard");
 
