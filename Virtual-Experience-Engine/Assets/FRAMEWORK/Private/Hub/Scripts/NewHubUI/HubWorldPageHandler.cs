@@ -131,7 +131,6 @@ internal class HubWorldPageHandler
 
     private void RefreshInstanceDisplays()
     {
-        Debug.Log("Refreshing instance displays for world: " + _worldDetails.Name);
         List<InstanceCode> instanceCodesFromServer = _platformService.GetInstanceCodesForWorldName(_worldDetails.Name);
         List<string> instancesFromServer = instanceCodesFromServer.Select(ic => ic.ToString()).ToList();
 
@@ -150,7 +149,7 @@ internal class HubWorldPageHandler
         foreach (string instanceCode in instancesFromServer)
         {
             PlatformInstanceInfo instanceInfo = _platformService.InstanceInfos[instanceCode.ToString()];
-            bool isSelected = _selectedInstanceCode != null && instanceCode.Equals(_selectedInstanceCode);
+            bool isSelected = _selectedInstanceCode != null && instanceCode.Equals(_selectedInstanceCode.ToString());
 
             if (!_instanceDisplayHandlers.ContainsKey(instanceCode))
                 AddInstanceDisplay(instanceInfo);
@@ -163,8 +162,6 @@ internal class HubWorldPageHandler
             if (!_instanceDisplayHandlers.ContainsKey(_selectedInstanceCode.ToString()))
             {
                 //If the selected instance is not in the list, we need to add it
-                Debug.LogWarning($"Selected instance {_selectedInstanceCode} not found in instance display handlers. Adding it.");
-
                 PlatformInstanceInfo instanceInfo = new(_selectedInstanceCode, new Dictionary<ushort, PlatformClientInfo>());
                 instanceInfo.ClientInfos.Add(_platformService.LocalClientID, new PlatformClientInfo
                 {
@@ -186,7 +183,7 @@ internal class HubWorldPageHandler
 
     private void AddInstanceDisplay(PlatformInstanceInfo instanceInfo)
     {
-        HubInstanceDisplayHandler newInstanceDisplayHandler = new(instanceInfo, true, _hubWorldPageView.InstanceButtonPrefab, _hubWorldPageView.InstancesVerticalGroup);
+        HubInstanceDisplayHandler newInstanceDisplayHandler = new(instanceInfo, instanceInfo.InstanceCode.Equals(_selectedInstanceCode), _hubWorldPageView.InstanceButtonPrefab, _hubWorldPageView.InstancesVerticalGroup);
         _instanceDisplayHandlers.Add(instanceInfo.InstanceCode.ToString(), newInstanceDisplayHandler);
         newInstanceDisplayHandler.OnInstanceButtonClicked += HandleInstanceSelected;
     }
@@ -420,7 +417,5 @@ internal class HubWorldPageHandler
         _hubWorldPageView.OnInstanceCodeSelected -= HandleInstanceSelected;
         _hubWorldPageView.OnAutoSelectInstanceClicked -= HandleChooseInstanceForMeSelected;
         _hubWorldPageView.OnEnterWorldClicked -= HandleEnterWorldClicked;
-
-        Debug.LogError("HubWorldPageHandler torn down for world: " + _worldDetails.Name);
     }
 }

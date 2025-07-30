@@ -1800,7 +1800,7 @@ GameObject:
   - component: {fileID: 76612628}
   - component: {fileID: 76612627}
   - component: {fileID: 76612626}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Ramp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12469,7 +12469,7 @@ GameObject:
   - component: {fileID: 540919969}
   - component: {fileID: 540919968}
   - component: {fileID: 540919967}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: CubeFlat
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12756,7 +12756,7 @@ GameObject:
   - component: {fileID: 552513226}
   - component: {fileID: 552513225}
   - component: {fileID: 552513224}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Ramp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -15071,7 +15071,7 @@ GameObject:
   - component: {fileID: 632576933}
   - component: {fileID: 632576932}
   - component: {fileID: 632576931}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45844,7 +45844,7 @@ GameObject:
   - component: {fileID: 1045303041}
   - component: {fileID: 1045303040}
   - component: {fileID: 1045303039}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57845,7 +57845,7 @@ GameObject:
   - component: {fileID: 1527980682}
   - component: {fileID: 1527980681}
   - component: {fileID: 1527980680}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Ceiling
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -58534,7 +58534,7 @@ GameObject:
   - component: {fileID: 1551700991}
   - component: {fileID: 1551700990}
   - component: {fileID: 1551700989}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -66854,7 +66854,7 @@ MonoBehaviour:
       FarClippingPlane: 1000
       CullingMask:
         serializedVersion: 2
-        m_Bits: 4294967295
+        m_Bits: 524159
       AntiAliasing: 1
       AntiAliasingQuality: 1
       EnablePostProcessing: 1
@@ -66890,9 +66890,9 @@ MonoBehaviour:
     PlayerName: Unknown
     AvatarHeadIndex: 0
     AvatarTorsoIndex: 0
-    AvatarColorR: 0
-    AvatarColorG: 0
-    AvatarColorB: 0
+    AvatarColorR: 255
+    AvatarColorG: 70
+    AvatarColorB: 70
   _transformDataSetup: 0
   _playerTransformData:
     IsVRMode: 0
@@ -66950,7 +66950,7 @@ GameObject:
   - component: {fileID: 1886996819}
   - component: {fileID: 1886996818}
   - component: {fileID: 1886996817}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}

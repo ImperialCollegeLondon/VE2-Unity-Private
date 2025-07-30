@@ -115,8 +115,6 @@ internal class HubWorldPageView : MonoBehaviour
         if (CurrentUIState == newState)
             return; // No change, do nothing
 
-        Debug.Log($"Updating HubWorldPageView UI state to: {newState}");
-
         CurrentUIState = newState;
 
         _confirmingVersionsPanel.SetActive(newState == HubWorldPageUIState.Loading);
@@ -137,10 +135,9 @@ internal class HubWorldPageView : MonoBehaviour
     public void SetNoInstancesToShow(bool noInstances)
     {
         _noInstancesToShowPanel.SetActive(noInstances);
-        //InstancesVerticalGroup.gameObject.SetActive(!noInstances);
     }
 
-    public void SetSelectedInstanceCode(InstanceCode instanceCode) => _selectedInstanceCodeText.text = instanceCode.InstanceSuffix;
+    public void SetSelectedInstanceCode(InstanceCode instanceCode) => _selectedInstanceCodeText.text = "Instance #" + instanceCode.InstanceSuffix;
 
     public void UpdateDownloadingWorldProgress(float progress) => _downloadingWorldProgressBar.SetValue(progress);
 }

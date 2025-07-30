@@ -36,6 +36,8 @@ internal class HubInstanceView : MonoBehaviour
 
     public void UpdateInstanceInfo(PlatformInstanceInfo instanceInfo, bool isSelected)
     {
+        Debug.Log("Updating instance view for: " + instanceInfo.InstanceCode.InstanceSuffix + " | Selected: " + isSelected + " clients: " + instanceInfo.ClientInfos.Count);
+
         //Remove previews of players that are no longer in the instance
         List<ushort> playerPreviewsToRemove = new();
         foreach (KeyValuePair<ushort, GameObject> playerPreview in _playerPreviews)
@@ -61,7 +63,7 @@ internal class HubInstanceView : MonoBehaviour
                 Image playerIcon = playerPreview.GetComponent<Image>();
 
                 BuiltInPlayerPresentationConfig playerPresentationConfig = clientInfo.PlayerPresentationConfig;
-                playerIcon.color = playerPresentationConfig.AvatarColor / 255f;
+                playerIcon.color = new Color(playerPresentationConfig.AvatarColor.r / 255f, playerPresentationConfig.AvatarColor.g / 255f, playerPresentationConfig.AvatarColor.b / 255f, 1);
 
                 _playerPreviews.Add(clientInfo.ClientID, playerPreview);
             }
