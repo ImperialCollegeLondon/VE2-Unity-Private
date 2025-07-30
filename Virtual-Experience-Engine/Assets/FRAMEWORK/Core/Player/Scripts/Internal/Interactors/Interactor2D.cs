@@ -226,8 +226,6 @@ namespace VE2.Core.Player.Internal
 
         private void DetectAllInputFieldsAndRegister()
         {
-            Debug.Log("Detecting all InputFields in the scene and registering to their events===========================");
-
             // Find all InputField components in the scene  
             TMP_InputField[] allInputs = Resources.FindObjectsOfTypeAll<TMP_InputField>();
             _inputFields = allInputs
