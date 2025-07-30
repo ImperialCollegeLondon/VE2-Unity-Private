@@ -40,6 +40,7 @@ internal class HubWorldPageHandler
         _hubWorldPageView.OnEnterWorldClicked += HandleEnterWorldClicked;
 
         _hubWorldPageView.SetupView(worldDetails);
+        _hubWorldPageView.UpdateUIState(HubWorldPageUIState.Loading);
 
         RefreshInstanceDisplays();
 
@@ -71,13 +72,9 @@ internal class HubWorldPageHandler
 
         //TODO: This returns DevBlue/002, while the above just returns 002
 
-        _worldDetails.VersionsAvailableLocally = _fileSystem.GetLocalFoldersAtPath($"{_worldDetails.Name}")
-            .Select(s => int.TryParse(s, out var v) ? (int?)v : null)
-            .Where(v => v.HasValue)
-            .Select(v => v.Value)
-            .ToList();
+        UpdateLocalAvailableVersions();
 
-        List<string> localWorlds = _fileSystem.GetLocalFoldersAtPath($"{_worldDetails.Name}");
+        //List<string> localWorlds = _fileSystem.GetLocalFoldersAtPath($"{_worldDetails.Name}");
 
         int targetVersion;
 
@@ -106,6 +103,15 @@ internal class HubWorldPageHandler
         _selectedWorldVersion = targetVersion;
 
         RefreshWorldUIState();
+    }
+
+    private void UpdateLocalAvailableVersions()
+    {
+        _worldDetails.VersionsAvailableLocally = _fileSystem.GetLocalFoldersAtPath($"{_worldDetails.Name}")
+            .Select(s => int.TryParse(s, out var v) ? (int?)v : null)
+            .Where(v => v.HasValue)
+            .Select(v => v.Value)
+            .ToList();
     }
 
     //TODO - maybe move to a different module
@@ -323,7 +329,7 @@ internal class HubWorldPageHandler
     private void HandleAllWorldFilesDownloaded()
     {
         _curentFileDownloadIndex = -1;
-
+        UpdateLocalAvailableVersions();
         RefreshWorldUIState();
     }
 

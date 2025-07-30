@@ -229,6 +229,13 @@ internal class HubWorldDetails
 
     public bool IsVersionDownloaded(int version)
     {
+        if (!VersionsAvailableLocally.Contains(version))
+        {
+            Debug.Log(Name + " Version not downloaded: " + version);
+            Debug.Log("Available versions locally: " + string.Join(", ", VersionsAvailableLocally));
+            return false;
+        }
+
         return VersionsAvailableLocally.Contains(version);
     }
 
