@@ -65,6 +65,7 @@ namespace VE2.Core.Player.Internal
         private readonly RectTransform _secondaryUIHolder;
         private readonly RectTransform _overlayUIRect;
         private readonly InspectModeIndicator _inspectModeIndicator;
+        private readonly IsKeyboardActiveIndicator _isKeyboardActiveIndicator;
 
         internal PlayerController2D(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, Player2DInputContainer player2DInputContainer,
             IPlayerPersistentDataHandler playerPersistentDataHandler, AvatarHandlerBuilderContext avatarHandlerBuilderContext,
@@ -89,16 +90,17 @@ namespace VE2.Core.Player.Internal
             _secondaryUIHolder = player2DReferences.SecondaryUIHolderRect;
             _overlayUIRect = player2DReferences.OverlayUIRect;
             _inspectModeIndicator = new InspectModeIndicator();
+            _isKeyboardActiveIndicator = new IsKeyboardActiveIndicator();
             CharacterCollider = player2DReferences.CharacterCollider;
 
             FreeGrabbingIndicator grabbingIndicator = new();
 
             _interactor2D = new(
                 interactorContainer, grabInteractablesContainer, player2DInputContainer.InteractorInputContainer2D, interactionConfig,
-                player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, localClientIDWrapper, localAdminIndicator, _inspectModeIndicator, grabbingIndicator);
+                player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, localClientIDWrapper, localAdminIndicator, _inspectModeIndicator, grabbingIndicator, _isKeyboardActiveIndicator);
 
             _feetInteractor2D = new(collisionDetectorFactory, ColliderType.Feet2D, player2DReferences.Interactor2DReferences.FeetCollider, InteractorType.Feet, localClientIDWrapper, localAdminIndicator, interactionConfig);
-            _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences, movementModeConfig, _inspectModeIndicator, player2DInputContainer.PlayerLocomotor2DInputContainer, Resources.Load<Player2DMovementConfig>("Player2DMovementConfig"), grabbingIndicator);
+            _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences, movementModeConfig, _inspectModeIndicator, player2DInputContainer.PlayerLocomotor2DInputContainer, Resources.Load<Player2DMovementConfig>("Player2DMovementConfig"), grabbingIndicator, _isKeyboardActiveIndicator);
 
             _rootTransform = player2DReferences.Locomotor2DReferences.Controller.transform;
 
@@ -229,6 +231,11 @@ namespace VE2.Core.Player.Internal
     internal class InspectModeIndicator
     {
         public bool IsInspectModeActive = false;
+    }
+
+    internal class IsKeyboardActiveIndicator
+    {
+        public bool IsKeyboardActive = false;
     }
 
     internal class FreeGrabbingIndicator
