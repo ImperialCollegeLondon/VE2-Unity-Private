@@ -7,12 +7,12 @@ using VE2.Common.API;
 //"Spawns a virtual keyboard based on Keyboard config.Keyboard input feeds the attached InputField"
 namespace VE2.Core.VComponents.Internal
 {
-    public class V_InputFieldHandler : MonoBehaviour
+    public class V_InputFieldHandler : MonoBehaviour //Needs an interface
     {
         private static int _keyboardInstanceCounter = 0;
 
         [SerializeField, HideLabel, IgnoreParent]
-        KeyboardConfig keyboardConfig;
+        public KeyboardConfig keyboardConfig;
 
         [Range(0f, 1.0f)]
         public float distanceFromPlayer = 0.15f;
@@ -34,6 +34,7 @@ namespace VE2.Core.VComponents.Internal
             if (keyboardConfig.inputField != null)
             {
                 keyboardConfig.inputField.onSelect.AddListener(SpawnKeyBoard);
+                keyboardConfig.inputField.onEndEdit.AddListener((value) => keyboardConfig.OnSubmission?.Invoke(value));
             }
         }
 
@@ -135,6 +136,7 @@ namespace VE2.Core.VComponents.Internal
         public string incorrectAnswerPrompt = "Incorrect Answer!";
 
         public UnityEvent<string> OnSubmission;
+        //public UnityEvent<string> 
 
         public string GetMaxCharErrorMessage()
         {

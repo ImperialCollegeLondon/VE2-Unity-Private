@@ -19,7 +19,7 @@ internal class HubWorldPageView : MonoBehaviour
 
     [SerializeField] private Button _autoSelectInstanceButton;
     //[SerializeField] private Button _enterInstanceCodeButton;
-    [SerializeField] private TMP_InputField _enterInstanceCodeInputField;
+    //[SerializeField] private V_InputFieldHandler _enterInstanceCodeInputField; //No interface, so this is wired up in the inspector
     [SerializeField] public VerticalLayoutGroup InstancesVerticalGroup;
     [SerializeField] private GameObject _noInstancesToShowPanel;
 
@@ -66,7 +66,7 @@ internal class HubWorldPageView : MonoBehaviour
 
         _autoSelectInstanceButton.onClick.AddListener(() => OnAutoSelectInstanceClicked?.Invoke());
         //_enterInstanceCodeButton.onClick.AddListener(() => OnEnterInstanceCodeClicked?.Invoke());
-        _enterInstanceCodeInputField.onEndEdit.AddListener((value) => OnInstanceCodeManuallyEntered?.Invoke(value));
+        //_enterInstanceCodeInputField.onEndEdit.AddListener((value) => OnInstanceCodeManuallyEntered?.Invoke(value));
 
         _downloadWorldButton.onClick.AddListener(() => OnDownloadWorldClicked?.Invoke());
         _cancelDownloadButton.onClick.AddListener(() => OnCancelDownloadClicked?.Invoke());
@@ -99,8 +99,11 @@ internal class HubWorldPageView : MonoBehaviour
         _switchTo2dButton.gameObject.SetActive(isVrMode);
         _switchToVrButton.gameObject.SetActive(!isVrMode);
         //===========
+    }
 
-
+    public void HandleInstanceCodeManuallyEntered(string instanceCode)
+    {
+        OnInstanceCodeManuallyEntered?.Invoke(instanceCode);
     }
 
     public void ShowAvailableVersions(List<int> versions)

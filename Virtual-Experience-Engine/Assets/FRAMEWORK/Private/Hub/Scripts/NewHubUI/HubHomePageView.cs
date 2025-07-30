@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
 
 internal class HubHomePageView : MonoBehaviour
 {

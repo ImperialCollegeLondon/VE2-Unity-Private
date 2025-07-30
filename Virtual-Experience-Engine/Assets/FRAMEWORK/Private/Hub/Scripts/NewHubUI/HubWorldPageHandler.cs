@@ -128,6 +128,12 @@ internal class HubWorldPageHandler
 
     private void HandleInstanceManuallyEntered(string instanceCodeString)
     {
+        if (instanceCodeString.Length == 0 || instanceCodeString.Length > 2)
+            return;
+
+        if (instanceCodeString.Length == 1)
+            instanceCodeString = "0" + instanceCodeString; 
+
         InstanceCode instanceCode = new(_worldDetails.Name, instanceCodeString, (ushort)_selectedWorldVersion);
         HandleInstanceSelected(instanceCode);
     }

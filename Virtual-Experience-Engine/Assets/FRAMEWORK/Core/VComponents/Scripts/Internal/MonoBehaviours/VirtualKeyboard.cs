@@ -19,7 +19,6 @@ namespace VE2.Core.VComponents.Internal
     [AddComponentMenu("")] //Unlikely to be useful outside the virtual keyboard context, so hide it from the menu
     public class VirtualKeyboard : MonoBehaviour
     {
-
         public GameObject fullKeyBoardGameObject;
         public GameObject numPadGameObject;
         public GameObject visualMeshObject;
@@ -64,8 +63,6 @@ namespace VE2.Core.VComponents.Internal
         private bool isKeyboardActive = false; //this is to cater for hover
         public UnityEvent<string> OnSubmitted;
         public UnityEvent<string> OnTextUpdate;
-
-
 
         private void OnEnable()
         {
