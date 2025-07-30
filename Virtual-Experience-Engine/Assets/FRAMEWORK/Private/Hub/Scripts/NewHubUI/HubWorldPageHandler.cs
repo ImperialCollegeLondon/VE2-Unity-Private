@@ -408,7 +408,7 @@ internal class HubWorldPageHandler
             return;
         }
 
-        _platformService.RequestInstanceAllocation(new InstanceCode(_worldDetails.Name, "00", (ushort)_selectedWorldVersion));
+        _platformService.RequestInstanceAllocation(_selectedInstanceCode);
     }
 
     public void TearDown()
