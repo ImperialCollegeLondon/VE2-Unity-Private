@@ -96,7 +96,7 @@ namespace VE2.Core.Player.Internal
         {
             //Unlike VR, we should just apply a one-time offset on grab, and have the grabber behave like its on the end of a stick
             //I.E, it's position is affected by the rotation of its parent 
-            Vector3 directionToGrabber = rangedAdjustableInteraction.Transform.position - _GrabberTransform.position;
+            Vector3 directionToGrabber = rangedAdjustableInteraction.AttachPointTransform.position - _GrabberTransform.position;
             _GrabberTransform.position += directionToGrabber;
         }
 

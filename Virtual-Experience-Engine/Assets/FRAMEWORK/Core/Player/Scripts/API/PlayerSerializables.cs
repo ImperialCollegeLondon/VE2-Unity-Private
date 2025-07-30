@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using VE2.Common.Shared;
 
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL || UNITY_WSA
 using UnityEngine;
 #endif
 
@@ -16,43 +16,43 @@ namespace VE2.Core.Player.API
                 [Serializable]
                 internal class PlayerVRControlConfig : VE2Serializable
                 {
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL || UNITY_WSA
                         [BeginIndent, SerializeField, Range(0.1f, 3f)]
 #endif
                         public float DragSpeed = 1;
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL || UNITY_WSA
                         [SerializeField, Range(22.5f, 90)]
 #endif
                         public float TurnAmount = 45;
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL || UNITY_WSA
                         [SerializeField]
 #endif
                         public bool ControllerVibration = true;
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL || UNITY_WSA
                         [SerializeField]
 #endif
                         public bool ControllerLabels = true;
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL || UNITY_WSA
                         [SerializeField, Range(0.5f, 3f)]
 #endif
                         public float WristLookPrecision = 1;
 
                         // VR Comfort settings 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL || UNITY_WSA
                         [SerializeField]
 #endif
                         public bool DragDarkening = false;
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL || UNITY_WSA
                         [SerializeField]
 #endif
                         public bool TeleportBlink = false;
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL || UNITY_WSA
                         [EndIndent, SerializeField]
 #endif
                         public bool SnapTurnBlink = false;
@@ -97,12 +97,12 @@ namespace VE2.Core.Player.API
                 [Serializable]
                 internal class Player2DControlConfig : VE2Serializable
                 {
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL || UNITY_WSA
                         [BeginIndent, SerializeField, Range(0.2f, 3f)]
 #endif
                         public float MouseSensitivity = 1;
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL || UNITY_WSA
                         [EndIndent, SerializeField]
 #endif
                         public bool CrouchHold = true;
@@ -140,37 +140,37 @@ namespace VE2.Core.Player.API
                 [Serializable]
                 internal class BuiltInPlayerPresentationConfig : VE2Serializable
                 {
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL || UNITY_WSA
                         [BeginIndent, SerializeField, IgnoreParent]
 #endif
                         public string PlayerName = "Unknown";
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL || UNITY_WSA
                         [SerializeField]
 #endif
                         public ushort AvatarHeadIndex;
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL || UNITY_WSA
                         [SerializeField]
 #endif
                         public ushort AvatarTorsoIndex;
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL || UNITY_WSA
                         [SerializeField]
 #endif
                         public ushort AvatarColorR = 0;
 
-                        #if UNITY_EDITOR
+                        #if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL || UNITY_WSA
                         [SerializeField]
 #endif
                         public ushort AvatarColorG = 0;
 
-                        #if UNITY_EDITOR
+                        #if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL || UNITY_WSA
                         [EndIndent, SerializeField]
 #endif
                         public ushort AvatarColorB = 0;
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL || UNITY_WSA
                         public Color AvatarColor
                         {
                                 get => new Color(AvatarColorR, AvatarColorG, AvatarColorB) / 255;
@@ -187,7 +187,7 @@ namespace VE2.Core.Player.API
 
                         public BuiltInPlayerPresentationConfig(byte[] bytes) : base(bytes) { }
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL || UNITY_WSA
                         public BuiltInPlayerPresentationConfig(string playerName, ushort avatarHeadType, ushort avatarBodyType, Color avatarColor)
                         {
                                 PlayerName = playerName;
@@ -251,25 +251,25 @@ namespace VE2.Core.Player.API
                 [Serializable]
                 internal class PluginAvatarSelections : VE2Serializable
                 {
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL || UNITY_WSA
                         [Title("Head GameObject Selection")]
                         [SerializeField, IgnoreParent, PropertyOrder(0)]
 #endif
                         internal AvatarGameObjectSelection HeadGameObjectSelection = new();
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL || UNITY_WSA
                         [Title("Torso GameObject Selection")]
                         [SerializeField, IgnoreParent, PropertyOrder(2)]
 #endif
                         internal AvatarGameObjectSelection TorsoGameObjectSelection = new();
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL || UNITY_WSA
                         [Title("VR Hand Right GameObject Selection")]
                         [SerializeField, IgnoreParent, PropertyOrder(3)]
 #endif
                         internal AvatarGameObjectSelection RightHandVRGameObjectSelection = new();
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL || UNITY_WSA
                         [Title("VR Hand Left GameObject Selection")]
                         [SerializeField, IgnoreParent, PropertyOrder(4)]
 #endif
@@ -354,17 +354,17 @@ namespace VE2.Core.Player.API
                 [Serializable]
                 internal class AvatarGameObjectSelection : VE2Serializable
                 {
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL || UNITY_WSA
                         [SerializeField]
 #endif
                         internal bool BuiltInGameObjectEnabled = true;
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL || UNITY_WSA
                         [SerializeField]
 #endif
                         internal bool CustomGameObjectEnabled = false;
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL || UNITY_WSA
                         [SerializeField, EnableIf(nameof(CustomGameObjectEnabled), true)]
 #endif
                         internal ushort CustomGameObjectIndex = 0;

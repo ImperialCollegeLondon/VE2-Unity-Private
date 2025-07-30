@@ -109,7 +109,13 @@ namespace VE2.NonCore.Instancing.Internal
             if (_isHost && _instanceService.LocalClientID == grabberClientID)
             {
                 // Host who dropped immediately starts sending messages again
-                HandleHostSideLagCompensation(_timeBehind/1000f);
+                if (!_isKinematicOnStart)
+                    HandleHostSideLagCompensation(_timeBehind / 1000f);
+                else
+                {
+                    _stateModule.SetStateFromHost(Time.fixedTime, _rigidbody.position, _rigidbody.rotation, _grabCounter);
+                    _hostNotSendingStates = false;
+                }
                 //_hostNotSendingStates = false;
             }
             else if (_instanceService.LocalClientID == grabberClientID)
@@ -121,6 +127,11 @@ namespace VE2.NonCore.Instancing.Internal
             {
                 // When a non-host drops, all other non-hosts need to do extra smoothing
                 _nonHostSmoothingTimeLeft = TOTAL_SMOOTHING_TIME_S;
+            }
+
+            if (_isKinematicOnStart)
+            {
+                _rigidbody.isKinematic = true;
             }
         }
 
@@ -296,9 +307,8 @@ namespace VE2.NonCore.Instancing.Internal
                 _rigidbody.isKinematic = _isKinematicOnStart;
                 SetRigidbodyValuesWithVelocity(receivedState);
 
-                // Do the special lag compensation required by the host when the non-host drops, and set kinematic
-                HandleHostSideLagCompensation(_timeBehind + (receivedState.LatestRoundTripTime + LAG_COMP_EXTRA_TIME) / 1000f);
-                
+                if (!_rigidbody.isKinematic)
+                    HandleHostSideLagCompensation(_timeBehind + (receivedState.LatestRoundTripTime + LAG_COMP_EXTRA_TIME) / 1000f);
             } 
             else if (!_isHost && receivedState.FromHost)
             {

@@ -4,7 +4,6 @@ using UnityEngine;
 using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.VComponents.API;
-using VE2.Core.VComponents.Shared;
 
 namespace VE2.Core.VComponents.Internal
 {
@@ -13,7 +12,6 @@ namespace VE2.Core.VComponents.Internal
     {
         [BeginGroup(Style = GroupStyle.Round)]
         [Title("Ranged Adjustable Interaction Settings", ApplyCondition = true)]
-        [EndGroup]
         [SerializeField, PropertyOrder(-100)] private Transform _transformToAdjust = null;
         private ITransformWrapper _transformToAdjustWrapper;
         public ITransformWrapper TransformToAdjust
@@ -27,6 +25,21 @@ namespace VE2.Core.VComponents.Internal
             }
             set => _transformToAdjustWrapper = value; //TODO: Maybe try and also set _transformToAdjust if its castable to Transform?
         }
+
+        [SerializeField, PropertyOrder(-100)] public bool PointRayTowardsAttachPoint = true;
+        [EndGroup, SerializeField, PropertyOrder(-100), ShowIf(nameof(PointRayTowardsAttachPoint), false)] private Transform _rayPointTransformTest = null;
+        private ITransformWrapper _rayPointTransformWrapper;
+        public ITransformWrapper RayPointTransform
+        {
+            get
+            {
+                if (_rayPointTransformWrapper == null && _rayPointTransformTest != null)
+                    _rayPointTransformWrapper = new TransformWrapper(_rayPointTransformTest);
+
+                return _rayPointTransformWrapper;
+            }
+            set => _rayPointTransformWrapper = value; //TODO: Maybe try and also set _rayPointTransform if its castable to Transform?
+        }
     }
 
     internal class RangedAdjustableInteractionModule : RangedGrabInteractionModule, IRangedAdjustableInteractionModule
@@ -38,13 +51,20 @@ namespace VE2.Core.VComponents.Internal
         public event Action OnValueChanged;
 
         //TODO - parent class exposes this, likely don't need this here
-        public ITransformWrapper Transform { get; }
+        public ITransformWrapper AttachPointTransform { get; }
+
+        public ITransformWrapper TransformToPointRayTo { get; }
 
         public RangedAdjustableInteractionModule(string id, IGrabInteractablesContainer grabInteractablesContainer,
-            List<IHandheldInteractionModule> handheldModules, RangedGrabInteractionConfig rangedGrabInteractionConfig, GeneralInteractionConfig generalInteractionConfig, IInteractableOutline grabbableOutline)
-                : base(id, grabInteractablesContainer, handheldModules, rangedGrabInteractionConfig, grabbableOutline, generalInteractionConfig)
+            List<IHandheldInteractionModule> handheldModules, RangedAdjustableInteractionConfig rangedGrabInteractionConfig, GeneralInteractionConfig generalInteractionConfig)
+                : base(id, grabInteractablesContainer, handheldModules, rangedGrabInteractionConfig, generalInteractionConfig)
         {
-            Transform = rangedGrabInteractionConfig.AttachPointWrapper;
+            AttachPointTransform = rangedGrabInteractionConfig.AttachPointWrapper;
+
+            if (rangedGrabInteractionConfig.PointRayTowardsAttachPoint)
+                TransformToPointRayTo = AttachPointTransform;
+            else
+                TransformToPointRayTo = rangedGrabInteractionConfig.RayPointTransform;
         }
 
         public void ScrollUp(ushort clientID) => OnScrollUp?.Invoke(clientID);

@@ -229,7 +229,7 @@ namespace VE2.Core.Player.Internal
                 _hoveringOverScrollableIndicator.IsHoveringOverScrollableObject = false;
                 _grabbableLineVisLineRenderer.startWidth = _grabbableLineVisLineRenderer.endWidth = 0.005f;
                 _grabbableLineVisLineRenderer.SetPosition(0, _GrabberVisualisationRayOrigin.position);
-                _grabbableLineVisLineRenderer.SetPosition(1, rangedAdjustableInteraction.Transform.position);
+                _grabbableLineVisLineRenderer.SetPosition(1, rangedAdjustableInteraction.TransformToPointRayTo.position);
 
                 HandleUpdateGrabbingAdjustable();
             }

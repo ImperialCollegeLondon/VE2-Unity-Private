@@ -122,7 +122,7 @@ namespace VE2.Core.Player.Internal
         {
             //We'll control its position in Update - it needs an offset towards the adjustable, without being affected by the parent transform's rotation
             _GrabberTransform.SetParent(_interactorParentTransform.parent);
-            _grabberTransformOffset = rangedAdjustableInteraction.Transform.position - _GrabberTransform.position;
+            _grabberTransformOffset = rangedAdjustableInteraction.AttachPointTransform.position - _GrabberTransform.position;
 
             //The interactor when grabbing an adjustable should listen to the ranged adjustable interaction module's value changes
             _rangedAdjustableInteractionModule = rangedAdjustableInteraction;
