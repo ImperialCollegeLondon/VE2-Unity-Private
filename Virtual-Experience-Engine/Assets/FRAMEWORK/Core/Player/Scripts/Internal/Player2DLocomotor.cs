@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using VE2.Common.API;
 using VE2.Core.Player.API;
 using VE2.Core.VComponents.API;
 
@@ -175,10 +176,19 @@ namespace VE2.Core.Player.Internal
                     _cameraTransform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
                 }
 
-                // Check if keyboard is active  
-                if (_isKeyboardActiveIndicator.IsKeyboardActive)
+                //// Check if keyboard is active  
+                //if (_isKeyboardActiveIndicator.IsKeyboardActive)
+                //{
+                //    return; // Disable movement but allow camera movement  
+                //}
+
+                var playerServiceInternal = VE2API.Player as IPlayerServiceInternal;
+                if (playerServiceInternal != null)
                 {
-                    return; // Disable movement but allow camera movement  
+                    if(playerServiceInternal.InputFieldActive)
+                    {
+                        return; // Disable movement but allow camera movement when input field is active
+                    }
                 }
 
                 float moveX = (_playerLocomotor2DInputContainer.Right?.IsPressed == true ? 1f : 0f)

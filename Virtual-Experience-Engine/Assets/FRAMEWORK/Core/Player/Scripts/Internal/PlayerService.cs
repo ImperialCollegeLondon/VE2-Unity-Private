@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
 using VE2.Common.API;
 using VE2.Common.Shared;
 using VE2.Core.Player.API;
@@ -195,6 +197,8 @@ namespace VE2.Core.Player.Internal
             _playerSettingsHandler.BuiltInPlayerGameObjectConfig.AvatarColor = color;
             MarkPlayerAvatarChanged();
         }
+
+        public bool InputFieldActive { get; set; }
 
         public AvatarPrefabs BuiltInGameObjectPrefabs { get; private set; }
         public AvatarPrefabs CustomGameObjectPrefabs => _config.PluginCustomAvatarPrefabs;

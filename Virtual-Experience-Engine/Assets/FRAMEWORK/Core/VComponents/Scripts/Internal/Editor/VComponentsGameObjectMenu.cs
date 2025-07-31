@@ -76,7 +76,7 @@ namespace VE2.Core.VComponents.Internal
         }
 
         [MenuItem("/GameObject/VE2/UIs/InputFieldHandler", priority = 7)]
-        private static void CreateVirtualKeyboardSpawner()
+        private static void CreateInputFieldHandler()
         {
             CommonUtils.InstantiateResource("InputFieldHandler");
         }

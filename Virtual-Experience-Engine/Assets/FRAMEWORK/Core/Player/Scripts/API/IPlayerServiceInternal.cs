@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using TMPro;
 using VE2.Common.Shared;
 using static VE2.Core.Player.API.PlayerSerializables;
 
@@ -32,7 +34,7 @@ namespace VE2.Core.Player.API
         public void SetBuiltInHeadIndex(ushort type);
         public void SetBuiltInTorsoIndex(ushort type);
         public void SetBuiltInColor(Color color);
-
+        public bool InputFieldActive { get; set; }
         public Collider CharacterCollider2D { get; }
     }
     

@@ -16,6 +16,7 @@ using VE2.Core.Player.API;
 //"Spawns a virtual keyboard based on Keyboard config.Keyboard input feeds the attached InputField"
 namespace VE2.Core.VComponents.Internal
 {
+    [RequireComponent(typeof(TMP_InputField))]
     public class V_InputFieldHandler : MonoBehaviour
     {
         private static int _keyboardInstanceCounter = 0;
@@ -29,7 +30,7 @@ namespace VE2.Core.VComponents.Internal
         private VirtualKeyboard virtualKeyboard;
         private Vector3 spawnPosition;
         private Quaternion spawnRotation;
-        void Start()
+        void OnEnable()
         {
 
             if (keyboardConfig.inputField != null || TryGetComponent(out keyboardConfig.inputField))
@@ -43,9 +44,33 @@ namespace VE2.Core.VComponents.Internal
             if (keyboardConfig.inputField != null)
             {
                 keyboardConfig.inputField.onSelect.AddListener(SpawnKeyBoard);
+
+                keyboardConfig.inputField.onSelect.AddListener(ActivateInputField);
+                keyboardConfig.inputField.onEndEdit.AddListener(DeactivateInputField);
+            }
+        }
+        public void ActivateInputField(string message)
+        {
+            var playerServiceInternal = VE2API.Player as IPlayerServiceInternal;
+            if (playerServiceInternal != null)
+            {
+                //keyboardConfig.inputField.onSelect.AddListener((_) => playerServiceInternal.InputFieldSelected(null, keyboardConfig.inputField));
+                //keyboardConfig.inputField.onDeselect.AddListener((_) => playerServiceInternal.InputFieldDeselected(null, keyboardConfig.inputField));
+                playerServiceInternal.InputFieldActive = true;
+                keyboardConfig.inputField.ActivateInputField();
             }
         }
 
+        public void DeactivateInputField(string message)
+        {
+            var playerServiceInternal = VE2API.Player as IPlayerServiceInternal;
+            if (playerServiceInternal != null)
+            {
+                //keyboardConfig.inputField.onSelect.AddListener((_) => playerServiceInternal.InputFieldSelected(null, keyboardConfig.inputField));
+                //keyboardConfig.inputField.onDeselect.AddListener((_) => playerServiceInternal.InputFieldDeselected(null, keyboardConfig.inputField));
+                playerServiceInternal.InputFieldActive = false;
+            }
+        }
         public void DisableConnectedKeyboard()
         {
             virtualKeyboard.DestroyKeyboard();
