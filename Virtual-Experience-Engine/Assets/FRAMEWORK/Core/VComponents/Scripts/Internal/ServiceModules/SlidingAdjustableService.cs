@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
@@ -75,6 +75,8 @@ namespace VE2.Core.VComponents.Internal
         private int _numberOfValues => _config.LinearAdjustableServiceConfig.NumberOfDiscreteValues;
         public int NumberOfValues { get => _numberOfValues; set => UpdateSteps(value); }
 
+        private Vector2 _deltaScroll = Vector2.zero;
+
         #region Interfaces
         public IAdjustableStateModule AdjustableStateModule => _adjustableStateModule;
         public IGrabbableStateModule FreeGrabbableStateModule => _grabbableStateModule;
@@ -106,6 +108,7 @@ namespace VE2.Core.VComponents.Internal
 
             _rangedAdjustableInteractionModule.OnScrollUp += HandleScrollUp;
             _rangedAdjustableInteractionModule.OnScrollDown += OnScrollDown;
+            _rangedAdjustableInteractionModule.OnDeltaScroll += HandleDeltaScroll;
 
             _grabbableStateModule.OnGrabConfirmed += HandleGrabConfirmed;
             _grabbableStateModule.OnDropConfirmed += HandleDropConfirmed;
@@ -131,6 +134,10 @@ namespace VE2.Core.VComponents.Internal
             SetValueOnStateModule(targetValue, clientID);
         }
 
+        private void HandleDeltaScroll(Vector2 deltaScroll)
+        {
+            _deltaScroll = deltaScroll;
+        }
         private void HandleGrabConfirmed(ushort id) { }
 
         private void HandleDropConfirmed(ushort id) { }
@@ -180,13 +187,60 @@ namespace VE2.Core.VComponents.Internal
             _adjustableStateModule.HandleFixedUpdate();
         }
 
+        //private void TrackPosition(Vector3 grabberPosition)
+        //{
+        //    //get the vector position of the grabber in the local space of the object
+        //    Vector3 localGrabPosition = _transformToAdjust.InverseTransfromPoint(grabberPosition);
+        //    float adjustment = 0f;
+
+
+        //    //get the grabber value X/Y/Z based on the adjustment axis X/Y/Z
+        //    switch (_config.LinearAdjustableServiceConfig.AdjustmentAxis)
+        //    {
+        //        case SpatialAdjustmentAxis.XAxis:
+        //            adjustment = Mathf.Clamp(localGrabPosition.x, MinimumSpatialValue, MaximumSpatialValue);
+        //            break;
+        //        case SpatialAdjustmentAxis.YAxis:
+        //            adjustment = Mathf.Clamp(localGrabPosition.y, MinimumSpatialValue, MaximumSpatialValue);
+        //            break;
+        //        case SpatialAdjustmentAxis.ZAxis:
+        //            adjustment = Mathf.Clamp(localGrabPosition.z, MinimumSpatialValue, MaximumSpatialValue);
+        //            break;
+        //    }
+
+        //    _spatialValue = adjustment;
+        //    float OutputValue = ConvertToOutputValue(_spatialValue);
+        //    SetValueOnStateModule(OutputValue, _grabbableStateModule.MostRecentInteractingClientID.Value);
+        //}
         private void TrackPosition(Vector3 grabberPosition)
         {
-            //get the vector position of the grabber in the local space of the object
+            Vector3 axisDir;
+            switch (_config.LinearAdjustableServiceConfig.AdjustmentAxis)
+            {
+                case SpatialAdjustmentAxis.XAxis:
+                    axisDir = _transformToAdjust.right;    // local +X → world
+                    break;
+                case SpatialAdjustmentAxis.YAxis:
+                    axisDir = _transformToAdjust.up;       // local +Y → world
+                    break;
+                case SpatialAdjustmentAxis.ZAxis:
+                    axisDir = _transformToAdjust.forward;  // local +Z → world
+                    break;
+                default:
+                    axisDir = Vector3.zero;
+                    break;
+            }
+            axisDir.Normalize();
+
+            Vector3 camMove = VE2API.Player.ActiveCamera.transform.right * _deltaScroll.x * 0.01f
+                            + VE2API.Player.ActiveCamera.transform.forward * _deltaScroll.y * 0.01f;
+
+            Vector3 move = Vector3.Project(camMove, axisDir);
+
+            grabberPosition += move;
+
             Vector3 localGrabPosition = _transformToAdjust.InverseTransfromPoint(grabberPosition);
             float adjustment = 0f;
-
-            //get the grabber value X/Y/Z based on the adjustment axis X/Y/Z
             switch (_config.LinearAdjustableServiceConfig.AdjustmentAxis)
             {
                 case SpatialAdjustmentAxis.XAxis:
@@ -201,8 +255,8 @@ namespace VE2.Core.VComponents.Internal
             }
 
             _spatialValue = adjustment;
-            float OutputValue = ConvertToOutputValue(_spatialValue);
-            SetValueOnStateModule(OutputValue, _grabbableStateModule.MostRecentInteractingClientID.Value);
+            float outputValue = ConvertToOutputValue(_spatialValue);
+            SetValueOnStateModule(outputValue, _grabbableStateModule.MostRecentInteractingClientID.Value);
         }
 
         /* MAKE SURE ANY SPATIAL VALUE IS CONVERTED TO OUTPUT VALUE BEFORE SETTING IT TO THE STATE MODULE

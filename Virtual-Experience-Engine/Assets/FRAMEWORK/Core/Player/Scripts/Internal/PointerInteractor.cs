@@ -687,6 +687,24 @@ namespace VE2.Core.Player.Internal
             }
         }
 
+        protected virtual void HandleDeltaScroll(Vector2 mouseDelta)
+        {
+            RaycastResultWrapper raycastResultWrapper = GetRayCastResult();
+
+            if (_LocalClientIDWrapper.IsClientIDReady && raycastResultWrapper != null)
+            {
+                if (raycastResultWrapper.HitInteractable && IsInteractionAllowed(raycastResultWrapper.RangedInteractable))
+                {
+                    //if while moving mouse, raycast returns an adjustable module
+                    if (raycastResultWrapper.RangedInteractable is IRangedAdjustableInteractionModule rangedAdjustableInteraction)
+                    {
+                        rangedAdjustableInteraction.DeltaScroll(mouseDelta);
+                        Vibrate(HIGH_HAPTICS_AMPLITUDE, HIGH_HAPTICS_DURATION);
+                    }
+                }
+            }
+        }
+
         protected abstract void SetInteractorState(InteractorState newState);
 
         internal enum InteractorState

@@ -1,4 +1,4 @@
-using DG.Tweening;
+﻿using DG.Tweening;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
@@ -92,6 +92,11 @@ namespace VE2.Core.Player.Internal
                 _GrabberTransform.Rotate(_grabberInspectGuideTransform.right, mouseInput.y, Space.World);
                 _GrabberTransform.Rotate(_grabberInspectGuideTransform.up, -mouseInput.x, Space.World);
             }
+
+            if (_adjustableActiveIndicator.IsActive)
+            {
+                HandleDeltaScroll(_interactor2DInputContainer.MouseInput.Value);
+            }
         }
 
         protected override void HandleStartGrabbingAdjustable(IRangedAdjustableInteractionModule rangedAdjustableInteraction)
@@ -104,20 +109,48 @@ namespace VE2.Core.Player.Internal
             _adjustableActiveIndicator.SetActive(true);
         }
 
+        //protected override void HandleUpdateGrabbingAdjustable(IRangedAdjustableInteractionModule rangedAdjustableInteraction)
+        //{
+        //    Vector2 mouseDelta = _interactor2DInputContainer.MouseInput.Value;
+
+        //    Transform cam = VE2API.Player.ActiveCamera.transform;
+        //    Vector3 camMove = cam.right * mouseDelta.x * MOUSE_SPEED
+        //                    + cam.forward * mouseDelta.y * MOUSE_SPEED;
+
+        //    ITransformWrapper attach = rangedAdjustableInteraction.AttachPointTransform;
+
+        //    Vector3 planeNormal = attach.up.normalized;
+        //    Vector3 moveOnPlane = Vector3.ProjectOnPlane(camMove, planeNormal);
+
+        //    _GrabberTransform.position += moveOnPlane;
+        //}
+        //protected override void HandleUpdateGrabbingAdjustable(IRangedAdjustableInteractionModule rangedAdjustableInteraction)
+        //{
+        //    Vector2 mouseDelta = _interactor2DInputContainer.MouseInput.Value;
+        //    ITransformWrapper attach = rangedAdjustableInteraction.AttachPointTransform;
+
+        //    Vector3 planeNormal = attach.up;
+
+        //    Vector3 rightOnPlane = Vector3.ProjectOnPlane(VE2API.Player.ActiveCamera.transform.right, planeNormal).normalized;
+        //    Vector3 forwardOnPlane = Vector3.ProjectOnPlane(VE2API.Player.ActiveCamera.transform.forward, planeNormal).normalized;
+
+        //    if (Vector3.Dot(rightOnPlane, attach.right) < 0f)
+        //        rightOnPlane = -rightOnPlane;
+
+        //    // We want vertical mouse ↑ to move “up” in world-space
+        //    // (i.e. align our forwardOnPlane with the direction that has a positive Y component)
+        //    if (Vector3.Dot(forwardOnPlane, Vector3.up) < 0f)
+        //        forwardOnPlane = -forwardOnPlane;
+
+        //    Vector3 move = rightOnPlane * mouseDelta.x * MOUSE_SPEED
+        //                 + forwardOnPlane * mouseDelta.y * MOUSE_SPEED;
+
+        //    _GrabberTransform.position += move;
+        //}
+
         protected override void HandleUpdateGrabbingAdjustable(IRangedAdjustableInteractionModule rangedAdjustableInteraction)
         {
-            Vector2 mouseDelta = _interactor2DInputContainer.MouseInput.Value;
 
-            Transform cam = VE2API.Player.ActiveCamera.transform;
-            Vector3 camMove = cam.right * mouseDelta.x * MOUSE_SPEED
-                            + cam.forward * mouseDelta.y * MOUSE_SPEED;
-
-            ITransformWrapper attach = rangedAdjustableInteraction.AttachPointTransform;
-
-            Vector3 planeNormal = attach.up.normalized;
-            Vector3 moveOnPlane = Vector3.ProjectOnPlane(camMove, planeNormal);
-
-            _GrabberTransform.position += moveOnPlane;
         }
 
 
@@ -229,6 +262,11 @@ namespace VE2.Core.Player.Internal
         protected override void Vibrate(float amplitude, float duration)
         {
             //Do Nothing
+        }
+
+        protected override void HandleDeltaScroll(Vector2 mouseDelta)
+        {
+            base.HandleDeltaScroll(mouseDelta);
         }
     }
 }

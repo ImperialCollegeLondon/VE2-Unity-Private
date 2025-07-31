@@ -46,6 +46,7 @@ namespace VE2.Core.VComponents.Internal
     {
         public event Action<ushort> OnScrollUp;
         public event Action<ushort> OnScrollDown;
+        public event Action<Vector2> OnDeltaScroll;
 
         //This one is ready by the interactor to handle haptics
         public event Action OnValueChanged;
@@ -69,6 +70,7 @@ namespace VE2.Core.VComponents.Internal
 
         public void ScrollUp(ushort clientID) => OnScrollUp?.Invoke(clientID);
         public void ScrollDown(ushort clientID) => OnScrollDown?.Invoke(clientID);
+        public void DeltaScroll(Vector2 deltaScroll) => OnDeltaScroll?.Invoke(deltaScroll);
 
         public void NotifyValueChanged() => OnValueChanged?.Invoke();
     }
