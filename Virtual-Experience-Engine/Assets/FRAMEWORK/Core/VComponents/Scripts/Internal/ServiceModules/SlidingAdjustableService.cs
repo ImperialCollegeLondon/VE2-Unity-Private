@@ -214,17 +214,18 @@ namespace VE2.Core.VComponents.Internal
         //}
         private void TrackPosition(Vector3 grabberPosition)
         {
+            //To get the actual plane for each adjustment axis
             Vector3 axisDir;
             switch (_config.LinearAdjustableServiceConfig.AdjustmentAxis)
             {
                 case SpatialAdjustmentAxis.XAxis:
-                    axisDir = _transformToAdjust.right;    // local +X → world
+                    axisDir = _transformToAdjust.up;
                     break;
                 case SpatialAdjustmentAxis.YAxis:
-                    axisDir = _transformToAdjust.up;       // local +Y → world
+                    axisDir = _transformToAdjust.forward;
                     break;
                 case SpatialAdjustmentAxis.ZAxis:
-                    axisDir = _transformToAdjust.forward;  // local +Z → world
+                    axisDir = _transformToAdjust.right;
                     break;
                 default:
                     axisDir = Vector3.zero;
@@ -235,7 +236,7 @@ namespace VE2.Core.VComponents.Internal
             Vector3 camMove = VE2API.Player.ActiveCamera.transform.right * _deltaScroll.x * 0.01f
                             + VE2API.Player.ActiveCamera.transform.forward * _deltaScroll.y * 0.01f;
 
-            Vector3 move = Vector3.Project(camMove, axisDir);
+            Vector3 move = Vector3.ProjectOnPlane(camMove, axisDir);
 
             grabberPosition += move;
 
