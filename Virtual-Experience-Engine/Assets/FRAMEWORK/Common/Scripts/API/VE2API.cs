@@ -55,7 +55,7 @@ namespace VE2.Common.API
 
                 // If the client ID is not set, check if that's because there's no instancing in the scene, in which case, set it to 0
                 // Otherwise, instancing will be in charge of setting the client id, which will emit an event from inside the client id wrapper 
-                if (Instance._localClientIdWrapper.Value == ushort.MaxValue && (Instance._instancingServiceProvider == null || !Instance._instancingServiceProvider.IsEnabled))
+                if (Instance._localClientIdWrapper.Value == ushort.MaxValue && (InstancingServiceProvider == null || !InstancingServiceProvider.IsEnabled))
                     _instance._localClientIdWrapper.SetValue(0);
 
                 return Instance._localClientIdWrapper;
