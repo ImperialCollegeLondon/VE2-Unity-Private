@@ -67654,9 +67654,9 @@ MonoBehaviour:
     PlayerName: Unknown
     AvatarHeadIndex: 0
     AvatarTorsoIndex: 0
-    AvatarColorR: 255
+    AvatarColorR: 70
     AvatarColorG: 70
-    AvatarColorB: 70
+    AvatarColorB: 255
   _transformDataSetup: 0
   _playerTransformData:
     IsVRMode: 0

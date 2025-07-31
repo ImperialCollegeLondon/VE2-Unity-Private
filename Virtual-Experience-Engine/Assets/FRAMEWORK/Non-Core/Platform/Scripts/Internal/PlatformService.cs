@@ -54,6 +54,7 @@ namespace VE2.NonCore.Platform.Internal
         {
             return InstanceInfos.Values
             .Where(instanceInfo => instanceInfo.InstanceCode.WorldName.Equals(worldName, StringComparison.OrdinalIgnoreCase))
+            .Select(instanceInfo => new PlatformInstanceInfo(instanceInfo.Bytes)) //Copy val not ref
             .ToList();
         }
 
@@ -159,7 +160,7 @@ namespace VE2.NonCore.Platform.Internal
 
         public InstanceCode CurrentInstanceCode { get => _platformSettingsHandler.InstanceCode; private set => _platformSettingsHandler.InstanceCode = value; }
 
-        public Dictionary<string, PlatformInstanceInfo> InstanceInfos => GlobalInfo.InstanceInfos;
+        public Dictionary<string, PlatformInstanceInfo> InstanceInfos => new GlobalInfo(GlobalInfo.Bytes).InstanceInfos; // Copy val not ref
         public event Action<Dictionary<string, PlatformInstanceInfo>> OnInstanceInfosChanged;
 
         public UnityEvent OnBecomeAdmin => _config.OnBecomeAdmin;
@@ -337,9 +338,11 @@ namespace VE2.NonCore.Platform.Internal
 
             GlobalInfo = newGlobalInfo;
 
+            GlobalInfo globalInfoToEmit = new(GlobalInfo.Bytes); //Copy val not ref  
+
             //TODO - tidy these up, both doing the same thing!
-            OnGlobalInfoChanged?.Invoke(GlobalInfo);
-            OnInstanceInfosChanged?.Invoke(GlobalInfo.InstanceInfos);
+            OnGlobalInfoChanged?.Invoke(globalInfoToEmit);
+            OnInstanceInfosChanged?.Invoke(globalInfoToEmit.InstanceInfos);
         }
 
         private void HandleInstanceAllocation(PlatformInstanceInfo newInstanceInfo)

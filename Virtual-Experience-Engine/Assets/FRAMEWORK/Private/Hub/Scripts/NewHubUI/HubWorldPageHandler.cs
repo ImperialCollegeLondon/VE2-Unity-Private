@@ -169,10 +169,19 @@ internal class HubWorldPageHandler
             PlatformInstanceInfo instanceInfo = _platformService.InstanceInfos[instanceCode.ToString()];
             bool isSelected = _selectedInstanceCode != null && instanceCode.Equals(_selectedInstanceCode.ToString());
 
+            if (isSelected)
+            {
+                instanceInfo.ClientInfos.Add(_platformService.LocalClientID, new PlatformClientInfo
+                {
+                    ClientID = _platformService.LocalClientID,
+                    PlayerPresentationConfig = _platformService.LocalPlayerPresentationConfig
+                });   
+            }
+
             if (!_instanceDisplayHandlers.ContainsKey(instanceCode))
-                AddInstanceDisplay(instanceInfo);
-            else
-                _instanceDisplayHandlers[instanceCode.ToString()].UpdateDisplay(instanceInfo, isSelected);
+                    AddInstanceDisplay(instanceInfo);
+                else
+                    _instanceDisplayHandlers[instanceCode.ToString()].UpdateDisplay(instanceInfo, isSelected);
         }
 
         if (_selectedInstanceCode != null)
