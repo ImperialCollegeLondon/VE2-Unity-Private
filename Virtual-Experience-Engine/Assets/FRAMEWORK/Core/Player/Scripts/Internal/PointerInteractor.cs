@@ -231,7 +231,7 @@ namespace VE2.Core.Player.Internal
                 _grabbableLineVisLineRenderer.SetPosition(0, _GrabberVisualisationRayOrigin.position);
                 _grabbableLineVisLineRenderer.SetPosition(1, rangedAdjustableInteraction.TransformToPointRayTo.position);
 
-                HandleUpdateGrabbingAdjustable();
+                HandleUpdateGrabbingAdjustable(rangedAdjustableInteraction);
             }
             else if (!IsCurrentlyGrabbing)
             {
@@ -333,7 +333,7 @@ namespace VE2.Core.Player.Internal
             }
         }
 
-        protected abstract void HandleUpdateGrabbingAdjustable();
+        protected abstract void HandleUpdateGrabbingAdjustable(IRangedAdjustableInteractionModule rangedAdjustableInteraction);
 
         private void HandleHoverOverUIGameObject(GameObject go)
         {

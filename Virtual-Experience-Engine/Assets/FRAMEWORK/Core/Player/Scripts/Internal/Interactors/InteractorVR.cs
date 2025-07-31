@@ -129,7 +129,7 @@ namespace VE2.Core.Player.Internal
             _rangedAdjustableInteractionModule.OnValueChanged += RespondToAdjustableWithVibration;
         }
 
-        protected override void HandleUpdateGrabbingAdjustable()
+        protected override void HandleUpdateGrabbingAdjustable(IRangedAdjustableInteractionModule rangedAdjustableInteraction)
         {
             //offset the virtual grabber transform to the grabbable's position
             _GrabberTransform.SetPositionAndRotation(_interactorParentTransform.position + _grabberTransformOffset, _interactorParentTransform.rotation);

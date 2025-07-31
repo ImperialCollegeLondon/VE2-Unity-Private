@@ -104,15 +104,23 @@ namespace VE2.Core.Player.Internal
             _adjustableActiveIndicator.SetActive(true);
         }
 
-        protected override void HandleUpdateGrabbingAdjustable()
+        protected override void HandleUpdateGrabbingAdjustable(IRangedAdjustableInteractionModule rangedAdjustableInteraction)
         {
             Vector2 mouseDelta = _interactor2DInputContainer.MouseInput.Value;
 
-            // Move along camera axes
-            Vector3 move = VE2API.Player.ActiveCamera.transform.right * mouseDelta.x * MOUSE_SPEED + VE2API.Player.ActiveCamera.transform.forward * mouseDelta.y * MOUSE_SPEED;
+            Transform cam = VE2API.Player.ActiveCamera.transform;
+            Vector3 camMove = cam.right * mouseDelta.x * MOUSE_SPEED
+                            + cam.forward * mouseDelta.y * MOUSE_SPEED;
 
-            _GrabberTransform.position += move;
+            ITransformWrapper attach = rangedAdjustableInteraction.AttachPointTransform;
+
+            Vector3 planeNormal = attach.up.normalized;
+            Vector3 moveOnPlane = Vector3.ProjectOnPlane(camMove, planeNormal);
+
+            _GrabberTransform.position += moveOnPlane;
         }
+
+
         protected override void HandleStopGrabbingAdjustable()
         {
             _GrabberTransform.localPosition = Vector3.zero;
