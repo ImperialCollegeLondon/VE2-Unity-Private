@@ -42,6 +42,7 @@ namespace VE2.Core.VComponents.Internal
 
         private readonly IRigidbodyWrapper _rigidbody;
         private readonly PhysicsConstants _physicsConstants;
+        private readonly IClientIDWrapper _localClientIdWrapper;
 
         private RangedGrabInteractionConfig _rangedFreeGrabInteractionConfig => _config.RangedFreeGrabInteractionConfig;
         private ITransformWrapper _transform => _config.RangedFreeGrabInteractionConfig.AttachPointWrapper;
@@ -59,6 +60,7 @@ namespace VE2.Core.VComponents.Internal
             IRigidbodyWrapper rigidbody, PhysicsConstants physicsConstants, IGrabbableRigidbody grabbableRigidbodyInterface, IClientIDWrapper localClientIdWrapper, IColliderWrapper colliderWrapper)
         {
             _config = config;
+            _localClientIdWrapper = localClientIdWrapper;
             _RangedGrabInteractionModule = new(id, grabInteractablesContainer, handheldInteractions, config.RangedFreeGrabInteractionConfig, config.GeneralInteractionConfig, colliderWrapper, grabbableOutline);
             _StateModule = new(state, config.StateConfig, config.SyncConfig, id, worldStateSyncableContainer, grabInteractablesContainer, interactorContainer, localClientIdWrapper);
 
@@ -103,7 +105,7 @@ namespace VE2.Core.VComponents.Internal
 
             OnGrabConfirmed?.Invoke(grabberClientID);
 
-            if (grabberClientID == VE2API.LocalClientIdWrapper.Value)
+            if (grabberClientID == _localClientIdWrapper.Value)
                 _RangedGrabInteractionModule.OnInteractedWith(true);
             else
                 _RangedGrabInteractionModule.IsInteractedRemotely(true);
@@ -126,7 +128,7 @@ namespace VE2.Core.VComponents.Internal
 
             OnDropConfirmed?.Invoke(dropperClientID);
 
-            if (dropperClientID == VE2API.LocalClientIdWrapper.Value)
+            if (dropperClientID == _localClientIdWrapper.Value)
                 _RangedGrabInteractionModule.OnInteractedWith(false);
             else
                 _RangedGrabInteractionModule.IsInteractedRemotely(false);

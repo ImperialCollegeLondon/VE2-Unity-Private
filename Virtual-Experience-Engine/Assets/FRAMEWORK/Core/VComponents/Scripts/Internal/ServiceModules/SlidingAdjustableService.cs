@@ -88,11 +88,13 @@ namespace VE2.Core.VComponents.Internal
         #endregion
 
         private readonly SlidingAdjustableConfig _config;
+        private readonly IClientIDWrapper _localClientIdWrapper;
 
         public SlidingAdjustableService(List<IHandheldInteractionModule> handheldInteractions, SlidingAdjustableConfig config, AdjustableState adjustableState, VE2Serializable grabbableState, IInteractableOutline grabbableOutline, string id,
             IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer, IClientIDWrapper localClientIdWrapper)
         {
             _config = config;
+            _localClientIdWrapper = localClientIdWrapper;
             _rangedAdjustableInteractionModule = new(id, grabInteractablesContainer, handheldInteractions, config.RangedAdjustableInteractionConfig, config.GeneralInteractionConfig, grabbableOutline);
 
             //seperate modules for adjustable state and free grabbable state. Give the adjustable state module a different ID so it doesn't clash in the syncer with the grabbable state module
@@ -132,7 +134,7 @@ namespace VE2.Core.VComponents.Internal
 
         private void HandleGrabConfirmed(ushort id)
         {
-            if (id == VE2API.LocalClientIdWrapper.Value)
+            if (id == _localClientIdWrapper.Value)
                 _rangedAdjustableInteractionModule.OnInteractedWith(true);
             else
                 _rangedAdjustableInteractionModule.IsInteractedRemotely(true);
@@ -141,7 +143,7 @@ namespace VE2.Core.VComponents.Internal
 
         private void HandleDropConfirmed(ushort id)
         {
-            if (id == VE2API.LocalClientIdWrapper.Value)
+            if (id == _localClientIdWrapper.Value)
                 _rangedAdjustableInteractionModule.OnInteractedWith(false);
             else
                 _rangedAdjustableInteractionModule.IsInteractedRemotely(false);

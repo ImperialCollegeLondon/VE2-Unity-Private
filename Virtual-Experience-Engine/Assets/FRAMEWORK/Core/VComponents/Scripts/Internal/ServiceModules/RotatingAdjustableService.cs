@@ -67,6 +67,7 @@ namespace VE2.Core.VComponents.Internal
         private Vector3 _transformToAdjustVectorUpOnGrab = Vector3.zero;
         private Vector3 _transformToAdjustVectorRightOnGrab = Vector3.zero;
         private Vector3 _transformToAdjustVectorForwardOnGrab = Vector3.zero;
+        private readonly IClientIDWrapper _localClientIdWrapper;
 
         private float _signedAngle = 0;
         private float _oldRotationalValue = 0;
@@ -78,6 +79,7 @@ namespace VE2.Core.VComponents.Internal
             IWorldStateSyncableContainer worldStateSyncableContainer, IGrabInteractablesContainer grabInteractablesContainer, HandInteractorContainer interactorContainer, IClientIDWrapper localClientIdWrapper)
         {
             _config = config;
+            _localClientIdWrapper = localClientIdWrapper;
 
             //needs the vector to the attachpoint at 0,0,0
             _initialVectorToHandle = _attachPointTransform.position - _transformToAdjust.position;
@@ -141,7 +143,7 @@ namespace VE2.Core.VComponents.Internal
             _oldRotationalValue = (_spatialValue % 360 + 360) % 360; //this is to make sure the value is always positive
             _numberOfRevolutions = Mathf.FloorToInt(_spatialValue / 360); //get the nth revolution of the starting value
 
-            if (id == VE2API.LocalClientIdWrapper.Value)
+            if (id == _localClientIdWrapper.Value)
                 _rangedAdjustableInteractionModule.OnInteractedWith(true);
             else
                 _rangedAdjustableInteractionModule.IsInteractedRemotely(true);
@@ -150,7 +152,7 @@ namespace VE2.Core.VComponents.Internal
 
         private void HandleDropConfirmed(ushort id)
         {
-            if (id == VE2API.LocalClientIdWrapper.Value)
+            if (id == _localClientIdWrapper.Value)
                 _rangedAdjustableInteractionModule.OnInteractedWith(false);
             else
                 _rangedAdjustableInteractionModule.IsInteractedRemotely(false);
