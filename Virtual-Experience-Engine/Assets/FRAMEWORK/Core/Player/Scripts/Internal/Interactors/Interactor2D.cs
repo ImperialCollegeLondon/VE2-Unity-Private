@@ -92,11 +92,6 @@ namespace VE2.Core.Player.Internal
                 _GrabberTransform.Rotate(_grabberInspectGuideTransform.right, mouseInput.y, Space.World);
                 _GrabberTransform.Rotate(_grabberInspectGuideTransform.up, -mouseInput.x, Space.World);
             }
-
-            if (_adjustableActiveIndicator.IsActive)
-            {
-                HandleDeltaScroll(_interactor2DInputContainer.MouseInput.Value);
-            }
         }
 
         protected override void HandleStartGrabbingAdjustable(IRangedAdjustableInteractionModule rangedAdjustableInteraction)
@@ -150,7 +145,7 @@ namespace VE2.Core.Player.Internal
 
         protected override void HandleUpdateGrabbingAdjustable(IRangedAdjustableInteractionModule rangedAdjustableInteraction)
         {
-
+            HandleDeltaScroll(_interactor2DInputContainer.MouseInput.Value);
         }
 
 
