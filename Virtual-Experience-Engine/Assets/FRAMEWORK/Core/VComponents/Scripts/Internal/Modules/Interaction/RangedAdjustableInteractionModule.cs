@@ -55,8 +55,10 @@ namespace VE2.Core.VComponents.Internal
 
         public ITransformWrapper TransformToPointRayTo { get; }
 
+        public SpatialAdjustmentAxis AdjustmentAxis { get; }
+
         public RangedAdjustableInteractionModule(string id, IGrabInteractablesContainer grabInteractablesContainer,
-            List<IHandheldInteractionModule> handheldModules, RangedAdjustableInteractionConfig rangedGrabInteractionConfig, GeneralInteractionConfig generalInteractionConfig)
+            List<IHandheldInteractionModule> handheldModules, RangedAdjustableInteractionConfig rangedGrabInteractionConfig, GeneralInteractionConfig generalInteractionConfig, SpatialAdjustableServiceConfig spatialAdjustableServiceConfig)
                 : base(id, grabInteractablesContainer, handheldModules, rangedGrabInteractionConfig, generalInteractionConfig)
         {
             AttachPointTransform = rangedGrabInteractionConfig.AttachPointWrapper;
@@ -65,6 +67,8 @@ namespace VE2.Core.VComponents.Internal
                 TransformToPointRayTo = AttachPointTransform;
             else
                 TransformToPointRayTo = rangedGrabInteractionConfig.RayPointTransform;
+
+            AdjustmentAxis = spatialAdjustableServiceConfig.AdjustmentAxis;
         }
 
         public void ScrollUp(ushort clientID) => OnScrollUp?.Invoke(clientID);
