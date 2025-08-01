@@ -14,6 +14,8 @@ namespace VE2.Core.VComponents.API
 
         public Vector3 WorldSpacePlaneNormal { get; }
 
+        public Vector3 LocalAdjustmentAxis { get; }
+
         public void ScrollUp(ushort clientID);
 
         public void ScrollDown(ushort clientID);

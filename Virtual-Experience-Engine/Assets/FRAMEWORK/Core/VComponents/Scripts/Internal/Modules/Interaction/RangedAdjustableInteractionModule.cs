@@ -74,6 +74,8 @@ namespace VE2.Core.VComponents.Internal
 
         public ITransformWrapper AdjustableTransform { get; }
 
+        public Vector3 LocalAdjustmentAxis { get; }
+
         public RangedAdjustableInteractionModule(string id, IGrabInteractablesContainer grabInteractablesContainer,
             List<IHandheldInteractionModule> handheldModules, RangedAdjustableInteractionConfig rangedGrabInteractionConfig, GeneralInteractionConfig generalInteractionConfig, SpatialAdjustableServiceConfig spatialAdjustableServiceConfig)
                 : base(id, grabInteractablesContainer, handheldModules, rangedGrabInteractionConfig, generalInteractionConfig)
@@ -102,6 +104,18 @@ namespace VE2.Core.VComponents.Internal
             }
             WorldSpacePlaneNormal = AdjustableTransform.TransformVector(localNormal);
 
+            switch (spatialAdjustableServiceConfig.AdjustmentAxis)
+            {
+                case SpatialAdjustmentAxis.XAxis:
+                    LocalAdjustmentAxis = AdjustableTransform.right;
+                    break;
+                case SpatialAdjustmentAxis.YAxis:
+                    LocalAdjustmentAxis = AdjustableTransform.up;
+                    break;
+                case SpatialAdjustmentAxis.ZAxis:
+                    LocalAdjustmentAxis = AdjustableTransform.forward;
+                    break;
+            }
         }
 
         public void ScrollUp(ushort clientID) => OnScrollUp?.Invoke(clientID);
