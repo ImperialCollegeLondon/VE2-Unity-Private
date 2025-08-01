@@ -360,7 +360,7 @@ namespace VE2.NonCore.Platform.Internal
         private void ExecuteBuild(IEnumerable<Assembly> assembliesToInclude, string destinationFolder, string worldName, bool ecsOrBurst, int version)
         {
             PlayerSettings.productName = $"VE2-{name}";
-            PlayerSettings.companyName = "com.ImperialCollegeLondon";
+            PlayerSettings.companyName = "ImperialCollegeLondon";
 
             destinationFolder = Path.Combine(Application.persistentDataPath, destinationFolder);
 
