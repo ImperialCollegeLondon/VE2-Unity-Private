@@ -15,6 +15,7 @@ namespace VE2.Common.Shared
         public Vector3 right { get => _Transform.right; }
         public Vector3 up { get => _Transform.up; }
         public Vector3 InverseTransfromPoint(Vector3 point) => _Transform.parent.InverseTransformPoint(point);
+        public Vector3 TransformVector(Vector3 vector) => _Transform.TransformVector(vector);
 
         public void SetLocalPositionAndRotation(Vector3 position, Quaternion rotation) => _Transform.SetLocalPositionAndRotation(position, rotation);
     }

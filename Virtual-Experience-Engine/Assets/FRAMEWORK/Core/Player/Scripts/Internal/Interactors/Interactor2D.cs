@@ -113,7 +113,7 @@ namespace VE2.Core.Player.Internal
             Vector3 camMove = cam.right * mouseDelta.x * MOUSE_SPEED
                             + cam.up * mouseDelta.y * MOUSE_SPEED;
 
-            Vector3 moveVector = Vector3.ProjectOnPlane(camMove, rangedAdjustableInteraction.PlaneNormal);
+            Vector3 moveVector = Vector3.ProjectOnPlane(camMove, rangedAdjustableInteraction.WorldSpacePlaneNormal);
 
             _GrabberTransform.position += moveVector;
         }

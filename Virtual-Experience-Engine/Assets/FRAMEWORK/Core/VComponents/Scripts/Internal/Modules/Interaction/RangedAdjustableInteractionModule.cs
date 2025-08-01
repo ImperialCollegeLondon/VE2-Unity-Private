@@ -70,7 +70,7 @@ namespace VE2.Core.VComponents.Internal
 
         public ITransformWrapper TransformToPointRayTo { get; }
 
-        public Vector3 PlaneNormal { get; }
+        public Vector3 WorldSpacePlaneNormal { get; }
 
         public ITransformWrapper AdjustableTransform { get; }
 
@@ -87,18 +87,21 @@ namespace VE2.Core.VComponents.Internal
 
             AdjustableTransform = rangedGrabInteractionConfig.AdjustableTransform;
 
+            Vector3 localNormal = Vector3.up;
             switch (spatialAdjustableServiceConfig.PlaneNormal)
             {
                 case SpatialAdjustmentAxis.XAxis:
-                    PlaneNormal = AdjustableTransform.right;
+                    localNormal = Vector3.right;
                     break;
                 case SpatialAdjustmentAxis.YAxis:
-                    PlaneNormal = AdjustableTransform.up;
+                    localNormal = Vector3.up;
                     break;
                 case SpatialAdjustmentAxis.ZAxis:
-                    PlaneNormal = AdjustableTransform.forward;
+                    localNormal = Vector3.forward;
                     break;
             }
+            WorldSpacePlaneNormal = AdjustableTransform.TransformVector(localNormal);
+
         }
 
         public void ScrollUp(ushort clientID) => OnScrollUp?.Invoke(clientID);

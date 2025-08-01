@@ -12,7 +12,7 @@ namespace VE2.Core.VComponents.API
 
         public ITransformWrapper AdjustableTransform { get; }
 
-        public Vector3 PlaneNormal { get; }
+        public Vector3 WorldSpacePlaneNormal { get; }
 
         public void ScrollUp(ushort clientID);
 
