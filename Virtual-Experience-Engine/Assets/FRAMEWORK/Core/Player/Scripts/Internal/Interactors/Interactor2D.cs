@@ -109,17 +109,14 @@ namespace VE2.Core.Player.Internal
             Vector2 mouseDelta = _interactor2DInputContainer.MouseInput.Value;
 
             Transform cam = VE2API.Player.ActiveCamera.transform;
+
             Vector3 camMove = cam.right * mouseDelta.x * MOUSE_SPEED
-                            + cam.forward * mouseDelta.y * MOUSE_SPEED;
+                            + cam.up * mouseDelta.y * MOUSE_SPEED;
 
-            ITransformWrapper attach = rangedAdjustableInteraction.AttachPointTransform;
+            Vector3 moveVector = Vector3.ProjectOnPlane(camMove, rangedAdjustableInteraction.PlaneNormal);
 
-            Vector3 planeNormal = attach.up.normalized;
-            Vector3 moveOnPlane = Vector3.ProjectOnPlane(camMove, planeNormal);
-
-            _GrabberTransform.position += moveOnPlane;
+            _GrabberTransform.position += moveVector;
         }
-
 
         protected override void HandleStopGrabbingAdjustable()
         {

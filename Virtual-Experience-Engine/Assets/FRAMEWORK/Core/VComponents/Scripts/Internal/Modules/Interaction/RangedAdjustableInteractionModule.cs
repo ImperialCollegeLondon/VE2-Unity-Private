@@ -25,6 +25,20 @@ namespace VE2.Core.VComponents.Internal
             }
             set => _transformToAdjustWrapper = value; //TODO: Maybe try and also set _transformToAdjust if its castable to Transform?
         }
+        [SerializeField, PropertyOrder(-100)] private Transform _adjustableTransform = null;
+        private ITransformWrapper _adjustableTransformWrapper;
+        public ITransformWrapper AdjustableTransform
+        {
+            get
+            {
+                if (_adjustableTransformWrapper == null && _adjustableTransform != null)
+                    _adjustableTransformWrapper = new TransformWrapper(_adjustableTransform);
+
+                return _adjustableTransformWrapper;
+            }
+            set => _adjustableTransformWrapper = value; //TODO: Maybe try and also set _adjustableTransform if its castable to Transform?
+        }
+
 
         [SerializeField, PropertyOrder(-100)] public bool PointRayTowardsAttachPoint = true;
         [EndGroup, SerializeField, PropertyOrder(-100), ShowIf(nameof(PointRayTowardsAttachPoint), false)] private Transform _rayPointTransformTest = null;
@@ -42,6 +56,7 @@ namespace VE2.Core.VComponents.Internal
         }
     }
 
+
     internal class RangedAdjustableInteractionModule : RangedGrabInteractionModule, IRangedAdjustableInteractionModule
     {
         public event Action<ushort> OnScrollUp;
@@ -55,7 +70,9 @@ namespace VE2.Core.VComponents.Internal
 
         public ITransformWrapper TransformToPointRayTo { get; }
 
-        public SpatialAdjustmentAxis AdjustmentAxis { get; }
+        public Vector3 PlaneNormal { get; }
+
+        public ITransformWrapper AdjustableTransform { get; }
 
         public RangedAdjustableInteractionModule(string id, IGrabInteractablesContainer grabInteractablesContainer,
             List<IHandheldInteractionModule> handheldModules, RangedAdjustableInteractionConfig rangedGrabInteractionConfig, GeneralInteractionConfig generalInteractionConfig, SpatialAdjustableServiceConfig spatialAdjustableServiceConfig)
@@ -68,7 +85,20 @@ namespace VE2.Core.VComponents.Internal
             else
                 TransformToPointRayTo = rangedGrabInteractionConfig.RayPointTransform;
 
-            AdjustmentAxis = spatialAdjustableServiceConfig.AdjustmentAxis;
+            AdjustableTransform = rangedGrabInteractionConfig.AdjustableTransform;
+
+            switch (spatialAdjustableServiceConfig.PlaneNormal)
+            {
+                case SpatialAdjustmentAxis.XAxis:
+                    PlaneNormal = AdjustableTransform.right;
+                    break;
+                case SpatialAdjustmentAxis.YAxis:
+                    PlaneNormal = AdjustableTransform.up;
+                    break;
+                case SpatialAdjustmentAxis.ZAxis:
+                    PlaneNormal = AdjustableTransform.forward;
+                    break;
+            }
         }
 
         public void ScrollUp(ushort clientID) => OnScrollUp?.Invoke(clientID);

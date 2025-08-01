@@ -1,5 +1,6 @@
 using System;
 using VE2.Common.Shared;
+using UnityEngine;
 
 namespace VE2.Core.VComponents.API
 {
@@ -8,6 +9,10 @@ namespace VE2.Core.VComponents.API
         public ITransformWrapper AttachPointTransform { get; }
 
         public ITransformWrapper TransformToPointRayTo { get; }
+
+        public ITransformWrapper AdjustableTransform { get; }
+
+        public Vector3 PlaneNormal { get; }
 
         public void ScrollUp(ushort clientID);
 

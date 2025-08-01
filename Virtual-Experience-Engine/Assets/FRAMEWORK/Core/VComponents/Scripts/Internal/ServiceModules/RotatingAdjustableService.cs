@@ -82,7 +82,7 @@ namespace VE2.Core.VComponents.Internal
             //needs the vector to the attachpoint at 0,0,0
             _initialVectorToHandle = _attachPointTransform.position - _transformToAdjust.position;
 
-            _rangedAdjustableInteractionModule = new(id, grabInteractablesContainer, handheldInteractions, config.RangedAdjustableInteractionConfig, config.GeneralInteractionConfig);
+            _rangedAdjustableInteractionModule = new(id, grabInteractablesContainer, handheldInteractions, config.RangedAdjustableInteractionConfig, config.GeneralInteractionConfig, config.RotationalAdjustableServiceConfig);
 
             //seperate modules for adjustable state and free grabbable state. Give the adjustable state module a different ID so it doesn't clash in the syncer with the grabbable state module
             //The Grabbable state module needs the same ID that is passed to the ranged adjustable interaction module, so the interactor can pull the module from the grab interactable container
