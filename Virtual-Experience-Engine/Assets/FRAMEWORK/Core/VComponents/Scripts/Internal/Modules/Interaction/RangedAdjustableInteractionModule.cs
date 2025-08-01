@@ -89,20 +89,18 @@ namespace VE2.Core.VComponents.Internal
 
             AdjustableTransform = rangedGrabInteractionConfig.AdjustableTransform;
 
-            Vector3 localNormal = Vector3.up;
             switch (spatialAdjustableServiceConfig.PlaneNormal)
             {
                 case SpatialAdjustmentAxis.XAxis:
-                    localNormal = Vector3.right;
+                    WorldSpacePlaneNormal = AdjustableTransform.right;
                     break;
                 case SpatialAdjustmentAxis.YAxis:
-                    localNormal = Vector3.up;
+                    WorldSpacePlaneNormal = AdjustableTransform.up;
                     break;
                 case SpatialAdjustmentAxis.ZAxis:
-                    localNormal = Vector3.forward;
+                    WorldSpacePlaneNormal = AdjustableTransform.forward;
                     break;
             }
-            WorldSpacePlaneNormal = AdjustableTransform.TransformVector(localNormal);
 
             switch (spatialAdjustableServiceConfig.AdjustmentAxis)
             {

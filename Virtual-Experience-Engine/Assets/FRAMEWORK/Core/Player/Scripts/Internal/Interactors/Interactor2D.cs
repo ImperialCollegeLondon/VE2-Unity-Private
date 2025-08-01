@@ -15,7 +15,7 @@ namespace VE2.Core.Player.Internal
         private const float INSPECT_MIN_ZOOM = 2.0f;
         private const float INSPECT_MAX_ZOOM = 5.0f;
         private const float INSPECT_ROTATE_SPEED = 0.1f;
-        private const float MOUSE_SPEED = 0.01f;
+        private const float MOUSE_ADJUSTABLE_SPEED = 0.005f;
         private ColorConfiguration _colorConfig => ColorConfiguration.Instance;
         private readonly Image _reticuleImage;
         private readonly PlayerConnectionPromptHandler _connectionPromptHandler;
@@ -109,18 +109,67 @@ namespace VE2.Core.Player.Internal
             Vector2 mouseDelta = _interactor2DInputContainer.MouseInput.Value;
 
             Transform cam = VE2API.Player.ActiveCamera.transform;
-            Vector3 adjustmentAxisWorld = rangedAdjustableInteraction.AdjustableTransform.TransformVector(rangedAdjustableInteraction.LocalAdjustmentAxis).normalized;
 
-            // Find a plane normal perpendicular to the adjustment axis and as close as possible to camera up
-            Vector3 planeNormal = Vector3.Cross(adjustmentAxisWorld, cam.up).normalized;
-            if (planeNormal.sqrMagnitude < 0.0001f)
-                planeNormal = Vector3.Cross(adjustmentAxisWorld, cam.forward).normalized;
+            //TODO - Plane normal seems correct, but there's something wrong with the mouse move vector. 
+            //When moving mouse right, I would expect to see the mouse move right across the screen, but it seems to go slightly diagonal (see line 163)
+
+            //TODO inject camera transform reference
+
+            //TODO - calculation of the plane normal should be done in the ranged adjustable interaction module, not here
+            //if it needs the camera, we can pass it in as a parameter
+
+            Vector3 pos = rangedAdjustableInteraction.AttachPointTransform.position;
+            Vector3 adjustableAdjustmentAxis = rangedAdjustableInteraction.LocalAdjustmentAxis.normalized;
+
+            // Try cross with up
+            Vector3 orthoA = Vector3.Cross(adjustableAdjustmentAxis, Vector3.up);
+            Debug.DrawRay(pos, orthoA, Color.blue);
+
+            Vector3 planeNormal;
+            if (orthoA.sqrMagnitude >= 1e-6f)
+            {
+                orthoA.Normalize();
+                Vector3 orthoB = Vector3.Cross(adjustableAdjustmentAxis, orthoA).normalized;
+                Debug.DrawRay(pos, orthoB, Color.red);
+
+                // Pick the one closest to world up
+                planeNormal = (Mathf.Abs(Vector3.Dot(orthoA, Vector3.up)) > Mathf.Abs(Vector3.Dot(orthoB, Vector3.up)))
+                    ? orthoA : orthoB;
+            }
+            else
+            {
+                // Axis is vertical — find the direction toward the camera projected onto the plane
+                Vector3 toCamera = cam.position - pos;
+
+                // Project camera vector onto plane orthogonal to axis
+                Vector3 projected = Vector3.ProjectOnPlane(toCamera, adjustableAdjustmentAxis);
+                if (projected.sqrMagnitude >= 1e-6f)
+                {
+                    planeNormal = projected.normalized;
+                }
+                else
+                {
+                    // Camera is almost directly on the axis; fallback to arbitrary
+                    planeNormal = Vector3.Cross(adjustableAdjustmentAxis, Vector3.right).normalized;
+                }
+            }
+
+            Debug.DrawRay(pos, planeNormal, Color.white);
 
             // Project camera's right and up onto the plane to get movement axes
             Vector3 moveRight = Vector3.ProjectOnPlane(cam.right, planeNormal).normalized;
             Vector3 moveUp = Vector3.ProjectOnPlane(cam.up, planeNormal).normalized;
 
-            Vector3 moveVector = (moveRight * mouseDelta.x + moveUp * mouseDelta.y) * MOUSE_SPEED;
+            // PROBLEM: I would expect this to line up with the yellow line (camera.right), the difference between the two is less when looking at the adjustable head on
+            Debug.DrawRay(cam.position, cam.right * 10, Color.yellow);
+            Debug.DrawRay(cam.position, moveRight * 10, Color.cyan);
+            //===
+
+            Debug.DrawRay(cam.position, moveUp * 10, Color.magenta);
+
+            Vector3 moveVector = (moveRight * mouseDelta.x + moveUp * mouseDelta.y) * MOUSE_ADJUSTABLE_SPEED; 
+            Debug.Log($"Move Vector: {moveVector} - mouse delta x: {mouseDelta.x} - mouse delta y: {mouseDelta.y} - moveRight: {moveRight} - moveUp: {moveUp}");
+
             _GrabberTransform.position += moveVector;
         }
 
