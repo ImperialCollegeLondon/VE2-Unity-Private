@@ -109,41 +109,21 @@ namespace VE2.Core.Player.Internal
             Vector2 mouseDelta = _interactor2DInputContainer.MouseInput.Value;
 
             Transform cam = VE2API.Player.ActiveCamera.transform;
+            Vector3 adjustmentAxisWorld = rangedAdjustableInteraction.AdjustableTransform.TransformVector(rangedAdjustableInteraction.LocalAdjustmentAxis).normalized;
 
-            Vector3 camMove = cam.right * mouseDelta.x * MOUSE_SPEED
-                            + cam.up * mouseDelta.y * MOUSE_SPEED;
+            // Find a plane normal perpendicular to the adjustment axis and as close as possible to camera up
+            Vector3 planeNormal = Vector3.Cross(adjustmentAxisWorld, cam.up).normalized;
+            if (planeNormal.sqrMagnitude < 0.0001f)
+                planeNormal = Vector3.Cross(adjustmentAxisWorld, cam.forward).normalized;
 
-            Vector3 planeNormal = GetBestPlaneNormal(rangedAdjustableInteraction.AdjustableTransform, rangedAdjustableInteraction.LocalAdjustmentAxis);
+            // Project camera's right and up onto the plane to get movement axes
+            Vector3 moveRight = Vector3.ProjectOnPlane(cam.right, planeNormal).normalized;
+            Vector3 moveUp = Vector3.ProjectOnPlane(cam.up, planeNormal).normalized;
 
-            Vector3 moveVector = Vector3.ProjectOnPlane(camMove, planeNormal);
-
+            Vector3 moveVector = (moveRight * mouseDelta.x + moveUp * mouseDelta.y) * MOUSE_SPEED;
             _GrabberTransform.position += moveVector;
         }
 
-        Vector3 GetBestPlaneNormal(ITransformWrapper adjustableTransform, Vector3 localAdjustmentAxis)
-        {
-            Vector3 adjustmentAxisWorld = adjustableTransform.TransformVector(localAdjustmentAxis).normalized;
-            Vector3 up = Vector3.up;
-            Vector3 cameraForward = VE2API.Player.ActiveCamera.transform.forward;
-
-            Vector3 candidateA = Vector3.Cross(adjustmentAxisWorld, up).normalized;
-            Vector3 candidateB = Vector3.Cross(adjustmentAxisWorld, cameraForward).normalized;
-
-            // If candidateA is degenerate, use candidateB
-            if (candidateA.sqrMagnitude < 0.0001f)
-                return candidateB;
-
-            float dotA = Mathf.Abs(Vector3.Dot(candidateA, up));
-            float dotB = Mathf.Abs(Vector3.Dot(candidateB, up));
-
-            if (Mathf.Approximately(dotA, dotB))
-            {
-                float camDotA = Mathf.Abs(Vector3.Dot(candidateA, cameraForward));
-                float camDotB = Mathf.Abs(Vector3.Dot(candidateB, cameraForward));
-                return camDotA > camDotB ? candidateA : candidateB;
-            }
-            return dotA > dotB ? candidateA : candidateB;
-        }
         protected override void HandleStopGrabbingAdjustable()
         {
             _GrabberTransform.localPosition = Vector3.zero;
