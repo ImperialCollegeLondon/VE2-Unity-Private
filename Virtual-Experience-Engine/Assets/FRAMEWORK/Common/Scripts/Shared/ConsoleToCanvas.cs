@@ -6,10 +6,8 @@ using TMPro;
 public class ConsoleToCanvas : MonoBehaviour
 {
     [SerializeField] private TMP_Text logText;
-    [SerializeField] private int maxLines = 30;
 
     private StringBuilder logBuilder = new StringBuilder();
-    private int lineCount = 0;
 
     void OnEnable()
     {
@@ -46,18 +44,6 @@ public class ConsoleToCanvas : MonoBehaviour
 
         // Append with some separation to keep logs clear
         logBuilder.AppendLine("--- " + coloredMessage);
-        lineCount++;
-
-        if (lineCount > maxLines)
-        {
-            string[] lines = logBuilder.ToString().Split(new[] { '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
-            logBuilder.Clear();
-            for (int i = lines.Length - maxLines; i < lines.Length; i++)
-            {
-                logBuilder.AppendLine(lines[i]);
-            }
-            lineCount = maxLines;
-        }
 
         if (logText != null)
         {

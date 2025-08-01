@@ -251,6 +251,10 @@ internal class HubWorldDetails
                 {
                     AndroidJavaObject packageInfo = packageManager.Call<AndroidJavaObject>("getPackageInfo", AndroidPackageName, 0);
                     long versionCode = packageInfo.Call<long>("getLongVersionCode");
+
+                    if (Time.frameCount % 120 == 0)
+                        Debug.Log("Found version code: " + versionCode + " for package: " + AndroidPackageName + " matches version: " + version + "?" + (versionCode == version));
+
                     return versionCode == version;
                 }
                 catch (AndroidJavaException e)

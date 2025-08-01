@@ -227,7 +227,7 @@ internal class HubWorldPageHandler
     #endregion //INSTANCES
 
     //=======================================================================================================
-    #region WORLD FILES DOWNLOAD 
+    #region WORLD FILES DOWNLOAD AND INSTALL
 
     //TODO - maybe this can go into a different module
 
@@ -390,7 +390,8 @@ internal class HubWorldPageHandler
 
         if (_hubWorldPageView.CurrentUIState == HubWorldPageUIState.NeedToInstallWorld)
         {
-            Debug.Log("Checking if APK is installed: " + _worldDetails.AndroidPackageName);
+            if (Time.frameCount % 120 == 0)
+                Debug.Log("Checking if APK is installed: " + _worldDetails.AndroidPackageName);
             RefreshWorldUIState(); //Will check if the APK is installed
         }
     }
