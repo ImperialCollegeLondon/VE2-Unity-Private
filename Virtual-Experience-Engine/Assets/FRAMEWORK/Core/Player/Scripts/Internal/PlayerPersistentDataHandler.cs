@@ -31,6 +31,16 @@ namespace VE2.Core.Player.Internal
         public AndroidJavaObject AddArgsToIntent(AndroidJavaObject intent);
     }
 
+    /*
+    How do these handlers work?=====================
+    In Android, data is written to the intent, which is then read by the PlayerActivity
+    The first time we retrieve a peice of data, we check if its been initialised, if not, we load it from the intent
+    In Windows, we simply keep the data serialized, as this Monobehaviour persists between scenes 
+    The only exception is "RememberPlayerSettings", which persists in PlayerPrefs
+
+    TODDO: Review this actually... are we initialising the data in Awake, or in the getter??
+    */
+
     /// <summary>
     /// Write to DefaultPlayerPresentationConfig after creating
     /// </summary>
@@ -41,7 +51,6 @@ namespace VE2.Core.Player.Internal
         private const string HasArgsArgName = "hasArgs";
         public static string RememberPlayerSettingsArgName => "rememberPlayerSettingsArg";
         public static string PlayerPresentationConfigArgName => "playerPresentationConfigArg";
-        public static string PersistentPlayerModeArgName => "persistentPlayerModeArg";
 
         private bool _isPlaying => Application.isPlaying;
 
@@ -65,11 +74,15 @@ namespace VE2.Core.Player.Internal
         [SerializeField, IgnoreParent, DisableIf(nameof(_isPlaying), false), BeginGroup("Persistent Player Mode")] private PersistentPlayerMode _persistentPlayerMode = PersistentPlayerMode.NotInitialized;
         public PersistentPlayerMode PersistentPlayerMode
         {
-            get => _persistentPlayerMode;
+            get
+            {
+                return Application.platform == RuntimePlatform.Android ?
+                    PersistentPlayerMode.VR :
+                    _persistentPlayerMode;
+            }
             set
             {
                 _persistentPlayerMode = value;
-                //PlayerPrefs.SetInt(PersistentPlayerModeArgName, (int)value);
             }
         }
 
@@ -160,7 +173,6 @@ namespace VE2.Core.Player.Internal
         {
             intent.Call<AndroidJavaObject>("putExtra", HasArgsArgName, true);
             intent.Call<AndroidJavaObject>("putExtra", PlayerPresentationConfigArgName, Convert.ToBase64String(_playerPresentationConfig.Bytes));
-            intent.Call<AndroidJavaObject>("putExtra", PersistentPlayerModeArgName, _persistentPlayerMode);
             return intent;
         }
 
