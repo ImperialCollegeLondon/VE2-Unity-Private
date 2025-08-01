@@ -14,7 +14,6 @@ using UnityEditor.Build.Reporting;
 using VE2.NonCore.FileSystem.Internal;
 using VE2.NonCore.FileSystem.API;
 using static VE2.NonCore.Platform.API.PlatformPublicSerializables;
-using UnityEditor.Build;
 
 //TODO: Need to check for DLLs (rather than just assemblies) referenced the scene/scripts, and include them in the build. E.G Mathnet.Numerics.dll
 
@@ -284,13 +283,11 @@ namespace VE2.NonCore.Platform.Internal
                 EditorGUI.EndDisabledGroup();
                 return;
             }
-
-            int versionToUse = _highestRemoteVersionFound + 1;
             
-            if (versionToUse == 1)
+            if (_highestRemoteVersionFound == 0)
                 EditorGUILayout.HelpBox("No remote versions found, this will be V1!", (UnityEditor.MessageType)MessageType.Info);
             else
-                EditorGUILayout.HelpBox($"Remote versions found, this will be V{versionToUse}!", (UnityEditor.MessageType)MessageType.Info);
+                EditorGUILayout.HelpBox($"Remote versions found, this will be V{_highestRemoteVersionFound + 1}!", (UnityEditor.MessageType)MessageType.Info);
 
             EditorGUILayout.Separator();
 
@@ -322,16 +319,16 @@ namespace VE2.NonCore.Platform.Internal
             //BUILD ##########################################################################
             //################################################################################
 
-            string destinationPath = Path.Combine("files", "VE2", "Worlds", _environmentType.ToString(), _worldFolderName, (_highestRemoteVersionFound + 1).ToString("D3"));
+            string destinationPath = Path.Combine(Application.persistentDataPath, "files", "VE2", "Worlds", _environmentType.ToString(), _worldFolderName, (_highestRemoteVersionFound + 1).ToString("D3"));
 
             if (GUILayout.Button("Build"))
             {
-                ExecuteBuild(locatedAssemblies, destinationPath, worldName, false, versionToUse);
+                ExecuteBuild(locatedAssemblies, destinationPath, worldName, false);
                 this.Close();
             }
             else if (GUILayout.Button("Build with ECS/Burst"))
             {
-                ExecuteBuild(locatedAssemblies, destinationPath, worldName, true, versionToUse);
+                ExecuteBuild(locatedAssemblies, destinationPath, worldName, true);
                 this.Close();
             }
             
@@ -357,13 +354,8 @@ namespace VE2.NonCore.Platform.Internal
         // }
 
 
-        private void ExecuteBuild(IEnumerable<Assembly> assembliesToInclude, string destinationFolder, string bundleName, bool ecsOrBurst, int version)
+        private void ExecuteBuild(IEnumerable<Assembly> assembliesToInclude, string destinationFolder, string bundleName, bool ecsOrBurst)
         {
-            PlayerSettings.productName = $"VE2-{name}";
-            PlayerSettings.companyName = "com.ImperialCollegeLondon";
-
-            destinationFolder = Path.Combine(Application.persistentDataPath, destinationFolder);
-
             if (_environmentType == EnvironmentType.Windows)
             {
                 BuildWindowsBundle(bundleName, destinationFolder); //editor script problems here
@@ -371,7 +363,7 @@ namespace VE2.NonCore.Platform.Internal
             }
             else if (_environmentType == EnvironmentType.Android)
             {
-                DoAPKBuild(bundleName, destinationFolder, version);
+                DoAPKBuild(bundleName, destinationFolder);
             }
 
             MakeMetadata(destinationFolder);
@@ -516,12 +508,18 @@ namespace VE2.NonCore.Platform.Internal
             Debug.Log($"Delete build folder {buildFolderPath} success: {deleteSuccess}");
         }
 
-        private void DoAPKBuild(string name, string destinationFolder, int version) 
+        private void DoAPKBuild(string name, string destinationFolder) 
         {
-            Debug.Log($"DoAPKBuild: {name}, {destinationFolder}, version: {version}");
+            //TODO: need to change builder to only build this scene - should then switch scene settings back(?)
 
-            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, "com.ImperialCollegeLondon." + name);
-            PlayerSettings.Android.bundleVersionCode = version;
+            string oldProductName = PlayerSettings.productName;
+            string oldAppIdentifier = PlayerSettings.applicationIdentifier;
+
+            PlayerSettings.productName = $"VE2 - {name}";
+            PlayerSettings.applicationIdentifier = "com.ImperialCollegeLondon." + name;
+
+            // Get scenes from the Build Settings
+            //string[] scenes = GetEnabledScenes();
 
             // Define build options
             BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions
@@ -538,12 +536,15 @@ namespace VE2.NonCore.Platform.Internal
 
             if (summary.result == UnityEditor.Build.Reporting.BuildResult.Succeeded)
             {
-                Debug.Log("APK Build succeeded: " + summary.outputPath);
+                Debug.Log("APK Build succeeded: " + summary.totalSize + " bytes");
             }
             else
             {
                 Debug.LogError("APK Build failed: " + summary.result);
             }
+
+            PlayerSettings.productName = oldProductName;
+            PlayerSettings.applicationIdentifier = oldAppIdentifier;
         }
 
         private static string[] GetEnabledScenes()
