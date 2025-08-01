@@ -10,6 +10,8 @@ internal class HubHomePageView : MonoBehaviour
     [SerializeField] private Button _navigateCategoriesRightButton;
     [SerializeField] private VerticalLayoutGroup _verticalCategoriesGroup;
 
+    [SerializeField] private Button _refreshWorldsButton;
+
     [SerializeField] private GameObject _horizontalCategoriesGroupPrefab;
     [SerializeField] private GameObject _categoriesButtonPrefab;
 
@@ -18,6 +20,12 @@ internal class HubHomePageView : MonoBehaviour
 
     public event Action<HubWorldDetails> OnWorldClicked;
     public event Action<WorldCategory> OnCategoryClicked;
+    public event Action OnRefreshWorldsClicked;
+
+    private void Awake()
+    {
+        _refreshWorldsButton.onClick.AddListener(() => OnRefreshWorldsClicked?.Invoke());
+    }
 
     public void SetupView(List<HubWorldDetails> suggestedWorldDetails, List<WorldCategory> worldCategories)
     {
@@ -62,11 +70,25 @@ internal class HubHomePageView : MonoBehaviour
         worldView.SetupView(worldDetails);
         worldView.OnWorldClicked += OnWorldClicked;
     }
-    
+
     private void CreateCategoryView(WorldCategory categoryDetails, HubCatagoryButtonView categoryView)
     {
         categoryView.SetupView(categoryDetails);
         categoryView.OnCategoryClicked += OnCategoryClicked;
+    }
+    
+    public void TearDown()
+    {
+        foreach (var worldView in _suggestedWorldViews)
+        {
+            worldView.gameObject.SetActive(false);
+            worldView.OnWorldClicked -= OnWorldClicked;
+        }
+
+        foreach (Transform child in _verticalCategoriesGroup.transform)
+        {
+            Destroy(child.gameObject);
+        }
     }
 }
 

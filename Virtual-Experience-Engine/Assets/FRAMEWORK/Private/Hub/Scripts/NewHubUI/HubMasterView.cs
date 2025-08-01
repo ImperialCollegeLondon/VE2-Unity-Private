@@ -59,14 +59,11 @@ public class HubMasterView : MonoBehaviour
     [SerializeField] private float _panelMoveDuration = 1.15f;
     [SerializeField] private float _panelRotateDuration = 0.7f;
 
-    public void HandleLoadingComplete()
+    public void HandleUIReady()
     {
         _rightPanelPivot.gameObject.SetActive(true);
         _leftPanelPivot.gameObject.SetActive(true);
         _bottomPanelPivot.gameObject.SetActive(true);
-
-        _loadingScreen.SetActive(false);
-        _mainScreen.SetActive(true);
 
         // Right panel sequence
         Sequence rightSequence = DOTween.Sequence();
@@ -88,5 +85,11 @@ public class HubMasterView : MonoBehaviour
             .Append(rightSequence)
             .Join(leftSequence)
             .Join(bottomSequence);
+    }
+
+    public void ToggleLoadingScreen(bool show)
+    {
+        _loadingScreen.SetActive(show);
+        _mainScreen.SetActive(!show);
     }
 }

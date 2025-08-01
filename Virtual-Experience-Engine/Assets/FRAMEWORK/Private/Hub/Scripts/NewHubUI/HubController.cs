@@ -15,7 +15,7 @@ internal class HubController : MonoBehaviour
 
     [SerializeField] private GameObject _fileSystemGameObject;
     private IFileSystemInternal _fileSystem => _fileSystemGameObject.GetComponent<IFileSystemInternal>();
-    [EditorButton(nameof(HandleRefreshFilesButtonClicked), "Refresh Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
+    [EditorButton(nameof(HandleRefreshButtonClicked), "Refresh Files", activityType: ButtonActivityType.OnPlayMode, Order = -1)]
     [SerializeField] private string folderToSearch = "/";
 
     [SerializeField] private HubMasterView _hubMasterView;
@@ -29,11 +29,21 @@ internal class HubController : MonoBehaviour
     private void Awake()
     {
         _hubHomePageView.OnWorldClicked += HandleWorldClicked;
+        _hubHomePageView.OnRefreshWorldsClicked += HandleRefreshButtonClicked;
         _hubCategoryPageView.OnWorldClicked += HandleWorldClicked;
         _hubHomePageView.OnCategoryClicked += HandleCategoryClicked;
         _hubCategoryPageView.OnBackClicked += HandleBackClicked;
 
         _hubWorldPageView.OnBackClicked += HandleBackClicked;
+
+        _hubMasterView.ToggleLoadingScreen(true);
+    }
+
+    private void HandleRefreshButtonClicked()
+    {
+        _hubHomePageView.TearDown();
+        _hubMasterView.ToggleLoadingScreen(true);
+        StartSearchOfWorldFolders();
     }
 
     private void OnEnable()
@@ -79,7 +89,8 @@ internal class HubController : MonoBehaviour
             return;
         }
 
-        _hubMasterView.HandleLoadingComplete();
+        _hubMasterView.HandleUIReady();
+        _hubMasterView.ToggleLoadingScreen(false);
 
         List<string> localWorlds = _fileSystem.GetLocalFoldersAtPath(folderToSearch);
 
@@ -162,11 +173,6 @@ internal class HubController : MonoBehaviour
         _hubHomePageView.gameObject.SetActive(true);
         _hubCategoryPageView.gameObject.SetActive(false);
         _hubWorldPageView.gameObject.SetActive(false);
-    }
-
-    public void HandleRefreshFilesButtonClicked()
-    {
-        StartSearchOfWorldFolders();
     }
 
     private void OnDisable()
