@@ -16,8 +16,8 @@ MonoBehaviour:
   SecondaryColor: {r: 0, g: 0.5686275, b: 0.82745105, a: 1}
   TertiaryColor: {r: 0.82745105, g: 0.9333334, b: 0.9843138, a: 1}
   QuaternaryColor: {r: 0, g: 0.1254902, b: 0.27450982, a: 1}
-  AccentPrimaryColor: {r: 0, g: 0.97647065, b: 0.79215693, a: 1}
-  AccentSecondaryColor: {r: 0.9215687, g: 0.45098042, b: 0, a: 1}
+  AccentPrimaryColor: {r: 0.008009987, g: 0.8490566, b: 0.6921775, a: 1}
+  AccentSecondaryColor: {r: 0.8490566, g: 0.42556953, b: 0.018689783, a: 1}
   ButtonDisabledColor: {r: 0.31719467, g: 0.3848606, b: 0.41509432, a: 1}
   PointerIdleColor: {r: 0.82745105, g: 0.9333334, b: 0.9843138, a: 1}
   PointerHighlightColor: {r: 0.9215687, g: 0.45098042, b: 0, a: 1}

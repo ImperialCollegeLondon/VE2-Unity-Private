@@ -39,7 +39,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 342, y: 83.279}
+  m_SizeDelta: {x: 341.8, y: 84.92}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &9139424956251962059
 CanvasRenderer:
@@ -69,7 +69,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -1672453250, guid: d8e0274465c348241ae3dba4efd2ad14, type: 3}
+  m_Sprite: {fileID: 2042400451, guid: 647387e819187d241a7b8b56250c3e6d, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -78,7 +78,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1.76
+  m_PixelsPerUnitMultiplier: 1.9
 --- !u!114 &4576137776288370186
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -100,10 +100,10 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 0, g: 0.5686275, b: 0.82745105, a: 1}
-    m_HighlightedColor: {r: 0.9215687, g: 0.45098042, b: 0, a: 1}
-    m_PressedColor: {r: 0.9215687, g: 0.45098042, b: 0, a: 1}
-    m_SelectedColor: {r: 0, g: 0.97647065, b: 0.79215693, a: 1}
+    m_NormalColor: {r: 0, g: 0.1254902, b: 0.27450982, a: 0.88235295}
+    m_HighlightedColor: {r: 0.8490566, g: 0.42556953, b: 0.018689783, a: 1}
+    m_PressedColor: {r: 0.6792453, g: 0.34045562, b: 0.014951827, a: 1}
+    m_SelectedColor: {r: 0.008009987, g: 0.8490566, b: 0.6921775, a: 1}
     m_DisabledColor: {r: 0.31719467, g: 0.3848606, b: 0.41509432, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -136,6 +136,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _colorType: 0
+  _colorAlpha: 1
   _buttonType: 0
 --- !u!1 &7963079322611167700
 GameObject:

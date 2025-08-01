@@ -35,8 +35,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -0.00022888184, y: 9.020497}
-  m_SizeDelta: {x: 0, y: 18.039}
+  m_AnchoredPosition: {x: -0.00022888184, y: 8.4003}
+  m_SizeDelta: {x: 0, y: 16.7987}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &112233526015104152
 CanvasRenderer:
@@ -66,10 +66,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: World Name
+  m_text: Name
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 5e9555234a448f74fa4a573202db0160, type: 2}
-  m_sharedMaterial: {fileID: -7190921755893868752, guid: 5e9555234a448f74fa4a573202db0160,
+  m_fontAsset: {fileID: 11400000, guid: 4389c28e32c9b114b8a5a40d5822fc8f, type: 2}
+  m_sharedMaterial: {fileID: -4840977150820553376, guid: 4389c28e32c9b114b8a5a40d5822fc8f,
     type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -94,12 +94,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 7
+  m_fontSize: 10
   m_fontSizeBase: 7
   m_fontWeight: 400
-  m_enableAutoSizing: 0
-  m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_enableAutoSizing: 1
+  m_fontSizeMin: 6
+  m_fontSizeMax: 10
   m_fontStyle: 0
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
@@ -132,7 +132,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 4.3872147, y: 0, z: 0, w: 0}
+  m_margin: {x: 4.3872147, y: 1.2184387, z: 18.404236, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -153,6 +153,7 @@ MonoBehaviour:
   _colorType: 2
   _colorAlpha: 1
   _buttonType: 0
+  _normalOpacity: 1
 --- !u!1 &2961718327619973799
 GameObject:
   m_ObjectHideFlags: 0
@@ -337,8 +338,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 37.36, y: 9.0205}
-  m_SizeDelta: {x: -84.96, y: 7.87}
+  m_AnchoredPosition: {x: 42.5477, y: 9.0205}
+  m_SizeDelta: {x: -95.3355, y: 7.87}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &654678735203987669
 CanvasRenderer:
@@ -510,11 +511,11 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 0, g: 0.5686275, b: 0.82745105, a: 1}
-    m_HighlightedColor: {r: 0.9215687, g: 0.45098042, b: 0, a: 1}
-    m_PressedColor: {r: 0.737255, g: 0.36078435, b: 0, a: 0.8}
-    m_SelectedColor: {r: 0, g: 0.97647065, b: 0.79215693, a: 1}
-    m_DisabledColor: {r: 0.31719467, g: 0.3848606, b: 0.41509432, a: 1}
+    m_NormalColor: {r: 0, g: 0.1254902, b: 0.27450982, a: 0.8823529}
+    m_HighlightedColor: {r: 0.8490566, g: 0.42556953, b: 0.018689783, a: 0.4}
+    m_PressedColor: {r: 0.6792453, g: 0.34045562, b: 0.014951827, a: 0.4}
+    m_SelectedColor: {r: 0.008009987, g: 0.8490566, b: 0.6921775, a: 0.4}
+    m_DisabledColor: {r: 0.31719467, g: 0.3848606, b: 0.41509432, a: 0.4}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -548,6 +549,7 @@ MonoBehaviour:
   _colorType: 1
   _colorAlpha: 0.4
   _buttonType: 0
+  _normalOpacity: 0.8823529
 --- !u!1 &7644637591703794983
 GameObject:
   m_ObjectHideFlags: 0

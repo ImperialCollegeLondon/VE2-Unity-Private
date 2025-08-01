@@ -31,6 +31,7 @@ namespace VE2.Common.Shared
         [SerializeField, HideIf(nameof(_hasButton), true)] private ColorType _colorType;
         [SerializeField] private float _colorAlpha = 1f;
         [SerializeField, HideIf(nameof(_hasButton), false)] private ButtonType _buttonType;
+        [SerializeField, HideIf(nameof(_hasButton), false)] private float _normalOpacity = 1f;
         //[SerializeField, ]
 
 
@@ -122,6 +123,7 @@ namespace VE2.Common.Shared
         }
 
         Color ApplyAlpha(Color color) => new Color(color.r, color.g, color.b, _colorAlpha);
+        Color ApplyAlpha(Color color, float alpha) => new Color(color.r, color.g, color.b, alpha);
 
         private void UpdateColor()
         {
@@ -252,7 +254,7 @@ namespace VE2.Common.Shared
                 {
                     _buttonNonSelectedColors = new ColorBlock
                     {
-                        normalColor = ApplyAlpha(_colorConfiguration.SecondaryColor),
+                        normalColor = ApplyAlpha(_colorConfiguration.QuaternaryColor, _normalOpacity),
                         highlightedColor = ApplyAlpha(_colorConfiguration.AccentSecondaryColor),
                         pressedColor = ApplyAlpha(_colorConfiguration.AccentSecondaryColor * 0.8f),
                         selectedColor = ApplyAlpha(_colorConfiguration.AccentPrimaryColor),
@@ -269,7 +271,7 @@ namespace VE2.Common.Shared
                 {
                     _buttonNonSelectedColors = new ColorBlock
                     {
-                        normalColor = ApplyAlpha(_colorConfiguration.TertiaryColor),
+                        normalColor = ApplyAlpha(_colorConfiguration.TertiaryColor, _normalOpacity),
                         highlightedColor = ApplyAlpha(_colorConfiguration.AccentSecondaryColor),
                         pressedColor = ApplyAlpha(_colorConfiguration.AccentSecondaryColor * 0.8f),
                         selectedColor = ApplyAlpha(_colorConfiguration.AccentPrimaryColor),
