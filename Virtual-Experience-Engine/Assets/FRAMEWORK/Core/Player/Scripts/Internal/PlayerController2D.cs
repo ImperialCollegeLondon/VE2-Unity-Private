@@ -96,7 +96,7 @@ namespace VE2.Core.Player.Internal
 
             _interactor2D = new(
                 interactorContainer, grabInteractablesContainer, player2DInputContainer.InteractorInputContainer2D, interactionConfig,
-                player2DReferences.Interactor2DReferences, InteractorType.Mouse2D, raycastProvider, localClientIDWrapper, localAdminIndicator, _inspectModeIndicator, grabbingIndicator, adjustableActiveIndicator);
+                player2DReferences.Interactor2DReferences, player2DReferences.Camera, InteractorType.Mouse2D, raycastProvider, localClientIDWrapper, localAdminIndicator, _inspectModeIndicator, grabbingIndicator, adjustableActiveIndicator);
 
             _feetInteractor2D = new(collisionDetectorFactory, ColliderType.Feet2D, player2DReferences.Interactor2DReferences.FeetCollider, InteractorType.Feet, localClientIDWrapper, localAdminIndicator, interactionConfig);
             _playerLocomotor2D = new(player2DReferences.Locomotor2DReferences, movementModeConfig, _inspectModeIndicator, player2DInputContainer.PlayerLocomotor2DInputContainer, Resources.Load<Player2DMovementConfig>("Player2DMovementConfig"), grabbingIndicator, adjustableActiveIndicator);

@@ -25,11 +25,11 @@ namespace VE2.Core.Player.Internal
         private Tween _inspectModeTween = null;
         private readonly FreeGrabbingIndicator _grabbingIndicator;
         private readonly AdjustableActiveIndicator _adjustableActiveIndicator;
-
+        private Camera _camera;
         private IRangedFreeGrabInteractionModule _rangedFreeGrabbingGrabbable => _CurrentGrabbingGrabbable as IRangedFreeGrabInteractionModule;
 
         internal Interactor2D(HandInteractorContainer interactorContainer, IGrabInteractablesContainer grabInteractablesContainer, Interactor2DInputContainer interactor2DInputContainer,
-            PlayerInteractionConfig interactionConfig, InteractorReferences interactorReferences, InteractorType interactorType, IRaycastProvider raycastProvider,
+            PlayerInteractionConfig interactionConfig, InteractorReferences interactorReferences, Camera camera, InteractorType interactorType, IRaycastProvider raycastProvider,
             ILocalClientIDWrapper localClientIDWrapper, ILocalAdminIndicator localAdminIndicator, InspectModeIndicator inspectModeIndicator, FreeGrabbingIndicator grabbingIndicator, AdjustableActiveIndicator adjustableActiveIndicator) :
             base(interactorContainer, grabInteractablesContainer, interactor2DInputContainer, interactionConfig,
                 interactorReferences, interactorType, raycastProvider, localClientIDWrapper, localAdminIndicator, null, new HoveringOverScrollableIndicator())
@@ -43,6 +43,7 @@ namespace VE2.Core.Player.Internal
             _connectionPromptHandler = interactor2DReferences.ConnectionPromptHandler;
             _grabberInspectGuideTransform = interactor2DReferences.GrabberInspectTransform;
             _interactor2DInputContainer = interactor2DInputContainer;
+            _camera = camera;
         }
 
         protected override void SetInteractorState(InteractorState newState)
@@ -108,10 +109,6 @@ namespace VE2.Core.Player.Internal
         {
             Vector2 mouseDelta = _interactor2DInputContainer.MouseInput.Value;
 
-            Camera cam = VE2API.Player.ActiveCamera;
-
-            //TODO inject camera transform reference
-
             //TODO - calculation of the plane normal should be done in the ranged adjustable interaction module, not here
             //if it needs the camera, we can pass it in as a parameter
 
@@ -136,7 +133,7 @@ namespace VE2.Core.Player.Internal
             else
             {
                 // Axis is vertical — find the direction toward the camera projected onto the plane perpendicular to the axis
-                Vector3 toCamera = cam.transform.position - pos;
+                Vector3 toCamera = _camera.transform.position - pos;
 
                 Vector3 projected = Vector3.ProjectOnPlane(toCamera, adjustableAdjustmentAxis);
 
@@ -160,11 +157,11 @@ namespace VE2.Core.Player.Internal
             Vector3 screenDelta = new Vector3(mouseDelta.x, mouseDelta.y, 0);
 
             // 2. Compute a target screen position relative to current position
-            Vector3 screenPos = cam.WorldToScreenPoint(_GrabberTransform.position);
+            Vector3 screenPos = _camera.WorldToScreenPoint(_GrabberTransform.position);
             Vector3 targetScreenPos = screenPos + screenDelta;
 
             // 3. Cast ray from target screen position
-            Ray targetRay = cam.ScreenPointToRay(targetScreenPos);
+            Ray targetRay = _camera.ScreenPointToRay(targetScreenPos);
 
             // 4. Define the movement plane using the normal and the grab point
             Plane movementPlane = new Plane(planeNormal, _GrabberTransform.position);
@@ -186,7 +183,7 @@ namespace VE2.Core.Player.Internal
             }
             
             Debug.DrawRay(pos, planeNormal, Color.white);
-            Debug.DrawRay(cam.transform.position, cam.transform.right * 10, Color.yellow);
+            Debug.DrawRay(_camera.transform.position, _camera.transform.right * 10, Color.yellow);
         }
 
 
