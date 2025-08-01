@@ -357,7 +357,7 @@ namespace VE2.NonCore.Platform.Internal
         // }
 
 
-        private void ExecuteBuild(IEnumerable<Assembly> assembliesToInclude, string destinationFolder, string bundleName, bool ecsOrBurst, int version)
+        private void ExecuteBuild(IEnumerable<Assembly> assembliesToInclude, string destinationFolder, string worldName, bool ecsOrBurst, int version)
         {
             PlayerSettings.productName = $"VE2-{name}";
             PlayerSettings.companyName = "com.ImperialCollegeLondon";
@@ -366,12 +366,12 @@ namespace VE2.NonCore.Platform.Internal
 
             if (_environmentType == EnvironmentType.Windows)
             {
-                BuildWindowsBundle(bundleName, destinationFolder); //editor script problems here
-                DoWindowsScriptOnlyBuild(destinationFolder, assembliesToInclude.Select(ExtractFileName), bundleName, ecsOrBurst); //AND here!
+                BuildWindowsBundle(worldName, destinationFolder); //editor script problems here
+                DoWindowsScriptOnlyBuild(destinationFolder, assembliesToInclude.Select(ExtractFileName), worldName, ecsOrBurst); //AND here!
             }
             else if (_environmentType == EnvironmentType.Android)
             {
-                DoAPKBuild(bundleName, destinationFolder, version);
+                DoAPKBuild(worldName, destinationFolder, version);
             }
 
             MakeMetadata(destinationFolder);

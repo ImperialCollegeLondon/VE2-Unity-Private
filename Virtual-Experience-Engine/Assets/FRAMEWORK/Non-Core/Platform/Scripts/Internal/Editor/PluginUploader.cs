@@ -76,7 +76,7 @@ namespace VE2.NonCore.Platform.Internal
             _fileSystem = FileSystemServiceFactory.CreateFileStorageService(ftpNetworkSettings, remotePath, localPath);
 
             List<string> localWorldVersions = _fileSystem.GetLocalFoldersAtPath(_worldFolderName);
-            Debug.Log("Searched for local folders, found " + localWorldVersions.Count);
+            Debug.Log("Searched for local folders at path " + localPath + "/" + _worldFolderName + ", found " + localWorldVersions.Count);
             foreach (string folder in localWorldVersions)
             {
                 Debug.Log(folder);
@@ -235,6 +235,7 @@ namespace VE2.NonCore.Platform.Internal
             if (_highestLocalVersionFound == 0)
             {
                 EditorGUILayout.HelpBox("No local versions found, please build your plugin", (UnityEditor.MessageType)MessageType.Warning);
+                Debug.LogWarning("No local versions found, please build your plugin");
                 return;
             }
             else if (_highestLocalVersionFound <= _highestRemoteVersionFound)
