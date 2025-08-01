@@ -15,7 +15,7 @@ namespace VE2.Core.Player.Internal
         private const float INSPECT_MIN_ZOOM = 2.0f;
         private const float INSPECT_MAX_ZOOM = 5.0f;
         private const float INSPECT_ROTATE_SPEED = 0.1f;
-        private const float MOUSE_ADJUSTABLE_SPEED = 0.005f;
+        private const float MOUSE_ADJUSTABLE_SPEED = 0.008f;
         private ColorConfiguration _colorConfig => ColorConfiguration.Instance;
         private readonly Image _reticuleImage;
         private readonly PlayerConnectionPromptHandler _connectionPromptHandler;
@@ -108,10 +108,7 @@ namespace VE2.Core.Player.Internal
         {
             Vector2 mouseDelta = _interactor2DInputContainer.MouseInput.Value;
 
-            Transform cam = VE2API.Player.ActiveCamera.transform;
-
-            //TODO - Plane normal seems correct, but there's something wrong with the mouse move vector. 
-            //When moving mouse right, I would expect to see the mouse move right across the screen, but it seems to go slightly diagonal (see line 163)
+            Camera cam = VE2API.Player.ActiveCamera;
 
             //TODO inject camera transform reference
 
@@ -138,11 +135,11 @@ namespace VE2.Core.Player.Internal
             }
             else
             {
-                // Axis is vertical — find the direction toward the camera projected onto the plane
-                Vector3 toCamera = cam.position - pos;
+                // Axis is vertical — find the direction toward the camera projected onto the plane perpendicular to the axis
+                Vector3 toCamera = cam.transform.position - pos;
 
-                // Project camera vector onto plane orthogonal to axis
                 Vector3 projected = Vector3.ProjectOnPlane(toCamera, adjustableAdjustmentAxis);
+
                 if (projected.sqrMagnitude >= 1e-6f)
                 {
                     planeNormal = projected.normalized;
@@ -154,24 +151,44 @@ namespace VE2.Core.Player.Internal
                 }
             }
 
+            //=== Now, we need to work out how to move the grabber transform based on the mouse delta and the normal 
+            //If we move right, we want to move the grabber right across the screen, so it's more inolved than just projecting the mouse delta onto the plane
+            //if the position we want to move to doesn't resolve to a position on the plane, that's fine, just don't do anything 
+            //That only happens when we're looking at the adjustable from a very weird angle anyway
+        
+            // 1. Compute screen-space delta as before
+            Vector3 screenDelta = new Vector3(mouseDelta.x, mouseDelta.y, 0);
+
+            // 2. Compute a target screen position relative to current position
+            Vector3 screenPos = cam.WorldToScreenPoint(_GrabberTransform.position);
+            Vector3 targetScreenPos = screenPos + screenDelta;
+
+            // 3. Cast ray from target screen position
+            Ray targetRay = cam.ScreenPointToRay(targetScreenPos);
+
+            // 4. Define the movement plane using the normal and the grab point
+            Plane movementPlane = new Plane(planeNormal, _GrabberTransform.position);
+
+            // 5. Intersect the ray with the movement plane
+            if (movementPlane.Raycast(targetRay, out float enter))
+            {
+                Vector3 targetWorldPos = targetRay.GetPoint(enter);
+                Vector3 rawDelta = targetWorldPos - _GrabberTransform.position;
+
+                // Only move if the ray intersection is meaningful
+                if (rawDelta.sqrMagnitude > 1e-6f)
+                {
+                    // Normalize and scale to get fixed world-space movement
+                    Vector3 moveDirection = rawDelta.normalized;
+
+                    _GrabberTransform.position += moveDirection * MOUSE_ADJUSTABLE_SPEED;
+                }
+            }
+            
             Debug.DrawRay(pos, planeNormal, Color.white);
-
-            // Project camera's right and up onto the plane to get movement axes
-            Vector3 moveRight = Vector3.ProjectOnPlane(cam.right, planeNormal).normalized;
-            Vector3 moveUp = Vector3.ProjectOnPlane(cam.up, planeNormal).normalized;
-
-            // PROBLEM: I would expect this to line up with the yellow line (camera.right), the difference between the two is less when looking at the adjustable head on
-            Debug.DrawRay(cam.position, cam.right * 10, Color.yellow);
-            Debug.DrawRay(cam.position, moveRight * 10, Color.cyan);
-            //===
-
-            Debug.DrawRay(cam.position, moveUp * 10, Color.magenta);
-
-            Vector3 moveVector = (moveRight * mouseDelta.x + moveUp * mouseDelta.y) * MOUSE_ADJUSTABLE_SPEED; 
-            Debug.Log($"Move Vector: {moveVector} - mouse delta x: {mouseDelta.x} - mouse delta y: {mouseDelta.y} - moveRight: {moveRight} - moveUp: {moveUp}");
-
-            _GrabberTransform.position += moveVector;
+            Debug.DrawRay(cam.transform.position, cam.transform.right * 10, Color.yellow);
         }
+
 
         protected override void HandleStopGrabbingAdjustable()
         {
