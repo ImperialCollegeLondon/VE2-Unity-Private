@@ -9,6 +9,8 @@ using Unity.Burst;
 using VE2.NonCore.FileSystem.Internal;
 using VE2.NonCore.FileSystem.API;
 using VE2.Core.Player.API;
+using System;
+using System.Threading.Tasks;
 
 namespace VE2.NonCore.Platform.Internal
 {
@@ -124,33 +126,41 @@ namespace VE2.NonCore.Platform.Internal
             SceneManager.LoadScene(scenePath[0], LoadSceneMode.Single);
         }
 
-        private void LaunchAndroidAPK(string worldFolderName) //TODO: Version number will have to be part of apk name?
+    private async void LaunchAndroidAPK(string worldFolderName)
+    {
+        //TODO - company name may not always be ImperialCollegeLondon... maybe we should store it in the apk name, or a metadata file?
+        string packageName = $"com.ImperialCollegeLondon.{worldFolderName}";
+
+        Debug.Log($"Try launch {packageName}");
+
+        // Get Unity activity and launch intent
+        AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+        AndroidJavaObject currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+        AndroidJavaObject intent = new AndroidJavaObject("android.content.Intent");
+
+        intent.Call<AndroidJavaObject>("setClassName", packageName, "com.unity3d.player.UnityPlayerGameActivity");
+
+        if (intent != null)
         {
-            // string apkName = worldFolderName.Split('-')[1]; //Chop off the category
-            // string packageName = $"{"com.ImperialCollegeLondon"}.{apkName}";
-            string packageName = $"com.ImperialCollegeLondon.{worldFolderName}";
+            // Add any arguments from services
+            intent = _platformSettingsHandler.AddArgsToIntent(intent);
+            intent = _playerServiceInternal.AddArgsToIntent(intent);
 
-            Debug.Log($"Try launch {packageName}");
-            AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-            AndroidJavaObject currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-            AndroidJavaObject intent = new AndroidJavaObject("android.content.Intent");
+            currentActivity.Call("startActivity", intent);
+            Debug.Log("App launched successfully");
 
-            // Set the target package and activity
-            intent.Call<AndroidJavaObject>("setClassName", packageName, "com.unity3d.player.UnityPlayerGameActivity");
-
-            if (intent != null)
-            {
-                intent = _platformSettingsHandler.AddArgsToIntent(intent);
-                intent = _playerServiceInternal.AddArgsToIntent(intent);
-
-                currentActivity.Call("startActivity", intent);
-                Debug.Log("App launched successfully");
-            }
-            else
-            {
-                Debug.LogError("Launch intent is null. The app might not be installed.");
-            }
+            // Finish and remove VE2 hub from task stack
+            currentActivity.Call("finishAndRemoveTask"); // finish() also works, but this is cleaner
+            AndroidJavaClass process = new AndroidJavaClass("android.os.Process");
+            int pid = process.CallStatic<int>("myPid");
+            process.CallStatic("killProcess", pid);
         }
+        else
+        {
+            Debug.LogError("Launch intent is null. The app might not be installed.");
+        }
+    }
+
 
         Dictionary<string, Assembly> registeredAssemblies = new Dictionary<string, Assembly>();
         private void RegisterAssembly(string path)
