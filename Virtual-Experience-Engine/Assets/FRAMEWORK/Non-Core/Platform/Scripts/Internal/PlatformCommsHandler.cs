@@ -65,6 +65,14 @@ namespace VE2.NonCore.Platform.Internal
         {
             _drClient = drClient;
             _drClient.MessageReceived += OnMessageReceived;
+            _drClient.Disconnected += HandleDisconnected;
+        }
+
+        private void HandleDisconnected(object sender, EventArgs e)
+        {
+            Debug.LogWarning("Disconnected from platform server.");
+            IsReadyToTransmit = false;
+            OnDisconnectedFromServer?.Invoke();
         }
 
         private void OnMessageReceived(object sender, MessageReceivedEventArgs e)

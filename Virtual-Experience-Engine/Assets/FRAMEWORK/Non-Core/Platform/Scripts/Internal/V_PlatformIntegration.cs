@@ -117,6 +117,7 @@ namespace VE2.NonCore.Platform.Internal
 
         public event Action OnAuthFailed;
         public event Action OnConnectedToServer;
+        public event Action OnDisconnectedFromServer;
         public event Action OnLeavingInstance;
 
         event Action<Dictionary<string, PlatformPublicSerializables.PlatformInstanceInfo>> IPlatformServiceInternal.OnInstanceInfosChanged
@@ -144,6 +145,21 @@ namespace VE2.NonCore.Platform.Internal
             catch (Exception ex)
             {
                 Debug.LogError($"Error when emitting OnConnectedToServer: {ex.Message}, {ex.StackTrace}");
+            }
+        }
+
+        public void DisconnectFromPlatform()
+        {
+            IsConnectedToServer = false;
+            Debug.Log("Disconnected from debug platform service");
+
+            try
+            {
+                OnDisconnectedFromServer?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Error when emitting OnDisconnectedFromServer: {ex.Message}, {ex.StackTrace}");
             }
         }
 
@@ -206,6 +222,7 @@ namespace VE2.NonCore.Platform.Internal
         public List<PlatformPublicSerializables.PlatformInstanceInfo> GetInstanceInfosForWorldName(string worldName) => new();
 
         public List<PlatformPublicSerializables.InstanceCode> GetInstanceCodesForWorldName(string worldName) => new();
+
         public PlayerSerializables.BuiltInPlayerPresentationConfig LocalPlayerPresentationConfig => new();
 
         public bool IsLocalPlayerAdmin => _localAdminIndicatorWritable.IsLocalAdmin; //TODO: In real service, this comes from client info

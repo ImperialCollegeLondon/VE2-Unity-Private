@@ -14,6 +14,7 @@ namespace VE2.NonCore.Platform.API
     {
         public bool IsConnectedToServer { get; }
         public event Action OnConnectedToServer;
+        public event Action OnDisconnectedFromServer;
         public string CurrentInstanceNumber { get; }
         public string CurrentWorldName { get; }
         public event Action OnLeavingInstance; //TODO - used internally, should move to IPlatformServiceInternal?

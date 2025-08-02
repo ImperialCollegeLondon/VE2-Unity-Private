@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening;
+using UnityEditorInternal;
 using UnityEngine;
 using VE2.Common.API;
 using VE2.NonCore.FileSystem.API;
@@ -54,7 +56,7 @@ internal class HubController : MonoBehaviour
         _platformService.UpdateSettings(_platformServerConnectionSettings, hubInstanceCode);
         _platformService.ConnectToPlatform();
 
-        Application.focusChanged += OnFocusChanged;
+        //Application.focusChanged += OnFocusChanged;
 
         if (_fileSystem.IsFileSystemReady)
             HandleFileSystemReady();
@@ -64,7 +66,7 @@ internal class HubController : MonoBehaviour
 
     private void Update()
     {
-        _hubWorldPageHandler?.HandleUpdate();   
+        _hubWorldPageHandler?.HandleUpdate();
     }
 
     private void HandleFileSystemReady()
@@ -191,19 +193,56 @@ internal class HubController : MonoBehaviour
 
     private void OnFocusChanged(bool hasFocus)
     {
-        //Debug.Log("Focus changed: " + hasFocus);
-        if (Application.platform == RuntimePlatform.Android)
+        // //Debug.Log("Focus changed: " + hasFocus);
+        // if (Application.platform == RuntimePlatform.Android)
+        // {
+        //     if (hasFocus)
+        //     {
+        //         OnEnable();
+        //     }
+        //     else
+        //     {
+        //         //This happens when we go to a plugin
+        //         //We need to disconnect from the server
+        //         OnDisable();
+        //     }
+        // }
+    }
+
+#if UNITY_EDITOR
+    private void Start()
+    {
+        UnityEditor.EditorApplication.pauseStateChanged += state => HandleAppLifecycleChanged(state == UnityEditor.PauseState.Paused);
+    }
+#else
+    void OnApplicationPause(bool pause)
+    {
+        HandleAppLifecycleChanged(pause);
+    }
+#endif
+
+    private void HandleAppLifecycleChanged(bool isPaused)
+    {
+        Debug.Log("Application paused: " + isPaused);
+
+        if (!isPaused)
         {
-            if (hasFocus)
+            //Delay to give us time to figure out we disconnected at all
+            DOVirtual.DelayedCall(0.1f, () =>
             {
-                OnEnable();
-            }
-            else
-            {
-                //This happens when we go to a plugin
-                //We need to disconnect from the server
-                OnDisable();
-            }
+                if (!_platformService.IsConnectedToServer)
+                {
+                    Debug.Log("Reconnecting to platform after app resume");
+                    _platformService.ConnectToPlatform();
+                }
+            });
+        }
+        else
+        {
+            //This happens when we go to a plugin
+            //We need to disconnect from the server
+            Debug.Log("Hub paused.... disconnecting from platform");
+            _platformService.DisconnectFromPlatform();
         }
     }
 }

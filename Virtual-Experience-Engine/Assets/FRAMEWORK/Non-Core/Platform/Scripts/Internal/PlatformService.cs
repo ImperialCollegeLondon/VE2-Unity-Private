@@ -46,6 +46,7 @@ namespace VE2.NonCore.Platform.Internal
 
         public bool IsConnectedToServer { get; private set; }
         public event Action OnConnectedToServer;
+        public event Action OnDisconnectedFromServer;
         public bool IsAuthFailed { get; private set; }
         public event Action OnAuthFailed;
         public GlobalInfo GlobalInfo { get; private set; }
@@ -147,6 +148,14 @@ namespace VE2.NonCore.Platform.Internal
             _commsHandler.ConnectToServerAsync(IPAddress.Parse(_platformSettingsHandler.PlatformServerConnectionSettings.ServerAddress), _platformSettingsHandler.PlatformServerConnectionSettings.ServerPort);
         }
 
+        //Also called by hub when the app is paused
+        //Problem is then that the platform's local id will change... does that matter?
+        public void DisconnectFromPlatform()
+        {
+            Debug.Log("Disconnecting from platform");
+            _commsHandler.DisconnectFromServer();
+        }
+
         internal event Action<InstanceCode> OnInstanceCodeChange;
 
         /*
@@ -238,6 +247,7 @@ namespace VE2.NonCore.Platform.Internal
             commsHandler.OnReceiveNetcodeConfirmation += HandleReceiveNetcodeVersion;
             commsHandler.OnReceiveServerRegistrationConfirmation += HandleReceiveServerRegistrationResponse;
             commsHandler.OnReceiveGlobalInfoUpdate += HandleReceiveGlobalInfoUpdate;
+            commsHandler.OnDisconnectedFromServer += HandleDisconnectedFromServer;
 
             if (primaryUIService != null)
             {
@@ -362,6 +372,21 @@ namespace VE2.NonCore.Platform.Internal
             else
             {
                 _pluginLoader.LoadPlugin(newInstanceInfo.InstanceCode.WorldName, newInstanceInfo.InstanceCode.VersionNumber);
+            }
+        }
+
+        private void HandleDisconnectedFromServer()
+        {
+            Debug.LogWarning("Disconnected from platform server.");
+            IsConnectedToServer = false;
+
+            try
+            {
+                OnDisconnectedFromServer?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Error invoking OnDisconnectedFromServer: {ex}");
             }
         }
 

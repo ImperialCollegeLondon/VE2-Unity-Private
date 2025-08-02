@@ -16626,7 +16626,6 @@ GameObject:
   m_Component:
   - component: {fileID: 653288547}
   - component: {fileID: 653288549}
-  - component: {fileID: 653288548}
   m_Layer: 5
   m_Name: LoadingPage
   m_TagString: Untagged
@@ -16655,32 +16654,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &653288548
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 653288546}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 91262b304e869f142a85ef27c495a138, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _suggestedWorldViews:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  _navigateCategoriesLeftButton: {fileID: 0}
-  _navigateCategoriesRightButton: {fileID: 0}
-  _verticalCategoriesGroup: {fileID: 0}
-  _refreshWorldsButton: {fileID: 0}
-  _horizontalCategoriesGroupPrefab: {fileID: 8475213699521987210, guid: 5bdfca99a6f27664f9b2def44fc38309,
-    type: 3}
-  _categoriesButtonPrefab: {fileID: 4906023115843426604, guid: 260900c84c4855545922d6f9e95f5cbf,
-    type: 3}
 --- !u!222 &653288549
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -72857,7 +72830,6 @@ GameObject:
   - component: {fileID: 1999166960}
   - component: {fileID: 1999166963}
   - component: {fileID: 1999166962}
-  - component: {fileID: 1999166961}
   - component: {fileID: 1999166964}
   m_Layer: 5
   m_Name: IntroText
@@ -72885,22 +72857,6 @@ RectTransform:
   m_AnchoredPosition: {x: -0.00086975, y: 81.118}
   m_SizeDelta: {x: 161.16, y: 53.916}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1999166961
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1999166959}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 708619ab7d1640b4d9aee80546ffeb1f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _colorType: 2
-  _colorAlpha: 1
-  _buttonType: 0
-  _normalOpacity: 1
 --- !u!114 &1999166962
 MonoBehaviour:
   m_ObjectHideFlags: 0

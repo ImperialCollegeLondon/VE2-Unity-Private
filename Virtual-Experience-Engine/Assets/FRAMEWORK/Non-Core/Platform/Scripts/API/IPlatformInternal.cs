@@ -15,6 +15,7 @@ namespace VE2.NonCore.Platform.API
         public event Action<Dictionary<string, PlatformInstanceInfo>> OnInstanceInfosChanged;
 
         public void ConnectToPlatform();
+        public void DisconnectFromPlatform();
 
         public string PlayerDisplayName { get; }
 
